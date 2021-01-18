@@ -1,0 +1,738 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GameconfigEditorv4</class>
+ <widget class="QWidget" name="GameconfigEditorv4">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>782</width>
+    <height>425</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="1">
+    <widget class="QLabel" name="sectionLabel">
+     <property name="text">
+      <string>Details</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" rowspan="2">
+    <widget class="QListWidget" name="sectionList">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>150</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>150</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <item>
+      <property name="text">
+       <string>General</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Objects</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>SoundFX</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Global Variables</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Players</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Categories</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QStackedWidget" name="detailsWidget">
+     <widget class="QWidget" name="generalPage">
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="2">
+        <widget class="QLineEdit" name="gameName"/>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Game Name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="3">
+        <widget class="QPushButton" name="editPalette">
+         <property name="text">
+          <string>Edit Palette</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QPlainTextEdit" name="gameDescription">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>75</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Game Description</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="objectsPage">
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Script</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" rowspan="4">
+        <widget class="QListWidget" name="objList">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>194</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLineEdit" name="objName"/>
+       </item>
+       <item row="3" column="3">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="3">
+        <widget class="QLineEdit" name="objScript"/>
+       </item>
+       <item row="4" column="0">
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="1" column="3">
+          <widget class="QToolButton" name="downObj">
+           <property name="text">
+            <string>D</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="0">
+          <widget class="QToolButton" name="addObj">
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QToolButton" name="upObj">
+           <property name="text">
+            <string>U</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="5">
+          <widget class="QToolButton" name="rmObj">
+           <property name="text">
+            <string>-</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="4">
+          <spacer name="horizontalSpacer_11">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="2" colspan="2">
+        <widget class="QLabel" name="objType">
+         <property name="text">
+          <string>Object Type ID: 0</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="sfxPage">
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="0" rowspan="3">
+        <widget class="QListWidget" name="sfxList">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>194</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLineEdit" name="sfxName"/>
+       </item>
+       <item row="2" column="2">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>311</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="3" column="0">
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="0" column="0">
+          <widget class="QToolButton" name="addSfx">
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QToolButton" name="upSfx">
+           <property name="text">
+            <string>U</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QToolButton" name="downSfx">
+           <property name="text">
+            <string>D</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="5">
+          <widget class="QToolButton" name="rmSfx">
+           <property name="text">
+            <string>-</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <spacer name="horizontalSpacer_10">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Path</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLineEdit" name="sfxPath"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="variablesPage">
+      <layout class="QGridLayout" name="gridLayout_8">
+       <item row="0" column="2">
+        <widget class="QLineEdit" name="varName"/>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <layout class="QGridLayout" name="gridLayout_7">
+         <item row="0" column="5">
+          <widget class="QToolButton" name="rmVar">
+           <property name="text">
+            <string>-</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QToolButton" name="downVar">
+           <property name="text">
+            <string>D</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="2">
+          <widget class="QToolButton" name="upVar">
+           <property name="text">
+            <string>U</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QToolButton" name="addVar">
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <spacer name="horizontalSpacer_9">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="2">
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>282</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="0" rowspan="3">
+        <widget class="QListWidget" name="varList">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>194</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Value</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QSpinBox" name="varValue">
+         <property name="maximum">
+          <number>999999999</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="playersPage">
+      <layout class="QGridLayout" name="gridLayout_11">
+       <item row="1" column="2">
+        <spacer name="verticalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>311</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLineEdit" name="plrName"/>
+       </item>
+       <item row="0" column="0" rowspan="2">
+        <widget class="QListWidget" name="plrList">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>194</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>Name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <layout class="QGridLayout" name="gridLayout_10">
+         <item row="0" column="5">
+          <widget class="QToolButton" name="rmPlr">
+           <property name="text">
+            <string>-</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="3">
+          <widget class="QToolButton" name="downPlr">
+           <property name="text">
+            <string>D</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QToolButton" name="upPlr">
+           <property name="text">
+            <string>U</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QToolButton" name="addPlr">
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <spacer name="horizontalSpacer_8">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="categoriesPage">
+      <layout class="QGridLayout" name="gridLayout_13">
+       <item row="0" column="2">
+        <widget class="QLineEdit" name="scnName"/>
+       </item>
+       <item row="4" column="2">
+        <spacer name="verticalSpacer_6">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>226</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="label_10">
+         <property name="text">
+          <string>Folder</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLineEdit" name="scnFolder"/>
+       </item>
+       <item row="6" column="0">
+        <layout class="QGridLayout" name="gridLayout_12">
+         <item row="0" column="0">
+          <widget class="QToolButton" name="addScn">
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="6">
+          <widget class="QToolButton" name="rmScn">
+           <property name="text">
+            <string>-</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QToolButton" name="upScn">
+           <property name="text">
+            <string>U</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <spacer name="horizontalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="4">
+          <spacer name="horizontalSpacer_7">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="3">
+          <widget class="QToolButton" name="downScn">
+           <property name="text">
+            <string>D</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_12">
+         <property name="text">
+          <string>Name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="label_13">
+         <property name="text">
+          <string>ID</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QLineEdit" name="scnID"/>
+       </item>
+       <item row="0" column="0" rowspan="5">
+        <widget class="QTreeView" name="scnTree">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" colspan="2">
+        <widget class="QCheckBox" name="scnHighlighted">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;if checked this will be the highlighted text on dev menu (used for act 1's that have entire names e.g. &amp;quot;Green Hill Zone 1&amp;quot; would be highlighted, and &amp;quot;2&amp;quot; (GHZ2) wouldn't be)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string>Highlighted on Dev Menu</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

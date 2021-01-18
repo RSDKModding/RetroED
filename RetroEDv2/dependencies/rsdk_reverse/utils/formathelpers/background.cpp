@@ -1,0 +1,500 @@
+#include "include.hpp"
+
+void FormatHelpers::Background::read(byte ver, QString filename)
+{
+    Reader reader(filename);
+
+    m_hScroll.clear();
+    m_vScroll.clear();
+    m_layers.clear();
+
+    switch (ver) {
+        default: break;
+        case ENGINE_v1: {
+            RSDKv1::Background bg(reader);
+
+            for (RSDKv1::Background::ScrollInfo &scr : bg.m_hScroll) {
+                ScrollInfo scroll;
+                scroll.m_behaviour     = scr.m_behaviour;
+                scroll.m_relativeSpeed = scr.m_relativeSpeed / 64.0f;
+                scroll.m_constantSpeed = (scr.m_constantSpeed << 10) / 65536.0f;
+
+                m_hScroll.append(scroll);
+            }
+
+            for (RSDKv1::Background::ScrollInfo &scr : bg.m_vScroll) {
+                ScrollInfo scroll;
+                scroll.m_behaviour     = scr.m_behaviour;
+                scroll.m_relativeSpeed = scr.m_relativeSpeed / 64.0f;
+                scroll.m_constantSpeed = (scr.m_constantSpeed << 10) / 65536.0f;
+
+                m_vScroll.append(scroll);
+            }
+
+            for (RSDKv1::Background::Layer &lyr : bg.m_layers) {
+                Layer layer;
+                layer.m_width         = lyr.m_width;
+                layer.m_height        = lyr.m_height;
+                layer.m_behaviour     = lyr.m_behaviour;
+                layer.m_relativeSpeed = lyr.m_relativeSpeed / 64.0f;
+                layer.m_constantSpeed = (lyr.m_constantSpeed << 10) / 65536.0f;
+                layer.m_lineIndexes   = lyr.m_lineIndexes;
+
+                layer.m_layout.clear();
+                for (int y = 0; y < layer.m_height; ++y) {
+                    layer.m_layout.append(QList<ushort>());
+                    for (int x = 0; x < layer.m_width; ++x) {
+                        layer.m_layout[y].append(lyr.m_layout[y][x]);
+                    }
+                }
+
+                m_layers.append(layer);
+            }
+        } break;
+        case ENGINE_v2: {
+            RSDKv2::Background bg(reader);
+
+            for (RSDKv2::Background::ScrollInfo &scr : bg.m_hScroll) {
+                ScrollInfo scroll;
+                scroll.m_behaviour     = scr.m_behaviour;
+                scroll.m_relativeSpeed = scr.m_relativeSpeed / 64.0f;
+                scroll.m_constantSpeed = (scr.m_constantSpeed << 10) / 65536.0f;
+
+                m_hScroll.append(scroll);
+            }
+
+            for (RSDKv2::Background::ScrollInfo &scr : bg.m_vScroll) {
+                ScrollInfo scroll;
+                scroll.m_behaviour     = scr.m_behaviour;
+                scroll.m_relativeSpeed = scr.m_relativeSpeed / 64.0f;
+                scroll.m_constantSpeed = (scr.m_constantSpeed << 10) / 65536.0f;
+
+                m_vScroll.append(scroll);
+            }
+
+            for (RSDKv2::Background::Layer &lyr : bg.m_layers) {
+                Layer layer;
+                layer.m_width         = lyr.m_width;
+                layer.m_height        = lyr.m_height;
+                layer.m_behaviour     = lyr.m_behaviour;
+                layer.m_relativeSpeed = lyr.m_relativeSpeed / 64.0f;
+                layer.m_constantSpeed = (lyr.m_constantSpeed << 10) / 65536.0f;
+                layer.m_lineIndexes   = lyr.m_lineIndexes;
+
+                layer.m_layout.clear();
+                for (int y = 0; y < layer.m_height; ++y) {
+                    layer.m_layout.append(QList<ushort>());
+                    for (int x = 0; x < layer.m_width; ++x) {
+                        layer.m_layout[y].append(lyr.m_layout[y][x]);
+                    }
+                }
+
+                m_layers.append(layer);
+            }
+        } break;
+        case ENGINE_v3: {
+            RSDKv3::Background bg(reader);
+
+            for (RSDKv3::Background::ScrollInfo &scr : bg.m_hScroll) {
+                ScrollInfo scroll;
+                scroll.m_behaviour     = scr.m_behaviour;
+                scroll.m_relativeSpeed = scr.m_relativeSpeed / 256.0f;
+                scroll.m_constantSpeed = (scr.m_constantSpeed << 10) / 65536.0f;
+
+                m_hScroll.append(scroll);
+            }
+
+            for (RSDKv3::Background::ScrollInfo &scr : bg.m_vScroll) {
+                ScrollInfo scroll;
+                scroll.m_behaviour     = scr.m_behaviour;
+                scroll.m_relativeSpeed = scr.m_relativeSpeed / 256.0f;
+                scroll.m_constantSpeed = (scr.m_constantSpeed << 10) / 65536.0f;
+
+                m_vScroll.append(scroll);
+            }
+
+            for (RSDKv3::Background::Layer &lyr : bg.m_layers) {
+                Layer layer;
+                layer.m_width         = lyr.m_width;
+                layer.m_height        = lyr.m_height;
+                layer.m_behaviour     = lyr.m_behaviour;
+                layer.m_relativeSpeed = lyr.m_relativeSpeed / 256.0f;
+                layer.m_constantSpeed = (lyr.m_constantSpeed << 10) / 65536.0f;
+                layer.m_lineIndexes   = lyr.m_lineIndexes;
+
+                layer.m_layout.clear();
+                for (int y = 0; y < layer.m_height; ++y) {
+                    layer.m_layout.append(QList<ushort>());
+                    for (int x = 0; x < layer.m_width; ++x) {
+                        layer.m_layout[y].append(lyr.m_layout[y][x]);
+                    }
+                }
+
+                m_layers.append(layer);
+            }
+        } break;
+        case ENGINE_v4: {
+            RSDKv4::Background bg(reader);
+
+            for (RSDKv4::Background::ScrollInfo &scr : bg.m_hScroll) {
+                ScrollInfo scroll;
+                scroll.m_behaviour     = scr.m_behaviour;
+                scroll.m_relativeSpeed = scr.m_relativeSpeed / 256.0f;
+                scroll.m_constantSpeed = (scr.m_constantSpeed << 10) / 65536.0f;
+
+                m_hScroll.append(scroll);
+            }
+
+            for (RSDKv4::Background::ScrollInfo &scr : bg.m_vScroll) {
+                ScrollInfo scroll;
+                scroll.m_behaviour     = scr.m_behaviour;
+                scroll.m_relativeSpeed = scr.m_relativeSpeed / 256.0f;
+                scroll.m_constantSpeed = (scr.m_constantSpeed << 10) / 65536.0f;
+
+                m_vScroll.append(scroll);
+            }
+
+            for (RSDKv4::Background::Layer &lyr : bg.m_layers) {
+                Layer layer;
+                layer.m_width         = lyr.m_width;
+                layer.m_height        = lyr.m_height;
+                layer.m_behaviour     = lyr.m_behaviour;
+                layer.m_relativeSpeed = lyr.m_relativeSpeed / 256.0f;
+                layer.m_constantSpeed = (lyr.m_constantSpeed << 10) / 65536.0f;
+                layer.m_lineIndexes   = lyr.m_lineIndexes;
+
+                layer.m_layout.clear();
+                for (int y = 0; y < layer.m_height; ++y) {
+                    layer.m_layout.append(QList<ushort>());
+                    for (int x = 0; x < layer.m_width; ++x) {
+                        layer.m_layout[y].append(lyr.m_layout[y][x]);
+                    }
+                }
+
+                m_layers.append(layer);
+            }
+        } break;
+    }
+
+    scrollInfoFromIndices();
+}
+
+void FormatHelpers::Background::write(byte ver, QString filename)
+{
+    if (filename == "")
+        filename = m_filename;
+    if (filename == "")
+        return;
+    Writer writer(filename);
+
+    scrollIndicesFromInfo();
+
+    switch (ver) {
+        default: break;
+        case ENGINE_v1: {
+            RSDKv1::Background bg;
+
+            for (ScrollInfo &scr : m_hScroll) {
+                RSDKv1::Background::ScrollInfo scroll;
+                scroll.m_behaviour     = scr.m_behaviour;
+                scroll.m_relativeSpeed = scr.m_relativeSpeed * 64;
+                scroll.m_constantSpeed = (int)(scr.m_constantSpeed * 65536) >> 10;
+
+                bg.m_hScroll.append(scroll);
+            }
+
+            for (ScrollInfo &scr : m_vScroll) {
+                RSDKv1::Background::ScrollInfo scroll;
+                scroll.m_behaviour     = scr.m_behaviour;
+                scroll.m_relativeSpeed = scr.m_relativeSpeed * 64;
+                scroll.m_constantSpeed = (int)(scr.m_constantSpeed * 65536) >> 10;
+
+                bg.m_vScroll.append(scroll);
+            }
+
+            for (Layer &lyr : m_layers) {
+                RSDKv1::Background::Layer layer;
+                layer.m_width         = lyr.m_width;
+                layer.m_height        = lyr.m_height;
+                layer.m_behaviour     = lyr.m_behaviour;
+                layer.m_relativeSpeed = lyr.m_relativeSpeed * 64;
+                layer.m_constantSpeed = (int)(lyr.m_constantSpeed * 65536) >> 10;
+                layer.m_lineIndexes   = lyr.m_lineIndexes;
+
+                layer.m_layout.clear();
+                for (int y = 0; y < layer.m_height; ++y) {
+                    layer.m_layout.append(QList<byte>());
+                    for (int x = 0; x < layer.m_width; ++x) {
+                        int index = lyr.m_layout[y][x];
+                        if (index >= 0x100)
+                            index = 0;
+                        layer.m_layout[y].append((byte)index);
+                    }
+                }
+
+                bg.m_layers.append(layer);
+            }
+
+            bg.write(writer);
+        } break;
+        case ENGINE_v2: {
+            RSDKv2::Background bg;
+
+            for (ScrollInfo &scr : m_hScroll) {
+                RSDKv2::Background::ScrollInfo scroll;
+                scroll.m_behaviour     = scr.m_behaviour;
+                scroll.m_relativeSpeed = scr.m_relativeSpeed * 64;
+                scroll.m_constantSpeed = (int)(scr.m_constantSpeed * 65536) >> 10;
+
+                bg.m_hScroll.append(scroll);
+            }
+
+            for (ScrollInfo &scr : m_vScroll) {
+                RSDKv2::Background::ScrollInfo scroll;
+                scroll.m_behaviour     = scr.m_behaviour;
+                scroll.m_relativeSpeed = scr.m_relativeSpeed * 64;
+                scroll.m_constantSpeed = (int)(scr.m_constantSpeed * 65536) >> 10;
+
+                bg.m_vScroll.append(scroll);
+            }
+
+            for (Layer &lyr : m_layers) {
+                RSDKv2::Background::Layer layer;
+                layer.m_width         = lyr.m_width;
+                layer.m_height        = lyr.m_height;
+                layer.m_behaviour     = lyr.m_behaviour;
+                layer.m_relativeSpeed = lyr.m_relativeSpeed * 64;
+                layer.m_constantSpeed = (int)(lyr.m_constantSpeed * 65536) >> 10;
+                layer.m_lineIndexes   = lyr.m_lineIndexes;
+
+                layer.m_layout.clear();
+                for (int y = 0; y < layer.m_height; ++y) {
+                    layer.m_layout.append(QList<byte>());
+                    for (int x = 0; x < layer.m_width; ++x) {
+                        int index = lyr.m_layout[y][x];
+                        if (index >= 0x100)
+                            index = 0;
+                        layer.m_layout[y].append((byte)index);
+                    }
+                }
+
+                bg.m_layers.append(layer);
+            }
+
+            bg.write(writer);
+        } break;
+        case ENGINE_v3: {
+            RSDKv3::Background bg;
+
+            for (ScrollInfo &scr : m_hScroll) {
+                RSDKv3::Background::ScrollInfo scroll;
+                scroll.m_behaviour     = scr.m_behaviour;
+                scroll.m_relativeSpeed = scr.m_relativeSpeed * 256;
+                scroll.m_constantSpeed = (int)(scr.m_constantSpeed * 65536) >> 10;
+
+                bg.m_hScroll.append(scroll);
+            }
+
+            for (ScrollInfo &scr : m_vScroll) {
+                RSDKv3::Background::ScrollInfo scroll;
+                scroll.m_behaviour     = scr.m_behaviour;
+                scroll.m_relativeSpeed = scr.m_relativeSpeed * 256;
+                scroll.m_constantSpeed = (int)(scr.m_constantSpeed * 65536) >> 10;
+
+                bg.m_vScroll.append(scroll);
+            }
+
+            for (Layer &lyr : m_layers) {
+                RSDKv3::Background::Layer layer;
+                layer.m_width         = lyr.m_width;
+                layer.m_height        = lyr.m_height;
+                layer.m_behaviour     = lyr.m_behaviour;
+                layer.m_relativeSpeed = lyr.m_relativeSpeed * 256;
+                layer.m_constantSpeed = (int)(lyr.m_constantSpeed * 65536) >> 10;
+                layer.m_lineIndexes   = lyr.m_lineIndexes;
+
+                layer.m_layout.clear();
+                for (int y = 0; y < layer.m_height; ++y) {
+                    layer.m_layout.append(QList<ushort>());
+                    for (int x = 0; x < layer.m_width; ++x) {
+                        layer.m_layout[y].append(lyr.m_layout[y][x]);
+                    }
+                }
+
+                bg.m_layers.append(layer);
+            }
+
+            bg.write(writer);
+        } break;
+        case ENGINE_v4: {
+            RSDKv4::Background bg;
+
+            for (ScrollInfo &scr : m_hScroll) {
+                RSDKv4::Background::ScrollInfo scroll;
+                scroll.m_behaviour     = scr.m_behaviour;
+                scroll.m_relativeSpeed = scr.m_relativeSpeed * 256;
+                scroll.m_constantSpeed = (int)(scr.m_constantSpeed * 65536) >> 10;
+
+                bg.m_hScroll.append(scroll);
+            }
+
+            for (ScrollInfo &scr : m_vScroll) {
+                RSDKv4::Background::ScrollInfo scroll;
+                scroll.m_behaviour     = scr.m_behaviour;
+                scroll.m_relativeSpeed = scr.m_relativeSpeed * 256;
+                scroll.m_constantSpeed = (int)(scr.m_constantSpeed * 65536) >> 10;
+
+                bg.m_vScroll.append(scroll);
+            }
+
+            for (Layer &lyr : m_layers) {
+                RSDKv4::Background::Layer layer;
+                layer.m_width         = lyr.m_width;
+                layer.m_height        = lyr.m_height;
+                layer.m_behaviour     = lyr.m_behaviour;
+                layer.m_relativeSpeed = lyr.m_relativeSpeed * 256;
+                layer.m_constantSpeed = (int)(lyr.m_constantSpeed * 65536) >> 10;
+                layer.m_lineIndexes   = lyr.m_lineIndexes;
+
+                layer.m_layout.clear();
+                for (int y = 0; y < layer.m_height; ++y) {
+                    layer.m_layout.append(QList<ushort>());
+                    for (int x = 0; x < layer.m_width; ++x) {
+                        layer.m_layout[y].append(lyr.m_layout[y][x]);
+                    }
+                }
+
+                bg.m_layers.append(layer);
+            }
+
+            bg.write(writer);
+        } break;
+    }
+}
+
+void FormatHelpers::Background::scrollInfoFromIndices()
+{
+    for (Layer &layer : m_layers) {
+        layer.m_scrollInfos.clear();
+        QList<ScrollInfo> infos;
+        if (layer.m_behaviour == 1)
+            infos = m_hScroll;
+        else if (layer.m_behaviour == 2)
+            infos = m_vScroll;
+        else
+            continue;
+
+        int prev  = layer.m_lineIndexes.count() > 0 ? layer.m_lineIndexes[0] : -1;
+        int start = 0;
+        int h     = 0;
+
+        for (; h < layer.m_lineIndexes.count(); ++h) {
+            if ((byte)layer.m_lineIndexes[h] != prev) {
+                ScrollIndexInfo info;
+
+                info.m_startLine     = start;
+                info.m_length        = (h - start);
+                info.m_relativeSpeed = infos[prev].m_relativeSpeed;
+                info.m_constantSpeed = infos[prev].m_constantSpeed;
+                info.m_scrollPos     = 0.0f;
+                info.m_behaviour     = infos[prev].m_behaviour;
+
+                layer.m_scrollInfos.append(info);
+                start = h;
+            }
+
+            prev = (byte)layer.m_lineIndexes[h];
+        }
+
+        {
+            ScrollIndexInfo info;
+
+            info.m_startLine     = start;
+            info.m_length        = (h - start);
+            info.m_relativeSpeed = infos[0].m_relativeSpeed;
+            info.m_constantSpeed = infos[0].m_constantSpeed;
+            info.m_scrollPos     = 0.0f;
+            info.m_behaviour     = infos[0].m_behaviour;
+
+            layer.m_scrollInfos.append(info);
+        }
+    }
+}
+
+void FormatHelpers::Background::scrollIndicesFromInfo()
+{
+    m_hScroll.clear();
+    m_vScroll.clear();
+
+    int hID = 0;
+    int vID = 0;
+
+    for (Layer &layer : m_layers) {
+        bool hScroll = layer.m_behaviour == 1;
+        layer.m_lineIndexes.clear();
+
+        if (layer.m_behaviour != 1 && layer.m_behaviour != 2) {
+            // other layers dont need any scrolling, TODO: check this works
+            continue;
+        }
+        if (layer.m_width == 0 || layer.m_height == 0)
+            continue; // basically invalid layers, dont write em
+
+        if (hScroll) {
+            layer.m_lineIndexes.resize(layer.m_height * 0x80);
+        }
+        else {
+            layer.m_lineIndexes.resize(layer.m_width * 0x80);
+        }
+
+        int id = 0;
+        for (ScrollIndexInfo &info : layer.m_scrollInfos) {
+            int infoID = id;
+            ScrollInfo sInfo;
+            sInfo.m_behaviour     = info.m_behaviour;
+            sInfo.m_relativeSpeed = info.m_relativeSpeed;
+            sInfo.m_constantSpeed = info.m_constantSpeed;
+
+            int scrollID = 0;
+            if (hScroll) {
+                for (ScrollInfo &info : m_hScroll) {
+                    if (info.m_relativeSpeed == sInfo.m_relativeSpeed
+                        && info.m_constantSpeed == sInfo.m_constantSpeed
+                        && info.m_behaviour == sInfo.m_behaviour) {
+                        infoID = scrollID;
+                        break;
+                    }
+                    ++scrollID;
+                }
+            }
+            else {
+                for (ScrollInfo &info : m_vScroll) {
+                    if (info.m_relativeSpeed == sInfo.m_relativeSpeed
+                        && info.m_constantSpeed == sInfo.m_constantSpeed
+                        && info.m_behaviour == sInfo.m_behaviour) {
+                        infoID = scrollID;
+                        break;
+                    }
+                    ++scrollID;
+                }
+            }
+
+            for (int i = info.m_startLine; i < info.m_startLine + info.m_length; ++i) {
+                layer.m_lineIndexes[i] = (byte)infoID;
+            }
+
+            // New Info needs to be added
+            if (infoID == id) {
+                if (hScroll) {
+                    m_hScroll.append(sInfo);
+                    ++hID;
+                }
+                else {
+                    m_vScroll.append(sInfo);
+                    ++vID;
+                }
+                ++id;
+            }
+        }
+    }
+}

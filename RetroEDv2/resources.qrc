@@ -1,0 +1,29 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/RSDKv5FileList.txt</file>
+        <file>resources/RSDKv4FileList.txt</file>
+        <file>icons/missing.png</file>
+        <file>icons/missing2.png</file>
+        <file>icons/win.ico</file>
+        <file>shaders/primitive.glf</file>
+        <file>shaders/primitive.glv</file>
+        <file>shaders/sprite.glf</file>
+        <file>shaders/sprite.glv</file>
+        <file>icons/player_v1.png</file>
+        <file>icons/ic_add_circle_48px.svg</file>
+        <file>icons/ic_apps_48px.svg</file>
+        <file>icons/ic_arrow_downward_48px.svg</file>
+        <file>icons/ic_arrow_upward_48px.svg</file>
+        <file>icons/ic_cancel_48px.svg</file>
+        <file>icons/ic_grid_48px.svg</file>
+        <file>icons/ic_horizontal_split_48px.svg</file>
+        <file>icons/ic_folder_48px.svg</file>
+        <file>icons/ic_redo_48px.svg</file>
+        <file>icons/ic_save_48px.svg</file>
+        <file>fonts/CONSOLA.TTF</file>
+        <file>fonts/CONSOLAB.TTF</file>
+        <file>fonts/Consolas.ttf</file>
+        <file>fonts/consolaz.ttf</file>
+        <file>icons/ic_help_48px.svg</file>
+    </qresource>
+</RCC>

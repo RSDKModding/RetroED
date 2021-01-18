@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SceneTileProperties</class>
+ <widget class="QWidget" name="SceneTileProperties">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>211</width>
+    <height>395</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="9" column="1">
+    <widget class="QSpinBox" name="behaviour">
+     <property name="toolTip">
+      <string>Behaviour of the tile</string>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Floor Angle</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QSpinBox" name="lWallAngle">
+     <property name="maximum">
+      <number>255</number>
+     </property>
+     <property name="displayIntegerBase">
+      <number>16</number>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="label">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Behaviour</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QCheckBox" name="colYFlip">
+     <property name="text">
+      <string>Flip Collision</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QSpinBox" name="floorAngle">
+     <property name="maximum">
+      <number>255</number>
+     </property>
+     <property name="displayIntegerBase">
+      <number>16</number>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>Collision Layer</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="tID">
+     <property name="text">
+      <string>Tile:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Roof Angle</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>RWall Angle</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0" colspan="2">
+    <widget class="QPushButton" name="editCollision">
+     <property name="text">
+      <string>Edit Collision</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QComboBox" name="cLayer">
+     <item>
+      <property name="text">
+       <string>Collision Layer A</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Collision Layer B</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QSpinBox" name="rWallAngle">
+     <property name="maximum">
+      <number>255</number>
+     </property>
+     <property name="displayIntegerBase">
+      <number>16</number>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QSpinBox" name="roofAngle">
+     <property name="maximum">
+      <number>255</number>
+     </property>
+     <property name="displayIntegerBase">
+      <number>16</number>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>LWall Angle</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

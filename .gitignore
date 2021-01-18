@@ -1,0 +1,15 @@
+[Bb]uild/
+.vscode
+
+#OSX files
+*.DS_Store
+.DS_Store
+*.xactivitylog
+*.dia
+*.xbuild
+*.db
+*.plist
+*.idx
+*.pcm
+*.timestamp
+*.xcbkptlist

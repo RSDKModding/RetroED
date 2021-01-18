@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SceneExportImgOptions</class>
+ <widget class="QDialog" name="SceneExportImgOptions">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>362</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="6" column="2">
+    <widget class="QCheckBox" name="bg6Low">
+     <property name="text">
+      <string>Low</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QCheckBox" name="bg1High">
+     <property name="text">
+      <string>High</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="2">
+    <widget class="QCheckBox" name="bg5Low">
+     <property name="text">
+      <string>Low</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="3">
+    <widget class="QCheckBox" name="bg7High">
+     <property name="text">
+      <string>High</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="2">
+    <widget class="QCheckBox" name="bg4Low">
+     <property name="text">
+      <string>Low</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>Export Objects</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Export BG Layer 2</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Export BG Layer 3</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="3">
+    <widget class="QCheckBox" name="bg6High">
+     <property name="text">
+      <string>High</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Export Foreground</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QCheckBox" name="bg1Low">
+     <property name="text">
+      <string>Low</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Export BG Layer 4</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="3">
+    <widget class="QCheckBox" name="bg4High">
+     <property name="text">
+      <string>High</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Export BG Layer 5</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>Export BG Layer 6</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="3">
+    <widget class="QCheckBox" name="bg5High">
+     <property name="text">
+      <string>High</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3">
+    <widget class="QCheckBox" name="bg3High">
+     <property name="text">
+      <string>High</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QCheckBox" name="bg2High">
+     <property name="text">
+      <string>High</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Export BG Layer 1</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QCheckBox" name="bg3Low">
+     <property name="text">
+      <string>Low</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="2">
+    <widget class="QCheckBox" name="bg8Low">
+     <property name="text">
+      <string>Low</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QCheckBox" name="bg2Low">
+     <property name="text">
+      <string>Low</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>Export BG Layer 8</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="3">
+    <widget class="QCheckBox" name="bg8High">
+     <property name="text">
+      <string>High</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="2">
+    <widget class="QCheckBox" name="bg7Low">
+     <property name="text">
+      <string>Low</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QCheckBox" name="fgLow">
+     <property name="text">
+      <string>Low</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>Export BG Layer 7</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QCheckBox" name="fgHigh">
+     <property name="text">
+      <string>High</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0" colspan="4">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="2" colspan="2">
+    <widget class="QCheckBox" name="objInfo">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="2" colspan="2">
+    <widget class="QCheckBox" name="objects">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0" colspan="2">
+    <widget class="QLabel" name="label_11">
+     <property name="text">
+      <string>Export Object Property Values</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>SceneExportImgOptions</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>SceneExportImgOptions</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

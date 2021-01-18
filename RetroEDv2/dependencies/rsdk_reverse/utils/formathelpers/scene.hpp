@@ -1,0 +1,71 @@
+#ifndef RSDK_SCENE_H
+#define RSDK_SCENE_H
+
+namespace FormatHelpers
+{
+
+class Scene
+{
+public:
+    class Object
+    {
+    public:
+        class AttributeInfo
+        {
+        public:
+            AttributeInfo() {}
+
+            int m_value   = 0;
+            bool m_active = false;
+        };
+
+        Object() {}
+
+        inline float getX() { return m_xPos / 65536.0f; }
+        inline float getY() { return m_yPos / 65536.0f; }
+
+        inline void setX(float x) { m_xPos = x * (1 << 0x10); }
+        inline void setY(float y) { m_yPos = y * (1 << 0x10); }
+
+        byte m_type    = 0;
+        byte m_subtype = 0;
+        int m_xPos     = 0 << 0x10;
+        int m_yPos     = 0 << 0x10;
+        AttributeInfo m_attributes[0x0F];
+
+        short m_id = 0;
+    };
+
+    Scene() {}
+    Scene(byte ver, QString filepath) { read(ver, filepath); }
+
+    void read(byte ver, QString filename);
+    void write(byte ver, QString filename);
+
+    QString m_title = "ACT";
+
+    byte m_activeLayer[4];
+    byte m_midpoint = 3;
+
+    byte m_music      = 0;
+    byte m_background = 0;
+
+    short m_playerXPos = 0;
+    short m_playerYPos = 0;
+
+    QList<QList<ushort>> m_layout;
+
+    QList<Object> m_objects;
+    QList<QString> m_objectTypeNames;
+
+    ushort m_width  = 0;
+    ushort m_height = 0;
+
+    QString m_filename = "";
+
+    static const int maxObjectCount = 1056;
+};
+
+} // namespace FormatHelpers
+
+#endif // RSDK_SCENE_H
