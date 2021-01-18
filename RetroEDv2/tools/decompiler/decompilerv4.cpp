@@ -34,250 +34,272 @@ struct FunctionInfo {
 };
 
 static QList<QString> variableNames = {
-    "TempValue0",
-    "TempValue1",
-    "TempValue2",
-    "TempValue3",
-    "TempValue4",
-    "TempValue5",
-    "TempValue6",
-    "TempValue7",
-    "CheckResult",
-    "ArrayPos0",
-    "ArrayPos1",
-    "ArrayPos2",
-    "ArrayPos3",
-    "ArrayPos4",
-    "ArrayPos5",
-    "PlayerObjectPos",
-    "PlayerObjectCount",
-    "Global",
-    "ScriptData",
-    "Object.EntityNo",
-    "Object.TypeGroup",
-    "Object.Type",
-    "Object.PropertyValue",
-    "Object.XPos",
-    "Object.YPos",
-    "Object.iXPos",
-    "Object.iYPos",
-    "Object.XVelocity",
-    "Object.YVelocity",
-    "Object.Speed",
-    "Object.State",
-    "Object.Rotation",
-    "Object.Scale",
-    "Object.Priority",
-    "Object.DrawOrder",
-    "Object.Direction",
-    "Object.InkEffect",
-    "Object.Alpha",
-    "Object.Frame",
-    "Object.Animation",
-    "Object.PrevAnimation",
-    "Object.AnimationSpeed",
-    "Object.AnimationTimer",
-    "Object.Angle",
-    "Object.ValueF0",
-    "Object.LookPos",
-    "Object.CollisionMode",
-    "Object.CollisionPlane",
-    "Object.ControlMode",
-    "Object.ControlLock",
-    "Object.Pushing",
-    "Object.Visible",
-    "Object.TileCollisions",
-    "Object.ObjectInteractions",
-    "Object.Gravity",
-    "Object.Up",
-    "Object.Down",
-    "Object.Left",
-    "Object.Right",
-    "Object.JumpPress",
-    "Object.JumpHold",
-    "Object.TrackScroll",
-    "Object.Flailing0",
-    "Object.Flailing1",
-    "Object.Flailing2",
-    "Object.Flailing3",
-    "Object.Flailing4",
-    "Object.CollisionLeft",
-    "Object.CollisionTop",
-    "Object.CollisionRight",
-    "Object.CollisionBottom",
-    "Object.OutOfBounds",
-    "Object.SpriteSheet",
-    "Object.Value0",
-    "Object.Value1",
-    "Object.Value2",
-    "Object.Value3",
-    "Object.Value4",
-    "Object.Value5",
-    "Object.Value6",
-    "Object.Value7",
-    "Object.Value8",
-    "Object.Value9",
-    "Object.Value10",
-    "Object.Value11",
-    "Object.Value12",
-    "Object.Value13",
-    "Object.Value14",
-    "Object.Value15",
-    "Object.Value16",
-    "Object.Value17",
-    "Object.Value18",
-    "Object.Value19",
-    "Object.Value20",
-    "Object.Value21",
-    "Object.Value22",
-    "Object.Value23",
-    "Object.Value24",
-    "Object.Value25",
-    "Object.Value26",
-    "Object.Value27",
-    "Object.Value28",
-    "Object.Value29",
-    "Object.Value30",
-    "Object.Value31",
-    "Object.Value32",
-    "Object.Value33",
-    "Object.Value34",
-    "Object.Value35",
-    "Object.Value36",
-    "Object.Value37",
-    "Object.Value38",
-    "Object.Value39",
-    "Object.Value40",
-    "Object.Value41",
-    "Object.Value42",
-    "Object.Value43",
-    "Object.Value44",
-    "Object.Value45",
-    "Object.Value46",
-    "Object.Value47",
-    "Stage.State",
-    "Stage.ActiveList",
-    "Stage.ListPos",
-    "Stage.TimeEnabled",
-    "Stage.MilliSeconds",
-    "Stage.Seconds",
-    "Stage.Minutes",
-    "Stage.ActNo",
-    "Stage.PauseEnabled",
-    "Stage.ListSize",
-    "Stage.NewXBoundary1",
-    "Stage.NewXBoundary2",
-    "Stage.NewYBoundary1",
-    "Stage.NewYBoundary2",
-    "Stage.XBoundary1",
-    "Stage.XBoundary2",
-    "Stage.YBoundary1",
-    "Stage.YBoundary2",
-    "Stage.DeformationData0",
-    "Stage.DeformationData1",
-    "Stage.DeformationData2",
-    "Stage.DeformationData3",
-    "Stage.WaterLevel",
-    "Stage.ActiveLayer",
-    "Stage.MidPoint",
-    "Stage.PlayerListPos",
-    "Stage.DebugMode",
-    "Stage.ObjectEntityPos",
-    "Screen.CameraEnabled",
-    "Screen.CameraTarget",
-    "Screen.CameraStyle",
-    "Screen.CameraXPos",
-    "Screen.CameraYPos",
-    "Screen.DrawListSize",
-    "Screen.CenterX",
-    "Screen.CenterY",
-    "Screen.XSize",
-    "Screen.YSize",
-    "Screen.XOffset",
-    "Screen.YOffset",
-    "Screen.ShakeX",
-    "Screen.ShakeY",
-    "Screen.AdjustCameraY",
-    "TouchScreen.Down",
-    "TouchScreen.XPos",
-    "TouchScreen.YPos",
-    "Music.Volume",
-    "Music.CurrentTrack",
-    "Unknown",
-    "KeyDown.Up",
-    "KeyDown.Down",
-    "KeyDown.Left",
-    "KeyDown.Right",
-    "KeyDown.ButtonA",
-    "KeyDown.ButtonB",
-    "KeyDown.ButtonC",
-    "KeyDown.ButtonA2", // ButtonX?
-    "KeyDown.ButtonB2", // ButtonY?
-    "KeyDown.ButtonC2", // ButtonZ?
-    "KeyDown.ButtonA3",
-    "KeyDown.ButtonB3",
-    "KeyDown.Start",
-    "KeyDown.Start2",
-    "KeyPress.Up",
-    "KeyPress.Down",
-    "KeyPress.Left",
-    "KeyPress.Right",
-    "KeyPress.ButtonA",
-    "KeyPress.ButtonB",
-    "KeyPress.ButtonC",
-    "KeyPress.ButtonA2",
-    "KeyPress.ButtonB2",
-    "KeyPress.ButtonC2",
-    "KeyPress.ButtonA3",
-    "KeyPress.ButtonB3",
-    "KeyPress.Start",
-    "KeyPress.Start2",
-    "Menu1.Selection",
-    "Menu2.Selection",
-    "TileLayer.XSize",
-    "TileLayer.YSize",
-    "TileLayer.Type",
-    "TileLayer.Angle",
-    "TileLayer.XPos",
-    "TileLayer.YPos",
-    "TileLayer.ZPos",
-    "TileLayer.ParallaxFactor",
-    "TileLayer.ScrollSpeed",
-    "TileLayer.ScrollPos",
-    "TileLayer.DeformationOffset",
-    "TileLayer.DeformationOffsetW",
-    "HParallax.ParallaxFactor",
-    "HParallax.ScrollSpeed",
-    "HParallax.ScrollPos",
-    "VParallax.ParallaxFactor",
-    "VParallax.ScrollSpeed",
-    "VParallax.ScrollPos",
-    "3DScene.NoVertices",
-    "3DScene.NoFaces",
-    "3DScene.ProjectionX",
-    "3DScene.ProjectionY",
-    "3DScene.FogColor",
-    "3DScene.FogStrength",
-    "VertexBuffer.x",
-    "VertexBuffer.y",
-    "VertexBuffer.z",
-    "VertexBuffer.u",
-    "VertexBuffer.v",
-    "FaceBuffer.a",
-    "FaceBuffer.b",
-    "FaceBuffer.c",
-    "FaceBuffer.d",
-    "FaceBuffer.Flag",
-    "FaceBuffer.Color",
-    "SaveRAM",
-    "Engine.State",
-    "Engine.Language",
-    "Engine.OnlineActive",
-    "Engine.SFXVolume",
-    "Engine.BGMVolume",
-    "Engine.TrialMode",
-    "Engine.PlatformID",
-    "Engine.HapticsEnabled",
+    // Internal Script Values
+    "temp0",
+    "temp1",
+    "temp2",
+    "temp3",
+    "temp4",
+    "temp5",
+    "temp6",
+    "temp7",
+    "checkResult",
+    "arrayPos0",
+    "arrayPos1",
+    "arrayPos2",
+    "arrayPos3",
+    "arrayPos4",
+    "arrayPos5",
+    "arrayPos6",
+    "arrayPos7",
+    "global",
+    "local",
+
+    // Object Properties
+    "object.entityPos",
+    "object.groupID",
+    "object.type",
+    "object.propertyValue",
+    "object.xpos",
+    "object.ypos",
+    "object.ixpos",
+    "object.iypos",
+    "object.xvel",
+    "object.yvel",
+    "object.speed",
+    "object.state",
+    "object.rotation",
+    "object.scale",
+    "object.priority",
+    "object.drawOrder",
+    "object.direction",
+    "object.inkEffect",
+    "object.alpha",
+    "object.frame",
+    "object.animation",
+    "object.prevAnimation",
+    "object.animationSpeed",
+    "object.animationTimer",
+    "object.angle",
+    "object.lookPosX",
+    "object.lookPosY",
+    "object.collisionMode",
+    "object.collisionPlane",
+    "object.controlMode",
+    "object.controlLock",
+    "object.pushing",
+    "object.visible",
+    "object.tileCollisions",
+    "object.interaction",
+    "object.gravity",
+    "object.up",
+    "object.down",
+    "object.left",
+    "object.right",
+    "object.jumpPress",
+    "object.jumpHold",
+    "object.scrollTracking",
+    "object.floorSensorL",
+    "object.floorSensorC",
+    "object.floorSensorR",
+    "object.floorSensorLC",
+    "object.floorSensorRC",
+    "object.collisionLeft",
+    "object.collisionTop",
+    "object.collisionRight",
+    "object.collisionBottom",
+    "object.outOfBounds",
+    "object.spriteSheet",
+
+    // Object Values
+    "object.value0",
+    "object.value1",
+    "object.value2",
+    "object.value3",
+    "object.value4",
+    "object.value5",
+    "object.value6",
+    "object.value7",
+    "object.value8",
+    "object.value9",
+    "object.value10",
+    "object.value11",
+    "object.value12",
+    "object.value13",
+    "object.value14",
+    "object.value15",
+    "object.value16",
+    "object.value17",
+    "object.value18",
+    "object.value19",
+    "object.value20",
+    "object.value21",
+    "object.value22",
+    "object.value23",
+    "object.value24",
+    "object.value25",
+    "object.value26",
+    "object.value27",
+    "object.value28",
+    "object.value29",
+    "object.value30",
+    "object.value31",
+    "object.value32",
+    "object.value33",
+    "object.value34",
+    "object.value35",
+    "object.value36",
+    "object.value37",
+    "object.value38",
+    "object.value39",
+    "object.value40",
+    "object.value41",
+    "object.value42",
+    "object.value43",
+    "object.value44",
+    "object.value45",
+    "object.value46",
+    "object.value47",
+
+    // Stage Properties
+    "stage.state",
+    "stage.activeList",
+    "stage.listPos",
+    "stage.timeEnabled",
+    "stage.milliSeconds",
+    "stage.seconds",
+    "stage.minutes",
+    "stage.actNum",
+    "stage.pauseEnabled",
+    "stage.listSize",
+    "stage.newXBoundary1",
+    "stage.newXBoundary2",
+    "stage.newYBoundary1",
+    "stage.newYBoundary2",
+    "stage.curXBoundary1",
+    "stage.curXBoundary2",
+    "stage.curYBoundary1",
+    "stage.curYBoundary2",
+    "stage.deformationData0",
+    "stage.deformationData1",
+    "stage.deformationData2",
+    "stage.deformationData3",
+    "stage.waterLevel",
+    "stage.activeLayer",
+    "stage.midPoint",
+    "stage.playerListPos",
+    "stage.debugMode",
+    "stage.entityPos",
+
+    // Screen Properties
+    "screen.cameraEnabled",
+    "screen.cameraTarget",
+    "screen.cameraStyle",
+    "screen.cameraX",
+    "screen.cameraY",
+    "screen.drawListSize",
+    "screen.xcenter",
+    "screen.ycenter",
+    "screen.xsize",
+    "screen.ysize",
+    "screen.xoffset",
+    "screen.yoffset",
+    "screen.shakeX",
+    "screen.shakeY",
+    "screen.adjustCameraY",
+
+    "touchscreen.down",
+    "touchscreen.xpos",
+    "touchscreen.ypos",
+
+    // Sound Properties
+    "music.volume",
+    "music.currentTrack",
+    "music.position",
+
+    // Input Properties
+    "inputDown.up",
+    "inputDown.down",
+    "inputDown.left",
+    "inputDown.right",
+    "inputDown.buttonA",
+    "inputDown.buttonB",
+    "inputDown.buttonC",
+    "inputDown.buttonX",
+    "inputDown.buttonY",
+    "inputDown.buttonZ",
+    "inputDown.buttonL",
+    "inputDown.buttonR",
+    "inputDown.start",
+    "inputDown.select",
+    "inputPress.up",
+    "inputPress.down",
+    "inputPress.left",
+    "inputPress.right",
+    "inputPress.buttonA",
+    "inputPress.buttonB",
+    "inputPress.buttonC",
+    "inputPress.buttonX",
+    "inputPress.buttonY",
+    "inputPress.buttonZ",
+    "inputPress.buttonL",
+    "inputPress.buttonR",
+    "inputPress.start",
+    "inputPress.select",
+
+    // Menu Properties
+    "menu1.selection",
+    "menu2.selection",
+
+    // Tile Layer Properties
+    "tileLayer.xsize",
+    "tileLayer.ysize",
+    "tileLayer.type",
+    "tileLayer.angle",
+    "tileLayer.xpos",
+    "tileLayer.ypos",
+    "tileLayer.zpos",
+    "tileLayer.parallaxFactor",
+    "tileLayer.scrollSpeed",
+    "tileLayer.scrollPos",
+    "tileLayer.deformationOffset",
+    "tileLayer.deformationOffsetW",
+    "hParallax.parallaxFactor",
+    "hParallax.scrollSpeed",
+    "hParallax.scrollPos",
+    "vParallax.parallaxFactor",
+    "vParallax.scrollSpeed",
+    "vParallax.scrollPos",
+
+    // 3D Scene Properties
+    "scene3D.vertexCount",
+    "scene3D.faceCount",
+    "scene3D.projectionX",
+    "scene3D.projectionY",
+    "scene3D.fogColor",
+    "scene3D.fogStrength",
+
+    "vertexBuffer.x",
+    "vertexBuffer.y",
+    "vertexBuffer.z",
+    "vertexBuffer.u",
+    "vertexBuffer.v",
+
+    "faceBuffer.a",
+    "faceBuffer.b",
+    "faceBuffer.c",
+    "faceBuffer.d",
+    "faceBuffer.flag",
+    "faceBuffer.color",
+
+    "saveRAM",
+    "engine.state",
+    "engine.language",
+    "engine.onlineActive",
+    "engine.sfxVolume",
+    "engine.bgmVolume",
+    "engine.trialMode",
+    "engine.deviceType",
 };
 
 enum ScrVar {
@@ -563,9 +585,9 @@ enum ScrFunc {
     FUNC_WLOWEROREQUAL,
     FUNC_WNOTEQUAL,
     FUNC_LOOP,
-    FUNC_FOREACHTYPEGROUP,
-    FUNC_FOREACHTYPENAME,
-    FUNC_FOREACHLOOP,
+    FUNC_FOREACHACTIVE,
+    FUNC_FOREACHALL,
+    FUNC_NEXT,
     FUNC_SWITCH,
     FUNC_BREAK,
     FUNC_ENDSWITCH,
@@ -636,7 +658,7 @@ enum ScrFunc {
     FUNC_MATRIXINVERSE,
     FUNC_TRANSFORMVERTICES,
     FUNC_CALLFUNCTION,
-    FUNC_ENDFUNCTION,
+    FUNC_RETURN,
     FUNC_SETLAYERDEFORMATION,
     FUNC_CHECKTOUCHRECT,
     FUNC_GETTILELAYERENTRY,
@@ -671,47 +693,55 @@ enum ScrFunc {
     FUNC_MAX_CNT
 };
 
+// clang-format off
 const QList<FunctionInfo> functions = {
-    FunctionInfo("End", 0),
-    FunctionInfo("Equal", 2),
-    FunctionInfo("Add", 2),
-    FunctionInfo("Sub", 2),
-    FunctionInfo("Inc", 1),
-    FunctionInfo("Dec", 1),
-    FunctionInfo("Mul", 2),
-    FunctionInfo("Div", 2),
-    FunctionInfo("ShR", 2),
-    FunctionInfo("ShL", 2),
-    FunctionInfo("And", 2),
-    FunctionInfo("Or", 2),
-    FunctionInfo("Xor", 2),
-    FunctionInfo("Mod", 2),
-    FunctionInfo("FlipSign", 1),
-    FunctionInfo("CheckEqual", 2),
-    FunctionInfo("CheckGreater", 2),
-    FunctionInfo("CheckLower", 2),
-    FunctionInfo("CheckNotEqual", 2),
-    FunctionInfo("IfEqual", 3),
-    FunctionInfo("IfGreater", 3),
-    FunctionInfo("IfGreaterOrEqual", 3),
-    FunctionInfo("IfLower", 3),
-    FunctionInfo("IfLowerOrEqual", 3),
-    FunctionInfo("IfNotEqual", 3),
-    FunctionInfo("else", 0),
-    FunctionInfo("endif", 0),
-    FunctionInfo("WEqual", 3),
-    FunctionInfo("WGreater", 3),
-    FunctionInfo("WGreaterOrEqual", 3),
-    FunctionInfo("WLower", 3),
-    FunctionInfo("WLowerOrEqual", 3),
-    FunctionInfo("WNotEqual", 3),
-    FunctionInfo("loop", 0),
-    FunctionInfo("foreach", 3), // foreachGroup
-    FunctionInfo("foreach", 3), // foreachObj
-    FunctionInfo("floop", 0),
-    FunctionInfo("switch", 2),
-    FunctionInfo("break", 0),
-    FunctionInfo("endswitch", 0),
+    FunctionInfo("End",	0),         // End of Script
+    FunctionInfo("Equal",2),		// Equal
+    FunctionInfo("Add",2),			// Add
+    FunctionInfo("Sub",2),			// Subtract
+    FunctionInfo("Inc",1),			// Increment
+    FunctionInfo("Dec",1),			// Decrement
+    FunctionInfo("Mul",2),			// Multiply
+    FunctionInfo("Div",2),			// Divide
+    FunctionInfo("ShR",2),			// Bit Shift Right
+    FunctionInfo("ShL",2),			// Bit Shift Left
+    FunctionInfo("And",2),			// Bitwise And
+    FunctionInfo("Or", 2),          // Bitwise Or
+    FunctionInfo("Xor",2),			// Bitwise Xor
+    FunctionInfo("Mod",2),			// Mod
+    FunctionInfo("FlipSign",1),		// Flips the Sign of the value
+
+    FunctionInfo("CheckEqual",2),		// compare a=b, return result in CheckResult Variable
+    FunctionInfo("CheckGreater",2),		// compare a>b, return result in CheckResult Variable
+    FunctionInfo("CheckLower",2),		// compare a<b, return result in CheckResult Variable
+    FunctionInfo("CheckNotEqual",2),	// compare a!=b, return result in CheckResult Variable
+
+    FunctionInfo("IfEqual",3),          // compare a=b, jump if condition met
+    FunctionInfo("IfGreater",3),		// compare a>b, jump if condition met
+    FunctionInfo("IfGreaterOrEqual",3),	// compare a>=b, jump if condition met
+    FunctionInfo("IfLower",3),          // compare a<b, jump if condition met
+    FunctionInfo("IfLowerOrEqual",3),	// compare a<=b, jump if condition met
+    FunctionInfo("IfNotEqual",3),		// compare a!=b, jump if condition met
+    FunctionInfo("else",0),             // The else for an if statement
+    FunctionInfo("endif",0),            // The end if
+
+    FunctionInfo("WEqual",3),           // compare a=b, loop if condition met
+    FunctionInfo("WGreater",3),         // compare a>b, loop if condition met
+    FunctionInfo("WGreaterOrEqual",3),	// compare a>=b, loop if condition met
+    FunctionInfo("WLower",3),           // compare a<b, loop if condition met
+    FunctionInfo("WLowerOrEqual",3),	// compare a<=b, loop if condition met
+    FunctionInfo("WNotEqual",3),		// compare a!=b, loop if condition met
+    FunctionInfo("loop",0),             // While Loop marker
+
+    FunctionInfo("ForEachActive", 3),   // foreach loop, iterates through object group lists only if they are active and interaction is true
+    FunctionInfo("ForEachAll", 3),      // foreach loop, iterates through objects matching type
+    FunctionInfo("next", 0),            // foreach loop, next marker
+
+    FunctionInfo("switch", 2),          // Switch Statement
+    FunctionInfo("break", 0),           //break
+    FunctionInfo("endswitch", 0),       //endswitch
+
+    // Math Functions
     FunctionInfo("Rand", 2),
     FunctionInfo("Sin", 2),
     FunctionInfo("Cos", 2),
@@ -720,6 +750,8 @@ const QList<FunctionInfo> functions = {
     FunctionInfo("ATan2", 3),
     FunctionInfo("Interpolate", 4),
     FunctionInfo("InterpolateXY", 7),
+
+    // Graphics Functions
     FunctionInfo("LoadSpriteSheet", 1),
     FunctionInfo("RemoveSpriteSheet", 1),
     FunctionInfo("DrawSprite", 1),
@@ -742,6 +774,8 @@ const QList<FunctionInfo> functions = {
     FunctionInfo("ClearScreen", 1),
     FunctionInfo("DrawSpriteFX", 4),
     FunctionInfo("DrawSpriteScreenFX", 4),
+
+    // More Useful Stuff
     FunctionInfo("LoadAnimation", 1),
     FunctionInfo("SetupMenu", 4),
     FunctionInfo("AddMenuEntry", 3),
@@ -749,24 +783,36 @@ const QList<FunctionInfo> functions = {
     FunctionInfo("LoadStage", 0),
     FunctionInfo("DrawRect", 8),
     FunctionInfo("ResetObjectEntity", 5),
-    FunctionInfo("PlayerObjectCollision", 0xB),
+    FunctionInfo("BoxCollisionTest", 11),
     FunctionInfo("CreateTempObject", 4),
-    FunctionInfo("PlayerTileCollision", 0),
-    FunctionInfo("ProcessPlayerControl", 0),
-    FunctionInfo("ProcessObjectAnimation", 0),
+
+    // Player and Animation Functions
+    FunctionInfo("ProcessObjectMovement", 0),
+    FunctionInfo("ProcessObjectControl", 0),
+    FunctionInfo("ProcessAnimation", 0),
     FunctionInfo("DrawObjectAnimation", 0),
+
+    // Music
     FunctionInfo("SetMusicTrack", 3),
     FunctionInfo("PlayMusic", 1),
     FunctionInfo("StopMusic", 0),
     FunctionInfo("PauseMusic", 0),
     FunctionInfo("ResumeMusic", 0),
     FunctionInfo("SwapMusicTrack", 4),
+
+    // Sound FX
     FunctionInfo("PlaySfx", 2),
     FunctionInfo("StopSfx", 1),
     FunctionInfo("SetSfxAttributes", 3),
+
+    // More Collision Stuff
     FunctionInfo("ObjectTileCollision", 4),
     FunctionInfo("ObjectTileGrip", 4),
+
+    // Bitwise Not
     FunctionInfo("Not", 1),
+
+    // 3D Stuff
     FunctionInfo("Draw3DScene", 0),
     FunctionInfo("SetIdentityMatrix", 1),
     FunctionInfo("MatrixMultiply", 2),
@@ -778,41 +824,51 @@ const QList<FunctionInfo> functions = {
     FunctionInfo("MatrixRotateXYZ", 4),
     FunctionInfo("MatrixInverse", 1),
     FunctionInfo("TransformVertices", 3),
+
     FunctionInfo("CallFunction", 1),
-    FunctionInfo("EndFunction", 0),
+    FunctionInfo("return", 0),
+
     FunctionInfo("SetLayerDeformation", 6),
     FunctionInfo("CheckTouchRect", 4),
     FunctionInfo("GetTileLayerEntry", 4),
     FunctionInfo("SetTileLayerEntry", 4),
+
     FunctionInfo("GetBit", 3),
     FunctionInfo("SetBit", 3),
+
     FunctionInfo("ClearDrawList", 1),
     FunctionInfo("AddDrawListEntityRef", 2),
     FunctionInfo("GetDrawListEntityRef", 3),
     FunctionInfo("SetDrawListEntityRef", 3),
+
     FunctionInfo("Get16x16TileInfo", 4),
     FunctionInfo("Set16x16TileInfo", 4),
     FunctionInfo("Copy16x16Tile", 2),
     FunctionInfo("GetAnimationByName", 2),
     FunctionInfo("ReadSaveRAM", 0),
     FunctionInfo("WriteSaveRAM", 0),
+
     FunctionInfo("LoadTextFile", 2),
     FunctionInfo("GetTextInfo", 5),
     FunctionInfo("GetVersionNumber", 2),
-    FunctionInfo("GetArrayValue", 3),
-    FunctionInfo("SetArrayValue", 3),
-    FunctionInfo("CheckStageFolder", 1),
-    FunctionInfo("Absolute", 1),
-    FunctionInfo("EngineCallbackFunc", 1),
-    FunctionInfo("EngineCallback", 3), // SetAchievement
-    FunctionInfo("EngineCallbackExt", 5),
-    FunctionInfo("SetObjectBorderX", 1), // (ScreenX)
-    FunctionInfo("GetObjectValue", 3),   //(ValueStore,ValIndex,EntityID)
-    FunctionInfo("SetObjectValue", 3),   //(ValueStore,ValIndex,EntityID)
-    FunctionInfo("CopyObject", 3),       // (StartID,???,Count)
-    FunctionInfo("HapticEffect", 3),     // (???,???,???)
-    FunctionInfo("Unknown", 0)
+
+    FunctionInfo("GetTableValue", 3),
+    FunctionInfo("SetTableValue", 3),
+
+    FunctionInfo("CheckCurrentStageFolder", 1),
+    FunctionInfo("Abs", 1),
+
+    FunctionInfo("CallNativeFunction", 1),
+    FunctionInfo("CallNativeFunction2", 3),
+    FunctionInfo("CallNativeFunction4", 5),
+
+    FunctionInfo("SetObjectRange", 1),
+    FunctionInfo("GetObjectValue", 3),
+    FunctionInfo("SetObjectValue", 3),
+    FunctionInfo("CopyObject", 3),
+    FunctionInfo("Print", 3),
 };
+// clang-format on
 
 // Aliases
 static QList<QString> boolAliases = {
@@ -935,13 +991,9 @@ static QList<QString> tileLayerTypeAliases = {
     "TILELAYER_3DFLOOR",  "TILELAYER_3DSKY",
 };
 
-static QList<QString> tempValue = {
-    "TempValue0", "TempValue1", "TempValue2", "TempValue3",
-    "TempValue4", "TempValue5", "TempValue6", "TempValue7",
-};
 static QList<QString> arrayPosition = {
-    "ArrayPos0", "ArrayPos1",       "ArrayPos2",         "ArrayPos3",     "ArrayPos4",
-    "ArrayPos5", "PlayerObjectPos", "PlayerObjectCount", "TempObjectPos",
+    "arrayPos0", "arrayPos1", "arrayPos2", "arrayPos3",     "arrayPos4",
+    "arrayPos5", "arrayPos6", "arrayPos7", "tempObjectPos",
 };
 }; // namespace RSDKv4
 
@@ -972,18 +1024,17 @@ QString RSDKv4::Decompiler::setArrayValue(QString strIn, QString index)
     QString strOut = strIn;
     int point      = -1;
 
-    if (strIn == "Global") {
+    if (strIn == "global") {
         strOut = m_variableNames[index.toInt()];
         if (strOut == "")
             return strIn;
         return strOut;
     }
-    else if (strIn == "ScriptData") {
+    else if (strIn == "local") {
         bool ok = false;
         int idx = index.toInt(&ok);
         if (ok) {
-            StaticVarInfo c(QString("%1_staticVar%2").arg(curTypeNamev4).arg(m_staticVars.count()),
-                            idx);
+            StaticVarInfo c(QString("%1_value%2").arg(curTypeNamev4).arg(m_staticVars.count()), idx);
 
             if (!m_staticVars.contains(c)) {
                 strOut = c.m_name;
@@ -994,7 +1045,7 @@ QString RSDKv4::Decompiler::setArrayValue(QString strIn, QString index)
             }
         }
         else {
-            strOut = QString("ScriptData[%1]").arg(index);
+            strOut = QString("local[%1]").arg(index);
         }
 
         return strOut;
@@ -1125,21 +1176,18 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
 
         curTypeNamev4 = m_typeNames[i];
         curTypeNamev4 = curTypeNamev4.replace(" ", "");
-        writer.writeLine("//--------------------Sonic 1 / Sonic 2 " + m_typeNames[i]
-                             + " Script--------------------//",
-                         LINE_CRLF);
-        writer.writeLine("//--------Scripted by Christian Whitehead 'The Taxman' & Simon Thomley "
-                         "'Stealth'--------//",
-                         LINE_CRLF);
-        writer.writeLine("//-----------------Unpacked By Rubberduckycooly's Script "
-                         "Unpacker-----------------------//",
-                         LINE_CRLF);
 
+        writer.writeLine("// ----------------------------------");
+        writer.writeLine("// RSDK Project: Sonic 1/Sonic 2");
+        writer.writeLine("// Script Description: " + m_typeNames[i] + " Object");
+        writer.writeLine("// Script Author: Christan Whitehead/Simon Thomley");
+        writer.writeLine("// Unpacked by Rubberduckycooly's script unpacker");
+        writer.writeLine("// ----------------------------------");
         writer.writeLine("", LINE_CRLF);
 
         writer.writeLine("//-------Aliases-------//", LINE_CRLF);
 
-        writer.writeLine("#alias " + QString::number(i) + ": TYPE_"
+        writer.writeLine("private alias " + QString::number(i) + " : TYPE_"
                              + m_typeNames[i].toUpper().replace(" ", ""),
                          LINE_CRLF);
 
@@ -1202,9 +1250,8 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
 
         int fCnt = 0;
         for (int s = 0; s < scriptPtrs.count(); ++s) {
-            if (scriptPtrs[s].m_name != "ObjectMain"
-                && scriptPtrs[s].m_name != "ObjectPlayerInteraction"
-                && scriptPtrs[s].m_name != "ObjectDraw" && scriptPtrs[s].m_name != "ObjectStartup") {
+            if (scriptPtrs[s].m_name != "ObjectMain" && scriptPtrs[s].m_name != "ObjectDraw"
+                && scriptPtrs[s].m_name != "ObjectStartup") {
                 fCnt++;
             }
         }
@@ -1213,9 +1260,8 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
             writer.writeLine("// Function declarations", LINE_CRLF);
 
         for (int s = 0; s < scriptPtrs.count(); ++s) {
-            if (scriptPtrs[s].m_name != "ObjectMain"
-                && scriptPtrs[s].m_name != "ObjectPlayerInteraction"
-                && scriptPtrs[s].m_name != "ObjectDraw" && scriptPtrs[s].m_name != "ObjectStartup") {
+            if (scriptPtrs[s].m_name != "ObjectMain" && scriptPtrs[s].m_name != "ObjectDraw"
+                && scriptPtrs[s].m_name != "ObjectStartup") {
                 writer.writeLine("#function " + scriptPtrs[s].m_name, LINE_CRLF);
             }
         }
@@ -1234,19 +1280,25 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
             scriptPtrs[s].m_endPtr = end;
         }
 
-        bufWriter.writeLine("sub RSDK", LINE_CRLF);
-        bufWriter.writeLine("\tLoadSpriteSheet(\"Global/Display.gif\")", LINE_CRLF);
-        bufWriter.writeLine("\tSetEditorIcon(Icon0,SingleIcon,-16,-16,32,32,1,143)", LINE_CRLF);
-        bufWriter.writeLine("endsub", LINE_CRLF);
+        bufWriter.writeLine("event RSDKDraw", LINE_CRLF);
+        bufWriter.writeLine("\tDrawSprite(0)", LINE_CRLF);
+        bufWriter.writeLine("end event", LINE_CRLF);
 
-        if (m_staticVars.count() > 0)
+        bufWriter.writeLine("event RSDKLoad", LINE_CRLF);
+        bufWriter.writeLine("\tLoadSpriteSheet(\"Global/Display.gif\")", LINE_CRLF);
+        bufWriter.writeLine("\tSpriteFrame(-16, -16, 32, 32, 1, 143)", LINE_CRLF);
+        bufWriter.writeLine("end event", LINE_CRLF);
+
+        if (m_staticVars.count() > 0) {
             writer.writeLine("", LINE_CRLF);
+            writer.writeLine("// Static Values", LINE_CRLF);
+        }
         QList<int> registeredPos;
 
         int firstOffset = m_lastOffset;
         int endOffset   = scriptPtrs[scriptPtrs.count() - 1].m_endPtr;
 
-        std::sort(m_arrays.begin(), m_arrays.end(),
+        std::sort(m_tables.begin(), m_tables.end(),
                   [](const StaticVarInfo &a, const StaticVarInfo &b) -> bool {
                       return a.m_dataPos < b.m_dataPos;
                   });
@@ -1259,7 +1311,7 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
         for (int c = m_globalStaticCount; c < m_staticVars.count(); ++c) {
             int index = m_staticVars[c].m_dataPos;
             if (index >= firstOffset && index < endOffset) {
-                writer.writeLine(QString("#static %1:%2")
+                writer.writeLine(QString("public %2 = %1;")
                                      .arg(toHexString(QString::number(bytecode.m_scriptData[index])))
                                      .arg(m_staticVars[c].m_name),
                                  LINE_CRLF);
@@ -1267,22 +1319,26 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
             }
         }
 
-        if (m_arrays.count() > 0)
+        if (m_tables.count() > 0) {
             writer.writeLine("", LINE_CRLF);
-        for (int a = m_globalArrayCount; a < m_arrays.count(); ++a) {
-            int index = m_arrays[a].m_dataPos;
+            writer.writeLine("// Tables", LINE_CRLF);
+        }
+        for (int a = m_globalArrayCount; a < m_tables.count(); ++a) {
+            int index = m_tables[a].m_dataPos;
             if (index >= firstOffset && index < endOffset) {
-                writer.writeText(QString("#array %1:(").arg(m_arrays[a].m_name));
+                writer.writeLine(QString("public table %1").arg(m_tables[a].m_name), LINE_CRLF);
                 registeredPos.append(index);
+                writer.writeText("\t");
                 for (int v = 0; v < bytecode.m_scriptData[index]; ++v) {
                     writer.writeText(
                         toHexString(QString::number(bytecode.m_scriptData[index + 1 + v])));
                     registeredPos.append(index + 1 + v);
                     if (v + 1 < bytecode.m_scriptData[index]) {
-                        writer.writeText(",");
+                        writer.writeText(", ");
                     }
                 }
-                writer.writeLine(")", LINE_CRLF);
+                writer.writeLine("", LINE_CRLF);
+                writer.writeLine("end table", LINE_CRLF);
             }
         }
 
@@ -1313,7 +1369,7 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
                 for (int b = m_lastOffset; b < scriptPtrs[0].m_startPtr; ++b) {
                     if (!registeredPos.contains(b) && (b >= firstOffset && b < endOffset))
                         writer.writeLine(
-                            QString("#static %1:staticVar%2")
+                            QString("private value value%2 = %1;")
                                 .arg(toHexString(QString::number(bytecode.m_scriptData[b])))
                                 .arg(toHexString(QString::number(b))),
                             LINE_CRLF);
@@ -1326,7 +1382,7 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
                     for (int b = scriptPtrs[s].m_endPtr; b < scriptPtrs[s].m_endPtr + dif; ++b) {
                         if (!registeredPos.contains(b) && (b >= firstOffset && b < endOffset))
                             writer.writeLine(
-                                QString("#static %1:staticVar%2")
+                                QString("private value value%2 = %1;")
                                     .arg(toHexString(QString::number(bytecode.m_scriptData[b])))
                                     .arg(toHexString(QString::number(b))),
                                 LINE_CRLF);
@@ -1346,11 +1402,8 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
 int RSDKv4::Decompiler::decompileScript(RSDKv4::Bytecode &bytecode, Writer &writer, int scriptCodePtr,
                                         int jumpTablePtr, QString subName, bool isFunction)
 {
-    QList<QString> funcNames = { "ObjectMain", "ObjectPlayerInteraction", "ObjectDraw", "ObjectStartup",
-                                 "RSDK" };
-
     if (!isFunction)
-        writer.writeLine("sub " + subName, LINE_CRLF);
+        writer.writeLine("event " + subName, LINE_CRLF);
     else
         writer.writeLine("function " + subName, LINE_CRLF);
 
@@ -1511,14 +1564,14 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
 
         QString operand = functions[opcode].name;
 
-        if (operand == "End" || operand == "EndFunction") {
+        /*if (operand == "End" || operand == "EndFunction") {
             if (isFunction)
-                writer.writeText("endfunction");
+                writer.writeText("end function");
             else
-                writer.writeText("endsub");
+                writer.writeText("end event");
             state.m_endFlag = true;
             state.m_deep    = 0;
-        }
+        }*/
 
         if (!state.m_endFlag) {
             // Check what opcodes terminates a statement
@@ -1532,7 +1585,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                     for (int i = 0; i < state.m_deep; ++i) writer.writeText("\t");
                     break;
                 case FUNC_LOOP:
-                case FUNC_FOREACHLOOP:
+                case FUNC_NEXT:
                     state.m_deep--;
                     for (int i = 0; i < state.m_deep; ++i) writer.writeText("\t");
                     break;
@@ -1540,6 +1593,10 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                     state.m_deep--;
                     for (int i = 0; i < state.m_deep; ++i) writer.writeText("\t");
                     break;
+                case FUNC_RETURN:
+                    if (state.m_deep <= 1)
+                        break;
+                    [[fallthrough]];
                 default:
                     for (int i = 0; i < state.m_deep; ++i) writer.writeText("\t");
                     break;
@@ -1556,57 +1613,48 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
 
                 for (int i = 0; i < variableName.length(); ++i) {
                     if (variableName[i] == "") {
-                        variableName[i] = "Object.Value0";
+                        variableName[i] = "object.value0";
                     }
                 }
 
-                if (variableName[0].contains("Object") && variableName[0].contains(".Type")) {
+                if (variableName[0].contains("object") && variableName[0].contains(".type")) {
                     bool ok = false;
                     int id  = variableName[1].toInt(&ok);
                     if (ok && id < m_typeNames.count())
-                        variableName[1] =
-                            "TypeName["
-                            + m_typeNames[id].replace(" ", "").replace("TouchControls", "DebugMode")
-                            + "]";
+                        variableName[1] = "TypeName[" + m_typeNames[id] + "]";
                 }
 
-                if (variableName[0].contains("TileLayer") && variableName[0].contains(".Type")) {
+                if (variableName[0].contains("tileLayer") && variableName[0].contains(".type")) {
                     bool ok = false;
                     int id  = variableName[1].toInt(&ok);
                     if (ok && id < tileLayerTypeAliases.count())
-                        variableName[1] = "TypeName[" + tileLayerTypeAliases[id] + "]";
+                        variableName[1] = tileLayerTypeAliases[id];
                 }
 
-                if (variableName[0].contains("_Type")) {
+                if (variableName[0].contains("_type")) {
                     bool ok = false;
                     int id  = variableName[1].toInt(&ok);
                     if (ok && id < m_typeNames.count())
-                        variableName[1] =
-                            "TypeName["
-                            + m_typeNames[id].replace(" ", "").replace("TouchControls", "DebugMode")
-                            + "]";
+                        variableName[1] = "TypeName[" + m_typeNames[id] + "]";
                 }
 
-                if (variableName[1].contains("Object") && variableName[1].contains(".Type")) {
+                if (variableName[1].contains("object") && variableName[1].contains(".type")) {
                     bool ok = false;
                     int id  = variableName[2].toInt(&ok);
                     if (ok && id < m_typeNames.count())
-                        variableName[2] =
-                            "TypeName["
-                            + m_typeNames[id].replace(" ", "").replace("TouchControls", "DebugMode")
-                            + "]";
+                        variableName[2] = "TypeName[" + m_typeNames[id] + "]";
                 }
 
-                if (variableName[1].contains("TileLayer") && variableName[1].contains(".Type")) {
+                if (variableName[1].contains("tileLayer") && variableName[1].contains(".type")) {
                     bool ok = false;
                     int id  = variableName[2].toInt(&ok);
                     if (ok && id < tileLayerTypeAliases.count())
-                        variableName[2] = "TypeName[" + tileLayerTypeAliases[id] + "]";
+                        variableName[2] = tileLayerTypeAliases[id];
                 }
 
                 // Special Aliases for some functions
                 QList<QString> operandSwitchList = {
-                    "DrawSpriteFX",     "DrawSpriteScreenFX",  "PlayerObjectCollision",
+                    "DrawSpriteFX",     "DrawSpriteScreenFX",  "BoxCollisionTest",
                     "CreateTempObject", "ResetObjectEntity",   "PlaySfx",
                     "StopSfx",          "PlayStageSfx",        "StopStageSfx",
                     "SetSfxAttributes", "ObjectTileCollision", "ObjectTileGrip",
@@ -1616,7 +1664,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                     "DrawMenu",         "SetupMenu",           "AddMenuEntry",
                     "EditMenuEntry",    "LoadTextFile",        "DrawText",
                     "GetVersionNumber", "GetTextInfo",         "LoadOnlineMenu",
-                    "Get16x16TileInfo", "Set16x16TileInfo",    "EngineCallback",
+                    "Get16x16TileInfo", "Set16x16TileInfo",
                 };
                 int opID = operandSwitchList.indexOf(operand);
                 switch (opID) {
@@ -1637,7 +1685,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                             variableName[1] = FXAliases[id];
                         break;
                     }
-                    case 2: //"PlayerObjectCollision"
+                    case 2: //"BoxCollisionTest"
                     {
                         bool ok = false;
                         int id  = variableName[0].toInt(&ok);
@@ -1652,10 +1700,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[0].toInt(&ok);
                         if (ok && id < m_typeNames.count())
-                            variableName[0] =
-                                "TypeName["
-                                + m_typeNames[id].replace(" ", "").replace("TouchControls", "DebugMode")
-                                + "]";
+                            variableName[0] = "TypeName[" + m_typeNames[id] + "]";
                         break;
                     }
                     case 4: //"ResetObjectEntity"
@@ -1663,10 +1708,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok && id < m_typeNames.count())
-                            variableName[1] =
-                                "TypeName["
-                                + m_typeNames[id].replace(" ", "").replace("TouchControls", "DebugMode")
-                                + "]";
+                            variableName[1] = "TypeName[" + m_typeNames[id] + "]";
                         break;
                     }
                     case 5: //"PlaySfx"
@@ -1675,7 +1717,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         int id  = variableName[0].toInt(&ok);
                         if (ok)
                             if (id < m_sfxNames.count())
-                                variableName[0] = "SFXName[" + m_sfxNames[id].replace(" ", "") + "]";
+                                variableName[0] = "SfxName[" + m_sfxNames[id] + "]";
                         break;
                     }
                     case 6: //"StopSfx"
@@ -1684,7 +1726,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         int id  = variableName[0].toInt(&ok);
                         if (ok)
                             if (id < m_sfxNames.count())
-                                variableName[0] = "SFXName[" + m_sfxNames[id].replace(" ", "") + "]";
+                                variableName[0] = "SfxName[" + m_sfxNames[id] + "]";
                         break;
                     }
                     case 7: //"PlayStageSfx"
@@ -1693,9 +1735,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         int id  = variableName[0].toInt(&ok);
                         if (ok)
                             if (id + m_globalSFXCount < m_sfxNames.count())
-                                variableName[0] = "SFXName["
-                                                  + m_sfxNames[id + m_globalSFXCount].replace(" ", "")
-                                                  + "]";
+                                variableName[0] = "SfxName[" + m_sfxNames[id + m_globalSFXCount] + "]";
                         break;
                     }
                     case 8: //"StopStageSfx"
@@ -1704,9 +1744,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         int id  = variableName[0].toInt(&ok);
                         if (ok)
                             if (id + m_globalSFXCount < m_sfxNames.count())
-                                variableName[0] = "SFXName["
-                                                  + m_sfxNames[id + m_globalSFXCount].replace(" ", "")
-                                                  + "]";
+                                variableName[0] = "SfxName[" + m_sfxNames[id + m_globalSFXCount] + "]";
                         break;
                     }
                     case 9: //"SetSfxAttributes"
@@ -1715,7 +1753,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         int id  = variableName[0].toInt(&ok);
                         if (ok)
                             if (id < m_sfxNames.count())
-                                variableName[0] = "SFXName[" + m_sfxNames[id].replace(" ", "") + "]";
+                                variableName[0] = "SfxName[" + m_sfxNames[id] + "]";
                         break;
                     }
                     case 10: //"ObjectTileCollision"
@@ -1816,23 +1854,11 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
 
                         break;
                     }
-                    case 32: //"EngineCallback"
-                    {
-                        bool ok = false;
-                        int id  = variableName[0].toInt(&ok);
-                        if (ok) {
-                            if (id < 0 || id >= callbackAliases.count())
-                                variableName[0] = "CALLBACK_" + QString::number(id);
-                            else
-                                variableName[0] = callbackAliases[id];
-                        }
-
-                    } break;
                 }
 
                 if (opcode < FUNC_LOOP) {
-                    operandSwitchList = { "Engine.PlatformID", "Stage.ActiveList", "Stage.State",
-                                          "Engine.State", "Engine.Message" };
+                    operandSwitchList = { "engine.deviceType", "stage.activeList", "stage.state",
+                                          "engine.state" };
                     opID              = operandSwitchList.indexOf(variableName[0]);
                     switch (opID) {
                         case 0: //"Engine.PlatformID":
@@ -1883,7 +1909,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         }
                     }
 
-                    if (variableName[0].contains(".Direction")) {
+                    if (variableName[0].contains(".direction")) {
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok) {
@@ -1893,7 +1919,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         }
                     }
 
-                    if (variableName[0].contains(".InkEffect")) {
+                    if (variableName[0].contains(".inkEffect")) {
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
@@ -1901,7 +1927,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                                 variableName[1] = inkAliases[id];
                     }
 
-                    if (variableName[0].contains(".Flag")) {
+                    if (variableName[0].contains(".flag")) {
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
@@ -1909,7 +1935,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                                 variableName[1] = faceFlagAliases[id];
                     }
 
-                    if (variableName[0].contains(".Priority")) {
+                    if (variableName[0].contains(".priority")) {
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
@@ -1917,8 +1943,8 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                                 variableName[1] = priorityAliases[id];
                     }
 
-                    if (variableName[0].contains(".Gravity")
-                        && !variableName[0].contains(".GravityStrength")) {
+                    if (variableName[0].contains(".gravity")
+                        && !variableName[0].contains(".gravityStrength")) {
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
@@ -1926,7 +1952,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                                 variableName[1] = gravityAliases[id];
                     }
 
-                    if (variableName[0].contains(".CollisionMode")) {
+                    if (variableName[0].contains(".collisionMode")) {
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
@@ -1934,7 +1960,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                                 variableName[1] = cModeAliases[id];
                     }
 
-                    if (variableName[0].contains(".CollisionPlane")) {
+                    if (variableName[0].contains(".collisionPlane")) {
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
@@ -1992,14 +2018,14 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         }
                     }
 
-                    if (variableName[1].contains(".Direction")) {
+                    if (variableName[1].contains(".direction")) {
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok && id < directionAliases.count())
                             variableName[2] = directionAliases[id];
                     }
 
-                    if (variableName[1].contains(".InkEffect")) {
+                    if (variableName[1].contains(".inkEffect")) {
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
@@ -2008,8 +2034,8 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         }
                     }
 
-                    if (variableName[1].contains(".Gravity")
-                        && !variableName[1].contains(".GravityStrength")) {
+                    if (variableName[1].contains(".gravity")
+                        && !variableName[1].contains(".gravityStrength")) {
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
@@ -2018,7 +2044,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         }
                     }
 
-                    if (variableName[1].contains(".Flag")) {
+                    if (variableName[1].contains(".flag")) {
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
@@ -2027,7 +2053,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         }
                     }
 
-                    if (variableName[1].contains(".Priority")) {
+                    if (variableName[1].contains(".priority")) {
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
@@ -2036,7 +2062,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         }
                     }
 
-                    if (variableName[1].contains(".CollisionMode")) {
+                    if (variableName[1].contains(".collisionMode")) {
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
@@ -2045,7 +2071,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         }
                     }
 
-                    if (variableName[1].contains(".CollisionPlane")) {
+                    if (variableName[1].contains(".collisionPlane")) {
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
@@ -2059,139 +2085,134 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
             switch (opcode) {
                 case FUNC_END:
                     if (isFunction)
-                        writer.writeText("endfunction");
+                        writer.writeText("end function");
                     else
-                        writer.writeText("endsub");
+                        writer.writeText("end event");
                     state.m_endFlag = true;
                     state.m_deep    = 0;
                     break;
                 case FUNC_EQUAL:
-                    writer.writeText(toHexString(variableName[0]) + "=" + toHexString(variableName[1]));
+                    writer.writeText(toHexString(variableName[0]) + " = "
+                                     + toHexString(variableName[1]));
                     break;
                 case FUNC_ADD:
                     writer.writeText(toHexString(variableName[0])
-                                     + "+=" + toHexString(variableName[1]));
+                                     + " += " + toHexString(variableName[1]));
                     break;
                 case FUNC_SUB:
                     writer.writeText(toHexString(variableName[0])
-                                     + "-=" + toHexString(variableName[1]));
+                                     + " -= " + toHexString(variableName[1]));
                     break;
                 case FUNC_INC: writer.writeText(toHexString(variableName[0]) + "++"); break;
                 case FUNC_DEC: writer.writeText(toHexString(variableName[0]) + "--"); break;
                 case FUNC_MUL:
                     writer.writeText(toHexString(variableName[0])
-                                     + "*=" + toHexString(variableName[1]));
+                                     + " *= " + toHexString(variableName[1]));
                     break;
                 case FUNC_DIV:
                     writer.writeText(toHexString(variableName[0])
-                                     + "/=" + toHexString(variableName[1]));
+                                     + " /= " + toHexString(variableName[1]));
                     break;
                 case FUNC_SHR:
                     writer.writeText(toHexString(variableName[0])
-                                     + ">>=" + toHexString(variableName[1]));
+                                     + " >>= " + toHexString(variableName[1]));
                     break;
                 case FUNC_SHL:
                     writer.writeText(toHexString(variableName[0])
-                                     + "<<=" + toHexString(variableName[1]));
+                                     + " <<= " + toHexString(variableName[1]));
                     break;
                 case FUNC_AND:
                     writer.writeText(toHexString(variableName[0])
-                                     + "&=" + toHexString(variableName[1]));
+                                     + " &= " + toHexString(variableName[1]));
                     break;
                 case FUNC_OR:
                     writer.writeText(toHexString(variableName[0])
-                                     + "|=" + toHexString(variableName[1]));
+                                     + " |= " + toHexString(variableName[1]));
                     break;
                 case FUNC_XOR:
                     writer.writeText(toHexString(variableName[0])
-                                     + "^=" + toHexString(variableName[1]));
+                                     + " ^= " + toHexString(variableName[1]));
                     break;
                 case FUNC_MOD:
                     writer.writeText(toHexString(variableName[0])
-                                     + "%=" + toHexString(variableName[1]));
+                                     + " %= " + toHexString(variableName[1]));
                     break;
                 case FUNC_IFEQUAL:
                     // JumpTableOffset = Int32.Parse(variableName[0]);
                     writer.writeText("if " + toHexString(variableName[1])
-                                     + "==" + toHexString(variableName[2]));
+                                     + " == " + toHexString(variableName[2]));
                     ++state.m_deep;
                     break;
                 case FUNC_IFGREATER:
                     // JumpTableOffset = Int32.Parse(variableName[0]);
-                    writer.writeText("if " + toHexString(variableName[1]) + ">"
+                    writer.writeText("if " + toHexString(variableName[1]) + " > "
                                      + toHexString(variableName[2]));
                     ++state.m_deep;
                     break;
                 case FUNC_IFGREATEROREQUAL:
                     // JumpTableOffset = Int32.Parse(variableName[0]);
                     writer.writeText("if " + toHexString(variableName[1])
-                                     + ">=" + toHexString(variableName[2]));
+                                     + " >= " + toHexString(variableName[2]));
                     ++state.m_deep;
                     break;
                 case FUNC_IFLOWER:
                     // JumpTableOffset = Int32.Parse(variableName[0]);
-                    writer.writeText("if " + toHexString(variableName[1]) + "<"
+                    writer.writeText("if " + toHexString(variableName[1]) + " < "
                                      + toHexString(variableName[2]));
                     ++state.m_deep;
                     break;
                 case FUNC_IFLOWEROREQUAL:
                     // JumpTableOffset = Int32.Parse(variableName[0]);
                     writer.writeText("if " + toHexString(variableName[1])
-                                     + "<=" + toHexString(variableName[2]));
+                                     + " <= " + toHexString(variableName[2]));
                     ++state.m_deep;
                     break;
                 case FUNC_IFNOTEQUAL:
                     // JumpTableOffset = Int32.Parse(variableName[0]);
                     writer.writeText("if " + toHexString(variableName[1])
-                                     + "!=" + toHexString(variableName[2]));
+                                     + " != " + toHexString(variableName[2]));
                     ++state.m_deep;
                     break;
                 case FUNC_ELSE: writer.writeText("else"); break;
-                case FUNC_ENDIF: writer.writeText("endif"); break;
+                case FUNC_ENDIF: writer.writeText("end if"); break;
                 case FUNC_WEQUAL:
                     // JumpTableOffset = Int32.Parse(variableName[0]);
                     writer.writeText("while " + toHexString(variableName[1])
-                                     + "==" + toHexString(variableName[2]));
+                                     + " == " + toHexString(variableName[2]));
                     ++state.m_deep;
                     break;
                 case FUNC_WGREATER:
                     // JumpTableOffset = Int32.Parse(variableName[0]);
-                    writer.writeText("while " + toHexString(variableName[1]) + ">"
+                    writer.writeText("while " + toHexString(variableName[1]) + " > "
                                      + toHexString(variableName[2]));
                     ++state.m_deep;
                     break;
                 case FUNC_WGREATEROREQUAL:
                     // JumpTableOffset = Int32.Parse(variableName[0]);
                     writer.writeText("while " + toHexString(variableName[1])
-                                     + ">=" + toHexString(variableName[2]));
+                                     + " >= " + toHexString(variableName[2]));
                     ++state.m_deep;
                     break;
                 case FUNC_WLOWER:
                     // JumpTableOffset = Int32.Parse(variableName[0]);
-                    writer.writeText("while " + toHexString(variableName[1]) + "<"
+                    writer.writeText("while " + toHexString(variableName[1]) + " < "
                                      + toHexString(variableName[2]));
                     ++state.m_deep;
                     break;
                 case FUNC_WLOWEROREQUAL:
                     // JumpTableOffset = Int32.Parse(variableName[0]);
                     writer.writeText("while " + toHexString(variableName[1])
-                                     + "<=" + toHexString(variableName[2]));
+                                     + " <= " + toHexString(variableName[2]));
                     ++state.m_deep;
                     break;
                 case FUNC_WNOTEQUAL:
                     // JumpTableOffset = Int32.Parse(variableName[0]);
                     writer.writeText("while " + toHexString(variableName[1])
-                                     + "!=" + toHexString(variableName[2]));
+                                     + " != " + toHexString(variableName[2]));
                     ++state.m_deep;
                     break;
                 case FUNC_LOOP: writer.writeText("loop"); break;
-                case FUNC_FOREACHTYPEGROUP:
-                    writer.writeText(QString("foreach %1,%2")
-                                         .arg("TypeGroup[" + toHexString(variableName[1]) + "]")
-                                         .arg(toHexString(variableName[2])));
-                    ++state.m_deep;
-                    break;
-                case FUNC_FOREACHTYPENAME: {
+                case FUNC_FOREACHACTIVE: {
                     QString type = "TypeName[";
                     bool ok      = false;
                     int t        = variableName[1].toInt(&ok);
@@ -2199,7 +2220,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                     if (ok) {
                         if (t < m_typeNames.count() && t >= 0) {
                             type = m_typeNames[t];
-                            type = type.replace(" ", "");
+                            type = "TypeName[" + type + "]";
                         }
                         else {
                             type = QString::number(t);
@@ -2208,13 +2229,36 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                     else {
                         type = variableName[1];
                     }
-                    writer.writeText(QString("foreach %1,%2")
-                                         .arg("TypeName[" + type + "]")
+                    writer.writeText(QString("foreach (%1, %2, ACTIVE_ENTITIES)")
+                                         .arg(type)
                                          .arg(toHexString(variableName[2])));
                     ++state.m_deep;
                     break;
                 }
-                case FUNC_FOREACHLOOP: writer.writeText("floop"); break;
+                case FUNC_FOREACHALL: {
+                    QString type = "TypeName[";
+                    bool ok      = false;
+                    int t        = variableName[1].toInt(&ok);
+                    QString tn   = "";
+                    if (ok) {
+                        if (t < m_typeNames.count() && t >= 0) {
+                            type = m_typeNames[t];
+                            type = "TypeName[" + type + "]";
+                        }
+                        else {
+                            type = QString::number(t);
+                        }
+                    }
+                    else {
+                        type = variableName[1];
+                    }
+                    writer.writeText(QString("foreach (%1, %2, ALL_ENTITIES)")
+                                         .arg(type)
+                                         .arg(toHexString(variableName[2])));
+                    ++state.m_deep;
+                    break;
+                }
+                case FUNC_NEXT: writer.writeText("next"); break;
                 case FUNC_SWITCH: {
                     writer.writeText("switch " + toHexString(variableName[1]));
 
@@ -2305,44 +2349,50 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                 }
                 case FUNC_BREAK: writer.writeText("break"); break;
                 case FUNC_ENDSWITCH:
-                    writer.writeText("endswitch");
+                    writer.writeText("end switch");
                     state.m_switchDeep--;
                     break;
+                case FUNC_RETURN:
+                    if (state.m_deep <= 1) {
+                        writer.writeText("end function");
+                        state.m_endFlag = true;
+                        state.m_deep    = 0;
+                    }
+                    else {
+                        writer.writeText("return");
+                    }
+                    break;
                 default:
-                    if (operand == "GetArrayValue") {
+                    if (operand == "GetTableValue") {
                         bool ok   = false;
                         int index = variableName[2].toInt(&ok);
                         if (ok) {
                             StaticVarInfo c(
-                                QString("%1_array%2").arg(curTypeNamev4).arg(m_arrays.count()),
-                                //.arg(QString::number(index, 0x10).toUpper())
-                                index);
+                                QString("%1_table%2").arg(curTypeNamev4).arg(m_tables.count()), index);
 
-                            if (!m_arrays.contains(c)) {
-                                m_arrays.append(c);
+                            if (!m_tables.contains(c)) {
+                                m_tables.append(c);
                                 variableName[2] = c.m_name;
                             }
                             else {
-                                variableName[2] = m_arrays[m_arrays.indexOf(c)].m_name;
+                                variableName[2] = m_tables[m_tables.indexOf(c)].m_name;
                             }
                         }
                         // A = ScriptData[B + C]
                     }
-                    if (operand == "SetArrayValue") {
+                    if (operand == "SetTableValue") {
                         bool ok   = false;
                         int index = variableName[2].toInt(&ok);
                         if (ok) {
                             StaticVarInfo c(
-                                QString("%1_array%2").arg(curTypeNamev4).arg(m_arrays.count()),
-                                //.arg(QString::number(index, 0x10).toUpper())
-                                index);
+                                QString("%1_table%2").arg(curTypeNamev4).arg(m_tables.count()), index);
 
-                            if (!m_arrays.contains(c)) {
-                                m_arrays.append(c);
+                            if (!m_tables.contains(c)) {
+                                m_tables.append(c);
                                 variableName[2] = c.m_name;
                             }
                             else {
-                                variableName[2] = m_arrays[m_arrays.indexOf(c)].m_name;
+                                variableName[2] = m_tables[m_tables.indexOf(c)].m_name;
                             }
                         }
                         // ScriptData[B + C] = A
@@ -2361,14 +2411,12 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         }
                     }
                     else {
-                        if (operand == "SetEditorIcon" && m_mobileVer)
-                            writer.writeText("EditFrame(");
-                        else
-                            writer.writeText(operand + "(");
+
+                        writer.writeText(operand + "(");
                         for (int i = 0; i < paramsCount; i++) {
                             writer.writeText(toHexString(variableName[i]));
                             if (i + 1 < paramsCount)
-                                writer.writeText(",");
+                                writer.writeText(", ");
                         }
                         writer.writeText(")");
                     }

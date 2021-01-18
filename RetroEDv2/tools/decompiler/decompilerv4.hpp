@@ -118,7 +118,7 @@ public:
     };
 
     QList<StaticVarInfo> m_staticVars;
-    QList<StaticVarInfo> m_arrays;
+    QList<StaticVarInfo> m_tables;
 
 private:
     int decompileScript(RSDKv4::Bytecode &bytecode, Writer &writer, int scriptCodePtr, int jumpTablePtr,

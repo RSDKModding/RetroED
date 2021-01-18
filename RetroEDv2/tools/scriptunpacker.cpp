@@ -297,7 +297,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     m_decompilerv4.m_sfxNames.clear();
                     m_decompilerv4.m_functionNames.clear();
                     m_decompilerv4.m_staticVars.clear();
-                    m_decompilerv4.m_arrays.clear();
+                    m_decompilerv4.m_tables.clear();
 
                     m_decompilerv4.m_globalScriptCount = b ? m_globalScriptCount : 0;
 
@@ -311,7 +311,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                             m_decompilerv4.m_sfxNames.append(n);
                         for (auto &n : m_globalFunctionNames) m_decompilerv4.m_functionNames.append(n);
                         for (auto &n : m_globalConstants) m_decompilerv4.m_staticVars.append(n);
-                        for (auto &n : m_globalArrays) m_decompilerv4.m_arrays.append(n);
+                        for (auto &n : m_globalArrays) m_decompilerv4.m_tables.append(n);
 
                         m_decompilerv4.m_globalFunctionCount = m_globalFunctionCount;
                         m_decompilerv4.m_globalStaticCount   = m_globalArrayCount;
@@ -357,7 +357,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     if (!b) {
                         m_globalFunctionCount = bc.m_functionList.count();
                         m_globalConstantCount = m_decompilerv4.m_staticVars.count();
-                        m_globalArrayCount    = m_decompilerv4.m_arrays.count();
+                        m_globalArrayCount    = m_decompilerv4.m_tables.count();
                         m_globalOffset        = m_decompilerv4.m_lastOffset;
 
                         m_globalFunctionNames.clear();
@@ -366,7 +366,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                         m_globalArrays.clear();
                         for (auto &n : m_decompilerv4.m_functionNames) m_globalFunctionNames.append(n);
                         for (auto &n : m_decompilerv4.m_staticVars) m_globalConstants.append(n);
-                        for (auto &n : m_decompilerv4.m_arrays) m_globalArrays.append(n);
+                        for (auto &n : m_decompilerv4.m_tables) m_globalArrays.append(n);
                     }
                 }
                 setStatus("finished decompiling scripts!");
