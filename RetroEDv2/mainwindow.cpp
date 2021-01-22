@@ -186,7 +186,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             m_exePath = filedialog.selectedFiles()[0];
     });
 
-    gameManager->addAction("Run executable", [this] {
+    auto runGame = [this] {
         if (QFile::exists(m_exePath)) {
             QStringList args;
             args << m_exePath;
@@ -197,8 +197,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             proc.startDetached();
             proc.waitForStarted();
         }
-    });
+    };
+
+    gameManager->addAction("Run executable (F5)", runGame);
     ui->menubar->addMenu(gameManager);
+
+    QShortcut *rgShort = new QShortcut(this);
+    rgShort->setKey(Qt::Key_F5);
+    connect(rgShort, &QShortcut::activated, runGame);
 #endif
 
     QMenu *about = new QMenu("About");
