@@ -3,6 +3,7 @@
 void FormatHelpers::Background::read(byte ver, QString filename)
 {
     Reader reader(filename);
+    m_filename = filename;
 
     m_hScroll.clear();
     m_vScroll.clear();
@@ -186,6 +187,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
     if (filename == "")
         return;
     Writer writer(filename);
+    m_filename = filename;
 
     scrollIndicesFromInfo();
 

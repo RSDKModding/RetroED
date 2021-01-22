@@ -69,7 +69,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                 }
                 case TOOL_SCRIPTUNPACKER: break;
                 case TOOL_RSDKUNPACKER: break;
-                case TOOL_PALETTEDITOR: break;
+                case TOOL_PALETTEDITOR: {
+                    if (QFile::exists(r.m_path)) {
+                        PaletteEditor *tool = new PaletteEditor(r.m_path, r.m_gameVer);
+                        tool->installEventFilter(this);
+                        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Palette Editor"));
+                    }
+                    break;
+                }
                 case TOOL_GFXTOOL: break;
                 case TOOL_GAMECONFIGEDITOR:
                     switch (r.m_gameVer) {

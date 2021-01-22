@@ -3,6 +3,7 @@
 void FormatHelpers::Stageconfig::read(byte ver, QString filename)
 {
     Reader reader(filename);
+    m_filename = filename;
 
     m_objects.clear();
     m_soundFX.clear();
@@ -115,6 +116,7 @@ void FormatHelpers::Stageconfig::write(byte ver, QString filename)
     if (filename == "")
         return;
     Writer writer(filename);
+    m_filename = filename;
 
     switch (ver) {
         default: break;

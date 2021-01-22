@@ -3,6 +3,7 @@
 void FormatHelpers::Chunks::read(byte ver, QString filename)
 {
     Reader reader(filename);
+    m_filename = filename;
 
     for (int c = 0; c < 0x200; ++c) {
         for (int y = 0; y < 8; ++y) {
@@ -104,6 +105,7 @@ void FormatHelpers::Chunks::write(byte ver, QString filename)
     if (filename == "")
         return;
     Writer writer(filename);
+    m_filename = filename;
 
     switch (ver) {
         default: break;

@@ -336,6 +336,8 @@ bool PaletteEditor::event(QEvent *event)
                     break;
                 }
             }
+
+            appConfig.addRecentFile(m_palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
             return true;
         }
     }
@@ -430,6 +432,8 @@ bool PaletteEditor::event(QEvent *event)
                         break;
                     }
                 }
+
+                appConfig.addRecentFile(m_palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
                 return true;
             }
         }
@@ -508,6 +512,7 @@ bool PaletteEditor::event(QEvent *event)
                 }
             }
 
+            appConfig.addRecentFile(m_palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
             return true;
         }
     }
@@ -597,6 +602,7 @@ bool PaletteEditor::event(QEvent *event)
                 }
             }
 
+            appConfig.addRecentFile(m_palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
             return true;
         }
     }

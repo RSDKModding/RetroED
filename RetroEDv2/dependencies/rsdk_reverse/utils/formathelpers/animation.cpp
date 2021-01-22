@@ -3,6 +3,7 @@
 void FormatHelpers::Animation::read(byte ver, QString filename)
 {
     Reader reader(filename);
+    m_filename = filename;
 
     switch (ver) {
         default: break;
@@ -20,6 +21,7 @@ void FormatHelpers::Animation::write(byte ver, QString filename)
     if (filename == "")
         return;
     Writer writer(filename);
+    m_filename = filename;
 
     switch (ver) {
         default: break;

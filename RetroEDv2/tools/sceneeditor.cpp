@@ -315,21 +315,25 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 StageconfigEditorv4 *edit = new StageconfigEditorv4(
                     &m_mainView->m_stageconfig, m_mainView->m_gameconfig.m_objects.count() + 1, this);
                 edit->exec();
-            } break;
+                break;
+            }
             case ENGINE_v3: {
                 StageconfigEditorv3 *edit = new StageconfigEditorv3(
                     &m_mainView->m_stageconfig, m_mainView->m_gameconfig.m_objects.count() + 1, this);
                 edit->exec();
-            } break;
+                break;
+            }
             case ENGINE_v2: {
                 StageconfigEditorv2 *edit = new StageconfigEditorv2(
                     &m_mainView->m_stageconfig, m_mainView->m_gameconfig.m_objects.count() + 2, this);
                 edit->exec();
-            } break;
+                break;
+            }
             case ENGINE_v1: {
                 StageconfigEditorv1 *edit = new StageconfigEditorv1(&m_mainView->m_stageconfig, this);
                 edit->exec();
-            } break;
+                break;
+            }
         }
 
         QList<QString> globals = {
@@ -453,8 +457,10 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         }
     });
 
-    connect(m_scnProp->m_editPAL, &QPushButton::clicked, [] {
-
+    connect(m_scnProp->m_editPAL, &QPushButton::clicked, [this] {
+        PaletteEditor *edit =
+            new PaletteEditor(m_mainView->m_stageconfig.m_filename, m_mainView->m_gameType + 2);
+        edit->show();
     });
 
     connect(ui->exportRSDKv5, &QPushButton::clicked, [this] {
@@ -472,15 +478,20 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 int w = 0;
                 int h = 0;
 
-                if (m_mainView->m_scene.m_width > w)
-                    w = m_mainView->m_scene.m_width;
-                if (m_mainView->m_scene.m_width > h)
-                    h = m_mainView->m_scene.m_height;
+                if (dlg->m_exportFG[0] || dlg->m_exportFG[1]) {
+                    if (m_mainView->m_scene.m_width > w)
+                        w = m_mainView->m_scene.m_width;
+                    if (m_mainView->m_scene.m_width > h)
+                        h = m_mainView->m_scene.m_height;
+                }
+
                 for (int i = 0; i < m_mainView->m_background.m_layers.count(); ++i) {
-                    if (m_mainView->m_background.m_layers[i].m_width > w)
-                        w = m_mainView->m_background.m_layers[i].m_width;
-                    if (m_mainView->m_background.m_layers[i].m_height > h)
-                        h = m_mainView->m_background.m_layers[i].m_height;
+                    if (dlg->m_exportBG[i][0] || dlg->m_exportBG[i][1]) {
+                        if (m_mainView->m_background.m_layers[i].m_width > w)
+                            w = m_mainView->m_background.m_layers[i].m_width;
+                        if (m_mainView->m_background.m_layers[i].m_height > h)
+                            h = m_mainView->m_background.m_layers[i].m_height;
+                    }
                 }
 
                 QImage image(w * 0x80, h * 0x80, QImage::Format_ARGB32);
@@ -610,7 +621,7 @@ bool SceneEditor::event(QEvent *event)
     if (event->type() == (QEvent::Type)RE_EVENT_SAVE) {
         QString path = m_mainView->m_scene.m_filename;
 
-        if (path == "") {
+        if (QFile::exists(path)) {
             setStatus("Saving Scene...");
             QString basePath = path.replace(QFileInfo(path).fileName(), "");
 

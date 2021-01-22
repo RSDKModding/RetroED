@@ -29,26 +29,12 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
-        <width>223</width>
-        <height>453</height>
+        <y>-23</y>
+        <width>213</width>
+        <height>462</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="11" column="1">
-        <widget class="QComboBox" name="music">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The music that will be played when the stage starts&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-        </widget>
-       </item>
-       <item row="16" column="0" colspan="2">
-        <widget class="QPushButton" name="editPalette">
-         <property name="text">
-          <string>Edit Palette</string>
-         </property>
-        </widget>
-       </item>
        <item row="14" column="0" colspan="2">
         <widget class="QPushButton" name="editChunks">
          <property name="text">
@@ -63,11 +49,58 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_3">
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>Layer 1</string>
+          <string>Layer 0</string>
          </property>
+        </widget>
+       </item>
+       <item row="10" column="1">
+        <widget class="QComboBox" name="background">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The starting background layer that will be displayed in-game&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>Background 1</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 2</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 3</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 4</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 5</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 6</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 7</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 8</string>
+          </property>
+         </item>
         </widget>
        </item>
        <item row="0" column="0">
@@ -77,176 +110,11 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="1">
-        <widget class="QComboBox" name="activeLayer3">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1st Active Layer (Draws on Layer 5)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <item>
-          <property name="text">
-           <string>Foreground</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 1</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 2</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 3</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 4</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 5</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 6</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 7</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 8</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>None</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="11" column="0">
-        <widget class="QLabel" name="label_8">
+       <item row="10" column="0">
+        <widget class="QLabel" name="label_7">
          <property name="text">
-          <string>Music</string>
+          <string>Background</string>
          </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>Layer 3</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="title"/>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Layer 0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0">
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>Layer Midpoint</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QComboBox" name="activeLayer0">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1st Active Layer (Draws on Layer 1)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <item>
-          <property name="text">
-           <string>Foreground</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 1</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 2</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 3</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 4</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 5</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 6</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 7</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 8</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>None</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="8" column="1">
-        <widget class="QComboBox" name="layerMidpoint">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Minimum activr layer for tiles with &amp;quot;High&amp;quot; Visual Layer to be drawn on (tiles with &amp;quot;Low&amp;quot; Visual Layer wont be drawn)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <item>
-          <property name="text">
-           <string>After Layer 0</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>After Layer 1</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>After Layer 2</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>After Layer 3</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="5" column="1">
@@ -306,6 +174,27 @@
          </item>
         </widget>
        </item>
+       <item row="9" column="0" colspan="2">
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="17" column="0" colspan="2">
+        <widget class="QPushButton" name="editPalette">
+         <property name="text">
+          <string>Edit Palette</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="1">
+        <widget class="QComboBox" name="music">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The music that will be played when the stage starts&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
        <item row="6" column="1">
         <widget class="QComboBox" name="activeLayer2">
          <property name="toolTip">
@@ -363,10 +252,58 @@
          </item>
         </widget>
        </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Layer 2</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Music</string>
+         </property>
+        </widget>
+       </item>
        <item row="13" column="0" colspan="2">
         <widget class="Line" name="line_4">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QComboBox" name="layerMidpoint">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Minimum activr layer for tiles with &amp;quot;High&amp;quot; Visual Layer to be drawn on (tiles with &amp;quot;Low&amp;quot; Visual Layer wont be drawn)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>After Layer 0</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>After Layer 1</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>After Layer 2</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>After Layer 3</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Layer Midpoint</string>
          </property>
         </widget>
        </item>
@@ -431,18 +368,33 @@
          </layout>
         </widget>
        </item>
-       <item row="9" column="0" colspan="2">
-        <widget class="Line" name="line_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+       <item row="1" column="1">
+        <widget class="QCheckBox" name="loadGlobals">
+         <property name="layoutDirection">
+          <enum>Qt::RightToLeft</enum>
+         </property>
+         <property name="text">
+          <string/>
          </property>
         </widget>
        </item>
-       <item row="10" column="1">
-        <widget class="QComboBox" name="background">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The starting background layer that will be displayed in-game&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <item row="7" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Layer 3</string>
          </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QComboBox" name="activeLayer0">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1st Active Layer (Draws on Layer 1)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>Foreground</string>
+          </property>
+         </item>
          <item>
           <property name="text">
            <string>Background 1</string>
@@ -483,36 +435,84 @@
            <string>Background 8</string>
           </property>
          </item>
+         <item>
+          <property name="text">
+           <string>None</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="title"/>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Layer 1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1">
+        <widget class="QComboBox" name="activeLayer3">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1st Active Layer (Draws on Layer 5)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>Foreground</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 1</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 2</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 3</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 4</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 5</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 6</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 7</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 8</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>None</string>
+          </property>
+         </item>
         </widget>
        </item>
        <item row="15" column="0" colspan="2">
         <widget class="QPushButton" name="editStageconfig">
          <property name="text">
-          <string>Edit Stageconfig</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="0">
-        <widget class="QLabel" name="label_7">
-         <property name="text">
-          <string>Background</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Layer 2</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QCheckBox" name="loadGlobals">
-         <property name="layoutDirection">
-          <enum>Qt::RightToLeft</enum>
-         </property>
-         <property name="text">
-          <string/>
+          <string>Edit Stage Configuration</string>
          </property>
         </widget>
        </item>
@@ -520,6 +520,13 @@
         <widget class="QLabel" name="label_11">
          <property name="text">
           <string>Load Global Objects</string>
+         </property>
+        </widget>
+       </item>
+       <item row="16" column="0" colspan="2">
+        <widget class="QPushButton" name="editCollision">
+         <property name="text">
+          <string>Edit Tile Collisions</string>
          </property>
         </widget>
        </item>
