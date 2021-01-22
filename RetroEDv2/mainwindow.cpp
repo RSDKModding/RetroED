@@ -176,27 +176,33 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     ui->menubar->addMenu(tools);
 
+#ifndef Q_NO_PROCESS
     QMenu *gameManager = new QMenu("Game Manager");
     gameManager->addAction("Change executable", [this] {
-        QFileDialog filedialog(
-            this, tr("Open Executable"), "",
-            tr(QString("Sonic CD (soniccd*.exe);;Sonic Nexus (nexus*.exe);;Retro-Sonic (rsonic*.exe)")
-                   .toStdString()
-                   .c_str()));
+        QFileDialog filedialog(this, tr("Open Executable"), "",
+                               "Windows Executables (*.exe)"); // TODO: multiplatform support
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
-        if (filedialog.exec() == QDialog::Accepted) {
+        if (filedialog.exec() == QDialog::Accepted)
             m_exePath = filedialog.selectedFiles()[0];
-        }
     });
 
     gameManager->addAction("Run executable", [this] {
-        QStringList args;
-        QProcess::execute(m_exePath, args);
+        if (QFile::exists(m_exePath)) {
+            QStringList args;
+            args << m_exePath;
+            QProcess proc;
+            proc.setProgram(m_exePath);
+            proc.setWorkingDirectory(QFileInfo(m_exePath).absolutePath());
+            proc.setArguments(args);
+            proc.startDetached();
+            proc.waitForStarted();
+        }
     });
     ui->menubar->addMenu(gameManager);
+#endif
 
     QMenu *about = new QMenu("About");
-    about->addAction("About RetroED", [this] {
+    about->addAction("About RetroED", [] {
         QMessageBox msgBox(
             QMessageBox::Information, "RetroED",
             QString("RetroED - Retro Engine Editor v2.0\nGeneral Purpose Editor for RSDK "
