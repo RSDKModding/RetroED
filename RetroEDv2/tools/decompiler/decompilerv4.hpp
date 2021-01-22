@@ -98,7 +98,7 @@ public:
     bool m_useHex           = false;
     bool m_useCustomAliases = false;
     bool m_seperateFolders  = false;
-    bool m_mobileVer        = false;
+    bool m_useOldOps        = false;
 
     struct StaticVarInfo {
         QString m_name = "";

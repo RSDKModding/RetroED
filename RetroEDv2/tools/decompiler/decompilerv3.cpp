@@ -1366,7 +1366,9 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
             SwitchState &sw = state.m_switchState[state.m_switchDeep];
             for (int j = 0; j < sw.m_jumpPtr.count(); ++j) {
                 if (sw.m_jumpPtr[j].m_jump == state.m_scriptCodePtr) {
-                    if (sw.m_jumpPtr[j].m_jump != sw.m_endJmp - 1) {
+                    if (sw.m_jumpPtr[j].m_jump != sw.m_endJmp + state.m_scriptCodeOffset - 1
+                        && sw.m_jumpPtr[j].m_jump != sw.m_endJmp + state.m_scriptCodeOffset
+                        && sw.m_jumpPtr[j].m_jump != sw.m_defaultJmp + state.m_scriptCodeOffset) {
                         for (auto &c : sw.m_jumpPtr[j].m_cases) {
                             for (int i = 0; i < state.m_deep - 1; ++i) writer.writeText("\t");
                             writer.writeLine("case " + QString::number(c), LINE_CRLF);
@@ -1388,9 +1390,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
 
         QList<QString> variableName;
 
-        for (int i = 0; i < 0x10; ++i) {
-            variableName.append("UNKNOWN VARIABLE");
-        }
+        for (int i = 0; i < 0x10; ++i) variableName.append("UNKNOWN VARIABLE");
 
         for (int i = 0; i < paramsCount; ++i) {
             int paramId = bc.m_scriptData[state.m_scriptCodePtr++];

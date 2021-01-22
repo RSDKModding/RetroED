@@ -24,8 +24,11 @@ RSVTool::RSVTool(QWidget *parent) : QWidget(parent), ui(new Ui::RSVTool)
             RSDKv3::Video rsv(m_rsvPath);
 
             int id = 0;
+            setStatus("Extracting Frames...");
             for (auto &f : rsv.m_frames)
                 f.toImage().save(QString(path + "/Frames/Frame%1.png").arg(id++));
+            setStatus(
+                QString("Extracted %1 Frames to: %2/Frames/").arg(rsv.m_frames.count()).arg(path));
         }
     });
 }

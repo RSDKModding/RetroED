@@ -280,6 +280,11 @@
          </property>
          <item>
           <property name="text">
+           <string>Before Layer 0</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
            <string>After Layer 0</string>
           </property>
          </item>
@@ -291,11 +296,6 @@
          <item>
           <property name="text">
            <string>After Layer 2</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>After Layer 3</string>
           </property>
          </item>
         </widget>

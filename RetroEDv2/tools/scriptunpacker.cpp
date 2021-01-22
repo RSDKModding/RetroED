@@ -280,7 +280,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                 if (m_decompilerv4.m_useCustomAliases)
                     m_decompilerv4.m_seperateFolders = true;
                 m_decompilerv4.m_useHex    = ui->useHex->isChecked();
-                m_decompilerv4.m_mobileVer = m_mobileVer;
+                m_decompilerv4.m_useOldOps = ui->useOldOps->isChecked();
 
                 m_decompilerv4.m_globalScriptCount = m_globalScriptCount;
                 m_decompilerv4.m_globalSFXCount    = m_globalSFXCount;

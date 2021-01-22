@@ -868,6 +868,181 @@ const QList<FunctionInfo> functions = {
     FunctionInfo("CopyObject", 3),
     FunctionInfo("Print", 3),
 };
+
+const QList<FunctionInfo> functions_old = {
+    FunctionInfo("End",	0),         // End of Script
+    FunctionInfo("Equal",2),		// Equal
+    FunctionInfo("Add",2),			// Add
+    FunctionInfo("Sub",2),			// Subtract
+    FunctionInfo("Inc",1),			// Increment
+    FunctionInfo("Dec",1),			// Decrement
+    FunctionInfo("Mul",2),			// Multiply
+    FunctionInfo("Div",2),			// Divide
+    FunctionInfo("ShR",2),			// Bit Shift Right
+    FunctionInfo("ShL",2),			// Bit Shift Left
+    FunctionInfo("And",2),			// Bitwise And
+    FunctionInfo("Or", 2),          // Bitwise Or
+    FunctionInfo("Xor",2),			// Bitwise Xor
+    FunctionInfo("Mod",2),			// Mod
+    FunctionInfo("FlipSign",1),		// Flips the Sign of the value
+
+    FunctionInfo("CheckEqual",2),		// compare a=b, return result in CheckResult Variable
+    FunctionInfo("CheckGreater",2),		// compare a>b, return result in CheckResult Variable
+    FunctionInfo("CheckLower",2),		// compare a<b, return result in CheckResult Variable
+    FunctionInfo("CheckNotEqual",2),	// compare a!=b, return result in CheckResult Variable
+
+    FunctionInfo("IfEqual",3),          // compare a=b, jump if condition met
+    FunctionInfo("IfGreater",3),		// compare a>b, jump if condition met
+    FunctionInfo("IfGreaterOrEqual",3),	// compare a>=b, jump if condition met
+    FunctionInfo("IfLower",3),          // compare a<b, jump if condition met
+    FunctionInfo("IfLowerOrEqual",3),	// compare a<=b, jump if condition met
+    FunctionInfo("IfNotEqual",3),		// compare a!=b, jump if condition met
+    FunctionInfo("else",0),             // The else for an if statement
+    FunctionInfo("endif",0),            // The end if
+
+    FunctionInfo("WEqual",3),           // compare a=b, loop if condition met
+    FunctionInfo("WGreater",3),         // compare a>b, loop if condition met
+    FunctionInfo("WGreaterOrEqual",3),	// compare a>=b, loop if condition met
+    FunctionInfo("WLower",3),           // compare a<b, loop if condition met
+    FunctionInfo("WLowerOrEqual",3),	// compare a<=b, loop if condition met
+    FunctionInfo("WNotEqual",3),		// compare a!=b, loop if condition met
+    FunctionInfo("loop",0),             // While Loop marker
+
+    FunctionInfo("ForEachActive", 3),   // foreach loop, iterates through object group lists only if they are active and interaction is true
+    FunctionInfo("ForEachAll", 3),      // foreach loop, iterates through objects matching type
+    FunctionInfo("next", 0),            // foreach loop, next marker
+
+    FunctionInfo("switch", 2),          // Switch Statement
+    FunctionInfo("break", 0),           //break
+    FunctionInfo("endswitch", 0),       //endswitch
+
+    // Math Functions
+    FunctionInfo("Rand", 2),
+    FunctionInfo("Sin", 2),
+    FunctionInfo("Cos", 2),
+    FunctionInfo("Sin256", 2),
+    FunctionInfo("Cos256", 2),
+    FunctionInfo("ATan2", 3),
+    FunctionInfo("Interpolate", 4),
+    FunctionInfo("InterpolateXY", 7),
+
+    // Graphics Functions
+    FunctionInfo("LoadSpriteSheet", 1),
+    FunctionInfo("RemoveSpriteSheet", 1),
+    FunctionInfo("DrawSprite", 1),
+    FunctionInfo("DrawSpriteXY", 3),
+    FunctionInfo("DrawSpriteScreenXY", 3),
+    FunctionInfo("DrawTintRect", 4),
+    FunctionInfo("DrawNumbers", 7),
+    FunctionInfo("DrawActName", 7),
+    FunctionInfo("DrawMenu", 3),
+    FunctionInfo("SpriteFrame", 6),
+    FunctionInfo("EditFrame", 7),
+    FunctionInfo("LoadPalette", 5),
+    FunctionInfo("RotatePalette", 4),
+    FunctionInfo("SetScreenFade", 4),
+    FunctionInfo("SetActivePalette", 3),
+    FunctionInfo("SetPaletteFade", 6),
+    FunctionInfo("SetPaletteEntry", 3),
+    FunctionInfo("GetPaletteEntry", 3),
+    FunctionInfo("CopyPalette", 5),
+    FunctionInfo("ClearScreen", 1),
+    FunctionInfo("DrawSpriteFX", 4),
+    FunctionInfo("DrawSpriteScreenFX", 4),
+
+    // More Useful Stuff
+    FunctionInfo("LoadAnimation", 1),
+    FunctionInfo("SetupMenu", 4),
+    FunctionInfo("AddMenuEntry", 3),
+    FunctionInfo("EditMenuEntry", 4),
+    FunctionInfo("LoadStage", 0),
+    FunctionInfo("DrawRect", 8),
+    FunctionInfo("ResetObjectEntity", 5),
+    FunctionInfo("BoxCollisionTest", 11),
+    FunctionInfo("CreateTempObject", 4),
+
+    // Player and Animation Functions
+    FunctionInfo("ProcessObjectMovement", 0),
+    FunctionInfo("ProcessObjectControl", 0),
+    FunctionInfo("ProcessAnimation", 0),
+    FunctionInfo("DrawObjectAnimation", 0),
+
+    // Music
+    FunctionInfo("SetMusicTrack", 3),
+    FunctionInfo("PlayMusic", 1),
+    FunctionInfo("StopMusic", 0),
+    FunctionInfo("PauseMusic", 0),
+    FunctionInfo("ResumeMusic", 0),
+    FunctionInfo("SwapMusicTrack", 4),
+
+    // Sound FX
+    FunctionInfo("PlaySfx", 2),
+    FunctionInfo("StopSfx", 1),
+    FunctionInfo("SetSfxAttributes", 3),
+
+    // More Collision Stuff
+    FunctionInfo("ObjectTileCollision", 4),
+    FunctionInfo("ObjectTileGrip", 4),
+
+    // Bitwise Not
+    FunctionInfo("Not", 1),
+
+    // 3D Stuff
+    FunctionInfo("Draw3DScene", 0),
+    FunctionInfo("SetIdentityMatrix", 1),
+    FunctionInfo("MatrixMultiply", 2),
+    FunctionInfo("MatrixTranslateXYZ", 4),
+    FunctionInfo("MatrixScaleXYZ", 4),
+    FunctionInfo("MatrixRotateX", 2),
+    FunctionInfo("MatrixRotateY", 2),
+    FunctionInfo("MatrixRotateZ", 2),
+    FunctionInfo("MatrixRotateXYZ", 4),
+    FunctionInfo("MatrixInverse", 1),
+    FunctionInfo("TransformVertices", 3),
+
+    FunctionInfo("CallFunction", 1),
+    FunctionInfo("return", 0),
+
+    FunctionInfo("SetLayerDeformation", 6),
+    FunctionInfo("CheckTouchRect", 4),
+    FunctionInfo("GetTileLayerEntry", 4),
+    FunctionInfo("SetTileLayerEntry", 4),
+
+    FunctionInfo("GetBit", 3),
+    FunctionInfo("SetBit", 3),
+
+    FunctionInfo("ClearDrawList", 1),
+    FunctionInfo("AddDrawListEntityRef", 2),
+    FunctionInfo("GetDrawListEntityRef", 3),
+    FunctionInfo("SetDrawListEntityRef", 3),
+
+    FunctionInfo("Get16x16TileInfo", 4),
+    FunctionInfo("Set16x16TileInfo", 4),
+    FunctionInfo("Copy16x16Tile", 2),
+    FunctionInfo("GetAnimationByName", 2),
+    FunctionInfo("ReadSaveRAM", 0),
+    FunctionInfo("WriteSaveRAM", 0),
+
+    FunctionInfo("LoadFontFile", 1),
+    FunctionInfo("LoadTextFile", 2),
+    FunctionInfo("DrawText", 7),
+    FunctionInfo("GetTextInfo", 5),
+    FunctionInfo("GetVersionNumber", 2),
+
+    FunctionInfo("GetTableValue", 3),
+    FunctionInfo("SetTableValue", 3),
+
+    FunctionInfo("CheckCurrentStageFolder", 1),
+    FunctionInfo("Abs", 1),
+
+    FunctionInfo("CallNativeFunction", 1),
+    FunctionInfo("CallNativeFunction2", 3),
+    FunctionInfo("CallNativeFunction4", 5),
+
+    FunctionInfo("SetObjectRange", 1),
+    FunctionInfo("Print", 3),
+};
+
 // clang-format on
 
 // Aliases
@@ -1341,7 +1516,7 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
         for (int c = m_globalStaticCount; c < m_staticVars.count(); ++c) {
             int index = m_staticVars[c].m_dataPos;
             if (index >= firstOffset && index < endOffset) {
-                writer.writeLine(QString("public %2 = %1;")
+                writer.writeLine(QString("public value %2 = %1;")
                                      .arg(toHexString(QString::number(bytecode.m_scriptData[index])))
                                      .arg(m_staticVars[c].m_name),
                                  LINE_CRLF);
@@ -1463,9 +1638,9 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
             SwitchState &sw = state.m_switchState[state.m_switchDeep];
             for (int j = 0; j < sw.m_jumpPtr.count(); ++j) {
                 if (sw.m_jumpPtr[j].m_jump == state.m_scriptCodePtr) {
-                    if (sw.m_jumpPtr[j].m_jump != sw.m_endJmp - 1
-                        && sw.m_jumpPtr[j].m_jump != sw.m_endJmp
-                        && sw.m_jumpPtr[j].m_jump != sw.m_defaultJmp) {
+                    if (sw.m_jumpPtr[j].m_jump != sw.m_endJmp + state.m_scriptCodeOffset - 1
+                        && sw.m_jumpPtr[j].m_jump != sw.m_endJmp + state.m_scriptCodeOffset
+                        && sw.m_jumpPtr[j].m_jump != sw.m_defaultJmp + state.m_scriptCodeOffset) {
                         for (auto &c : sw.m_jumpPtr[j].m_cases) {
                             for (int i = 0; i < state.m_deep - 1; ++i) writer.writeText("\t");
                             writer.writeLine("case " + QString::number(c), LINE_CRLF);
@@ -1481,9 +1656,17 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                 }
             }
         }
+        int opcode      = 0;
+        int paramsCount = 0;
 
-        int opcode      = bc.m_scriptData[state.m_scriptCodePtr++];
-        int paramsCount = functions[opcode].opcodeSize;
+        if (!m_useOldOps) {
+            opcode      = bc.m_scriptData[state.m_scriptCodePtr++];
+            paramsCount = functions[opcode].opcodeSize;
+        }
+        else {
+            opcode      = bc.m_scriptData[state.m_scriptCodePtr++];
+            paramsCount = functions_old[opcode].opcodeSize;
+        }
 
         QList<QString> variableName;
 
@@ -1596,7 +1779,11 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
             }
         }
 
-        QString operand = functions[opcode].name;
+        QString operand = "Unknown";
+        if (!m_useOldOps)
+            operand = functions[opcode].name;
+        else
+            operand = functions_old[opcode].name;
 
         /*if (operand == "End" || operand == "EndFunction") {
             if (isFunction)
@@ -2522,6 +2709,26 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                                     }
                                 }
                             }
+                        }
+                    }
+
+                    if (operand == "Print") {
+                        bool ok = false;
+                        int id  = variableName[0].toInt(&ok);
+                        if (ok) {
+                            if (id)
+                                variableName[0] = "true";
+                            else
+                                variableName[0] = "false";
+                        }
+
+                        ok = false;
+                        id = variableName[1].toInt(&ok);
+                        if (ok) {
+                            if (id)
+                                variableName[1] = "true";
+                            else
+                                variableName[1] = "false";
                         }
                     }
 
