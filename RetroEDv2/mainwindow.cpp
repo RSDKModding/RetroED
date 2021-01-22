@@ -168,6 +168,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "GFX Tool"));
     });
 
+    tools->addAction("RSV Tool", [this] {
+        setStatus("Opening RSV Tool...");
+        RSVTool *tool = new RSVTool();
+        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "RSV Tool"));
+    });
+
     ui->menubar->addMenu(tools);
 
     QMenu *gameManager = new QMenu("Game Manager");

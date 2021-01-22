@@ -25,6 +25,7 @@ SOURCES += \
     tools/decompiler/decompilerv4.cpp \
     tools/decompiler/decompilerv1.cpp \
     tools/paletteeditor/colourdialog.cpp \
+    tools/rsvtool.cpp \
     tools/sceneProperties/chunkeditor.cpp \
     tools/exportrsdkv5scene.cpp \
     tools/gameconfigeditorv2.cpp \
@@ -33,7 +34,6 @@ SOURCES += \
     tools/gfxtool.cpp \
     tools/paletteeditor.cpp \
     tools/rsdkunpacker.cpp \
-    tools/rsvunpacker.cpp \
     tools/sceneProperties/scenelayerproperties.cpp \
     tools/sceneProperties/sceneobjectproperties.cpp \
     tools/sceneProperties/sceneproperties.cpp \
@@ -58,6 +58,7 @@ HEADERS += \
     tools/decompiler/decompilerv4.hpp \
     tools/decompiler/decompilerv1.hpp \
     tools/paletteeditor/colourdialog.hpp \
+    tools/rsvtool.hpp \
     tools/sceneProperties/chunkeditor.hpp \
     tools/exportrsdkv5scene.hpp \
     tools/gameconfigeditorv2.hpp \
@@ -66,7 +67,6 @@ HEADERS += \
     tools/gfxtool.hpp \
     tools/paletteeditor.hpp \
     tools/rsdkunpacker.hpp \
-    tools/rsvunpacker.hpp \
     tools/sceneProperties/scenelayerproperties.hpp \
     tools/sceneProperties/sceneobjectproperties.hpp \
     tools/sceneProperties/sceneproperties.hpp \
@@ -88,6 +88,7 @@ HEADERS += \
 FORMS += \
     mainwindow.ui \
     tools/paletteeditor/colourdialog.ui \
+    tools/rsvtool.ui \
     tools/sceneProperties/chunkeditor.ui \
     tools/exportrsdkv5scene.ui \
     tools/gameconfigeditorv2.ui \
@@ -96,7 +97,6 @@ FORMS += \
     tools/gfxtool.ui \
     tools/paletteeditor.ui \
     tools/rsdkunpacker.ui \
-    tools/rsvunpacker.ui \
     tools/sceneProperties/scenelayerproperties.ui \
     tools/sceneProperties/sceneobjectproperties.ui \
     tools/sceneProperties/sceneproperties.ui \

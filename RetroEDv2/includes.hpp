@@ -112,7 +112,7 @@ public:
 #include "tools/rsdkunpacker.hpp"
 #include "tools/scriptunpacker.hpp"
 #include "tools/sceneeditor.hpp"
-#include "tools/rsvunpacker.hpp"
+#include "tools/rsvtool.hpp"
 
 #include "mainwindow.hpp"
 
