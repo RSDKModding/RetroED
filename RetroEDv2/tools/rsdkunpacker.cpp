@@ -9,7 +9,7 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
         QList<QString> types = {
             "RSDKv5 Datafiles (*data*.rsdk)", "RSDKv4 Datafiles (*data*.rsdk)",
             "RSDKv3 Datafiles (*data*.rsdk)", "RSDKv2 Datafiles (*data*.bin)",
-            "RSDKv1 Datafiles (*data*.bin)", "RSDKv3 Arc Containers (*.arc)",
+            "RSDKv1 Datafiles (*data*.bin)",  "RSDKv3 Arc Containers (*.arc)",
         };
 
         QFileDialog filedialog(this, tr("Open Datafile"), "",
@@ -138,7 +138,7 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
         QList<QString> types = {
             "RSDKv5 Datafiles (*data*.rsdk)", "RSDKv4 Datafiles (*data*.rsdk)",
             "RSDKv3 Datafiles (*data*.rsdk)", "RSDKv2 Datafiles (*data*.bin)",
-            "RSDKv1 Datafiles (*data*.bin)", "RSDKv3 Arc Containers (*.arc)",
+            "RSDKv1 Datafiles (*data*.bin)",  "RSDKv3 Arc Containers (*.arc)",
         };
 
         QFileDialog filedialog(this, tr("Save Datafile"), "",
@@ -166,8 +166,8 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
         ui->encrypted->setDisabled(c == -1 || m_gameVer >= 2);
         ui->rmFile->setDisabled(c == -1);
 
-        ui->filename->setText("Filename: ");
-        ui->filenameHash->setText("Filename Hash: ");
+        ui->filename->setText("");
+        ui->filenameHash->setText("");
         ui->filesize->setText(QString("File Size: %1 bytes").arg(QString::number(0)));
 
         ui->encrypted->blockSignals(true);
@@ -179,9 +179,9 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
 
         ui->rmFile->setDisabled(m_files.count() == 0);
 
-        ui->filename->setText("Filename: " + m_files[c].m_filename);
+        ui->filename->setText(m_files[c].m_filename);
         QString fname = m_files[c].m_filename;
-        ui->filenameHash->setText("Filename Hash: " + Utils::getMd5HashString(fname.toLower()));
+        ui->filenameHash->setText(Utils::getMd5HashString(fname.toLower()));
         ui->filesize->setText(
             QString("File Size: %1 bytes").arg(QString::number(m_files[c].m_fileSize)));
 

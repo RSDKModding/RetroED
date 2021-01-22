@@ -108,6 +108,7 @@ public:
 #include "tools/gameconfigeditorv4.hpp"
 #include "tools/gfxtool.hpp"
 #include "tools/paletteeditor.hpp"
+#include "tools/paletteeditor/colourdialog.hpp"
 #include "tools/rsdkunpacker.hpp"
 #include "tools/scriptunpacker.hpp"
 #include "tools/sceneeditor.hpp"

@@ -143,6 +143,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     });
     tools->addMenu(gc);
 
+    tools->addAction("Palette Editor", [this] {
+        setStatus("Opening Palette Editor...");
+        PaletteEditor *tool = new PaletteEditor();
+        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Palette Editor"));
+    });
+
     tools->addAction("Script Unpacker", [this] {
         setStatus("Opening Script Unpacker...");
         ScriptUnpacker *tool = new ScriptUnpacker();

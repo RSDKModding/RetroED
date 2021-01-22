@@ -1094,7 +1094,10 @@ struct ScriptPtrv4 {
     }
 };
 
-int funcIDv4 = 0;
+int funcIDv4       = 0;
+byte debugNameFlag = 0;
+QList<ScriptPtrv4> scriptPtrs;
+
 void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
 {
     clearScriptData();
@@ -1177,23 +1180,7 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
         curTypeNamev4 = m_typeNames[i];
         curTypeNamev4 = curTypeNamev4.replace(" ", "");
 
-        writer.writeLine("// ----------------------------------");
-        writer.writeLine("// RSDK Project: Sonic 1/Sonic 2");
-        writer.writeLine("// Script Description: " + m_typeNames[i] + " Object");
-        writer.writeLine("// Script Author: Christan Whitehead/Simon Thomley");
-        writer.writeLine("// Unpacked by Rubberduckycooly's script unpacker");
-        writer.writeLine("// ----------------------------------");
-        writer.writeLine("", LINE_CRLF);
-
-        writer.writeLine("//-------Aliases-------//", LINE_CRLF);
-
-        writer.writeLine("private alias " + QString::number(i) + " : TYPE_"
-                             + m_typeNames[i].toUpper().replace(" ", ""),
-                         LINE_CRLF);
-
-        writer.writeLine("", LINE_CRLF);
-
-        QList<ScriptPtrv4> scriptPtrs;
+        scriptPtrs.clear();
 
         if (objectScript.m_mainScript < 0x3FFFF)
             scriptPtrs.append(ScriptPtrv4("ObjectMain", objectScript.m_mainScript,
@@ -1243,47 +1230,90 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
             scriptPtrs.append(ScriptPtrv4("ObjectStartup", objectScript.m_startupScript,
                                           objectScript.m_startupJumpTable, false));
 
-        std::sort(scriptPtrs.begin(), scriptPtrs.end(),
-                  [](const ScriptPtrv4 &a, const ScriptPtrv4 &b) -> bool {
-                      return a.m_startPtr < b.m_startPtr;
-                  });
-
-        int fCnt = 0;
-        for (int s = 0; s < scriptPtrs.count(); ++s) {
-            if (scriptPtrs[s].m_name != "ObjectMain" && scriptPtrs[s].m_name != "ObjectDraw"
-                && scriptPtrs[s].m_name != "ObjectStartup") {
-                fCnt++;
-            }
-        }
-
-        if (fCnt)
-            writer.writeLine("// Function declarations", LINE_CRLF);
-
-        for (int s = 0; s < scriptPtrs.count(); ++s) {
-            if (scriptPtrs[s].m_name != "ObjectMain" && scriptPtrs[s].m_name != "ObjectDraw"
-                && scriptPtrs[s].m_name != "ObjectStartup") {
-                writer.writeLine("#function " + scriptPtrs[s].m_name, LINE_CRLF);
-            }
-        }
-
         QByteArray buf;
         QBuffer buffer(&buf);
         buffer.open(QIODevice::Append);
         QDataStream *cmem = new QDataStream(&buffer);
         Writer bufWriter(cmem);
 
+        int fCnt      = 0;
+        debugNameFlag = 0;
+        for (int s = 0; s < scriptPtrs.count(); ++s) {
+            if (scriptPtrs[s].m_name != "ObjectMain" && scriptPtrs[s].m_name != "ObjectDraw"
+                && scriptPtrs[s].m_name != "ObjectStartup") {
+                fCnt++;
+            }
+            else if (scriptPtrs[s].m_name == "ObjectStartup" && curTypeNamev4 != "DebugMode") {
+                QByteArray buf2;
+                QBuffer buffer2(&buf2);
+                buffer2.open(QIODevice::Append);
+                QDataStream *cmem2 = new QDataStream(&buffer2);
+                Writer bufWriter2(cmem2);
+
+                // do this to get debugMode func names
+                debugNameFlag = 1;
+                decompileScript(bytecode, bufWriter2, scriptPtrs[s].m_startPtr,
+                                scriptPtrs[s].m_jumpStart, scriptPtrs[s].m_name,
+                                scriptPtrs[s].m_function);
+                debugNameFlag = 0;
+            }
+        }
+
+        QList<ScriptPtrv4> unsortedPtrs = scriptPtrs;
+        std::sort(scriptPtrs.begin(), scriptPtrs.end(),
+                  [](const ScriptPtrv4 &a, const ScriptPtrv4 &b) -> bool {
+                      return a.m_startPtr < b.m_startPtr;
+                  });
+
         for (int s = 0; s < scriptPtrs.count(); ++s) {
             bufWriter.writeLine("", LINE_CRLF);
+            debugNameFlag = scriptPtrs[s].m_name == "ObjectStartup" && curTypeNamev4 != "DebugMode";
+            if (debugNameFlag)
+                debugNameFlag++;
+
             int end                = decompileScript(bytecode, bufWriter, scriptPtrs[s].m_startPtr,
                                       scriptPtrs[s].m_jumpStart, scriptPtrs[s].m_name,
                                       scriptPtrs[s].m_function);
             scriptPtrs[s].m_endPtr = end;
+            debugNameFlag          = 0;
+        }
+
+        writer.writeLine("// ----------------------------------");
+        writer.writeLine("// RSDK Project: Sonic 1/Sonic 2");
+        writer.writeLine("// Script Description: " + m_typeNames[i] + " Object");
+        writer.writeLine("// Script Author: Christan Whitehead/Simon Thomley");
+        writer.writeLine("// Unpacked by Rubberduckycooly's script unpacker");
+        writer.writeLine("// ----------------------------------");
+        writer.writeLine("", LINE_CRLF);
+
+        writer.writeLine("//-------Aliases-------//", LINE_CRLF);
+
+        writer.writeLine("private alias " + QString::number(i) + " : TYPE_"
+                             + m_typeNames[i].toUpper().replace(" ", ""),
+                         LINE_CRLF);
+        if (i == 1) {
+            writer.writeLine("public alias 256 : GROUP_PLAYERS", LINE_CRLF);
+            writer.writeLine("public alias 65536 : HITBOX_AUTO", LINE_CRLF);
+            writer.writeLine("public alias arrayPos6 : currentPlayer", LINE_CRLF);
+            writer.writeLine("public alias arrayPos7 : playerCount", LINE_CRLF);
+        }
+
+        writer.writeLine("", LINE_CRLF);
+
+        if (fCnt)
+            writer.writeLine("// Function declarations", LINE_CRLF);
+
+        for (int s = 0; s < unsortedPtrs.count(); ++s) {
+            if (unsortedPtrs[s].m_name != "ObjectMain" && unsortedPtrs[s].m_name != "ObjectDraw"
+                && unsortedPtrs[s].m_name != "ObjectStartup") {
+                writer.writeLine("reserve function " + unsortedPtrs[s].m_name, LINE_CRLF);
+            }
         }
 
         bufWriter.writeLine("event RSDKDraw", LINE_CRLF);
         bufWriter.writeLine("\tDrawSprite(0)", LINE_CRLF);
         bufWriter.writeLine("end event", LINE_CRLF);
-
+        bufWriter.writeLine("", LINE_CRLF);
         bufWriter.writeLine("event RSDKLoad", LINE_CRLF);
         bufWriter.writeLine("\tLoadSpriteSheet(\"Global/Display.gif\")", LINE_CRLF);
         bufWriter.writeLine("\tSpriteFrame(-16, -16, 32, 32, 1, 143)", LINE_CRLF);
@@ -1329,16 +1359,20 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
                 writer.writeLine(QString("public table %1").arg(m_tables[a].m_name), LINE_CRLF);
                 registeredPos.append(index);
                 writer.writeText("\t");
-                for (int v = 0; v < bytecode.m_scriptData[index]; ++v) {
-                    writer.writeText(
-                        toHexString(QString::number(bytecode.m_scriptData[index + 1 + v])));
-                    registeredPos.append(index + 1 + v);
-                    if (v + 1 < bytecode.m_scriptData[index]) {
+                for (int v = 1; v < bytecode.m_scriptData[index] + 1; ++v) {
+                    writer.writeText(toHexString(QString::number(bytecode.m_scriptData[index + v])));
+                    registeredPos.append(index + v);
+                    if ((v % 0x10) == 0) {
+                        writer.writeLine("", LINE_CRLF);
+                        writer.writeText("\t");
+                    }
+                    else if (v + 1 < bytecode.m_scriptData[index] + 1) {
                         writer.writeText(", ");
                     }
                 }
                 writer.writeLine("", LINE_CRLF);
                 writer.writeLine("end table", LINE_CRLF);
+                writer.writeLine("", LINE_CRLF);
             }
         }
 
@@ -1602,6 +1636,13 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                     break;
             }
 
+            for (int i = 0; i < 0x10; ++i) {
+                if (variableName[i].contains("arrayPos6"))
+                    variableName[i].replace("arrayPos6", "currentPlayer");
+                if (variableName[i].contains("arrayPos7"))
+                    variableName[i].replace("arrayPos7", "playerCount");
+            }
+
             // aliases
             {
                 if (opcode >= functions.count()) {
@@ -1618,6 +1659,13 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                 }
 
                 if (variableName[0].contains("object") && variableName[0].contains(".type")) {
+                    bool ok = false;
+                    int id  = variableName[1].toInt(&ok);
+                    if (ok && id < m_typeNames.count())
+                        variableName[1] = "TypeName[" + m_typeNames[id] + "]";
+                }
+
+                if (variableName[0].contains("animalType")) {
                     bool ok = false;
                     int id  = variableName[1].toInt(&ok);
                     if (ok && id < m_typeNames.count())
@@ -1645,11 +1693,26 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         variableName[2] = "TypeName[" + m_typeNames[id] + "]";
                 }
 
+                if (variableName[1].contains("animalType")) {
+                    bool ok = false;
+                    int id  = variableName[2].toInt(&ok);
+                    if (ok && id < m_typeNames.count())
+                        variableName[2] = "TypeName[" + m_typeNames[id] + "]";
+                }
+
                 if (variableName[1].contains("tileLayer") && variableName[1].contains(".type")) {
                     bool ok = false;
                     int id  = variableName[2].toInt(&ok);
                     if (ok && id < tileLayerTypeAliases.count())
                         variableName[2] = tileLayerTypeAliases[id];
+                }
+
+                if (variableName[0] == "SpeedUpMusic" || variableName[0] == "SlowDownMusic") {
+                    bool ok = false;
+                    int id  = variableName[1].toInt(&ok);
+                    if (ok) {
+                        variableName[1] = m_functionNames[id];
+                    }
                 }
 
                 // Special Aliases for some functions
@@ -1692,6 +1755,24 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         if (ok) {
                             if (id < collisionAliases.count())
                                 variableName[0] = collisionAliases[id];
+                        }
+
+                        for (int h = 2; h < 6; ++h) {
+                            ok = false;
+                            id = variableName[h].toInt(&ok);
+                            if (ok) {
+                                if (id == 0x10000)
+                                    variableName[h] = "HITBOX_AUTO";
+                            }
+                        }
+
+                        for (int h = 7; h < 11; ++h) {
+                            ok = false;
+                            id = variableName[h].toInt(&ok);
+                            if (ok) {
+                                if (id == 0x10000)
+                                    variableName[h] = "HITBOX_AUTO";
+                            }
                         }
                         break;
                     }
@@ -2223,7 +2304,10 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                             type = "TypeName[" + type + "]";
                         }
                         else {
-                            type = QString::number(t);
+                            if (t == 256)
+                                type = "GROUP_PLAYERS";
+                            else
+                                type = QString::number(t);
                         }
                     }
                     else {
@@ -2378,7 +2462,6 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                                 variableName[2] = m_tables[m_tables.indexOf(c)].m_name;
                             }
                         }
-                        // A = ScriptData[B + C]
                     }
                     if (operand == "SetTableValue") {
                         bool ok   = false;
@@ -2395,7 +2478,51 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                                 variableName[2] = m_tables[m_tables.indexOf(c)].m_name;
                             }
                         }
-                        // ScriptData[B + C] = A
+
+                        if (debugNameFlag) {
+                            if (variableName[2] == "DebugMode_table12") {
+                                bool ok = false;
+                                int id  = variableName[0].toInt(&ok);
+                                if (ok && id < m_typeNames.count())
+                                    variableName[0] = "TypeName[" + m_typeNames[id] + "]";
+                            }
+                            if (variableName[2] == "DebugMode_table13") {
+                                bool ok = false;
+                                int id  = variableName[0].toInt(&ok);
+                                if (ok) {
+                                    if (debugNameFlag == 1 && id < m_functionNames.count()) {
+                                        variableName[0] = curTypeNamev4 + "_DebugDraw";
+
+                                        for (int i = 0; i < scriptPtrs.count(); ++i) {
+                                            if (scriptPtrs[i].m_name == m_functionNames[id]) {
+                                                scriptPtrs[i].m_name = curTypeNamev4 + "_DebugDraw";
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        variableName[0] = curTypeNamev4 + "_DebugDraw";
+                                    }
+                                }
+                            }
+                            if (variableName[2] == "DebugMode_table11") {
+                                bool ok = false;
+                                int id  = variableName[0].toInt(&ok);
+                                if (ok) {
+                                    if (debugNameFlag == 1 && id < m_functionNames.count()) {
+                                        variableName[0] = curTypeNamev4 + "_DebugSpawn";
+
+                                        for (int i = 0; i < scriptPtrs.count(); ++i) {
+                                            if (scriptPtrs[i].m_name == m_functionNames[id]) {
+                                                scriptPtrs[i].m_name = curTypeNamev4 + "_DebugSpawn";
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        variableName[0] = curTypeNamev4 + "_DebugSpawn";
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     if (operand == "CallFunction") {

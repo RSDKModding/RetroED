@@ -24,6 +24,7 @@ SOURCES += \
     tools/decompiler/decompilerv3.cpp \
     tools/decompiler/decompilerv4.cpp \
     tools/decompiler/decompilerv1.cpp \
+    tools/paletteeditor/colourdialog.cpp \
     tools/sceneProperties/chunkeditor.cpp \
     tools/exportrsdkv5scene.cpp \
     tools/gameconfigeditorv2.cpp \
@@ -56,6 +57,7 @@ HEADERS += \
     tools/decompiler/decompilerv3.hpp \
     tools/decompiler/decompilerv4.hpp \
     tools/decompiler/decompilerv1.hpp \
+    tools/paletteeditor/colourdialog.hpp \
     tools/sceneProperties/chunkeditor.hpp \
     tools/exportrsdkv5scene.hpp \
     tools/gameconfigeditorv2.hpp \
@@ -85,6 +87,7 @@ HEADERS += \
 
 FORMS += \
     mainwindow.ui \
+    tools/paletteeditor/colourdialog.ui \
     tools/sceneProperties/chunkeditor.ui \
     tools/exportrsdkv5scene.ui \
     tools/gameconfigeditorv2.ui \
