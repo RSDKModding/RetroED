@@ -133,7 +133,7 @@ void RSDKv4::Datafile::FileInfo::writeHeader(Writer &writer)
     // again, temp
     m_encrypted = false;
 
-    writer.write(m_md5Hash, 0x10);
+    for (int i = 0; i < 0x10; ++i) writer.write((byte)m_md5Hash[i]);
     writer.write<uint>(m_dataOffset);
     writer.write<uint>(m_fileSize | (m_encrypted ? 0x80000000 : 0));
 }

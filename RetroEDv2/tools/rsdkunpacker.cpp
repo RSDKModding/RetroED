@@ -181,7 +181,7 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
 
         ui->filename->setText(m_files[c].m_filename);
         QString fname = m_files[c].m_filename;
-        ui->filenameHash->setText(Utils::getMd5HashString(fname.toLower()));
+        ui->filenameHash->setText(Utils::getMd5HashString(fname.replace("\\", "/").toLower()));
         ui->filesize->setText(
             QString("File Size: %1 bytes").arg(QString::number(m_files[c].m_fileSize)));
 
