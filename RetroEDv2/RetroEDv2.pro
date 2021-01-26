@@ -24,8 +24,10 @@ SOURCES += \
     tools/decompiler/decompilerv3.cpp \
     tools/decompiler/decompilerv4.cpp \
     tools/decompiler/decompilerv1.cpp \
+    tools/gameconfigeditorv5.cpp \
     tools/paletteeditor/colourdialog.cpp \
     tools/rsvtool.cpp \
+    tools/savefileeditorv3.cpp \
     tools/sceneProperties/chunkeditor.cpp \
     tools/exportrsdkv5scene.cpp \
     tools/gameconfigeditorv2.cpp \
@@ -47,18 +49,22 @@ SOURCES += \
     tools/sceneviewer.cpp \
     tools/scriptunpacker.cpp \
     tools/sceneProperties/stageconfigeditorv3.cpp \
+    tools/staticobjecteditor.cpp \
     utils/appconfig.cpp \
     utils/retroedutils.cpp \
     utils/shaders.cpp \
     main.cpp \
+    utils/staticobjectinfo.cpp
 
 HEADERS += \
     mainwindow.hpp \
     tools/decompiler/decompilerv3.hpp \
     tools/decompiler/decompilerv4.hpp \
     tools/decompiler/decompilerv1.hpp \
+    tools/gameconfigeditorv5.hpp \
     tools/paletteeditor/colourdialog.hpp \
     tools/rsvtool.hpp \
+    tools/savefileeditorv3.hpp \
     tools/sceneProperties/chunkeditor.hpp \
     tools/exportrsdkv5scene.hpp \
     tools/gameconfigeditorv2.hpp \
@@ -80,15 +86,19 @@ HEADERS += \
     tools/sceneviewer.hpp \
     tools/scriptunpacker.hpp \
     tools/sceneProperties/stageconfigeditorv3.hpp \
+    tools/staticobjecteditor.hpp \
     utils/appconfig.hpp \
     utils/retroedutils.hpp \
     utils/shaders.hpp \
     includes.hpp \
+    utils/staticobjectinfo.hpp
 
 FORMS += \
     mainwindow.ui \
+    tools/gameconfigeditorv5.ui \
     tools/paletteeditor/colourdialog.ui \
     tools/rsvtool.ui \
+    tools/savefileeditorv3.ui \
     tools/sceneProperties/chunkeditor.ui \
     tools/exportrsdkv5scene.ui \
     tools/gameconfigeditorv2.ui \
@@ -108,7 +118,8 @@ FORMS += \
     tools/sceneproperties/stageconfigeditorv4.ui \
     tools/sceneproperties/stageconfigeditorv1.ui \
     tools/scriptunpacker.ui \
-    tools/sceneProperties/stageconfigeditorv3.ui
+    tools/sceneProperties/stageconfigeditorv3.ui \
+    tools/staticobjecteditor.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -26,30 +26,56 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     connect(ui->toolTabs, &QTabWidget::tabCloseRequested, removeTab);
 
-    QMenu *file = new QMenu("File");
-    file->addAction("Open", [this] {
+    QMenu *file    = new QMenu("File");
+    auto newAction = [this] {
+        if (!ui->toolTabs->currentWidget())
+            return;
+
+        RENewEvent e = RENewEvent();
+        QApplication::sendEvent(ui->toolTabs->currentWidget(), &e);
+    };
+    file->addAction("New", newAction);
+
+    auto openAction = [this] {
         if (!ui->toolTabs->currentWidget())
             return;
 
         REOpenEvent e = REOpenEvent();
         QApplication::sendEvent(ui->toolTabs->currentWidget(), &e);
-    });
+    };
+    file->addAction("Open", openAction);
 
-    file->addAction("Save", [this] {
+    auto saveAction = [this] {
         if (!ui->toolTabs->currentWidget())
             return;
 
         RESaveEvent e = RESaveEvent();
         QApplication::sendEvent(ui->toolTabs->currentWidget(), &e);
-    });
+    };
+    file->addAction("Save", saveAction);
 
-    file->addAction("Save As", [this] {
+    auto saveAsAction = [this] {
         if (!ui->toolTabs->currentWidget())
             return;
 
         RESaveAsEvent e = RESaveAsEvent();
         QApplication::sendEvent(ui->toolTabs->currentWidget(), &e);
-    });
+    };
+    file->addAction("Save As", saveAsAction);
+
+    // SHORTCUTS
+    QShortcut *shortcut_new = new QShortcut(this);
+    shortcut_new->setKey(Qt::CTRL + Qt::Key_N);
+    connect(shortcut_new, &QShortcut::activated, [newAction] { newAction(); });
+    QShortcut *shortcut_open = new QShortcut(this);
+    shortcut_open->setKey(Qt::CTRL + Qt::Key_O);
+    connect(shortcut_open, &QShortcut::activated, [openAction] { openAction(); });
+    QShortcut *shortcut_save = new QShortcut(this);
+    shortcut_save->setKey(Qt::CTRL + Qt::Key_S);
+    connect(shortcut_save, &QShortcut::activated, [saveAction] { saveAction(); });
+    QShortcut *shortcut_saveAs = new QShortcut(this);
+    shortcut_saveAs->setKey(Qt::CTRL + Qt::ALT + Qt::Key_S);
+    connect(shortcut_saveAs, &QShortcut::activated, [saveAsAction] { saveAsAction(); });
 
     file->addSeparator();
 
@@ -98,10 +124,48 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                                 ui->toolTabs->addTab(tool, "Gameconfig Editor"));
                             break;
                         }
+                        case ENGINE_v5: {
+                            GameconfigEditorv5 *tool =
+                                new GameconfigEditorv5(r.m_path, r.m_extra[0] == "StageConfig");
+                            ui->toolTabs->setCurrentIndex(
+                                ui->toolTabs->addTab(tool, "Gameconfig Editor"));
+                            break;
+                        }
                     }
 
                     break;
                 case TOOL_RSVUNPACKER: break;
+                case TOOL_STATICOBJECTEDITOR: {
+                    if (QFile::exists(r.m_path)) {
+                        StaticObjectEditor *tool = new StaticObjectEditor(r.m_path);
+                        tool->installEventFilter(this);
+                        ui->toolTabs->setCurrentIndex(
+                            ui->toolTabs->addTab(tool, "Static Object Editor"));
+                    }
+                    break;
+                }
+                case TOOL_SAVEEDITOR:
+                    switch (r.m_gameVer) {
+                        case ENGINE_v3: {
+                            SaveFileEditorv3 *tool = new SaveFileEditorv3(r.m_path);
+                            ui->toolTabs->setCurrentIndex(
+                                ui->toolTabs->addTab(tool, "SaveFile Editor"));
+                            break;
+                        }
+                        case ENGINE_v4: {
+                            // SaveFileEditorv3 *tool = new SaveFileEditorv3(r.m_path);
+                            // ui->toolTabs->setCurrentIndex(
+                            //    ui->toolTabs->addTab(tool, "SaveFile Editor"));
+                            break;
+                        }
+                        case ENGINE_v5: {
+                            // SaveFileEditorv5 *tool = new SaveFileEditorv5(r.m_path);
+                            // ui->toolTabs->setCurrentIndex(
+                            //    ui->toolTabs->addTab(tool, "SaveFile Editor"));
+                            break;
+                        }
+                    }
+                    break;
             }
         });
     }
@@ -125,11 +189,25 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     });
     tools->addSeparator();
 
-    tools->addAction("Scene Editor", [this] {
+    QMenu *scn = new QMenu("Scene Editor");
+    scn->addAction("v1, v2, v3, v4", [this] {
         setStatus("Opening Scene Editor");
         SceneEditor *tool = new SceneEditor();
         tool->installEventFilter(this);
         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Scene Editor"));
+    });
+    scn->addAction("v5 (Sonic Mania)", [this] {
+        setStatus("Opening Scene Editor");
+        // SceneEditorv5 *tool = new SceneEditorv5();
+        // tool->installEventFilter(this);
+        // ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Scene Editor"));
+    });
+    tools->addMenu(scn);
+
+    tools->addAction("Animation Editor", [this] {
+        setStatus("Opening Animation Editor...");
+        // AnimationEditor *tool = new AnimationEditor();
+        // ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Animation Editor"));
     });
 
     QMenu *gc = new QMenu("Gameconfig Editor");
@@ -148,6 +226,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         GameconfigEditorv4 *tool = new GameconfigEditorv4();
         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Gameconfig Editor"));
     });
+    gc->addAction("v5 (Sonic Mania)", [this] {
+        setStatus("Opening Gameconfig Editor...");
+        GameconfigEditorv5 *tool = new GameconfigEditorv5("", 0);
+        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Gameconfig Editor"));
+    });
     tools->addMenu(gc);
 
     tools->addAction("Palette Editor", [this] {
@@ -155,6 +238,30 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         PaletteEditor *tool = new PaletteEditor();
         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Palette Editor"));
     });
+
+    QMenu *se = new QMenu("SaveFile Editor");
+    se->addAction("v3 (Sonic CD)", [this] {
+        setStatus("Opening SaveFile Editor...");
+        SaveFileEditorv3 *tool = new SaveFileEditorv3();
+        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "SaveFile Editor"));
+    });
+    se->addAction("v4 (Sonic 1 / Sonic 2)", [this] {
+        setStatus("Opening SaveFile Editor...");
+        // SaveFileEditorv4 *tool = new SaveFileEditorv4();
+        // ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "SaveFile Editor"));
+    });
+    se->addAction("v5 (Sonic Mania)", [this] {
+        setStatus("Opening SaveFile Editor...");
+        // SaveFileEditorv5 *tool = new SaveFileEditorv5("", 0);
+        // ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "SaveFile Editor"));
+    });
+
+    tools->addAction("Static Object Editor", [this] {
+        setStatus("Opening Static Object Editor...");
+        StaticObjectEditor *tool = new StaticObjectEditor();
+        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Static Object Editor"));
+    });
+    tools->addMenu(se);
 
     tools->addAction("Script Unpacker", [this] {
         setStatus("Opening Script Unpacker...");
@@ -212,7 +319,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         QMessageBox msgBox(
             QMessageBox::Information, "RetroED",
             QString("RetroED - Retro Engine Editor v2.0\nGeneral Purpose Editor for RSDK "
-                    "versions below v5\n\nCreated by: Rubberduckycooly"),
+                    "Files\n\nCreated by: Rubberduckycooly"),
             QMessageBox::NoButton);
         msgBox.exec();
     });

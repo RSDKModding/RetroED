@@ -80,6 +80,7 @@ public:
 
 // Formats
 #include "utils/appconfig.hpp"
+#include "utils/staticobjectinfo.hpp"
 
 // Decompilers
 #include "tools/decompiler/decompilerv3.hpp"
@@ -106,7 +107,12 @@ public:
 #include "tools/gameconfigeditorv2.hpp"
 #include "tools/gameconfigeditorv3.hpp"
 #include "tools/gameconfigeditorv4.hpp"
+#include "tools/gameconfigeditorv5.hpp"
 #include "tools/gfxtool.hpp"
+#include "tools/staticobjecteditor.hpp"
+#include "tools/savefileeditorv3.hpp"
+//#include "tools/savefileeditorv4.hpp"
+//#include "tools/savefileeditorv5.hpp"
 #include "tools/paletteeditor.hpp"
 #include "tools/paletteeditor/colourdialog.hpp"
 #include "tools/rsdkunpacker.hpp"

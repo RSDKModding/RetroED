@@ -22,13 +22,7 @@
 #include "utils/colour.hpp"
 #include "utils/palette.hpp"
 
-enum EngineVersion {
-    ENGINE_NONE,
-    ENGINE_v4,
-    ENGINE_v3,
-    ENGINE_v2,
-    ENGINE_v1,
-};
+enum EngineVersion { ENGINE_v5, ENGINE_v4, ENGINE_v3, ENGINE_v2, ENGINE_v1, ENGINE_NONE = 0xFF };
 
 // RSDKv1
 #include "formats/RSDKv1/animationv1.hpp"

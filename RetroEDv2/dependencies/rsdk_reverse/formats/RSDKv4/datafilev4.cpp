@@ -119,22 +119,21 @@ void RSDKv4::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, i
 
 void RSDKv4::Datafile::FileInfo::writeHeader(Writer &writer)
 {
-    m_filename = m_filename.replace('\\', '/');
-    // QByteArray md5 = calculateMD5Hash(m_filename.toLower());
-    QByteArray md5;
-    md5.resize(0x10);
+    m_filename     = m_filename.replace('\\', '/');
+    QString fn     = m_filename;
+    QByteArray md5 = calculateMD5Hash(fn.toLower());
 
     for (int y = 0; y < 16; y += 4) {
-        md5[y + 3] = m_md5Hash[y + 0];
-        md5[y + 2] = m_md5Hash[y + 1];
-        md5[y + 1] = m_md5Hash[y + 2];
-        md5[y + 0] = m_md5Hash[y + 3];
+        m_md5Hash[y + 3] = md5[y];
+        m_md5Hash[y + 2] = md5[y + 1];
+        m_md5Hash[y + 1] = md5[y + 2];
+        m_md5Hash[y]     = md5[y + 3];
     }
 
     // again, temp
     m_encrypted = false;
 
-    for (int y = 0; y < 0x10; ++y) writer.write((byte)md5[y]);
+    writer.write(m_md5Hash);
     writer.write(m_dataOffset);
     writer.write(m_fileSize | (m_encrypted ? 0x80000000 : 0));
 }
