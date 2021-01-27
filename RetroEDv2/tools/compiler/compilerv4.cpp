@@ -1087,7 +1087,7 @@ void Compilerv4::checkAliasText(QString &text)
 {
     if (findStringToken(text, "publicalias", 1) && findStringToken(text, "privatealias", 1))
         return;
-    int textPos     = 6;
+    int textPos     = 11;
     int aliasStrPos = 0;
     int aliasMatch  = 0;
 
@@ -1099,8 +1099,9 @@ void Compilerv4::checkAliasText(QString &text)
     AliasInfov4 *a = &publicAliases[m_publicAliasCount];
     int *cnt       = &m_publicAliasCount;
     if (findStringToken(text, "privatealias", 1) == 0) {
-        a   = &privateAliases[m_privateAliasCount];
-        cnt = &m_privateAliasCount;
+        a       = &privateAliases[m_privateAliasCount];
+        cnt     = &m_privateAliasCount;
+        textPos = 12;
         if (m_privateAliasCount >= ALIAS_COUNT_v4) // private alias & we reached the cap
             return;
     }
@@ -1108,8 +1109,8 @@ void Compilerv4::checkAliasText(QString &text)
     while (aliasMatch < 2) {
         if (aliasMatch) {
             if (aliasMatch == 1) {
-                a->m_name[aliasStrPos] = text[textPos];
                 if (textPos < text.length()) {
+                    a->m_name += text[textPos];
                     aliasStrPos++;
                 }
                 else {
@@ -1199,9 +1200,9 @@ void *Compilerv4::checkTableText(QString &text)
         curTablePublic = false;
     }
 
-    int namePos = 0;
+    table->name = "";
     while (strPos < text.length()) {
-        table->name[namePos++] = text[strPos++];
+        table->name += text[strPos++];
     }
     return table;
 }
@@ -1726,11 +1727,11 @@ void Compilerv4::readTableValues(QString &text)
     int strPos        = 0;
     while (textPos < text.length()) {
         if (text[textPos] == ',') {
-            strBuffer = "";
 
             int cnt = currentTable->valueCount;
             convertStringToInteger(strBuffer, &currentTable->values[cnt].value);
             currentTable->valueCount++;
+            strBuffer = "";
 
             strPos = 0;
         }

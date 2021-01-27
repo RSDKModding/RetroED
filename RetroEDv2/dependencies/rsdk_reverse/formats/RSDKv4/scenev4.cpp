@@ -108,10 +108,10 @@ void RSDKv4::Scene::Object::read(Reader &reader, int id)
     m_subtype = reader.read<byte>();
 
     buf    = reader.readByteArray(4);
-    m_xPos = ((byte)buf[3] << 24) | ((byte)buf[2] << 16) | ((byte)buf[8] << 8) | ((byte)buf[0] << 0);
+    m_xPos = ((byte)buf[3] << 24) | ((byte)buf[2] << 16) | ((byte)buf[1] << 8) | ((byte)buf[0] << 0);
 
     buf    = reader.readByteArray(4);
-    m_yPos = ((byte)buf[3] << 24) | ((byte)buf[2] << 16) | ((byte)buf[8] << 8) | ((byte)buf[0] << 0);
+    m_yPos = ((byte)buf[3] << 24) | ((byte)buf[2] << 16) | ((byte)buf[1] << 8) | ((byte)buf[0] << 0);
 
     bool attribInt[] = {
         true, false, true, true, false, false, false, false, true, false, false, true, true, true, true,

@@ -918,18 +918,23 @@ void SceneViewer::removeGraphicsFile(char *sheetPath, int slot)
     }
 }
 
+int sprDraws = 0;
 void SceneViewer::drawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID)
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
+    if (sheetID != m_prevSprite)
+        sprDraws = 0;
+
     // Draw Sprite
     float xpos = XPos - m_cam.m_position.x;
     float ypos = YPos - m_cam.m_position.y;
-    float zpos = 9.0f;
+    float zpos = 9.0f + (sprDraws * 0.001f);
 
     if (sheetID != m_prevSprite) {
         m_objectSprites[sheetID].m_texture->bind();
         m_prevSprite = sheetID;
+        sprDraws     = 0;
     }
     float w = m_objectSprites[sheetID].m_texture->width(),
           h = m_objectSprites[sheetID].m_texture->height();
@@ -986,6 +991,7 @@ void SceneViewer::drawSprite(int XPos, int YPos, int width, int height, int sprX
     m_spriteShader.setValue("model", matModel);
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
+    sprDraws++;
 }
 
 void SceneViewer::drawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY,
@@ -993,10 +999,13 @@ void SceneViewer::drawSpriteFlipped(int XPos, int YPos, int width, int height, i
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
+    if (sheetID != m_prevSprite)
+        sprDraws = 0;
+
     // Draw Sprite
     float xpos = XPos - m_cam.m_position.x;
     float ypos = YPos - m_cam.m_position.y;
-    float zpos = 9.0f;
+    float zpos = 9.0f + (sprDraws * 0.001f);
 
     if (sheetID != m_prevSprite) {
         m_objectSprites[sheetID].m_texture->bind();
@@ -1089,6 +1098,7 @@ void SceneViewer::drawSpriteFlipped(int XPos, int YPos, int width, int height, i
     m_spriteShader.setValue("model", matModel);
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
+    sprDraws++;
 }
 
 void SceneViewer::drawBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY,
@@ -1096,10 +1106,13 @@ void SceneViewer::drawBlendedSprite(int XPos, int YPos, int width, int height, i
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
+    if (sheetID != m_prevSprite)
+        sprDraws = 0;
+
     // Draw Sprite
     float xpos = XPos - m_cam.m_position.x;
     float ypos = YPos - m_cam.m_position.y;
-    float zpos = 9.0f;
+    float zpos = 9.0f + (sprDraws * 0.001f);
 
     if (sheetID != m_prevSprite) {
         m_objectSprites[sheetID].m_texture->bind();
@@ -1160,6 +1173,7 @@ void SceneViewer::drawBlendedSprite(int XPos, int YPos, int width, int height, i
     m_spriteShader.setValue("model", matModel);
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
+    sprDraws++;
 }
 
 void SceneViewer::drawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY,
@@ -1167,10 +1181,13 @@ void SceneViewer::drawAlphaBlendedSprite(int XPos, int YPos, int width, int heig
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
+    if (sheetID != m_prevSprite)
+        sprDraws = 0;
+
     // Draw Sprite
     float xpos = XPos - m_cam.m_position.x;
     float ypos = YPos - m_cam.m_position.y;
-    float zpos = 9.0f;
+    float zpos = 9.0f + (sprDraws * 0.001f);
 
     if (sheetID != m_prevSprite) {
         m_objectSprites[sheetID].m_texture->bind();
@@ -1231,4 +1248,5 @@ void SceneViewer::drawAlphaBlendedSprite(int XPos, int YPos, int width, int heig
     m_spriteShader.setValue("model", matModel);
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
+    sprDraws++;
 }
