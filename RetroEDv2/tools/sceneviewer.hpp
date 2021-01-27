@@ -95,7 +95,7 @@ public:
     bool m_showTileGrid  = false;
 
     Compilerv3 m_compilerv3;
-    // Compilerv4 m_compilerv4;
+    Compilerv4 m_compilerv4;
 
     // passed from main
     QLabel *m_statusLabel      = nullptr;

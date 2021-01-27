@@ -482,10 +482,6 @@ void SceneViewer::drawScene()
     m_spriteShader.setValue("flipY", false);
     m_spriteShader.setValue("useAlpha", false);
     m_spriteShader.setValue("alpha", 1.0f);
-    m_compilerv3.xScrollOffset = m_cam.m_position.x;
-    m_compilerv3.yScrollOffset = m_cam.m_position.y;
-    // m_compilerv4.xScrollOffset = m_cam.m_position.x;
-    // m_compilerv4.yScrollOffset = m_cam.m_position.y;
     for (int o = 0; o < m_scene.m_objects.count(); ++o) {
         switch (m_gameType) {
             case ENGINE_v1: break;
@@ -503,15 +499,15 @@ void SceneViewer::drawScene()
                 break;
             }
             case ENGINE_v4: {
-                // auto &curObj = m_compilerv3.m_objectScriptList[m_scene.m_objects[o].m_type];
-                //
-                // if (curObj.subRSDKDraw.m_scriptCodePtr != SCRIPTDATA_COUNT - 1) {
-                //    m_compilerv3.m_objectLoop = o;
-                //    m_compilerv3.processScript(curObj.subRSDKDraw.m_scriptCodePtr,
-                //                               curObj.subRSDKDraw.m_jumpTablePtr,
-                //                               Compilerv3::SUB_RSDKDRAW);
-                //    // continue;
-                //}
+                auto &curObj = m_compilerv4.m_objectScriptList[m_scene.m_objects[o].m_type];
+
+                if (curObj.eventRSDKDraw.m_scriptCodePtr != SCRIPTDATA_COUNT - 1) {
+                    m_compilerv4.m_objectEntityPos = o;
+                    m_compilerv4.processScript(curObj.eventRSDKDraw.m_scriptCodePtr,
+                                               curObj.eventRSDKDraw.m_jumpTablePtr,
+                                               Compilerv4::EVENT_RSDKDRAW);
+                    continue;
+                }
                 break;
             }
         }

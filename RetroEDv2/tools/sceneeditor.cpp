@@ -903,6 +903,12 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                 m_mainView->m_compilerv3.m_objectEntityList[cnt].propertyValue = 0;
                                 m_mainView->m_compilerv3.m_objectEntityList[cnt].XPos          = xpos;
                                 m_mainView->m_compilerv3.m_objectEntityList[cnt].YPos          = ypos;
+
+                                m_mainView->m_compilerv4.m_objectEntityList[cnt].type =
+                                    m_mainView->m_selectedObject;
+                                m_mainView->m_compilerv4.m_objectEntityList[cnt].propertyValue = 0;
+                                m_mainView->m_compilerv4.m_objectEntityList[cnt].XPos          = xpos;
+                                m_mainView->m_compilerv4.m_objectEntityList[cnt].YPos          = ypos;
                             }
                         }
 
@@ -1096,6 +1102,11 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                 .XPos = object.m_xPos;
                             m_mainView->m_compilerv3.m_objectEntityList[m_mainView->m_selectedEntity]
                                 .YPos = object.m_yPos;
+
+                            m_mainView->m_compilerv4.m_objectEntityList[m_mainView->m_selectedEntity]
+                                .XPos = object.m_xPos;
+                            m_mainView->m_compilerv4.m_objectEntityList[m_mainView->m_selectedEntity]
+                                .YPos = object.m_yPos;
                         }
                         break;
                     }
@@ -1170,6 +1181,9 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                             m_mainView->m_scene.m_objects.append(object);
                             m_mainView->m_compilerv3.m_objectEntityList[cnt].XPos = object.m_xPos;
                             m_mainView->m_compilerv3.m_objectEntityList[cnt].YPos = object.m_yPos;
+
+                            m_mainView->m_compilerv4.m_objectEntityList[cnt].XPos = object.m_xPos;
+                            m_mainView->m_compilerv4.m_objectEntityList[cnt].YPos = object.m_yPos;
                         } break;
                     }
                 }
@@ -1343,21 +1357,27 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
         m_mainView->m_compilerv3.m_objectEntityList[i].XPos = m_mainView->m_scene.m_objects[i].m_xPos;
         m_mainView->m_compilerv3.m_objectEntityList[i].YPos = m_mainView->m_scene.m_objects[i].m_yPos;
 
+        m_mainView->m_compilerv4.m_objectEntityList[i].type = m_mainView->m_scene.m_objects[i].m_type;
+        m_mainView->m_compilerv4.m_objectEntityList[i].propertyValue =
+            m_mainView->m_scene.m_objects[i].m_subtype;
+        m_mainView->m_compilerv4.m_objectEntityList[i].XPos = m_mainView->m_scene.m_objects[i].m_xPos;
+        m_mainView->m_compilerv4.m_objectEntityList[i].YPos = m_mainView->m_scene.m_objects[i].m_yPos;
+
         for (int v = 0; v < 8; ++v) m_mainView->m_compilerv3.m_objectEntityList[i].values[v] = 0;
     }
 
     m_mainView->m_compilerv3.clearScriptData();
-    // m_mainView->m_compilerv4.clearScriptData();
+    m_mainView->m_compilerv4.clearScriptData();
     int id                                     = 0;
-    m_mainView->m_compilerv3.m_typeNames[id++] = "Blank Object";
-    // m_mainView->m_compilerv4.m_typeNames[id++] = "Blank Object";
+    m_mainView->m_compilerv3.m_typeNames[id]   = "Blank Object";
+    m_mainView->m_compilerv4.m_typeNames[id++] = "Blank Object";
     for (int o = 0; o < m_mainView->m_gameconfig.m_objects.count(); ++o) {
-        m_mainView->m_compilerv3.m_typeNames[id++] = m_mainView->m_gameconfig.m_objects[o].m_name;
-        // m_mainView->m_compilerv4.m_typeNames[id++] = m_mainView->m_gameconfig.m_objects[o].m_name;
+        m_mainView->m_compilerv3.m_typeNames[id]   = m_mainView->m_gameconfig.m_objects[o].m_name;
+        m_mainView->m_compilerv4.m_typeNames[id++] = m_mainView->m_gameconfig.m_objects[o].m_name;
     }
     for (int o = 0; o < m_mainView->m_stageconfig.m_objects.count(); ++o) {
-        m_mainView->m_compilerv3.m_typeNames[id++] = m_mainView->m_stageconfig.m_objects[o].m_name;
-        // m_mainView->m_compilerv4.m_typeNames[id++] = m_mainView->m_stageconfig.m_objects[o].m_name;
+        m_mainView->m_compilerv3.m_typeNames[id]   = m_mainView->m_stageconfig.m_objects[o].m_name;
+        m_mainView->m_compilerv4.m_typeNames[id++] = m_mainView->m_stageconfig.m_objects[o].m_name;
     }
 
     switch (gameType) {
@@ -1441,22 +1461,80 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
             break;
         }
         case ENGINE_v4: { // compiler RSDKDraw & RSDKLoad and draw via those
-            // int scrID = 1;
-            /*for (int i = 0; i < m_mainView->m_gameconfig.m_objects.count(); ++i) {
+            int scrID                         = 1;
+            m_mainView->m_compilerv4.m_viewer = m_mainView;
+
+            for (int i = 0; i < m_mainView->m_gameconfig.m_objects.count(); ++i) {
                 m_mainView->m_compilerv4.parseScriptFile(
-                    m_mainView->m_dataPath + "../Scripts/"
+                    m_mainView->m_dataPath + "/../Scripts/"
                         + m_mainView->m_gameconfig.m_objects[i].m_script,
                     scrID++);
+
+                if (m_mainView->m_compilerv4.m_scriptError) {
+                    // ui->errorMsg->setText(m_mainView->m_compilerv4.errorMsg);
+                    // ui->errorPos->setText(m_mainView->m_compilerv4.errorPos);
+                    // ui->lineNo->setText(QString::number(m_mainView->m_compilerv4.m_errorLine));
+
+                    QFileInfo info(m_mainView->m_compilerv4.m_errorScr);
+                    QDir dir(info.dir());
+                    dir.cdUp();
+                    QString dirFile = dir.relativeFilePath(m_mainView->m_compilerv4.m_errorScr);
+
+                    setStatus("Failed to compile script: " + dirFile);
+                    m_mainView->m_compilerv4.m_objectScriptList[scrID - 1]
+                        .eventRSDKDraw.m_scriptCodePtr = SCRIPTDATA_COUNT_v4 - 1;
+                    m_mainView->m_compilerv4.m_objectScriptList[scrID - 1]
+                        .eventRSDKDraw.m_jumpTablePtr = JUMPTABLE_COUNT_v4 - 1;
+                    m_mainView->m_compilerv4.m_objectScriptList[scrID - 1]
+                        .eventRSDKLoad.m_scriptCodePtr = SCRIPTDATA_COUNT_v4 - 1;
+                    m_mainView->m_compilerv4.m_objectScriptList[scrID - 1]
+                        .eventRSDKLoad.m_jumpTablePtr = JUMPTABLE_COUNT_v4 - 1;
+                }
             }
 
             for (int i = 0; i < m_mainView->m_stageconfig.m_objects.count(); ++i) {
                 m_mainView->m_compilerv4.parseScriptFile(
-                    m_mainView->m_dataPath + "../Scripts/"
+                    m_mainView->m_dataPath + "/../Scripts/"
                         + m_mainView->m_stageconfig.m_objects[i].m_script,
                     scrID++);
-            }*/
 
-            // call RSDKLoad here
+                if (m_mainView->m_compilerv4.m_scriptError) {
+                    // ui->errorMsg->setText(m_mainView->m_compilerv4.errorMsg);
+                    // ui->errorPos->setText(m_mainView->m_compilerv4.errorPos);
+                    // ui->lineNo->setText(QString::number(m_mainView->m_compilerv4.m_errorLine));
+
+                    QFileInfo info(m_mainView->m_compilerv4.m_errorScr);
+                    QDir dir(info.dir());
+                    dir.cdUp();
+                    QString dirFile = dir.relativeFilePath(m_mainView->m_compilerv4.m_errorScr);
+
+                    setStatus("Failed to compile script: " + dirFile);
+                    m_mainView->m_compilerv4.m_objectScriptList[scrID - 1]
+                        .eventRSDKDraw.m_scriptCodePtr = SCRIPTDATA_COUNT_v4 - 1;
+                    m_mainView->m_compilerv4.m_objectScriptList[scrID - 1]
+                        .eventRSDKDraw.m_jumpTablePtr = JUMPTABLE_COUNT_v4 - 1;
+                    m_mainView->m_compilerv4.m_objectScriptList[scrID - 1]
+                        .eventRSDKLoad.m_scriptCodePtr = SCRIPTDATA_COUNT_v4 - 1;
+                    m_mainView->m_compilerv4.m_objectScriptList[scrID - 1]
+                        .eventRSDKLoad.m_jumpTablePtr = JUMPTABLE_COUNT_v4 - 1;
+                }
+            }
+
+            m_mainView->m_compilerv4.m_objectEntityPos = ENTITY_COUNT - 1;
+            for (int o = 0; o < OBJECT_COUNT; ++o) {
+                auto &curObj           = m_mainView->m_compilerv4.m_objectScriptList[o];
+                curObj.frameListOffset = m_mainView->m_compilerv4.scriptFrameCount;
+                curObj.spriteSheetID   = 0;
+                m_mainView->m_compilerv4.m_objectEntityList[ENTITY_COUNT - 1].type = o;
+
+                auto &curSub = curObj.eventRSDKLoad;
+                if (curSub.m_scriptCodePtr != SCRIPTDATA_COUNT - 1) {
+                    m_mainView->m_compilerv4.processScript(
+                        curSub.m_scriptCodePtr, curSub.m_jumpTablePtr, Compilerv4::EVENT_RSDKLOAD);
+                }
+                curObj.spriteFrameCount =
+                    m_mainView->m_compilerv4.scriptFrameCount - curObj.frameListOffset;
+            }
             break;
         }
     }
