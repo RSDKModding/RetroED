@@ -19,7 +19,7 @@ void main()
 
 	vec4 colour = vec4(texture(sprite, UVs)); 
 	if (useAlpha) colour.a = alpha;
-	if (colour.a == 0.0)
+	if (colour.a <= 0.0)
 		discard;
 
 	if (colour.rgb == transparentColour)

@@ -29,6 +29,13 @@ public:
     SceneViewer(QWidget *parent);
     ~SceneViewer();
 
+    struct TextureInfo {
+        TextureInfo() {}
+
+        QString m_name            = "";
+        QOpenGLTexture *m_texture = nullptr;
+    };
+
     void loadScene(QString path, byte ver);
 
     void updateScene();
@@ -41,6 +48,7 @@ public:
 
     byte m_gameType = ENGINE_NONE;
 
+    QString m_dataPath = "";
     FormatHelpers::Gameconfig m_gameconfig;
 
     FormatHelpers::Scene m_scene;
@@ -86,6 +94,9 @@ public:
     bool m_showPixelGrid = false;
     bool m_showTileGrid  = false;
 
+    Compilerv3 m_compilerv3;
+    // Compilerv4 m_compilerv4;
+
     // passed from main
     QLabel *m_statusLabel      = nullptr;
     QScrollBar *m_sbHorizontal = nullptr;
@@ -126,6 +137,19 @@ public:
 
     int m_storedW, m_storedH;
 
+    int m_prevSprite = -1;
+
+    int addGraphicsFile(char *sheetPath);
+    void removeGraphicsFile(char *sheetPath, int slot);
+
+    void drawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID);
+    void drawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction,
+                           int sheetID);
+
+    void drawBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID);
+    void drawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY,
+                                int alpha, int sheetID);
+
 protected:
     void initializeGL();
     void resizeGL(int w, int h);
@@ -136,7 +160,7 @@ protected:
 private:
     QOpenGLVertexArrayObject m_screenVAO, m_rectVAO;
     QList<QOpenGLTexture *> m_chunkTextures;
-    QList<QOpenGLTexture *> m_objectSprites;
+    QList<TextureInfo> m_objectSprites;
 
     QOpenGLTexture *m_rsPlayerSprite = nullptr;
 
@@ -193,21 +217,21 @@ private:
         VAO.create();
         VAO.bind();
 
-        QOpenGLBuffer V4O;
-        V4O.create();
-        V4O.setUsagePattern(QOpenGLBuffer::DynamicDraw);
-        V4O.bind();
-        V4O.allocate(vertsPtr, 2 * sizeof(QVector3D));
+        QOpenGLBuffer VBO;
+        VBO.create();
+        VBO.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+        VBO.bind();
+        VBO.allocate(vertsPtr, 2 * sizeof(QVector3D));
         shader.enableAttributeArray(0);
         shader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
 
         f->glDrawArrays(GL_LINES, 0, 2);
 
         VAO.release();
-        V4O.release();
+        VBO.release();
 
         VAO.destroy();
-        V4O.destroy();
+        VBO.destroy();
     }
 
     inline void drawRect(float x, float y, float z, float w, float h, Vector4<float> colour,

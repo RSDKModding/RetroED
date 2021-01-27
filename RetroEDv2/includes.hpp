@@ -82,6 +82,10 @@ public:
 #include "utils/appconfig.hpp"
 #include "utils/staticobjectinfo.hpp"
 
+// Compilers
+#include "tools/compiler/compilerv3.hpp"
+//#include "tools/compiler/compilerv4.hpp"
+
 // Decompilers
 #include "tools/decompiler/decompilerv3.hpp"
 #include "tools/decompiler/decompilerv4.hpp"

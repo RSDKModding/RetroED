@@ -170,8 +170,11 @@ void SceneViewer::loadScene(QString path, byte ver)
     // objects
     m_objectSprites.clear();
     {
-        m_missingObj = QImage(":/icons/missing.png");
-        m_objectSprites.append(createTexture(m_missingObj));
+        TextureInfo tex;
+        tex.m_name    = ":/icons/missing.png";
+        m_missingObj  = QImage(tex.m_name);
+        tex.m_texture = createTexture(m_missingObj);
+        m_objectSprites.append(tex);
     }
 
     m_rsPlayerSprite = createTexture(QImage(":/icons/player_v1.png"));
@@ -472,24 +475,58 @@ void SceneViewer::drawScene()
     }
 
     // ENTITIES
-    int prevSprite = -1;
-    int sprID      = 0;
+    m_prevSprite = -1;
     m_spriteShader.use();
     m_rectVAO.bind();
     m_spriteShader.setValue("flipX", false);
     m_spriteShader.setValue("flipY", false);
     m_spriteShader.setValue("useAlpha", false);
     m_spriteShader.setValue("alpha", 1.0f);
+    m_compilerv3.xScrollOffset = m_cam.m_position.x;
+    m_compilerv3.yScrollOffset = m_cam.m_position.y;
+    // m_compilerv4.xScrollOffset = m_cam.m_position.x;
+    // m_compilerv4.yScrollOffset = m_cam.m_position.y;
     for (int o = 0; o < m_scene.m_objects.count(); ++o) {
+        switch (m_gameType) {
+            case ENGINE_v1: break;
+            case ENGINE_v2: break;
+            case ENGINE_v3: {
+                auto &curObj = m_compilerv3.m_objectScriptList[m_scene.m_objects[o].m_type];
+
+                if (curObj.subRSDKDraw.m_scriptCodePtr != SCRIPTDATA_COUNT - 1) {
+                    m_compilerv3.m_objectLoop = o;
+                    m_compilerv3.processScript(curObj.subRSDKDraw.m_scriptCodePtr,
+                                               curObj.subRSDKDraw.m_jumpTablePtr,
+                                               Compilerv3::SUB_RSDKDRAW);
+                    continue;
+                }
+                break;
+            }
+            case ENGINE_v4: {
+                // auto &curObj = m_compilerv3.m_objectScriptList[m_scene.m_objects[o].m_type];
+                //
+                // if (curObj.subRSDKDraw.m_scriptCodePtr != SCRIPTDATA_COUNT - 1) {
+                //    m_compilerv3.m_objectLoop = o;
+                //    m_compilerv3.processScript(curObj.subRSDKDraw.m_scriptCodePtr,
+                //                               curObj.subRSDKDraw.m_jumpTablePtr,
+                //                               Compilerv3::SUB_RSDKDRAW);
+                //    // continue;
+                //}
+                break;
+            }
+        }
+
+        m_spriteShader.use();
+        m_rectVAO.bind();
         // Draw Object
         float xpos = m_scene.m_objects[o].getX() - (m_cam.m_position.x);
         float ypos = m_scene.m_objects[o].getY() - (m_cam.m_position.y);
         float zpos = 9.0f;
 
-        int w = m_objectSprites[0]->width(), h = m_objectSprites[0]->height();
-        if (sprID != prevSprite) {
-            m_objectSprites[0]->bind();
-            prevSprite = sprID;
+        int w = m_objectSprites[0].m_texture->width(), h = m_objectSprites[0].m_texture->height();
+        if (m_prevSprite) {
+            m_objectSprites[0].m_texture->bind();
+            m_prevSprite = 0;
         }
 
         Rect<int> check = Rect<int>();
@@ -510,6 +547,8 @@ void SceneViewer::drawScene()
         f->glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
+    m_spriteShader.use();
+    m_rectVAO.bind();
     m_spriteShader.setValue("useAlpha", true);
     m_spriteShader.setValue("alpha", 0.75f);
     if (m_selectedChunk >= 0 && m_selectedLayer >= 0 && m_selecting && m_tool == TOOL_PENCIL) {
@@ -566,8 +605,8 @@ void SceneViewer::drawScene()
         float ypos = ey; //+ m_cam.m_position.y;
         float zpos = 15.0f;
 
-        int w = m_objectSprites[0]->width(), h = m_objectSprites[0]->height();
-        m_objectSprites[0]->bind();
+        int w = m_objectSprites[0].m_texture->width(), h = m_objectSprites[0].m_texture->height();
+        m_objectSprites[0].m_texture->bind();
 
         QMatrix4x4 matModel;
         matModel.scale(w * m_zoom, h * m_zoom, 1.0f);
@@ -611,10 +650,17 @@ void SceneViewer::drawScene()
 
     // Selected Ent Box
     m_rectVAO.bind();
+    m_primitiveShader.use();
+    m_primitiveShader.setValue("projection", getProjectionMatrix());
+    m_primitiveShader.setValue("view", QMatrix4x4());
+    m_primitiveShader.setValue("useAlpha", false);
+    m_primitiveShader.setValue("alpha", 1.0f);
+    QMatrix4x4 matModel;
+    m_primitiveShader.setValue("model", matModel);
     if (m_selectedEntity >= 0) {
         FormatHelpers::Scene::Object &object = m_scene.m_objects[m_selectedEntity];
-        int w = m_objectSprites[0]->width(), h = m_objectSprites[0]->height();
-        m_objectSprites[0]->bind();
+        int w = m_objectSprites[0].m_texture->width(), h = m_objectSprites[0].m_texture->height();
+        m_objectSprites[0].m_texture->bind();
 
         drawRect(((object.getX() - m_cam.m_position.x) - (w / 2)) * m_zoom,
                  ((object.getY() - m_cam.m_position.y) - (h / 2)) * m_zoom, 15.7f, w * m_zoom,
@@ -674,11 +720,11 @@ void SceneViewer::drawScene()
         gridVAO.create();
         gridVAO.bind();
 
-        QOpenGLBuffer gridV4O;
-        gridV4O.create();
-        gridV4O.setUsagePattern(QOpenGLBuffer::StaticDraw);
-        gridV4O.bind();
-        gridV4O.allocate(vertsPtr, verts.count() * sizeof(QVector3D));
+        QOpenGLBuffer gridVBO;
+        gridVBO.create();
+        gridVBO.setUsagePattern(QOpenGLBuffer::StaticDraw);
+        gridVBO.bind();
+        gridVBO.allocate(vertsPtr, verts.count() * sizeof(QVector3D));
         m_primitiveShader.enableAttributeArray(0);
         m_primitiveShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
 
@@ -687,7 +733,7 @@ void SceneViewer::drawScene()
         delete[] vertsPtr;
 
         gridVAO.release();
-        gridV4O.release();
+        gridVBO.release();
     }
 }
 
@@ -708,8 +754,9 @@ void SceneViewer::unloadScene()
     m_chunks.clear();
 
     for (int o = 0; o < m_objectSprites.count(); ++o) {
-        m_objectSprites[o]->destroy();
-        delete m_objectSprites[o];
+        m_objectSprites[o].m_texture->destroy();
+        delete m_objectSprites[o].m_texture;
+        m_objectSprites[o].m_name = "";
     }
     m_objectSprites.clear();
 
@@ -717,6 +764,14 @@ void SceneViewer::unloadScene()
         m_rsPlayerSprite->destroy();
         delete m_rsPlayerSprite;
     }
+
+    m_cam                = SceneCamera();
+    m_selectedChunk      = -1;
+    m_selectedEntity     = -1;
+    m_selectedLayer      = -1;
+    m_selectedScrollInfo = -1;
+    m_selectedObject     = -1;
+    m_selecting          = false;
 }
 
 void SceneViewer::initializeGL()
@@ -770,25 +825,25 @@ void SceneViewer::initializeGL()
     m_rectVAO.create();
     m_rectVAO.bind();
 
-    QOpenGLBuffer vV4O2D;
-    vV4O2D.create();
-    vV4O2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    vV4O2D.bind();
-    vV4O2D.allocate(rectVertices, 6 * sizeof(QVector3D));
+    QOpenGLBuffer vVBO2D;
+    vVBO2D.create();
+    vVBO2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    vVBO2D.bind();
+    vVBO2D.allocate(rectVertices, 6 * sizeof(QVector3D));
     m_spriteShader.enableAttributeArray(0);
     m_spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
 
-    QOpenGLBuffer tV4O2D;
-    tV4O2D.create();
-    tV4O2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    tV4O2D.bind();
-    tV4O2D.allocate(rectTexCoords, 6 * sizeof(QVector2D));
+    QOpenGLBuffer tVBO2D;
+    tVBO2D.create();
+    tVBO2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    tVBO2D.bind();
+    tVBO2D.allocate(rectTexCoords, 6 * sizeof(QVector2D));
     m_spriteShader.enableAttributeArray(1);
     m_spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
 
     // Release (unbind) all
     m_rectVAO.release();
-    vV4O2D.release();
+    vVBO2D.release();
 }
 
 void SceneViewer::resizeGL(int w, int h)
@@ -811,4 +866,373 @@ void SceneViewer::paintGL()
     f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     drawScene();
+}
+
+int SceneViewer::addGraphicsFile(char *sheetPath)
+{
+    QString path = m_dataPath + "/Sprites/" + sheetPath;
+    if (!QFile::exists(path))
+        return 0;
+
+    for (int i = 1; i < m_objectSprites.count(); ++i) {
+        if (QString(sheetPath) == m_objectSprites[i].m_name)
+            return i;
+    }
+
+    int sheetID = -1;
+    for (int i = 1; i < m_objectSprites.count(); ++i) {
+        if (m_objectSprites[i].m_name == "")
+            sheetID = i;
+    }
+
+    if (sheetID >= 0) {
+        QImage sheet(path);
+        TextureInfo tex;
+        tex.m_name               = QString(sheetPath);
+        tex.m_texture            = createTexture(sheet);
+        m_objectSprites[sheetID] = tex;
+        return sheetID;
+    }
+    else {
+        QImage sheet(path);
+        int cnt = m_objectSprites.count();
+        TextureInfo tex;
+        tex.m_name    = QString(sheetPath);
+        tex.m_texture = createTexture(sheet);
+        m_objectSprites.append(tex);
+        return cnt;
+    }
+}
+
+void SceneViewer::removeGraphicsFile(char *sheetPath, int slot)
+{
+    if (slot >= 0) {
+        m_objectSprites[slot].m_texture->destroy();
+        delete m_objectSprites[slot].m_texture;
+        m_objectSprites[slot].m_name = "";
+    }
+    else {
+        for (int i = 1; i < m_objectSprites.count(); ++i) {
+            if (QString(sheetPath) == m_objectSprites[i].m_name) {
+                m_objectSprites[slot].m_texture->destroy();
+                delete m_objectSprites[slot].m_texture;
+                m_objectSprites[slot].m_name = "";
+            }
+        }
+    }
+}
+
+void SceneViewer::drawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID)
+{
+    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+
+    // Draw Sprite
+    float xpos = XPos - m_cam.m_position.x;
+    float ypos = YPos - m_cam.m_position.y;
+    float zpos = 9.0f;
+
+    if (sheetID != m_prevSprite) {
+        m_objectSprites[sheetID].m_texture->bind();
+        m_prevSprite = sheetID;
+    }
+    float w = m_objectSprites[sheetID].m_texture->width(),
+          h = m_objectSprites[sheetID].m_texture->height();
+
+    Rect<int> check = Rect<int>();
+    check.x         = (int)(xpos + (float)w) * m_zoom;
+    check.y         = (int)(ypos + (float)h) * m_zoom;
+    check.w         = (int)(xpos - (w / 2.0f)) * m_zoom;
+    check.h         = (int)(ypos - (h / 2.0f)) * m_zoom;
+    if (check.x < 0 || check.y < 0 || check.w >= m_storedW || check.h >= m_storedH || !sheetID) {
+        return;
+    }
+
+    m_spriteShader.use();
+    m_spriteShader.setValue("flipX", false);
+    m_spriteShader.setValue("flipY", false);
+    m_spriteShader.setValue("useAlpha", false);
+    m_spriteShader.setValue("alpha", 1.0f);
+    QOpenGLVertexArrayObject vao;
+    vao.create();
+    vao.bind();
+
+    float tx = sprX / w;
+    float ty = sprY / h;
+    float tw = width / w;
+    float th = height / h;
+
+    const QVector2D texCoords[] = {
+        QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
+        QVector2D(tx + tw, ty + th), QVector2D(tx, ty + th), QVector2D(tx, ty),
+    };
+
+    QOpenGLBuffer vVBO2D;
+    vVBO2D.create();
+    vVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    vVBO2D.bind();
+    vVBO2D.allocate(rectVertices, 6 * sizeof(QVector3D));
+    m_spriteShader.enableAttributeArray(0);
+    m_spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+
+    QOpenGLBuffer tVBO2D;
+    tVBO2D.create();
+    tVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    tVBO2D.bind();
+    tVBO2D.allocate(texCoords, 6 * sizeof(QVector2D));
+    m_spriteShader.enableAttributeArray(1);
+    m_spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
+
+    QMatrix4x4 matModel;
+    matModel.scale(width * m_zoom, height * m_zoom, 1.0f);
+
+    matModel.translate((xpos + (width / 2)) / (float)width, (ypos + (height / 2)) / (float)height,
+                       zpos);
+    m_spriteShader.setValue("model", matModel);
+
+    f->glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void SceneViewer::drawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY,
+                                    int direction, int sheetID)
+{
+    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+
+    // Draw Sprite
+    float xpos = XPos - m_cam.m_position.x;
+    float ypos = YPos - m_cam.m_position.y;
+    float zpos = 9.0f;
+
+    if (sheetID != m_prevSprite) {
+        m_objectSprites[sheetID].m_texture->bind();
+        m_prevSprite = sheetID;
+    }
+    float w = m_objectSprites[sheetID].m_texture->width(),
+          h = m_objectSprites[sheetID].m_texture->height();
+
+    Rect<int> check = Rect<int>();
+    check.x         = (int)(xpos + (float)w) * m_zoom;
+    check.y         = (int)(ypos + (float)h) * m_zoom;
+    check.w         = (int)(xpos - (w / 2.0f)) * m_zoom;
+    check.h         = (int)(ypos - (h / 2.0f)) * m_zoom;
+    if (check.x < 0 || check.y < 0 || check.w >= m_storedW || check.h >= m_storedH || !sheetID) {
+        return;
+    }
+
+    m_spriteShader.use();
+    m_spriteShader.setValue("flipX", false);
+    m_spriteShader.setValue("flipY", false);
+    m_spriteShader.setValue("useAlpha", false);
+    m_spriteShader.setValue("alpha", 1.0f);
+    QOpenGLVertexArrayObject vao;
+    vao.create();
+    vao.bind();
+
+    float tx = sprX / w;
+    float ty = sprY / h;
+    float tw = width / w;
+    float th = height / h;
+
+    QVector2D *texCoords = nullptr;
+    switch (direction) {
+        case 0:
+        default: {
+            QVector2D tc[] = {
+                QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
+                QVector2D(tx + tw, ty + th), QVector2D(tx, ty + th), QVector2D(tx, ty),
+            };
+            texCoords = tc;
+            break;
+        }
+        case 1: {
+            QVector2D tc[] = {
+                QVector2D(tx + tw, ty), QVector2D(tx, ty),           QVector2D(tx, ty + th),
+                QVector2D(tx, ty + th), QVector2D(tx + tw, ty + th), QVector2D(tx + tw, ty),
+            };
+            texCoords = tc;
+            break;
+        }
+        case 2: {
+            QVector2D tc[] = {
+                QVector2D(tx, ty + th), QVector2D(tx + tw, ty + th), QVector2D(tx + tw, ty),
+                QVector2D(tx + tw, ty), QVector2D(tx, ty),           QVector2D(tx, ty + th),
+            };
+            texCoords = tc;
+            break;
+        }
+        case 3: {
+            QVector2D tc[] = {
+                QVector2D(tx + tw, ty + th), QVector2D(tx, ty + th), QVector2D(tx, ty),
+                QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
+            };
+            texCoords = tc;
+            break;
+        }
+    }
+
+    QOpenGLBuffer vVBO2D;
+    vVBO2D.create();
+    vVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    vVBO2D.bind();
+    vVBO2D.allocate(rectVertices, 6 * sizeof(QVector3D));
+    m_spriteShader.enableAttributeArray(0);
+    m_spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+
+    QOpenGLBuffer tVBO2D;
+    tVBO2D.create();
+    tVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    tVBO2D.bind();
+    tVBO2D.allocate(texCoords, 6 * sizeof(QVector2D));
+    m_spriteShader.enableAttributeArray(1);
+    m_spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
+
+    QMatrix4x4 matModel;
+    matModel.scale(width * m_zoom, height * m_zoom, 1.0f);
+
+    matModel.translate((xpos + (width / 2)) / (float)width, (ypos + (height / 2)) / (float)height,
+                       zpos);
+    m_spriteShader.setValue("model", matModel);
+
+    f->glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void SceneViewer::drawBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY,
+                                    int sheetID)
+{
+    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+
+    // Draw Sprite
+    float xpos = XPos - m_cam.m_position.x;
+    float ypos = YPos - m_cam.m_position.y;
+    float zpos = 9.0f;
+
+    if (sheetID != m_prevSprite) {
+        m_objectSprites[sheetID].m_texture->bind();
+        m_prevSprite = sheetID;
+    }
+    float w = m_objectSprites[sheetID].m_texture->width(),
+          h = m_objectSprites[sheetID].m_texture->height();
+
+    Rect<int> check = Rect<int>();
+    check.x         = (int)(xpos + (float)w) * m_zoom;
+    check.y         = (int)(ypos + (float)h) * m_zoom;
+    check.w         = (int)(xpos - (w / 2.0f)) * m_zoom;
+    check.h         = (int)(ypos - (h / 2.0f)) * m_zoom;
+    if (check.x < 0 || check.y < 0 || check.w >= m_storedW || check.h >= m_storedH || !sheetID) {
+        return;
+    }
+
+    m_spriteShader.use();
+    m_spriteShader.setValue("flipX", false);
+    m_spriteShader.setValue("flipY", false);
+    m_spriteShader.setValue("useAlpha", true);
+    m_spriteShader.setValue("alpha", 0.5f);
+    QOpenGLVertexArrayObject vao;
+    vao.create();
+    vao.bind();
+
+    float tx = sprX / w;
+    float ty = sprY / h;
+    float tw = width / w;
+    float th = height / h;
+
+    const QVector2D texCoords[] = {
+        QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
+        QVector2D(tx + tw, ty + th), QVector2D(tx, ty + th), QVector2D(tx, ty),
+    };
+
+    QOpenGLBuffer vVBO2D;
+    vVBO2D.create();
+    vVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    vVBO2D.bind();
+    vVBO2D.allocate(rectVertices, 6 * sizeof(QVector3D));
+    m_spriteShader.enableAttributeArray(0);
+    m_spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+
+    QOpenGLBuffer tVBO2D;
+    tVBO2D.create();
+    tVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    tVBO2D.bind();
+    tVBO2D.allocate(texCoords, 6 * sizeof(QVector2D));
+    m_spriteShader.enableAttributeArray(1);
+    m_spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
+
+    QMatrix4x4 matModel;
+    matModel.scale(width * m_zoom, height * m_zoom, 1.0f);
+
+    matModel.translate((xpos + (width / 2)) / (float)width, (ypos + (height / 2)) / (float)height,
+                       zpos);
+    m_spriteShader.setValue("model", matModel);
+
+    f->glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void SceneViewer::drawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY,
+                                         int alpha, int sheetID)
+{
+    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+
+    // Draw Sprite
+    float xpos = XPos - m_cam.m_position.x;
+    float ypos = YPos - m_cam.m_position.y;
+    float zpos = 9.0f;
+
+    if (sheetID != m_prevSprite) {
+        m_objectSprites[sheetID].m_texture->bind();
+        m_prevSprite = sheetID;
+    }
+    float w = m_objectSprites[sheetID].m_texture->width(),
+          h = m_objectSprites[sheetID].m_texture->height();
+
+    Rect<int> check = Rect<int>();
+    check.x         = (int)(xpos + (float)w) * m_zoom;
+    check.y         = (int)(ypos + (float)h) * m_zoom;
+    check.w         = (int)(xpos - (w / 2.0f)) * m_zoom;
+    check.h         = (int)(ypos - (h / 2.0f)) * m_zoom;
+    if (check.x < 0 || check.y < 0 || check.w >= m_storedW || check.h >= m_storedH || !sheetID) {
+        return;
+    }
+
+    m_spriteShader.use();
+    m_spriteShader.setValue("flipX", false);
+    m_spriteShader.setValue("flipY", false);
+    m_spriteShader.setValue("useAlpha", true);
+    m_spriteShader.setValue("alpha", (alpha > 0xFF ? 0xFF : alpha) / 255.0f);
+    QOpenGLVertexArrayObject vao;
+    vao.create();
+    vao.bind();
+
+    float tx = sprX / w;
+    float ty = sprY / h;
+    float tw = width / w;
+    float th = height / h;
+
+    const QVector2D texCoords[] = {
+        QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
+        QVector2D(tx + tw, ty + th), QVector2D(tx, ty + th), QVector2D(tx, ty),
+    };
+
+    QOpenGLBuffer vVBO2D;
+    vVBO2D.create();
+    vVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    vVBO2D.bind();
+    vVBO2D.allocate(rectVertices, 6 * sizeof(QVector3D));
+    m_spriteShader.enableAttributeArray(0);
+    m_spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+
+    QOpenGLBuffer tVBO2D;
+    tVBO2D.create();
+    tVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    tVBO2D.bind();
+    tVBO2D.allocate(texCoords, 6 * sizeof(QVector2D));
+    m_spriteShader.enableAttributeArray(1);
+    m_spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
+
+    QMatrix4x4 matModel;
+    matModel.scale(width * m_zoom, height * m_zoom, 1.0f);
+
+    matModel.translate((xpos + (width / 2)) / (float)width, (ypos + (height / 2)) / (float)height,
+                       zpos);
+    m_spriteShader.setValue("model", matModel);
+
+    f->glDrawArrays(GL_TRIANGLES, 0, 6);
 }
