@@ -1,9 +1,8 @@
 #include "includes.hpp"
 #include "ui_sceneobjectproperties.h"
 
-SceneObjectProperties::SceneObjectProperties(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::SceneObjectProperties)
+SceneObjectProperties::SceneObjectProperties(QWidget *parent)
+    : QWidget(parent), ui(new Ui::SceneObjectProperties)
 {
     ui->setupUi(this);
 
@@ -14,12 +13,10 @@ SceneObjectProperties::SceneObjectProperties(QWidget *parent) :
     m_typeBox = ui->type;
 }
 
-SceneObjectProperties::~SceneObjectProperties()
-{
-    delete ui;
-}
+SceneObjectProperties::~SceneObjectProperties() { delete ui; }
 
-void SceneObjectProperties::setupUI(FormatHelpers::Scene::Object *obj, byte ver)
+void SceneObjectProperties::setupUI(FormatHelpers::Scene::Object *obj, Compilerv3::Entity *entityv3,
+                                    Compilerv4::Entity *entityv4, byte ver)
 {
     unsetUI();
 
@@ -29,19 +26,30 @@ void SceneObjectProperties::setupUI(FormatHelpers::Scene::Object *obj, byte ver)
     ui->posX->setValue(obj->getX());
     ui->posY->setValue(obj->getY());
 
-    connect(ui->type, QOverload<int>::of(&QComboBox::currentIndexChanged), [obj](int v) {
-        obj->m_type = (byte)v;
-    });
-    connect(ui->subtype, QOverload<int>::of(&QSpinBox::valueChanged), [obj](int v) {
-        obj->m_subtype = (byte)v;
+    connect(ui->type, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [obj, entityv3, entityv4](int v) {
+                obj->m_type    = (byte)v;
+                entityv3->type = (byte)v;
+                entityv4->type = (byte)v;
+            });
+    connect(ui->subtype, QOverload<int>::of(&QSpinBox::valueChanged), [obj, entityv3, entityv4](int v) {
+        obj->m_subtype          = (byte)v;
+        entityv3->propertyValue = (byte)v;
+        entityv4->propertyValue = (byte)v;
     });
 
-    connect(ui->posX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [obj](double v) {
-        obj->setX(v);
-    });
-    connect(ui->posY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [obj](double v) {
-        obj->setY(v);
-    });
+    connect(ui->posX, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+            [obj, entityv3, entityv4](double v) {
+                obj->setX(v);
+                entityv3->XPos = (int)v * 65536.0f;
+                entityv4->XPos = (int)v * 65536.0f;
+            });
+    connect(ui->posY, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+            [obj, entityv3, entityv4](double v) {
+                obj->setY(v);
+                entityv3->YPos = (int)v * 65536.0f;
+                entityv4->YPos = (int)v * 65536.0f;
+            });
 
     if (ver == ENGINE_v4) {
         ui->attribBox->setDisabled(false);
@@ -78,112 +86,141 @@ void SceneObjectProperties::setupUI(FormatHelpers::Scene::Object *obj, byte ver)
         ui->value3->setValue(obj->m_attributes[13].m_value);
         ui->value4->setValue(obj->m_attributes[14].m_value);
 
-        connect(ui->stateActive, &QCheckBox::toggled, [obj](bool v) {
-            obj->m_attributes[0].m_active = v;
-        });
-        connect(ui->flipActive, &QCheckBox::toggled, [obj](bool v) {
-            obj->m_attributes[1].m_active = v;
-        });
-        connect(ui->scaleActive, &QCheckBox::toggled, [obj](bool v) {
-            obj->m_attributes[2].m_active = v;
-        });
-        connect(ui->rotationActive, &QCheckBox::toggled, [obj](bool v) {
-            obj->m_attributes[3].m_active = v;
-        });
-        connect(ui->drawOrderActive, &QCheckBox::toggled, [obj](bool v) {
-            obj->m_attributes[4].m_active = v;
-        });
-        connect(ui->priorityActive, &QCheckBox::toggled, [obj](bool v) {
-            obj->m_attributes[5].m_active = v;
-        });
-        connect(ui->alphaActive, &QCheckBox::toggled, [obj](bool v) {
-            obj->m_attributes[6].m_active = v;
-        });
-        connect(ui->animActive, &QCheckBox::toggled, [obj](bool v) {
-            obj->m_attributes[7].m_active = v;
-        });
-        connect(ui->animSpeedActive, &QCheckBox::toggled, [obj](bool v) {
-            obj->m_attributes[8].m_active = v;
-        });
-        connect(ui->frameActive, &QCheckBox::toggled, [obj](bool v) {
-            obj->m_attributes[9].m_active = v;
-        });
-        connect(ui->inkEffectActive, &QCheckBox::toggled, [obj](bool v) {
-            obj->m_attributes[10].m_active = v;
-        });
-        connect(ui->val1Active, &QCheckBox::toggled, [obj](bool v) {
-            obj->m_attributes[11].m_active = v;
-        });
-        connect(ui->val2Active, &QCheckBox::toggled, [obj](bool v) {
-            obj->m_attributes[12].m_active = v;
-        });
-        connect(ui->val3Active, &QCheckBox::toggled, [obj](bool v) {
-            obj->m_attributes[13].m_active = v;
-        });
-        connect(ui->val4Active, &QCheckBox::toggled, [obj](bool v) {
-            obj->m_attributes[14].m_active = v;
-        });
+        connect(ui->stateActive, &QCheckBox::toggled,
+                [obj, entityv3, entityv4](bool v) { obj->m_attributes[0].m_active = v; });
+        connect(ui->flipActive, &QCheckBox::toggled,
+                [obj, entityv3, entityv4](bool v) { obj->m_attributes[1].m_active = v; });
+        connect(ui->scaleActive, &QCheckBox::toggled,
+                [obj, entityv3, entityv4](bool v) { obj->m_attributes[2].m_active = v; });
+        connect(ui->rotationActive, &QCheckBox::toggled,
+                [obj, entityv3, entityv4](bool v) { obj->m_attributes[3].m_active = v; });
+        connect(ui->drawOrderActive, &QCheckBox::toggled,
+                [obj, entityv3, entityv4](bool v) { obj->m_attributes[4].m_active = v; });
+        connect(ui->priorityActive, &QCheckBox::toggled,
+                [obj, entityv3, entityv4](bool v) { obj->m_attributes[5].m_active = v; });
+        connect(ui->alphaActive, &QCheckBox::toggled,
+                [obj, entityv3, entityv4](bool v) { obj->m_attributes[6].m_active = v; });
+        connect(ui->animActive, &QCheckBox::toggled,
+                [obj, entityv3, entityv4](bool v) { obj->m_attributes[7].m_active = v; });
+        connect(ui->animSpeedActive, &QCheckBox::toggled,
+                [obj, entityv3, entityv4](bool v) { obj->m_attributes[8].m_active = v; });
+        connect(ui->frameActive, &QCheckBox::toggled,
+                [obj, entityv3, entityv4](bool v) { obj->m_attributes[9].m_active = v; });
+        connect(ui->inkEffectActive, &QCheckBox::toggled,
+                [obj, entityv3, entityv4](bool v) { obj->m_attributes[10].m_active = v; });
+        connect(ui->val1Active, &QCheckBox::toggled,
+                [obj, entityv3, entityv4](bool v) { obj->m_attributes[11].m_active = v; });
+        connect(ui->val2Active, &QCheckBox::toggled,
+                [obj, entityv3, entityv4](bool v) { obj->m_attributes[12].m_active = v; });
+        connect(ui->val3Active, &QCheckBox::toggled,
+                [obj, entityv3, entityv4](bool v) { obj->m_attributes[13].m_active = v; });
+        connect(ui->val4Active, &QCheckBox::toggled,
+                [obj, entityv3, entityv4](bool v) { obj->m_attributes[14].m_active = v; });
 
+        connect(ui->state, QOverload<int>::of(&QSpinBox::valueChanged),
+                [obj, entityv3, entityv4](int v) {
+                    obj->m_attributes[0].m_value = v;
+                    entityv3->state              = v;
+                    entityv4->state              = v;
+                });
 
-        connect(ui->state, QOverload<int>::of(&QSpinBox::valueChanged), [obj](int v) {
-            obj->m_attributes[0].m_value = (byte)v;
-        });
+        connect(ui->flip, QOverload<int>::of(&QComboBox::currentIndexChanged),
+                [obj, entityv3, entityv4](int v) {
+                    obj->m_attributes[1].m_value = (byte)v;
+                    entityv3->direction          = (byte)v;
+                    entityv4->direction          = (byte)v;
+                });
 
-        connect(ui->flip, QOverload<int>::of(&QComboBox::currentIndexChanged), [obj](int v) {
-            obj->m_attributes[1].m_value = (byte)v;
-        });
+        connect(ui->scale, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+                [obj, entityv3, entityv4](double v) {
+                    obj->m_attributes[2].m_value = v * 0x200;
+                    entityv3->scale              = v * 0x20;
+                    entityv4->scale              = v * 0x20;
+                });
 
-        connect(ui->scale, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [obj](double v) {
-            obj->m_attributes[2].m_value = v * 0x200;
-        });
+        connect(ui->rotation, QOverload<int>::of(&QSpinBox::valueChanged),
+                [obj, entityv3, entityv4](int v) {
+                    obj->m_attributes[3].m_value = (byte)v;
+                    entityv3->rotation           = (byte)v;
+                    entityv4->rotation           = (byte)v;
+                });
 
-        connect(ui->rotation, QOverload<int>::of(&QSpinBox::valueChanged), [obj](int v) {
-            obj->m_attributes[3].m_value = (byte)v;
-        });
+        connect(ui->drawOrder, QOverload<int>::of(&QSpinBox::valueChanged),
+                [obj, entityv3, entityv4](int v) {
+                    obj->m_attributes[4].m_value = (byte)v;
+                    entityv3->drawOrder          = (byte)v;
+                    entityv4->drawOrder          = (byte)v;
+                });
 
-        connect(ui->drawOrder, QOverload<int>::of(&QSpinBox::valueChanged), [obj](int v) {
-            obj->m_attributes[4].m_value = (byte)v;
-        });
+        connect(ui->priority, QOverload<int>::of(&QComboBox::currentIndexChanged),
+                [obj, entityv3, entityv4](int v) {
+                    obj->m_attributes[5].m_value = (byte)v;
+                    entityv3->priority           = (byte)v;
+                    entityv4->priority           = (byte)v;
+                });
 
-        connect(ui->priority, QOverload<int>::of(&QComboBox::currentIndexChanged), [obj](int v) {
-            obj->m_attributes[5].m_value = (byte)v;
-        });
+        connect(ui->alpha, QOverload<int>::of(&QSpinBox::valueChanged),
+                [obj, entityv3, entityv4](int v) {
+                    obj->m_attributes[6].m_value = (byte)v;
+                    entityv3->alpha              = (byte)v;
+                    entityv4->alpha              = (byte)v;
+                });
 
-        connect(ui->alpha, QOverload<int>::of(&QSpinBox::valueChanged), [obj](int v) {
-            obj->m_attributes[6].m_value = (byte)v;
-        });
+        connect(ui->animation, QOverload<int>::of(&QSpinBox::valueChanged),
+                [obj, entityv3, entityv4](int v) {
+                    obj->m_attributes[7].m_value = (byte)v;
+                    entityv3->animation          = (byte)v;
+                    entityv4->animation          = (byte)v;
+                });
 
-        connect(ui->animation, QOverload<int>::of(&QSpinBox::valueChanged), [obj](int v) {
-            obj->m_attributes[7].m_value = (byte)v;
-        });
+        connect(ui->animSpeed, QOverload<int>::of(&QSpinBox::valueChanged),
+                [obj, entityv3, entityv4](int v) {
+                    obj->m_attributes[8].m_value = (byte)v;
+                    entityv3->animationSpeed     = (byte)v;
+                    entityv4->animationSpeed     = (byte)v;
+                });
 
-        connect(ui->animSpeed, QOverload<int>::of(&QSpinBox::valueChanged), [obj](int v) {
-            obj->m_attributes[8].m_value = (byte)v;
-        });
+        connect(ui->frame, QOverload<int>::of(&QSpinBox::valueChanged),
+                [obj, entityv3, entityv4](int v) {
+                    obj->m_attributes[9].m_value = (byte)v;
+                    entityv3->frame              = (byte)v;
+                    entityv4->frame              = (byte)v;
+                });
 
-        connect(ui->frame, QOverload<int>::of(&QSpinBox::valueChanged), [obj](int v) {
-            obj->m_attributes[9].m_value = (byte)v;
-        });
+        connect(ui->inkEffect, QOverload<int>::of(&QComboBox::currentIndexChanged),
+                [obj, entityv3, entityv4](int v) {
+                    obj->m_attributes[10].m_value = (byte)v;
+                    entityv3->inkEffect           = (byte)v;
+                    entityv4->inkEffect           = (byte)v;
+                });
 
-        connect(ui->inkEffect, QOverload<int>::of(&QComboBox::currentIndexChanged), [obj](int v) {
-            obj->m_attributes[10].m_value = (byte)v;
-        });
+        connect(ui->value1, QOverload<int>::of(&QSpinBox::valueChanged),
+                [obj, entityv3, entityv4](int v) {
+                    obj->m_attributes[11].m_value = v;
+                    entityv3->values[0]           = v;
+                    entityv4->values[0]           = v;
+                });
 
-        connect(ui->value1, QOverload<int>::of(&QSpinBox::valueChanged), [obj](int v) {
-            obj->m_attributes[11].m_value = v;
-        });
+        connect(ui->value2, QOverload<int>::of(&QSpinBox::valueChanged),
+                [obj, entityv3, entityv4](int v) {
+                    obj->m_attributes[12].m_value = v;
+                    entityv3->values[1]           = v;
+                    entityv4->values[1]           = v;
+                });
 
-        connect(ui->value2, QOverload<int>::of(&QSpinBox::valueChanged), [obj](int v) {
-            obj->m_attributes[12].m_value = v;
-        });
+        connect(ui->value3, QOverload<int>::of(&QSpinBox::valueChanged),
+                [obj, entityv3, entityv4](int v) {
+                    obj->m_attributes[13].m_value = v;
+                    entityv3->values[2]           = v;
+                    entityv4->values[2]           = v;
+                });
 
-        connect(ui->value3, QOverload<int>::of(&QSpinBox::valueChanged), [obj](int v) {
-            obj->m_attributes[13].m_value = v;
-        });
-
-        connect(ui->value4, QOverload<int>::of(&QSpinBox::valueChanged), [obj](int v) {
-            obj->m_attributes[14].m_value = v;
-        });
+        connect(ui->value4, QOverload<int>::of(&QSpinBox::valueChanged),
+                [obj, entityv3, entityv4](int v) {
+                    obj->m_attributes[14].m_value = v;
+                    entityv3->values[3]           = v;
+                    entityv4->values[3]           = v;
+                });
     }
     else {
         ui->attribBox->setDisabled(true);
@@ -231,7 +268,7 @@ void SceneObjectProperties::unsetUI()
     disconnect(ui->value3, nullptr, nullptr, nullptr);
     disconnect(ui->value4, nullptr, nullptr, nullptr);
 
-    //m_ver = ver;
+    // m_ver = ver;
     m_obj = nullptr;
 }
 
@@ -246,40 +283,40 @@ void SceneObjectProperties::updateUI()
     ui->posX->setValue(m_obj->getX());
     ui->posY->setValue(m_obj->getY());
 
-    //if (ver == ENGINE_v4) {
-        //ui->attribBox->setDisabled(false);
+    // if (ver == ENGINE_v4) {
+    // ui->attribBox->setDisabled(false);
 
-        ui->stateActive->setChecked(m_obj->m_attributes[0].m_active);
-        ui->flipActive->setChecked(m_obj->m_attributes[1].m_active);
-        ui->scaleActive->setChecked(m_obj->m_attributes[2].m_active);
-        ui->rotationActive->setChecked(m_obj->m_attributes[3].m_active);
-        ui->drawOrderActive->setChecked(m_obj->m_attributes[4].m_active);
-        ui->priorityActive->setChecked(m_obj->m_attributes[5].m_active);
-        ui->alphaActive->setChecked(m_obj->m_attributes[6].m_active);
-        ui->animActive->setChecked(m_obj->m_attributes[7].m_active);
-        ui->animSpeedActive->setChecked(m_obj->m_attributes[8].m_active);
-        ui->frameActive->setChecked(m_obj->m_attributes[9].m_active);
-        ui->inkEffectActive->setChecked(m_obj->m_attributes[10].m_active);
-        ui->val1Active->setChecked(m_obj->m_attributes[11].m_active);
-        ui->val2Active->setChecked(m_obj->m_attributes[12].m_active);
-        ui->val3Active->setChecked(m_obj->m_attributes[13].m_active);
-        ui->val4Active->setChecked(m_obj->m_attributes[14].m_active);
+    ui->stateActive->setChecked(m_obj->m_attributes[0].m_active);
+    ui->flipActive->setChecked(m_obj->m_attributes[1].m_active);
+    ui->scaleActive->setChecked(m_obj->m_attributes[2].m_active);
+    ui->rotationActive->setChecked(m_obj->m_attributes[3].m_active);
+    ui->drawOrderActive->setChecked(m_obj->m_attributes[4].m_active);
+    ui->priorityActive->setChecked(m_obj->m_attributes[5].m_active);
+    ui->alphaActive->setChecked(m_obj->m_attributes[6].m_active);
+    ui->animActive->setChecked(m_obj->m_attributes[7].m_active);
+    ui->animSpeedActive->setChecked(m_obj->m_attributes[8].m_active);
+    ui->frameActive->setChecked(m_obj->m_attributes[9].m_active);
+    ui->inkEffectActive->setChecked(m_obj->m_attributes[10].m_active);
+    ui->val1Active->setChecked(m_obj->m_attributes[11].m_active);
+    ui->val2Active->setChecked(m_obj->m_attributes[12].m_active);
+    ui->val3Active->setChecked(m_obj->m_attributes[13].m_active);
+    ui->val4Active->setChecked(m_obj->m_attributes[14].m_active);
 
-        ui->state->setValue(m_obj->m_attributes[0].m_value);
-        ui->flip->setCurrentIndex(m_obj->m_attributes[1].m_value);
-        ui->scale->setValue(m_obj->m_attributes[2].m_value / 512.0f);
-        ui->rotation->setValue(m_obj->m_attributes[3].m_value);
-        ui->drawOrder->setValue(m_obj->m_attributes[4].m_value);
-        ui->priority->setCurrentIndex(m_obj->m_attributes[5].m_value);
-        ui->alpha->setValue(m_obj->m_attributes[6].m_value);
-        ui->animation->setValue(m_obj->m_attributes[7].m_value);
-        ui->animSpeed->setValue(m_obj->m_attributes[8].m_value);
-        ui->frame->setValue(m_obj->m_attributes[9].m_value);
-        ui->inkEffect->setCurrentIndex(m_obj->m_attributes[10].m_value);
-        ui->value1->setValue(m_obj->m_attributes[11].m_value);
-        ui->value2->setValue(m_obj->m_attributes[12].m_value);
-        ui->value3->setValue(m_obj->m_attributes[13].m_value);
-        ui->value4->setValue(m_obj->m_attributes[14].m_value);
+    ui->state->setValue(m_obj->m_attributes[0].m_value);
+    ui->flip->setCurrentIndex(m_obj->m_attributes[1].m_value);
+    ui->scale->setValue(m_obj->m_attributes[2].m_value / 512.0f);
+    ui->rotation->setValue(m_obj->m_attributes[3].m_value);
+    ui->drawOrder->setValue(m_obj->m_attributes[4].m_value);
+    ui->priority->setCurrentIndex(m_obj->m_attributes[5].m_value);
+    ui->alpha->setValue(m_obj->m_attributes[6].m_value);
+    ui->animation->setValue(m_obj->m_attributes[7].m_value);
+    ui->animSpeed->setValue(m_obj->m_attributes[8].m_value);
+    ui->frame->setValue(m_obj->m_attributes[9].m_value);
+    ui->inkEffect->setCurrentIndex(m_obj->m_attributes[10].m_value);
+    ui->value1->setValue(m_obj->m_attributes[11].m_value);
+    ui->value2->setValue(m_obj->m_attributes[12].m_value);
+    ui->value3->setValue(m_obj->m_attributes[13].m_value);
+    ui->value4->setValue(m_obj->m_attributes[14].m_value);
     //}
 }
 

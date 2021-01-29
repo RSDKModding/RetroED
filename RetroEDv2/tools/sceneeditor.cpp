@@ -186,6 +186,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             m_mainView->m_scene.m_objects[c].getY() - (m_mainView->m_storedH / 2);
 
         m_objProp->setupUI(&m_mainView->m_scene.m_objects[m_mainView->m_selectedEntity],
+                           &m_mainView->m_compilerv3.m_objectEntityList[m_mainView->m_selectedEntity],
+                           &m_mainView->m_compilerv4.m_objectEntityList[m_mainView->m_selectedEntity],
                            m_mainView->m_gameType);
         ui->propertiesBox->setCurrentWidget(ui->objPropPage);
     });
@@ -874,6 +876,10 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
                                     m_objProp->setupUI(
                                         &m_mainView->m_scene.m_objects[m_mainView->m_selectedEntity],
+                                        &m_mainView->m_compilerv3
+                                             .m_objectEntityList[m_mainView->m_selectedEntity],
+                                        &m_mainView->m_compilerv4
+                                             .m_objectEntityList[m_mainView->m_selectedEntity],
                                         m_mainView->m_gameType);
                                     ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                     break;
@@ -986,6 +992,10 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
                                 m_objProp->setupUI(
                                     &m_mainView->m_scene.m_objects[m_mainView->m_selectedEntity],
+                                    &m_mainView->m_compilerv3
+                                         .m_objectEntityList[m_mainView->m_selectedEntity],
+                                    &m_mainView->m_compilerv4
+                                         .m_objectEntityList[m_mainView->m_selectedEntity],
                                     m_mainView->m_gameType);
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                 break;
@@ -1372,12 +1382,22 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     m_mainView->m_compilerv3.m_typeNames[id]   = "Blank Object";
     m_mainView->m_compilerv4.m_typeNames[id++] = "Blank Object";
     for (int o = 0; o < m_mainView->m_gameconfig.m_objects.count(); ++o) {
-        m_mainView->m_compilerv3.m_typeNames[id]   = m_mainView->m_gameconfig.m_objects[o].m_name;
-        m_mainView->m_compilerv4.m_typeNames[id++] = m_mainView->m_gameconfig.m_objects[o].m_name;
+        m_mainView->m_compilerv3.m_typeNames[id] = m_mainView->m_gameconfig.m_objects[o].m_name;
+        m_mainView->m_compilerv4.m_typeNames[id] = m_mainView->m_gameconfig.m_objects[o].m_name;
+
+        m_mainView->m_compilerv3.m_typeNames[id].replace(" ", "");
+        m_mainView->m_compilerv4.m_typeNames[id].replace(" ", "");
+
+        id++;
     }
     for (int o = 0; o < m_mainView->m_stageconfig.m_objects.count(); ++o) {
-        m_mainView->m_compilerv3.m_typeNames[id]   = m_mainView->m_stageconfig.m_objects[o].m_name;
-        m_mainView->m_compilerv4.m_typeNames[id++] = m_mainView->m_stageconfig.m_objects[o].m_name;
+        m_mainView->m_compilerv3.m_typeNames[id] = m_mainView->m_stageconfig.m_objects[o].m_name;
+        m_mainView->m_compilerv4.m_typeNames[id] = m_mainView->m_stageconfig.m_objects[o].m_name;
+
+        m_mainView->m_compilerv3.m_typeNames[id].replace(" ", "");
+        m_mainView->m_compilerv4.m_typeNames[id].replace(" ", "");
+
+        id++;
     }
 
     switch (gameType) {
@@ -1394,9 +1414,9 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                     scrID++);
 
                 if (m_mainView->m_compilerv3.m_scriptError) {
-                    // ui->errorMsg->setText(m_mainView->m_compilerv3.errorMsg);
-                    // ui->errorPos->setText(m_mainView->m_compilerv3.errorPos);
-                    // ui->lineNo->setText(QString::number(m_mainView->m_compilerv3.m_errorLine));
+                    qDebug() << m_mainView->m_compilerv3.errorMsg;
+                    qDebug() << m_mainView->m_compilerv3.errorPos;
+                    qDebug() << QString::number(m_mainView->m_compilerv3.m_errorLine);
 
                     QFileInfo info(m_mainView->m_compilerv3.m_errorScr);
                     QDir dir(info.dir());
@@ -1422,9 +1442,9 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                     scrID++);
 
                 if (m_mainView->m_compilerv3.m_scriptError) {
-                    // ui->errorMsg->setText(m_mainView->m_compilerv3.errorMsg);
-                    // ui->errorPos->setText(m_mainView->m_compilerv3.errorPos);
-                    // ui->lineNo->setText(QString::number(m_mainView->m_compilerv3.m_errorLine));
+                    qDebug() << m_mainView->m_compilerv3.errorMsg;
+                    qDebug() << m_mainView->m_compilerv3.errorPos;
+                    qDebug() << QString::number(m_mainView->m_compilerv3.m_errorLine);
 
                     QFileInfo info(m_mainView->m_compilerv3.m_errorScr);
                     QDir dir(info.dir());
@@ -1471,9 +1491,9 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                     scrID++);
 
                 if (m_mainView->m_compilerv4.m_scriptError) {
-                    // ui->errorMsg->setText(m_mainView->m_compilerv4.errorMsg);
-                    // ui->errorPos->setText(m_mainView->m_compilerv4.errorPos);
-                    // ui->lineNo->setText(QString::number(m_mainView->m_compilerv4.m_errorLine));
+                    qDebug() << m_mainView->m_compilerv4.errorMsg;
+                    qDebug() << m_mainView->m_compilerv4.errorPos;
+                    qDebug() << QString::number(m_mainView->m_compilerv4.m_errorLine);
 
                     QFileInfo info(m_mainView->m_compilerv4.m_errorScr);
                     QDir dir(info.dir());
@@ -1499,9 +1519,9 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                     scrID++);
 
                 if (m_mainView->m_compilerv4.m_scriptError) {
-                    // ui->errorMsg->setText(m_mainView->m_compilerv4.errorMsg);
-                    // ui->errorPos->setText(m_mainView->m_compilerv4.errorPos);
-                    // ui->lineNo->setText(QString::number(m_mainView->m_compilerv4.m_errorLine));
+                    qDebug() << m_mainView->m_compilerv4.errorMsg << "\n";
+                    qDebug() << m_mainView->m_compilerv4.errorPos << "\n";
+                    qDebug() << QString::number(m_mainView->m_compilerv4.m_errorLine) << "\n";
 
                     QFileInfo info(m_mainView->m_compilerv4.m_errorScr);
                     QDir dir(info.dir());

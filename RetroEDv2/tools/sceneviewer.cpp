@@ -957,14 +957,14 @@ void SceneViewer::drawSprite(int XPos, int YPos, int width, int height, int sprX
     vao.create();
     vao.bind();
 
-    float tx = sprX / w;
-    float ty = sprY / h;
-    float tw = width / w;
-    float th = height / h;
+    double tx = sprX / w;
+    double ty = sprY / h;
+    double tw = (sprX + width) / w;
+    double th = (sprY + height) / h;
 
     const QVector2D texCoords[] = {
-        QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
-        QVector2D(tx + tw, ty + th), QVector2D(tx, ty + th), QVector2D(tx, ty),
+        QVector2D(tx, ty), QVector2D(tw, ty), QVector2D(tw, th),
+        QVector2D(tw, th), QVector2D(tx, th), QVector2D(tx, ty),
     };
 
     QOpenGLBuffer vVBO2D;

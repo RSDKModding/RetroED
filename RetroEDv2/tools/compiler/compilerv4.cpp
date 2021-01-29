@@ -1105,6 +1105,7 @@ void Compilerv4::checkAliasText(QString &text)
         if (m_privateAliasCount >= ALIAS_COUNT_v4) // private alias & we reached the cap
             return;
     }
+    memset(a, 0, sizeof(AliasInfov4));
 
     while (aliasMatch < 2) {
         if (aliasMatch) {
@@ -1153,6 +1154,7 @@ void Compilerv4::checkStaticText(QString &text)
         cnt     = &m_privateStaticVarCount;
         textPos = 12;
     }
+    memset(var, 0, sizeof(StaticInfo));
 
     while (staticMatch < 2) {
         if (staticMatch == 1) {
@@ -1192,13 +1194,14 @@ void *Compilerv4::checkTableText(QString &text)
     TableInfo *table = &publicTables[m_publicTableCount];
     int strPos       = 11;
     curTablePublic   = true;
-    if (findStringToken(text, "privatevalue", 1) == 0) {
+    if (findStringToken(text, "privatetable", 1) == 0) {
         if (m_privateTableCount >= TABLE_COUNT) // private table and we reached the cap
             return NULL;
         table          = &privateTables[m_privateTableCount];
         strPos         = 12;
         curTablePublic = false;
     }
+    memset(table, 0, sizeof(TableInfo));
 
     table->name = "";
     while (strPos < text.length()) {
@@ -1306,13 +1309,15 @@ void Compilerv4::convertForeachStatement(QString &text)
         dest += ",";
         destStrPos = dest.length();
         int cnt    = 0;
-        for (int i = 7; i < text.length(); ++i) {
+        for (int i = 8; i < text.length(); ++i) {
             if (text[i] != '(' && text[i] != ')' && text[i] != ',') {
-                dest[destStrPos++] = text[i];
+                dest += text[i];
             }
-            else {
+            else if (text[i] == ',') {
                 if (!cnt)
-                    dest[destStrPos++] = text[i];
+                    dest += text[i];
+                else
+                    break;
                 ++cnt;
             }
         }
@@ -1329,13 +1334,15 @@ void Compilerv4::convertForeachStatement(QString &text)
         dest += ",";
         destStrPos = dest.length();
         int cnt    = 0;
-        for (int i = 7; i < text.length(); ++i) {
+        for (int i = 8; i < text.length(); ++i) {
             if (text[i] != '(' && text[i] != ')' && text[i] != ',') {
-                dest[destStrPos++] = text[i];
+                dest += text[i];
             }
-            else {
+            else if (text[i] == ',') {
                 if (!cnt)
-                    dest[destStrPos++] = text[i];
+                    dest += text[i];
+                else
+                    break;
                 ++cnt;
             }
         }
@@ -1382,7 +1389,7 @@ void Compilerv4::convertFunctionText(QString &text)
         funcName += text[namePos];
     }
 
-    for (int i = 0; i < FUNC_MAX_CNT; ++i) {
+    for (int i = 0; i < ScrFunc::FUNC_MAX_CNT; ++i) {
         if (funcName == functionsv4[i].m_name) {
             opcode     = i;
             opcodeSize = functionsv4[i].m_opcodeSize;
@@ -1426,7 +1433,7 @@ void Compilerv4::convertFunctionText(QString &text)
             --m_jumpTableStackPos;
         }
 
-        if (functionsv4[opcode].m_name == "loop") {
+        if (functionsv4[opcode].m_name == "loop" || functionsv4[opcode].m_name == "next") {
             m_jumpTableData[m_jumpTableStack[m_jumpTableStackPos--] + 1] =
                 m_scriptDataPos - m_scriptDataOffset;
         }
@@ -1472,6 +1479,21 @@ void Compilerv4::convertFunctionText(QString &text)
                     copyAliasStr(funcName, publicAliases[a].m_value, 0);
                     if (findStringToken(publicAliases[a].m_value, "[", 1) > -1)
                         copyAliasStr(strBuffer, publicAliases[a].m_value, 1);
+                }
+            }
+
+            if (strBuffer.length() > 0) {
+                // Private (this script only)
+                for (int a = 0; a < m_privateAliasCount; ++a) {
+                    if (strBuffer == privateAliases[a].m_name) {
+                        copyAliasStr(strBuffer, privateAliases[a].m_value, 0);
+                    }
+                }
+                // Private (this script & all following scripts)
+                for (int a = 0; a < m_publicAliasCount; ++a) {
+                    if (strBuffer == publicAliases[a].m_name) {
+                        copyAliasStr(strBuffer, publicAliases[a].m_value, 0);
+                    }
                 }
             }
 
@@ -1537,7 +1559,7 @@ void Compilerv4::convertFunctionText(QString &text)
                 m_scriptData[m_scriptDataPos++] = SCRIPTVAR_INTCONST;
                 m_scriptData[m_scriptDataPos++] = value;
             }
-            else if (funcName[0] == '"') {
+            else if (funcName.contains('"')) {
                 m_scriptData[m_scriptDataPos++] = SCRIPTVAR_STRCONST;
                 m_scriptData[m_scriptDataPos++] = funcName.length() - 2;
                 int scriptTextPos               = 1;
@@ -1725,15 +1747,17 @@ void Compilerv4::readTableValues(QString &text)
     int textPos       = 0;
     QString strBuffer = "";
     int strPos        = 0;
-    while (textPos < text.length()) {
-        if (text[textPos] == ',') {
-
+    while (true) {
+        if (text[textPos] == ',' || textPos >= text.length()) {
             int cnt = currentTable->valueCount;
             convertStringToInteger(strBuffer, &currentTable->values[cnt].value);
             currentTable->valueCount++;
             strBuffer = "";
 
             strPos = 0;
+
+            if (textPos >= text.length())
+                break;
         }
         else {
             strBuffer += text[textPos];

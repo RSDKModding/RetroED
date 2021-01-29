@@ -16,6 +16,7 @@ void setStatus(QString status)
     if (!statusLabel)
         return;
 
+    qDebug() << "Set Status to: " << status << "\n";
     statusLabel->setText(status);
     statusLabel->repaint();
 }
