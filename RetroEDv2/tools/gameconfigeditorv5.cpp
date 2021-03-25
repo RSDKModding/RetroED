@@ -429,11 +429,12 @@ void GameconfigEditorv5::setupUI()
             [this](QString s) { m_gameconfig.m_gameSubname = s; });
     connect(ui->gcGameVersion, &QLineEdit::textChanged,
             [this](QString s) { m_gameconfig.m_version = s; });
-    connect(ui->gcStartingCategory, &QComboBox::currentIndexChanged, [this, setupInitScenes](int i) {
-        m_gameconfig.m_startSceneCategoryIndex = i;
-        setupInitScenes();
-    });
-    connect(ui->gcStartingScene, &QComboBox::currentIndexChanged,
+    connect(ui->gcStartingCategory, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [this, setupInitScenes](int i) {
+                m_gameconfig.m_startSceneCategoryIndex = i;
+                setupInitScenes();
+            });
+    connect(ui->gcStartingScene, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int i) { m_gameconfig.m_startSceneIndex = i; });
 
     // ----------------
@@ -580,7 +581,7 @@ void GameconfigEditorv5::setupUI()
         ui->gcSfxList->item(ui->gcSfxList->currentRow())
             ->setText(m_gameconfig.m_sfx[ui->gcSfxList->currentRow()].m_name);
     });
-    connect(ui->gcMaxConcurrentPlays, &QSpinBox::valueChanged,
+    connect(ui->gcMaxConcurrentPlays, QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int v) { m_gameconfig.m_sfx[ui->gcSfxList->currentRow()].m_maxConcurrentPlay = v; });
 
     // ----------------
@@ -618,7 +619,7 @@ void GameconfigEditorv5::setupUI()
         if (m_gameconfig.m_gameOptions[c].m_values.count() > 0)
             ui->gcVarValue->blockSignals(false);
     });
-    connect(ui->gcVarIndex, &QSpinBox::valueChanged, [this](int v) {
+    connect(ui->gcVarIndex, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
         if (m_gameconfig.m_gameOptions[ui->gcVarList->currentRow()].m_values.count() == 0)
             ui->gcVarIndex->setValue(0);
         else if (v >= m_gameconfig.m_gameOptions[ui->gcVarList->currentRow()].m_values.count())
@@ -632,7 +633,7 @@ void GameconfigEditorv5::setupUI()
             ui->gcVarValue->blockSignals(false);
         }
     });
-    connect(ui->gcVarValue, &QSpinBox::valueChanged, [this](int v) {
+    connect(ui->gcVarValue, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
         if (m_gameconfig.m_gameOptions[ui->gcVarList->currentRow()].m_values.count() > 0)
             m_gameconfig.m_gameOptions[ui->gcVarList->currentRow()].m_values[ui->gcVarIndex->value()] =
                 v;
@@ -790,7 +791,7 @@ void GameconfigEditorv5::setupUI()
         ui->scSfxList->item(ui->scSfxList->currentRow())
             ->setText(m_stageconfig.m_sfx[ui->scSfxList->currentRow()].m_name);
     });
-    connect(ui->scMaxConcurrentPlays, &QSpinBox::valueChanged, [this](int v) {
+    connect(ui->scMaxConcurrentPlays, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
         m_stageconfig.m_sfx[ui->scSfxList->currentRow()].m_maxConcurrentPlay = v;
     });
 }

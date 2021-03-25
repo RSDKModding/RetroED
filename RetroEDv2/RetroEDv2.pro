@@ -12,7 +12,7 @@ include(dependencies/qtgifimage/src/gifimage/qtgifimage.pri)
 include(dependencies/qtcolorwidgets/color_widgets.pri)
 include(dependencies/rsdk_reverse/rsdk_reverse.pri)
 
-QMAKE_LFLAGS += -lz -static
+QMAKE_LFLAGS += -lz
 LIBS += -lz
 
 INCLUDEPATH += \

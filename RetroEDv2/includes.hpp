@@ -29,6 +29,14 @@
 #include <QMetaType>
 #include <QDomElement>
 
+typedef signed char sbyte;
+typedef unsigned char byte;
+typedef unsigned short ushort;
+typedef unsigned int uint;
+typedef unsigned long ulong;
+typedef long long int64;
+typedef unsigned long long uint64;
+
 enum Event {
     RE_EVENT_SAVE = QEvent::User + 64,
     RE_EVENT_OPEN,

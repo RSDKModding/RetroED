@@ -110,7 +110,7 @@ void SaveFileEditorv3::setupUI()
     ui->soundtrack->setCurrentIndex(m_savefile.m_saveRAM[38]);
     ui->hapticsEnabled->setChecked(m_savefile.m_saveRAM[40]);
 
-    connect(ui->curSave, &QComboBox::currentIndexChanged, [this, tsBoxes](int c) {
+    connect(ui->curSave, QOverload<int>::of(&QComboBox::currentIndexChanged), [this, tsBoxes](int c) {
         if (c == -1)
             return;
 
@@ -169,19 +169,19 @@ void SaveFileEditorv3::setupUI()
         ui->scoreBonus->blockSignals(false);
     });
 
-    connect(ui->characterID, &QComboBox::currentIndexChanged, [this](int c) {
+    connect(ui->characterID, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int c) {
         if (c == -1)
             return;
         m_savefile.m_saveRAM[m_saveID + 0] = c;
     });
 
-    connect(ui->lives, &QSpinBox::valueChanged,
+    connect(ui->lives, QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int v) { m_savefile.m_saveRAM[m_saveID + 1] = v; });
 
-    connect(ui->score, &QSpinBox::valueChanged,
+    connect(ui->score, QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int v) { m_savefile.m_saveRAM[m_saveID + 2] = v; });
 
-    connect(ui->curStage, &QComboBox::currentIndexChanged, [this](int c) {
+    connect(ui->curStage, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int c) {
         if (c == -1)
             return;
 
@@ -205,7 +205,7 @@ void SaveFileEditorv3::setupUI()
         }
     });
 
-    connect(ui->curSpecialStage, &QComboBox::currentIndexChanged, [this](int c) {
+    connect(ui->curSpecialStage, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int c) {
         if (c == -1)
             return;
         m_savefile.m_saveRAM[m_saveID + 5] = 0;
@@ -216,18 +216,20 @@ void SaveFileEditorv3::setupUI()
                 [this, t](bool c) { Utils::setBit(m_savefile.m_saveRAM[m_saveID + 4], c, t); });
     }
 
-    connect(ui->scoreBonus, &QSpinBox::valueChanged,
+    connect(ui->scoreBonus, QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int v) { m_savefile.m_saveRAM[m_saveID + 6] = v; });
 
     connect(ui->activeFile, &QCheckBox::toggled, [this](bool c) { m_savefile.m_saveRAM[32] = c; });
-    connect(ui->musVol, &QSpinBox::valueChanged, [this](int v) { m_savefile.m_saveRAM[33] = v; });
-    connect(ui->sfxVol, &QSpinBox::valueChanged, [this](int v) { m_savefile.m_saveRAM[34] = v; });
-    connect(ui->ctrlStyle, &QComboBox::currentIndexChanged,
+    connect(ui->musVol, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { m_savefile.m_saveRAM[33] = v; });
+    connect(ui->sfxVol, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { m_savefile.m_saveRAM[34] = v; });
+    connect(ui->ctrlStyle, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int c) { m_savefile.m_saveRAM[35] = c; });
     connect(ui->tailsUnlocked, &QCheckBox::toggled, [this](bool c) { m_savefile.m_saveRAM[36] = c; });
-    connect(ui->filter, &QComboBox::currentIndexChanged,
+    connect(ui->filter, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int c) { m_savefile.m_saveRAM[37] = c; });
-    connect(ui->soundtrack, &QComboBox::currentIndexChanged,
+    connect(ui->soundtrack, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int c) { m_savefile.m_saveRAM[38] = c; });
     connect(ui->hapticsEnabled, &QCheckBox::toggled, [this](bool c) { m_savefile.m_saveRAM[40] = c; });
 }

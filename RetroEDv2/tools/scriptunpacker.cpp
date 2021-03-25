@@ -5,7 +5,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 {
     ui->setupUi(this);
 
-    connect(ui->selEngineType, &QComboBox::currentIndexChanged, [this](int i) {
+    connect(ui->selEngineType, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int i) {
         if (i >= 0)
             ui->stackedWidget->setCurrentIndex(i == 2);
     });

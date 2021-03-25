@@ -151,7 +151,7 @@ void RSDKv5::StaticObject::read(Reader &reader)
                         buffer = memPos;
                     memPos = buffer + 8 * arraySize;
                     break;
-                case AttributeTypes::VECTOR3:
+                case AttributeTypes::UNKNOWN:
                     buffer = (int)((memPos & 0xFFFFFFFC) + 4);
                     if ((memPos & 0xFFFFFFFC) >= memPos)
                         buffer = memPos;
@@ -243,7 +243,7 @@ uint RSDKv5::StaticObject::getOffset(int arrayID)
                     buffer = memPos;
                 memPos = buffer + 8 * m_arrays[a].m_size;
                 break;
-            case AttributeTypes::VECTOR3:
+            case AttributeTypes::UNKNOWN:
                 buffer = (int)((memPos & 0xFFFFFFFC) + 4);
                 if ((memPos & 0xFFFFFFFC) >= memPos)
                     buffer = memPos;
@@ -274,7 +274,7 @@ int RSDKv5::StaticObject::getDataSize(int type)
         case AttributeTypes::BOOL: return 4;
         case AttributeTypes::STRING:
         case AttributeTypes::VECTOR2: return 8;
-        case AttributeTypes::VECTOR3: return 24;
+        case AttributeTypes::UNKNOWN: return 24;
         case AttributeTypes::COLOR: return 8;
         default: return 0;
     }

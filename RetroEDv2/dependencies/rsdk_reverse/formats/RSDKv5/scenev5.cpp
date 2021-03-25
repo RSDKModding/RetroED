@@ -13,7 +13,7 @@ void RSDKv5::Scene::AttributeValue::read(Reader &reader)
         case AttributeTypes::BOOL: value_bool = reader.read<uint>() != 0; break;
         case AttributeTypes::STRING: value_string = reader.readString(1); break;
         case AttributeTypes::VECTOR2: value_vector2 = Position(reader); break;
-        case AttributeTypes::VECTOR3: value_vector3 = Position(reader); break;
+        case AttributeTypes::UNKNOWN: value_vector3 = Position(reader); break;
         case AttributeTypes::COLOR: {
             byte r      = reader.read<byte>();
             byte g      = reader.read<byte>();
@@ -38,7 +38,7 @@ void RSDKv5::Scene::AttributeValue::write(Writer &writer)
         case AttributeTypes::BOOL: writer.write((uint)(value_bool ? 1 : 0)); break;
         case AttributeTypes::STRING: writer.write(value_string, 1); break;
         case AttributeTypes::VECTOR2: value_vector2.write(writer); break;
-        case AttributeTypes::VECTOR3: value_vector3.write(writer, true); break;
+        case AttributeTypes::UNKNOWN: value_vector3.write(writer, true); break;
         case AttributeTypes::COLOR: {
             writer.write((byte)value_color.red());
             writer.write((byte)value_color.green());

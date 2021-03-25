@@ -32,7 +32,7 @@ StaticObjectEditor::StaticObjectEditor(QString filePath, QWidget *parent)
                     case RSDKv5::AttributeTypes::BOOL: type = "bool"; break;
                     case RSDKv5::AttributeTypes::STRING: type = "bool"; break;
                     case RSDKv5::AttributeTypes::VECTOR2: type = "Vector2"; break;
-                    case RSDKv5::AttributeTypes::VECTOR3: type = "unknownType"; break;
+                    case RSDKv5::AttributeTypes::UNKNOWN: type = "unknownType"; break;
                     case RSDKv5::AttributeTypes::COLOR: type = "colour"; break;
                 }
 

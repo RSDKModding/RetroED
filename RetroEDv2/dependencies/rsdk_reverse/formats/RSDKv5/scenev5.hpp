@@ -15,7 +15,7 @@ enum AttributeTypes {
     BOOL    = 7,
     STRING  = 8,
     VECTOR2 = 9,
-    VECTOR3 = 10, // A wild guess, but nonetheless likely
+    UNKNOWN = 10, // A wild guess, but nonetheless likely
     COLOR   = 11
 };
 
