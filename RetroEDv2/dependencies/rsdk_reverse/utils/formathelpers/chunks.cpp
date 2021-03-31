@@ -11,8 +11,8 @@ void FormatHelpers::Chunks::read(byte ver, QString filename)
                 m_chunks[c].m_tiles[y][x].m_direction   = 0;
                 m_chunks[c].m_tiles[y][x].m_visualPlane = 0;
                 m_chunks[c].m_tiles[y][x].m_tileIndex   = 0;
-                m_chunks[c].m_tiles[y][x].m_solidityA   = 0;
-                m_chunks[c].m_tiles[y][x].m_solidityB   = 0;
+                m_chunks[c].m_tiles[y][x].m_solidityA   = 3;
+                m_chunks[c].m_tiles[y][x].m_solidityB   = 3;
             }
         }
     }
@@ -124,6 +124,11 @@ void FormatHelpers::Chunks::write(byte ver, QString filename)
                             m_chunks[c].m_tiles[y][x].m_solidityA;
                         chunks.m_chunkList[c].m_tiles[y][x].m_solidityB =
                             m_chunks[c].m_tiles[y][x].m_solidityB;
+
+                        if (chunks.m_chunkList[c].m_tiles[y][x].m_solidityA == 4)
+                            chunks.m_chunkList[c].m_tiles[y][x].m_solidityA = 1;
+                        if (chunks.m_chunkList[c].m_tiles[y][x].m_solidityA == 4)
+                            chunks.m_chunkList[c].m_tiles[y][x].m_solidityA = 1;
                     }
                 }
             }
@@ -144,6 +149,11 @@ void FormatHelpers::Chunks::write(byte ver, QString filename)
                             m_chunks[c].m_tiles[y][x].m_solidityA;
                         chunks.m_chunkList[c].m_tiles[y][x].m_solidityB =
                             m_chunks[c].m_tiles[y][x].m_solidityB;
+
+                        if (chunks.m_chunkList[c].m_tiles[y][x].m_solidityA == 4)
+                            chunks.m_chunkList[c].m_tiles[y][x].m_solidityA = 1;
+                        if (chunks.m_chunkList[c].m_tiles[y][x].m_solidityA == 4)
+                            chunks.m_chunkList[c].m_tiles[y][x].m_solidityA = 1;
                     }
                 }
             }
@@ -164,6 +174,11 @@ void FormatHelpers::Chunks::write(byte ver, QString filename)
                             m_chunks[c].m_tiles[y][x].m_solidityA;
                         chunks.m_chunkList[c].m_tiles[y][x].m_solidityB =
                             m_chunks[c].m_tiles[y][x].m_solidityB;
+
+                        if (chunks.m_chunkList[c].m_tiles[y][x].m_solidityA == 4)
+                            chunks.m_chunkList[c].m_tiles[y][x].m_solidityA = 1;
+                        if (chunks.m_chunkList[c].m_tiles[y][x].m_solidityA == 4)
+                            chunks.m_chunkList[c].m_tiles[y][x].m_solidityA = 1;
                     }
                 }
             }

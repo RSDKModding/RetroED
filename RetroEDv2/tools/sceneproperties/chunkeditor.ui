@@ -108,7 +108,7 @@
         </item>
         <item>
          <property name="text">
-          <string>Solid (Top Only)</string>
+          <string>Solid (Top Only) (Grippable)</string>
          </property>
         </item>
         <item>
@@ -119,6 +119,11 @@
         <item>
          <property name="text">
           <string>Not Solid</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Solid (Top Only) (Not Grippable)</string>
          </property>
         </item>
        </widget>
@@ -132,7 +137,7 @@
         </item>
         <item>
          <property name="text">
-          <string>Solid (Top Only)</string>
+          <string>Solid (Top Only) (Grippable)</string>
          </property>
         </item>
         <item>
@@ -143,6 +148,11 @@
         <item>
          <property name="text">
           <string>Not Solid</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Solid (Top Only) (Not Grippable)</string>
          </property>
         </item>
        </widget>

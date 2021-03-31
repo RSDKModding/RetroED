@@ -88,7 +88,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                     tool->installEventFilter(this);
                     ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Scene Editor"));
 
-                    if (QFile::exists(r.m_path) && QFile::exists(r.m_extra[0]))
+                    if (QFile::exists(r.m_path)
+                        && (QFile::exists(r.m_extra[0]) || r.m_gameVer == ENGINE_v1))
                         tool->loadScene(r.m_path, r.m_extra[0], r.m_gameVer);
 
                     break;
@@ -144,28 +145,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                     }
                     break;
                 }
-                case TOOL_SAVEEDITOR:
-                    switch (r.m_gameVer) {
-                        case ENGINE_v3: {
-                            SaveFileEditorv3 *tool = new SaveFileEditorv3(r.m_path);
-                            ui->toolTabs->setCurrentIndex(
-                                ui->toolTabs->addTab(tool, "SaveFile Editor"));
-                            break;
-                        }
-                        case ENGINE_v4: {
-                            // SaveFileEditorv3 *tool = new SaveFileEditorv3(r.m_path);
-                            // ui->toolTabs->setCurrentIndex(
-                            //    ui->toolTabs->addTab(tool, "SaveFile Editor"));
-                            break;
-                        }
-                        case ENGINE_v5: {
-                            // SaveFileEditorv5 *tool = new SaveFileEditorv5(r.m_path);
-                            // ui->toolTabs->setCurrentIndex(
-                            //    ui->toolTabs->addTab(tool, "SaveFile Editor"));
-                            break;
-                        }
-                    }
-                    break;
             }
         });
     }
@@ -196,19 +175,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         tool->installEventFilter(this);
         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Scene Editor"));
     });
+#if RETROED_VER >= 0x110 || RETROED_DEBUG
     scn->addAction("v5 (Sonic Mania)", [this] {
         setStatus("Opening Scene Editor");
         // SceneEditorv5 *tool = new SceneEditorv5();
         // tool->installEventFilter(this);
         // ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Scene Editor"));
     });
+#endif
     tools->addMenu(scn);
 
+#if RETROED_VER >= 0x110 || RETROED_DEBUG
     tools->addAction("Animation Editor", [this] {
         setStatus("Opening Animation Editor...");
         // AnimationEditor *tool = new AnimationEditor();
         // ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Animation Editor"));
     });
+#endif
 
     QMenu *gc = new QMenu("Gameconfig Editor");
     gc->addAction("v2 (Sonic Nexus)", [this] {
@@ -239,35 +222,32 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Palette Editor"));
     });
 
-    QMenu *se = new QMenu("SaveFile Editor");
-    se->addAction("v3 (Sonic CD)", [this] {
+    /*QMenu *se = new QMenu("SaveFile Editor");
+    se->addAction("Sonic CD", [this] {
         setStatus("Opening SaveFile Editor...");
         SaveFileEditorv3 *tool = new SaveFileEditorv3();
         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "SaveFile Editor"));
     });
-    se->addAction("v4 (Sonic 1 / Sonic 2)", [this] {
+    se->addAction("Sonic 1/Sonic 2", [this] {
         setStatus("Opening SaveFile Editor...");
-        // SaveFileEditorv4 *tool = new SaveFileEditorv4();
-        // ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "SaveFile Editor"));
+        SaveFileEditorv4 *tool = new SaveFileEditorv4();
+        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "SaveFile Editor"));
     });
-    se->addAction("v5 (Sonic Mania)", [this] {
-        setStatus("Opening SaveFile Editor...");
-        // SaveFileEditorv5 *tool = new SaveFileEditorv5("", 0);
-        // ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "SaveFile Editor"));
-    });
+    tools->addMenu(se);*/
 
     tools->addAction("Static Object Editor", [this] {
         setStatus("Opening Static Object Editor...");
         StaticObjectEditor *tool = new StaticObjectEditor();
         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Static Object Editor"));
     });
-    tools->addMenu(se);
 
+#if RETROED_DEBUG
     tools->addAction("Script Unpacker", [this] {
         setStatus("Opening Script Unpacker...");
         ScriptUnpacker *tool = new ScriptUnpacker();
         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Script Unpacker"));
     });
+#endif
 
     tools->addAction("GFX Tool", [this] {
         setStatus("Opening GFX Tool...");

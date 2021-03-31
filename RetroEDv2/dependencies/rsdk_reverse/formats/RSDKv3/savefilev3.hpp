@@ -7,7 +7,7 @@ namespace RSDKv3
 class SaveFile
 {
 public:
-    SaveFile() {}
+    SaveFile() { memset(m_saveRAM, 0, 0x2000 * sizeof(int)); }
     SaveFile(QString filename) { read(filename); }
     SaveFile(Reader &reader) { read(reader); }
 

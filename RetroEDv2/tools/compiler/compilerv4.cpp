@@ -1105,7 +1105,8 @@ void Compilerv4::checkAliasText(QString &text)
         if (m_privateAliasCount >= ALIAS_COUNT_v4) // private alias & we reached the cap
             return;
     }
-    memset(a, 0, sizeof(AliasInfov4));
+    a->m_name  = "";
+    a->m_value = "";
 
     while (aliasMatch < 2) {
         if (aliasMatch) {
@@ -1154,7 +1155,9 @@ void Compilerv4::checkStaticText(QString &text)
         cnt     = &m_privateStaticVarCount;
         textPos = 12;
     }
-    memset(var, 0, sizeof(StaticInfo));
+    var->name    = "";
+    var->value   = 0;
+    var->dataPos = 0;
 
     while (staticMatch < 2) {
         if (staticMatch == 1) {
@@ -1201,9 +1204,10 @@ void *Compilerv4::checkTableText(QString &text)
         strPos         = 12;
         curTablePublic = false;
     }
-    memset(table, 0, sizeof(TableInfo));
+    table->name       = "";
+    table->valueCount = 0;
+    table->dataPos    = 0;
 
-    table->name = "";
     while (strPos < text.length()) {
         table->name += text[strPos++];
     }
@@ -1748,7 +1752,18 @@ void Compilerv4::readTableValues(QString &text)
     QString strBuffer = "";
     int strPos        = 0;
     while (true) {
-        if (text[textPos] == ',' || textPos >= text.length()) {
+        if (textPos >= text.length()) {
+            int cnt = currentTable->valueCount;
+            convertStringToInteger(strBuffer, &currentTable->values[cnt].value);
+            currentTable->valueCount++;
+            strBuffer = "";
+
+            strPos = 0;
+
+            if (textPos >= text.length())
+                break;
+        }
+        else if (text[textPos] == ',') {
             int cnt = currentTable->valueCount;
             convertStringToInteger(strBuffer, &currentTable->values[cnt].value);
             currentTable->valueCount++;
@@ -1893,6 +1908,7 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID)
                 case PARSEMODE_SCOPELESS:
                     ++m_lineID;
                     checkAliasText(m_scriptText);
+                    checkStaticText(m_scriptText);
 
                     currentTable = (TableInfo *)checkTableText(m_scriptText);
                     if (currentTable) {

@@ -25,7 +25,7 @@ public:
     class SceneEditorMetadata
     {
     public:
-        byte m_unknownByte        = 3; // 2/3/4
+        byte m_unknownByte        = 3; // usually 2,3 or 4
         QColor m_backgroundColor1 = QColor(0xFF, 0, 0xFF);
         QColor m_backgroundColor2 = QColor(0, 0xFF, 0);
         QByteArray m_unknownBytes; // Const: 01010400010400
@@ -52,8 +52,8 @@ public:
 
         inline void read(Reader &reader)
         {
-            m_relativeSpeed = reader.read<short>();
-            m_constantspeed = reader.read<short>();
+            m_relativeSpeed = reader.read<short>(); // << 0
+            m_constantspeed = reader.read<short>(); // << 8
 
             m_behaviour = reader.read<byte>();
             m_drawOrder = reader.read<byte>();
@@ -89,6 +89,7 @@ public:
 
         QVector<QVector<ushort>> m_tiles;
 
+        SceneLayer() {}
         SceneLayer(Reader &reader) { read(reader); }
 
         void read(Reader &reader);
@@ -99,35 +100,9 @@ public:
 
     struct Position {
     public:
-        struct Value {
-            Value(short high = 0, ushort low = 0)
-            {
-                m_low  = low;
-                m_high = high;
-            }
-
-            inline void read(Reader &reader)
-            {
-                m_low  = reader.read<ushort>();
-                m_high = reader.read<short>();
-            }
-
-            inline void write(Writer &writer)
-            {
-                writer.write(m_low);
-                writer.write(m_high);
-            }
-
-            inline int toInt() { return m_high + (m_low << 16); }
-            inline float toFloat() { return m_high + (m_low / (float)(1 << 16)); }
-
-            short m_high = 0;
-            ushort m_low = 0;
-        };
-
-        Value x = Value();
-        Value y = Value();
-        Value z = Value();
+        int x = 0 << 0x10;
+        int y = 0 << 0x10;
+        int z = 0 << 0x10;
 
         Position() {}
 
@@ -135,21 +110,29 @@ public:
 
         inline void read(Reader &reader, bool vec3 = false)
         {
-            x.read(reader);
-            y.read(reader);
+            x = reader.read<int>();
+            y = reader.read<int>();
 
             if (vec3)
-                z.read(reader);
+                z = reader.read<int>();
         }
 
         inline void write(Writer &writer, bool vec3 = false)
         {
-            x.write(writer);
-            y.write(writer);
+            writer.write(x);
+            writer.write(y);
 
             if (vec3)
-                z.write(writer);
+                writer.write(z);
         }
+
+        inline float getX() { return this->x / 65536.0f; }
+        inline float getY() { return this->y / 65536.0f; }
+        inline float getZ() { return this->z / 65536.0f; }
+
+        inline void setX(float x) { this->x = x * (1 << 0x10); }
+        inline void setY(float y) { this->y = y * (1 << 0x10); }
+        inline void setZ(float y) { this->z = y * (1 << 0x10); }
     };
 
     class NameIdentifier

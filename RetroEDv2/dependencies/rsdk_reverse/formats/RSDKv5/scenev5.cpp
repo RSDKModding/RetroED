@@ -61,8 +61,8 @@ void RSDKv5::Scene::SceneLayer::read(Reader &reader)
     m_width  = reader.read<ushort>();
     m_height = reader.read<ushort>();
 
-    m_relativeSpeed = reader.read<short>();
-    m_constantSpeed = reader.read<short>();
+    m_relativeSpeed = reader.read<short>(); // << 0
+    m_constantSpeed = reader.read<short>(); // << 8
 
     ushort scrollInfoCount = reader.read<ushort>();
     for (int i = 0; i < scrollInfoCount; ++i) m_scrollingInfo.append(ScrollInfo(reader));

@@ -59,13 +59,18 @@ public:
             QByteArray ascii = string.toLatin1();
             write(ascii);
         }
-        else {
+        else if (mode == 1) {
             write((ushort)string.length());
             QTextCodec *codec               = QTextCodec::codecForName("UTF-16");
             QTextEncoder *encoderWithoutBom = codec->makeEncoder(QTextCodec::IgnoreHeader);
             QByteArray bytes                = encoderWithoutBom->fromUnicode(string);
 
             write(bytes);
+        }
+        else if (mode == 2) {
+            write((ushort)string.length());
+            QByteArray ascii = string.toLatin1();
+            write(ascii);
         }
     }
 

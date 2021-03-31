@@ -21,7 +21,7 @@ void SceneObjectProperties::setupUI(FormatHelpers::Scene::Object *obj, Compilerv
     unsetUI();
 
     ui->type->setCurrentIndex(obj->m_type);
-    ui->subtype->setValue(obj->m_subtype);
+    ui->subtype->setValue(obj->m_propertyValue);
 
     ui->posX->setValue(obj->getX());
     ui->posY->setValue(obj->getY());
@@ -33,7 +33,7 @@ void SceneObjectProperties::setupUI(FormatHelpers::Scene::Object *obj, Compilerv
                 entityv4->type = (byte)v;
             });
     connect(ui->subtype, QOverload<int>::of(&QSpinBox::valueChanged), [obj, entityv3, entityv4](int v) {
-        obj->m_subtype          = (byte)v;
+        obj->m_propertyValue    = (byte)v;
         entityv3->propertyValue = (byte)v;
         entityv4->propertyValue = (byte)v;
     });
@@ -278,7 +278,7 @@ void SceneObjectProperties::updateUI()
         return;
 
     ui->type->setCurrentIndex(m_obj->m_type);
-    ui->subtype->setValue(m_obj->m_subtype);
+    ui->subtype->setValue(m_obj->m_propertyValue);
 
     ui->posX->setValue(m_obj->getX());
     ui->posY->setValue(m_obj->getY());

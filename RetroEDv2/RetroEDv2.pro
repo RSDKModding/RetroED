@@ -30,6 +30,7 @@ SOURCES += \
     tools/paletteeditor/colourdialog.cpp \
     tools/rsvtool.cpp \
     tools/savefileeditorv3.cpp \
+    tools/savefileeditorv4.cpp \
     tools/sceneProperties/chunkeditor.cpp \
     tools/exportrsdkv5scene.cpp \
     tools/gameconfigeditorv2.cpp \
@@ -69,6 +70,7 @@ HEADERS += \
     tools/paletteeditor/colourdialog.hpp \
     tools/rsvtool.hpp \
     tools/savefileeditorv3.hpp \
+    tools/savefileeditorv4.hpp \
     tools/sceneProperties/chunkeditor.hpp \
     tools/exportrsdkv5scene.hpp \
     tools/gameconfigeditorv2.hpp \
@@ -103,6 +105,7 @@ FORMS += \
     tools/paletteeditor/colourdialog.ui \
     tools/rsvtool.ui \
     tools/savefileeditorv3.ui \
+    tools/savefileeditorv4.ui \
     tools/sceneProperties/chunkeditor.ui \
     tools/exportrsdkv5scene.ui \
     tools/gameconfigeditorv2.ui \

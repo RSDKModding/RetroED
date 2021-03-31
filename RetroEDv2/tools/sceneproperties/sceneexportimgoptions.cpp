@@ -6,27 +6,49 @@ SceneExportImgOptions::SceneExportImgOptions(QWidget *parent)
 {
     ui->setupUi(this);
 
-    memset(m_exportFG, 0, 2 * sizeof(bool));
     memset(m_exportBG, 0, 8 * 2 * sizeof(bool));
 
     m_exportFG[0] = true;
     m_exportFG[1] = true;
 
-    QCheckBox *bgLow[]  = { ui->bg1Low, ui->bg2Low, ui->bg3Low, ui->bg4Low,
-                           ui->bg5Low, ui->bg6Low, ui->bg7Low, ui->bg8Low };
-    QCheckBox *bgHigh[] = { ui->bg1High, ui->bg2High, ui->bg3High, ui->bg4High,
-                            ui->bg5High, ui->bg6High, ui->bg7High, ui->bg8High };
-
+    disconnect(ui->fgLow, nullptr, nullptr, nullptr);
+    disconnect(ui->fgHigh, nullptr, nullptr, nullptr);
     connect(ui->fgLow, &QCheckBox::toggled, [this](bool c) { m_exportFG[0] = c; });
     connect(ui->fgHigh, &QCheckBox::toggled, [this](bool c) { m_exportFG[1] = c; });
 
-    for (int i = 0; i < 8; ++i) {
-        connect(bgLow[i], &QCheckBox::toggled, [this, &i](bool c) { m_exportBG[i][0] = c; });
-    }
+    disconnect(ui->bg1Low, nullptr, nullptr, nullptr);
+    connect(ui->bg1Low, &QCheckBox::toggled, [this](bool c) { m_exportBG[0][0] = c; });
+    disconnect(ui->bg2Low, nullptr, nullptr, nullptr);
+    connect(ui->bg2Low, &QCheckBox::toggled, [this](bool c) { m_exportBG[1][0] = c; });
+    disconnect(ui->bg3Low, nullptr, nullptr, nullptr);
+    connect(ui->bg3Low, &QCheckBox::toggled, [this](bool c) { m_exportBG[2][0] = c; });
+    disconnect(ui->bg4Low, nullptr, nullptr, nullptr);
+    connect(ui->bg4Low, &QCheckBox::toggled, [this](bool c) { m_exportBG[3][0] = c; });
+    disconnect(ui->bg5Low, nullptr, nullptr, nullptr);
+    connect(ui->bg5Low, &QCheckBox::toggled, [this](bool c) { m_exportBG[4][0] = c; });
+    disconnect(ui->bg6Low, nullptr, nullptr, nullptr);
+    connect(ui->bg6Low, &QCheckBox::toggled, [this](bool c) { m_exportBG[5][0] = c; });
+    disconnect(ui->bg7Low, nullptr, nullptr, nullptr);
+    connect(ui->bg7Low, &QCheckBox::toggled, [this](bool c) { m_exportBG[6][0] = c; });
+    disconnect(ui->bg8Low, nullptr, nullptr, nullptr);
+    connect(ui->bg8Low, &QCheckBox::toggled, [this](bool c) { m_exportBG[7][0] = c; });
 
-    for (int i = 0; i < 8; ++i) {
-        connect(bgHigh[i], &QCheckBox::toggled, [this, &i](bool c) { m_exportBG[i][1] = c; });
-    }
+    disconnect(ui->bg1High, nullptr, nullptr, nullptr);
+    connect(ui->bg1High, &QCheckBox::toggled, [this](bool c) { m_exportBG[0][1] = c; });
+    disconnect(ui->bg2High, nullptr, nullptr, nullptr);
+    connect(ui->bg2High, &QCheckBox::toggled, [this](bool c) { m_exportBG[1][1] = c; });
+    disconnect(ui->bg3High, nullptr, nullptr, nullptr);
+    connect(ui->bg3High, &QCheckBox::toggled, [this](bool c) { m_exportBG[2][1] = c; });
+    disconnect(ui->bg4High, nullptr, nullptr, nullptr);
+    connect(ui->bg4High, &QCheckBox::toggled, [this](bool c) { m_exportBG[3][1] = c; });
+    disconnect(ui->bg5High, nullptr, nullptr, nullptr);
+    connect(ui->bg5High, &QCheckBox::toggled, [this](bool c) { m_exportBG[4][1] = c; });
+    disconnect(ui->bg6High, nullptr, nullptr, nullptr);
+    connect(ui->bg6High, &QCheckBox::toggled, [this](bool c) { m_exportBG[5][1] = c; });
+    disconnect(ui->bg7High, nullptr, nullptr, nullptr);
+    connect(ui->bg7High, &QCheckBox::toggled, [this](bool c) { m_exportBG[6][1] = c; });
+    disconnect(ui->bg8High, nullptr, nullptr, nullptr);
+    connect(ui->bg8High, &QCheckBox::toggled, [this](bool c) { m_exportBG[7][1] = c; });
 
     connect(ui->objects, &QCheckBox::toggled, [this](bool c) { m_exportObjects = c; });
     connect(ui->objInfo, &QCheckBox::toggled, [this](bool c) { m_exportObjInfo = c; });

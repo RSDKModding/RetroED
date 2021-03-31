@@ -53,10 +53,10 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
             for (RSDKv1::Scene::Object &object : scn.m_objects) {
                 Object obj;
 
-                obj.m_type    = object.m_type;
-                obj.m_subtype = object.m_subtype;
-                obj.m_xPos    = object.m_xPos << 0x10;
-                obj.m_yPos    = object.m_yPos << 0x10;
+                obj.m_type          = object.m_type;
+                obj.m_propertyValue = object.m_propertyValue;
+                obj.m_position.x    = object.m_xPos << 0x10;
+                obj.m_position.y    = object.m_yPos << 0x10;
 
                 obj.m_id = object.m_id;
                 m_objects.append(obj);
@@ -86,10 +86,10 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
             for (RSDKv2::Scene::Object &object : scn.m_objects) {
                 Object obj;
 
-                obj.m_type    = object.m_type;
-                obj.m_subtype = object.m_subtype;
-                obj.m_xPos    = object.m_xPos << 0x10;
-                obj.m_yPos    = object.m_yPos << 0x10;
+                obj.m_type          = object.m_type;
+                obj.m_propertyValue = object.m_propertyValue;
+                obj.m_position.x    = object.m_xPos << 0x10;
+                obj.m_position.y    = object.m_yPos << 0x10;
 
                 obj.m_id = object.m_id;
                 m_objects.append(obj);
@@ -119,10 +119,10 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
             for (RSDKv3::Scene::Object &object : scn.m_objects) {
                 Object obj;
 
-                obj.m_type    = object.m_type;
-                obj.m_subtype = object.m_subtype;
-                obj.m_xPos    = object.m_xPos << 0x10;
-                obj.m_yPos    = object.m_yPos << 0x10;
+                obj.m_type          = object.m_type;
+                obj.m_propertyValue = object.m_propertyValue;
+                obj.m_position.x    = object.m_xPos << 0x10;
+                obj.m_position.y    = object.m_yPos << 0x10;
 
                 obj.m_id = object.m_id;
                 m_objects.append(obj);
@@ -150,10 +150,10 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
             for (RSDKv4::Scene::Object &object : scn.m_objects) {
                 Object obj;
 
-                obj.m_type    = object.m_type;
-                obj.m_subtype = object.m_subtype;
-                obj.m_xPos    = object.m_xPos;
-                obj.m_yPos    = object.m_yPos;
+                obj.m_type          = object.m_type;
+                obj.m_propertyValue = object.m_subtype;
+                obj.m_position.x    = object.m_xPos;
+                obj.m_position.y    = object.m_yPos;
 
                 obj.m_id = object.m_id;
 
@@ -208,10 +208,10 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
             for (Object &object : m_objects) {
                 RSDKv1::Scene::Object obj;
 
-                obj.m_type    = object.m_type;
-                obj.m_subtype = object.m_subtype;
-                obj.m_xPos    = object.m_xPos >> 0x10;
-                obj.m_yPos    = object.m_yPos >> 0x10;
+                obj.m_type          = object.m_type;
+                obj.m_propertyValue = object.m_propertyValue;
+                obj.m_xPos          = object.m_position.x >> 0x10;
+                obj.m_yPos          = object.m_position.y >> 0x10;
 
                 obj.m_id = object.m_id;
                 scn.m_objects.append(obj);
@@ -244,10 +244,10 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
             for (Object &object : m_objects) {
                 RSDKv2::Scene::Object obj;
 
-                obj.m_type    = object.m_type;
-                obj.m_subtype = object.m_subtype;
-                obj.m_xPos    = object.m_xPos >> 0x10;
-                obj.m_yPos    = object.m_yPos >> 0x10;
+                obj.m_type          = object.m_type;
+                obj.m_propertyValue = object.m_propertyValue;
+                obj.m_xPos          = object.m_position.x >> 0x10;
+                obj.m_yPos          = object.m_position.y >> 0x10;
 
                 obj.m_id = object.m_id;
                 scn.m_objects.append(obj);
@@ -279,10 +279,10 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
             for (Object &object : m_objects) {
                 RSDKv3::Scene::Object obj;
 
-                obj.m_type    = object.m_type;
-                obj.m_subtype = object.m_subtype;
-                obj.m_xPos    = object.m_xPos >> 0x10;
-                obj.m_yPos    = object.m_yPos >> 0x10;
+                obj.m_type          = object.m_type;
+                obj.m_propertyValue = object.m_propertyValue;
+                obj.m_xPos          = object.m_position.x >> 0x10;
+                obj.m_yPos          = object.m_position.y >> 0x10;
 
                 obj.m_id = object.m_id;
                 scn.m_objects.append(obj);
@@ -313,9 +313,9 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
                 RSDKv4::Scene::Object obj;
 
                 obj.m_type    = object.m_type;
-                obj.m_subtype = object.m_subtype;
-                obj.m_xPos    = object.m_xPos;
-                obj.m_yPos    = object.m_yPos;
+                obj.m_subtype = object.m_propertyValue;
+                obj.m_xPos    = object.m_position.x;
+                obj.m_yPos    = object.m_position.x;
 
                 obj.m_id = object.m_id;
 

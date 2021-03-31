@@ -30,7 +30,7 @@ void RSDKv5::StageConfig::write(Writer &writer)
     writer.write((byte)m_objects.count());
     for (int i = 0; i < (byte)m_objects.count(); ++i) writer.write(m_objects[i]);
 
-    for (int i = 0; i < 8; ++i) m_palettes[i].write(writer);
+    for (int i = 0; i < 8; ++i) m_palettes[i].write(writer, true);
 
     writer.write((byte)m_sfx.count());
     for (int i = 0; i < (byte)m_sfx.count(); ++i) m_sfx[i].write(writer);

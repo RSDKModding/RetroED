@@ -22,7 +22,7 @@ public:
             m_floorAngle   = reader.read<byte>();
             m_rWallAngle   = reader.read<byte>();
             m_lWallAngle   = reader.read<byte>();
-            m_ceilingAngle = reader.read<byte>();
+            m_roofAngle = reader.read<byte>();
             m_behaviour    = reader.read<byte>();
         }
 
@@ -35,7 +35,7 @@ public:
             writer.write(m_floorAngle);
             writer.write(m_rWallAngle);
             writer.write(m_lWallAngle);
-            writer.write(m_ceilingAngle);
+            writer.write(m_roofAngle);
             writer.write(m_behaviour);
         }
 
@@ -44,7 +44,7 @@ public:
         byte m_floorAngle   = 0x00;
         byte m_rWallAngle   = 0xC0;
         byte m_lWallAngle   = 0x40;
-        byte m_ceilingAngle = 0x80;
+        byte m_roofAngle = 0x80;
         byte m_behaviour    = 0;
         bool m_isCeiling    = false;
     };

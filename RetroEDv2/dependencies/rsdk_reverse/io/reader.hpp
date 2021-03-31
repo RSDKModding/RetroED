@@ -71,6 +71,12 @@ public:
             delete[] unicode;
             return str;
         }
+        else if (mode == 2) {
+            ushort len = read<ushort>();
+            QByteArray string;
+            for (byte i = 0; i < len; ++i) string += read<byte>();
+            return QString::fromLatin1(string);
+        }
     }
 
     inline QByteArray readByteArray(qint64 len, bool compressed = false)

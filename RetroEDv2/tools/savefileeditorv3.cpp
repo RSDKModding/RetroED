@@ -14,12 +14,7 @@ SaveFileEditorv3::SaveFileEditorv3(QString filePath, QWidget *parent)
     setupUI();
 }
 
-SaveFileEditorv3::~SaveFileEditorv3()
-{
-    appConfig.write(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
-                    + "/appConfig.bin");
-    delete ui;
-}
+SaveFileEditorv3::~SaveFileEditorv3() { delete ui; }
 
 void SaveFileEditorv3::setupUI()
 {
@@ -45,18 +40,23 @@ void SaveFileEditorv3::setupUI()
     // TotalTAttackTime: 	SaveRAM[39]
     // HapticsEnabled:      SaveRAM[40]
 
+    QList<QString> stageNames = {
+        "Palmtree Panic 1",   "Palmtree Panic 2",   "Collision Chaos 1",   "Collision Chaos 2",
+        "Tidal Tempest 1",    "Tidal Tempest 2",    "Quartz Quadrant 1",   "Quartz Quadrant 2",
+        "Wacky Workbench 1",  "Wacky Workbench 2",  "Stardust Speedway 1", "Stardust Speedway 2",
+        "Metallic Madness 1", "Metallic Madness 2",
+    };
+
     disconnect(ui->curSave, nullptr, nullptr, nullptr);
     disconnect(ui->characterID, nullptr, nullptr, nullptr);
     disconnect(ui->lives, nullptr, nullptr, nullptr);
     disconnect(ui->score, nullptr, nullptr, nullptr);
     disconnect(ui->curStage, nullptr, nullptr, nullptr);
     disconnect(ui->curSpecialStage, nullptr, nullptr, nullptr);
-    for (int t = 0; t < 7; ++t) {
-        disconnect(tsBoxes[t], nullptr, nullptr, nullptr);
-    }
+    for (int t = 0; t < 7; ++t) disconnect(tsBoxes[t], nullptr, nullptr, nullptr);
     disconnect(ui->scoreBonus, nullptr, nullptr, nullptr);
     disconnect(ui->futureList, nullptr, nullptr, nullptr);
-    disconnect(ui->MSList, nullptr, nullptr, nullptr);
+    disconnect(ui->msList, nullptr, nullptr, nullptr);
 
     disconnect(ui->activeFile, nullptr, nullptr, nullptr);
     disconnect(ui->musVol, nullptr, nullptr, nullptr);
@@ -67,6 +67,28 @@ void SaveFileEditorv3::setupUI()
     disconnect(ui->soundtrack, nullptr, nullptr, nullptr);
     // disconnect(ui->totalTAttackTime, nullptr, nullptr, nullptr);
     disconnect(ui->hapticsEnabled, nullptr, nullptr, nullptr);
+
+    ui->futureList->clear();
+    ushort futureList = m_savefile.m_saveRAM[m_saveID + 7] & 0xFFFF;
+    for (int s = 0; s < stageNames.count(); ++s) {
+        QListWidgetItem *item = new QListWidgetItem();
+        item->setText(stageNames[s]);
+        item->setFlags(item->flags() | Qt::ItemFlag::ItemIsUserCheckable);
+        item->setCheckState(Utils::getBit(futureList, s) ? Qt::CheckState::Checked
+                                                         : Qt::CheckState::Unchecked);
+        ui->futureList->addItem(item);
+    }
+
+    ui->msList->clear();
+    ushort msList = (m_savefile.m_saveRAM[m_saveID + 7] >> 16) & 0xFFFF;
+    for (int s = 0; s < stageNames.count(); ++s) {
+        QListWidgetItem *item = new QListWidgetItem();
+        item->setText(stageNames[s]);
+        item->setFlags(item->flags() | Qt::ItemFlag::ItemIsUserCheckable);
+        item->setCheckState(Utils::getBit(msList, s) ? Qt::CheckState::Checked
+                                                     : Qt::CheckState::Unchecked);
+        ui->msList->addItem(item);
+    }
 
     m_saveID = 0 << 3;
     ui->curSave->setCurrentIndex(0);
@@ -98,8 +120,6 @@ void SaveFileEditorv3::setupUI()
         tsBoxes[t]->setChecked(Utils::getBit(m_savefile.m_saveRAM[m_saveID + 4], t));
     }
     ui->scoreBonus->setValue(m_savefile.m_saveRAM[m_saveID + 6]);
-    // ui->futureList->setChecked(m_savefile.m_saveRAM[m_saveID + 7]);
-    // ui->MSList->setChecked(m_savefile.m_saveRAM[m_saveID + 7]);
 
     ui->activeFile->setChecked(m_savefile.m_saveRAM[32]);
     ui->musVol->setValue(m_savefile.m_saveRAM[33]);
@@ -121,11 +141,10 @@ void SaveFileEditorv3::setupUI()
         ui->score->blockSignals(true);
         ui->curStage->blockSignals(true);
         ui->curSpecialStage->blockSignals(true);
-        for (int t = 0; t < 7; ++t) {
-            tsBoxes[t]->blockSignals(true);
-        }
-        // ui->nextSpecialStage->blockSignals(true);
+        for (int t = 0; t < 7; ++t) tsBoxes[t]->blockSignals(true);
         ui->scoreBonus->blockSignals(true);
+        ui->futureList->blockSignals(true);
+        ui->msList->blockSignals(true);
 
         int stageID = m_savefile.m_saveRAM[m_saveID + 3];
 
@@ -157,16 +176,37 @@ void SaveFileEditorv3::setupUI()
         // ui->nextSpecialStage->setCurrentIndex(m_savefile.m_saveRAM[m_saveID + 5]);
         ui->scoreBonus->setValue(m_savefile.m_saveRAM[m_saveID + 6]);
 
+        ui->futureList->clear();
+        ushort futureList = m_savefile.m_saveRAM[m_saveID + 7] & 0xFFFF;
+        for (int s = 0; s < stageNames.count(); ++s) {
+            QListWidgetItem *item = new QListWidgetItem();
+            item->setText(stageNames[s]);
+            item->setFlags(item->flags() | Qt::ItemFlag::ItemIsUserCheckable);
+            item->setCheckState(Utils::getBit(futureList, s) ? Qt::CheckState::Checked
+                                                             : Qt::CheckState::Unchecked);
+            ui->futureList->addItem(item);
+        }
+
+        ui->msList->clear();
+        ushort msList = (m_savefile.m_saveRAM[m_saveID + 7] >> 16) & 0xFFFF;
+        for (int s = 0; s < stageNames.count(); ++s) {
+            QListWidgetItem *item = new QListWidgetItem();
+            item->setText(stageNames[s]);
+            item->setFlags(item->flags() | Qt::ItemFlag::ItemIsUserCheckable);
+            item->setCheckState(Utils::getBit(msList, s) ? Qt::CheckState::Checked
+                                                         : Qt::CheckState::Unchecked);
+            ui->msList->addItem(item);
+        }
+
         ui->characterID->blockSignals(false);
         ui->lives->blockSignals(false);
         ui->score->blockSignals(false);
         ui->curStage->blockSignals(false);
         ui->curSpecialStage->blockSignals(false);
-        for (int t = 0; t < 7; ++t) {
-            tsBoxes[t]->blockSignals(false);
-        }
-        // ui->nextSpecialStage->blockSignals(false);
+        for (int t = 0; t < 7; ++t) tsBoxes[t]->blockSignals(false);
         ui->scoreBonus->blockSignals(false);
+        ui->futureList->blockSignals(false);
+        ui->msList->blockSignals(false);
     });
 
     connect(ui->characterID, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int c) {
@@ -218,6 +258,18 @@ void SaveFileEditorv3::setupUI()
 
     connect(ui->scoreBonus, QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int v) { m_savefile.m_saveRAM[m_saveID + 6] = v; });
+
+    connect(ui->futureList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
+        int row     = ui->futureList->row(item);
+        bool active = item->checkState() != Qt::Unchecked;
+        Utils::setBit(m_savefile.m_saveRAM[m_saveID + 7], active, row);
+    });
+
+    connect(ui->msList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
+        int row     = ui->msList->row(item);
+        bool active = item->checkState() != Qt::Unchecked;
+        Utils::setBit(m_savefile.m_saveRAM[m_saveID + 7], active, row + 0x10);
+    });
 
     connect(ui->activeFile, &QCheckBox::toggled, [this](bool c) { m_savefile.m_saveRAM[32] = c; });
     connect(ui->musVol, QOverload<int>::of(&QSpinBox::valueChanged),

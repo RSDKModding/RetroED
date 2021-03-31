@@ -21,16 +21,15 @@ public:
 
         Object() {}
 
-        inline float getX() { return m_xPos / 65536.0f; }
-        inline float getY() { return m_yPos / 65536.0f; }
+        inline float getX() { return m_position.x / 65536.0f; }
+        inline float getY() { return m_position.y / 65536.0f; }
 
-        inline void setX(float x) { m_xPos = x * (1 << 0x10); }
-        inline void setY(float y) { m_yPos = y * (1 << 0x10); }
+        inline void setX(float x) { m_position.x = x * (1 << 0x10); }
+        inline void setY(float y) { m_position.y = y * (1 << 0x10); }
 
-        byte m_type    = 0;
-        byte m_subtype = 0;
-        int m_xPos     = 0 << 0x10;
-        int m_yPos     = 0 << 0x10;
+        byte m_type             = 0;
+        byte m_propertyValue    = 0;
+        Vector2<int> m_position = Vector2<int>(0 << 0x10, 0 << 0x10);
         AttributeInfo m_attributes[0x0F];
 
         short m_id = 0;

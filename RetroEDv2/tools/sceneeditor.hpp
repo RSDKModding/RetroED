@@ -56,6 +56,8 @@ private:
     void createEntityList();
     void createScrollList();
 
+    void exportRSDKv5(ExportRSDKv5Scene *dlg);
+
     Ui::SceneEditor *ui;
 };
 

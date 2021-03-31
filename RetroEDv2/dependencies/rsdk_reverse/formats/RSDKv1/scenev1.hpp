@@ -18,7 +18,7 @@ public:
             // Object type, 1 byte, unsigned
             m_type = reader.read<byte>();
             // Object subtype, 1 byte, unsigned
-            m_subtype = reader.read<byte>();
+            m_propertyValue = reader.read<byte>();
 
             // X Position, 2 bytes, big-endian, signed
             m_xPos = (short)(reader.read<char>() << 8);
@@ -34,7 +34,7 @@ public:
         inline void write(Writer &writer)
         {
             writer.write(m_type);
-            writer.write(m_subtype);
+            writer.write(m_propertyValue);
 
             writer.write((byte)(m_xPos >> 8));
             writer.write((byte)(m_xPos & 0xFF));
@@ -44,7 +44,7 @@ public:
         }
 
         byte m_type    = 0;
-        byte m_subtype = 0;
+        byte m_propertyValue = 0;
         short m_xPos   = 0;
         short m_yPos   = 0;
 

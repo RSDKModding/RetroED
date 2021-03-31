@@ -14,6 +14,11 @@ public:
         byte m_maxConcurrentPlay = 1;
 
         WAVConfiguration() {}
+        WAVConfiguration(QString name, byte maxPlays)
+        {
+            m_name              = name;
+            m_maxConcurrentPlay = maxPlays;
+        }
         WAVConfiguration(Reader &reader) { read(reader); }
 
         inline void read(Reader reader)

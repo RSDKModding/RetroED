@@ -1,6 +1,9 @@
 #ifndef INCLUDES_H
 #define INCLUDES_H
 
+#define RETROED_VER   (0x100)
+#define RETROED_DEBUG (1)
+
 // QT
 #include <QtCore>
 #include <QStringList>
@@ -123,8 +126,7 @@ public:
 #include "tools/gfxtool.hpp"
 #include "tools/staticobjecteditor.hpp"
 #include "tools/savefileeditorv3.hpp"
-//#include "tools/savefileeditorv4.hpp"
-//#include "tools/savefileeditorv5.hpp"
+#include "tools/savefileeditorv4.hpp"
 #include "tools/paletteeditor.hpp"
 #include "tools/paletteeditor/colourdialog.hpp"
 #include "tools/rsdkunpacker.hpp"

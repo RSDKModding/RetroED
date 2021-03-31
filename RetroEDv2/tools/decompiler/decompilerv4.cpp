@@ -2636,7 +2636,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                     if (operand == "GetTableValue") {
                         bool ok   = false;
                         int index = variableName[2].toInt(&ok);
-                        if (ok) {
+                        if (ok && m_useCustomAliases) {
                             StaticVarInfo c(
                                 QString("%1_table%2").arg(curTypeNamev4).arg(m_tables.count()), index);
 
@@ -2652,7 +2652,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                     if (operand == "SetTableValue") {
                         bool ok   = false;
                         int index = variableName[2].toInt(&ok);
-                        if (ok) {
+                        if (ok && m_useCustomAliases) {
                             StaticVarInfo c(
                                 QString("%1_table%2").arg(curTypeNamev4).arg(m_tables.count()), index);
 

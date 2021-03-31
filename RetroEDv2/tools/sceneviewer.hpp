@@ -142,6 +142,102 @@ public:
     int addGraphicsFile(char *sheetPath);
     void removeGraphicsFile(char *sheetPath, int slot);
 
+    inline void getTileVerts(QVector2D *arr, int index, int tileIndex, byte direction)
+    {
+        float w = m_tilesetTexture->width(), h = m_tilesetTexture->height();
+
+        float tx = 0.0f;
+        float ty = tileIndex / h;
+        float tw = 0x10 / w;
+        float th = 0x10 / h;
+
+        switch (direction) {
+            case 0:
+            default: {
+                arr[index + 0].setX(tx);
+                arr[index + 0].setY(ty);
+
+                arr[index + 1].setX(tx + tw);
+                arr[index + 1].setY(ty);
+
+                arr[index + 2].setX(tx + tw);
+                arr[index + 2].setY(ty + th);
+
+                arr[index + 3].setX(tx + tw);
+                arr[index + 3].setY(ty + th);
+
+                arr[index + 4].setX(tx);
+                arr[index + 4].setY(ty + th);
+
+                arr[index + 5].setX(tx);
+                arr[index + 5].setY(ty);
+                break;
+            }
+            case 1: {
+                arr[index + 0].setX(tx + tw);
+                arr[index + 0].setY(ty);
+
+                arr[index + 1].setX(tx);
+                arr[index + 1].setY(ty);
+
+                arr[index + 2].setX(tx);
+                arr[index + 2].setY(ty + th);
+
+                arr[index + 3].setX(tx);
+                arr[index + 3].setY(ty + th);
+
+                arr[index + 4].setX(tx + tw);
+                arr[index + 4].setY(ty + th);
+
+                arr[index + 5].setX(tx + tw);
+                arr[index + 5].setY(ty);
+                break;
+            }
+            case 2: {
+                arr[index + 0].setX(tx);
+                arr[index + 0].setY(ty + th);
+
+                arr[index + 1].setX(tx + tw);
+                arr[index + 1].setY(ty + th);
+
+                arr[index + 2].setX(tx + tw);
+                arr[index + 2].setY(ty);
+
+                arr[index + 3].setX(tx + tw);
+                arr[index + 3].setY(ty);
+
+                arr[index + 4].setX(tx);
+                arr[index + 4].setY(ty);
+
+                arr[index + 5].setX(tx);
+                arr[index + 5].setY(ty + th);
+                break;
+            }
+            case 3: {
+                arr[index + 0].setX(tx + tw);
+                arr[index + 0].setY(ty + th);
+
+                arr[index + 1].setX(tx);
+                arr[index + 1].setY(ty + th);
+
+                arr[index + 2].setX(tx);
+                arr[index + 2].setY(ty);
+
+                arr[index + 3].setX(tx);
+                arr[index + 3].setY(ty);
+
+                arr[index + 4].setX(tx + tw);
+                arr[index + 4].setY(ty);
+
+                arr[index + 5].setX(tx + tw);
+                arr[index + 5].setY(ty + th);
+                break;
+            }
+        }
+    }
+
+    void drawTile(float XPos, float YPos, float ZPos, int tileX, int tileY, byte direction);
+
     void drawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID);
     void drawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction,
                            int sheetID);
@@ -159,12 +255,12 @@ protected:
 
 private:
     QOpenGLVertexArrayObject m_screenVAO, m_rectVAO;
-    QList<QOpenGLTexture *> m_chunkTextures;
+    QOpenGLTexture *m_tilesetTexture = nullptr;
     QList<TextureInfo> m_objectSprites;
 
     QOpenGLTexture *m_rsPlayerSprite = nullptr;
 
-    QMatrix4x4 m_matView, m_skyboxMatrix;
+    QMatrix4x4 m_matView;
 
     Shader m_primitiveShader;
     Shader m_spriteShader;
