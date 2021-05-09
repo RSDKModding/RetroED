@@ -6,9 +6,7 @@ void RSDKv2::Animation::read(Reader &reader)
 
     for (int u = 0; u < 5; ++u) m_unknown[u] = reader.read<byte>();
 
-    for (int s = 0; s < 3; ++s) m_sheets.append(reader.readString());
-
-    m_unknownVal = reader.read<byte>();
+    for (int s = 0; s < 4; ++s) m_sheets.append(reader.readString());
 
     int animCount = reader.read<byte>();
     for (int a = 0; a < animCount; ++a) m_animations.append(AnimationEntry(reader));
@@ -25,11 +23,9 @@ void RSDKv2::Animation::write(Writer &writer)
         writer.write(m_unknown[u]);
     }
 
-    for (int s = 0; s < 3; ++s) {
+    for (int s = 0; s < 4; ++s) {
         writer.write(m_sheets[s]);
     }
-
-    writer.write(m_unknownVal);
 
     writer.write((byte)m_animations.count());
     for (int a = 0; a < m_animations.count(); ++a) {
