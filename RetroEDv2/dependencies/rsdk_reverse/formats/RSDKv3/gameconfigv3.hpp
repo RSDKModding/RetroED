@@ -15,22 +15,22 @@ public:
 
         inline void read(Reader &reader)
         {
-            m_folder      = reader.readString();
+            folder      = reader.readString();
             m_actID       = reader.readString();
-            m_name        = reader.readString();
+            name        = reader.readString();
             m_highlighted = reader.read<bool>();
         }
 
         inline void write(Writer &writer)
         {
-            writer.write(m_folder);
+            writer.write(folder);
             writer.write(m_actID);
-            writer.write(m_name);
+            writer.write(name);
             writer.write(m_highlighted);
         }
 
-        QString m_name     = "Scene";
-        QString m_folder   = "Folder";
+        QString name     = "Scene";
+        QString folder   = "Folder";
         QString m_actID    = "1";
         bool m_highlighted = false;
     };
@@ -45,21 +45,21 @@ public:
         {
             byte sceneCount = reader.read<byte>();
 
-            m_scenes.clear();
+            scenes.clear();
             for (int i = 0; i < sceneCount; ++i) {
-                m_scenes.append(SceneInfo(reader));
+                scenes.append(SceneInfo(reader));
             }
         }
 
         inline void write(Writer &writer)
         {
-            writer.write((byte)m_scenes.count());
-            for (SceneInfo &scn : m_scenes) {
+            writer.write((byte)scenes.count());
+            for (SceneInfo &scn : scenes) {
                 scn.write(writer);
             }
         }
 
-        QList<SceneInfo> m_scenes;
+        QList<SceneInfo> scenes;
     };
 
     class GlobalVariable
@@ -99,9 +99,9 @@ public:
 
     Gameconfig()
     {
-        m_categories.clear();
+        categories.clear();
         for (int c = 0; c < 4; ++c) {
-            m_categories.append(Category());
+            categories.append(Category());
         }
     }
     Gameconfig(QString filename) { read(filename); }
@@ -131,9 +131,9 @@ public:
 
     QList<ObjectInfo> m_objects;
     QList<QString> m_soundFX;
-    QList<GlobalVariable> m_globalVariables;
+    QList<GlobalVariable> globalVariables;
     QList<QString> m_players;
-    QList<Category> m_categories;
+    QList<Category> categories;
 
     QString m_filename = "";
 };

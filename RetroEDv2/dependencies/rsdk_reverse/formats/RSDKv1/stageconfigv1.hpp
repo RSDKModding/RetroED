@@ -13,7 +13,7 @@ public:
         ObjectInfo() {}
 
         byte m_sheetID   = 0;
-        QString m_script = "Folder/Script.txt";
+        QString script = "Folder/Script.txt";
     };
 
     Stageconfig() {}
@@ -30,7 +30,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filepath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -38,13 +38,13 @@ public:
     }
     void write(Writer &writer);
 
-    Palette m_stagePalette;
-    QList<QString> m_objectSpritesheets;
-    QList<ObjectInfo> m_objects;
-    QList<QString> m_music;
-    QList<QString> m_soundFX;
+    Palette palette;
+    QList<QString> spriteSheets;
+    QList<ObjectInfo> objects;
+    QList<QString> music;
+    QList<QString> soundFX;
 
-    QString m_filename = "";
+    QString filepath = "";
 };
 
 } // namespace RSDKv1

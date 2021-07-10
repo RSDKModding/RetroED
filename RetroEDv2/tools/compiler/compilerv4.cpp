@@ -1844,7 +1844,7 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID)
     m_privateTableCount     = 0;
 
     Reader reader(scriptName);
-    if (reader.m_initialised) {
+    if (reader.initialised) {
         int readMode   = READMODE_NORMAL;
         int parseMode  = PARSEMODE_SCOPELESS;
         char prevChar  = 0;

@@ -27,7 +27,7 @@ public:
         inline void setX(float x) { m_position.x = x * (1 << 0x10); }
         inline void setY(float y) { m_position.y = y * (1 << 0x10); }
 
-        byte m_type             = 0;
+        byte type             = 0;
         byte m_propertyValue    = 0;
         Vector2<int> m_position = Vector2<int>(0 << 0x10, 0 << 0x10);
         AttributeInfo m_attributes[0x0F];
@@ -52,15 +52,15 @@ public:
     short m_playerXPos = 0;
     short m_playerYPos = 0;
 
-    QList<QList<ushort>> m_layout;
+    QList<QList<ushort>> layout;
 
-    QList<Object> m_objects;
-    QList<QString> m_objectTypeNames;
+    QList<Object> objects;
+    QList<QString> objectTypeNames;
 
-    ushort m_width  = 0;
-    ushort m_height = 0;
+    ushort width  = 0;
+    ushort height = 0;
 
-    QString m_filename = "";
+    QString filepath = "";
 
     static const int maxObjectCount = 1056;
 };

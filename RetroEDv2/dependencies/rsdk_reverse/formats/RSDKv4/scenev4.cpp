@@ -11,7 +11,7 @@ QList<QString> RSDKv4::objectAttributeTypes = { "int",   "uint8", "int",   "int"
 
 void RSDKv4::Scene::read(Reader &reader)
 {
-    m_filename = reader.m_filepath;
+    m_filename = reader.filepath;
 
     m_title = reader.readString();
 
@@ -52,7 +52,7 @@ void RSDKv4::Scene::read(Reader &reader)
 
 void RSDKv4::Scene::write(Writer &writer)
 {
-    m_filename = writer.m_filename;
+    m_filename = writer.filePath;
 
     // Write zone name
     writer.write(m_title);

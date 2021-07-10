@@ -9,32 +9,32 @@ public:
 
     inline bool seek(qint64 position)
     {
-        if (m_file)
-            return m_file->seek(position);
+        if (file)
+            return file->seek(position);
         else
-            return m_stream->device()->seek(position);
+            return stream->device()->seek(position);
     };
     inline qint64 tell()
     {
-        if (m_file)
-            return m_file->pos();
+        if (file)
+            return file->pos();
         else
-            return m_stream->device()->pos();
+            return stream->device()->pos();
     };
     inline bool isEOF()
     {
-        if (m_file)
-            return m_file->atEnd();
+        if (file)
+            return file->atEnd();
         else
-            return m_stream->atEnd();
+            return stream->atEnd();
     }
 
     inline void close()
     {
-        if (m_file)
-            m_file->close();
+        if (file)
+            file->close();
         else
-            m_stream->device()->close();
+            stream->device()->close();
     }
     inline Reader getCReader() { return Reader(new QDataStream(readZLib())); }
 
@@ -83,7 +83,7 @@ public:
     {
         QByteArray result;
         char *buffer = new char[sizeof(byte) * len];
-        m_stream->readRawData(buffer, sizeof(byte) * len);
+        stream->readRawData(buffer, sizeof(byte) * len);
         result.append(buffer, len);
         delete[] buffer;
 
@@ -93,7 +93,7 @@ public:
     }
     QByteArray readZLib();
 
-    QSharedPointer<QFile> m_file;
+    QSharedPointer<QFile> file;
 
     template <typename T> inline T read()
     {
@@ -102,7 +102,7 @@ public:
         if (isEOF())
             memset(buffer, 0, sizeof(T));
         else
-            m_stream->readRawData(buffer, sizeof(T));
+            stream->readRawData(buffer, sizeof(T));
 
         T result = *(reinterpret_cast<T *>(buffer));
         delete[] buffer;
@@ -117,12 +117,12 @@ public:
         return nextVal;
     }
 
-    qint64 m_filesize  = 0;
-    QString m_filepath = "";
-    bool m_initialised = false;
+    qint64 filesize  = 0;
+    QString filepath = "";
+    bool initialised = false;
 
 private:
-    QSharedPointer<QDataStream> m_stream;
+    QSharedPointer<QDataStream> stream;
 };
 
 #endif // READER_H

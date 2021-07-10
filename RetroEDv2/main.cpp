@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 
     if (!QFile(homeDir + "RSDKv4FileList.txt").exists()) {
         Reader reader(":/resources/RSDKv4FileList.txt");
-        QByteArray bytes = reader.readByteArray(reader.m_filesize);
+        QByteArray bytes = reader.readByteArray(reader.filesize);
         reader.close();
 
         Writer writer(homeDir + "RSDKv4FileList.txt");
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 
     if (!QFile(homeDir + "RSDKv5FileList.txt").exists()) {
         Reader reader(":/resources/RSDKv5FileList.txt");
-        QByteArray bytes = reader.readByteArray(reader.m_filesize);
+        QByteArray bytes = reader.readByteArray(reader.filesize);
         reader.close();
 
         Writer writer(homeDir + "RSDKv5FileList.txt");

@@ -15,21 +15,21 @@ public:
 
         inline void read(Reader &reader)
         {
-            m_currentLevel = reader.read<byte>();
-            m_emeralds     = reader.read<byte>();
-            m_lives        = reader.read<byte>();
+            stage    = reader.read<byte>();
+            emeralds = reader.read<byte>();
+            lives    = reader.read<byte>();
         }
 
         inline void write(Writer &writer)
         {
-            writer.write(m_currentLevel);
-            writer.write(m_emeralds);
-            writer.write(m_lives);
+            writer.write(stage);
+            writer.write(emeralds);
+            writer.write(lives);
         }
 
-        byte m_currentLevel = 0;
-        byte m_emeralds     = 0x0;
-        byte m_lives        = 4;
+        byte stage    = 0;
+        byte emeralds = 0x0;
+        byte lives    = 4;
     };
 
     SaveFile() {}
@@ -43,29 +43,29 @@ public:
     }
     void read(Reader &reader)
     {
-        m_filename = reader.m_filepath;
-        for (int i = 0; i < 10; ++i) m_saveFiles[i].read(reader);
+        filepath = reader.filepath;
+        for (int i = 0; i < 10; ++i) saveFiles[i].read(reader);
     }
 
     inline void write(QString filename)
     {
-        if (filename == "")
-            filename = m_filename;
-        if (filename == "")
+        if (filepath == "")
+            filepath = filename;
+        if (filepath == "")
             return;
-        Writer writer(filename);
+        Writer writer(filepath);
         write(writer);
     }
     inline void write(Writer &writer)
     {
-        m_filename = writer.m_filename;
-        for (int i = 0; i < 10; ++i) m_saveFiles[i].write(writer);
+        filepath = writer.filePath;
+        for (int i = 0; i < 10; ++i) saveFiles[i].write(writer);
         writer.flush();
     }
 
-    SaveFileEntry m_saveFiles[10];
+    SaveFileEntry saveFiles[10];
 
-    QString m_filename = "";
+    QString filepath = "";
 };
 
 } // namespace RSDKv1

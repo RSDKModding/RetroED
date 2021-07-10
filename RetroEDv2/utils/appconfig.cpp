@@ -2,7 +2,7 @@
 
 void AppConfig::read(Reader &reader)
 {
-    m_filename = reader.m_filepath;
+    m_filename = reader.filepath;
 
     byte fVer = reader.read<byte>();
 
@@ -18,7 +18,7 @@ void AppConfig::read(Reader &reader)
 
 void AppConfig::write(Writer &writer)
 {
-    m_filename = writer.m_filename;
+    m_filename = writer.filePath;
 
     writer.write(m_fileVer);
 

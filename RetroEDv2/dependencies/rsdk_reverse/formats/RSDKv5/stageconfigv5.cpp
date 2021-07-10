@@ -2,7 +2,7 @@
 
 void RSDKv5::StageConfig::read(Reader &reader)
 {
-    m_filename = reader.m_filepath;
+    m_filename = reader.filepath;
 
     if (!reader.matchesSignature(m_signature, 4))
         return;
@@ -22,7 +22,7 @@ void RSDKv5::StageConfig::read(Reader &reader)
 
 void RSDKv5::StageConfig::write(Writer &writer)
 {
-    m_filename = writer.m_filename;
+    m_filename = writer.filePath;
     writer.write(m_signature, 4);
 
     writer.write(m_loadGlobalObjects);

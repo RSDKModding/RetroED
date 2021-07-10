@@ -2,44 +2,44 @@
 
 void RSDKv4::Datafile::read(Reader &reader, QList<QString> fileList)
 {
-    m_filename = reader.m_filepath;
+    m_filename = reader.filepath;
 
     if (QByteArray((const char *)m_signature, 6) != reader.readByteArray(6))
         return;
 
-    m_files.clear();
+    files.clear();
     int fileCount = reader.read<ushort>(); // read the header data
     for (int i = 0; i < fileCount; ++i)
-        m_files.append(FileInfo(reader, fileList, i)); // read each file's header
+        files.append(FileInfo(reader, fileList, i)); // read each file's header
 }
 
 void RSDKv4::Datafile::write(Writer &writer)
 {
-    m_filename = writer.m_filename;
+    m_filename = writer.filePath;
 
     for (int h = 0; h < 6; ++h) writer.write(m_signature[h]);
 
     // std::sort(m_files.begin(), m_files.end(), [](const FileInfo &a, const FileInfo &b) -> bool {
     // return a.m_filename < b.m_filename; });
 
-    writer.write((ushort)m_files.count()); // write the header
-    for (FileInfo &f : m_files) {
+    writer.write((ushort)files.count()); // write the header
+    for (FileInfo &f : files) {
         f.writeHeader(writer); // write our file header data
     }
 
-    for (FileInfo &f : m_files) {
+    for (FileInfo &f : files) {
         f.m_dataOffset = (uint)writer.tell();
         QByteArray b;
-        b.resize(f.m_fileSize);
+        b.resize(f.fileSize);
         writer.write(b);
     }
 
     writer.seek(0); // jump back to the start of the file
 
     for (int h = 0; h < 6; ++h) writer.write(m_signature[h]);
-    writer.write((ushort)m_files.count());
+    writer.write((ushort)files.count());
 
-    for (FileInfo &f : m_files) {
+    for (FileInfo &f : files) {
         f.writeHeader(writer);
         long tmp = writer.tell();
         writer.seek(f.m_dataOffset);
@@ -63,7 +63,7 @@ void RSDKv4::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, i
     for (int i = 0; i < 16; ++i) hash.append(m_md5Hash[i]);
 
     m_filenameHash = hash.toHex();
-    m_filename     = QString::number(cnt + 1) + ".bin"; // Make a base name
+    fileName     = QString::number(cnt + 1) + ".bin"; // Make a base name
 
     for (int i = 0; i < fileList.count(); ++i) {
         // RSDK hashes all strings at lowercase
@@ -78,7 +78,7 @@ void RSDKv4::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, i
         }
 
         if (match) {
-            m_filename = fileList[i];
+            fileName = fileList[i];
             break;
         }
     }
@@ -86,32 +86,32 @@ void RSDKv4::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, i
     m_dataOffset = reader.read<uint>();
     uint tmp     = reader.read<uint>();
 
-    m_encrypted = (tmp & 0x80000000) != 0;
-    m_fileSize  = (tmp & 0x7FFFFFFF);
+    encrypted = (tmp & 0x80000000) != 0;
+    fileSize  = (tmp & 0x7FFFFFFF);
 
     long tmp2 = reader.tell();
     reader.seek(m_dataOffset);
 
-    m_filedata = reader.readByteArray(m_fileSize);
+    fileData = reader.readByteArray(fileSize);
 
     // Decrypt File if Encrypted
-    if (m_encrypted)
-        m_filedata = decrypt(m_filedata);
+    if (encrypted)
+        fileData = decrypt(fileData);
 
     reader.seek(tmp2);
 
     m_extension = getExtensionFromData();
-    if (m_filename == QString::number(cnt + 1) + ".bin") {
+    if (fileName == QString::number(cnt + 1) + ".bin") {
         switch (m_extension) {
-            case ExtensionTypes::GIF: m_filename = "Sprite" + QString::number(cnt + 1) + ".gif"; break;
-            case ExtensionTypes::R3D: m_filename = "Model" + QString::number(cnt + 1) + ".bin"; break;
-            case ExtensionTypes::OGG: m_filename = "Music" + QString::number(cnt + 1) + ".ogg"; break;
-            case ExtensionTypes::PNG: m_filename = "Image" + QString::number(cnt + 1) + ".png"; break;
+            case ExtensionTypes::GIF: fileName = "Sprite" + QString::number(cnt + 1) + ".gif"; break;
+            case ExtensionTypes::R3D: fileName = "Model" + QString::number(cnt + 1) + ".bin"; break;
+            case ExtensionTypes::OGG: fileName = "Music" + QString::number(cnt + 1) + ".ogg"; break;
+            case ExtensionTypes::PNG: fileName = "Image" + QString::number(cnt + 1) + ".png"; break;
             case ExtensionTypes::WAV:
-                m_filename = "SoundEffect" + QString::number(cnt + 1) + ".wav";
+                fileName = "SoundEffect" + QString::number(cnt + 1) + ".wav";
                 break;
             case ExtensionTypes::UNKNOWN:
-                m_filename = "UnknownFileType" + QString::number(cnt + 1) + ".bin";
+                fileName = "UnknownFileType" + QString::number(cnt + 1) + ".bin";
                 break;
         }
     }
@@ -119,8 +119,8 @@ void RSDKv4::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, i
 
 void RSDKv4::Datafile::FileInfo::writeHeader(Writer &writer)
 {
-    m_filename     = m_filename.replace('\\', '/');
-    QString fn     = m_filename;
+    fileName     = fileName.replace('\\', '/');
+    QString fn     = fileName;
     QByteArray md5 = calculateMD5Hash(fn.toLower());
 
     for (int y = 0; y < 16; y += 4) {
@@ -131,11 +131,11 @@ void RSDKv4::Datafile::FileInfo::writeHeader(Writer &writer)
     }
 
     // again, temp
-    m_encrypted = false;
+    encrypted = false;
 
     for (int i = 0; i < 0x10; ++i) writer.write((byte)m_md5Hash[i]);
     writer.write<uint>(m_dataOffset);
-    writer.write<uint>(m_fileSize | (m_encrypted ? 0x80000000 : 0));
+    writer.write<uint>(fileSize | (encrypted ? 0x80000000 : 0));
 }
 
 void RSDKv4::Datafile::FileInfo::writeData(Writer &writer)
@@ -144,7 +144,7 @@ void RSDKv4::Datafile::FileInfo::writeData(Writer &writer)
     // if (m_encrypted)
     //    writer.write(decrypt(m_filedata));
     // else
-    writer.write(m_filedata);
+    writer.write(fileData);
 }
 
 QByteArray RSDKv4::Datafile::FileInfo::decrypt(QByteArray data)
@@ -152,7 +152,7 @@ QByteArray RSDKv4::Datafile::FileInfo::decrypt(QByteArray data)
     // Note: Since only XOr is used, this function does both,
     //       decryption and encryption.
 
-    generateELoadKeys(m_fileSize, (m_fileSize >> 1) + 1, m_fileSize);
+    generateELoadKeys(fileSize, (fileSize >> 1) + 1, fileSize);
 
     const uint ENC_KEY_2 = 0x24924925;
     const uint ENC_KEY_1 = 0xAAAAAAAB;
@@ -219,7 +219,7 @@ byte RSDKv4::Datafile::FileInfo::getExtensionFromData()
 {
     byte header[5];
 
-    for (int i = 0; i < 5; ++i) header[i] = m_filedata[i];
+    for (int i = 0; i < 5; ++i) header[i] = fileData[i];
 
     if (header[0] == (byte)'O' && header[1] == (byte)'g' && header[2] == (byte)'g'
         && header[3] == (byte)'S')

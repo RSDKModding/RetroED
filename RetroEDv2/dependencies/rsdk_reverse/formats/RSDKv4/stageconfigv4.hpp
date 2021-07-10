@@ -12,8 +12,8 @@ public:
     public:
         ObjectInfo() {}
 
-        QString m_name   = "Object";
-        QString m_script = "Folder/Script.txt";
+        QString name   = "Object";
+        QString script = "Folder/Script.txt";
     };
 
     class SoundInfo
@@ -50,7 +50,7 @@ public:
     Palette m_stagePalette;
     QList<SoundInfo> m_soundFX;
     QList<ObjectInfo> m_objects;
-    bool m_loadGlobalScripts = true;
+    bool loadGlobalScripts = true;
 
     QString m_filename = "";
 };

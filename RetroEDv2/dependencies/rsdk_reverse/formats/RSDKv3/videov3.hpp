@@ -19,16 +19,16 @@ public:
         QImage toImage();
         void fromImage(QImage img);
 
-        ushort m_width  = 0x100;
-        ushort m_height = 0x100;
-        uint m_filePos  = 0;
+        ushort width      = 0x100;
+        ushort height     = 0x100;
+        uint nextFramePos = 0;
 
         ushort m_imageLeft   = 0;
         ushort m_imageTop    = 0;
         ushort m_imageWidth  = 0;
         ushort m_imageHeight = 0;
-        uint m_interlaced    = 0;
-        byte m_paletteType   = 0;
+        uint interlaced      = 0;
+        byte flags           = 0;
 
         QByteArray m_imageData;
         bool m_extendedCodeTable = false;
@@ -45,18 +45,18 @@ public:
     }
     inline void read(Reader &reader)
     {
-        m_filename        = reader.m_filepath;
+        filepath          = reader.filepath;
         ushort frameCount = reader.read<ushort>();
-        m_width           = reader.read<ushort>();
-        m_height          = reader.read<ushort>();
+        width             = reader.read<ushort>();
+        height            = reader.read<ushort>();
 
-        for (int f = 0; f < frameCount; ++f) m_frames.append(VideoFrame(reader, this));
+        for (int f = 0; f < frameCount; ++f) frames.append(VideoFrame(reader, this));
     }
 
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filepath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -64,21 +64,21 @@ public:
     }
     inline void write(Writer &writer)
     {
-        m_filename = writer.m_filename;
-        writer.write((ushort)m_frames.count());
-        writer.write(m_width);
-        writer.write(m_height);
+        filepath = writer.filePath;
+        writer.write((ushort)frames.count());
+        writer.write(width);
+        writer.write(height);
 
-        for (int f = 0; f < m_frames.count(); ++f) m_frames[f].write(writer);
+        for (int f = 0; f < frames.count(); ++f) frames[f].write(writer);
         writer.flush();
     }
 
-    QList<VideoFrame> m_frames;
+    QList<VideoFrame> frames;
 
-    ushort m_width  = 0x100;
-    ushort m_height = 0x100;
+    ushort width  = 0x100;
+    ushort height = 0x100;
 
-    QString m_filename = "";
+    QString filepath = "";
 };
 
 } // namespace RSDKv3

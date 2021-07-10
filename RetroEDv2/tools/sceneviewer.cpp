@@ -14,14 +14,6 @@ SceneViewer::SceneViewer(QWidget *parent)
 {
     setMouseTracking(true);
 
-    // QSurfaceFormat format;
-    // format.setDepthBufferSize(24);
-    // format.setStencilBufferSize(8);
-    // format.setMajorVersion(3);
-    // format.setMinorVersion(2);
-    // format.setProfile(QSurfaceFormat::CoreProfile);
-    // QSurfaceFormat::setDefaultFormat(format);
-
     this->setFocusPolicy(Qt::WheelFocus);
 
     QTimer *timer = new QTimer(this);
@@ -33,8 +25,8 @@ SceneViewer::~SceneViewer()
 {
     unloadScene();
 
-    m_screenVAO.destroy();
-    m_rectVAO.destroy();
+    screenVAO.destroy();
+    rectVAO.destroy();
 }
 
 void SceneViewer::loadScene(QString path, byte ver)
@@ -46,43 +38,43 @@ void SceneViewer::loadScene(QString path, byte ver)
     QString pth      = path;
     QString basePath = pth.replace(QFileInfo(pth).fileName(), "");
 
-    m_scene.read(ver, path);
+    scene.read(ver, path);
 
     if (ver != ENGINE_v1) {
-        m_background.read(ver, basePath + "Backgrounds.bin");
-        m_chunkset.read(ver, basePath + "128x128Tiles.bin");
-        m_tileconfig.read(basePath + "CollisionMasks.bin");
-        m_stageconfig.read(ver, basePath + "StageConfig.bin");
+        background.read(ver, basePath + "Backgrounds.bin");
+        chunkset.read(ver, basePath + "128x128Tiles.bin");
+        tileconfig.read(basePath + "CollisionMasks.bin");
+        stageConfig.read(ver, basePath + "StageConfig.bin");
     }
     else {
-        m_background.read(ver, basePath + "ZoneBG.map");
-        m_chunkset.read(ver, basePath + "Zone.til");
-        m_tileconfig.read(basePath + "Zone.tcf");
-        m_stageconfig.read(ver, basePath + "Zone.zcf");
+        background.read(ver, basePath + "ZoneBG.map");
+        chunkset.read(ver, basePath + "Zone.til");
+        tileconfig.read(basePath + "Zone.tcf");
+        stageConfig.read(ver, basePath + "Zone.zcf");
     }
 
     // Always have 8 layers, even if some have w/h of 0
-    for (int l = m_background.m_layers.count(); l < 8; ++l)
-        m_background.m_layers.append(FormatHelpers::Background::Layer());
+    for (int l = background.layers.count(); l < 8; ++l)
+        background.layers.append(FormatHelpers::Background::Layer());
 
     if (ver != ENGINE_v1) {
-        m_scene.m_objectTypeNames.clear();
+        scene.objectTypeNames.clear();
 
-        if (m_stageconfig.m_loadGlobalScripts) {
+        if (stageConfig.loadGlobalScripts) {
             if (ver == ENGINE_v2)
-                m_scene.m_objectTypeNames.append("Player");
+                scene.objectTypeNames.append("Player");
 
-            for (FormatHelpers::Gameconfig::ObjectInfo &obj : m_gameconfig.m_objects) {
-                m_scene.m_objectTypeNames.append(obj.m_name);
+            for (FormatHelpers::Gameconfig::ObjectInfo &obj : gameConfig.objects) {
+                scene.objectTypeNames.append(obj.m_name);
             }
         }
 
-        for (FormatHelpers::Stageconfig::ObjectInfo &obj : m_stageconfig.m_objects) {
-            m_scene.m_objectTypeNames.append(obj.m_name);
+        for (FormatHelpers::Stageconfig::ObjectInfo &obj : stageConfig.objects) {
+            scene.objectTypeNames.append(obj.m_name);
         }
     }
     else {
-        m_scene.m_objectTypeNames.clear();
+        scene.objectTypeNames.clear();
 
         // TODO: globals
         QList<QString> globals = {
@@ -119,11 +111,11 @@ void SceneViewer::loadScene(QString path, byte ver)
         };
 
         for (QString &obj : globals) {
-            m_scene.m_objectTypeNames.append(obj);
+            scene.objectTypeNames.append(obj);
         }
 
-        for (FormatHelpers::Stageconfig::ObjectInfo &obj : m_stageconfig.m_objects) {
-            m_scene.m_objectTypeNames.append(obj.m_name);
+        for (FormatHelpers::Stageconfig::ObjectInfo &obj : stageConfig.objects) {
+            scene.objectTypeNames.append(obj.m_name);
         }
     }
 
@@ -138,12 +130,12 @@ void SceneViewer::loadScene(QString path, byte ver)
                 int ty         = ((i / (tileset.width() / 0x10)) * 0x10);
                 QImage tileTex = tileset.copy(tx, ty, 0x10, 0x10);
 
-                m_tiles.append(tileTex);
+                tiles.append(tileTex);
             }
 
-            for (FormatHelpers::Chunks::Chunk &c : m_chunkset.m_chunks) {
-                QImage img = c.getImage(m_tiles);
-                m_chunks.append(img);
+            for (FormatHelpers::Chunks::Chunk &c : chunkset.chunks) {
+                QImage img = c.getImage(tiles);
+                chunks.append(img);
             }
         }
     }
@@ -157,24 +149,24 @@ void SceneViewer::loadScene(QString path, byte ver)
                 int ty         = ((i / (tileset.width() / 0x10)) * 0x10);
                 QImage tileTex = tileset.copy(tx, ty, 0x10, 0x10);
 
-                m_tiles.append(tileTex);
+                tiles.append(tileTex);
             }
 
-            for (FormatHelpers::Chunks::Chunk &c : m_chunkset.m_chunks) {
-                QImage img = c.getImage(m_tiles);
-                m_chunks.append(img);
+            for (FormatHelpers::Chunks::Chunk &c : chunkset.chunks) {
+                QImage img = c.getImage(tiles);
+                chunks.append(img);
             }
         }
     }
 
     // objects
-    m_objectSprites.clear();
+    objectSprites.clear();
     {
         TextureInfo tex;
-        tex.m_name    = ":/icons/missing.png";
-        m_missingObj  = QImage(tex.m_name);
-        tex.m_texture = createTexture(m_missingObj);
-        m_objectSprites.append(tex);
+        tex.name       = ":/icons/missing.png";
+        missingObj     = QImage(tex.name);
+        tex.texturePtr = createTexture(missingObj);
+        objectSprites.append(tex);
     }
 
     m_rsPlayerSprite = createTexture(QImage(":/icons/player_v1.png"));
@@ -184,25 +176,25 @@ void SceneViewer::updateScene()
 {
     this->repaint();
 
-    if (m_statusLabel) {
-        int mx = (int)((m_mousePos.x * invZoom()) + m_cam.m_position.x);
-        int my = (int)((m_mousePos.y * invZoom()) + m_cam.m_position.y);
-        m_statusLabel->setText(
+    if (statusLabel) {
+        int mx = (int)((m_mousePos.x * invZoom()) + cam.pos.x);
+        int my = (int)((m_mousePos.y * invZoom()) + cam.pos.y);
+        statusLabel->setText(
             QString("Zoom: %1%, Mouse Position: (%2, %3), Chunk Position: (%4, %5), Selected Chunk: "
                     "%6, Selected Layer: %7 (%8), Selected Object: %9")
-                .arg(m_zoom * 100)
+                .arg(zoom * 100)
                 .arg(mx)
                 .arg(my)
                 .arg((int)mx / 0x80)
                 .arg((int)my / 0x80)
-                .arg(m_selectedChunk)
-                .arg(m_selectedLayer)
-                .arg(m_selectedLayer >= 0 && 9 ? m_selectedLayer == 0
-                                                     ? "Foreground"
-                                                     : "Background " + QString::number(m_selectedLayer)
-                                               : "")
-                .arg(m_selectedObject >= 0 && m_selectedObject < m_scene.m_objects.count()
-                         ? m_scene.m_objectTypeNames[m_selectedObject]
+                .arg(selectedChunk)
+                .arg(selectedLayer)
+                .arg(selectedLayer >= 0 && 9 ? selectedLayer == 0
+                                                   ? "Foreground"
+                                                   : "Background " + QString::number(selectedLayer)
+                                             : "")
+                .arg(selectedObject >= 0 && selectedObject < scene.objects.count()
+                         ? scene.objectTypeNames[selectedObject]
                          : ""));
     }
 }
@@ -217,58 +209,55 @@ void SceneViewer::drawScene()
     f->glBlendEquation(GL_FUNC_ADD);
 
     // pre-render
-    if ((m_cam.m_position.x * m_zoom) < 0 * m_zoom)
-        m_cam.m_position.x = (0 * m_zoom);
+    if ((cam.pos.x * zoom) < 0 * zoom)
+        cam.pos.x = (0 * zoom);
 
-    if ((m_cam.m_position.y * m_zoom) < 0 * m_zoom)
-        m_cam.m_position.y = (0 * m_zoom);
+    if ((cam.pos.y * zoom) < 0 * zoom)
+        cam.pos.y = (0 * zoom);
 
-    if ((m_cam.m_position.x * m_zoom) + m_storedW > (m_scene.m_width * 0x80) * m_zoom)
-        m_cam.m_position.x = ((m_scene.m_width * 0x80) - (m_storedW * invZoom()));
+    if ((cam.pos.x * zoom) + storedW > (scene.width * 0x80) * zoom)
+        cam.pos.x = ((scene.width * 0x80) - (storedW * invZoom()));
 
-    if ((m_cam.m_position.y * m_zoom) + m_storedH > (m_scene.m_height * 0x80) * m_zoom)
-        m_cam.m_position.y = ((m_scene.m_height * 0x80) - (m_storedH * invZoom()));
+    if ((cam.pos.y * zoom) + storedH > (scene.height * 0x80) * zoom)
+        cam.pos.y = ((scene.height * 0x80) - (storedH * invZoom()));
 
     // draw bg colours
-    m_primitiveShader.use();
-    m_primitiveShader.setValue("colour",
-                               QVector4D(m_altBGColour.m_r / 255.0f, m_altBGColour.m_g / 255.0f,
-                                         m_altBGColour.m_b / 255.0f, 1.0f));
-    m_primitiveShader.setValue("projection", getProjectionMatrix());
-    m_primitiveShader.setValue("view", QMatrix4x4());
-    m_rectVAO.bind();
+    primitiveShader.use();
+    primitiveShader.setValue("colour", QVector4D(m_altBGColour.r / 255.0f, m_altBGColour.g / 255.0f,
+                                                 m_altBGColour.b / 255.0f, 1.0f));
+    primitiveShader.setValue("projection", getProjectionMatrix());
+    primitiveShader.setValue("view", QMatrix4x4());
+    rectVAO.bind();
 
     int bgOffsetY = 0x80;
-    bgOffsetY -= (int)m_cam.m_position.y % 0x200;
-    for (int y = bgOffsetY; y < (m_storedH + 0x80) * (m_zoom < 1.0f ? invZoom() : 1.0f); y += 0x100) {
+    bgOffsetY -= (int)cam.pos.y % 0x200;
+    for (int y = bgOffsetY; y < (storedH + 0x80) * (zoom < 1.0f ? invZoom() : 1.0f); y += 0x100) {
         int bgOffsetX = (((y - bgOffsetY) % 0x200 == 0) ? 0x100 : 0x00);
         bgOffsetX += 0x80;
-        bgOffsetX -= (int)m_cam.m_position.x % 0x200;
-        for (int x = bgOffsetX; x < (m_storedW + 0x80) * (m_zoom < 1.0f ? invZoom() : 1.0f);
-             x += 0x200) {
+        bgOffsetX -= (int)cam.pos.x % 0x200;
+        for (int x = bgOffsetX; x < (storedW + 0x80) * (zoom < 1.0f ? invZoom() : 1.0f); x += 0x200) {
             QMatrix4x4 matModel;
-            matModel.scale(0x100 * m_zoom, 0x100 * m_zoom, 1.0f);
+            matModel.scale(0x100 * zoom, 0x100 * zoom, 1.0f);
             matModel.translate(x / 256.0f, y / 256.0f, -15.0f);
-            m_primitiveShader.setValue("model", matModel);
+            primitiveShader.setValue("model", matModel);
 
             f->glDrawArrays(GL_TRIANGLES, 0, 6);
         }
     }
 
-    m_spriteShader.use();
-    m_spriteShader.setValue("useAlpha", false);
-    m_spriteShader.setValue("alpha", 1.0f);
-    m_spriteShader.setValue(
-        "transparentColour",
-        (m_gameType != ENGINE_v1 ? QVector3D(1.0f, 0.0f, 1.0f) : QVector3D(0.0f, 0.0f, 0.0f)));
+    spriteShader.use();
+    spriteShader.setValue("useAlpha", false);
+    spriteShader.setValue("alpha", 1.0f);
+    spriteShader.setValue("transparentColour", (gameType != ENGINE_v1 ? QVector3D(1.0f, 0.0f, 1.0f)
+                                                                      : QVector3D(0.0f, 0.0f, 0.0f)));
 
     QMatrix4x4 matWorld;
     QMatrix4x4 matView;
-    m_spriteShader.setValue("projection", matWorld = getProjectionMatrix());
-    m_spriteShader.setValue("view", matView = QMatrix4x4());
+    spriteShader.setValue("projection", matWorld = getProjectionMatrix());
+    spriteShader.setValue("view", matView = QMatrix4x4());
     f->glActiveTexture(GL_TEXTURE0);
 
-    m_rectVAO.bind();
+    rectVAO.bind();
 
     int prevChunk = -1;
     Vector3<float> camOffset(0.0f, 0.0f, 0.0f);
@@ -278,46 +267,46 @@ void SceneViewer::drawScene()
                                        QVector4D(1.0f, 0.0f, 0.0f, 1.0f),
                                        QVector4D(0.0f, 0.0f, 0.0f, 0.0f),
                                        QVector4D(0.0f, 0.0f, 1.0f, 1.0f) };
-    bool m_showCLayers[2]          = { m_showPlaneA, m_showPlaneB };
+    bool showCLayers[2]            = { showPlaneA, showPlaneB };
 
     for (int l = 8; l >= 0; --l) {
         // TILE LAYERS
-        QList<QList<ushort>> layout = m_scene.m_layout;
-        int width                   = m_scene.m_width;
-        int height                  = m_scene.m_height;
+        QList<QList<ushort>> layout = scene.layout;
+        int width                   = scene.width;
+        int height                  = scene.height;
 
         if (l > 0) {
-            layout = m_background.m_layers[l - 1].m_layout;
-            width  = m_background.m_layers[l - 1].m_width;
-            height = m_background.m_layers[l - 1].m_height;
+            layout = background.layers[l - 1].layout;
+            width  = background.layers[l - 1].width;
+            height = background.layers[l - 1].height;
         }
 
-        m_spriteShader.use();
-        m_spriteShader.setValue("useAlpha", false);
-        m_spriteShader.setValue("alpha", 1.0f);
-        m_spriteShader.setValue(
+        spriteShader.use();
+        spriteShader.setValue("useAlpha", false);
+        spriteShader.setValue("alpha", 1.0f);
+        spriteShader.setValue(
             "transparentColour",
-            (m_gameType != ENGINE_v1 ? QVector3D(1.0f, 0.0f, 1.0f) : QVector3D(0.0f, 0.0f, 0.0f)));
-        m_rectVAO.bind();
+            (gameType != ENGINE_v1 ? QVector3D(1.0f, 0.0f, 1.0f) : QVector3D(0.0f, 0.0f, 0.0f)));
+        rectVAO.bind();
         // manage properties
         camOffset = Vector3<float>(0.0f, 0.0f, 0.0f);
 
-        if (m_selectedLayer >= 0) {
-            m_spriteShader.setValue("useAlpha", true);
-            if (m_selectedLayer == l) {
-                m_spriteShader.setValue("alpha", 1.0f);
+        if (selectedLayer >= 0) {
+            spriteShader.setValue("useAlpha", true);
+            if (selectedLayer == l) {
+                spriteShader.setValue("alpha", 1.0f);
             }
             else {
-                m_spriteShader.setValue("alpha", 0.5f);
+                spriteShader.setValue("alpha", 0.5f);
             }
         }
 
         // draw
         m_tilesetTexture->bind();
-        m_spriteShader.setValue("flipX", false);
-        m_spriteShader.setValue("flipY", false);
-        m_spriteShader.setValue("useAlpha", false);
-        m_spriteShader.setValue("alpha", 1.0f);
+        spriteShader.setValue("flipX", false);
+        spriteShader.setValue("flipY", false);
+        spriteShader.setValue("useAlpha", false);
+        spriteShader.setValue("alpha", 1.0f);
 
         QVector3D *vertsPtr  = new QVector3D[height * width * 0x80 * 6];
         QVector2D *tVertsPtr = new QVector2D[height * width * 0x80 * 6];
@@ -329,23 +318,22 @@ void SceneViewer::drawScene()
                 if (chunkID != 0x0) {
                     for (int ty = 0; ty < 8; ++ty) {
                         for (int tx = 0; tx < 8; ++tx) {
-                            FormatHelpers::Chunks::Tile &tile =
-                                m_chunkset.m_chunks[chunkID].m_tiles[ty][tx];
+                            FormatHelpers::Chunks::Tile &tile = chunkset.chunks[chunkID].tiles[ty][tx];
 
-                            float xpos = (x * 0x80) + (tx * 0x10) - (m_cam.m_position.x + camOffset.x);
-                            float ypos = (y * 0x80) + (ty * 0x10) - (m_cam.m_position.y + camOffset.y);
-                            float zpos = m_selectedLayer == l ? 8.5 : (8 - l);
-                            if (tile.m_visualPlane == 1)
+                            float xpos = (x * 0x80) + (tx * 0x10) - (cam.pos.x + camOffset.x);
+                            float ypos = (y * 0x80) + (ty * 0x10) - (cam.pos.y + camOffset.y);
+                            float zpos = selectedLayer == l ? 8.5 : (8 - l);
+                            if (tile.visualPlane == 1)
                                 zpos += 0.1; // high plane
 
                             Rect<int> check = Rect<int>();
-                            check.x         = (int)((xpos + 0x10) * m_zoom);
-                            check.y         = (int)((ypos + 0x10) * m_zoom);
-                            check.w         = (int)((xpos - (0x10 / 2)) * m_zoom);
-                            check.h         = (int)((ypos - (0x10 / 2)) * m_zoom);
+                            check.x         = (int)((xpos + 0x10) * zoom);
+                            check.y         = (int)((ypos + 0x10) * zoom);
+                            check.w         = (int)((xpos - (0x10 / 2)) * zoom);
+                            check.h         = (int)((ypos - (0x10 / 2)) * zoom);
 
-                            if (check.x < 0 || check.y < 0 || check.w >= m_storedW
-                                || check.h >= m_storedH) {
+                            if (check.x < 0 || check.y < 0 || check.w >= storedW
+                                || check.h >= storedH) {
                                 continue;
                             }
 
@@ -373,7 +361,7 @@ void SceneViewer::drawScene()
                             vertsPtr[vertCnt + 5].setY(0.0f + (ypos / 0x10));
                             vertsPtr[vertCnt + 5].setZ(zpos);
 
-                            getTileVerts(tVertsPtr, vertCnt, tile.m_tileIndex * 0x10, tile.m_direction);
+                            getTileVerts(tVertsPtr, vertCnt, tile.tileIndex * 0x10, tile.direction);
                             vertCnt += 6;
                         }
                     }
@@ -392,20 +380,20 @@ void SceneViewer::drawScene()
             vVBO2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
             vVBO2D.bind();
             vVBO2D.allocate(vertsPtr, vertCnt * sizeof(QVector3D));
-            m_spriteShader.enableAttributeArray(0);
-            m_spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+            spriteShader.enableAttributeArray(0);
+            spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
 
             QOpenGLBuffer tVBO2D;
             tVBO2D.create();
             tVBO2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
             tVBO2D.bind();
             tVBO2D.allocate(tVertsPtr, vertCnt * sizeof(QVector2D));
-            m_spriteShader.enableAttributeArray(1);
-            m_spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
+            spriteShader.enableAttributeArray(1);
+            spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
 
             QMatrix4x4 matModel;
-            matModel.scale(0x10 * m_zoom, 0x10 * m_zoom, 1.0f);
-            m_spriteShader.setValue("model", matModel);
+            matModel.scale(0x10 * zoom, 0x10 * zoom, 1.0f);
+            spriteShader.setValue("model", matModel);
 
             f->glDrawArrays(GL_TRIANGLES, 0, vertCnt);
 
@@ -419,7 +407,7 @@ void SceneViewer::drawScene()
 
         // Collision Previews
         for (int c = 0; c < 2; ++c) {
-            if (m_showCLayers[c]) {
+            if (showCLayers[c]) {
                 for (int y = 0; y < height; ++y) {
                     for (int x = 0; x < width; ++x) {
                         ushort chunkID = layout[y][x];
@@ -427,19 +415,19 @@ void SceneViewer::drawScene()
                             for (int ty = 0; ty < 8; ++ty) {
                                 for (int tx = 0; tx < 8; ++tx) {
                                     FormatHelpers::Chunks::Tile &tile =
-                                        m_chunkset.m_chunks[chunkID].m_tiles[ty][tx];
+                                        chunkset.chunks[chunkID].tiles[ty][tx];
 
-                                    float xpos = (x * 0x80) + (tx * 0x10) - m_cam.m_position.x;
-                                    float ypos = (y * 0x80) + (ty * 0x10) - m_cam.m_position.y;
+                                    float xpos = (x * 0x80) + (tx * 0x10) - cam.pos.x;
+                                    float ypos = (y * 0x80) + (ty * 0x10) - cam.pos.y;
 
                                     Rect<int> check = Rect<int>();
-                                    check.x         = (int)((xpos + 0x10) * m_zoom);
-                                    check.y         = (int)((ypos + 0x10) * m_zoom);
-                                    check.w         = (int)(xpos * m_zoom);
-                                    check.h         = (int)(ypos * m_zoom);
+                                    check.x         = (int)((xpos + 0x10) * zoom);
+                                    check.y         = (int)((ypos + 0x10) * zoom);
+                                    check.w         = (int)(xpos * zoom);
+                                    check.h         = (int)(ypos * zoom);
 
-                                    if (check.x < 0 || check.y < 0 || check.w >= m_storedW
-                                        || check.h >= m_storedH) {
+                                    if (check.x < 0 || check.y < 0 || check.w >= storedW
+                                        || check.h >= storedH) {
                                         continue;
                                     }
 
@@ -447,48 +435,46 @@ void SceneViewer::drawScene()
                                     // draw pixel collision
                                     byte solidity = 0;
                                     RSDKv4::Tileconfig::CollisionMask &cmask =
-                                        m_tileconfig.m_collisionPaths[c][tile.m_tileIndex];
+                                        tileconfig.collisionPaths[c][tile.tileIndex];
 
-                                    solidity = !c ? tile.m_solidityA : tile.m_solidityB;
+                                    solidity = !c ? tile.solidityA : tile.solidityB;
 
                                     if (solidity == 3)
                                         continue;
 
                                     for (byte cx = 0; cx < 16; ++cx) {
                                         int hm = cx;
-                                        if (Utils::getBit(tile.m_direction, 0))
+                                        if (Utils::getBit(tile.direction, 0))
                                             hm = 15 - cx;
 
-                                        if (!cmask.m_collision[hm].m_solid)
+                                        if (!cmask.collision[hm].solid)
                                             continue;
 
-                                        byte cy = cmask.m_collision[hm].m_height;
+                                        byte cy = cmask.collision[hm].height;
                                         byte ch = 16 - cy;
-                                        if (Utils::getBit(tile.m_direction, 1) && !cmask.m_isCeiling) {
+                                        if (Utils::getBit(tile.direction, 1) && !cmask.flipY) {
                                             cy = 0;
-                                            ch = 16 - cmask.m_collision[hm].m_height;
+                                            ch = 16 - cmask.collision[hm].height;
                                         }
-                                        else if (!Utils::getBit(tile.m_direction, 1)
-                                                 && cmask.m_isCeiling) {
+                                        else if (!Utils::getBit(tile.direction, 1) && cmask.flipY) {
                                             cy = 0;
-                                            ch = cmask.m_collision[hm].m_height + 1;
+                                            ch = cmask.collision[hm].height + 1;
                                         }
-                                        else if (Utils::getBit(tile.m_direction, 1)
-                                                 && cmask.m_isCeiling) {
-                                            cy = 15 - cmask.m_collision[hm].m_height;
-                                            ch = cmask.m_collision[hm].m_height + 1;
+                                        else if (Utils::getBit(tile.direction, 1) && cmask.flipY) {
+                                            cy = 15 - cmask.collision[hm].height;
+                                            ch = cmask.collision[hm].height + 1;
                                         }
 
                                         ypos = yStore + (ch / 2.0);
 
-                                        drawRect((xpos + cx) * m_zoom, (ypos + cy) * m_zoom, 15.45,
-                                                 1 * m_zoom, ch * m_zoom, pixelSolidityClrs[solidity],
-                                                 m_primitiveShader);
+                                        drawRect((xpos + cx) * zoom, (ypos + cy) * zoom, 15.45,
+                                                 1 * zoom, ch * zoom, pixelSolidityClrs[solidity],
+                                                 primitiveShader);
                                     }
                                 }
                             }
-                            m_spriteShader.use();
-                            m_rectVAO.bind();
+                            spriteShader.use();
+                            rectVAO.bind();
                         }
                     }
                 }
@@ -496,56 +482,54 @@ void SceneViewer::drawScene()
         }
 
         // PARALLAX
-        if (l == m_selectedLayer && l > 0) {
-            if (m_background.m_layers[l - 1].m_behaviour == 1
-                || m_background.m_layers[l - 1].m_behaviour == 2) {
-                m_primitiveShader.use();
-                m_primitiveShader.setValue("projection", getProjectionMatrix());
-                m_primitiveShader.setValue("view", QMatrix4x4());
-                m_primitiveShader.setValue("useAlpha", false);
-                m_primitiveShader.setValue("alpha", 1.0f);
+        if (l == selectedLayer && l > 0) {
+            if (background.layers[l - 1].behaviour == 1 || background.layers[l - 1].behaviour == 2) {
+                primitiveShader.use();
+                primitiveShader.setValue("projection", getProjectionMatrix());
+                primitiveShader.setValue("view", QMatrix4x4());
+                primitiveShader.setValue("useAlpha", false);
+                primitiveShader.setValue("alpha", 1.0f);
+                primitiveShader.setValue("projection", matWorld = getProjectionMatrix());
+                primitiveShader.setValue("view", matView = QMatrix4x4());
                 QMatrix4x4 matModel;
-                m_primitiveShader.setValue("model", matModel);
+                primitiveShader.setValue("model", matModel);
 
                 QOpenGLVertexArrayObject colVAO;
                 colVAO.create();
                 colVAO.bind();
 
                 QList<QVector3D> verts;
-                if (m_showParallax) {
+                if (showParallax) {
                     int id = 0;
                     for (FormatHelpers::Background::ScrollIndexInfo &info :
-                         m_background.m_layers[l - 1].m_scrollInfos) {
-                        bool isSelected = m_selectedScrollInfo == id;
+                         background.layers[l - 1].scrollInfos) {
+                        bool isSelected = selectedScrollInfo == id;
 
                         Vector4<float> clr(1.0f, 1.0f, 0.0f, 1.0f);
                         if (isSelected)
                             clr = Vector4<float>(0.0f, 0.0f, 1.0f, 1.0f);
                         float zpos = (isSelected ? 15.55f : 15.5f);
 
-                        if (m_background.m_layers[l - 1].m_behaviour == 1) {
-                            int w = (width * 0x80) * m_zoom;
-                            drawLine(0.0f * m_zoom, (info.m_startLine - m_cam.m_position.y) * m_zoom,
-                                     zpos, (w - m_cam.m_position.x) * m_zoom,
-                                     (info.m_startLine - m_cam.m_position.y) * m_zoom, zpos, clr,
-                                     m_primitiveShader);
+                        if (background.layers[l - 1].behaviour == 1) {
+                            int w = (width * 0x80) * zoom;
+                            drawLine(0.0f * zoom, (info.startLine - cam.pos.y) * zoom, zpos,
+                                     (w - cam.pos.x) * zoom, (info.startLine - cam.pos.y) * zoom, zpos,
+                                     clr, primitiveShader);
 
-                            drawLine(0.0f * m_zoom,
-                                     ((info.m_startLine + info.m_length) - m_cam.m_position.y) * m_zoom,
-                                     zpos, (w - m_cam.m_position.x) * m_zoom,
-                                     ((info.m_startLine + info.m_length) - m_cam.m_position.y) * m_zoom,
-                                     zpos, clr, m_primitiveShader);
+                            drawLine(0.0f * zoom, ((info.startLine + info.length) - cam.pos.y) * zoom,
+                                     zpos, (w - cam.pos.x) * zoom,
+                                     ((info.startLine + info.length) - cam.pos.y) * zoom, zpos, clr,
+                                     primitiveShader);
                         }
-                        else if (m_background.m_layers[l - 1].m_behaviour == 2) {
-                            int h = (height * 0x80) * m_zoom;
-                            drawLine((info.m_startLine - m_cam.m_position.x) * m_zoom, 0.0f * m_zoom,
-                                     zpos, (info.m_startLine - m_cam.m_position.x) * m_zoom,
-                                     (h - m_cam.m_position.y) * m_zoom, zpos, clr, m_primitiveShader);
+                        else if (background.layers[l - 1].behaviour == 2) {
+                            int h = (height * 0x80) * zoom;
+                            drawLine((info.startLine - cam.pos.x) * zoom, 0.0f * zoom, zpos,
+                                     (info.startLine - cam.pos.x) * zoom, (h - cam.pos.y) * zoom, zpos,
+                                     clr, primitiveShader);
 
-                            drawLine(((info.m_startLine + info.m_length) - m_cam.m_position.x) * m_zoom,
-                                     0.0f * m_zoom, zpos,
-                                     ((info.m_startLine + info.m_length) - m_cam.m_position.x) * m_zoom,
-                                     (h - m_cam.m_position.y) * m_zoom, zpos, clr, m_primitiveShader);
+                            drawLine(((info.startLine + info.length) - cam.pos.x) * zoom, 0.0f * zoom,
+                                     zpos, ((info.startLine + info.length) - cam.pos.x) * zoom,
+                                     (h - cam.pos.y) * zoom, zpos, clr, primitiveShader);
                         }
 
                         ++id;
@@ -557,18 +541,18 @@ void SceneViewer::drawScene()
 
     // ENTITIES
     m_prevSprite = -1;
-    m_spriteShader.use();
-    m_rectVAO.bind();
-    m_spriteShader.setValue("flipX", false);
-    m_spriteShader.setValue("flipY", false);
-    m_spriteShader.setValue("useAlpha", false);
-    m_spriteShader.setValue("alpha", 1.0f);
-    for (int o = 0; o < m_scene.m_objects.count(); ++o) {
-        switch (m_gameType) {
+    spriteShader.use();
+    rectVAO.bind();
+    spriteShader.setValue("flipX", false);
+    spriteShader.setValue("flipY", false);
+    spriteShader.setValue("useAlpha", false);
+    spriteShader.setValue("alpha", 1.0f);
+    for (int o = 0; o < scene.objects.count(); ++o) {
+        switch (gameType) {
             case ENGINE_v1: break;
             case ENGINE_v2: break;
             case ENGINE_v3: {
-                auto &curObj = m_compilerv3.m_objectScriptList[m_scene.m_objects[o].m_type];
+                auto &curObj = m_compilerv3.m_objectScriptList[scene.objects[o].type];
 
                 if (curObj.subRSDKDraw.m_scriptCodePtr != SCRIPTDATA_COUNT - 1) {
                     m_compilerv3.m_objectLoop = o;
@@ -580,7 +564,7 @@ void SceneViewer::drawScene()
                 break;
             }
             case ENGINE_v4: {
-                auto &curObj = m_compilerv4.m_objectScriptList[m_scene.m_objects[o].m_type];
+                auto &curObj = m_compilerv4.m_objectScriptList[scene.objects[o].type];
 
                 if (curObj.eventRSDKDraw.m_scriptCodePtr != SCRIPTDATA_COUNT - 1) {
                     m_compilerv4.m_objectEntityPos = o;
@@ -593,43 +577,43 @@ void SceneViewer::drawScene()
             }
         }
 
-        m_spriteShader.use();
-        m_rectVAO.bind();
+        spriteShader.use();
+        rectVAO.bind();
         // Draw Object
-        float xpos = m_scene.m_objects[o].getX() - (m_cam.m_position.x);
-        float ypos = m_scene.m_objects[o].getY() - (m_cam.m_position.y);
+        float xpos = scene.objects[o].getX() - (cam.pos.x);
+        float ypos = scene.objects[o].getY() - (cam.pos.y);
         float zpos = 10.0f;
 
-        int w = m_objectSprites[0].m_texture->width(), h = m_objectSprites[0].m_texture->height();
+        int w = objectSprites[0].texturePtr->width(), h = objectSprites[0].texturePtr->height();
         if (m_prevSprite) {
-            m_objectSprites[0].m_texture->bind();
+            objectSprites[0].texturePtr->bind();
             m_prevSprite = 0;
         }
 
         Rect<int> check = Rect<int>();
-        check.x         = (int)(xpos + (float)w) * m_zoom;
-        check.y         = (int)(ypos + (float)h) * m_zoom;
-        check.w         = (int)(xpos - (w / 2.0f)) * m_zoom;
-        check.h         = (int)(ypos - (h / 2.0f)) * m_zoom;
-        if (check.x < 0 || check.y < 0 || check.w >= m_storedW || check.h >= m_storedH) {
+        check.x         = (int)(xpos + (float)w) * zoom;
+        check.y         = (int)(ypos + (float)h) * zoom;
+        check.w         = (int)(xpos - (w / 2.0f)) * zoom;
+        check.h         = (int)(ypos - (h / 2.0f)) * zoom;
+        if (check.x < 0 || check.y < 0 || check.w >= storedW || check.h >= storedH) {
             continue;
         }
 
         QMatrix4x4 matModel;
-        matModel.scale(w * m_zoom, h * m_zoom, 1.0f);
+        matModel.scale(w * zoom, h * zoom, 1.0f);
 
         matModel.translate(xpos / (float)w, ypos / (float)h, zpos);
-        m_spriteShader.setValue("model", matModel);
+        spriteShader.setValue("model", matModel);
 
         f->glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
     // CHUNK PREVIEW
-    m_spriteShader.use();
-    m_rectVAO.bind();
-    m_spriteShader.setValue("useAlpha", true);
-    m_spriteShader.setValue("alpha", 0.75f);
-    if (m_selectedChunk >= 0 && m_selectedLayer >= 0 && m_selecting && m_tool == TOOL_PENCIL) {
+    spriteShader.use();
+    rectVAO.bind();
+    spriteShader.setValue("useAlpha", true);
+    spriteShader.setValue("alpha", 0.75f);
+    if (selectedChunk >= 0 && selectedLayer >= 0 && m_selecting && curTool == TOOL_PENCIL) {
         m_tilesetTexture->bind();
         float tx = m_tilePos.x;
         float ty = m_tilePos.y;
@@ -637,37 +621,37 @@ void SceneViewer::drawScene()
         tx *= invZoom();
         ty *= invZoom();
 
-        float tx2 = tx + fmodf(m_cam.m_position.x, 0x80);
-        float ty2 = ty + fmodf(m_cam.m_position.y, 0x80);
+        float tx2 = tx + fmodf(cam.pos.x, 0x80);
+        float ty2 = ty + fmodf(cam.pos.y, 0x80);
 
         // clip to grid
         tx -= fmodf(tx2, 0x80);
         ty -= fmodf(ty2, 0x80);
         for (int y = 0; y < 8; ++y) {
             for (int x = 0; x < 8; ++x) {
-                FormatHelpers::Chunks::Tile &tile = m_chunkset.m_chunks[m_selectedChunk].m_tiles[y][x];
+                FormatHelpers::Chunks::Tile &tile = chunkset.chunks[selectedChunk].tiles[y][x];
 
                 // Draw Selected Tile Preview
-                float xpos = tx + (x * 0x10) + m_cam.m_position.x;
-                float ypos = ty + (y * 0x10) + m_cam.m_position.y;
+                float xpos = tx + (x * 0x10) + cam.pos.x;
+                float ypos = ty + (y * 0x10) + cam.pos.y;
                 float zpos = 15.0f;
 
-                xpos -= (m_cam.m_position.x + camOffset.x);
-                ypos -= (m_cam.m_position.y + camOffset.y);
+                xpos -= (cam.pos.x + camOffset.x);
+                ypos -= (cam.pos.y + camOffset.y);
 
-                drawTile(xpos, ypos, zpos, 0, tile.m_tileIndex * 0x10, tile.m_direction);
+                drawTile(xpos, ypos, zpos, 0, tile.tileIndex * 0x10, tile.direction);
             }
         }
     }
 
     // ENT PREVIEW
-    m_spriteShader.use();
-    m_rectVAO.bind();
-    m_spriteShader.setValue("flipX", false);
-    m_spriteShader.setValue("flipY", false);
-    m_spriteShader.setValue("useAlpha", true);
-    m_spriteShader.setValue("alpha", 0.75f);
-    if (m_selectedObject >= 0 && m_selecting && m_tool == TOOL_ENTITY) {
+    spriteShader.use();
+    rectVAO.bind();
+    spriteShader.setValue("flipX", false);
+    spriteShader.setValue("flipY", false);
+    spriteShader.setValue("useAlpha", true);
+    spriteShader.setValue("alpha", 0.75f);
+    if (selectedObject >= 0 && m_selecting && curTool == TOOL_ENTITY) {
         bool flag = false;
         float ex  = m_tilePos.x;
         float ey  = m_tilePos.y;
@@ -675,13 +659,13 @@ void SceneViewer::drawScene()
         ex *= invZoom();
         ey *= invZoom();
 
-        float cx = m_cam.m_position.x;
-        float cy = m_cam.m_position.y;
-        switch (m_gameType) {
+        float cx = cam.pos.x;
+        float cy = cam.pos.y;
+        switch (gameType) {
             case ENGINE_v1: break;
             case ENGINE_v2: break;
             case ENGINE_v3: {
-                auto &curObj = m_compilerv3.m_objectScriptList[m_selectedObject];
+                auto &curObj = m_compilerv3.m_objectScriptList[selectedObject];
 
                 if (curObj.subRSDKDraw.m_scriptCodePtr != SCRIPTDATA_COUNT - 1) {
                     m_compilerv3.m_objectLoop                              = ENTITY_COUNT - 1;
@@ -695,10 +679,10 @@ void SceneViewer::drawScene()
                 break;
             }
             case ENGINE_v4: {
-                auto &curObj = m_compilerv4.m_objectScriptList[m_selectedObject];
+                auto &curObj = m_compilerv4.m_objectScriptList[selectedObject];
 
                 if (curObj.eventRSDKDraw.m_scriptCodePtr != ENTITY_COUNT - 1) {
-                    m_compilerv4.m_objectEntityList[ENTITY_COUNT - 1].type = m_selectedObject;
+                    m_compilerv4.m_objectEntityList[ENTITY_COUNT - 1].type = selectedObject;
                     m_compilerv4.m_objectEntityList[ENTITY_COUNT - 1].XPos = (ex + cx) * 65536.0f;
                     m_compilerv4.m_objectEntityList[ENTITY_COUNT - 1].YPos = (ey + cy) * 65536.0f;
                     m_compilerv4.m_objectEntityPos                         = ENTITY_COUNT - 1;
@@ -717,33 +701,33 @@ void SceneViewer::drawScene()
             float ypos = ey;
             float zpos = 15.0f;
 
-            int w = m_objectSprites[0].m_texture->width(), h = m_objectSprites[0].m_texture->height();
-            m_objectSprites[0].m_texture->bind();
+            int w = objectSprites[0].texturePtr->width(), h = objectSprites[0].texturePtr->height();
+            objectSprites[0].texturePtr->bind();
 
             QMatrix4x4 matModel;
-            matModel.scale(w * m_zoom, h * m_zoom, 1.0f);
+            matModel.scale(w * zoom, h * zoom, 1.0f);
 
             matModel.translate(xpos / (float)w, ypos / (float)h, zpos);
-            m_spriteShader.setValue("model", matModel);
+            spriteShader.setValue("model", matModel);
 
             f->glDrawArrays(GL_TRIANGLES, 0, 6);
         }
     }
 
-    m_spriteShader.setValue("useAlpha", false);
-    m_spriteShader.setValue("alpha", 1.0f);
+    spriteShader.setValue("useAlpha", false);
+    spriteShader.setValue("alpha", 1.0f);
 
     // Draw Retro-Sonic Player spawn point
-    if (m_gameType == ENGINE_v1) {
-        float px = m_scene.m_playerXPos;
-        float py = m_scene.m_playerYPos;
+    if (gameType == ENGINE_v1) {
+        float px = scene.m_playerXPos;
+        float py = scene.m_playerYPos;
 
         px *= invZoom();
         py *= invZoom();
 
         // Draw Player Spawn Preview
-        float xpos = px - m_cam.m_position.x;
-        float ypos = py - m_cam.m_position.y;
+        float xpos = px - cam.pos.x;
+        float ypos = py - cam.pos.y;
         float zpos = 15.0f;
 
         int w = m_rsPlayerSprite->width(), h = m_rsPlayerSprite->height();
@@ -753,76 +737,98 @@ void SceneViewer::drawScene()
         ypos += h / 2;
 
         QMatrix4x4 matModel;
-        matModel.scale(w * m_zoom, h * m_zoom, 1.0f);
+        matModel.scale(w * zoom, h * zoom, 1.0f);
 
         matModel.translate(xpos / (float)w, ypos / (float)h, zpos);
-        m_spriteShader.setValue("model", matModel);
+        spriteShader.setValue("model", matModel);
 
         f->glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
     // Selected Ent Box
-    m_rectVAO.bind();
-    m_primitiveShader.use();
-    m_primitiveShader.setValue("projection", getProjectionMatrix());
-    m_primitiveShader.setValue("view", QMatrix4x4());
-    m_primitiveShader.setValue("useAlpha", false);
-    m_primitiveShader.setValue("alpha", 1.0f);
+    rectVAO.bind();
+    primitiveShader.use();
+    primitiveShader.setValue("projection", getProjectionMatrix());
+    primitiveShader.setValue("view", QMatrix4x4());
+    primitiveShader.setValue("useAlpha", false);
+    primitiveShader.setValue("alpha", 1.0f);
     QMatrix4x4 matModel;
-    m_primitiveShader.setValue("model", matModel);
+    primitiveShader.setValue("model", matModel);
     if (m_selectedEntity >= 0) {
-        FormatHelpers::Scene::Object &object = m_scene.m_objects[m_selectedEntity];
-        int w = m_objectSprites[0].m_texture->width(), h = m_objectSprites[0].m_texture->height();
-        m_objectSprites[0].m_texture->bind();
+        FormatHelpers::Scene::Object &object = scene.objects[m_selectedEntity];
+        int w = objectSprites[0].texturePtr->width(), h = objectSprites[0].texturePtr->height();
+        objectSprites[0].texturePtr->bind();
 
-        drawRect(((object.getX() - m_cam.m_position.x) - (w / 2)) * m_zoom,
-                 ((object.getY() - m_cam.m_position.y) - (h / 2)) * m_zoom, 15.7f, w * m_zoom,
-                 h * m_zoom, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), m_primitiveShader, true);
+        drawRect(((object.getX() - cam.pos.x) - (w / 2)) * zoom,
+                 ((object.getY() - cam.pos.y) - (h / 2)) * zoom, 15.7f, w * zoom, h * zoom,
+                 Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader, true);
     }
 
-    if (m_showTileGrid) {
-        m_rectVAO.bind();
+    if (showChunkGrid) {
+        rectVAO.bind();
 
-        float camX = m_cam.m_position.x;
-        float camY = m_cam.m_position.y;
+        float camX = cam.pos.x;
+        float camY = cam.pos.y;
 
-        for (int y = camY - ((int)camY % 0x80);
-             y < (camY + m_storedH) * (m_zoom < 1.0f ? invZoom() : 1.0f); y += 0x80) {
-            drawLine((camX - camX) * m_zoom, (y - camY) * m_zoom, 15.6f,
-                     (((camX + m_storedW * invZoom())) - camX) * m_zoom, (y - camY) * m_zoom, 15.6f,
-                     Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), m_primitiveShader);
+        for (int y = camY - ((int)camY % 0x80); y < (camY + storedH) * (zoom < 1.0f ? invZoom() : 1.0f);
+             y += 0x80) {
+            drawLine((camX - camX) * zoom, (y - camY) * zoom, 15.6f,
+                     (((camX + storedW * invZoom())) - camX) * zoom, (y - camY) * zoom, 15.6f,
+                     Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
         }
 
-        for (int x = camX - ((int)camX % 0x80);
-             x < (camX + m_storedW) * (m_zoom < 1.0f ? invZoom() : 1.0f); x += 0x80) {
-            drawLine((x + (m_zoom <= 1.0f ? 1.0f : 0.0f) - camX) * m_zoom, (camY - camY) * m_zoom,
-                     15.6f, (x + (m_zoom <= 1.0f ? 1.0f : 0.0f) - camX) * m_zoom,
-                     (((camY + m_storedH * invZoom())) - camY) * m_zoom, 15.6f,
-                     Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), m_primitiveShader);
+        for (int x = camX - ((int)camX % 0x80); x < (camX + storedW) * (zoom < 1.0f ? invZoom() : 1.0f);
+             x += 0x80) {
+            drawLine((x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom, (camY - camY) * zoom, 15.6f,
+                     (x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom,
+                     (((camY + storedH * invZoom())) - camY) * zoom, 15.6f,
+                     Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
         }
     }
 
-    if (m_showPixelGrid && m_zoom >= 4.0f) {
+    if (showTileGrid) {
+        rectVAO.bind();
+
+        float camX = cam.pos.x;
+        float camY = cam.pos.y;
+
+        for (int y = camY - ((int)camY % 0x10); y < (camY + storedH) * (zoom < 1.0f ? invZoom() : 1.0f);
+             y += 0x10) {
+            drawLine((camX - camX) * zoom, (y - camY) * zoom, 15.6f,
+                     (((camX + storedW * invZoom())) - camX) * zoom, (y - camY) * zoom, 15.6f,
+                     Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
+        }
+
+        for (int x = camX - ((int)camX % 0x10); x < (camX + storedW) * (zoom < 1.0f ? invZoom() : 1.0f);
+             x += 0x10) {
+            drawLine((x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom, (camY - camY) * zoom, 15.6f,
+                     (x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom,
+                     (((camY + storedH * invZoom())) - camY) * zoom, 15.6f,
+                     Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
+        }
+    }
+
+    if (showPixelGrid && zoom >= 4.0f) {
         // f->glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
-        m_rectVAO.bind();
+        rectVAO.bind();
         QList<QVector3D> verts;
-        m_primitiveShader.use();
-        m_primitiveShader.setValue("colour", QVector4D(1.0f, 1.0f, 1.0f, 1.0f));
+        primitiveShader.use();
+        primitiveShader.setValue("colour", QVector4D(1.0f, 1.0f, 1.0f, 1.0f));
 
-        float camX = m_cam.m_position.x;
-        float camY = m_cam.m_position.y;
+        float camX = cam.pos.x;
+        float camY = cam.pos.y;
 
-        for (int y = camY; y < (camY + m_storedH) * (m_zoom < 1.0f ? invZoom() : 1.0f); ++y) {
-            verts.append(QVector3D((camX - camX) * m_zoom, (y - camY) * m_zoom, 15.6f));
-            verts.append(QVector3D((((camX + m_storedW * invZoom())) - camX) * m_zoom,
-                                   (y - camY) * m_zoom, 15.6f));
+        for (int y = camY; y < (camY + storedH) * (zoom < 1.0f ? invZoom() : 1.0f); ++y) {
+            verts.append(QVector3D((camX - camX) * zoom, (y - camY) * zoom, 15.6f));
+            verts.append(
+                QVector3D((((camX + storedW * invZoom())) - camX) * zoom, (y - camY) * zoom, 15.6f));
         }
 
-        for (int x = camX; x < (camX + m_storedW) * (m_zoom < 1.0f ? invZoom() : 1.0f); ++x) {
-            verts.append(QVector3D((x + (m_zoom <= 1.0f ? 1.0f : 0.0f) - camX) * m_zoom,
-                                   (camY - camY) * m_zoom, 15.6f));
-            verts.append(QVector3D((x + (m_zoom <= 1.0f ? 1.0f : 0.0f) - camX) * m_zoom,
-                                   (((camY + m_storedH * invZoom())) - camY) * m_zoom, 15.6f));
+        for (int x = camX; x < (camX + storedW) * (zoom < 1.0f ? invZoom() : 1.0f); ++x) {
+            verts.append(QVector3D((x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom,
+                                   (camY - camY) * zoom, 15.6f));
+            verts.append(QVector3D((x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom,
+                                   (((camY + storedH * invZoom())) - camY) * zoom, 15.6f));
         }
 
         QVector3D *vertsPtr = new QVector3D[(uint)verts.count()];
@@ -837,8 +843,8 @@ void SceneViewer::drawScene()
         gridVBO.setUsagePattern(QOpenGLBuffer::StaticDraw);
         gridVBO.bind();
         gridVBO.allocate(vertsPtr, verts.count() * sizeof(QVector3D));
-        m_primitiveShader.enableAttributeArray(0);
-        m_primitiveShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+        primitiveShader.enableAttributeArray(0);
+        primitiveShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
 
         f->glDrawArrays(GL_LINES, 0, verts.count());
 
@@ -857,16 +863,16 @@ void SceneViewer::unloadScene()
         delete m_tilesetTexture;
     }
     m_tilesetTexture = nullptr;
-    m_tiles.clear();
+    tiles.clear();
 
-    m_chunks.clear();
+    chunks.clear();
 
-    for (int o = 0; o < m_objectSprites.count(); ++o) {
-        m_objectSprites[o].m_texture->destroy();
-        delete m_objectSprites[o].m_texture;
-        m_objectSprites[o].m_name = "";
+    for (int o = 0; o < objectSprites.count(); ++o) {
+        objectSprites[o].texturePtr->destroy();
+        delete objectSprites[o].texturePtr;
+        objectSprites[o].name = "";
     }
-    m_objectSprites.clear();
+    objectSprites.clear();
 
     if (m_rsPlayerSprite) {
         m_rsPlayerSprite->destroy();
@@ -876,13 +882,13 @@ void SceneViewer::unloadScene()
     m_compilerv3.clearScriptData();
     m_compilerv4.clearScriptData();
 
-    m_cam                = SceneCamera();
-    m_selectedChunk      = -1;
-    m_selectedEntity     = -1;
-    m_selectedLayer      = -1;
-    m_selectedScrollInfo = -1;
-    m_selectedObject     = -1;
-    m_selecting          = false;
+    cam                = SceneCamera();
+    selectedChunk      = -1;
+    m_selectedEntity   = -1;
+    selectedLayer      = -1;
+    selectedScrollInfo = -1;
+    selectedObject     = -1;
+    m_selecting        = false;
 }
 
 void SceneViewer::initializeGL()
@@ -923,44 +929,44 @@ void SceneViewer::initializeGL()
     f->glEnable(GL_BLEND);
     f->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    m_primitiveShader.loadShader(":/shaders/primitive.glv", QOpenGLShader::Vertex);
-    m_primitiveShader.loadShader(":/shaders/primitive.glf", QOpenGLShader::Fragment);
-    m_primitiveShader.link();
-    m_primitiveShader.use();
+    primitiveShader.loadShader(":/shaders/primitive.glv", QOpenGLShader::Vertex);
+    primitiveShader.loadShader(":/shaders/primitive.glf", QOpenGLShader::Fragment);
+    primitiveShader.link();
+    primitiveShader.use();
 
-    m_spriteShader.loadShader(":/shaders/sprite.glv", QOpenGLShader::Vertex);
-    m_spriteShader.loadShader(":/shaders/sprite.glf", QOpenGLShader::Fragment);
-    m_spriteShader.link();
-    m_spriteShader.use();
+    spriteShader.loadShader(":/shaders/sprite.glv", QOpenGLShader::Vertex);
+    spriteShader.loadShader(":/shaders/sprite.glf", QOpenGLShader::Fragment);
+    spriteShader.link();
+    spriteShader.use();
 
-    m_rectVAO.create();
-    m_rectVAO.bind();
+    rectVAO.create();
+    rectVAO.bind();
 
     QOpenGLBuffer vVBO2D;
     vVBO2D.create();
     vVBO2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
     vVBO2D.bind();
     vVBO2D.allocate(rectVertices, 6 * sizeof(QVector3D));
-    m_spriteShader.enableAttributeArray(0);
-    m_spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+    spriteShader.enableAttributeArray(0);
+    spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
 
     QOpenGLBuffer tVBO2D;
     tVBO2D.create();
     tVBO2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
     tVBO2D.bind();
     tVBO2D.allocate(rectTexCoords, 6 * sizeof(QVector2D));
-    m_spriteShader.enableAttributeArray(1);
-    m_spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
+    spriteShader.enableAttributeArray(1);
+    spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
 
     // Release (unbind) all
-    m_rectVAO.release();
+    rectVAO.release();
     vVBO2D.release();
 }
 
 void SceneViewer::resizeGL(int w, int h)
 {
-    m_storedW           = w;
-    m_storedH           = h;
+    storedW             = w;
+    storedH             = h;
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     f->glViewport(0, 0, w, h);
 
@@ -973,7 +979,7 @@ void SceneViewer::paintGL()
     // Draw the scene:
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
-    f->glClearColor(m_bgColour.m_r / 255.0f, m_bgColour.m_g / 255.0f, m_bgColour.m_b / 255.0f, 1.0f);
+    f->glClearColor(m_bgColour.r / 255.0f, m_bgColour.g / 255.0f, m_bgColour.b / 255.0f, 1.0f);
     f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     drawScene();
@@ -985,32 +991,32 @@ int SceneViewer::addGraphicsFile(char *sheetPath)
     if (!QFile::exists(path))
         return 0;
 
-    for (int i = 1; i < m_objectSprites.count(); ++i) {
-        if (QString(sheetPath) == m_objectSprites[i].m_name)
+    for (int i = 1; i < objectSprites.count(); ++i) {
+        if (QString(sheetPath) == objectSprites[i].name)
             return i;
     }
 
     int sheetID = -1;
-    for (int i = 1; i < m_objectSprites.count(); ++i) {
-        if (m_objectSprites[i].m_name == "")
+    for (int i = 1; i < objectSprites.count(); ++i) {
+        if (objectSprites[i].name == "")
             sheetID = i;
     }
 
     if (sheetID >= 0) {
         QImage sheet(path);
         TextureInfo tex;
-        tex.m_name               = QString(sheetPath);
-        tex.m_texture            = createTexture(sheet);
-        m_objectSprites[sheetID] = tex;
+        tex.name               = QString(sheetPath);
+        tex.texturePtr         = createTexture(sheet);
+        objectSprites[sheetID] = tex;
         return sheetID;
     }
     else {
         QImage sheet(path);
-        int cnt = m_objectSprites.count();
+        int cnt = objectSprites.count();
         TextureInfo tex;
-        tex.m_name    = QString(sheetPath);
-        tex.m_texture = createTexture(sheet);
-        m_objectSprites.append(tex);
+        tex.name       = QString(sheetPath);
+        tex.texturePtr = createTexture(sheet);
+        objectSprites.append(tex);
         return cnt;
     }
 }
@@ -1018,16 +1024,16 @@ int SceneViewer::addGraphicsFile(char *sheetPath)
 void SceneViewer::removeGraphicsFile(char *sheetPath, int slot)
 {
     if (slot >= 0) {
-        m_objectSprites[slot].m_texture->destroy();
-        delete m_objectSprites[slot].m_texture;
-        m_objectSprites[slot].m_name = "";
+        objectSprites[slot].texturePtr->destroy();
+        delete objectSprites[slot].texturePtr;
+        objectSprites[slot].name = "";
     }
     else {
-        for (int i = 1; i < m_objectSprites.count(); ++i) {
-            if (QString(sheetPath) == m_objectSprites[i].m_name) {
-                m_objectSprites[slot].m_texture->destroy();
-                delete m_objectSprites[slot].m_texture;
-                m_objectSprites[slot].m_name = "";
+        for (int i = 1; i < objectSprites.count(); ++i) {
+            if (QString(sheetPath) == objectSprites[i].name) {
+                objectSprites[slot].texturePtr->destroy();
+                delete objectSprites[slot].texturePtr;
+                objectSprites[slot].name = "";
             }
         }
     }
@@ -1040,7 +1046,7 @@ void SceneViewer::drawTile(float XPos, float YPos, float ZPos, int tileX, int ti
     // Draw Sprite
     float w = m_tilesetTexture->width(), h = m_tilesetTexture->height();
 
-    m_spriteShader.use();
+    spriteShader.use();
     QOpenGLVertexArrayObject vao;
     vao.create();
     vao.bind();
@@ -1092,22 +1098,22 @@ void SceneViewer::drawTile(float XPos, float YPos, float ZPos, int tileX, int ti
     vVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
     vVBO2D.bind();
     vVBO2D.allocate(rectVertices, 6 * sizeof(QVector3D));
-    m_spriteShader.enableAttributeArray(0);
-    m_spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+    spriteShader.enableAttributeArray(0);
+    spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
 
     QOpenGLBuffer tVBO2D;
     tVBO2D.create();
     tVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
     tVBO2D.bind();
     tVBO2D.allocate(texCoords, 6 * sizeof(QVector2D));
-    m_spriteShader.enableAttributeArray(1);
-    m_spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
+    spriteShader.enableAttributeArray(1);
+    spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
 
     QMatrix4x4 matModel;
-    matModel.scale(0x10 * m_zoom, 0x10 * m_zoom, 1.0f);
+    matModel.scale(0x10 * zoom, 0x10 * zoom, 1.0f);
 
     matModel.translate((XPos + (0x10 / 2)) / (float)0x10, (YPos + (0x10 / 2)) / (float)0x10, ZPos);
-    m_spriteShader.setValue("model", matModel);
+    spriteShader.setValue("model", matModel);
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -1126,32 +1132,32 @@ void SceneViewer::drawSprite(int XPos, int YPos, int width, int height, int sprX
         sprDraws = 0;
 
     // Draw Sprite
-    float xpos = XPos - m_cam.m_position.x;
-    float ypos = YPos - m_cam.m_position.y;
+    float xpos = XPos - cam.pos.x;
+    float ypos = YPos - cam.pos.y;
     float zpos = 10.0f + (sprDraws * 0.001f);
 
     if (sheetID != m_prevSprite) {
-        m_objectSprites[sheetID].m_texture->bind();
+        objectSprites[sheetID].texturePtr->bind();
         m_prevSprite = sheetID;
         sprDraws     = 0;
     }
-    float w = m_objectSprites[sheetID].m_texture->width(),
-          h = m_objectSprites[sheetID].m_texture->height();
+    float w = objectSprites[sheetID].texturePtr->width(),
+          h = objectSprites[sheetID].texturePtr->height();
 
     Rect<int> check = Rect<int>();
-    check.x         = (int)(xpos + (float)w) * m_zoom;
-    check.y         = (int)(ypos + (float)h) * m_zoom;
-    check.w         = (int)(xpos - (w / 2.0f)) * m_zoom;
-    check.h         = (int)(ypos - (h / 2.0f)) * m_zoom;
-    if (check.x < 0 || check.y < 0 || check.w >= m_storedW || check.h >= m_storedH || !sheetID) {
+    check.x         = (int)(xpos + (float)w) * zoom;
+    check.y         = (int)(ypos + (float)h) * zoom;
+    check.w         = (int)(xpos - (w / 2.0f)) * zoom;
+    check.h         = (int)(ypos - (h / 2.0f)) * zoom;
+    if (check.x < 0 || check.y < 0 || check.w >= storedW || check.h >= storedH || !sheetID) {
         return;
     }
 
-    m_spriteShader.use();
-    m_spriteShader.setValue("flipX", false);
-    m_spriteShader.setValue("flipY", false);
-    m_spriteShader.setValue("useAlpha", false);
-    m_spriteShader.setValue("alpha", 1.0f);
+    spriteShader.use();
+    spriteShader.setValue("flipX", false);
+    spriteShader.setValue("flipY", false);
+    spriteShader.setValue("useAlpha", false);
+    spriteShader.setValue("alpha", 1.0f);
     QOpenGLVertexArrayObject vao;
     vao.create();
     vao.bind();
@@ -1171,23 +1177,23 @@ void SceneViewer::drawSprite(int XPos, int YPos, int width, int height, int sprX
     vVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
     vVBO2D.bind();
     vVBO2D.allocate(rectVertices, 6 * sizeof(QVector3D));
-    m_spriteShader.enableAttributeArray(0);
-    m_spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+    spriteShader.enableAttributeArray(0);
+    spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
 
     QOpenGLBuffer tVBO2D;
     tVBO2D.create();
     tVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
     tVBO2D.bind();
     tVBO2D.allocate(texCoords, 6 * sizeof(QVector2D));
-    m_spriteShader.enableAttributeArray(1);
-    m_spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
+    spriteShader.enableAttributeArray(1);
+    spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
 
     QMatrix4x4 matModel;
-    matModel.scale(width * m_zoom, height * m_zoom, 1.0f);
+    matModel.scale(width * zoom, height * zoom, 1.0f);
 
     matModel.translate((xpos + (width / 2)) / (float)width, (ypos + (height / 2)) / (float)height,
                        zpos);
-    m_spriteShader.setValue("model", matModel);
+    spriteShader.setValue("model", matModel);
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
     sprDraws++;
@@ -1202,31 +1208,31 @@ void SceneViewer::drawSpriteFlipped(int XPos, int YPos, int width, int height, i
         sprDraws = 0;
 
     // Draw Sprite
-    float xpos = XPos - m_cam.m_position.x;
-    float ypos = YPos - m_cam.m_position.y;
+    float xpos = XPos - cam.pos.x;
+    float ypos = YPos - cam.pos.y;
     float zpos = 10.0f + (sprDraws * 0.001f);
 
     if (sheetID != m_prevSprite) {
-        m_objectSprites[sheetID].m_texture->bind();
+        objectSprites[sheetID].texturePtr->bind();
         m_prevSprite = sheetID;
     }
-    float w = m_objectSprites[sheetID].m_texture->width(),
-          h = m_objectSprites[sheetID].m_texture->height();
+    float w = objectSprites[sheetID].texturePtr->width(),
+          h = objectSprites[sheetID].texturePtr->height();
 
     Rect<int> check = Rect<int>();
-    check.x         = (int)(xpos + (float)w) * m_zoom;
-    check.y         = (int)(ypos + (float)h) * m_zoom;
-    check.w         = (int)(xpos - (w / 2.0f)) * m_zoom;
-    check.h         = (int)(ypos - (h / 2.0f)) * m_zoom;
-    if (check.x < 0 || check.y < 0 || check.w >= m_storedW || check.h >= m_storedH || !sheetID) {
+    check.x         = (int)(xpos + (float)w) * zoom;
+    check.y         = (int)(ypos + (float)h) * zoom;
+    check.w         = (int)(xpos - (w / 2.0f)) * zoom;
+    check.h         = (int)(ypos - (h / 2.0f)) * zoom;
+    if (check.x < 0 || check.y < 0 || check.w >= storedW || check.h >= storedH || !sheetID) {
         return;
     }
 
-    m_spriteShader.use();
-    m_spriteShader.setValue("flipX", false);
-    m_spriteShader.setValue("flipY", false);
-    m_spriteShader.setValue("useAlpha", false);
-    m_spriteShader.setValue("alpha", 1.0f);
+    spriteShader.use();
+    spriteShader.setValue("flipX", false);
+    spriteShader.setValue("flipY", false);
+    spriteShader.setValue("useAlpha", false);
+    spriteShader.setValue("alpha", 1.0f);
     QOpenGLVertexArrayObject vao;
     vao.create();
     vao.bind();
@@ -1278,23 +1284,23 @@ void SceneViewer::drawSpriteFlipped(int XPos, int YPos, int width, int height, i
     vVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
     vVBO2D.bind();
     vVBO2D.allocate(rectVertices, 6 * sizeof(QVector3D));
-    m_spriteShader.enableAttributeArray(0);
-    m_spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+    spriteShader.enableAttributeArray(0);
+    spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
 
     QOpenGLBuffer tVBO2D;
     tVBO2D.create();
     tVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
     tVBO2D.bind();
     tVBO2D.allocate(texCoords, 6 * sizeof(QVector2D));
-    m_spriteShader.enableAttributeArray(1);
-    m_spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
+    spriteShader.enableAttributeArray(1);
+    spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
 
     QMatrix4x4 matModel;
-    matModel.scale(width * m_zoom, height * m_zoom, 1.0f);
+    matModel.scale(width * zoom, height * zoom, 1.0f);
 
     matModel.translate((xpos + (width / 2)) / (float)width, (ypos + (height / 2)) / (float)height,
                        zpos);
-    m_spriteShader.setValue("model", matModel);
+    spriteShader.setValue("model", matModel);
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
     sprDraws++;
@@ -1309,31 +1315,31 @@ void SceneViewer::drawBlendedSprite(int XPos, int YPos, int width, int height, i
         sprDraws = 0;
 
     // Draw Sprite
-    float xpos = XPos - m_cam.m_position.x;
-    float ypos = YPos - m_cam.m_position.y;
+    float xpos = XPos - cam.pos.x;
+    float ypos = YPos - cam.pos.y;
     float zpos = 10.0f + (sprDraws * 0.001f);
 
     if (sheetID != m_prevSprite) {
-        m_objectSprites[sheetID].m_texture->bind();
+        objectSprites[sheetID].texturePtr->bind();
         m_prevSprite = sheetID;
     }
-    float w = m_objectSprites[sheetID].m_texture->width(),
-          h = m_objectSprites[sheetID].m_texture->height();
+    float w = objectSprites[sheetID].texturePtr->width(),
+          h = objectSprites[sheetID].texturePtr->height();
 
     Rect<int> check = Rect<int>();
-    check.x         = (int)(xpos + (float)w) * m_zoom;
-    check.y         = (int)(ypos + (float)h) * m_zoom;
-    check.w         = (int)(xpos - (w / 2.0f)) * m_zoom;
-    check.h         = (int)(ypos - (h / 2.0f)) * m_zoom;
-    if (check.x < 0 || check.y < 0 || check.w >= m_storedW || check.h >= m_storedH || !sheetID) {
+    check.x         = (int)(xpos + (float)w) * zoom;
+    check.y         = (int)(ypos + (float)h) * zoom;
+    check.w         = (int)(xpos - (w / 2.0f)) * zoom;
+    check.h         = (int)(ypos - (h / 2.0f)) * zoom;
+    if (check.x < 0 || check.y < 0 || check.w >= storedW || check.h >= storedH || !sheetID) {
         return;
     }
 
-    m_spriteShader.use();
-    m_spriteShader.setValue("flipX", false);
-    m_spriteShader.setValue("flipY", false);
-    m_spriteShader.setValue("useAlpha", true);
-    m_spriteShader.setValue("alpha", 0.5f);
+    spriteShader.use();
+    spriteShader.setValue("flipX", false);
+    spriteShader.setValue("flipY", false);
+    spriteShader.setValue("useAlpha", true);
+    spriteShader.setValue("alpha", 0.5f);
     QOpenGLVertexArrayObject vao;
     vao.create();
     vao.bind();
@@ -1353,23 +1359,23 @@ void SceneViewer::drawBlendedSprite(int XPos, int YPos, int width, int height, i
     vVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
     vVBO2D.bind();
     vVBO2D.allocate(rectVertices, 6 * sizeof(QVector3D));
-    m_spriteShader.enableAttributeArray(0);
-    m_spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+    spriteShader.enableAttributeArray(0);
+    spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
 
     QOpenGLBuffer tVBO2D;
     tVBO2D.create();
     tVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
     tVBO2D.bind();
     tVBO2D.allocate(texCoords, 6 * sizeof(QVector2D));
-    m_spriteShader.enableAttributeArray(1);
-    m_spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
+    spriteShader.enableAttributeArray(1);
+    spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
 
     QMatrix4x4 matModel;
-    matModel.scale(width * m_zoom, height * m_zoom, 1.0f);
+    matModel.scale(width * zoom, height * zoom, 1.0f);
 
     matModel.translate((xpos + (width / 2)) / (float)width, (ypos + (height / 2)) / (float)height,
                        zpos);
-    m_spriteShader.setValue("model", matModel);
+    spriteShader.setValue("model", matModel);
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
     sprDraws++;
@@ -1384,31 +1390,31 @@ void SceneViewer::drawAlphaBlendedSprite(int XPos, int YPos, int width, int heig
         sprDraws = 0;
 
     // Draw Sprite
-    float xpos = XPos - m_cam.m_position.x;
-    float ypos = YPos - m_cam.m_position.y;
+    float xpos = XPos - cam.pos.x;
+    float ypos = YPos - cam.pos.y;
     float zpos = 10.0f + (sprDraws * 0.001f);
 
     if (sheetID != m_prevSprite) {
-        m_objectSprites[sheetID].m_texture->bind();
+        objectSprites[sheetID].texturePtr->bind();
         m_prevSprite = sheetID;
     }
-    float w = m_objectSprites[sheetID].m_texture->width(),
-          h = m_objectSprites[sheetID].m_texture->height();
+    float w = objectSprites[sheetID].texturePtr->width(),
+          h = objectSprites[sheetID].texturePtr->height();
 
     Rect<int> check = Rect<int>();
-    check.x         = (int)(xpos + (float)w) * m_zoom;
-    check.y         = (int)(ypos + (float)h) * m_zoom;
-    check.w         = (int)(xpos - (w / 2.0f)) * m_zoom;
-    check.h         = (int)(ypos - (h / 2.0f)) * m_zoom;
-    if (check.x < 0 || check.y < 0 || check.w >= m_storedW || check.h >= m_storedH || !sheetID) {
+    check.x         = (int)(xpos + (float)w) * zoom;
+    check.y         = (int)(ypos + (float)h) * zoom;
+    check.w         = (int)(xpos - (w / 2.0f)) * zoom;
+    check.h         = (int)(ypos - (h / 2.0f)) * zoom;
+    if (check.x < 0 || check.y < 0 || check.w >= storedW || check.h >= storedH || !sheetID) {
         return;
     }
 
-    m_spriteShader.use();
-    m_spriteShader.setValue("flipX", false);
-    m_spriteShader.setValue("flipY", false);
-    m_spriteShader.setValue("useAlpha", true);
-    m_spriteShader.setValue("alpha", (alpha > 0xFF ? 0xFF : alpha) / 255.0f);
+    spriteShader.use();
+    spriteShader.setValue("flipX", false);
+    spriteShader.setValue("flipY", false);
+    spriteShader.setValue("useAlpha", true);
+    spriteShader.setValue("alpha", (alpha > 0xFF ? 0xFF : alpha) / 255.0f);
     QOpenGLVertexArrayObject vao;
     vao.create();
     vao.bind();
@@ -1428,23 +1434,23 @@ void SceneViewer::drawAlphaBlendedSprite(int XPos, int YPos, int width, int heig
     vVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
     vVBO2D.bind();
     vVBO2D.allocate(rectVertices, 6 * sizeof(QVector3D));
-    m_spriteShader.enableAttributeArray(0);
-    m_spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+    spriteShader.enableAttributeArray(0);
+    spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
 
     QOpenGLBuffer tVBO2D;
     tVBO2D.create();
     tVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
     tVBO2D.bind();
     tVBO2D.allocate(texCoords, 6 * sizeof(QVector2D));
-    m_spriteShader.enableAttributeArray(1);
-    m_spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
+    spriteShader.enableAttributeArray(1);
+    spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
 
     QMatrix4x4 matModel;
-    matModel.scale(width * m_zoom, height * m_zoom, 1.0f);
+    matModel.scale(width * zoom, height * zoom, 1.0f);
 
     matModel.translate((xpos + (width / 2)) / (float)width, (ypos + (height / 2)) / (float)height,
                        zpos);
-    m_spriteShader.setValue("model", matModel);
+    spriteShader.setValue("model", matModel);
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
     sprDraws++;

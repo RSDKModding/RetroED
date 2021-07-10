@@ -34,17 +34,17 @@ private:
     public:
         FileInfo() {}
 
-        QString m_filename = "File.ext";
-        uint m_fileSize    = 0;
-        bool m_encrypted   = false;
-        QByteArray m_filedata;
+        QString filename = "File.ext";
+        uint fileSize    = 0;
+        bool encrypted   = false;
+        QByteArray fileData;
     };
 
-    QList<FileInfo> m_files;
+    QList<FileInfo> files;
 
     QList<QString> m_fileList;
 
-    char m_gameVer = -1;
+    char gameVer = -1;
 };
 
 #endif // RSDKUNPACKER_H

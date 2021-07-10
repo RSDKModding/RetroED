@@ -17,11 +17,11 @@ public:
     ~ExportRSDKv5Scene();
 
     QString m_outputPath     = "";
-    bool m_exportLayers      = true;
-    bool m_exportObjects     = true;
-    bool m_exportChunks      = true;
-    bool m_exportTileConfig  = true;
-    bool m_exportStageConfig = true;
+    bool exportLayers      = true;
+    bool exportObjects     = true;
+    bool exportChunks      = true;
+    bool exportTileConfig  = true;
+    bool exportStageConfig = true;
 
 private:
     Ui::ExportRSDKv5Scene *ui;

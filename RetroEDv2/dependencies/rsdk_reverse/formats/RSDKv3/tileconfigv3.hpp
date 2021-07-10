@@ -94,16 +94,16 @@ public:
     }
     inline void read(Reader &reader)
     {
-        m_filename = reader.m_filepath;
+        filepath = reader.filepath;
         for (int c = 0; c < 0x400; ++c) {
-            for (int p = 0; p < 2; ++p) m_collisionPaths[p][c].read(reader);
+            for (int p = 0; p < 2; ++p) collisionPaths[p][c].read(reader);
         }
     }
 
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filepath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -111,17 +111,17 @@ public:
     }
     inline void write(Writer &writer)
     {
-        m_filename = writer.m_filename;
+        filepath = writer.filePath;
 
         for (int c = 0; c < 0x400; ++c) {
-            for (int p = 0; p < 2; ++p) m_collisionPaths[p][c].write(writer);
+            for (int p = 0; p < 2; ++p) collisionPaths[p][c].write(writer);
         }
         writer.flush();
     }
 
-    CollisionMask m_collisionPaths[2][0x400];
+    CollisionMask collisionPaths[2][0x400];
 
-    QString m_filename = "";
+    QString filepath = "";
 };
 
 } // namespace RSDKv3

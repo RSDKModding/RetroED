@@ -1,17 +1,17 @@
 #include "include.hpp"
 
-Reader::Reader(QString filepath) : m_file(new QFile(filepath)), m_stream(new QDataStream(m_file.data()))
+Reader::Reader(QString filepath) : file(new QFile(filepath)), stream(new QDataStream(file.data()))
 {
-    m_initialised = m_file->open(QIODevice::ReadOnly);
+    initialised = file->open(QIODevice::ReadOnly);
 
-    m_filepath = filepath;
-    m_filesize = m_file->size();
+    filepath = filepath;
+    filesize = file->size();
 }
 
-Reader::Reader(QDataStream *stream) : m_stream(stream)
+Reader::Reader(QDataStream *stream) : stream(stream)
 {
-    m_filepath    = "Memory";
-    m_initialised = true;
+    filepath    = "Memory";
+    initialised = true;
 }
 
 QByteArray Reader::readZLib()

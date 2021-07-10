@@ -14,7 +14,7 @@ class ChunkViewer : public QLabel
 public:
     ChunkViewer(int *cSel, Vector2<int> *sel, FormatHelpers::Chunks *chk, QList<QImage> tiles,
                 QWidget *parent = nullptr)
-        : QLabel(parent), m_cSel(cSel), m_sel(sel), m_chunks(chk), m_tiles(tiles)
+        : QLabel(parent), m_cSel(cSel), selection(sel), m_chunks(chk), m_tiles(tiles)
     {
     }
 
@@ -30,10 +30,10 @@ protected:
 
 private:
     int *m_cSel         = nullptr;
-    Vector2<int> *m_sel = nullptr;
+    Vector2<int> *selection = nullptr;
     int m_index;
 
-    float m_zoom = 1.0f;
+    float zoom = 1.0f;
 
     QList<QImage> m_tiles;
     FormatHelpers::Chunks *m_chunks = nullptr;
@@ -48,8 +48,8 @@ public:
                          bool v1 = false, QWidget *parent = nullptr);
     ~ChunkEditor();
 
-    int m_selectedChunk         = -1;
-    Vector2<int> m_selectedTile = Vector2<int>(0, 0);
+    int selectedChunk         = -1;
+    Vector2<int> selectedTile = Vector2<int>(0, 0);
     int m_selectedDrawTile      = -1;
 
     void setupUI();
@@ -57,8 +57,8 @@ public:
 private:
     Ui::ChunkEditor *ui;
 
-    ChunkViewer *m_viewer           = nullptr;
-    FormatHelpers::Chunks *m_chunks = nullptr;
+    ChunkViewer *viewer           = nullptr;
+    FormatHelpers::Chunks *chunks = nullptr;
 };
 
 #endif // CHUNKEDITOR_H

@@ -2,7 +2,7 @@
 
 void RSDKv5::Replay::read(Reader &reader)
 {
-    m_filename     = reader.m_filepath;
+    filepath       = reader.filepath;
     Reader creader = reader.getCReader();
 
     uint sig = creader.read<uint>();
@@ -93,4 +93,4 @@ void RSDKv5::Replay::read(Reader &reader)
     reader.close();
 }
 
-void RSDKv5::Replay::write(Writer &writer) { m_filename = writer.filename(); }
+void RSDKv5::Replay::write(Writer &writer) { filepath = writer.filePath; }

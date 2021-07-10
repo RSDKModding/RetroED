@@ -1569,6 +1569,8 @@ Data/Sprites/TMZ1/SentryBug.bin
 Data/Sprites/TMZ1/TeeterTotter.bin
 Data/Sprites/TMZ1/TurboTurtle.bin
 Data/Sprites/TMZ1/WallBumper.bin
+Data/Sprites/UI/Achievements.bin
+Data/Sprites/UI/Achievements.gif
 Data/Sprites/UI/ButtonLabel.bin
 Data/Sprites/UI/Buttons.bin
 Data/Sprites/UI/Buttons.gif

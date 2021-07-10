@@ -20,7 +20,7 @@ void SceneObjectProperties::setupUI(FormatHelpers::Scene::Object *obj, Compilerv
 {
     unsetUI();
 
-    ui->type->setCurrentIndex(obj->m_type);
+    ui->type->setCurrentIndex(obj->type);
     ui->subtype->setValue(obj->m_propertyValue);
 
     ui->posX->setValue(obj->getX());
@@ -28,7 +28,7 @@ void SceneObjectProperties::setupUI(FormatHelpers::Scene::Object *obj, Compilerv
 
     connect(ui->type, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [obj, entityv3, entityv4](int v) {
-                obj->m_type    = (byte)v;
+                obj->type    = (byte)v;
                 entityv3->type = (byte)v;
                 entityv4->type = (byte)v;
             });
@@ -277,7 +277,7 @@ void SceneObjectProperties::updateUI()
     if (!m_obj)
         return;
 
-    ui->type->setCurrentIndex(m_obj->m_type);
+    ui->type->setCurrentIndex(m_obj->type);
     ui->subtype->setValue(m_obj->m_propertyValue);
 
     ui->posX->setValue(m_obj->getX());

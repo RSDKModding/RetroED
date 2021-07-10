@@ -2,7 +2,7 @@
 
 void RSDKv2::Gameconfig::read(Reader &reader)
 {
-    m_filename = reader.m_filepath;
+    m_filename = reader.filepath;
 
     // Game Text
     m_gameWindowText      = reader.readString();
@@ -36,7 +36,7 @@ void RSDKv2::Gameconfig::read(Reader &reader)
 
 void RSDKv2::Gameconfig::write(Writer &writer)
 {
-    m_filename = writer.m_filename;
+    m_filename = writer.filePath;
 
     writer.write(m_gameWindowText);
     writer.write(m_unknown);

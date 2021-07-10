@@ -2,7 +2,7 @@
 
 void RSDKv5::UserDB::read(Reader &reader)
 {
-    m_filename     = reader.m_filepath;
+    filepath       = reader.filepath;
     Reader creader = reader.getCReader();
 
     uint sig = creader.read<uint>();
@@ -29,7 +29,7 @@ void RSDKv5::UserDB::read(Reader &reader)
 
 void RSDKv5::UserDB::write(Writer &writer)
 {
-    m_filename = writer.filename();
+    filepath = writer.filePath;
 
     QByteArray compressed;
     QBuffer buffer(&compressed);

@@ -2,7 +2,7 @@
 
 void RSDKv3::Gameconfig::read(Reader &reader)
 {
-    m_filename = reader.m_filepath;
+    m_filename = reader.filepath;
 
     // Game Text
     m_gameWindowText      = reader.readString();
@@ -25,10 +25,10 @@ void RSDKv3::Gameconfig::read(Reader &reader)
 
     // Global Variables
     byte varCount = reader.read<byte>();
-    m_globalVariables.clear();
+    globalVariables.clear();
 
     for (int v = 0; v < varCount; ++v) {
-        m_globalVariables.append(GlobalVariable(reader));
+        globalVariables.append(GlobalVariable(reader));
     }
 
     // Global SFX
@@ -48,15 +48,15 @@ void RSDKv3::Gameconfig::read(Reader &reader)
     }
 
     // Categories
-    m_categories.clear();
+    categories.clear();
     for (int c = 0; c < 4; ++c) {
-        m_categories.append(Category(reader));
+        categories.append(Category(reader));
     }
 }
 
 void RSDKv3::Gameconfig::write(Writer &writer)
 {
-    m_filename = writer.m_filename;
+    m_filename = writer.filePath;
 
     writer.write(m_gameWindowText);
     writer.write(m_unknown);
@@ -73,8 +73,8 @@ void RSDKv3::Gameconfig::write(Writer &writer)
     }
 
     // Global Variables
-    writer.write((byte)m_globalVariables.count());
-    for (GlobalVariable &var : m_globalVariables) {
+    writer.write((byte)globalVariables.count());
+    for (GlobalVariable &var : globalVariables) {
         var.write(writer);
     }
 
@@ -92,7 +92,7 @@ void RSDKv3::Gameconfig::write(Writer &writer)
 
     // Categories
     for (int c = 0; c < 4; ++c) {
-        m_categories[c].write(writer);
+        categories[c].write(writer);
     }
 
     writer.flush();

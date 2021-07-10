@@ -15,20 +15,20 @@ public:
 
         void read(Reader &reader)
         {
-            m_relativeSpeed = reader.read<byte>();
-            m_constantSpeed = reader.read<byte>();
-            m_behaviour     = reader.read<byte>();
+            relativeSpeed = reader.read<byte>();
+            constantSpeed = reader.read<byte>();
+            behaviour     = reader.read<byte>();
         }
         void write(Writer &writer)
         {
-            writer.write(m_relativeSpeed);
-            writer.write(m_constantSpeed);
-            writer.write(m_behaviour);
+            writer.write(relativeSpeed);
+            writer.write(constantSpeed);
+            writer.write(behaviour);
         }
 
-        byte m_relativeSpeed = 0;
-        byte m_constantSpeed = 0;
-        byte m_behaviour     = 0;
+        byte relativeSpeed = 0;
+        byte constantSpeed = 0;
+        byte behaviour     = 0;
     };
 
     class Layer
@@ -40,14 +40,14 @@ public:
         void read(Reader &reader);
         void write(Writer &writer);
 
-        QList<QList<byte>> m_layout;
+        QList<QList<byte>> layout;
 
-        byte m_width         = 0;
-        byte m_height        = 0;
-        byte m_behaviour     = 0;
-        byte m_relativeSpeed = 0;
-        byte m_constantSpeed = 0;
-        QByteArray m_lineIndexes;
+        byte width         = 0;
+        byte height        = 0;
+        byte behaviour     = 0;
+        byte relativeSpeed = 0;
+        byte constantSpeed = 0;
+        QByteArray lineIndexes;
     };
 
     Background() {}
@@ -64,7 +64,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filepath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -72,11 +72,11 @@ public:
     }
     void write(Writer &writer);
 
-    QList<Layer> m_layers;
-    QList<ScrollInfo> m_hScroll;
-    QList<ScrollInfo> m_vScroll;
+    QList<Layer> layers;
+    QList<ScrollInfo> hScroll;
+    QList<ScrollInfo> vScroll;
 
-    QString m_filename = "";
+    QString filepath = "";
 };
 
 } // namespace RSDKv1

@@ -74,7 +74,7 @@ public:
     QString m_unknown;
 
     Palette m_masterPalette;
-    QList<ObjectInfo> m_objects;
+    QList<ObjectInfo> objects;
     QList<SoundInfo> m_soundFX;
     QList<GlobalVariable> m_globalVariables;
     QList<PlayerInfo> m_players;

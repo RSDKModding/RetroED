@@ -42,7 +42,7 @@ class PaletteWidget : public QWidget
 public:
     explicit PaletteWidget(QWidget *parent = nullptr);
     QColor colour = 0xFF00FF;
-    QList<PaletteColour> *m_palette;
+    QList<PaletteColour> *palette;
 
 protected:
     void paintEvent(QPaintEvent *) override;
@@ -53,7 +53,7 @@ protected:
     void leaveEvent(QEvent *) override;
 
 private:
-    short m_highlight = -1;
+    short highlight = -1;
     short m_selection = -1;
 
     // bool m_dragging = false;
@@ -75,23 +75,23 @@ protected:
     QSize sizeHint() const override { return QSize(500, 450); }
 
 private:
-    PaletteWidget *m_widget;
+    PaletteWidget *widget;
     void init();
     void reinit();
 
     Ui::PaletteEditor *ui;
 
-    QList<PaletteColour> m_palette;
+    QList<PaletteColour> palette;
 
     RSDKv4::Gameconfig m_gameconfigv4;
-    RSDKv4::Stageconfig m_stageconfigv4;
-    RSDKv3::Stageconfig m_stageconfigv3;
-    RSDKv2::Stageconfig m_stageconfigv2;
-    RSDKv1::Stageconfig m_stageconfigv1;
+    RSDKv4::Stageconfig stageConfigv4;
+    RSDKv3::Stageconfig stageConfigv3;
+    RSDKv2::Stageconfig stageConfigv2;
+    RSDKv1::Stageconfig stageConfigv1;
 
     QString m_filename = "";
 
-    bool m_firstInit = true;
+    bool firstInit = true;
     byte m_palType   = 0;
 };
 

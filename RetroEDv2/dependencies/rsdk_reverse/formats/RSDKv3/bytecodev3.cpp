@@ -2,12 +2,12 @@
 
 void RSDKv3::Bytecode::read(Reader &reader, int scriptCount, bool clear)
 {
-    m_filename = reader.m_filepath;
+    m_filename = reader.filepath;
     if (clear) {
         m_scriptData.clear();
         m_jumpTableData.clear();
         m_scriptList.clear();
-        m_functionList.clear();
+        functionList.clear();
     }
     else {
         m_globalScriptDataCount = m_scriptData.count();
@@ -71,14 +71,14 @@ void RSDKv3::Bytecode::read(Reader &reader, int scriptCount, bool clear)
     }
 
     int functionCount = reader.read<ushort>();
-    m_functionList.clear();
+    functionList.clear();
 
     for (int i = 0; i < functionCount; ++i) {
-        m_functionList.append(FunctionScript());
-        m_functionList[i].m_mainScript = reader.read<int>();
+        functionList.append(FunctionScript());
+        functionList[i].m_mainScript = reader.read<int>();
     }
 
-    for (int i = 0; i < functionCount; ++i) m_functionList[i].m_mainJumpTable = reader.read<int>();
+    for (int i = 0; i < functionCount; ++i) functionList[i].m_mainJumpTable = reader.read<int>();
 }
 
 struct DataInfo {
@@ -88,7 +88,7 @@ struct DataInfo {
 
 void RSDKv3::Bytecode::write(Writer &writer)
 {
-    m_filename = writer.m_filename;
+    m_filename = writer.filePath;
 
     QList<DataInfo> dataInfo;
 
@@ -192,10 +192,10 @@ void RSDKv3::Bytecode::write(Writer &writer)
     }
 
     // Function list
-    writer.write((ushort)m_functionList.count());
+    writer.write((ushort)functionList.count());
 
-    for (int i = 0; i < m_functionList.count(); ++i) writer.write(m_functionList[i].m_mainScript);
-    for (int i = 0; i < m_functionList.count(); ++i) writer.write(m_functionList[i].m_mainJumpTable);
+    for (int i = 0; i < functionList.count(); ++i) writer.write(functionList[i].m_mainScript);
+    for (int i = 0; i < functionList.count(); ++i) writer.write(functionList[i].m_mainJumpTable);
 
     writer.flush();
 }

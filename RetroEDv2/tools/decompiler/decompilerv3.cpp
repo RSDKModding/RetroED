@@ -1103,7 +1103,7 @@ QString RSDKv3::Decompiler::setArrayValue(QString strIn, QString index)
     int point      = -1;
 
     if (strIn == "Global") {
-        strOut = m_variableNames[index.toInt()];
+        strOut = variableNames[index.toInt()];
         if (strOut == "")
             return strIn;
         return strOut;
@@ -1149,8 +1149,8 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
 {
     clearScriptData();
 
-    funcIDv3 = m_globalFunctionCount; // what function to use
-    for (int i = m_globalScriptCount; i < m_sourceNames.count(); ++i) {
+    funcIDv3 = globalFunctionCount; // what function to use
+    for (int i = globalScriptCount; i < sourceNames.count(); ++i) {
         RSDKv3::Bytecode::ObjectScript &objectScript = bytecode.m_scriptList[i];
         int scriptCodePtrs[4]    = { objectScript.m_mainScript, objectScript.m_playerScript,
                                   objectScript.m_drawScript, objectScript.m_startupScript };
@@ -1167,32 +1167,32 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
                 lowestScriptCodePtr = scriptCodePtrs[i];
         }
 
-        for (int f = funcIDv3; f < bytecode.m_functionList.count(); ++f) {
-            auto &func = bytecode.m_functionList[f];
+        for (int f = funcIDv3; f < bytecode.functionList.count(); ++f) {
+            auto &func = bytecode.functionList[f];
             if (func.m_mainScript < lowestScriptCodePtr && lowestScriptCodePtr < 0x3FFFF) {
-                QString tn = m_typeNames[i];
-                m_functionNames.append(tn.replace(" ", "") + "_Function" + QString::number(f));
+                QString tn = typeNames[i];
+                functionNames.append(tn.replace(" ", "") + "_Function" + QString::number(f));
                 funcIDv3++;
             }
         }
     }
 
-    for (int i = m_globalScriptCount; i < m_sourceNames.count(); ++i) {
+    for (int i = globalScriptCount; i < sourceNames.count(); ++i) {
         // check to give proper names
     }
 
-    funcIDv3 = m_globalFunctionCount; // what function to use
-    for (int i = m_globalScriptCount; i < m_sourceNames.count(); ++i) {
+    funcIDv3 = globalFunctionCount; // what function to use
+    for (int i = globalScriptCount; i < sourceNames.count(); ++i) {
         if (i == 0)
             continue;
         QString path       = "";
-        QString scriptPath = m_sourceNames[i];
+        QString scriptPath = sourceNames[i];
         QString baseDir    = destPath + "/Scripts/";
-        if (m_useCustomAliases || m_seperateFolders) {
+        if (useCustomAliases || seperateFolders) {
             baseDir = destPath + "/Scripts/" + QFileInfo(bytecode.m_filename).baseName() + "/";
         }
         QString dir = baseDir + scriptPath.replace(QFileInfo(scriptPath).fileName(), "");
-        scriptPath  = m_sourceNames[i];
+        scriptPath  = sourceNames[i];
 
         if (!QDir(QDir::tempPath()).exists(dir)) {
             QDir(QDir::tempPath()).mkpath(dir);
@@ -1222,7 +1222,7 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
                 lowestScriptCodePtr = scriptCodePtrs[i];
         }
 
-        writer.writeLine("//------------Sonic CD " + m_typeNames[i] + " Script-------------//",
+        writer.writeLine("//------------Sonic CD " + typeNames[i] + " Script-------------//",
                          LINE_CRLF);
         writer.writeLine("//--------Scripted by Christian Whitehead 'The Taxman'--------//", LINE_CRLF);
         writer.writeLine("//-------Unpacked By Rubberduckycooly's Script Unpacker-------//", LINE_CRLF);
@@ -1232,7 +1232,7 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
         writer.writeLine("//-------Aliases-------//", LINE_CRLF);
 
         writer.writeLine("#alias " + QString::number(i) + ": TYPE_"
-                             + m_typeNames[i].toUpper().replace(" ", ""),
+                             + typeNames[i].toUpper().replace(" ", ""),
                          LINE_CRLF);
 
         writer.writeLine("", LINE_CRLF);
@@ -1262,11 +1262,11 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
         scriptPtrs.clear(); // temp, used to sort
 
         bool flag = false;
-        for (int f = funcIDv3; f < bytecode.m_functionList.count(); ++f) {
-            int fs = bytecode.m_functionList[f].m_mainScript;
+        for (int f = funcIDv3; f < bytecode.functionList.count(); ++f) {
+            int fs = bytecode.functionList[f].m_mainScript;
             if (fs < lastPtr) {
-                scriptPtrs.append(ScriptPtr(m_functionNames[f], bytecode.m_functionList[f].m_mainScript,
-                                            bytecode.m_functionList[f].m_mainJumpTable, true));
+                scriptPtrs.append(ScriptPtr(functionNames[f], bytecode.functionList[f].m_mainScript,
+                                            bytecode.functionList[f].m_mainJumpTable, true));
             }
             else if (!flag) {
                 flag     = true;
@@ -1274,7 +1274,7 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
             }
         }
         if (!flag) {
-            funcIDv3 = bytecode.m_functionList.count();
+            funcIDv3 = bytecode.functionList.count();
         }
 
         if (objectScript.m_mainScript < 0x3FFFF)
@@ -1552,44 +1552,44 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                 if (variableName[0].contains("Object") && variableName[0].contains(".Type")) {
                     bool ok = false;
                     int id  = variableName[1].toInt(&ok);
-                    if (ok && id < m_typeNames.count())
+                    if (ok && id < typeNames.count())
                         variableName[1] =
                             "TypeName["
-                            + m_typeNames[id].replace(" ", "").replace("TouchControls", "DebugMode")
+                            + typeNames[id].replace(" ", "").replace("TouchControls", "DebugMode")
                             + "]";
                 }
 
                 if (variableName[0].contains("TileLayer") && variableName[0].contains(".Type")) {
                     bool ok = false;
                     int id  = variableName[1].toInt(&ok);
-                    if (ok && m_useCustomAliases && id < tileLayerTypeAliases.count())
+                    if (ok && useCustomAliases && id < tileLayerTypeAliases.count())
                         variableName[1] = "TypeName[" + tileLayerTypeAliases[id] + "]";
                 }
 
                 if (variableName[0].contains("_Type")) {
                     bool ok = false;
                     int id  = variableName[1].toInt(&ok);
-                    if (ok && id < m_typeNames.count())
+                    if (ok && id < typeNames.count())
                         variableName[1] =
                             "TypeName["
-                            + m_typeNames[id].replace(" ", "").replace("TouchControls", "DebugMode")
+                            + typeNames[id].replace(" ", "").replace("TouchControls", "DebugMode")
                             + "]";
                 }
 
                 if (variableName[1].contains("Object") && variableName[1].contains(".Type")) {
                     bool ok = false;
                     int id  = variableName[2].toInt(&ok);
-                    if (ok && id < m_typeNames.count())
+                    if (ok && id < typeNames.count())
                         variableName[2] =
                             "TypeName["
-                            + m_typeNames[id].replace(" ", "").replace("TouchControls", "DebugMode")
+                            + typeNames[id].replace(" ", "").replace("TouchControls", "DebugMode")
                             + "]";
                 }
 
                 if (variableName[1].contains("TileLayer") && variableName[1].contains(".Type")) {
                     bool ok = false;
                     int id  = variableName[2].toInt(&ok);
-                    if (ok && m_useCustomAliases && id < tileLayerTypeAliases.count())
+                    if (ok && useCustomAliases && id < tileLayerTypeAliases.count())
                         variableName[2] = "TypeName[" + tileLayerTypeAliases[id] + "]";
                 }
 
@@ -1643,10 +1643,10 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                     {
                         bool ok = false;
                         int id  = variableName[0].toInt(&ok);
-                        if (ok && id < m_typeNames.count())
+                        if (ok && id < typeNames.count())
                             variableName[0] =
                                 "TypeName["
-                                + m_typeNames[id].replace(" ", "").replace("TouchControls", "DebugMode")
+                                + typeNames[id].replace(" ", "").replace("TouchControls", "DebugMode")
                                 + "]";
                         break;
                     }
@@ -1654,10 +1654,10 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                     {
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
-                        if (ok && id < m_typeNames.count())
+                        if (ok && id < typeNames.count())
                             variableName[1] =
                                 "TypeName["
-                                + m_typeNames[id].replace(" ", "").replace("TouchControls", "DebugMode")
+                                + typeNames[id].replace(" ", "").replace("TouchControls", "DebugMode")
                                 + "]";
                         break;
                     }
@@ -1666,8 +1666,8 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[0].toInt(&ok);
                         if (ok)
-                            if (m_useCustomAliases && id < m_sfxNames.count())
-                                variableName[0] = "SFXName[" + m_sfxNames[id].replace(" ", "") + "]";
+                            if (useCustomAliases && id < sfxNames.count())
+                                variableName[0] = "SFXName[" + sfxNames[id].replace(" ", "") + "]";
                         break;
                     }
                     case 6: //"StopSfx"
@@ -1675,8 +1675,8 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[0].toInt(&ok);
                         if (ok)
-                            if (m_useCustomAliases && id < m_sfxNames.count())
-                                variableName[0] = "SFXName[" + m_sfxNames[id].replace(" ", "") + "]";
+                            if (useCustomAliases && id < sfxNames.count())
+                                variableName[0] = "SFXName[" + sfxNames[id].replace(" ", "") + "]";
                         break;
                     }
                     case 7: //"PlayStageSfx"
@@ -1684,9 +1684,9 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[0].toInt(&ok);
                         if (ok)
-                            if (m_useCustomAliases && id + m_globalSFXCount < m_sfxNames.count())
+                            if (useCustomAliases && id + globalSFXCount < sfxNames.count())
                                 variableName[0] = "SFXName["
-                                                  + m_sfxNames[id + m_globalSFXCount].replace(" ", "")
+                                                  + sfxNames[id + globalSFXCount].replace(" ", "")
                                                   + "]";
                         break;
                     }
@@ -1695,9 +1695,9 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[0].toInt(&ok);
                         if (ok)
-                            if (m_useCustomAliases && id + m_globalSFXCount < m_sfxNames.count())
+                            if (useCustomAliases && id + globalSFXCount < sfxNames.count())
                                 variableName[0] = "SFXName["
-                                                  + m_sfxNames[id + m_globalSFXCount].replace(" ", "")
+                                                  + sfxNames[id + globalSFXCount].replace(" ", "")
                                                   + "]";
                         break;
                     }
@@ -1706,8 +1706,8 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[0].toInt(&ok);
                         if (ok)
-                            if (m_useCustomAliases && id < m_sfxNames.count())
-                                variableName[0] = "SFXName[" + m_sfxNames[id].replace(" ", "") + "]";
+                            if (useCustomAliases && id < sfxNames.count())
+                                variableName[0] = "SFXName[" + sfxNames[id].replace(" ", "") + "]";
                         break;
                     }
                     case 10: //"ObjectTileCollision"
@@ -1715,7 +1715,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[0].toInt(&ok);
                         if (ok)
-                            if (m_useCustomAliases && id < cSideAliases.count())
+                            if (useCustomAliases && id < cSideAliases.count())
                                 variableName[0] = cSideAliases[id];
                         break;
                     }
@@ -1724,7 +1724,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[0].toInt(&ok);
                         if (ok)
-                            if (m_useCustomAliases && id < cSideAliases.count())
+                            if (useCustomAliases && id < cSideAliases.count())
                                 variableName[0] = cSideAliases[id];
                         break;
                     }
@@ -1782,7 +1782,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         int id  = variableName[1].toInt(&ok);
                         if (ok && id < menuAliases.count())
                             variableName[1] = menuAliases[id];
-                        if (m_useCustomAliases) {
+                        if (useCustomAliases) {
                             ok = false;
                             id = variableName[2].toInt(&ok);
                             if (ok && id < textInfoAliases.count())
@@ -1792,7 +1792,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                     }
                     case 29: //"LoadOnlineMenu"
                     {
-                        if (m_useCustomAliases) {
+                        if (useCustomAliases) {
                             bool ok = false;
                             int id  = variableName[0].toInt(&ok);
                             if (ok && id < onlineMenuAliases.count())
@@ -1803,7 +1803,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                     case 30: //"Get16x16TileInfo"
                     case 31: //"Set16x16TileInfo"
                     {
-                        if (m_useCustomAliases) {
+                        if (useCustomAliases) {
                             bool ok = false;
                             int id  = variableName[3].toInt(&ok);
                             if (ok && id < tileInfoAliases.count())
@@ -1813,7 +1813,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                     }
                     case 32: //"EngineCallback"
                     {
-                        if (m_useCustomAliases) {
+                        if (useCustomAliases) {
                             bool ok = false;
                             int id  = variableName[0].toInt(&ok);
                             if (ok) {
@@ -1826,7 +1826,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                     } break;
                     case 33: //"HapticEffect"
                     {
-                        if (m_useCustomAliases) {
+                        if (useCustomAliases) {
                             bool ok = false;
                             int id  = variableName[0].toInt(&ok);
                             if (ok) {
@@ -1903,9 +1903,9 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok) {
-                            if (!m_useCustomAliases && id < 2)
+                            if (!useCustomAliases && id < 2)
                                 variableName[1] = directionAliases[id];
-                            else if (m_useCustomAliases && id < direction2Aliases.count()) {
+                            else if (useCustomAliases && id < direction2Aliases.count()) {
                                 variableName[1] = direction2Aliases[id];
                             }
                         }
@@ -1915,7 +1915,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
-                            if (m_useCustomAliases && id < inkAliases.count())
+                            if (useCustomAliases && id < inkAliases.count())
                                 variableName[1] = inkAliases[id];
                     }
 
@@ -1923,7 +1923,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
-                            if (m_useCustomAliases && id < faceFlagAliases.count())
+                            if (useCustomAliases && id < faceFlagAliases.count())
                                 variableName[1] = faceFlagAliases[id];
                     }
 
@@ -1931,7 +1931,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
-                            if (m_useCustomAliases && id < priorityAliases.count())
+                            if (useCustomAliases && id < priorityAliases.count())
                                 variableName[1] = priorityAliases[id];
                     }
 
@@ -1940,7 +1940,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
-                            if (m_useCustomAliases && id < gravityAliases.count())
+                            if (useCustomAliases && id < gravityAliases.count())
                                 variableName[1] = gravityAliases[id];
                     }
 
@@ -1948,7 +1948,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
-                            if (m_useCustomAliases && id < cModeAliases.count())
+                            if (useCustomAliases && id < cModeAliases.count())
                                 variableName[1] = cModeAliases[id];
                     }
 
@@ -1956,7 +1956,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
-                            if (m_useCustomAliases && id < cPathAliases.count())
+                            if (useCustomAliases && id < cPathAliases.count())
                                 variableName[1] = cPathAliases[id];
                     }
 
@@ -2013,7 +2013,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                     if (variableName[1].contains(".Direction")) {
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
-                        if (!m_useCustomAliases) {
+                        if (!useCustomAliases) {
                             if (ok && id < directionAliases.count())
                                 variableName[2] = directionAliases[id];
                         }
@@ -2027,7 +2027,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
-                            if (m_useCustomAliases && id < inkAliases.count())
+                            if (useCustomAliases && id < inkAliases.count())
                                 variableName[2] = inkAliases[id];
                         }
                     }
@@ -2037,7 +2037,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
-                            if (m_useCustomAliases && id < gravityAliases.count())
+                            if (useCustomAliases && id < gravityAliases.count())
                                 variableName[2] = gravityAliases[id];
                         }
                     }
@@ -2046,7 +2046,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
-                            if (m_useCustomAliases && id < faceFlagAliases.count())
+                            if (useCustomAliases && id < faceFlagAliases.count())
                                 variableName[2] = faceFlagAliases[id];
                         }
                     }
@@ -2055,7 +2055,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
-                            if (m_useCustomAliases && id < priorityAliases.count())
+                            if (useCustomAliases && id < priorityAliases.count())
                                 variableName[2] = priorityAliases[id];
                         }
                     }
@@ -2064,7 +2064,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
-                            if (m_useCustomAliases && id < cModeAliases.count())
+                            if (useCustomAliases && id < cModeAliases.count())
                                 variableName[2] = cModeAliases[id];
                         }
                     }
@@ -2073,7 +2073,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
-                            if (m_useCustomAliases && id < cPathAliases.count())
+                            if (useCustomAliases && id < cPathAliases.count())
                                 variableName[2] = cPathAliases[id];
                         }
                     }
@@ -2307,7 +2307,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         bool ok = false;
                         int id  = variableName[0].toInt(&ok);
                         if (ok) {
-                            QString funcName = m_functionNames[id];
+                            QString funcName = functionNames[id];
 
                             writer.writeText(QString("CallFunction(%1)").arg(funcName));
                         }

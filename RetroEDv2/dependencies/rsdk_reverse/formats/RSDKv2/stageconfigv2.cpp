@@ -2,7 +2,7 @@
 
 void RSDKv2::Stageconfig::read(Reader &reader)
 {
-    m_filename = reader.m_filepath;
+    m_filename = reader.filepath;
 
     // Global Objects Flag
     m_loadGlobalScripts = reader.read<byte>();
@@ -29,7 +29,7 @@ void RSDKv2::Stageconfig::read(Reader &reader)
 
 void RSDKv2::Stageconfig::write(Writer &writer)
 {
-    m_filename = writer.m_filename;
+    m_filename = writer.filePath;
 
     // Global Objects Flag
     writer.write(m_loadGlobalScripts);

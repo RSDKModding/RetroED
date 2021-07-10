@@ -16,39 +16,39 @@ public:
         inline void read(Reader &reader, int id = 0)
         {
             // Object type, 1 byte, unsigned
-            m_type = reader.read<byte>();
+            type = reader.read<byte>();
             // Object subtype, 1 byte, unsigned
-            m_propertyValue = reader.read<byte>();
+            propertyValue = reader.read<byte>();
 
             // X Position, 2 bytes, big-endian, signed
-            m_xPos = (short)(reader.read<char>() << 8);
-            m_xPos |= (short)reader.read<byte>();
+            XPos = (short)(reader.read<char>() << 8);
+            XPos |= (short)reader.read<byte>();
 
             // Y Position, 2 bytes, big-endian, signed
-            m_yPos = (short)(reader.read<char>() << 8);
-            m_yPos |= (short)reader.read<byte>();
+            YPos = (short)(reader.read<char>() << 8);
+            YPos |= (short)reader.read<byte>();
 
-            m_id = id;
+            slotID = id;
         }
 
         inline void write(Writer &writer)
         {
-            writer.write(m_type);
-            writer.write(m_propertyValue);
+            writer.write(type);
+            writer.write(propertyValue);
 
-            writer.write((byte)(m_xPos >> 8));
-            writer.write((byte)(m_xPos & 0xFF));
+            writer.write((byte)(XPos >> 8));
+            writer.write((byte)(XPos & 0xFF));
 
-            writer.write((byte)(m_yPos >> 8));
-            writer.write((byte)(m_yPos & 0xFF));
+            writer.write((byte)(YPos >> 8));
+            writer.write((byte)(YPos & 0xFF));
         }
 
-        byte m_type    = 0;
-        byte m_propertyValue = 0;
-        short m_xPos   = 0;
-        short m_yPos   = 0;
+        byte type          = 0;
+        byte propertyValue = 0;
+        short XPos         = 0;
+        short YPos         = 0;
 
-        short m_id = 0;
+        short slotID = 0;
     };
 
     Scene() {}
@@ -65,7 +65,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filepath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -73,22 +73,22 @@ public:
     }
     void write(Writer &writer);
 
-    QString m_title = "ACT";
+    QString title = "ACT";
 
-    QList<QList<byte>> m_layout;
+    QList<QList<byte>> layout;
 
-    byte m_music      = 0;
-    byte m_background = 0;
+    byte musicID      = 0;
+    byte backgroundID = 0;
 
-    short m_playerXPos = 0;
-    short m_playerYPos = 0;
+    short playerXPos = 0;
+    short playerYPos = 0;
 
-    QList<Object> m_objects;
+    QList<Object> objects;
 
-    byte m_width  = 0;
-    byte m_height = 0;
+    byte width  = 0;
+    byte height = 0;
 
-    QString m_filename = "";
+    QString filepath = "";
 };
 
 } // namespace RSDKv1

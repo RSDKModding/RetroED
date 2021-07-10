@@ -18,7 +18,7 @@ public:
     SaveFileEditorv3(QString filePath = "", QWidget *parent = nullptr);
     ~SaveFileEditorv3();
 
-    RSDKv3::SaveFile m_savefile;
+    RSDKv3::SaveFile savefile;
 
     void setupUI();
 

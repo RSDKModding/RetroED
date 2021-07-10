@@ -236,8 +236,8 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         ui->varName->blockSignals(true);
         ui->varValue->blockSignals(true);
 
-        ui->varName->setText(m_gameconfig.m_globalVariables[c].m_name);
-        ui->varValue->setValue(m_gameconfig.m_globalVariables[c].m_value);
+        ui->varName->setText(m_gameconfig.globalVariables[c].m_name);
+        ui->varValue->setValue(m_gameconfig.globalVariables[c].m_value);
 
         ui->varName->blockSignals(false);
         ui->varValue->blockSignals(false);
@@ -250,9 +250,9 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
 
     connect(ui->addVar, &QToolButton::clicked, [this] {
         uint c = ui->varList->currentRow() + 1;
-        m_gameconfig.m_globalVariables.insert(c, RSDKv3::Gameconfig::GlobalVariable());
+        m_gameconfig.globalVariables.insert(c, RSDKv3::Gameconfig::GlobalVariable());
         auto *item = new QListWidgetItem();
-        item->setText(m_gameconfig.m_globalVariables[c].m_name);
+        item->setText(m_gameconfig.globalVariables[c].m_name);
         ui->varList->insertItem(c, item);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -262,7 +262,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
     connect(ui->upVar, &QToolButton::clicked, [this] {
         uint c     = ui->varList->currentRow();
         auto *item = ui->varList->takeItem(c);
-        m_gameconfig.m_globalVariables.move(c, c - 1);
+        m_gameconfig.globalVariables.move(c, c - 1);
         ui->varList->insertItem(c - 1, item);
         ui->varList->setCurrentRow(c - 1);
     });
@@ -270,7 +270,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
     connect(ui->downVar, &QToolButton::clicked, [this] {
         uint c     = ui->varList->currentRow();
         auto *item = ui->varList->takeItem(c);
-        m_gameconfig.m_globalVariables.move(c, c + 1);
+        m_gameconfig.globalVariables.move(c, c + 1);
         ui->varList->insertItem(c + 1, item);
         ui->varList->setCurrentRow(c + 1);
     });
@@ -279,29 +279,29 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         int c = ui->varList->currentRow();
         int n = ui->varList->currentRow() == ui->varList->count() - 1 ? c - 1 : c;
         delete ui->varList->item(c);
-        m_gameconfig.m_globalVariables.removeAt(c);
+        m_gameconfig.globalVariables.removeAt(c);
         ui->varList->blockSignals(true);
         ui->varList->setCurrentRow(n);
         ui->varList->blockSignals(false);
     });
 
     connect(ui->varList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        m_gameconfig.m_globalVariables[ui->varList->row(item)].m_name = item->text();
+        m_gameconfig.globalVariables[ui->varList->row(item)].m_name = item->text();
 
         ui->varName->blockSignals(true);
-        ui->varName->setText(m_gameconfig.m_globalVariables[ui->varList->row(item)].m_name);
+        ui->varName->setText(m_gameconfig.globalVariables[ui->varList->row(item)].m_name);
         ui->varName->blockSignals(false);
     });
 
     connect(ui->varName, &QLineEdit::textEdited, [this](QString s) {
-        m_gameconfig.m_globalVariables[ui->varList->currentRow()].m_name = s;
+        m_gameconfig.globalVariables[ui->varList->currentRow()].m_name = s;
 
         ui->varList->item(ui->varList->currentRow())
-            ->setText(m_gameconfig.m_globalVariables[ui->varList->currentRow()].m_name);
+            ->setText(m_gameconfig.globalVariables[ui->varList->currentRow()].m_name);
     });
 
     connect(ui->varValue, QOverload<int>::of(&QSpinBox::valueChanged),
-            [this](int v) { m_gameconfig.m_globalVariables[ui->varList->currentRow()].m_value = v; });
+            [this](int v) { m_gameconfig.globalVariables[ui->varList->currentRow()].m_value = v; });
 
     // ----------------
     // PLAYERS
@@ -393,7 +393,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
     connect(m_sceneModel, &QStandardItemModel::itemChanged, [this](QStandardItem *item) {
         const QModelIndex &index = m_sceneModel->indexFromItem(item);
         if (index.parent().isValid()) { // Scene
-            m_gameconfig.m_categories[index.parent().row()].m_scenes[index.row()].m_name = item->text();
+            m_gameconfig.categories[index.parent().row()].scenes[index.row()].name = item->text();
             return;
         }
         // m_gameconfig.m_categories[index.row()].m_name = item->text();
@@ -407,8 +407,8 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         }
         uint cat = scnSelected ? index.parent().row() : index.row();
         uint scn = scnSelected ? index.row() + 1 : 0;
-        m_gameconfig.m_categories[cat].m_scenes.insert(scn, RSDKv3::Gameconfig::SceneInfo());
-        auto *scnItem = new QStandardItem(m_gameconfig.m_categories[cat].m_scenes[scn].m_name);
+        m_gameconfig.categories[cat].scenes.insert(scn, RSDKv3::Gameconfig::SceneInfo());
+        auto *scnItem = new QStandardItem(m_gameconfig.categories[cat].scenes[scn].name);
         if (scnSelected)
             m_sceneModel->itemFromIndex(index.parent())->insertRow(scn, scnItem);
         else
@@ -421,7 +421,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         const QModelIndex &index = ui->scnTree->currentIndex();
 
         if (index.parent().isValid()) { // Scene
-            m_gameconfig.m_categories[index.parent().row()].m_scenes.removeAt(index.row());
+            m_gameconfig.categories[index.parent().row()].scenes.removeAt(index.row());
             m_sceneModel->itemFromIndex(index.parent())->removeRow(index.row());
             return;
         }
@@ -432,7 +432,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         int c      = ui->scnTree->currentIndex().row();
         QList<QStandardItem *> item;
         if (isScn) {
-            m_gameconfig.m_categories[ui->scnTree->currentIndex().parent().row()].m_scenes.move(
+            m_gameconfig.categories[ui->scnTree->currentIndex().parent().row()].scenes.move(
                 c, c + translation);
             QStandardItem *parentItem =
                 m_sceneModel->itemFromIndex(ui->scnTree->currentIndex().parent());
@@ -476,49 +476,49 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
 
                 if (c.parent().isValid()) {
                     ui->scnID->setDisabled(
-                        c.row() >= m_gameconfig.m_categories[c.parent().row()].m_scenes.count());
+                        c.row() >= m_gameconfig.categories[c.parent().row()].scenes.count());
                     ui->scnFolder->setDisabled(
-                        c.row() >= m_gameconfig.m_categories[c.parent().row()].m_scenes.count());
+                        c.row() >= m_gameconfig.categories[c.parent().row()].scenes.count());
                     ui->scnName->setDisabled(
-                        c.row() >= m_gameconfig.m_categories[c.parent().row()].m_scenes.count());
+                        c.row() >= m_gameconfig.categories[c.parent().row()].scenes.count());
                     ui->scnHighlighted->setDisabled(
-                        c.row() >= m_gameconfig.m_categories[c.parent().row()].m_scenes.count());
+                        c.row() >= m_gameconfig.categories[c.parent().row()].scenes.count());
 
-                    if (c.row() >= m_gameconfig.m_categories[c.parent().row()].m_scenes.count())
+                    if (c.row() >= m_gameconfig.categories[c.parent().row()].scenes.count())
                         return;
 
                     ui->scnID->setText(
-                        m_gameconfig.m_categories[c.parent().row()].m_scenes[c.row()].m_actID);
+                        m_gameconfig.categories[c.parent().row()].scenes[c.row()].m_actID);
                     ui->scnHighlighted->setChecked(
-                        m_gameconfig.m_categories[c.parent().row()].m_scenes[c.row()].m_highlighted);
+                        m_gameconfig.categories[c.parent().row()].scenes[c.row()].m_highlighted);
                     ui->scnFolder->setText(
-                        m_gameconfig.m_categories[c.parent().row()].m_scenes[c.row()].m_folder);
+                        m_gameconfig.categories[c.parent().row()].scenes[c.row()].folder);
                     ui->scnName->setText(
-                        m_gameconfig.m_categories[c.parent().row()].m_scenes[c.row()].m_name);
+                        m_gameconfig.categories[c.parent().row()].scenes[c.row()].name);
 
                     connect(ui->scnName, &QLineEdit::textEdited, [this, c](QString s) {
-                        m_gameconfig.m_categories[c.parent().row()].m_scenes[c.row()].m_name = s;
+                        m_gameconfig.categories[c.parent().row()].scenes[c.row()].name = s;
 
                         // TODO: edit text
                     });
 
                     connect(ui->scnFolder, &QLineEdit::textEdited, [this, c](QString s) {
-                        m_gameconfig.m_categories[c.parent().row()].m_scenes[c.row()].m_folder = s;
+                        m_gameconfig.categories[c.parent().row()].scenes[c.row()].folder = s;
                     });
 
                     connect(ui->scnID, &QLineEdit::textEdited, [this, c](QString s) {
-                        m_gameconfig.m_categories[c.parent().row()].m_scenes[c.row()].m_folder = s;
+                        m_gameconfig.categories[c.parent().row()].scenes[c.row()].folder = s;
                     });
 
                     connect(ui->scnHighlighted, &QCheckBox::toggled, [this, c](bool v) {
-                        m_gameconfig.m_categories[c.parent().row()].m_scenes[c.row()].m_highlighted = v;
+                        m_gameconfig.categories[c.parent().row()].scenes[c.row()].m_highlighted = v;
                     });
                 }
 
                 ui->downScn->setDisabled(
                     c.parent().isValid()
-                        ? c.row() == m_gameconfig.m_categories[c.parent().row()].m_scenes.count() - 1
-                        : c.row() == m_gameconfig.m_categories.count() - 1);
+                        ? c.row() == m_gameconfig.categories[c.parent().row()].scenes.count() - 1
+                        : c.row() == m_gameconfig.categories.count() - 1);
                 ui->upScn->setDisabled(c.row() == 0);
             });
 
@@ -575,7 +575,7 @@ void GameconfigEditorv3::load(QString filename)
 
     ui->varList->clear();
     id = 0;
-    for (RSDKv3::Gameconfig::GlobalVariable &var : m_gameconfig.m_globalVariables) {
+    for (RSDKv3::Gameconfig::GlobalVariable &var : m_gameconfig.globalVariables) {
         ui->varList->addItem(var.m_name);
         ui->varList->item(id)->setFlags(ui->varList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
@@ -599,8 +599,8 @@ void GameconfigEditorv3::load(QString filename)
     for (int c = 0; c < 4; ++c) {
         auto *catItem = new QStandardItem(names[c]);
 
-        for (auto &scn : m_gameconfig.m_categories[c].m_scenes) {
-            auto *scnItem = new QStandardItem(scn.m_name);
+        for (auto &scn : m_gameconfig.categories[c].scenes) {
+            auto *scnItem = new QStandardItem(scn.name);
             catItem->appendRow(scnItem);
 
             scnItem->setFlags(scnItem->flags() | Qt::ItemIsEditable);

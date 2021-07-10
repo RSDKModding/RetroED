@@ -19,9 +19,9 @@ public:
 
         inline void setName(QString filename)
         {
-            m_filename     = filename;
-            m_filenameHash = Utils::getMd5HashString(m_filename);
-            QByteArray md5 = Utils::getMd5HashByteArray(m_filename);
+            fileName     = filename;
+            m_filenameHash = Utils::getMd5HashString(fileName);
+            QByteArray md5 = Utils::getMd5HashByteArray(fileName);
             for (int h = 0; h < 0x10; ++h) m_md5Hash[h] = (byte)md5[h];
         }
 
@@ -34,13 +34,13 @@ public:
             GIF,
         };
 
-        QString m_filename     = "";
+        QString fileName     = "";
         QString m_filenameHash = "";
 
         uint m_dataOffset = 0;
-        uint m_fileSize   = 0;
-        bool m_encrypted  = false;
-        QByteArray m_filedata;
+        uint fileSize   = 0;
+        bool encrypted  = false;
+        QByteArray fileData;
 
     private:
         byte m_md5Hash[0x10];
@@ -131,7 +131,7 @@ public:
 
     const byte m_signature[6] = { (byte)'R', (byte)'S', (byte)'D', (byte)'K', (byte)'v', (byte)'B' };
 
-    QList<FileInfo> m_files;
+    QList<FileInfo> files;
 
     QString m_filename = "";
 };

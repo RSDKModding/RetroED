@@ -8,7 +8,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
     m_gameWindowText      = "Game";
     m_gameDescriptionText = "About";
     m_unknown             = "Data";
-    m_objects.clear();
+    objects.clear();
     m_soundFX.clear();
     m_globalVariables.clear();
     m_players.clear();
@@ -31,7 +31,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
                 o.m_name   = QFileInfo(obj).baseName();
                 o.m_script = obj;
 
-                m_objects.append(o);
+                objects.append(o);
             }
 
             for (QString &sfx : gameconfig.m_soundFX) {
@@ -83,7 +83,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
                 o.m_name   = obj.m_name;
                 o.m_script = obj.m_script;
 
-                m_objects.append(o);
+                objects.append(o);
             }
 
             for (QString &sfx : gameconfig.m_soundFX) {
@@ -94,7 +94,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
                 m_soundFX.append(s);
             }
 
-            for (RSDKv3::Gameconfig::GlobalVariable &var : gameconfig.m_globalVariables) {
+            for (RSDKv3::Gameconfig::GlobalVariable &var : gameconfig.globalVariables) {
                 GlobalVariable v;
                 v.m_name  = var.m_name;
                 v.m_value = var.m_value;
@@ -112,10 +112,10 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
             }
 
             for (int c = 0; c < 4; ++c) {
-                for (RSDKv3::Gameconfig::SceneInfo &scn : gameconfig.m_categories[c].m_scenes) {
+                for (RSDKv3::Gameconfig::SceneInfo &scn : gameconfig.categories[c].scenes) {
                     SceneInfo s;
-                    s.m_name        = scn.m_name;
-                    s.m_folder      = scn.m_folder;
+                    s.m_name        = scn.name;
+                    s.m_folder      = scn.folder;
                     s.m_actID       = scn.m_actID;
                     s.m_highlighted = scn.m_highlighted;
 
@@ -130,15 +130,15 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
             m_gameDescriptionText = gameconfig.m_gameDescriptionText;
             m_masterPalette       = gameconfig.m_masterPalette;
 
-            for (RSDKv4::Gameconfig::ObjectInfo &obj : gameconfig.m_objects) {
+            for (RSDKv4::Gameconfig::ObjectInfo &obj : gameconfig.objects) {
                 ObjectInfo o;
-                o.m_name   = obj.m_name;
-                o.m_script = obj.m_script;
+                o.m_name   = obj.name;
+                o.m_script = obj.script;
 
-                m_objects.append(o);
+                objects.append(o);
             }
 
-            for (RSDKv4::Gameconfig::SoundInfo &sfx : gameconfig.m_soundFX) {
+            for (RSDKv4::Gameconfig::SoundInfo &sfx : gameconfig.soundFX) {
                 SoundInfo s;
                 s.m_name = sfx.m_name;
                 s.m_path = sfx.m_path;
@@ -146,7 +146,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
                 m_soundFX.append(s);
             }
 
-            for (RSDKv4::Gameconfig::GlobalVariable &var : gameconfig.m_globalVariables) {
+            for (RSDKv4::Gameconfig::GlobalVariable &var : gameconfig.globalVariables) {
                 GlobalVariable v;
                 v.m_name  = var.m_name;
                 v.m_value = var.m_value;
@@ -164,10 +164,10 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
             }
 
             for (int c = 0; c < 4; ++c) {
-                for (RSDKv4::Gameconfig::SceneInfo &scn : gameconfig.m_categories[c].m_scenes) {
+                for (RSDKv4::Gameconfig::SceneInfo &scn : gameconfig.categories[c].scenes) {
                     SceneInfo s;
-                    s.m_name        = scn.m_name;
-                    s.m_folder      = scn.m_folder;
+                    s.m_name        = scn.name;
+                    s.m_folder      = scn.folder;
                     s.m_actID       = scn.m_actID;
                     s.m_highlighted = scn.m_highlighted;
 
@@ -197,7 +197,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
             gameconfig.m_gameDescriptionText = m_gameDescriptionText;
             gameconfig.m_unknown             = m_unknown;
 
-            for (ObjectInfo &obj : m_objects) gameconfig.m_scripts.append(obj.m_script);
+            for (ObjectInfo &obj : objects) gameconfig.m_scripts.append(obj.m_script);
 
             for (SoundInfo &sfx : m_soundFX) gameconfig.m_soundFX.append(sfx.m_path);
 
@@ -237,7 +237,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
             gameconfig.m_gameDescriptionText = m_gameDescriptionText;
             gameconfig.m_unknown             = m_unknown;
 
-            for (ObjectInfo &obj : m_objects) {
+            for (ObjectInfo &obj : objects) {
                 RSDKv3::Gameconfig::ObjectInfo o;
                 o.m_name   = obj.m_name;
                 o.m_script = obj.m_script;
@@ -252,7 +252,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
                 v.m_name  = var.m_name;
                 v.m_value = var.m_value;
 
-                gameconfig.m_globalVariables.append(v);
+                gameconfig.globalVariables.append(v);
             }
 
             for (PlayerInfo &plr : m_players) gameconfig.m_players.append(plr.m_name);
@@ -260,12 +260,12 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
             for (int c = 0; c < 4; ++c) {
                 for (SceneInfo &scn : m_categories[c].m_scenes) {
                     RSDKv3::Gameconfig::SceneInfo s;
-                    s.m_name        = scn.m_name;
-                    s.m_folder      = scn.m_folder;
+                    s.name        = scn.m_name;
+                    s.folder      = scn.m_folder;
                     s.m_actID       = scn.m_actID;
                     s.m_highlighted = scn.m_highlighted;
 
-                    gameconfig.m_categories[c].m_scenes.append(s);
+                    gameconfig.categories[c].scenes.append(s);
                 }
             }
         } break;
@@ -276,12 +276,12 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
             gameconfig.m_gameDescriptionText = m_gameDescriptionText;
             gameconfig.m_masterPalette       = m_masterPalette;
 
-            for (ObjectInfo &obj : m_objects) {
+            for (ObjectInfo &obj : objects) {
                 RSDKv4::Gameconfig::ObjectInfo o;
-                o.m_name   = obj.m_name;
-                o.m_script = obj.m_script;
+                o.name   = obj.m_name;
+                o.script = obj.m_script;
 
-                gameconfig.m_objects.append(o);
+                gameconfig.objects.append(o);
             }
 
             for (SoundInfo &sfx : m_soundFX) {
@@ -289,7 +289,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
                 s.m_name = sfx.m_name;
                 s.m_path = sfx.m_path;
 
-                gameconfig.m_soundFX.append(s);
+                gameconfig.soundFX.append(s);
             }
 
             for (GlobalVariable &var : m_globalVariables) {
@@ -297,7 +297,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
                 v.m_name  = var.m_name;
                 v.m_value = var.m_value;
 
-                gameconfig.m_globalVariables.append(v);
+                gameconfig.globalVariables.append(v);
             }
 
             for (PlayerInfo &plr : m_players) gameconfig.m_players.append(plr.m_name);
@@ -305,12 +305,12 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
             for (int c = 0; c < 4; ++c) {
                 for (SceneInfo &scn : m_categories[c].m_scenes) {
                     RSDKv4::Gameconfig::SceneInfo s;
-                    s.m_name        = scn.m_name;
-                    s.m_folder      = scn.m_folder;
+                    s.name        = scn.m_name;
+                    s.folder      = scn.m_folder;
                     s.m_actID       = scn.m_actID;
                     s.m_highlighted = scn.m_highlighted;
 
-                    gameconfig.m_categories[c].m_scenes.append(s);
+                    gameconfig.categories[c].scenes.append(s);
                 }
             }
         } break;

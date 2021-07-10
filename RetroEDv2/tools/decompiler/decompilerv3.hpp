@@ -77,23 +77,23 @@ public:
     void decompile(RSDKv3::Bytecode bytecode, QString destPath = "");
     void clearScriptData();
 
-    QList<QString> m_functionNames;
+    QList<QString> functionNames;
     int m_functionCount       = 0;
-    int m_globalFunctionCount = 0;
+    int globalFunctionCount = 0;
 
-    QList<QString> m_variableNames;
+    QList<QString> variableNames;
 
-    QList<QString> m_sourceNames;
-    QList<QString> m_typeNames;
+    QList<QString> sourceNames;
+    QList<QString> typeNames;
 
-    QList<QString> m_sfxNames;
+    QList<QString> sfxNames;
 
-    int m_globalScriptCount = 0;
-    int m_globalSFXCount    = 0;
+    int globalScriptCount = 0;
+    int globalSFXCount    = 0;
 
     bool m_useHex           = false;
-    bool m_useCustomAliases = false;
-    bool m_seperateFolders  = false;
+    bool useCustomAliases = false;
+    bool seperateFolders  = false;
     bool m_mobileVer        = false;
 
 private:

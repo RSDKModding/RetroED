@@ -19,7 +19,7 @@ public:
 private:
     Ui::RSVTool *ui;
 
-    QString m_rsvPath = "";
+    QString rsvPath = "";
 };
 
 #endif // RSVUNPACKER_H

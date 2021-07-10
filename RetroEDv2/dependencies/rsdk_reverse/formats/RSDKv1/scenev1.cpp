@@ -2,35 +2,35 @@
 
 void RSDKv1::Scene::read(Reader &reader)
 {
-    m_filename = reader.m_filepath;
+    filepath = reader.filepath;
 
     // Map width in 128 pixel units
     // In RSDKv1, it's one byte long
-    m_width  = reader.read<byte>();
-    m_height = reader.read<byte>();
+    width  = reader.read<byte>();
+    height = reader.read<byte>();
 
-    m_layout.reserve(m_height);
-    for (int y = 0; y < m_height; ++y) {
-        m_layout.append(QList<byte>());
-        m_layout[y].reserve(m_width);
-        for (int x = 0; x < m_width; ++x) {
+    layout.reserve(height);
+    for (int y = 0; y < height; ++y) {
+        layout.append(QList<byte>());
+        layout[y].reserve(width);
+        for (int x = 0; x < width; ++x) {
             // 128x128 Block number is 8-bit in RSDKv1
-            m_layout[y].append(reader.read<byte>());
+            layout[y].append(reader.read<byte>());
         }
     }
 
-    QString itmpath = QFileInfo(reader.m_filepath).absolutePath() + "/"
-                      + QFileInfo(reader.m_filepath).baseName() + ".itm";
+    QString itmpath = QFileInfo(reader.filepath).absolutePath() + "/"
+                      + QFileInfo(reader.filepath).baseName() + ".itm";
     Reader ITMreader(itmpath);
 
-    m_title = ITMreader.readString();
+    title = ITMreader.readString();
 
-    m_music      = ITMreader.read<byte>();
-    m_background = ITMreader.read<byte>();
-    m_playerXPos = (short)(ITMreader.read<byte>() << 8);
-    m_playerXPos |= ITMreader.read<byte>();
-    m_playerYPos = (short)(ITMreader.read<byte>() << 8);
-    m_playerYPos |= ITMreader.read<byte>();
+    musicID      = ITMreader.read<byte>();
+    backgroundID = ITMreader.read<byte>();
+    playerXPos   = (short)(ITMreader.read<byte>() << 8);
+    playerXPos |= ITMreader.read<byte>();
+    playerYPos = (short)(ITMreader.read<byte>() << 8);
+    playerYPos |= ITMreader.read<byte>();
 
     // Read number of object types, Only RSDKv2 and RSDKv3 support this feature
     // 2 bytes, big-endian, unsigned
@@ -38,49 +38,49 @@ void RSDKv1::Scene::read(Reader &reader)
     objCount |= ITMreader.read<byte>();
 
     for (int n = 0; n < objCount; ++n) {
-        m_objects.append(Object(ITMreader, n));
+        objects.append(Object(ITMreader, n));
     }
 }
 
 void RSDKv1::Scene::write(Writer &writer)
 {
-    m_filename = writer.m_filename;
+    filepath = writer.filePath;
 
     // Write width and height
-    writer.write(m_width);
-    writer.write(m_height);
+    writer.write(width);
+    writer.write(height);
 
     // Write tile map
-    for (int h = 0; h < m_height; ++h) {
-        for (int w = 0; w < m_width; ++w) {
-            writer.write(m_layout[h][w]);
+    for (int h = 0; h < height; ++h) {
+        for (int w = 0; w < width; ++w) {
+            writer.write(layout[h][w]);
         }
     }
     writer.flush();
 
-    QString itmpath = QFileInfo(writer.m_filename).absolutePath() + "/"
-                      + QFileInfo(writer.m_filename).baseName() + ".itm";
+    QString itmpath = QFileInfo(writer.filePath).absolutePath() + "/"
+                      + QFileInfo(writer.filePath).baseName() + ".itm";
     Writer ITMwriter(itmpath);
     // Write zone name
-    ITMwriter.write(m_title);
+    ITMwriter.write(title);
 
     // Write the Stage Init Data
-    ITMwriter.write(m_music);
-    ITMwriter.write(m_background);
-    ITMwriter.write((byte)(m_playerXPos >> 8));
-    ITMwriter.write((byte)(m_playerXPos & 0xFF));
-    ITMwriter.write((byte)(m_playerYPos >> 8));
-    ITMwriter.write((byte)(m_playerYPos & 0xFF));
+    ITMwriter.write(musicID);
+    ITMwriter.write(backgroundID);
+    ITMwriter.write((byte)(playerXPos >> 8));
+    ITMwriter.write((byte)(playerXPos & 0xFF));
+    ITMwriter.write((byte)(playerYPos >> 8));
+    ITMwriter.write((byte)(playerYPos & 0xFF));
 
     // Write number of objects
-    ITMwriter.write((byte)(m_objects.count() >> 8));
-    ITMwriter.write((byte)(m_objects.count() & 0xFF));
+    ITMwriter.write((byte)(objects.count() >> 8));
+    ITMwriter.write((byte)(objects.count() & 0xFF));
 
-    std::sort(m_objects.begin(), m_objects.end(),
-              [](const Object &a, const Object &b) -> bool { return a.m_id < b.m_id; });
+    std::sort(objects.begin(), objects.end(),
+              [](const Object &a, const Object &b) -> bool { return a.slotID < b.slotID; });
 
     // Write object data
-    for (Object &obj : m_objects) {
+    for (Object &obj : objects) {
         obj.write(ITMwriter);
     }
 

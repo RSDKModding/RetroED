@@ -95,7 +95,7 @@ public:
     }
 
     bool m_initialised = false;
-    QString m_filename = "";
+    QString filePath   = "";
 
 private:
     QSharedPointer<QSaveFile> m_file;

@@ -2,10 +2,10 @@
 
 void RSDKv4::Stageconfig::read(Reader &reader)
 {
-    m_filename = reader.m_filepath;
+    m_filename = reader.filepath;
 
     // Global Objects Flag
-    m_loadGlobalScripts = reader.read<byte>();
+    loadGlobalScripts = reader.read<byte>();
 
     // Stage Palette
     m_stagePalette.read(reader, 2 * 16);
@@ -30,21 +30,21 @@ void RSDKv4::Stageconfig::read(Reader &reader)
 
     for (int o = 0; o < objectCount; ++o) {
         ObjectInfo obj;
-        obj.m_name = reader.readString();
+        obj.name = reader.readString();
         m_objects.append(obj);
     }
 
     for (ObjectInfo &obj : m_objects) {
-        obj.m_script = reader.readString();
+        obj.script = reader.readString();
     }
 }
 
 void RSDKv4::Stageconfig::write(Writer &writer)
 {
-    m_filename = writer.m_filename;
+    m_filename = writer.filePath;
 
     // Global Objects Flag
-    writer.write(m_loadGlobalScripts);
+    writer.write(loadGlobalScripts);
 
     // Stage Palette
     m_stagePalette.write(writer);
@@ -62,11 +62,11 @@ void RSDKv4::Stageconfig::write(Writer &writer)
     // Stage Objects
     writer.write((byte)m_objects.count());
     for (ObjectInfo &obj : m_objects) {
-        writer.write(obj.m_name);
+        writer.write(obj.name);
     }
 
     for (ObjectInfo &obj : m_objects) {
-        writer.write(obj.m_script);
+        writer.write(obj.script);
     }
 
     writer.flush();

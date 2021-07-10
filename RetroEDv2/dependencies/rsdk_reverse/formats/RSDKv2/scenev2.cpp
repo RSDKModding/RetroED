@@ -2,7 +2,7 @@
 
 void RSDKv2::Scene::read(Reader &reader)
 {
-    m_filename = reader.m_filepath;
+    m_filename = reader.filepath;
 
     m_title = reader.readString();
 
@@ -46,7 +46,7 @@ void RSDKv2::Scene::read(Reader &reader)
 
 void RSDKv2::Scene::write(Writer &writer)
 {
-    m_filename = writer.m_filename;
+    m_filename = writer.filePath;
 
     // Write zone name
     writer.write(m_title);

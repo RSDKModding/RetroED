@@ -1380,7 +1380,7 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID)
     }
 
     Reader reader(scriptName);
-    if (reader.m_initialised) {
+    if (reader.initialised) {
         int readMode   = READMODE_NORMAL;
         int parseMode  = PARSEMODE_SCOPELESS;
         char prevChar  = 0;
@@ -1589,12 +1589,12 @@ void Compilerv3::writeBytecode(QString path)
         m_bytecode.m_scriptList.append(scr);
     }
 
-    m_bytecode.m_functionList.clear();
+    m_bytecode.functionList.clear();
     for (int f = 0; f < m_functionCount; ++f) {
         RSDKv3::Bytecode::FunctionScript func;
         func.m_mainScript    = m_functionList[f].m_scriptCodePtr;
         func.m_mainJumpTable = m_functionList[f].m_jumpTablePtr;
-        m_bytecode.m_functionList.append(func);
+        m_bytecode.functionList.append(func);
     }
 
     m_bytecode.write(path);

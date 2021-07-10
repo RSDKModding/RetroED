@@ -60,7 +60,7 @@ public:
     QList<int> m_scriptData;
     QList<int> m_jumpTableData;
     QList<ObjectScript> m_scriptList;
-    QList<FunctionScript> m_functionList;
+    QList<FunctionScript> functionList;
 
     int m_globalScriptDataCount = 0;
     int m_globalJumpTableCount  = 0;

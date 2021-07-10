@@ -20,8 +20,8 @@ public:
     class ScrollIndexInfo
     {
     public:
-        int m_startLine = 0;
-        int m_length    = 1;
+        int startLine = 0;
+        int length    = 1;
 
         float m_scrollPos     = 0.0f; // not written, for scene viewer only
         float m_relativeSpeed = 1.0f;
@@ -30,7 +30,7 @@ public:
 
         bool operator==(const ScrollIndexInfo &other) const
         {
-            return m_startLine == other.m_startLine && m_length == other.m_length
+            return startLine == other.startLine && length == other.length
                    && m_scrollPos == other.m_scrollPos && m_relativeSpeed == other.m_relativeSpeed
                    && m_constantSpeed == other.m_constantSpeed && m_behaviour == other.m_behaviour;
         }
@@ -41,16 +41,16 @@ public:
     public:
         Layer() {}
 
-        QList<QList<ushort>> m_layout;
+        QList<QList<ushort>> layout;
 
-        byte m_width          = 0;
-        byte m_height         = 0;
-        byte m_behaviour      = 0;
+        byte width          = 0;
+        byte height         = 0;
+        byte behaviour      = 0;
         float m_relativeSpeed = 1.0f;
         float m_constantSpeed = 0.0f;
         QByteArray m_lineIndexes;
 
-        QList<ScrollIndexInfo> m_scrollInfos;
+        QList<ScrollIndexInfo> scrollInfos;
     };
 
     Background() {}
@@ -62,7 +62,7 @@ public:
     void scrollInfoFromIndices();
     void scrollIndicesFromInfo();
 
-    QList<Layer> m_layers;
+    QList<Layer> layers;
     QList<ScrollInfo> m_hScroll;
     QList<ScrollInfo> m_vScroll;
 

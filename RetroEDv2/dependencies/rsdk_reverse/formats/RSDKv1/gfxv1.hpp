@@ -21,7 +21,7 @@ public:
     inline void write(QString filename, bool dcGFX = false)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filepath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -32,12 +32,12 @@ public:
     void importImage(QImage image);
     QImage exportImage();
 
-    Colour m_palette[255];
-    ushort m_width  = 16;
-    ushort m_height = 16;
-    QByteArray m_pixelData;
+    Colour palette[255];
+    ushort width  = 16;
+    ushort height = 16;
+    QByteArray pixels;
 
-    QString m_filename = "";
+    QString filepath = "";
 };
 
 } // namespace RSDKv1

@@ -27,7 +27,7 @@ public:
 
     Vector2<int> m_snapSize;
 
-    SceneViewer *m_mainView;
+    SceneViewer *viewer;
     SceneProperties *m_scnProp       = nullptr;
     SceneLayerProperties *m_lyrProp  = nullptr;
     SceneTileProperties *m_tileProp  = nullptr;

@@ -7,7 +7,7 @@ SaveFileEditorv4::SaveFileEditorv4(QString filePath, QWidget *parent)
     ui->setupUi(this);
 
     if (QFile::exists(filePath)) {
-        m_savefile.read(filePath);
+        savefile.read(filePath);
         appConfig.addRecentFile(ENGINE_v4, TOOL_SAVEEDITOR, filePath, QList<QString>{});
     }
 
@@ -82,13 +82,13 @@ void SaveFileEditorv4::setupUI()
     m_saveID = 0 << 3;
     ui->curSave->setCurrentIndex(0);
 
-    int stageID = m_savefile.m_saveRAM[m_saveID + 5];
+    int stageID = savefile.saveRAM[m_saveID + 5];
 
-    ui->characterID->setCurrentIndex(m_savefile.m_saveRAM[m_saveID + 0]);
-    ui->lives->setValue(m_savefile.m_saveRAM[m_saveID + 1]);
-    ui->score->setValue(m_savefile.m_saveRAM[m_saveID + 2]);
-    ui->scoreBonus->setValue(m_savefile.m_saveRAM[m_saveID + 3]);
-    ui->continues->setValue(m_savefile.m_saveRAM[m_saveID + 4]);
+    ui->characterID->setCurrentIndex(savefile.saveRAM[m_saveID + 0]);
+    ui->lives->setValue(savefile.saveRAM[m_saveID + 1]);
+    ui->score->setValue(savefile.saveRAM[m_saveID + 2]);
+    ui->scoreBonus->setValue(savefile.saveRAM[m_saveID + 3]);
+    ui->continues->setValue(savefile.saveRAM[m_saveID + 4]);
     ui->curStageSpecial->setChecked(stageID >= 0x80);
 
     if (stageID >= 0x80) {
@@ -97,30 +97,30 @@ void SaveFileEditorv4::setupUI()
 
     if (stageID >= 1) {
         ui->curStage->setCurrentIndex(((stageID - 1) / 2) + 1);
-        ui->curSpecialStage->setCurrentIndex(m_savefile.m_saveRAM[m_saveID + 7]);
+        ui->curSpecialStage->setCurrentIndex(savefile.saveRAM[m_saveID + 7]);
     }
     else {
         ui->curStage->setCurrentIndex(0);
-        ui->curSpecialStage->setCurrentIndex(stageID >= 0x80 ? m_savefile.m_saveRAM[m_saveID + 7] : 0);
+        ui->curSpecialStage->setCurrentIndex(stageID >= 0x80 ? savefile.saveRAM[m_saveID + 7] : 0);
     }
 
     for (int t = 0; t < 7; ++t) {
-        tsBoxes[t]->setChecked(Utils::getBit(m_savefile.m_saveRAM[m_saveID + 6], t));
+        tsBoxes[t]->setChecked(Utils::getBit(savefile.saveRAM[m_saveID + 6], t));
     }
 
-    ui->activeFile->setChecked(m_savefile.m_saveRAM[32]);
-    ui->musVol->setValue(m_savefile.m_saveRAM[33]);
-    ui->sfxVol->setValue(m_savefile.m_saveRAM[34]);
-    ui->ogCtrls->setChecked(m_savefile.m_saveRAM[35]);
-    ui->tailsUnlocked->setChecked(m_savefile.m_saveRAM[43]);
-    ui->knuxUnlocked->setChecked(m_savefile.m_saveRAM[44]);
-    ui->boxArtRegion->setCurrentIndex(m_savefile.m_saveRAM[36]);
-    ui->vDpadSize->setValue(m_savefile.m_saveRAM[37] / 64.0f);
-    ui->vDpadOpacity->setValue(m_savefile.m_saveRAM[38] / 255.0f);
-    ui->vDPadX1->setValue(m_savefile.m_saveRAM[39]);
-    ui->vDPadY1->setValue(m_savefile.m_saveRAM[40]);
-    ui->vDPadX2->setValue(m_savefile.m_saveRAM[41]);
-    ui->vDPadY2->setValue(m_savefile.m_saveRAM[42]);
+    ui->activeFile->setChecked(savefile.saveRAM[32]);
+    ui->musVol->setValue(savefile.saveRAM[33]);
+    ui->sfxVol->setValue(savefile.saveRAM[34]);
+    ui->ogCtrls->setChecked(savefile.saveRAM[35]);
+    ui->tailsUnlocked->setChecked(savefile.saveRAM[43]);
+    ui->knuxUnlocked->setChecked(savefile.saveRAM[44]);
+    ui->boxArtRegion->setCurrentIndex(savefile.saveRAM[36]);
+    ui->vDpadSize->setValue(savefile.saveRAM[37] / 64.0f);
+    ui->vDpadOpacity->setValue(savefile.saveRAM[38] / 255.0f);
+    ui->vDPadX1->setValue(savefile.saveRAM[39]);
+    ui->vDPadY1->setValue(savefile.saveRAM[40]);
+    ui->vDPadX2->setValue(savefile.saveRAM[41]);
+    ui->vDPadY2->setValue(savefile.saveRAM[42]);
 
     connect(ui->curSave, &QComboBox::currentIndexChanged, [this, tsBoxes, stageNames](int c) {
         if (c == -1)
@@ -137,13 +137,13 @@ void SaveFileEditorv4::setupUI()
         ui->curSpecialStage->blockSignals(true);
         for (int t = 0; t < 7; ++t) tsBoxes[t]->blockSignals(true);
 
-        int stageID = m_savefile.m_saveRAM[m_saveID + 3];
+        int stageID = savefile.saveRAM[m_saveID + 3];
 
-        ui->characterID->setCurrentIndex(m_savefile.m_saveRAM[m_saveID + 0]);
-        ui->lives->setValue(m_savefile.m_saveRAM[m_saveID + 1]);
-        ui->score->setValue(m_savefile.m_saveRAM[m_saveID + 2]);
-        ui->scoreBonus->setValue(m_savefile.m_saveRAM[m_saveID + 3]);
-        ui->continues->setValue(m_savefile.m_saveRAM[m_saveID + 4]);
+        ui->characterID->setCurrentIndex(savefile.saveRAM[m_saveID + 0]);
+        ui->lives->setValue(savefile.saveRAM[m_saveID + 1]);
+        ui->score->setValue(savefile.saveRAM[m_saveID + 2]);
+        ui->scoreBonus->setValue(savefile.saveRAM[m_saveID + 3]);
+        ui->continues->setValue(savefile.saveRAM[m_saveID + 4]);
         ui->curStageSpecial->setChecked(stageID >= 0x80);
 
         if (stageID >= 0x80) {
@@ -152,16 +152,15 @@ void SaveFileEditorv4::setupUI()
 
         if (stageID >= 1) {
             ui->curStage->setCurrentIndex(((stageID - 1) / 2) + 1);
-            ui->curSpecialStage->setCurrentIndex(m_savefile.m_saveRAM[m_saveID + 5]);
+            ui->curSpecialStage->setCurrentIndex(savefile.saveRAM[m_saveID + 5]);
         }
         else {
             ui->curStage->setCurrentIndex(0);
-            ui->curSpecialStage->setCurrentIndex(stageID >= 0x80 ? m_savefile.m_saveRAM[m_saveID + 5]
-                                                                 : 0);
+            ui->curSpecialStage->setCurrentIndex(stageID >= 0x80 ? savefile.saveRAM[m_saveID + 5] : 0);
         }
 
         for (int t = 0; t < 7; ++t) {
-            tsBoxes[t]->setChecked(Utils::getBit(m_savefile.m_saveRAM[m_saveID + 4], t));
+            tsBoxes[t]->setChecked(Utils::getBit(savefile.saveRAM[m_saveID + 4], t));
         }
 
         ui->characterID->blockSignals(false);
@@ -177,20 +176,18 @@ void SaveFileEditorv4::setupUI()
     connect(ui->characterID, &QComboBox::currentIndexChanged, [this](int c) {
         if (c == -1)
             return;
-        m_savefile.m_saveRAM[m_saveID + 0] = c;
+        savefile.saveRAM[m_saveID + 0] = c;
     });
 
-    connect(ui->lives, &QSpinBox::valueChanged,
-            [this](int v) { m_savefile.m_saveRAM[m_saveID + 1] = v; });
+    connect(ui->lives, &QSpinBox::valueChanged, [this](int v) { savefile.saveRAM[m_saveID + 1] = v; });
 
-    connect(ui->score, &QSpinBox::valueChanged,
-            [this](int v) { m_savefile.m_saveRAM[m_saveID + 2] = v; });
+    connect(ui->score, &QSpinBox::valueChanged, [this](int v) { savefile.saveRAM[m_saveID + 2] = v; });
 
     connect(ui->scoreBonus, &QSpinBox::valueChanged,
-            [this](int v) { m_savefile.m_saveRAM[m_saveID + 3] = v; });
+            [this](int v) { savefile.saveRAM[m_saveID + 3] = v; });
 
     connect(ui->continues, &QSpinBox::valueChanged,
-            [this](int v) { m_savefile.m_saveRAM[m_saveID + 4] = v; });
+            [this](int v) { savefile.saveRAM[m_saveID + 4] = v; });
 
     connect(ui->curStage, &QComboBox::currentIndexChanged, [this](int c) {
         if (c == -1)
@@ -199,58 +196,58 @@ void SaveFileEditorv4::setupUI()
         int zonePos  = (c - 1) / 3;
         int stagePos = (c - 1) - (zonePos * 3);
         int listPos  = (zonePos * 10) + (stagePos * 4);
-        if (m_savefile.m_saveRAM[m_saveID + 5] >= 0x80)
-            m_savefile.m_saveRAM[m_saveID + 5] = listPos + 0x81;
+        if (savefile.saveRAM[m_saveID + 5] >= 0x80)
+            savefile.saveRAM[m_saveID + 5] = listPos + 0x81;
         else
-            m_savefile.m_saveRAM[m_saveID + 5] = listPos + 1;
+            savefile.saveRAM[m_saveID + 5] = listPos + 1;
     });
 
     connect(ui->curStageSpecial, &QCheckBox::toggled, [this](bool c) {
         if (c) {
-            if (m_savefile.m_saveRAM[m_saveID + 5] < 0x80)
-                m_savefile.m_saveRAM[m_saveID + 5] += 0x80;
+            if (savefile.saveRAM[m_saveID + 5] < 0x80)
+                savefile.saveRAM[m_saveID + 5] += 0x80;
         }
         else {
-            if (m_savefile.m_saveRAM[m_saveID + 5] >= 0x80)
-                m_savefile.m_saveRAM[m_saveID + 5] -= 0x80;
+            if (savefile.saveRAM[m_saveID + 5] >= 0x80)
+                savefile.saveRAM[m_saveID + 5] -= 0x80;
         }
     });
 
     connect(ui->curSpecialStage, &QComboBox::currentIndexChanged, [this](int c) {
         if (c == -1)
             return;
-        m_savefile.m_saveRAM[m_saveID + 7] = 0;
+        savefile.saveRAM[m_saveID + 7] = 0;
     });
 
     for (int t = 0; t < 7; ++t) {
         connect(tsBoxes[t], &QCheckBox::toggled,
-                [this, t](bool c) { Utils::setBit(m_savefile.m_saveRAM[m_saveID + 6], c, t); });
+                [this, t](bool c) { Utils::setBit(savefile.saveRAM[m_saveID + 6], c, t); });
     }
 
-    connect(ui->activeFile, &QCheckBox::toggled, [this](bool c) { m_savefile.m_saveRAM[32] = c; });
+    connect(ui->activeFile, &QCheckBox::toggled, [this](bool c) { savefile.saveRAM[32] = c; });
     connect(ui->musVol, &QDoubleSpinBox::valueChanged,
-            [this](int v) { m_savefile.m_saveRAM[33] = v * 100; });
+            [this](int v) { savefile.saveRAM[33] = v * 100; });
     connect(ui->sfxVol, &QDoubleSpinBox::valueChanged,
-            [this](int v) { m_savefile.m_saveRAM[34] = v * 100; });
-    connect(ui->ogCtrls, &QCheckBox::toggled, [this](int c) { m_savefile.m_saveRAM[35] = c; });
-    connect(ui->tailsUnlocked, &QCheckBox::toggled, [this](bool c) { m_savefile.m_saveRAM[36] = c; });
-    connect(ui->knuxUnlocked, &QCheckBox::toggled, [this](bool c) { m_savefile.m_saveRAM[36] = c; });
+            [this](int v) { savefile.saveRAM[34] = v * 100; });
+    connect(ui->ogCtrls, &QCheckBox::toggled, [this](int c) { savefile.saveRAM[35] = c; });
+    connect(ui->tailsUnlocked, &QCheckBox::toggled, [this](bool c) { savefile.saveRAM[36] = c; });
+    connect(ui->knuxUnlocked, &QCheckBox::toggled, [this](bool c) { savefile.saveRAM[36] = c; });
     connect(ui->boxArtRegion, &QComboBox::currentIndexChanged,
-            [this](int c) { m_savefile.m_saveRAM[36] = c; });
+            [this](int c) { savefile.saveRAM[36] = c; });
     connect(ui->vDpadSize, &QDoubleSpinBox::valueChanged,
-            [this](double v) { m_savefile.m_saveRAM[37] = v * 64; });
+            [this](double v) { savefile.saveRAM[37] = v * 64; });
     connect(ui->vDpadOpacity, &QDoubleSpinBox::valueChanged,
-            [this](double v) { m_savefile.m_saveRAM[38] = v * 255; });
-    connect(ui->vDPadX1, &QSpinBox::valueChanged, [this](int v) { m_savefile.m_saveRAM[39] = v; });
-    connect(ui->vDPadY1, &QSpinBox::valueChanged, [this](int v) { m_savefile.m_saveRAM[40] = v; });
-    connect(ui->vDPadX2, &QSpinBox::valueChanged, [this](int v) { m_savefile.m_saveRAM[41] = v; });
-    connect(ui->vDPadY2, &QSpinBox::valueChanged, [this](int v) { m_savefile.m_saveRAM[42] = v; });
+            [this](double v) { savefile.saveRAM[38] = v * 255; });
+    connect(ui->vDPadX1, &QSpinBox::valueChanged, [this](int v) { savefile.saveRAM[39] = v; });
+    connect(ui->vDPadY1, &QSpinBox::valueChanged, [this](int v) { savefile.saveRAM[40] = v; });
+    connect(ui->vDPadX2, &QSpinBox::valueChanged, [this](int v) { savefile.saveRAM[41] = v; });
+    connect(ui->vDPadY2, &QSpinBox::valueChanged, [this](int v) { savefile.saveRAM[42] = v; });
 }
 
 bool SaveFileEditorv4::event(QEvent *event)
 {
     if (event->type() == (QEvent::Type)RE_EVENT_NEW) {
-        m_savefile = RSDKv4::SaveFile();
+        savefile = RSDKv4::SaveFile();
         setupUI();
         return true;
     }
@@ -259,7 +256,7 @@ bool SaveFileEditorv4::event(QEvent *event)
                                tr("RSDKv4 Save Files (*SData*.bin);;RSDKv4 Save Files (*SGame*.bin)"));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
-            m_savefile.read(filedialog.selectedFiles()[0]);
+            savefile.read(filedialog.selectedFiles()[0]);
             appConfig.addRecentFile(ENGINE_v4, TOOL_SAVEEDITOR, filedialog.selectedFiles()[0],
                                     QList<QString>{});
             setupUI();
@@ -268,8 +265,8 @@ bool SaveFileEditorv4::event(QEvent *event)
     }
 
     if (event->type() == (QEvent::Type)RE_EVENT_SAVE) {
-        if (m_savefile.m_filename != "") {
-            m_savefile.write("");
+        if (savefile.filepath != "") {
+            savefile.write("");
             return true;
         }
 
@@ -277,7 +274,7 @@ bool SaveFileEditorv4::event(QEvent *event)
                                tr("RSDKv4 Save Files (*SData*.bin);;RSDKv4 Save Files (*SGame*.bin)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
-            m_savefile.write(filedialog.selectedFiles()[0]);
+            savefile.write(filedialog.selectedFiles()[0]);
             appConfig.addRecentFile(ENGINE_v4, TOOL_SAVEEDITOR, filedialog.selectedFiles()[0],
                                     QList<QString>{});
             return true;
@@ -289,7 +286,7 @@ bool SaveFileEditorv4::event(QEvent *event)
                                tr("RSDKv4 Save Files (*SData*.bin);;RSDKv4 Save Files (*SGame*.bin)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
-            m_savefile.write(filedialog.selectedFiles()[0]);
+            savefile.write(filedialog.selectedFiles()[0]);
             appConfig.addRecentFile(ENGINE_v3, TOOL_SAVEEDITOR, filedialog.selectedFiles()[0],
                                     QList<QString>{});
             return true;

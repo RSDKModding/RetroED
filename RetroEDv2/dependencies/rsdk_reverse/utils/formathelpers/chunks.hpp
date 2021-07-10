@@ -12,11 +12,11 @@ public:
     public:
         Tile() {}
 
-        byte m_visualPlane = 0;
-        byte m_direction   = 0;
-        ushort m_tileIndex = 0;
-        byte m_solidityA   = 0;
-        byte m_solidityB   = 0;
+        byte visualPlane = 0;
+        byte direction   = 0;
+        ushort tileIndex = 0;
+        byte solidityA   = 0;
+        byte solidityB   = 0;
     };
 
     class Chunk
@@ -26,7 +26,7 @@ public:
 
         QImage getImage(QList<QImage> tiles);
 
-        Tile m_tiles[8][8];
+        Tile tiles[8][8];
     };
 
     Chunks() {}
@@ -35,7 +35,7 @@ public:
     void read(byte ver, QString filename);
     void write(byte ver, QString filename);
 
-    Chunk m_chunks[0x200];
+    Chunk chunks[0x200];
 
     QString m_filename = "";
 };

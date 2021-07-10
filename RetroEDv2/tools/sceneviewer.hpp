@@ -7,7 +7,7 @@ public:
     float m_near = 0.01f;
     float m_far  = 1000.0f;
 
-    Vector3<float> m_position = Vector3<float>(0.0f, 0.0f, 0.0f);
+    Vector3<float> pos = Vector3<float>(0.0f, 0.0f, 0.0f);
 
     Vector2<float> m_lastMousePos = Vector2<float>(0.0f, 0.0f);
 
@@ -32,8 +32,8 @@ public:
     struct TextureInfo {
         TextureInfo() {}
 
-        QString m_name            = "";
-        QOpenGLTexture *m_texture = nullptr;
+        QString name               = "";
+        QOpenGLTexture *texturePtr = nullptr;
     };
 
     void loadScene(QString path, byte ver);
@@ -43,62 +43,63 @@ public:
     void unloadScene();
 
     // viewing properties
-    float m_zoom = 1.0f;
-    inline float invZoom() { return 1.0f / m_zoom; }
+    float zoom = 1.0f;
+    inline float invZoom() { return 1.0f / zoom; }
 
-    byte m_gameType = ENGINE_NONE;
+    byte gameType = ENGINE_NONE;
 
     QString m_dataPath = "";
-    FormatHelpers::Gameconfig m_gameconfig;
+    FormatHelpers::Gameconfig gameConfig;
 
-    FormatHelpers::Scene m_scene;
-    FormatHelpers::Background m_background;
-    FormatHelpers::Chunks m_chunkset;
-    FormatHelpers::Stageconfig m_stageconfig;
+    FormatHelpers::Scene scene;
+    FormatHelpers::Background background;
+    FormatHelpers::Chunks chunkset;
+    FormatHelpers::Stageconfig stageConfig;
 
-    RSDKv4::Tileconfig m_tileconfig;
+    RSDKv4::Tileconfig tileconfig;
     RSDKv1::Tileconfig m_tileconfigRS;
 
     QPoint m_reference;
 
     // General Editing
-    byte m_tool               = TOOL_MOUSE;
+    byte curTool              = TOOL_MOUSE;
     bool m_selecting          = false;
     Vector2<float> m_mousePos = Vector2<float>(0.0f, 0.0f);
 
     // Layer Editing
     Vector2<float> m_tilePos = Vector2<float>(0.0f, 0.0f);
     Vector2<bool> m_tileFlip = Vector2<bool>(false, false);
-    int m_selectedChunk      = -1;
-    int m_selectedLayer      = -1;
+    int selectedChunk        = -1;
+    int selectedLayer        = -1;
 
     // Collision
-    bool m_showPlaneA = false;
-    bool m_showPlaneB = false;
+    bool showPlaneA = false;
+    bool showPlaneB = false;
 
     // Entity Editing
-    int m_selectedObject = -1; // placing
+    int selectedObject   = -1; // placing
     int m_selectedEntity = -1; // viewing
 
     // Parallax Editing
-    bool m_showParallax      = true;
-    int m_selectedScrollInfo = -1;
+    bool showParallax      = false;
+    int selectedScrollInfo = -1;
 
     // Camera
-    SceneCamera m_cam;
+    SceneCamera cam;
 
-    QList<QImage> m_tiles;
-    QList<QImage> m_chunks;
-    QImage m_missingObj;
+    QList<QImage> tiles;
+    QList<QImage> chunks;
+    QImage missingObj;
 
-    bool m_showPixelGrid = false;
-    bool m_showTileGrid  = false;
+    bool showPixelGrid = false;
+    bool showChunkGrid = false;
+    bool showTileGrid  = false;
 
     Compilerv3 m_compilerv3;
     Compilerv4 m_compilerv4;
 
     // passed from main
-    QLabel *m_statusLabel      = nullptr;
+    QLabel *statusLabel        = nullptr;
     QScrollBar *m_sbHorizontal = nullptr;
     QScrollBar *m_sbVertical   = nullptr;
 
@@ -107,35 +108,35 @@ public:
 
     inline int layerWidth(byte layer)
     {
-        int weight = m_scene.m_width;
+        int weight = scene.width;
 
         if (layer > 0) {
-            weight = m_background.m_layers[layer - 1].m_width;
+            weight = background.layers[layer - 1].width;
         }
         return weight;
     }
 
     inline int layerHeight(byte layer)
     {
-        int height = m_scene.m_height;
+        int height = scene.height;
 
         if (layer > 0) {
-            height = m_background.m_layers[layer - 1].m_height;
+            height = background.layers[layer - 1].height;
         }
         return height;
     }
 
     inline QList<QList<ushort>> layerLayout(byte layer)
     {
-        QList<QList<ushort>> layout = m_scene.m_layout;
+        QList<QList<ushort>> layout = scene.layout;
 
         if (layer > 0) {
-            layout = m_background.m_layers[layer - 1].m_layout;
+            layout = background.layers[layer - 1].layout;
         }
         return layout;
     }
 
-    int m_storedW, m_storedH;
+    int storedW, storedH;
 
     int m_prevSprite = -1;
 
@@ -254,16 +255,16 @@ protected:
     QSize sizeHint() const { return QSize(0, 0); }
 
 private:
-    QOpenGLVertexArrayObject m_screenVAO, m_rectVAO;
+    QOpenGLVertexArrayObject screenVAO, rectVAO;
     QOpenGLTexture *m_tilesetTexture = nullptr;
-    QList<TextureInfo> m_objectSprites;
+    QList<TextureInfo> objectSprites;
 
     QOpenGLTexture *m_rsPlayerSprite = nullptr;
 
     QMatrix4x4 m_matView;
 
-    Shader m_primitiveShader;
-    Shader m_spriteShader;
+    Shader primitiveShader;
+    Shader spriteShader;
 
     inline QOpenGLTexture *createTexture(QImage src)
     {
@@ -284,8 +285,8 @@ private:
     inline QMatrix4x4 getProjectionMatrix()
     {
         QMatrix4x4 matWorld;
-        m_cam.m_aspectRatio = m_storedW / (float)m_storedH;
-        matWorld.ortho(0.0f, (float)m_storedW, (float)m_storedH, 0.0f, -16.0f, 16.0f);
+        cam.m_aspectRatio = storedW / (float)storedH;
+        matWorld.ortho(0.0f, (float)storedW, (float)storedH, 0.0f, -16.0f, 16.0f);
         return matWorld;
     }
 
@@ -349,7 +350,7 @@ private:
         else {
             shader.setValue("colour", QVector4D(colour.x, colour.y, colour.z, colour.w));
 
-            m_rectVAO.bind();
+            rectVAO.bind();
 
             QMatrix4x4 matModel;
             matModel.scale(w, h, 1.0f);
@@ -358,7 +359,7 @@ private:
 
             f->glDrawArrays(GL_TRIANGLES, 0, 6);
 
-            m_rectVAO.release();
+            rectVAO.release();
         }
     }
 

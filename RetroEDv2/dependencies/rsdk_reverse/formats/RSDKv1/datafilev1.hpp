@@ -16,8 +16,8 @@ public:
         void read(Reader &reader);
         void write(Writer &writer);
 
-        QString m_directory = "dir/";
-        int m_address       = 0;
+        QString directory = "dir/";
+        int offset        = 0;
     };
 
     class FileInfo
@@ -29,11 +29,11 @@ public:
         void read(Reader &reader);
         void write(Writer &writer);
 
-        QString m_filename     = "File.ext";
-        QString m_fullFilename = "Folder/File.ext";
-        uint m_fileSize        = 0;
-        QByteArray m_filedata;
-        ushort m_dirID = 0;
+        QString filename     = "File.ext";
+        QString fullFilename = "Folder/File.ext";
+        uint fileSize        = 0;
+        ushort dirID         = 0;
+        QByteArray fileData;
     };
 
     Datafile() {}
@@ -50,7 +50,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filepath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -58,10 +58,10 @@ public:
     }
     void write(Writer &writer);
 
-    QList<DirInfo> m_directories;
-    QList<FileInfo> m_files;
+    QList<DirInfo> directories;
+    QList<FileInfo> files;
 
-    QString m_filename = "";
+    QString filepath = "";
 };
 
 } // namespace RSDKv1

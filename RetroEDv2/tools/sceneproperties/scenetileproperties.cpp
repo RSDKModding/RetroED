@@ -21,13 +21,13 @@ void SceneTileProperties::setupUI(RSDKv4::Tileconfig::CollisionMask *cmA,
 
     m_tileImg = tileImg;
 
-    ui->colYFlip->setChecked(m_cmask[m_collisionLyr]->m_isCeiling);
+    ui->colYFlip->setChecked(m_cmask[m_collisionLyr]->flipY);
 
-    ui->behaviour->setValue(m_cmask[m_collisionLyr]->m_behaviour);
-    ui->floorAngle->setValue(m_cmask[m_collisionLyr]->m_floorAngle);
-    ui->roofAngle->setValue(m_cmask[m_collisionLyr]->m_roofAngle);
-    ui->lWallAngle->setValue(m_cmask[m_collisionLyr]->m_lWallAngle);
-    ui->rWallAngle->setValue(m_cmask[m_collisionLyr]->m_rWallAngle);
+    ui->behaviour->setValue(m_cmask[m_collisionLyr]->behaviour);
+    ui->floorAngle->setValue(m_cmask[m_collisionLyr]->floorAngle);
+    ui->roofAngle->setValue(m_cmask[m_collisionLyr]->roofAngle);
+    ui->lWallAngle->setValue(m_cmask[m_collisionLyr]->lWallAngle);
+    ui->rWallAngle->setValue(m_cmask[m_collisionLyr]->rWallAngle);
 
     ui->tID->setText("Tile ID: " + QString::number(tid));
 
@@ -43,12 +43,12 @@ void SceneTileProperties::setupUI(RSDKv4::Tileconfig::CollisionMask *cmA,
         ui->lWallAngle->blockSignals(true);
         ui->rWallAngle->blockSignals(true);
 
-        ui->colYFlip->setChecked(m_cmask[m_collisionLyr]->m_isCeiling);
-        ui->behaviour->setValue(m_cmask[m_collisionLyr]->m_behaviour);
-        ui->floorAngle->setValue(m_cmask[m_collisionLyr]->m_floorAngle);
-        ui->roofAngle->setValue(m_cmask[m_collisionLyr]->m_roofAngle);
-        ui->lWallAngle->setValue(m_cmask[m_collisionLyr]->m_lWallAngle);
-        ui->rWallAngle->setValue(m_cmask[m_collisionLyr]->m_rWallAngle);
+        ui->colYFlip->setChecked(m_cmask[m_collisionLyr]->flipY);
+        ui->behaviour->setValue(m_cmask[m_collisionLyr]->behaviour);
+        ui->floorAngle->setValue(m_cmask[m_collisionLyr]->floorAngle);
+        ui->roofAngle->setValue(m_cmask[m_collisionLyr]->roofAngle);
+        ui->lWallAngle->setValue(m_cmask[m_collisionLyr]->lWallAngle);
+        ui->rWallAngle->setValue(m_cmask[m_collisionLyr]->rWallAngle);
 
         ui->colYFlip->blockSignals(false);
         ui->behaviour->blockSignals(false);
@@ -59,22 +59,22 @@ void SceneTileProperties::setupUI(RSDKv4::Tileconfig::CollisionMask *cmA,
     });
 
     connect(ui->colYFlip, &QCheckBox::toggled,
-            [this](bool v) { m_cmask[m_collisionLyr]->m_isCeiling = v; });
+            [this](bool v) { m_cmask[m_collisionLyr]->flipY = v; });
 
     connect(ui->behaviour, QOverload<int>::of(&QSpinBox::valueChanged),
-            [this](int v) { m_cmask[m_collisionLyr]->m_behaviour = (byte)v; });
+            [this](int v) { m_cmask[m_collisionLyr]->behaviour = (byte)v; });
 
     connect(ui->floorAngle, QOverload<int>::of(&QSpinBox::valueChanged),
-            [this](int v) { m_cmask[m_collisionLyr]->m_floorAngle = (byte)v; });
+            [this](int v) { m_cmask[m_collisionLyr]->floorAngle = (byte)v; });
 
     connect(ui->roofAngle, QOverload<int>::of(&QSpinBox::valueChanged),
-            [this](int v) { m_cmask[m_collisionLyr]->m_roofAngle = (byte)v; });
+            [this](int v) { m_cmask[m_collisionLyr]->roofAngle = (byte)v; });
 
     connect(ui->lWallAngle, QOverload<int>::of(&QSpinBox::valueChanged),
-            [this](int v) { m_cmask[m_collisionLyr]->m_lWallAngle = (byte)v; });
+            [this](int v) { m_cmask[m_collisionLyr]->lWallAngle = (byte)v; });
 
     connect(ui->rWallAngle, QOverload<int>::of(&QSpinBox::valueChanged),
-            [this](int v) { m_cmask[m_collisionLyr]->m_rWallAngle = (byte)v; });
+            [this](int v) { m_cmask[m_collisionLyr]->rWallAngle = (byte)v; });
 
     connect(ui->editCollision, &QPushButton::clicked, [&] {
         TileCollisionWidget *edit = new TileCollisionWidget();
@@ -116,15 +116,15 @@ void TileCollisionWidget::paintEvent(QPaintEvent *)
     QRectF rect(0, 0, (qreal)width() / 16, (qreal)height() / 16);
     p.drawImage(QRect(0, 0, width(), height()), m_tileImg);
 
-    if (!m_cmask->m_isCeiling) {
+    if (!m_cmask->flipY) {
         for (byte y = 0; y < 16; ++y) {
             for (byte x = 0; x < 16; ++x) {
-                if (m_cmask->m_collision[x].m_height <= y) {
+                if (m_cmask->collision[x].height <= y) {
                     QPen pen(qApp->palette().base(), 2);
                     p.setPen(pen);
                     p.setBrush(QColor(0x00FF00));
 
-                    if (!m_cmask->m_collision[x].m_solid)
+                    if (!m_cmask->collision[x].solid)
                         p.setBrush(p.brush().color().darker(255));
 
                     p.drawRect(rect.translated(x * (qreal)width() / 16, y * (qreal)height() / 16));
@@ -135,13 +135,13 @@ void TileCollisionWidget::paintEvent(QPaintEvent *)
     else {
         for (int y = 15; y > -1; --y) {
             for (int x = 15; x > -1; --x) {
-                if (m_cmask->m_collision[x].m_height >= y) {
+                if (m_cmask->collision[x].height >= y) {
 
                     QPen pen(qApp->palette().base(), 2);
                     p.setPen(pen);
                     p.setBrush(QColor(0x00FF00));
 
-                    if (!m_cmask->m_collision[x].m_solid)
+                    if (!m_cmask->collision[x].solid)
                         p.setBrush(p.brush().color().darker(255));
 
                     p.drawRect(rect.translated(x * (qreal)width() / 16, y * (qreal)height() / 16));
@@ -171,7 +171,7 @@ void TileCollisionWidget::mousePressEvent(QMouseEvent *event)
     m_pressedR  = (event->button() & Qt::RightButton) == Qt::RightButton;
 
     if (m_pressedR)
-        m_enabling = !m_cmask->m_collision[x].m_solid;
+        m_enabling = !m_cmask->collision[x].solid;
 }
 
 void TileCollisionWidget::mouseReleaseEvent(QMouseEvent *event)
@@ -202,10 +202,10 @@ void TileCollisionWidget::mouseMoveEvent(QMouseEvent *event)
     m_highlight = x % 16 + y * 16;
 
     if (m_pressedR)
-        m_cmask->m_collision[x].m_solid = m_enabling;
+        m_cmask->collision[x].solid = m_enabling;
 
     if (m_pressedL)
-        m_cmask->m_collision[x].m_height = y;
+        m_cmask->collision[x].height = y;
 
     update();
 }

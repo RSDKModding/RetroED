@@ -21,7 +21,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filepath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -29,7 +29,7 @@ public:
     }
     void write(Writer &writer);
 
-    QString m_filename = "";
+    QString filepath = "";
 };
 
 } // namespace RSDKv1

@@ -52,11 +52,11 @@ StageconfigEditorv3::StageconfigEditorv3(FormatHelpers::Stageconfig *scf, int gl
             return;
 
         ui->objName->blockSignals(true);
-        ui->objName->setText(m_stageconfig->m_objects[c].m_name);
+        ui->objName->setText(m_stageconfig->objects[c].m_name);
         ui->objName->blockSignals(false);
 
         ui->objScript->blockSignals(true);
-        ui->objScript->setText(m_stageconfig->m_objects[c].m_script);
+        ui->objScript->setText(m_stageconfig->objects[c].m_script);
         ui->objType->setText("Object Type ID: " + QString::number(c + globalObjCount));
         ui->objScript->blockSignals(false);
 
@@ -69,9 +69,9 @@ StageconfigEditorv3::StageconfigEditorv3(FormatHelpers::Stageconfig *scf, int gl
     connect(ui->addObj, &QToolButton::clicked, [this] {
         ui->objList->blockSignals(true);
         uint c = ui->objList->currentRow() + 1;
-        m_stageconfig->m_objects.insert(c, FormatHelpers::Stageconfig::ObjectInfo());
+        m_stageconfig->objects.insert(c, FormatHelpers::Stageconfig::ObjectInfo());
         auto *item = new QListWidgetItem();
-        item->setText(m_stageconfig->m_objects[c].m_name);
+        item->setText(m_stageconfig->objects[c].m_name);
         ui->objList->insertItem(c, item);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -82,7 +82,7 @@ StageconfigEditorv3::StageconfigEditorv3(FormatHelpers::Stageconfig *scf, int gl
     connect(ui->upObj, &QToolButton::clicked, [this] {
         uint c     = ui->objList->currentRow();
         auto *item = ui->objList->takeItem(c);
-        m_stageconfig->m_objects.move(c, c - 1);
+        m_stageconfig->objects.move(c, c - 1);
         ui->objList->insertItem(c - 1, item);
         ui->objList->setCurrentRow(c - 1);
     });
@@ -90,7 +90,7 @@ StageconfigEditorv3::StageconfigEditorv3(FormatHelpers::Stageconfig *scf, int gl
     connect(ui->downObj, &QToolButton::clicked, [this] {
         uint c     = ui->objList->currentRow();
         auto *item = ui->objList->takeItem(c);
-        m_stageconfig->m_objects.move(c, c + 1);
+        m_stageconfig->objects.move(c, c + 1);
         ui->objList->insertItem(c + 1, item);
         ui->objList->setCurrentRow(c + 1);
     });
@@ -99,28 +99,28 @@ StageconfigEditorv3::StageconfigEditorv3(FormatHelpers::Stageconfig *scf, int gl
         int c = ui->objList->currentRow();
         int n = ui->objList->currentRow() == ui->objList->count() - 1 ? c - 1 : c;
         delete ui->objList->item(c);
-        m_stageconfig->m_objects.removeAt(c);
+        m_stageconfig->objects.removeAt(c);
         ui->objList->blockSignals(true);
         ui->objList->setCurrentRow(n);
         ui->objList->blockSignals(false);
     });
 
     connect(ui->objList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        m_stageconfig->m_objects[ui->objList->row(item)].m_name = item->text();
+        m_stageconfig->objects[ui->objList->row(item)].m_name = item->text();
 
         ui->objName->blockSignals(true);
-        ui->objName->setText(m_stageconfig->m_objects[ui->objList->row(item)].m_name);
+        ui->objName->setText(m_stageconfig->objects[ui->objList->row(item)].m_name);
         ui->objName->blockSignals(false);
     });
 
     connect(ui->objName, &QLineEdit::textEdited, [this](QString s) {
-        m_stageconfig->m_objects[ui->objList->currentRow()].m_name = s;
+        m_stageconfig->objects[ui->objList->currentRow()].m_name = s;
 
         ui->objList->item(ui->objList->currentRow())
-            ->setText(m_stageconfig->m_objects[ui->objList->currentRow()].m_name);
+            ->setText(m_stageconfig->objects[ui->objList->currentRow()].m_name);
     });
     connect(ui->objScript, &QLineEdit::textEdited,
-            [this](QString s) { m_stageconfig->m_objects[ui->objList->currentRow()].m_script = s; });
+            [this](QString s) { m_stageconfig->objects[ui->objList->currentRow()].m_script = s; });
 
     // ----------------
     // SOUNDFX
@@ -235,7 +235,7 @@ void StageconfigEditorv3::setupUI()
 
     ui->objList->clear();
     int id = 0;
-    for (FormatHelpers::Stageconfig::ObjectInfo &obj : m_stageconfig->m_objects) {
+    for (FormatHelpers::Stageconfig::ObjectInfo &obj : m_stageconfig->objects) {
         ui->objList->addItem(obj.m_name);
         ui->objList->item(id)->setFlags(ui->objList->item(id)->flags() | Qt::ItemIsEditable);
         id++;

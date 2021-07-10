@@ -46,17 +46,17 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
             QString baseDir = filedialog.selectedFiles()[0];
             setStatus("Unpacking Datafile...");
 
-            for (FileInfo &file : m_files) {
-                QString fDir = file.m_filename;
+            for (FileInfo &file : files) {
+                QString fDir = file.filename;
                 fDir         = fDir.replace(QFileInfo(fDir).fileName(), "");
                 QString dir  = baseDir + "/" + fDir;
                 if (!QDir(QDir::tempPath()).exists(dir))
                     QDir(QDir::tempPath()).mkpath(dir);
 
-                QString path = baseDir + "/" + file.m_filename;
+                QString path = baseDir + "/" + file.filename;
                 QFile f(path);
                 f.open(QIODevice::WriteOnly);
-                f.write(file.m_filedata);
+                f.write(file.fileData);
                 f.close();
             }
 
@@ -75,7 +75,7 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
             dirInfo.cdUp();
             QString absDir = dirInfo.path() + "/";
 
-            m_files.clear();
+            files.clear();
             ui->fileList->blockSignals(true);
             ui->fileList->clear();
 
@@ -84,16 +84,16 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
             while (itData.hasNext()) {
                 QString file = itData.next();
                 FileInfo info;
-                info.m_encrypted = false;
-                info.m_fileSize  = QFileInfo(file).size();
+                info.encrypted = false;
+                info.fileSize  = QFileInfo(file).size();
 
-                info.m_filename = file;
-                info.m_filename.replace(absDir, "");
+                info.filename = file;
+                info.filename.replace(absDir, "");
                 Reader reader(file);
-                info.m_filedata = reader.readByteArray(reader.m_filesize);
+                info.fileData = reader.readByteArray(reader.filesize);
                 reader.close();
-                m_files.append(info);
-                ui->fileList->addItem(info.m_filename);
+                files.append(info);
+                ui->fileList->addItem(info.filename);
             }
 
             // Search [FolderAbsDir]/ByteCode/
@@ -102,16 +102,16 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
             while (itBC.hasNext()) {
                 QString file = itBC.next();
                 FileInfo info;
-                info.m_encrypted = false;
-                info.m_fileSize  = QFileInfo(file).size();
+                info.encrypted = false;
+                info.fileSize  = QFileInfo(file).size();
 
-                info.m_filename = file;
-                info.m_filename.replace(absDir, "");
+                info.filename = file;
+                info.filename.replace(absDir, "");
                 Reader reader(file);
-                info.m_filedata = reader.readByteArray(reader.m_filesize);
+                info.fileData = reader.readByteArray(reader.filesize);
                 reader.close();
-                m_files.append(info);
-                ui->fileList->addItem(info.m_filename);
+                files.append(info);
+                ui->fileList->addItem(info.filename);
             }
 
             // Search [FolderAbsDir]/Scripts/
@@ -120,16 +120,16 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
             while (itScr.hasNext()) {
                 QString file = itScr.next();
                 FileInfo info;
-                info.m_encrypted = false;
-                info.m_fileSize  = QFileInfo(file).size();
+                info.encrypted = false;
+                info.fileSize  = QFileInfo(file).size();
 
-                info.m_filename = file;
-                info.m_filename.replace(absDir, "");
+                info.filename = file;
+                info.filename.replace(absDir, "");
                 Reader reader(file);
-                info.m_filedata = reader.readByteArray(reader.m_filesize);
+                info.fileData = reader.readByteArray(reader.filesize);
                 reader.close();
-                m_files.append(info);
-                ui->fileList->addItem(info.m_filename);
+                files.append(info);
+                ui->fileList->addItem(info.filename);
             }
             ui->fileList->blockSignals(false);
         }
@@ -156,14 +156,14 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
             setStatus("Saving Datafile...");
             savePack(filedialog.selectedFiles()[0], types.indexOf(filedialog.selectedNameFilter()));
 
-            appConfig.addRecentFile(m_gameVer, TOOL_RSDKUNPACKER, filedialog.selectedFiles()[0],
+            appConfig.addRecentFile(gameVer, TOOL_RSDKUNPACKER, filedialog.selectedFiles()[0],
                                     QList<QString>{ /**/ });
             setStatus("Datafile Saved Successfully!");
         }
     });
 
     connect(ui->fileList, &QListWidget::currentRowChanged, [this](int c) {
-        ui->encrypted->setDisabled(c == -1 || m_gameVer >= 2);
+        ui->encrypted->setDisabled(c == -1 || gameVer >= 2);
         ui->rmFile->setDisabled(c == -1);
 
         ui->filename->setText("");
@@ -177,23 +177,22 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
         if (c == -1)
             return;
 
-        ui->rmFile->setDisabled(m_files.count() == 0);
+        ui->rmFile->setDisabled(files.count() == 0);
 
-        ui->filename->setText(m_files[c].m_filename);
-        QString fname = m_files[c].m_filename;
+        ui->filename->setText(files[c].filename);
+        QString fname = files[c].filename;
         ui->filenameHash->setText(Utils::getMd5HashString(fname.replace("\\", "/").toLower()));
-        ui->filesize->setText(
-            QString("File Size: %1 bytes").arg(QString::number(m_files[c].m_fileSize)));
+        ui->filesize->setText(QString("File Size: %1 bytes").arg(QString::number(files[c].fileSize)));
 
         ui->encrypted->blockSignals(true);
 
-        ui->encrypted->setChecked(m_files[c].m_encrypted);
+        ui->encrypted->setChecked(files[c].encrypted);
         ui->encrypted->setDisabled(false);
         ui->encrypted->blockSignals(false);
     });
 
     connect(ui->encrypted, &QCheckBox::toggled,
-            [this](bool v) { m_files[ui->fileList->currentRow()].m_encrypted = v; });
+            [this](bool v) { files[ui->fileList->currentRow()].encrypted = v; });
 
     connect(ui->addFile, &QToolButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Open File"), "", tr("All Files (*)"));
@@ -206,20 +205,20 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
             if (fname.indexOf("/data/") >= 0)
                 fname = fname.mid(fname.indexOf("/data/") + QString("/data/").length());
 
-            file.m_filename = fname;
+            file.filename = fname;
             Reader reader(filedialog.selectedFiles()[0]);
 
-            file.m_fileSize  = reader.m_filesize;
-            file.m_filedata  = reader.readByteArray(reader.m_filesize);
-            file.m_encrypted = false;
-            m_files.append(file);
-            ui->fileList->addItem(file.m_filename);
+            file.fileSize  = reader.filesize;
+            file.fileData  = reader.readByteArray(reader.filesize);
+            file.encrypted = false;
+            files.append(file);
+            ui->fileList->addItem(file.filename);
         }
     });
 
     connect(ui->rmFile, &QToolButton::clicked, [this] {
         ui->fileList->blockSignals(true);
-        m_files.removeAt(ui->fileList->currentRow());
+        files.removeAt(ui->fileList->currentRow());
         delete ui->fileList->item(ui->fileList->currentRow());
         ui->fileList->blockSignals(false);
     });
@@ -232,7 +231,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
     Reader reader(filepath);
 
     ui->fileList->clear();
-    m_gameVer = ver;
+    gameVer = ver;
 
     ui->fileList->blockSignals(true);
 
@@ -248,21 +247,21 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
     }
 
     setStatus("Loading Datafile...");
-    m_files.clear();
-    switch (m_gameVer) {
+    files.clear();
+    switch (gameVer) {
         case 0: // RSDKv5
         {
             RSDKv5::Datafile datafilev5(reader, m_fileList);
 
-            for (RSDKv5::Datafile::FileInfo &file : datafilev5.m_files) {
+            for (RSDKv5::Datafile::FileInfo &file : datafilev5.files) {
                 FileInfo info;
-                info.m_filename  = file.m_filename;
-                info.m_fileSize  = file.m_fileSize;
-                info.m_filedata  = file.m_filedata;
-                info.m_encrypted = file.m_encrypted;
-                m_files.append(info);
+                info.filename  = file.fileName;
+                info.fileSize  = file.fileSize;
+                info.fileData  = file.fileData;
+                info.encrypted = file.encrypted;
+                files.append(info);
 
-                ui->fileList->addItem(file.m_filename);
+                ui->fileList->addItem(file.fileName);
             }
             break;
         }
@@ -270,15 +269,15 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
         {
             RSDKv4::Datafile datafilev4(reader, m_fileList);
 
-            for (RSDKv4::Datafile::FileInfo &file : datafilev4.m_files) {
+            for (RSDKv4::Datafile::FileInfo &file : datafilev4.files) {
                 FileInfo info;
-                info.m_filename  = file.m_filename;
-                info.m_fileSize  = file.m_fileSize;
-                info.m_filedata  = file.m_filedata;
-                info.m_encrypted = file.m_encrypted;
-                m_files.append(info);
+                info.filename  = file.fileName;
+                info.fileSize  = file.fileSize;
+                info.fileData  = file.fileData;
+                info.encrypted = file.encrypted;
+                files.append(info);
 
-                ui->fileList->addItem(file.m_filename);
+                ui->fileList->addItem(file.fileName);
             }
             break;
         }
@@ -286,15 +285,15 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
         {
             RSDKv3::Datafile datafilev3(reader);
 
-            for (RSDKv3::Datafile::FileInfo &file : datafilev3.m_files) {
+            for (RSDKv3::Datafile::FileInfo &file : datafilev3.files) {
                 FileInfo info;
-                info.m_filename  = file.m_fullFilename;
-                info.m_fileSize  = file.m_fileSize;
-                info.m_filedata  = file.m_filedata;
-                info.m_encrypted = false;
-                m_files.append(info);
+                info.filename  = file.fullFileName;
+                info.fileSize  = file.fileSize;
+                info.fileData  = file.fileData;
+                info.encrypted = false;
+                files.append(info);
 
-                ui->fileList->addItem(file.m_fullFilename);
+                ui->fileList->addItem(file.fullFileName);
             }
             break;
         }
@@ -302,15 +301,15 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
         {
             RSDKv2::Datafile datafilev2(reader);
 
-            for (RSDKv2::Datafile::FileInfo &file : datafilev2.m_files) {
+            for (RSDKv2::Datafile::FileInfo &file : datafilev2.files) {
                 FileInfo info;
-                info.m_filename  = file.m_fullFilename;
-                info.m_fileSize  = file.m_fileSize;
-                info.m_filedata  = file.m_filedata;
-                info.m_encrypted = false;
-                m_files.append(info);
+                info.filename  = file.fullFileName;
+                info.fileSize  = file.fileSize;
+                info.fileData  = file.fileData;
+                info.encrypted = false;
+                files.append(info);
 
-                ui->fileList->addItem(file.m_fullFilename);
+                ui->fileList->addItem(file.fullFileName);
             }
             break;
         }
@@ -318,15 +317,15 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
         {
             RSDKv1::Datafile datafilev1(reader);
 
-            for (RSDKv1::Datafile::FileInfo &file : datafilev1.m_files) {
+            for (RSDKv1::Datafile::FileInfo &file : datafilev1.files) {
                 FileInfo info;
-                info.m_filename  = file.m_fullFilename;
-                info.m_fileSize  = file.m_fileSize;
-                info.m_filedata  = file.m_filedata;
-                info.m_encrypted = false;
-                m_files.append(info);
+                info.filename  = file.fullFilename;
+                info.fileSize  = file.fileSize;
+                info.fileData  = file.fileData;
+                info.encrypted = false;
+                files.append(info);
 
-                ui->fileList->addItem(file.m_fullFilename);
+                ui->fileList->addItem(file.fullFilename);
             }
             break;
         }
@@ -334,15 +333,15 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
         {
             RSDKv3::ArcContainer arcContainer(reader);
 
-            for (RSDKv3::ArcContainer::FileInfo &file : arcContainer.m_files) {
+            for (RSDKv3::ArcContainer::FileInfo &file : arcContainer.files) {
                 FileInfo info;
-                info.m_filename  = file.m_name;
-                info.m_fileSize  = file.m_fileSize;
-                info.m_filedata  = file.m_fileData;
-                info.m_encrypted = false;
-                m_files.append(info);
+                info.filename  = file.fileName;
+                info.fileSize  = file.fileSize;
+                info.fileData  = file.fileData;
+                info.encrypted = false;
+                files.append(info);
 
-                ui->fileList->addItem(file.m_name);
+                ui->fileList->addItem(file.fileName);
             }
             break;
         }
@@ -352,7 +351,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
 
     ui->fileList->setCurrentRow(-1);
 
-    appConfig.addRecentFile(m_gameVer, TOOL_RSDKUNPACKER, filepath, QList<QString>{ fileList });
+    appConfig.addRecentFile(gameVer, TOOL_RSDKUNPACKER, filepath, QList<QString>{ fileList });
 
     setStatus("Datafile loaded successfully!");
 }
@@ -360,24 +359,24 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
 void RSDKUnpacker::savePack(QString filepath, byte ver)
 {
 
-    QList<FileInfo> files = m_files;
+    QList<FileInfo> files = this->files;
     QList<QString> dirs;
     std::sort(files.begin(), files.end(),
-              [](const FileInfo &a, const FileInfo &b) -> bool { return a.m_filename < b.m_filename; });
+              [](const FileInfo &a, const FileInfo &b) -> bool { return a.filename < b.filename; });
 
     switch (ver) {
         case 0: // RSDKv5
         {
             RSDKv5::Datafile datafile;
 
-            datafile.m_files.clear();
+            datafile.files.clear();
             for (FileInfo &file : files) {
                 RSDKv5::Datafile::FileInfo info;
-                info.m_filename  = file.m_filename;
-                info.m_fileSize  = file.m_fileSize;
-                info.m_filedata  = file.m_filedata;
-                info.m_encrypted = file.m_encrypted;
-                datafile.m_files.append(info);
+                info.fileName  = file.filename;
+                info.fileSize  = file.fileSize;
+                info.fileData  = file.fileData;
+                info.encrypted = file.encrypted;
+                datafile.files.append(info);
             }
 
             datafile.write(filepath);
@@ -387,14 +386,14 @@ void RSDKUnpacker::savePack(QString filepath, byte ver)
         {
             RSDKv4::Datafile datafile;
 
-            datafile.m_files.clear();
+            datafile.files.clear();
             for (FileInfo &file : files) {
                 RSDKv4::Datafile::FileInfo info;
-                info.m_filename  = file.m_filename;
-                info.m_fileSize  = file.m_fileSize;
-                info.m_filedata  = file.m_filedata;
-                info.m_encrypted = file.m_encrypted;
-                datafile.m_files.append(info);
+                info.fileName  = file.filename;
+                info.fileSize  = file.fileSize;
+                info.fileData  = file.fileData;
+                info.encrypted = file.encrypted;
+                datafile.files.append(info);
             }
 
             datafile.write(filepath);
@@ -404,29 +403,29 @@ void RSDKUnpacker::savePack(QString filepath, byte ver)
         {
             RSDKv3::Datafile datafile;
 
-            datafile.m_files.clear();
-            datafile.m_directories.clear();
+            datafile.files.clear();
+            datafile.directories.clear();
             int dirID = -1;
             for (FileInfo &file : files) {
-                QString dir = file.m_filename;
-                dir         = dir.replace(QFileInfo(file.m_filename).fileName(), "");
+                QString dir = file.filename;
+                dir         = dir.replace(QFileInfo(file.filename).fileName(), "");
                 if (dirs.indexOf(dir) < 0) {
                     dirs.append(dir);
                     ++dirID;
                 }
 
                 RSDKv3::Datafile::FileInfo info;
-                info.m_filename = QFileInfo(file.m_filename).fileName();
-                info.m_fileSize = file.m_fileSize;
-                info.m_filedata = file.m_filedata;
-                info.m_dirID    = dirID;
-                datafile.m_files.append(info);
+                info.fileName = QFileInfo(file.filename).fileName();
+                info.fileSize = file.fileSize;
+                info.fileData = file.fileData;
+                info.m_dirID  = dirID;
+                datafile.files.append(info);
             }
 
             for (QString &dir : dirs) {
                 RSDKv3::Datafile::DirInfo d;
-                d.m_directory = dir;
-                datafile.m_directories.append(d);
+                d.directory = dir;
+                datafile.directories.append(d);
             }
 
             datafile.write(filepath);
@@ -436,29 +435,29 @@ void RSDKUnpacker::savePack(QString filepath, byte ver)
         {
             RSDKv2::Datafile datafile;
 
-            datafile.m_files.clear();
-            datafile.m_directories.clear();
+            datafile.files.clear();
+            datafile.directories.clear();
             int dirID = -1;
             for (FileInfo &file : files) {
-                QString dir = file.m_filename;
-                dir         = dir.replace(QFileInfo(file.m_filename).fileName(), "");
+                QString dir = file.filename;
+                dir         = dir.replace(QFileInfo(file.filename).fileName(), "");
                 if (dirs.indexOf(dir) < 0) {
                     dirs.append(dir);
                     ++dirID;
                 }
 
                 RSDKv2::Datafile::FileInfo info;
-                info.m_filename = QFileInfo(file.m_filename).fileName();
-                info.m_fileSize = file.m_fileSize;
-                info.m_filedata = file.m_filedata;
-                info.m_dirID    = dirID;
-                datafile.m_files.append(info);
+                info.fileName = QFileInfo(file.filename).fileName();
+                info.fileSize = file.fileSize;
+                info.fileData = file.fileData;
+                info.m_dirID  = dirID;
+                datafile.files.append(info);
             }
 
             for (QString &dir : dirs) {
                 RSDKv2::Datafile::DirInfo d;
-                d.m_directory = dir;
-                datafile.m_directories.append(d);
+                d.directory = dir;
+                datafile.directories.append(d);
             }
 
             datafile.write(filepath);
@@ -468,29 +467,29 @@ void RSDKUnpacker::savePack(QString filepath, byte ver)
         {
             RSDKv1::Datafile datafile;
 
-            datafile.m_files.clear();
-            datafile.m_directories.clear();
+            datafile.files.clear();
+            datafile.directories.clear();
             int dirID = -1;
             for (FileInfo &file : files) {
-                QString dir = file.m_filename;
-                dir         = dir.replace(QFileInfo(file.m_filename).fileName(), "");
+                QString dir = file.filename;
+                dir         = dir.replace(QFileInfo(file.filename).fileName(), "");
                 if (dirs.indexOf(dir) < 0) {
                     dirs.append(dir);
                     ++dirID;
                 }
 
                 RSDKv1::Datafile::FileInfo info;
-                info.m_filename = QFileInfo(file.m_filename).fileName();
-                info.m_fileSize = file.m_fileSize;
-                info.m_filedata = file.m_filedata;
-                info.m_dirID    = dirID;
-                datafile.m_files.append(info);
+                info.filename = QFileInfo(file.filename).fileName();
+                info.fileSize = file.fileSize;
+                info.fileData = file.fileData;
+                info.dirID    = dirID;
+                datafile.files.append(info);
             }
 
             for (QString &dir : dirs) {
                 RSDKv1::Datafile::DirInfo d;
-                d.m_directory = dir;
-                datafile.m_directories.append(d);
+                d.directory = dir;
+                datafile.directories.append(d);
             }
 
             datafile.write(filepath);
@@ -500,13 +499,13 @@ void RSDKUnpacker::savePack(QString filepath, byte ver)
         {
             RSDKv3::ArcContainer container;
 
-            container.m_files.clear();
+            container.files.clear();
             for (FileInfo &file : files) {
                 RSDKv3::ArcContainer::FileInfo info;
-                info.m_name     = file.m_filename;
-                info.m_fileSize = file.m_fileSize;
-                info.m_fileData = file.m_filedata;
-                container.m_files.append(info);
+                info.fileName = file.filename;
+                info.fileSize = file.fileSize;
+                info.fileData = file.fileData;
+                container.files.append(info);
             }
 
             container.write(filepath);

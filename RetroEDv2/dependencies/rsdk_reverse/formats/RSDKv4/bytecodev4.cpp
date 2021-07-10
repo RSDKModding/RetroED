@@ -2,7 +2,7 @@
 
 void RSDKv4::Bytecode::read(Reader &reader, int scriptCount, bool clear)
 {
-    m_filename = reader.m_filepath;
+    m_filename = reader.filepath;
     if (clear) {
         m_scriptData.clear();
         m_jumpTableData.clear();
@@ -86,7 +86,7 @@ struct DataInfo {
 
 void RSDKv4::Bytecode::write(Writer &writer)
 {
-    m_filename = writer.m_filename;
+    m_filename = writer.filePath;
 
     QList<DataInfo> dataInfo;
 

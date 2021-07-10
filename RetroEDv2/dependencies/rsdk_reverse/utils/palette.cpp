@@ -3,7 +3,7 @@
 void Palette::read(Reader &reader, int clrCnt)
 {
     if (clrCnt < 0)
-        clrCnt = reader.m_filesize / 3;
+        clrCnt = reader.filesize / 3;
 
     m_colours.clear();
     for (int c = 0; c < clrCnt; ++c) {

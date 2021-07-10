@@ -2,7 +2,7 @@
 
 void RSDKv3::Animation::read(Reader &reader)
 {
-    m_filename = reader.m_filepath;
+    m_filename = reader.filepath;
 
     int sheetCount = reader.read<byte>();
     for (int s = 0; s < sheetCount; ++s) m_sheets.append(reader.readString());
@@ -16,7 +16,7 @@ void RSDKv3::Animation::read(Reader &reader)
 
 void RSDKv3::Animation::write(Writer &writer)
 {
-    m_filename = writer.m_filename;
+    m_filename = writer.filePath;
 
     writer.write((byte)m_sheets.count());
     for (int s = 0; s < m_sheets.count(); ++s) writer.write(m_sheets[s]);

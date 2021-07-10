@@ -33,14 +33,14 @@ uint readCode(Reader &reader, int codeSize)
 
 void RSDKv3::Video::VideoFrame::read(Reader &reader, RSDKv3::Video *vid)
 {
-    m_width  = vid->m_width;
-    m_height = vid->m_height;
-    m_imageData.resize(m_width * m_height);
+    width  = vid->width;
+    height = vid->height;
+    m_imageData.resize(width * height);
 
     if (reader.read<byte>() != 0x3B)
         reader.seek(reader.tell() - 1);
 
-    m_filePos = (uint)(reader.read<byte>() + (reader.read<byte>() << 8) + (reader.read<byte>() << 16)
+    nextFramePos = (uint)(reader.read<byte>() + (reader.read<byte>() << 8) + (reader.read<byte>() << 16)
                        + (reader.read<byte>() << 24));
 
     m_framePalette.clear();
@@ -52,9 +52,9 @@ void RSDKv3::Video::VideoFrame::read(Reader &reader, RSDKv3::Video *vid)
     }
 
     // READ GIF DATA
-    int eighthHeight  = m_height >> 3;
-    int quarterHeight = m_height >> 2;
-    int halfHeight    = m_height >> 1;
+    int eighthHeight  = height >> 3;
+    int quarterHeight = height >> 2;
+    int halfHeight    = height >> 1;
     int bitsWidth     = 0;
     int width         = 0;
 
@@ -239,7 +239,7 @@ void RSDKv3::Video::VideoFrame::read(Reader &reader, RSDKv3::Video *vid)
 void RSDKv3::Video::VideoFrame::write(Writer &writer)
 {
     writer.write((byte)0x3B);
-    m_filePos = writer.tell();
+    nextFramePos = writer.tell();
 
     for (int i = 0; i < 128; ++i) {
         writer.write((byte)m_framePalette[i].red());
@@ -252,8 +252,8 @@ void RSDKv3::Video::VideoFrame::write(Writer &writer)
 
 QImage RSDKv3::Video::VideoFrame::toImage()
 {
-    QImage img(m_width, m_height, QImage::Format_Indexed8);
-    m_imageData.resize(m_width * m_height);
+    QImage img(width, height, QImage::Format_Indexed8);
+    m_imageData.resize(width * height);
     QVector<QRgb> colours;
 
     int id = 0;
@@ -270,9 +270,9 @@ QImage RSDKv3::Video::VideoFrame::toImage()
     }
     img.setColorTable(colours);
 
-    for (int y = 0; y < m_height; ++y) {
-        for (int x = 0; x < m_width; ++x) {
-            img.setPixel(x, y, m_imageData[(y * m_width) + x]);
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            img.setPixel(x, y, m_imageData[(y * width) + x]);
         }
     }
 
@@ -284,18 +284,18 @@ void RSDKv3::Video::VideoFrame::fromImage(QImage img)
     if (img.format() != QImage::Format_Indexed8)
         return;
 
-    m_width  = img.width();
-    m_height = img.height();
-    m_imageData.resize(m_width * m_height);
+    width  = img.width();
+    height = img.height();
+    m_imageData.resize(width * height);
 
     int size = img.colorCount();
     m_framePalette.clear();
     for (int c = 0; c < size; ++c)
         m_framePalette.append(QColor(qRed(img.color(c)), qGreen(img.color(c)), qBlue(img.color(c))));
 
-    for (int y = 0; y < m_height; ++y) {
-        for (int x = 0; x < m_width; ++x) {
-            m_imageData[(y * m_width) + x] = img.pixelIndex(x, y);
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            m_imageData[(y * width) + x] = img.pixelIndex(x, y);
         }
     }
 }

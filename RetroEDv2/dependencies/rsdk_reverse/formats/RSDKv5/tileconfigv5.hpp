@@ -60,20 +60,20 @@ public:
     }
     void read(Reader &reader)
     {
-        m_filename = reader.m_filepath;
-        if (!reader.matchesSignature(m_signature, 4))
+        filepath = reader.filepath;
+        if (!reader.matchesSignature(signature, 4))
             return;
 
         Reader creader = reader.getCReader();
 
         for (int c = 0; c < 2; ++c)
-            for (int t = 0; t < 0x400; ++t) m_collisionPaths[c][t].read(creader);
+            for (int t = 0; t < 0x400; ++t) collisionPaths[c][t].read(creader);
     }
 
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filepath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -81,7 +81,7 @@ public:
     }
     void write(Writer &writer)
     {
-        m_filename = writer.m_filename;
+        filepath = writer.filePath;
         QByteArray compressed;
         QBuffer buffer(&compressed);
         buffer.open(QIODevice::Append);
@@ -89,18 +89,18 @@ public:
         Writer cwriter(cmem);
 
         for (int c = 0; c < 2; ++c)
-            for (int t = 0; t < 0x400; ++t) m_collisionPaths[c][t].write(cwriter);
+            for (int t = 0; t < 0x400; ++t) collisionPaths[c][t].write(cwriter);
 
-        writer.write(m_signature, 4);
+        writer.write(signature, 4);
         writer.writeCompressed(compressed);
         writer.flush();
     }
 
-    byte m_signature[4] = { 'T', 'I', 'L', 0 };
+    byte signature[4] = { 'T', 'I', 'L', 0 };
 
-    CollisionMask m_collisionPaths[0x2][0x400];
+    CollisionMask collisionPaths[0x2][0x400];
 
-    QString m_filename = "";
+    QString filepath = "";
 };
 
 } // namespace RSDKv5

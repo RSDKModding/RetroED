@@ -23,8 +23,8 @@ public:
         public:
             HeightMask() {}
 
-            byte m_height = 0;
-            byte m_solid  = 0;
+            byte height = 0;
+            byte solid  = 0;
         };
 
         CollisionMask() {}
@@ -33,17 +33,17 @@ public:
         void read(Reader &reader, bool dcVer = false)
         {
             if (!dcVer) {
-                byte buffer = reader.read<byte>();
-                m_angle     = (byte)((buffer & 0xF0) >> 4);
-                m_behaviour = (byte)(buffer & 0x0F);
+                byte buffer      = reader.read<byte>();
+                collisionMode[0] = (byte)((buffer & 0xF0) >> 4);
+                collisionMode[1] = (byte)(buffer & 0x0F);
             }
 
             for (int p = 0; p < 2; ++p) {
                 for (int f = 0; f < CollisionSides::Max; ++f) {
                     for (int c = 0; c < 16; ++c) {
-                        byte buffer                        = reader.read<byte>();
-                        m_collisionPaths[p][f][c].m_height = (byte)((buffer & 0xF0) >> 4);
-                        m_collisionPaths[p][f][c].m_solid  = (byte)(buffer & 0x0F);
+                        byte buffer                    = reader.read<byte>();
+                        collisionPaths[p][f][c].height = (byte)((buffer & 0xF0) >> 4);
+                        collisionPaths[p][f][c].solid  = (byte)(buffer & 0x0F);
                     }
                 }
             }
@@ -51,22 +51,21 @@ public:
         void write(Writer &writer, bool dcVer = false)
         {
             if (!dcVer)
-                writer.write(Utils::addNybbles(m_angle, m_behaviour));
+                writer.write(Utils::addNybbles(collisionMode[0], collisionMode[1]));
 
             for (int p = 0; p < 2; ++p) {
                 for (int f = 0; f < CollisionSides::Max; ++f) {
                     for (int c = 0; c < 16; ++c) {
-                        writer.write(Utils::addNybbles(m_collisionPaths[p][f][c].m_height,
-                                                       m_collisionPaths[p][f][c].m_solid));
+                        writer.write(Utils::addNybbles(collisionPaths[p][f][c].height,
+                                                       collisionPaths[p][f][c].solid));
                     }
                 }
             }
         }
 
-        HeightMask m_collisionPaths[2][4][16];
+        HeightMask collisionPaths[2][4][16];
 
-        byte m_behaviour = 0;
-        byte m_angle     = 0;
+        byte collisionMode[2];
     };
 
     Tileconfig() {}
@@ -80,15 +79,15 @@ public:
     }
     inline void read(Reader &reader, bool dcVer = false)
     {
-        m_filename = reader.m_filepath;
+        filepath = reader.filepath;
 
-        for (int c = 0; c < 0x400; ++c) m_collision[c].read(reader, dcVer);
+        for (int c = 0; c < 0x400; ++c) collision[c].read(reader, dcVer);
     }
 
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filepath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -96,16 +95,16 @@ public:
     }
     inline void write(Writer &writer, bool dcVer = false)
     {
-        m_filename = writer.m_filename;
+        filepath = writer.filePath;
 
-        for (int c = 0; c < 0x400; ++c) m_collision[c].write(writer, dcVer);
+        for (int c = 0; c < 0x400; ++c) collision[c].write(writer, dcVer);
 
         writer.flush();
     }
 
-    CollisionMask m_collision[0x400];
+    CollisionMask collision[0x400];
 
-    QString m_filename = "";
+    QString filepath = "";
 };
 
 } // namespace RSDKv1

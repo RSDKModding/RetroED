@@ -93,15 +93,15 @@ public:
     }
     inline void read(Reader &reader)
     {
-        m_filename = reader.m_filepath;
+        filepath = reader.filepath;
 
-        for (int c = 0; c < 0x200; ++c) m_chunkList[c].read(reader);
+        for (int c = 0; c < 0x200; ++c) chunkList[c].read(reader);
     }
 
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filepath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -109,16 +109,16 @@ public:
     }
     inline void write(Writer &writer)
     {
-        m_filename = writer.m_filename;
+        filepath = writer.filePath;
 
-        for (int c = 0; c < 0x200; ++c) m_chunkList[c].write(writer);
+        for (int c = 0; c < 0x200; ++c) chunkList[c].write(writer);
 
         writer.flush();
     }
 
-    Chunk m_chunkList[0x200];
+    Chunk chunkList[0x200];
 
-    QString m_filename = "";
+    QString filepath = "";
 };
 
 } // namespace RSDKv2

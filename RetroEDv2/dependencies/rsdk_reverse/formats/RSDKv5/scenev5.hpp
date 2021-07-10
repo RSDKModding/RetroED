@@ -302,7 +302,7 @@ public:
     }
     void read(Reader &reader)
     {
-        m_filename = reader.m_filepath;
+        filepath = reader.filepath;
 
         if (!reader.matchesSignature(m_signature, 4))
             return;
@@ -321,7 +321,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filepath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -329,7 +329,7 @@ public:
     }
     void write(Writer &writer)
     {
-        m_filename = writer.m_filename;
+        filepath = writer.filePath;
         writer.write(m_signature, 4);
 
         m_editorMetadata.write(writer);
@@ -349,7 +349,7 @@ public:
     QList<SceneLayer> m_layers;
     QList<SceneObject> m_objects;
 
-    QString m_filename = "";
+    QString filepath = "";
 };
 
 } // namespace RSDKv5

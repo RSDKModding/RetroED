@@ -16,7 +16,7 @@ public:
         void read(Reader &reader);
         void write(Writer &writer);
 
-        QString m_directory = "dir/";
+        QString directory = "dir/";
         int m_address       = 0;
     };
 
@@ -29,10 +29,10 @@ public:
         void read(Reader &reader);
         void write(Writer &writer);
 
-        QString m_filename     = "File.ext";
-        QString m_fullFilename = "Folder/File.ext";
-        uint m_fileSize        = 0;
-        QByteArray m_filedata;
+        QString fileName     = "File.ext";
+        QString fullFileName = "Folder/File.ext";
+        uint fileSize        = 0;
+        QByteArray fileData;
         ushort m_dirID = 0;
 
     private:
@@ -67,8 +67,8 @@ public:
     }
     void write(Writer &writer);
 
-    QList<DirInfo> m_directories;
-    QList<FileInfo> m_files;
+    QList<DirInfo> directories;
+    QList<FileInfo> files;
 
     QString m_filename = "";
 };

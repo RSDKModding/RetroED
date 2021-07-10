@@ -20,11 +20,11 @@ ExportRSDKv5Scene::ExportRSDKv5Scene(QString path, QWidget *parent)
         }
     });
 
-    connect(ui->exportLayers, &QCheckBox::toggled, [this](bool c) { m_exportLayers = c; });
-    connect(ui->exportObjects, &QCheckBox::toggled, [this](bool c) { m_exportObjects = c; });
-    connect(ui->exportChunks, &QCheckBox::toggled, [this](bool c) { m_exportChunks = c; });
-    connect(ui->exportTileconfig, &QCheckBox::toggled, [this](bool c) { m_exportTileConfig = c; });
-    connect(ui->exportStageconfig, &QCheckBox::toggled, [this](bool c) { m_exportStageConfig = c; });
+    connect(ui->exportLayers, &QCheckBox::toggled, [this](bool c) { exportLayers = c; });
+    connect(ui->exportObjects, &QCheckBox::toggled, [this](bool c) { exportObjects = c; });
+    connect(ui->exportChunks, &QCheckBox::toggled, [this](bool c) { exportChunks = c; });
+    connect(ui->exportTileconfig, &QCheckBox::toggled, [this](bool c) { exportTileConfig = c; });
+    connect(ui->exportStageconfig, &QCheckBox::toggled, [this](bool c) { exportStageConfig = c; });
 }
 
 ExportRSDKv5Scene::~ExportRSDKv5Scene() { delete ui; }

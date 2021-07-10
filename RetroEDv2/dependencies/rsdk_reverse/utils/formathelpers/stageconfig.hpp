@@ -34,8 +34,8 @@ public:
 
     Palette m_stagePalette;
     QList<SoundInfo> m_soundFX;
-    QList<ObjectInfo> m_objects;
-    bool m_loadGlobalScripts = true;
+    QList<ObjectInfo> objects;
+    bool loadGlobalScripts = true;
     QList<QString> m_objectSpritesheets;
     QList<QString> m_music;
 

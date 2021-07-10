@@ -5,26 +5,26 @@ class Colour
 {
 public:
     Colour() {}
-    Colour(byte r, byte g, byte b) : m_r(r), m_g(g), m_b(b) {}
+    Colour(byte r, byte g, byte b) : r(r), g(g), b(b) {}
     Colour(Reader &reader) { read(reader); }
 
     void read(Reader &reader)
     {
-        m_r = reader.read<byte>();
-        m_g = reader.read<byte>();
-        m_b = reader.read<byte>();
+        r = reader.read<byte>();
+        g = reader.read<byte>();
+        b = reader.read<byte>();
     }
 
     void write(Writer &writer)
     {
-        writer.write(m_r);
-        writer.write(m_g);
-        writer.write(m_b);
+        writer.write(r);
+        writer.write(g);
+        writer.write(b);
     }
 
-    byte m_r = 0xFF;
-    byte m_g = 0x00;
-    byte m_b = 0xFF;
+    byte r = 0xFF;
+    byte g = 0x00;
+    byte b = 0xFF;
 };
 
 #endif // RSDK_COLOUR_H

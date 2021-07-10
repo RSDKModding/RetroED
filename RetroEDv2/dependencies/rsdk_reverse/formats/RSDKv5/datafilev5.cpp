@@ -24,7 +24,7 @@ void RSDKv5::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, i
     }
     m_filenameHash = QByteArray((const char *)m_md5Hash, 0x10).toHex();
 
-    m_filename = "File " + QString::number(cnt + 1) + ".bin"; // Make a base name
+    fileName = "File " + QString::number(cnt + 1) + ".bin"; // Make a base name
 
     for (int i = 0; i < fileList.count(); ++i) {
         // RSDKv5 hashes all strings as lower case
@@ -40,7 +40,7 @@ void RSDKv5::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, i
         }
 
         if (match) {
-            m_filename = fileList[i];
+            fileName = fileList[i];
             break;
         }
     }
@@ -48,26 +48,26 @@ void RSDKv5::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, i
     m_dataOffset = reader.read<uint>();
     uint buf     = reader.read<uint>();
 
-    m_encrypted = (buf & 0x80000000) != 0;
-    m_fileSize  = (buf & 0x7FFFFFFF);
+    encrypted = (buf & 0x80000000) != 0;
+    fileSize  = (buf & 0x7FFFFFFF);
 
     long tmp = reader.tell();
     reader.seek(m_dataOffset);
 
-    m_filedata = reader.readByteArray(m_fileSize);
+    fileData = reader.readByteArray(fileSize);
 
     // Decrypt File if Encrypted
-    if (m_encrypted)
-        m_filedata = decrypt(m_filedata);
+    if (encrypted)
+        fileData = decrypt(fileData);
 
     reader.seek(tmp);
 }
 
 void RSDKv5::Datafile::FileInfo::writeHeader(Writer &writer)
 {
-    m_filename = m_filename.replace('\\', '/');
+    fileName = fileName.replace('\\', '/');
 
-    QString fn     = m_filename;
+    QString fn     = fileName;
     QByteArray md5 = calculateMD5Hash(fn.toLower());
 
     for (int y = 0; y < 16; y += 4) {
@@ -79,16 +79,16 @@ void RSDKv5::Datafile::FileInfo::writeHeader(Writer &writer)
 
     writer.write(m_md5Hash, 0x10);
     writer.write(m_dataOffset);
-    m_encrypted = false; // temp
-    writer.write(m_fileSize | (m_encrypted ? 0x80000000 : 0));
+    encrypted = false; // temp
+    writer.write(fileSize | (encrypted ? 0x80000000 : 0));
 }
 
 void RSDKv5::Datafile::FileInfo::writeData(Writer &writer)
 {
-    if (m_encrypted)
-        writer.write(decrypt(m_filedata));
+    if (encrypted)
+        writer.write(decrypt(fileData));
     else
-        writer.write(m_filedata);
+        writer.write(fileData);
 }
 
 void RSDKv5::Datafile::FileInfo::generateELoadKeys(QString m_filename, uint size)
@@ -127,7 +127,7 @@ void RSDKv5::Datafile::FileInfo::generateELoadKeys(QString m_filename, uint size
 
 QByteArray RSDKv5::Datafile::FileInfo::decrypt(QByteArray data)
 {
-    generateELoadKeys(m_filename, m_fileSize);
+    generateELoadKeys(fileName, fileSize);
 
     byte temp = 0;
     for (int i = 0; i < data.count(); ++i) {
@@ -176,44 +176,44 @@ QByteArray RSDKv5::Datafile::FileInfo::decrypt(QByteArray data)
 
 void RSDKv5::Datafile::read(Reader &reader, QList<QString> fileList)
 {
-    m_filename = reader.m_filepath;
+    m_filename = reader.filepath;
 
     if (QByteArray((const char *)m_signature, 6) != reader.readByteArray(6))
         return;
 
-    m_files.clear();
+    files.clear();
     int fileCount = reader.read<ushort>(); // read the header data
     for (int i = 0; i < fileCount; ++i)
-        m_files.append(FileInfo(reader, fileList, i)); // read each file's header
+        files.append(FileInfo(reader, fileList, i)); // read each file's header
 }
 
 void RSDKv5::Datafile::write(Writer &writer)
 {
-    m_filename = writer.m_filename;
+    m_filename = writer.filePath;
 
     for (int h = 0; h < 6; ++h) writer.write(m_signature[h]);
 
     // std::sort(m_files.begin(), m_files.end(), [](const FileInfo &a, const FileInfo &b) -> bool {
     // return a.m_filename < b.m_filename; });
 
-    writer.write((ushort)m_files.count()); // write the header
-    for (FileInfo &f : m_files) {
+    writer.write((ushort)files.count()); // write the header
+    for (FileInfo &f : files) {
         f.writeHeader(writer); // write our file header data
     }
 
-    for (FileInfo &f : m_files) {
+    for (FileInfo &f : files) {
         f.m_dataOffset = (uint)writer.tell();
         QByteArray b;
-        b.resize(f.m_fileSize);
+        b.resize(f.fileSize);
         writer.write(b);
     }
 
     writer.seek(0); // jump back to the start of the file
 
     for (int h = 0; h < 6; ++h) writer.write(m_signature[h]);
-    writer.write((ushort)m_files.count());
+    writer.write((ushort)files.count());
 
-    for (FileInfo &f : m_files) {
+    for (FileInfo &f : files) {
         f.writeHeader(writer);
         long tmp = writer.tell();
         writer.seek(f.m_dataOffset);

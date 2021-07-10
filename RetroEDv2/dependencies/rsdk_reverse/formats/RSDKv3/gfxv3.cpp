@@ -2,7 +2,7 @@
 
 void RSDKv3::GFX::read(Reader &reader, bool dcGFX)
 {
-    m_filename = reader.m_filepath;
+    m_filename = reader.filepath;
 
     if (dcGFX)
         reader.read<byte>();
@@ -70,7 +70,7 @@ void rle_writeRSDKv3(Writer writer, int pixel, int count, bool dcGFX)
 
 void RSDKv3::GFX::write(Writer &writer, bool dcGFX)
 {
-    m_filename = writer.m_filename;
+    m_filename = writer.filePath;
 
     if (dcGFX)
         writer.write((byte)0);
@@ -152,7 +152,7 @@ QImage RSDKv3::GFX::exportImage()
 
     for (int i = 0; i < 0xFF; ++i) {
         Colour c = m_palette[i];
-        colours.append(qRgb(c.m_r, c.m_g, c.m_b));
+        colours.append(qRgb(c.r, c.g, c.b));
     }
     img.setColorTable(colours);
 

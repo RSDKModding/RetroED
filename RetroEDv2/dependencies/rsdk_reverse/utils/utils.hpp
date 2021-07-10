@@ -5,9 +5,9 @@ namespace Utils
 {
 
 union intBytes {
-    intBytes() : m_val(0) {}
-    intBytes(int v) : m_val(v) {}
-    int m_val;
+    intBytes() : val(0) {}
+    intBytes(int v) : val(v) {}
+    int val;
     byte m_bytes[4];
 };
 

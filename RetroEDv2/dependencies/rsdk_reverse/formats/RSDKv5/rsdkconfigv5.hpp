@@ -69,7 +69,7 @@ public:
     }
     inline void read(Reader &reader)
     {
-        m_filename  = reader.m_filepath;
+        filepath    = reader.filepath;
         byte vcount = reader.read<byte>();
         m_variables.clear();
         for (int v = 0; v < vcount; ++v) m_variables.append(Variable(reader));
@@ -82,7 +82,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filepath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -90,7 +90,7 @@ public:
     }
     inline void write(Writer &writer)
     {
-        m_filename = writer.m_filename;
+        filepath = writer.filePath;
         writer.write((byte)m_variables.count());
         for (int v = 0; v < m_variables.count(); ++v) m_variables[v].write(writer);
 
@@ -103,7 +103,7 @@ public:
     QList<Variable> m_variables;
     QList<Constant> m_constants;
 
-    QString m_filename = "";
+    QString filepath = "";
 };
 
 } // namespace RSDKv5

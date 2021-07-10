@@ -2,7 +2,7 @@
 
 void RSDKv2::Animation::read(Reader &reader)
 {
-    m_filename = reader.m_filepath;
+    m_filename = reader.filepath;
 
     for (int u = 0; u < 5; ++u) m_unknown[u] = reader.read<byte>();
 
@@ -17,7 +17,7 @@ void RSDKv2::Animation::read(Reader &reader)
 
 void RSDKv2::Animation::write(Writer &writer)
 {
-    m_filename = writer.m_filename;
+    m_filename = writer.filePath;
 
     for (int u = 0; u < 5; ++u) {
         writer.write(m_unknown[u]);

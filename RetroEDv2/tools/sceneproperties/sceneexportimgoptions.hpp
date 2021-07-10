@@ -16,10 +16,10 @@ public:
     explicit SceneExportImgOptions(QWidget *parent = nullptr);
     ~SceneExportImgOptions();
 
-    bool m_exportFG[2];
-    bool m_exportBG[8][2];
-    bool m_exportObjects = true;
-    bool m_exportObjInfo = true;
+    bool exportFG[2];
+    bool exportBG[8][2];
+    bool exportObjects = true;
+    bool exportObjInfo = true;
 
 private:
     Ui::SceneExportImgOptions *ui;

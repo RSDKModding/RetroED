@@ -2,32 +2,32 @@
 
 void RSDKv1::Datafile::read(Reader &reader)
 {
-    m_filename = reader.m_filepath;
+    filepath = reader.filepath;
 
     int headerSize = reader.read<uint>();
     int dircount   = reader.read<byte>();
 
-    m_directories.clear();
+    directories.clear();
     for (int d = 0; d < dircount; ++d) {
-        m_directories.append(DirInfo(reader));
+        directories.append(DirInfo(reader));
     }
 
-    m_files.clear();
+    files.clear();
     for (int d = 0; d < dircount; ++d) {
-        if ((d + 1) < m_directories.count()) {
-            while (reader.tell() - headerSize < m_directories[d + 1].m_address && !reader.isEOF()) {
-                FileInfo f       = FileInfo(reader);
-                f.m_fullFilename = m_directories[d].m_directory + f.m_filename;
-                f.m_dirID        = d;
-                m_files.append(f);
+        if ((d + 1) < directories.count()) {
+            while (reader.tell() - headerSize < directories[d + 1].offset && !reader.isEOF()) {
+                FileInfo f     = FileInfo(reader);
+                f.fullFilename = directories[d].directory + f.filename;
+                f.dirID        = d;
+                files.append(f);
             }
         }
         else {
             while (!reader.isEOF()) {
-                FileInfo f       = FileInfo(reader);
-                f.m_fullFilename = m_directories[d].m_directory + f.m_filename;
-                f.m_dirID        = d;
-                m_files.append(f);
+                FileInfo f     = FileInfo(reader);
+                f.fullFilename = directories[d].directory + f.filename;
+                f.dirID        = d;
+                files.append(f);
             }
         }
     }
@@ -35,36 +35,36 @@ void RSDKv1::Datafile::read(Reader &reader)
 
 void RSDKv1::Datafile::write(Writer &writer)
 {
-    m_filename = writer.m_filename;
+    filepath = writer.filePath;
 
     int dirHeaderSize = 0;
 
     writer.write(dirHeaderSize);
-    writer.write((byte)m_directories.count());
+    writer.write((byte)directories.count());
 
     // TODO: sort dirs by name
-    // std::sort(m_directories.begin(), m_directories.end(), [](const DirInfo &a, const DirInfo &b) ->
-    // bool { return a.m_directory < b.m_directory; });
+    // std::sort(directories.begin(), directories.end(), [](const DirInfo &a, const DirInfo &b) ->
+    // bool { return a.directory < b.directory; });
 
-    for (int i = 0; i < m_directories.count(); ++i) {
-        m_directories[i].write(writer);
+    for (int i = 0; i < directories.count(); ++i) {
+        directories[i].write(writer);
     }
 
     dirHeaderSize = (int)writer.tell();
-    // std::sort(m_files.begin(), m_files.end(), [](const FileInfo &a, const FileInfo &b) -> bool {
-    //    return a.m_dirID < b.m_dirID && a.m_filename < b.m_filename;
+    // std::sort(files.begin(), files.end(), [](const FileInfo &a, const FileInfo &b) -> bool {
+    //    return a.dirID < b.dirID && a.filename < b.filename;
     //});
 
-    int dir                      = 0;
-    m_directories[dir].m_address = 0;
-    for (int i = 0; i < m_files.count(); ++i) {
-        if (m_files[i].m_dirID == dir) {
-            m_files[i].write(writer);
+    int dir                 = 0;
+    directories[dir].offset = 0;
+    for (int i = 0; i < files.count(); ++i) {
+        if (files[i].dirID == dir) {
+            files[i].write(writer);
         }
         else {
             ++dir;
-            m_directories[dir].m_address = (int)writer.tell() - dirHeaderSize;
-            m_files[i].write(writer);
+            directories[dir].offset = (int)writer.tell() - dirHeaderSize;
+            files[i].write(writer);
         }
     }
 
@@ -72,20 +72,20 @@ void RSDKv1::Datafile::write(Writer &writer)
     writer.seek(0);
 
     writer.write(dirHeaderSize);
-    writer.write((byte)m_directories.count());
+    writer.write((byte)directories.count());
 
-    for (int i = 0; i < m_directories.count(); ++i) {
-        m_directories[i].write(writer);
+    for (int i = 0; i < directories.count(); ++i) {
+        directories[i].write(writer);
     }
 
     dir = 0;
-    for (int i = 0; i < m_files.count(); ++i) {
-        if (m_files[i].m_dirID == dir) {
-            m_files[i].write(writer);
+    for (int i = 0; i < files.count(); ++i) {
+        if (files[i].dirID == dir) {
+            files[i].write(writer);
         }
         else {
             ++dir;
-            m_files[i].write(writer);
+            files[i].write(writer);
         }
     }
 
@@ -94,31 +94,31 @@ void RSDKv1::Datafile::write(Writer &writer)
 
 void RSDKv1::Datafile::FileInfo::read(Reader &reader)
 {
-    m_filename = reader.readString();
-    m_fileSize = reader.read<uint>();
-    m_filedata = reader.readByteArray(m_fileSize);
+    filename = reader.readString();
+    fileSize = reader.read<uint>();
+    fileData = reader.readByteArray(fileSize);
 }
 
 void RSDKv1::Datafile::FileInfo::write(Writer &writer)
 {
-    m_filename = m_filename.replace('\\', '/');
+    filename = filename.replace('\\', '/');
 
-    writer.write(m_filename);
-    writer.write((uint)m_fileSize);
-    writer.write(m_filedata);
+    writer.write(filename);
+    writer.write((uint)fileSize);
+    writer.write(fileData);
 }
 
 void RSDKv1::Datafile::DirInfo::read(Reader &reader)
 {
-    m_directory = reader.readString();
-    m_address   = reader.read<int>();
+    directory = reader.readString();
+    offset    = reader.read<int>();
 }
 
 void RSDKv1::Datafile::DirInfo::write(Writer &writer)
 {
-    if (!m_directory.endsWith('/'))
-        m_directory += "/";
+    if (!directory.endsWith('/'))
+        directory += "/";
 
-    writer.write(m_directory);
-    writer.write(m_address);
+    writer.write(directory);
+    writer.write(offset);
 }

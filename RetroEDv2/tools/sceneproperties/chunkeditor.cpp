@@ -1,25 +1,25 @@
 #include "includes.hpp"
 #include "ui_chunkeditor.h"
 
-ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunks, QList<QImage> &tiles,
+ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, QList<QImage> &tiles,
                          bool v1, QWidget *parent)
-    : m_chunks(chk), QDialog(parent), ui(new Ui::ChunkEditor)
+    : chunks(chk), QDialog(parent), ui(new Ui::ChunkEditor)
 {
     ui->setupUi(this);
 
-    this->setWindowTitle("Chunks Editor");
+    this->setWindowTitle("Chunk Editor");
 
     if (!chk)
         return;
 
-    m_viewer = new ChunkViewer(&m_selectedChunk, &m_selectedTile, m_chunks, tiles);
-    m_viewer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->viewerFrame->layout()->addWidget(m_viewer);
+    viewer = new ChunkViewer(&selectedChunk, &selectedTile, chunks, tiles);
+    viewer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->viewerFrame->layout()->addWidget(viewer);
 
     ui->chunkList->clear();
     for (int c = 0; c < (v1 ? 0x100 : 0x200); ++c) {
         auto *item = new QListWidgetItem(QString::number(c), ui->chunkList);
-        item->setIcon(QPixmap::fromImage(chunks[c]));
+        item->setIcon(QPixmap::fromImage(chunkList[c]));
     }
 
     ui->tileList->clear();
@@ -36,7 +36,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunks, QLis
         ui->solidityA->setDisabled(c == -1);
         ui->solidityB->setDisabled(c == -1);
 
-        m_selectedChunk = c;
+        selectedChunk = c;
 
         if (c == -1)
             return;
@@ -49,26 +49,20 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunks, QLis
         ui->solidityB->blockSignals(true);
 
         ui->flipX->setChecked(Utils::getBit(
-            m_chunks->m_chunks[m_selectedChunk].m_tiles[m_selectedTile.y][m_selectedTile.x].m_direction,
-            0));
+            chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].direction, 0));
         ui->flipY->setChecked(Utils::getBit(
-            m_chunks->m_chunks[m_selectedChunk].m_tiles[m_selectedTile.y][m_selectedTile.x].m_direction,
-            1));
+            chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].direction, 1));
 
-        ui->visualPlane->setCurrentIndex(m_chunks->m_chunks[m_selectedChunk]
-                                             .m_tiles[m_selectedTile.y][m_selectedTile.x]
-                                             .m_visualPlane);
+        ui->visualPlane->setCurrentIndex(
+            chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].visualPlane);
 
-        ui->tileIndex->setValue(m_chunks->m_chunks[m_selectedChunk]
-                                    .m_tiles[m_selectedTile.y][m_selectedTile.x]
-                                    .m_tileIndex);
+        ui->tileIndex->setValue(
+            chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].tileIndex);
 
-        ui->solidityA->setCurrentIndex(m_chunks->m_chunks[m_selectedChunk]
-                                           .m_tiles[m_selectedTile.y][m_selectedTile.x]
-                                           .m_solidityA);
-        ui->solidityB->setCurrentIndex(m_chunks->m_chunks[m_selectedChunk]
-                                           .m_tiles[m_selectedTile.y][m_selectedTile.x]
-                                           .m_solidityB);
+        ui->solidityA->setCurrentIndex(
+            chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].solidityA);
+        ui->solidityB->setCurrentIndex(
+            chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].solidityB);
 
         ui->flipX->blockSignals(false);
         ui->flipY->blockSignals(false);
@@ -77,7 +71,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunks, QLis
         ui->solidityA->blockSignals(false);
         ui->solidityB->blockSignals(false);
 
-        m_viewer->repaint();
+        viewer->repaint();
     };
     chunkRowChanged(0);
     connect(ui->chunkList, &QListWidget::currentRowChanged, chunkRowChanged);
@@ -86,8 +80,8 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunks, QLis
     tileRowChanged(-1);
     connect(ui->tileList, &QListWidget::currentRowChanged, tileRowChanged);
 
-    connect(m_viewer, &ChunkViewer::tileChanged, [this] {
-        if (m_selectedChunk < 0 || m_selectedTile.x == -1 || m_selectedTile.y == -1)
+    connect(viewer, &ChunkViewer::tileChanged, [this] {
+        if (selectedChunk < 0 || selectedTile.x == -1 || selectedTile.y == -1)
             return;
 
         ui->flipX->blockSignals(true);
@@ -98,26 +92,20 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunks, QLis
         ui->solidityB->blockSignals(true);
 
         ui->flipX->setChecked(Utils::getBit(
-            m_chunks->m_chunks[m_selectedChunk].m_tiles[m_selectedTile.y][m_selectedTile.x].m_direction,
-            0));
+            chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].direction, 0));
         ui->flipY->setChecked(Utils::getBit(
-            m_chunks->m_chunks[m_selectedChunk].m_tiles[m_selectedTile.y][m_selectedTile.x].m_direction,
-            1));
+            chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].direction, 1));
 
-        ui->visualPlane->setCurrentIndex(m_chunks->m_chunks[m_selectedChunk]
-                                             .m_tiles[m_selectedTile.y][m_selectedTile.x]
-                                             .m_visualPlane);
+        ui->visualPlane->setCurrentIndex(
+            chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].visualPlane);
 
-        ui->tileIndex->setValue(m_chunks->m_chunks[m_selectedChunk]
-                                    .m_tiles[m_selectedTile.y][m_selectedTile.x]
-                                    .m_tileIndex);
+        ui->tileIndex->setValue(
+            chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].tileIndex);
 
-        ui->solidityA->setCurrentIndex(m_chunks->m_chunks[m_selectedChunk]
-                                           .m_tiles[m_selectedTile.y][m_selectedTile.x]
-                                           .m_solidityA);
-        ui->solidityB->setCurrentIndex(m_chunks->m_chunks[m_selectedChunk]
-                                           .m_tiles[m_selectedTile.y][m_selectedTile.x]
-                                           .m_solidityB);
+        ui->solidityA->setCurrentIndex(
+            chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].solidityA);
+        ui->solidityB->setCurrentIndex(
+            chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].solidityB);
 
         ui->flipX->blockSignals(false);
         ui->flipY->blockSignals(false);
@@ -127,89 +115,83 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunks, QLis
         ui->solidityB->blockSignals(false);
     });
 
-    connect(m_viewer, &ChunkViewer::tileDrawn, [this, tiles](float mx, float my) {
-        if (m_selectedChunk < 0 || m_selectedTile.x == -1 || m_selectedTile.y == -1
+    connect(viewer, &ChunkViewer::tileDrawn, [this, tiles](float mx, float my) {
+        if (selectedChunk < 0 || selectedTile.x == -1 || selectedTile.y == -1
             || m_selectedDrawTile == -1)
             return;
 
-        m_selectedTile.x = mx / 16;
-        m_selectedTile.y = my / 16;
+        selectedTile.x = mx / 16;
+        selectedTile.y = my / 16;
 
-        if (m_selectedTile.x > 0x80)
-            m_selectedTile.x = -1;
+        if (selectedTile.x > 0x80)
+            selectedTile.x = -1;
 
-        if (m_selectedTile.y > 0x80)
-            m_selectedTile.y = -1;
+        if (selectedTile.y > 0x80)
+            selectedTile.y = -1;
 
-        m_chunks->m_chunks[m_selectedChunk].m_tiles[m_selectedTile.y][m_selectedTile.x].m_tileIndex =
+        chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].tileIndex =
             (ushort)m_selectedDrawTile;
-        m_viewer->repaint();
+        viewer->repaint();
 
-        ui->chunkList->item(m_selectedChunk)
-            ->setIcon(QPixmap::fromImage(m_chunks->m_chunks[m_selectedChunk].getImage(tiles)));
+        ui->chunkList->item(selectedChunk)
+            ->setIcon(QPixmap::fromImage(chunks->chunks[selectedChunk].getImage(tiles)));
     });
 
     connect(ui->flipX, &QCheckBox::toggled, [this, tiles](bool v) {
-        if (m_selectedChunk < 0 || m_selectedTile.x == -1 || m_selectedTile.y == -1)
+        if (selectedChunk < 0 || selectedTile.x == -1 || selectedTile.y == -1)
             return;
 
-        Utils::setBit(
-            m_chunks->m_chunks[m_selectedChunk].m_tiles[m_selectedTile.y][m_selectedTile.x].m_direction,
-            v, 0);
-        m_viewer->repaint();
+        Utils::setBit(chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].direction, v,
+                      0);
+        viewer->repaint();
 
-        ui->chunkList->item(m_selectedChunk)
-            ->setIcon(QPixmap::fromImage(m_chunks->m_chunks[m_selectedChunk].getImage(tiles)));
+        ui->chunkList->item(selectedChunk)
+            ->setIcon(QPixmap::fromImage(chunks->chunks[selectedChunk].getImage(tiles)));
     });
     connect(ui->flipY, &QCheckBox::toggled, [this, tiles](bool v) {
-        if (m_selectedChunk < 0 || m_selectedTile.x == -1 || m_selectedTile.y == -1)
+        if (selectedChunk < 0 || selectedTile.x == -1 || selectedTile.y == -1)
             return;
 
-        Utils::setBit(
-            m_chunks->m_chunks[m_selectedChunk].m_tiles[m_selectedTile.y][m_selectedTile.x].m_direction,
-            v, 1);
-        m_viewer->repaint();
+        Utils::setBit(chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].direction, v,
+                      1);
+        viewer->repaint();
 
-        ui->chunkList->item(m_selectedChunk)
-            ->setIcon(QPixmap::fromImage(m_chunks->m_chunks[m_selectedChunk].getImage(tiles)));
+        ui->chunkList->item(selectedChunk)
+            ->setIcon(QPixmap::fromImage(chunks->chunks[selectedChunk].getImage(tiles)));
     });
 
     connect(ui->visualPlane, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int v) {
-        if (m_selectedChunk < 0 || m_selectedTile.x == -1 || m_selectedTile.y == -1)
+        if (selectedChunk < 0 || selectedTile.x == -1 || selectedTile.y == -1)
             return;
 
-        m_chunks->m_chunks[m_selectedChunk].m_tiles[m_selectedTile.y][m_selectedTile.x].m_visualPlane =
-            (byte)v;
+        chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].visualPlane = (byte)v;
     });
 
     connect(ui->tileIndex, QOverload<int>::of(&QSpinBox::valueChanged), [this, tiles](int v) {
-        if (m_selectedChunk < 0 || m_selectedTile.x == -1 || m_selectedTile.y == -1)
+        if (selectedChunk < 0 || selectedTile.x == -1 || selectedTile.y == -1)
             return;
 
-        m_chunks->m_chunks[m_selectedChunk].m_tiles[m_selectedTile.y][m_selectedTile.x].m_tileIndex =
-            (ushort)v;
-        m_viewer->repaint();
+        chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].tileIndex = (ushort)v;
+        viewer->repaint();
 
-        ui->chunkList->item(m_selectedChunk)
-            ->setIcon(QPixmap::fromImage(m_chunks->m_chunks[m_selectedChunk].getImage(tiles)));
+        ui->chunkList->item(selectedChunk)
+            ->setIcon(QPixmap::fromImage(chunks->chunks[selectedChunk].getImage(tiles)));
     });
 
     connect(ui->solidityA, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int v) {
-        if (m_selectedChunk < 0 || m_selectedTile.x == -1 || m_selectedTile.y == -1)
+        if (selectedChunk < 0 || selectedTile.x == -1 || selectedTile.y == -1)
             return;
 
-        m_chunks->m_chunks[m_selectedChunk].m_tiles[m_selectedTile.y][m_selectedTile.x].m_solidityA =
-            (byte)v;
-        m_viewer->repaint();
+        chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].solidityA = (byte)v;
+        viewer->repaint();
     });
 
     connect(ui->solidityB, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int v) {
-        if (m_selectedChunk < 0 || m_selectedTile.x == -1 || m_selectedTile.y == -1)
+        if (selectedChunk < 0 || selectedTile.x == -1 || selectedTile.y == -1)
             return;
 
-        m_chunks->m_chunks[m_selectedChunk].m_tiles[m_selectedTile.y][m_selectedTile.x].m_solidityB =
-            (byte)v;
-        m_viewer->repaint();
+        chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].solidityB = (byte)v;
+        viewer->repaint();
     });
 
     for (QWidget *w : findChildren<QWidget *>()) {
@@ -243,14 +225,14 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
         mouseDownR = true;
 
     if (mouseDownR) {
-        m_sel->x = (mousePosX * m_zoom) / 16;
-        m_sel->y = (mousePosY * m_zoom) / 16;
+        selection->x = (mousePosX * zoom) / 16;
+        selection->y = (mousePosY * zoom) / 16;
 
-        if (m_sel->x > 0x80)
-            m_sel->x = -1;
+        if (selection->x > 0x80)
+            selection->x = -1;
 
-        if (m_sel->y > 0x80)
-            m_sel->y = -1;
+        if (selection->y > 0x80)
+            selection->y = -1;
 
         emit tileChanged();
 
@@ -258,7 +240,7 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
     }
 
     if (mouseDownL) {
-        emit tileDrawn(mousePosX * m_zoom, mousePosY * m_zoom);
+        emit tileDrawn(mousePosX * zoom, mousePosY * zoom);
     }
 }
 
@@ -275,14 +257,14 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
         mouseDownR = true;
 
     if (mouseDownR) {
-        m_sel->x = (mousePosX * m_zoom) / 16;
-        m_sel->y = (mousePosY * m_zoom) / 16;
+        selection->x = (mousePosX * zoom) / 16;
+        selection->y = (mousePosY * zoom) / 16;
 
-        if (m_sel->x > 0x80)
-            m_sel->x = -1;
+        if (selection->x > 0x80)
+            selection->x = -1;
 
-        if (m_sel->y > 0x80)
-            m_sel->y = -1;
+        if (selection->y > 0x80)
+            selection->y = -1;
 
         emit tileChanged();
 
@@ -290,7 +272,7 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
     }
 
     if (mouseDownL) {
-        emit tileDrawn(mousePosX * m_zoom, mousePosY * m_zoom);
+        emit tileDrawn(mousePosX * zoom, mousePosY * zoom);
     }
 }
 
@@ -298,18 +280,18 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
 {
     QLabel::paintEvent(event);
     QPainter p(this);
-    p.scale(m_zoom, m_zoom);
+    p.scale(zoom, zoom);
 
     const QBrush brush = p.brush();
     for (int y = 0; y < 8; ++y) {
         for (int x = 0; x < 8; ++x) {
-            auto &tile = m_chunks->m_chunks[*m_cSel].m_tiles[y][x];
+            auto &tile = m_chunks->chunks[*m_cSel].tiles[y][x];
 
-            bool fx = (tile.m_direction & 1) == 1;
-            bool fy = (tile.m_direction & 2) == 2;
-            p.drawImage(x * 0x10, y * 0x10, m_tiles[tile.m_tileIndex].mirrored(fx, fy));
+            bool fx = (tile.direction & 1) == 1;
+            bool fy = (tile.direction & 2) == 2;
+            p.drawImage(x * 0x10, y * 0x10, m_tiles[tile.tileIndex].mirrored(fx, fy));
 
-            if (y == m_sel->y && x == m_sel->x) {
+            if (y == selection->y && x == selection->x) {
                 p.setBrush(qApp->palette().highlight());
                 p.setOpacity(0.5);
                 p.drawRect(QRect(x * 0x10, y * 0x10, 0x10, 0x10));

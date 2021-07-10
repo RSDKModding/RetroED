@@ -12,10 +12,10 @@ public:
     public:
         FileInfo() {}
 
-        QString m_name = "";
-        int m_fileSize = 0;
-        int m_offset   = 0;
-        QByteArray m_fileData;
+        QString fileName = "";
+        int fileSize     = 0;
+        int offset       = 0;
+        QByteArray fileData;
     };
     ArcContainer() {}
     ArcContainer(QString filename) { read(filename); }
@@ -31,7 +31,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -39,12 +39,12 @@ public:
     }
     void write(Writer &writer);
 
-    byte m_signature[4] = { 'A', 'R', 'C', 'L' };
+    byte signature[4] = { 'A', 'R', 'C', 'L' };
 
-    int m_arcKey = 0;
-    QList<FileInfo> m_files;
+    int key = 0;
+    QList<FileInfo> files;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv3
