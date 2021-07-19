@@ -8,8 +8,8 @@ void StaticObjectInfo::read(Reader &reader)
     m_name = reader.readString();
 
     byte arrayCnt = reader.read<byte>();
-    m_arrays.clear();
-    for (int a = 0; a < arrayCnt; ++a) m_arrays.append(ArrayInfo(reader));
+    values.clear();
+    for (int a = 0; a < arrayCnt; ++a) values.append(ArrayInfo(reader));
 }
 
 void StaticObjectInfo::write(Writer &writer)
@@ -18,8 +18,8 @@ void StaticObjectInfo::write(Writer &writer)
     writer.write(m_fileVer);
     writer.write(m_name);
 
-    writer.write((byte)m_arrays.count());
-    for (auto &a : m_arrays) a.write(writer);
+    writer.write((byte)values.count());
+    for (auto &a : values) a.write(writer);
 
     writer.flush();
 }

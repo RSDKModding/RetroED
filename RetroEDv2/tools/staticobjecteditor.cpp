@@ -18,37 +18,50 @@ StaticObjectEditor::StaticObjectEditor(QString filePath, QWidget *parent)
             QString selFile = filedialog.selectedFiles()[0];
 
             Writer writer(selFile);
-            writer.writeLine(QString("struct %1 {").arg(m_info.m_name));
-            for (int a = 0; a < m_staticObject.m_arrays.count(); ++a) {
+            writer.writeLine(QString("struct %1 {").arg(info.m_name));
+            for (int a = 0; a < staticObject.values.count(); ++a) {
                 QString type = "unknown";
-                switch (m_staticObject.m_arrays[a].m_type) {
-                    case RSDKv5::AttributeTypes::UINT8: type = "byte"; break;
-                    case RSDKv5::AttributeTypes::UINT16: type = "ushort"; break;
-                    case RSDKv5::AttributeTypes::UINT32: type = "uint"; break;
-                    case RSDKv5::AttributeTypes::INT8: type = "byte"; break;
-                    case RSDKv5::AttributeTypes::INT16: type = "short"; break;
-                    case RSDKv5::AttributeTypes::INT32: type = "int"; break;
-                    case RSDKv5::AttributeTypes::ENUM: type = "var"; break;
-                    case RSDKv5::AttributeTypes::BOOL: type = "bool"; break;
-                    case RSDKv5::AttributeTypes::STRING: type = "bool"; break;
-                    case RSDKv5::AttributeTypes::VECTOR2: type = "Vector2"; break;
-                    case RSDKv5::AttributeTypes::UNKNOWN: type = "unknownType"; break;
-                    case RSDKv5::AttributeTypes::COLOR: type = "colour"; break;
+                switch (staticObject.values[a].type) {
+                    case RSDKv5::StaticObject::SVAR_UINT8: type = "byte"; break;
+                    case RSDKv5::StaticObject::SVAR_UINT16: type = "ushort"; break;
+                    case RSDKv5::StaticObject::SVAR_UINT32: type = "uint"; break;
+                    case RSDKv5::StaticObject::SVAR_INT8: type = "sbyte"; break;
+                    case RSDKv5::StaticObject::SVAR_INT16: type = "short"; break;
+                    case RSDKv5::StaticObject::SVAR_INT32: type = "int"; break;
+                    case RSDKv5::StaticObject::SVAR_BOOL: type = "bool"; break;
+                    case RSDKv5::StaticObject::SVAR_PTR: type = "void *"; break;
+                    case RSDKv5::StaticObject::SVAR_VEC2: type = "Vector2"; break;
+                    case RSDKv5::StaticObject::SVAR_TEXT: type = "TextInfo"; break;
+                    case RSDKv5::StaticObject::SVAR_ANIMATOR: type = "Animator"; break;
+                    case RSDKv5::StaticObject::SVAR_HITBOX: type = "Hitbox"; break;
+                    case RSDKv5::StaticObject::SVAR_UNKNOWN: type = "Unknown"; break;
                 }
 
-                QString arrName = m_info.m_arrays[a].m_name;
+                QString arrName = info.values[a].m_name;
                 arrName         = arrName.replace(" ", "");
-                if (m_staticObject.m_arrays[a].m_values.count() > 1) {
+                if (staticObject.values[a].entries.count() > 1) {
                     writer.writeText(QString("\t%1 %2[%3] = {")
                                          .arg(type)
                                          .arg(arrName)
-                                         .arg(m_staticObject.m_arrays[a].m_values.count()));
-                    for (int v = 0; v < m_staticObject.m_arrays[a].m_values.count(); ++v) {
-                        writer.writeText(QString::number(m_staticObject.m_arrays[a].m_values[v]));
-                        if (v + 1 < m_staticObject.m_arrays[a].m_values.count())
+                                         .arg(staticObject.values[a].entries.count()));
+                    for (int v = 0; v < staticObject.values[a].entries.count(); ++v) {
+                        writer.writeText(QString::number(staticObject.values[a].entries[v]));
+                        if (v + 1 < staticObject.values[a].entries.count())
                             writer.writeText(", ");
                     }
                     writer.writeLine("};");
+                }
+                else if (staticObject.values[a].size > 1) {
+                    writer.writeLine(QString("\t%1 %2[%3];")
+                                         .arg(type)
+                                         .arg(arrName)
+                                         .arg(staticObject.values[a].size));
+                }
+                else if (staticObject.values[a].entries.count() == 1) {
+                    writer.writeLine(QString("\t%1 %2 = %3;")
+                                         .arg(type)
+                                         .arg(arrName)
+                                         .arg(staticObject.values[a].entries[0]));
                 }
                 else {
                     writer.writeLine(QString("\t%1 %2;").arg(type).arg(arrName));
@@ -64,71 +77,69 @@ StaticObjectEditor::StaticObjectEditor(QString filePath, QWidget *parent)
     connect(m_arrayModel, &QStandardItemModel::itemChanged, [this](QStandardItem *item) {
         const QModelIndex &index = m_arrayModel->indexFromItem(item);
         if (index.parent().isValid()) { // Value
-            m_info.m_arrays[index.parent().row()].m_values[index.row()] = item->text();
+            info.values[index.parent().row()].entries[index.row()] = item->text();
             return;
         }
-        m_info.m_arrays[index.row()].m_name = item->text();
+        info.values[index.row()].m_name = item->text();
     });
 
     ui->arrTree->setModel(m_arrayModel);
 
-    connect(ui->arrTree->selectionModel(), &QItemSelectionModel::currentChanged,
-            [this](const QModelIndex &c) {
-                disconnect(ui->arrValName, nullptr, nullptr, nullptr);
-                disconnect(ui->arrValue, nullptr, nullptr, nullptr);
+    connect(
+        ui->arrTree->selectionModel(), &QItemSelectionModel::currentChanged,
+        [this](const QModelIndex &c) {
+            disconnect(ui->arrValName, nullptr, nullptr, nullptr);
+            disconnect(ui->arrValue, nullptr, nullptr, nullptr);
 
-                ui->arrValName->setDisabled(!c.parent().isValid());
-                ui->arrValue->setDisabled(!c.parent().isValid());
+            ui->arrValName->setDisabled(!c.parent().isValid());
+            ui->arrValue->setDisabled(!c.parent().isValid());
 
-                if (!c.isValid())
+            if (!c.isValid())
+                return;
+
+            if (c.parent().isValid()) {
+                ui->arrValName->setDisabled(c.row() >= info.values[c.parent().row()].entries.count());
+                ui->arrValue->setDisabled(c.row()
+                                          >= staticObject.values[c.parent().row()].entries.count());
+
+                if (c.row() >= staticObject.values[c.parent().row()].entries.count())
                     return;
 
-                if (c.parent().isValid()) {
-                    ui->arrValName->setDisabled(c.row()
-                                                >= m_info.m_arrays[c.parent().row()].m_values.count());
-                    ui->arrValue->setDisabled(
-                        c.row() >= m_staticObject.m_arrays[c.parent().row()].m_values.count());
+                ui->arrValName->setText(info.values[c.parent().row()].entries[c.row()]);
+                ui->arrValue->setValue(staticObject.values[c.parent().row()].entries[c.row()]);
 
-                    if (c.row() >= m_staticObject.m_arrays[c.parent().row()].m_values.count())
-                        return;
+                connect(ui->arrValName, &QLineEdit::textEdited,
+                        [this, c](QString s) { info.values[c.parent().row()].entries[c.row()] = s; });
 
-                    ui->arrValName->setText(m_info.m_arrays[c.parent().row()].m_values[c.row()]);
-                    ui->arrValue->setValue(m_staticObject.m_arrays[c.parent().row()].m_values[c.row()]);
+                connect(ui->arrValue, QOverload<int>::of(&QSpinBox::valueChanged), [this, c](int v) {
+                    staticObject.values[c.parent().row()].entries[c.row()] = v;
+                });
+            }
 
-                    connect(ui->arrValName, &QLineEdit::textEdited, [this, c](QString s) {
-                        m_info.m_arrays[c.parent().row()].m_values[c.row()] = s;
-                    });
-
-                    connect(ui->arrValue, QOverload<int>::of(&QSpinBox::valueChanged),
-                            [this, c](int v) {
-                                m_staticObject.m_arrays[c.parent().row()].m_values[c.row()] = v;
-                            });
-                }
-
-                ui->arrType->setCurrentIndex(m_staticObject.m_arrays[c.row()].m_type);
-                ui->arrSize->setValue(m_staticObject.m_arrays[c.row()].m_size);
-                ui->arrOffset->setValue(m_staticObject.getOffset(c.row()));
-            });
+            ui->arrType->setCurrentIndex(staticObject.values[c.row()].type);
+            ui->arrSize->setValue(staticObject.values[c.row()].size);
+            ui->arrOffset->setValue(staticObject.getOffset(c.row()));
+        });
 
     if (filePath != "") {
         QString selFile = filePath;
-        m_staticObject.read(selFile);
+        staticObject.read(selFile);
         QString infoPath = QFileInfo(selFile).absolutePath() + "/info_" + QFileInfo(selFile).fileName();
-        m_info           = StaticObjectInfo();
+        info             = StaticObjectInfo();
         if (QFile::exists(infoPath)) {
-            m_info.read(infoPath);
+            info.read(infoPath);
         }
         else {
-            m_info.m_arrays.clear();
+            info.values.clear();
             int aID = 0;
-            for (auto &a : m_staticObject.m_arrays) {
-                m_info.m_arrays.append(StaticObjectInfo::ArrayInfo());
-                m_info.m_arrays.last().m_name = "Array " + QString::number(aID++);
-                int vID                       = 0;
-                for (auto &v : a.m_values)
-                    m_info.m_arrays.last().m_values.append("Value[" + QString::number(vID++) + "]");
+            for (auto &a : staticObject.values) {
+                info.values.append(StaticObjectInfo::ArrayInfo());
+                info.values.last().m_name = "value " + QString::number(aID++);
+                int vID                   = 0;
+                for (auto &v : a.entries)
+                    info.values.last().entries.append("value[" + QString::number(vID++) + "]");
             }
-            m_info.m_name = QFileInfo(selFile).baseName();
+            info.m_name = QFileInfo(selFile).baseName();
         }
 
         appConfig.addRecentFile(ENGINE_v5, TOOL_STATICOBJECTEDITOR, selFile, QList<QString>{});
@@ -155,13 +166,12 @@ void StaticObjectEditor::setupUI()
 
     // Set Values
     m_arrayModel->clear();
-    for (int c = 0; c < m_staticObject.m_arrays.count(); ++c) {
-        auto *arrItem = new QStandardItem(m_info.m_arrays[c].m_name);
+    for (int c = 0; c < staticObject.values.count(); ++c) {
+        auto *arrItem = new QStandardItem(info.values[c].m_name);
 
-        for (int v = 0; v < m_staticObject.m_arrays[c].m_values.count(); ++v) {
-            auto *valItem =
-                new QStandardItem(m_info.m_arrays[c].m_values[v] + ": "
-                                  + QString::number(m_staticObject.m_arrays[c].m_values[v]));
+        for (int v = 0; v < staticObject.values[c].entries.count(); ++v) {
+            auto *valItem = new QStandardItem(info.values[c].entries[v] + ": "
+                                              + QString::number(staticObject.values[c].entries[v]));
             arrItem->appendRow(valItem);
 
             valItem->setFlags(valItem->flags() | Qt::ItemIsEditable);
@@ -176,16 +186,16 @@ void StaticObjectEditor::setupUI()
     ui->arrSize->setValue(0x00);
     ui->arrOffset->setValue(0x00);
 
-    ui->objName->setText(m_info.m_name);
+    ui->objName->setText(info.m_name);
 
-    connect(ui->objName, &QLineEdit::textEdited, [this](QString s) { m_info.m_name = s; });
+    connect(ui->objName, &QLineEdit::textEdited, [this](QString s) { info.m_name = s; });
 }
 
 bool StaticObjectEditor::event(QEvent *event)
 {
     if (event->type() == (QEvent::Type)RE_EVENT_NEW) {
-        m_staticObject = RSDKv5::StaticObject();
-        m_info         = StaticObjectInfo();
+        staticObject = RSDKv5::StaticObject();
+        info         = StaticObjectInfo();
         setupUI();
         return true;
     }
@@ -195,24 +205,24 @@ bool StaticObjectEditor::event(QEvent *event)
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
             QString selFile = filedialog.selectedFiles()[0];
-            m_staticObject.read(selFile);
+            staticObject.read(selFile);
             QString infoPath =
                 QFileInfo(selFile).absolutePath() + "/info_" + QFileInfo(selFile).fileName();
-            m_info = StaticObjectInfo();
+            info = StaticObjectInfo();
             if (QFile::exists(infoPath)) {
-                m_info.read(infoPath);
+                info.read(infoPath);
             }
             else {
-                m_info.m_arrays.clear();
+                info.values.clear();
                 int aID = 0;
-                for (auto &a : m_staticObject.m_arrays) {
-                    m_info.m_arrays.append(StaticObjectInfo::ArrayInfo());
-                    m_info.m_arrays.last().m_name = "Array " + QString::number(aID++);
-                    int vID                       = 0;
-                    for (auto &v : a.m_values)
-                        m_info.m_arrays.last().m_values.append("Value[" + QString::number(vID++) + "]");
+                for (auto &a : staticObject.values) {
+                    info.values.append(StaticObjectInfo::ArrayInfo());
+                    info.values.last().m_name = "Array " + QString::number(aID++);
+                    int vID                   = 0;
+                    for (auto &v : a.entries)
+                        info.values.last().entries.append("Value[" + QString::number(vID++) + "]");
                 }
-                m_info.m_name = QFileInfo(selFile).baseName();
+                info.m_name = QFileInfo(selFile).baseName();
             }
 
             appConfig.addRecentFile(ENGINE_v5, TOOL_STATICOBJECTEDITOR, selFile, QList<QString>{});
@@ -222,12 +232,12 @@ bool StaticObjectEditor::event(QEvent *event)
     }
 
     if (event->type() == (QEvent::Type)RE_EVENT_SAVE) {
-        if (m_staticObject.m_filename != "") {
-            m_staticObject.write("");
-            QString selFile = m_staticObject.m_filename;
+        if (staticObject.m_filename != "") {
+            staticObject.write("");
+            QString selFile = staticObject.m_filename;
             QString infoPath =
                 QFileInfo(selFile).absolutePath() + "/info_" + QFileInfo(selFile).fileName();
-            m_info.write(infoPath);
+            info.write(infoPath);
             return true;
         }
 
@@ -235,11 +245,11 @@ bool StaticObjectEditor::event(QEvent *event)
                                tr("RSDKv5 Static Objects (*.bin)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
-            m_staticObject.write(filedialog.selectedFiles()[0]);
+            staticObject.write(filedialog.selectedFiles()[0]);
             QString selFile = filedialog.selectedFiles()[0];
             QString infoPath =
                 QFileInfo(selFile).absolutePath() + "/info_" + QFileInfo(selFile).fileName();
-            m_info.write(infoPath);
+            info.write(infoPath);
 
             appConfig.addRecentFile(ENGINE_v5, TOOL_STATICOBJECTEDITOR, selFile, QList<QString>{});
             return true;
@@ -251,11 +261,11 @@ bool StaticObjectEditor::event(QEvent *event)
                                tr("RSDKv5 Static Objects (*.bin)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
-            m_staticObject.write(filedialog.selectedFiles()[0]);
+            staticObject.write(filedialog.selectedFiles()[0]);
             QString selFile = filedialog.selectedFiles()[0];
             QString infoPath =
                 QFileInfo(selFile).absolutePath() + "/info_" + QFileInfo(selFile).fileName();
-            m_info.write(infoPath);
+            info.write(infoPath);
 
             appConfig.addRecentFile(ENGINE_v5, TOOL_STATICOBJECTEDITOR, selFile, QList<QString>{});
             return true;

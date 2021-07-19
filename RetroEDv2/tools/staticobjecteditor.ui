@@ -130,17 +130,12 @@
        </item>
        <item>
         <property name="text">
-         <string>enum</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
          <string>bool</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>string</string>
+         <string>pointer</string>
         </property>
        </item>
        <item>
@@ -150,12 +145,22 @@
        </item>
        <item>
         <property name="text">
-         <string>vector3</string>
+         <string>text</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>colour</string>
+         <string>animator</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>hitbox</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>unknown</string>
         </property>
        </item>
       </widget>

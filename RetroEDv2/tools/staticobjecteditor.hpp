@@ -24,8 +24,8 @@ protected:
     bool event(QEvent *event);
 
 private:
-    RSDKv5::StaticObject m_staticObject;
-    StaticObjectInfo m_info;
+    RSDKv5::StaticObject staticObject;
+    StaticObjectInfo info;
 
     QStandardItemModel *m_arrayModel = nullptr;
 

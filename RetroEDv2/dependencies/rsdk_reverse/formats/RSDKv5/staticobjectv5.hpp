@@ -7,11 +7,27 @@ namespace RSDKv5
 class StaticObject
 {
 public:
+    enum StaticObjectTypes {
+        SVAR_UINT8,
+        SVAR_UINT16,
+        SVAR_UINT32,
+        SVAR_INT8,
+        SVAR_INT16,
+        SVAR_INT32,
+        SVAR_BOOL,
+        SVAR_PTR,
+        SVAR_VEC2,
+        SVAR_TEXT,
+        SVAR_ANIMATOR,
+        SVAR_HITBOX,
+        SVAR_UNKNOWN,
+    };
+
     struct ArrayInfo {
-        byte m_type    = 0;
-        int m_size     = 0;
-        int m_dataSize = 0;
-        QList<int> m_values;
+        byte type    = 0;
+        int size     = 0;
+        int dataSize = 0;
+        QList<int> entries;
     };
     StaticObject() {}
     StaticObject(QString filename) { read(filename); }
@@ -41,7 +57,7 @@ public:
 
     byte m_signature[4] = { 'O', 'B', 'J', 0 };
 
-    QList<ArrayInfo> m_arrays;
+    QList<ArrayInfo> values;
 
     QString m_filename = "";
 };

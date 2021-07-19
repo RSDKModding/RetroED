@@ -7,7 +7,7 @@ void RSDKv5::StaticObject::read(Reader &reader)
         return;
 
     uint memPos = 0;
-    m_arrays.clear();
+    values.clear();
     while (!reader.isEOF()) {
         int dataType  = reader.read<byte>();
         int arraySize = reader.read<int>();
@@ -17,20 +17,20 @@ void RSDKv5::StaticObject::read(Reader &reader)
             dataType &= 0x7F;
 
             ArrayInfo array;
-            array.m_type     = (byte)dataType;
-            array.m_size     = arraySize;
-            array.m_dataSize = (int)dataSize;
+            array.type     = (byte)dataType;
+            array.size     = arraySize;
+            array.dataSize = (int)dataSize;
 
             switch (dataType) {
                 default: break;
                 case AttributeTypes::UINT8: {
-                    for (uint d = 0; d < dataSize; ++d) array.m_values.append(reader.read<byte>());
+                    for (uint d = 0; d < dataSize; ++d) array.entries.append(reader.read<byte>());
 
                     memPos += arraySize;
                     break;
                 }
                 case AttributeTypes::INT8: {
-                    for (uint d = 0; d < dataSize; ++d) array.m_values.append(reader.read<char>());
+                    for (uint d = 0; d < dataSize; ++d) array.entries.append(reader.read<char>());
 
                     memPos += arraySize;
                     break;
@@ -44,7 +44,7 @@ void RSDKv5::StaticObject::read(Reader &reader)
                     for (uint d = 0; d < dataSize; ++d) {
                         byte valA = reader.read<byte>();
                         byte valB = reader.read<byte>();
-                        array.m_values.append((ushort)(valA + (valB << 8)));
+                        array.entries.append((ushort)(valA + (valB << 8)));
                     }
 
                     memPos += 2 * arraySize;
@@ -59,7 +59,7 @@ void RSDKv5::StaticObject::read(Reader &reader)
                     for (uint d = 0; d < dataSize; ++d) {
                         byte valA = reader.read<byte>();
                         byte valB = reader.read<byte>();
-                        array.m_values.append((short)(valA + (valB << 8)));
+                        array.entries.append((short)(valA + (valB << 8)));
                     }
                     memPos += 2 * arraySize;
                     break;
@@ -75,7 +75,7 @@ void RSDKv5::StaticObject::read(Reader &reader)
                         byte valB = reader.read<byte>();
                         byte valC = reader.read<byte>();
                         byte valD = reader.read<byte>();
-                        array.m_values.append(
+                        array.entries.append(
                             (int)(uint)(valA + (valB << 8) + (valC << 16) + (valD << 24)));
                     }
                     memPos += 4 * arraySize;
@@ -92,7 +92,7 @@ void RSDKv5::StaticObject::read(Reader &reader)
                         byte valB = reader.read<byte>();
                         byte valC = reader.read<byte>();
                         byte valD = reader.read<byte>();
-                        array.m_values.append(valA + (valB << 8) + (valC << 16) + (valD << 24));
+                        array.entries.append(valA + (valB << 8) + (valC << 16) + (valD << 24));
                     }
                     memPos += 4 * arraySize;
                     break;
@@ -108,21 +108,21 @@ void RSDKv5::StaticObject::read(Reader &reader)
                         byte valB = reader.read<byte>();
                         byte valC = reader.read<byte>();
                         byte valD = reader.read<byte>();
-                        array.m_values.append(valA + (valB << 8) + (valC << 16) + (valD << 24));
+                        array.entries.append(valA + (valB << 8) + (valC << 16) + (valD << 24));
                     }
                     memPos += 4 * arraySize;
                     break;
                 }
             }
-            m_arrays.append(array);
+            values.append(array);
         }
         else {
             ArrayInfo array;
-            array.m_type     = (byte)dataType;
-            array.m_size     = arraySize;
-            array.m_dataSize = 0;
-            array.m_values.clear();
-            m_arrays.append(array);
+            array.type     = (byte)dataType;
+            array.size     = arraySize;
+            array.dataSize = 0;
+            array.entries.clear();
+            values.append(array);
 
             int buffer = 0;
             switch (dataType) {
@@ -174,22 +174,22 @@ void RSDKv5::StaticObject::write(Writer &writer)
     m_filename = writer.filePath;
     writer.write(m_signature, 4);
 
-    for (ArrayInfo &array : m_arrays) {
-        writer.write((byte)(array.m_dataSize > 0 ? (array.m_type | 0x80) : array.m_type));
-        writer.write(array.m_size);
+    for (ArrayInfo &array : values) {
+        writer.write((byte)(array.dataSize > 0 ? (array.type | 0x80) : array.type));
+        writer.write(array.size);
 
-        if (array.m_dataSize > 0) {
-            writer.write(array.m_dataSize);
+        if (array.dataSize > 0) {
+            writer.write(array.dataSize);
 
-            switch (array.m_type) {
+            switch (array.type) {
                 case AttributeTypes::UINT8:
                 case AttributeTypes::INT8:
-                    for (int i = 0; i < array.m_dataSize; ++i) writer.write(array.m_values[i]);
+                    for (int i = 0; i < array.dataSize; ++i) writer.write(array.entries[i]);
                     break;
                 case AttributeTypes::UINT16:
                 case AttributeTypes::INT16:
-                    for (int i = 0; i < array.m_dataSize; ++i) {
-                        Utils::intBytes b = Utils::intBytes(array.m_values[i]);
+                    for (int i = 0; i < array.dataSize; ++i) {
+                        Utils::intBytes b = Utils::intBytes(array.entries[i]);
                         writer.write(b.m_bytes[0]);
                         writer.write(b.m_bytes[1]);
                     }
@@ -197,8 +197,8 @@ void RSDKv5::StaticObject::write(Writer &writer)
                 case AttributeTypes::UINT32:
                 case AttributeTypes::INT32:
                 case AttributeTypes::ENUM:
-                    for (int i = 0; i < array.m_dataSize; ++i) {
-                        Utils::intBytes b = Utils::intBytes(array.m_values[i]);
+                    for (int i = 0; i < array.dataSize; ++i) {
+                        Utils::intBytes b = Utils::intBytes(array.entries[i]);
                         writer.write(b.m_bytes[0]);
                         writer.write(b.m_bytes[1]);
                         writer.write(b.m_bytes[2]);
@@ -217,15 +217,15 @@ uint RSDKv5::StaticObject::getOffset(int arrayID)
     uint memPos = 0;
     for (int a = 0; a < arrayID; ++a) {
         int buffer = 0;
-        switch (m_arrays[a].m_type) {
+        switch (values[a].type) {
             case AttributeTypes::UINT8:
-            case AttributeTypes::INT8: memPos += m_arrays[a].m_size; break;
+            case AttributeTypes::INT8: memPos += values[a].size; break;
             case AttributeTypes::UINT16:
             case AttributeTypes::INT16:
                 buffer = (int)((memPos & 0xFFFFFFFE) + 2);
                 if ((memPos & 0xFFFFFFFE) >= memPos)
                     buffer = memPos;
-                memPos = buffer + 2 * m_arrays[a].m_size;
+                memPos = buffer + 2 * values[a].size;
                 break;
             case AttributeTypes::UINT32:
             case AttributeTypes::INT32:
@@ -234,26 +234,26 @@ uint RSDKv5::StaticObject::getOffset(int arrayID)
                 buffer = (int)((memPos & 0xFFFFFFFC) + 4);
                 if ((memPos & 0xFFFFFFFC) >= memPos)
                     buffer = memPos;
-                memPos = buffer + 4 * m_arrays[a].m_size;
+                memPos = buffer + 4 * values[a].size;
                 break;
             case AttributeTypes::STRING:
             case AttributeTypes::VECTOR2:
                 buffer = (int)((memPos & 0xFFFFFFFC) + 4);
                 if ((memPos & 0xFFFFFFFC) >= memPos)
                     buffer = memPos;
-                memPos = buffer + 8 * m_arrays[a].m_size;
+                memPos = buffer + 8 * values[a].size;
                 break;
             case AttributeTypes::UNKNOWN:
                 buffer = (int)((memPos & 0xFFFFFFFC) + 4);
                 if ((memPos & 0xFFFFFFFC) >= memPos)
                     buffer = memPos;
-                memPos = buffer + 24 * m_arrays[a].m_size;
+                memPos = buffer + 24 * values[a].size;
                 break;
             case AttributeTypes::COLOR:
                 buffer = (int)((memPos & 0xFFFFFFFE) + 2);
                 if ((memPos & 0xFFFFFFFE) >= memPos)
                     buffer = memPos;
-                memPos = buffer + 8 * m_arrays[a].m_size;
+                memPos = buffer + 8 * values[a].size;
                 break;
             default: break;
         }

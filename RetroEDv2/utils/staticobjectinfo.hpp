@@ -14,19 +14,19 @@ public:
         {
             m_name        = reader.readString();
             ushort valCnt = reader.read<ushort>();
-            m_values.clear();
-            for (int v = 0; v < valCnt; ++v) m_values.append(reader.readString());
+            entries.clear();
+            for (int v = 0; v < valCnt; ++v) entries.append(reader.readString());
         }
 
         inline void write(Writer &writer)
         {
             writer.write(m_name);
-            writer.write((ushort)m_values.count());
-            for (auto &v : m_values) writer.write(v);
+            writer.write((ushort)entries.count());
+            for (auto &v : entries) writer.write(v);
         }
 
         QString m_name = "";
-        QList<QString> m_values;
+        QList<QString> entries;
 
         // not written
         int id = -1;
@@ -54,7 +54,7 @@ public:
     void write(Writer &writer);
 
     QString m_name = "Unknown Object";
-    QList<ArrayInfo> m_arrays;
+    QList<ArrayInfo> values;
 
     QString m_filename;
     byte m_fileVer = 1;
