@@ -26,7 +26,7 @@ protected:
 private:
     Ui::SaveFileEditorv4 *ui;
 
-    int m_saveID = 0;
+    int saveID = 0;
 };
 
 #endif // SAVEFILEEDITOR_V4_H

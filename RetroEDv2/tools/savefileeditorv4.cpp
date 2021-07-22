@@ -79,16 +79,16 @@ void SaveFileEditorv4::setupUI()
     disconnect(ui->vDPadX2, nullptr, nullptr, nullptr);
     disconnect(ui->vDPadY2, nullptr, nullptr, nullptr);
 
-    m_saveID = 0 << 3;
+    saveID = 0 << 3;
     ui->curSave->setCurrentIndex(0);
 
-    int stageID = savefile.saveRAM[m_saveID + 5];
+    int stageID = savefile.saveRAM[saveID + 5];
 
-    ui->characterID->setCurrentIndex(savefile.saveRAM[m_saveID + 0]);
-    ui->lives->setValue(savefile.saveRAM[m_saveID + 1]);
-    ui->score->setValue(savefile.saveRAM[m_saveID + 2]);
-    ui->scoreBonus->setValue(savefile.saveRAM[m_saveID + 3]);
-    ui->continues->setValue(savefile.saveRAM[m_saveID + 4]);
+    ui->characterID->setCurrentIndex(savefile.saveRAM[saveID + 0]);
+    ui->lives->setValue(savefile.saveRAM[saveID + 1]);
+    ui->score->setValue(savefile.saveRAM[saveID + 2]);
+    ui->scoreBonus->setValue(savefile.saveRAM[saveID + 3]);
+    ui->continues->setValue(savefile.saveRAM[saveID + 4]);
     ui->curStageSpecial->setChecked(stageID >= 0x80);
 
     if (stageID >= 0x80) {
@@ -97,15 +97,15 @@ void SaveFileEditorv4::setupUI()
 
     if (stageID >= 1) {
         ui->curStage->setCurrentIndex(((stageID - 1) / 2) + 1);
-        ui->curSpecialStage->setCurrentIndex(savefile.saveRAM[m_saveID + 7]);
+        ui->curSpecialStage->setCurrentIndex(savefile.saveRAM[saveID + 7]);
     }
     else {
         ui->curStage->setCurrentIndex(0);
-        ui->curSpecialStage->setCurrentIndex(stageID >= 0x80 ? savefile.saveRAM[m_saveID + 7] : 0);
+        ui->curSpecialStage->setCurrentIndex(stageID >= 0x80 ? savefile.saveRAM[saveID + 7] : 0);
     }
 
     for (int t = 0; t < 7; ++t) {
-        tsBoxes[t]->setChecked(Utils::getBit(savefile.saveRAM[m_saveID + 6], t));
+        tsBoxes[t]->setChecked(Utils::getBit(savefile.saveRAM[saveID + 6], t));
     }
 
     ui->activeFile->setChecked(savefile.saveRAM[32]);
@@ -122,126 +122,134 @@ void SaveFileEditorv4::setupUI()
     ui->vDPadX2->setValue(savefile.saveRAM[41]);
     ui->vDPadY2->setValue(savefile.saveRAM[42]);
 
-    connect(ui->curSave, &QComboBox::currentIndexChanged, [this, tsBoxes, stageNames](int c) {
+    connect(ui->curSave, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [this, tsBoxes, stageNames](int c) {
+                if (c == -1)
+                    return;
+
+                saveID = c << 3;
+
+                ui->characterID->blockSignals(true);
+                ui->lives->blockSignals(true);
+                ui->score->blockSignals(true);
+                ui->scoreBonus->blockSignals(true);
+                ui->continues->blockSignals(true);
+                ui->curStage->blockSignals(true);
+                ui->curSpecialStage->blockSignals(true);
+                for (int t = 0; t < 7; ++t) tsBoxes[t]->blockSignals(true);
+
+                int stageID = savefile.saveRAM[saveID + 3];
+
+                ui->characterID->setCurrentIndex(savefile.saveRAM[saveID + 0]);
+                ui->lives->setValue(savefile.saveRAM[saveID + 1]);
+                ui->score->setValue(savefile.saveRAM[saveID + 2]);
+                ui->scoreBonus->setValue(savefile.saveRAM[saveID + 3]);
+                ui->continues->setValue(savefile.saveRAM[saveID + 4]);
+                ui->curStageSpecial->setChecked(stageID >= 0x80);
+
+                if (stageID >= 0x80) {
+                    stageID -= 0x80;
+                }
+
+                if (stageID >= 1) {
+                    ui->curStage->setCurrentIndex(((stageID - 1) / 2) + 1);
+                    ui->curSpecialStage->setCurrentIndex(savefile.saveRAM[saveID + 5]);
+                }
+                else {
+                    ui->curStage->setCurrentIndex(0);
+                    ui->curSpecialStage->setCurrentIndex(stageID >= 0x80 ? savefile.saveRAM[saveID + 5]
+                                                                         : 0);
+                }
+
+                for (int t = 0; t < 7; ++t) {
+                    tsBoxes[t]->setChecked(Utils::getBit(savefile.saveRAM[saveID + 4], t));
+                }
+
+                ui->characterID->blockSignals(false);
+                ui->lives->blockSignals(false);
+                ui->score->blockSignals(false);
+                ui->scoreBonus->blockSignals(false);
+                ui->continues->blockSignals(false);
+                ui->curStage->blockSignals(false);
+                ui->curSpecialStage->blockSignals(false);
+                for (int t = 0; t < 7; ++t) tsBoxes[t]->blockSignals(false);
+            });
+
+    connect(ui->characterID, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int c) {
         if (c == -1)
             return;
-
-        m_saveID = c << 3;
-
-        ui->characterID->blockSignals(true);
-        ui->lives->blockSignals(true);
-        ui->score->blockSignals(true);
-        ui->scoreBonus->blockSignals(true);
-        ui->continues->blockSignals(true);
-        ui->curStage->blockSignals(true);
-        ui->curSpecialStage->blockSignals(true);
-        for (int t = 0; t < 7; ++t) tsBoxes[t]->blockSignals(true);
-
-        int stageID = savefile.saveRAM[m_saveID + 3];
-
-        ui->characterID->setCurrentIndex(savefile.saveRAM[m_saveID + 0]);
-        ui->lives->setValue(savefile.saveRAM[m_saveID + 1]);
-        ui->score->setValue(savefile.saveRAM[m_saveID + 2]);
-        ui->scoreBonus->setValue(savefile.saveRAM[m_saveID + 3]);
-        ui->continues->setValue(savefile.saveRAM[m_saveID + 4]);
-        ui->curStageSpecial->setChecked(stageID >= 0x80);
-
-        if (stageID >= 0x80) {
-            stageID -= 0x80;
-        }
-
-        if (stageID >= 1) {
-            ui->curStage->setCurrentIndex(((stageID - 1) / 2) + 1);
-            ui->curSpecialStage->setCurrentIndex(savefile.saveRAM[m_saveID + 5]);
-        }
-        else {
-            ui->curStage->setCurrentIndex(0);
-            ui->curSpecialStage->setCurrentIndex(stageID >= 0x80 ? savefile.saveRAM[m_saveID + 5] : 0);
-        }
-
-        for (int t = 0; t < 7; ++t) {
-            tsBoxes[t]->setChecked(Utils::getBit(savefile.saveRAM[m_saveID + 4], t));
-        }
-
-        ui->characterID->blockSignals(false);
-        ui->lives->blockSignals(false);
-        ui->score->blockSignals(false);
-        ui->scoreBonus->blockSignals(false);
-        ui->continues->blockSignals(false);
-        ui->curStage->blockSignals(false);
-        ui->curSpecialStage->blockSignals(false);
-        for (int t = 0; t < 7; ++t) tsBoxes[t]->blockSignals(false);
+        savefile.saveRAM[saveID + 0] = c;
     });
 
-    connect(ui->characterID, &QComboBox::currentIndexChanged, [this](int c) {
-        if (c == -1)
-            return;
-        savefile.saveRAM[m_saveID + 0] = c;
-    });
+    connect(ui->lives, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { savefile.saveRAM[saveID + 1] = v; });
 
-    connect(ui->lives, &QSpinBox::valueChanged, [this](int v) { savefile.saveRAM[m_saveID + 1] = v; });
+    connect(ui->score, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { savefile.saveRAM[saveID + 2] = v; });
 
-    connect(ui->score, &QSpinBox::valueChanged, [this](int v) { savefile.saveRAM[m_saveID + 2] = v; });
+    connect(ui->scoreBonus, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { savefile.saveRAM[saveID + 3] = v; });
 
-    connect(ui->scoreBonus, &QSpinBox::valueChanged,
-            [this](int v) { savefile.saveRAM[m_saveID + 3] = v; });
+    connect(ui->continues, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { savefile.saveRAM[saveID + 4] = v; });
 
-    connect(ui->continues, &QSpinBox::valueChanged,
-            [this](int v) { savefile.saveRAM[m_saveID + 4] = v; });
-
-    connect(ui->curStage, &QComboBox::currentIndexChanged, [this](int c) {
+    connect(ui->curStage, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int c) {
         if (c == -1)
             return;
 
         int zonePos  = (c - 1) / 3;
         int stagePos = (c - 1) - (zonePos * 3);
         int listPos  = (zonePos * 10) + (stagePos * 4);
-        if (savefile.saveRAM[m_saveID + 5] >= 0x80)
-            savefile.saveRAM[m_saveID + 5] = listPos + 0x81;
+        if (savefile.saveRAM[saveID + 5] >= 0x80)
+            savefile.saveRAM[saveID + 5] = listPos + 0x81;
         else
-            savefile.saveRAM[m_saveID + 5] = listPos + 1;
+            savefile.saveRAM[saveID + 5] = listPos + 1;
     });
 
     connect(ui->curStageSpecial, &QCheckBox::toggled, [this](bool c) {
         if (c) {
-            if (savefile.saveRAM[m_saveID + 5] < 0x80)
-                savefile.saveRAM[m_saveID + 5] += 0x80;
+            if (savefile.saveRAM[saveID + 5] < 0x80)
+                savefile.saveRAM[saveID + 5] += 0x80;
         }
         else {
-            if (savefile.saveRAM[m_saveID + 5] >= 0x80)
-                savefile.saveRAM[m_saveID + 5] -= 0x80;
+            if (savefile.saveRAM[saveID + 5] >= 0x80)
+                savefile.saveRAM[saveID + 5] -= 0x80;
         }
     });
 
-    connect(ui->curSpecialStage, &QComboBox::currentIndexChanged, [this](int c) {
+    connect(ui->curSpecialStage, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int c) {
         if (c == -1)
             return;
-        savefile.saveRAM[m_saveID + 7] = 0;
+        savefile.saveRAM[saveID + 7] = 0;
     });
 
     for (int t = 0; t < 7; ++t) {
         connect(tsBoxes[t], &QCheckBox::toggled,
-                [this, t](bool c) { Utils::setBit(savefile.saveRAM[m_saveID + 6], c, t); });
+                [this, t](bool c) { Utils::setBit(savefile.saveRAM[saveID + 6], c, t); });
     }
 
     connect(ui->activeFile, &QCheckBox::toggled, [this](bool c) { savefile.saveRAM[32] = c; });
-    connect(ui->musVol, &QDoubleSpinBox::valueChanged,
+    connect(ui->musVol, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             [this](int v) { savefile.saveRAM[33] = v * 100; });
-    connect(ui->sfxVol, &QDoubleSpinBox::valueChanged,
+    connect(ui->sfxVol, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             [this](int v) { savefile.saveRAM[34] = v * 100; });
     connect(ui->ogCtrls, &QCheckBox::toggled, [this](int c) { savefile.saveRAM[35] = c; });
     connect(ui->tailsUnlocked, &QCheckBox::toggled, [this](bool c) { savefile.saveRAM[36] = c; });
     connect(ui->knuxUnlocked, &QCheckBox::toggled, [this](bool c) { savefile.saveRAM[36] = c; });
-    connect(ui->boxArtRegion, &QComboBox::currentIndexChanged,
+    connect(ui->boxArtRegion, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int c) { savefile.saveRAM[36] = c; });
-    connect(ui->vDpadSize, &QDoubleSpinBox::valueChanged,
+    connect(ui->vDpadSize, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             [this](double v) { savefile.saveRAM[37] = v * 64; });
-    connect(ui->vDpadOpacity, &QDoubleSpinBox::valueChanged,
+    connect(ui->vDpadOpacity, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             [this](double v) { savefile.saveRAM[38] = v * 255; });
-    connect(ui->vDPadX1, &QSpinBox::valueChanged, [this](int v) { savefile.saveRAM[39] = v; });
-    connect(ui->vDPadY1, &QSpinBox::valueChanged, [this](int v) { savefile.saveRAM[40] = v; });
-    connect(ui->vDPadX2, &QSpinBox::valueChanged, [this](int v) { savefile.saveRAM[41] = v; });
-    connect(ui->vDPadY2, &QSpinBox::valueChanged, [this](int v) { savefile.saveRAM[42] = v; });
+    connect(ui->vDPadX1, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { savefile.saveRAM[39] = v; });
+    connect(ui->vDPadY1, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { savefile.saveRAM[40] = v; });
+    connect(ui->vDPadX2, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { savefile.saveRAM[41] = v; });
+    connect(ui->vDPadY2, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { savefile.saveRAM[42] = v; });
 }
 
 bool SaveFileEditorv4::event(QEvent *event)

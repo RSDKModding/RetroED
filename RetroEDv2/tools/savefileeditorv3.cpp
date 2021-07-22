@@ -119,6 +119,7 @@ void SaveFileEditorv3::setupUI()
     for (int t = 0; t < 7; ++t) {
         tsBoxes[t]->setChecked(Utils::getBit(savefile.saveRAM[m_saveID + 4], t));
     }
+
     ui->scoreBonus->setValue(savefile.saveRAM[m_saveID + 6]);
 
     ui->activeFile->setChecked(savefile.saveRAM[32]);
