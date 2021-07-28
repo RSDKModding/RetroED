@@ -10,7 +10,7 @@ static QVector2D rectTexCoordsv5[] = {
     QVector2D(1.0f, 1.0f), QVector2D(0.0f, 1.0f), QVector2D(0.0f, 0.0f),
 };
 
-SceneViewerv5::SceneViewerv5(QWidget *parent)
+SceneViewerv5::SceneViewerv5(QWidget *)
 {
     setMouseTracking(true);
 
@@ -272,6 +272,7 @@ void SceneViewerv5::drawScene()
         int vertCnt          = 0;
 
         for (int y = 0; y < height; ++y) {
+            bool yBreak = false;
             for (int x = 0; x < width; ++x) {
                 ushort tile = layout[y][x];
                 if (tile != 0xFFFF) {
@@ -285,8 +286,13 @@ void SceneViewerv5::drawScene()
                     check.w         = (int)((xpos - (0x10 / 2)) * zoom);
                     check.h         = (int)((ypos - (0x10 / 2)) * zoom);
 
-                    if (check.x < 0 || check.y < 0 || check.w >= storedW || check.h >= storedH) {
+                    if (check.x < 0 || check.y < 0)
                         continue;
+                    if (check.w >= storedW)
+                        break;
+                    if (check.h >= storedH) {
+                        yBreak = true;
+                        break;
                     }
 
                     vertsPtr[vertCnt + 0].setX(0.0f + (xpos / 0x10));
@@ -318,6 +324,8 @@ void SceneViewerv5::drawScene()
                     vertCnt += 6;
                 }
             }
+            if (yBreak)
+                break;
         }
 
         // Draw Tiles

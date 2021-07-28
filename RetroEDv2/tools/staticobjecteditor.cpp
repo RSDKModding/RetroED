@@ -125,26 +125,30 @@ StaticObjectEditor::StaticObjectEditor(QString filePath, QWidget *parent)
     if (filePath != "") {
         QString selFile = filePath;
         staticObject.read(selFile);
-        QString infoPath = QFileInfo(selFile).absolutePath() + "/info_" + QFileInfo(selFile).fileName();
-        info             = StaticObjectInfo();
-        if (QFile::exists(infoPath)) {
-            info.read(infoPath);
-        }
-        else {
-            info.values.clear();
-            int aID = 0;
-            for (auto &a : staticObject.values) {
-                info.values.append(StaticObjectInfo::ArrayInfo());
-                info.values.last().m_name = "value " + QString::number(aID++);
-                int vID                   = 0;
-                for (auto &v : a.entries)
-                    info.values.last().entries.append("value[" + QString::number(vID++) + "]");
-            }
-            info.m_name = QFileInfo(selFile).baseName();
-        }
+        setupInfo(selFile);
 
         appConfig.addRecentFile(ENGINE_v5, TOOL_STATICOBJECTEDITOR, selFile, QList<QString>{});
         setupUI();
+    }
+}
+
+
+void StaticObjectEditor::setupInfo(QString selFile) {
+    QString infoPath = QFileInfo(selFile).absolutePath() + "/info_" + QFileInfo(selFile).fileName();
+    info             = StaticObjectInfo();
+    if (QFile::exists(infoPath)) {
+        info.read(infoPath);
+    }
+    else {
+        info.values.clear();
+        int aID = 0;
+        for (auto &a : staticObject.values) {
+            info.values.append(StaticObjectInfo::ArrayInfo());
+            info.values.last().m_name = "Array " + QString::number(aID++);
+            for (int vID = 0; vID < a.entries.size(); vID++)
+                info.values.last().entries.append("Value[" + QString::number(vID) + "]");
+        }
+        info.m_name = QFileInfo(selFile).baseName();
     }
 }
 
@@ -207,24 +211,7 @@ bool StaticObjectEditor::event(QEvent *event)
         if (filedialog.exec() == QDialog::Accepted) {
             QString selFile = filedialog.selectedFiles()[0];
             staticObject.read(selFile);
-            QString infoPath =
-                QFileInfo(selFile).absolutePath() + "/info_" + QFileInfo(selFile).fileName();
-            info = StaticObjectInfo();
-            if (QFile::exists(infoPath)) {
-                info.read(infoPath);
-            }
-            else {
-                info.values.clear();
-                int aID = 0;
-                for (auto &a : staticObject.values) {
-                    info.values.append(StaticObjectInfo::ArrayInfo());
-                    info.values.last().m_name = "Array " + QString::number(aID++);
-                    int vID                   = 0;
-                    for (auto &v : a.entries)
-                        info.values.last().entries.append("Value[" + QString::number(vID++) + "]");
-                }
-                info.m_name = QFileInfo(selFile).baseName();
-            }
+            setupInfo(selFile);
 
             appConfig.addRecentFile(ENGINE_v5, TOOL_STATICOBJECTEDITOR, selFile, QList<QString>{});
             setupUI();

@@ -18,6 +18,7 @@ public:
     StaticObjectEditor(QString filePath = "", QWidget *parent = nullptr);
     ~StaticObjectEditor();
 
+    void setupInfo(QString selFile);
     void setupUI();
 
 protected:
@@ -26,6 +27,7 @@ protected:
 private:
     RSDKv5::StaticObject staticObject;
     StaticObjectInfo info;
+
 
     QStandardItemModel *m_arrayModel = nullptr;
 
