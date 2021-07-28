@@ -1057,6 +1057,9 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
             viewer->sceneHeight = viewer->scene.layers[l].height;
     }
 
+    viewer->vertsPtr  = new QVector3D[viewer->sceneHeight * viewer->sceneWidth * 0x10 * 6];
+    viewer->tVertsPtr = new QVector2D[viewer->sceneHeight * viewer->sceneWidth * 0x10 * 6];
+
     ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x10) - viewer->storedW);
     ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x10) - viewer->storedH);
     ui->horizontalScrollBar->setPageStep(0x10);

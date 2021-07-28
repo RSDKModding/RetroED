@@ -27,6 +27,9 @@ SceneViewerv5::~SceneViewerv5()
 
     screenVAO.destroy();
     rectVAO.destroy();
+
+    delete[] vertsPtr;
+    delete[] tVertsPtr;
 }
 
 void SceneViewerv5::loadScene(QString path)
@@ -267,9 +270,7 @@ void SceneViewerv5::drawScene()
         spriteShader.setValue("flipX", false);
         spriteShader.setValue("flipY", false);
 
-        QVector3D *vertsPtr  = new QVector3D[height * width * 0x10 * 6];
-        QVector2D *tVertsPtr = new QVector2D[height * width * 0x10 * 6];
-        int vertCnt          = 0;
+        int vertCnt = 0;
 
         for (int y = 0; y < height; ++y) {
             bool yBreak = false;
@@ -359,9 +360,6 @@ void SceneViewerv5::drawScene()
             vao.release();
             tVBO2D.release();
             vVBO2D.release();
-
-            delete[] vertsPtr;
-            delete[] tVertsPtr;
         }
 
         // Collision Previews
