@@ -1,4 +1,5 @@
 #include "includes.hpp"
+#include <cmath>
 
 static QVector3D rectVerticesv5[] = {
     QVector3D(-0.5f, -0.5f, -0.5f), QVector3D(0.5f, -0.5f, -0.5f), QVector3D(0.5f, 0.5f, -0.5f),
@@ -178,11 +179,11 @@ void SceneViewerv5::drawScene()
     f->glBlendEquation(GL_FUNC_ADD);
 
     // pre-render
-    if ((cam.pos.x * zoom) < 0 * zoom)
-        cam.pos.x = (0 * zoom);
+    if ((cam.pos.x * zoom) < 0)
+        cam.pos.x = 0;
 
-    if ((cam.pos.y * zoom) < 0 * zoom)
-        cam.pos.y = (0 * zoom);
+    if ((cam.pos.y * zoom) < 0)
+        cam.pos.y = 0;
 
     if ((cam.pos.x * zoom) + storedW > (sceneWidth * 0x10) * zoom)
         cam.pos.x = ((sceneWidth * 0x10) - (storedW * invZoom()));
@@ -198,13 +199,13 @@ void SceneViewerv5::drawScene()
     primitiveShader.setValue("view", QMatrix4x4());
     rectVAO.bind();
 
-    int bgOffsetY = 0x80;
-    bgOffsetY -= (int)cam.pos.y % 0x200;
-    for (int y = bgOffsetY; y < (storedH + 0x80) * (zoom < 1.0f ? invZoom() : 1.0f); y += 0x100) {
-        int bgOffsetX = (((y - bgOffsetY) % 0x200 == 0) ? 0x100 : 0x00);
+    float bgOffsetY = 0x80;
+    bgOffsetY -= fmod(cam.pos.y, 0x200);
+    for (float y = bgOffsetY; y < (storedH + 0x80) * (zoom < 1.0f ? invZoom() : 1.0f); y += 0x100) {
+        float bgOffsetX = ((fmod((y - bgOffsetY), 0x200) == 0) ? 0x100 : 0x00);
         bgOffsetX += 0x80;
-        bgOffsetX -= (int)cam.pos.x % 0x200;
-        for (int x = bgOffsetX; x < (storedW + 0x80) * (zoom < 1.0f ? invZoom() : 1.0f); x += 0x200) {
+        bgOffsetX -= fmod(cam.pos.x, 0x200);
+        for (float x = bgOffsetX; x < (storedW + 0x80) * (zoom < 1.0f ? invZoom() : 1.0f); x += 0x200) {
             QMatrix4x4 matModel;
             matModel.scale(0x100 * zoom, 0x100 * zoom, 1.0f);
             matModel.translate(x / 256.0f, y / 256.0f, -15.0f);
@@ -269,29 +270,30 @@ void SceneViewerv5::drawScene()
 
         int vertCnt = 0;
 
-        for (int y = 0; y < height; ++y) {
+        int camX = (cam.pos.x + camOffset.x);
+        int camY = (cam.pos.y + camOffset.y);
+        
+        int basedX = camX / 0x10;
+        int basedY = camY / 0x10;
+
+        int countX = width * 0x10 > storedW ? (storedW / 0x10) : width;
+        int countY = height * 0x10 > storedH ? (storedH / 0x10) : height;
+
+        countX = ceil(countX / zoom);
+        countY = ceil(countY / zoom);
+
+        countX = qMin(basedX + countX + 3, width);
+        countY = qMin(basedY + countY + 3, height);
+
+
+        for (int y = basedY; y < countY; ++y) {
             bool yBreak = false;
-            for (int x = 0; x < width; ++x) {
+            for (int x = basedX; x < countX; ++x) {
                 ushort tile = layout[y][x];
                 if (tile != 0xFFFF) {
                     float xpos = (x * 0x10) - (cam.pos.x + camOffset.x);
                     float ypos = (y * 0x10) - (cam.pos.y + camOffset.y);
                     float zpos = selectedLayer == l ? 8.5 : (8 - l);
-
-                    Rect<int> check = Rect<int>();
-                    check.x         = (int)((xpos + 0x10) * zoom);
-                    check.y         = (int)((ypos + 0x10) * zoom);
-                    check.w         = (int)((xpos - (0x10 / 2)) * zoom);
-                    check.h         = (int)((ypos - (0x10 / 2)) * zoom);
-
-                    if (check.x < 0 || check.y < 0)
-                        continue;
-                    if (check.w >= storedW)
-                        break;
-                    if (check.h >= storedH) {
-                        yBreak = true;
-                        break;
-                    }
 
                     vertsPtr[vertCnt + 0].setX(0.0f + (xpos / 0x10));
                     vertsPtr[vertCnt + 0].setY(0.0f + (ypos / 0x10));
@@ -322,8 +324,6 @@ void SceneViewerv5::drawScene()
                     vertCnt += 6;
                 }
             }
-            if (yBreak)
-                break;
         }
 
         // Draw Tiles
