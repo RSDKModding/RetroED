@@ -35,6 +35,19 @@ void SceneViewerv5::loadScene(QString path)
     // unloading
     unloadScene();
 
+    // TEMP until SetEditableVar() gets completed
+    {
+        variableNames.clear();
+
+        QFile file(":/resources/variableList.txt");
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream txtreader(&file);
+            while (!txtreader.atEnd()) variableNames.append(txtreader.readLine());
+
+            file.close();
+        }
+    }
+
     // loading
     QString pth      = path;
     QString basePath = pth.replace(QFileInfo(pth).fileName(), "");
@@ -55,7 +68,6 @@ void SceneViewerv5::loadScene(QString path)
     entities.clear();
 
     QList<QString> objNames;
-    QList<QString> varNames;
     objNames.append("Blank Object");
 
     if (stageConfig.loadGlobalObjects) {
@@ -86,9 +98,9 @@ void SceneViewerv5::loadScene(QString path)
             variable.name = var.m_name.hashString();
             variable.type = var.type;
 
-            for (int i = 0; i < varNames.count(); ++i) {
-                if (Utils::getMd5HashByteArray(varNames[i]) == var.m_name.hash) {
-                    variable.name = varNames[i];
+            for (int i = 0; i < variableNames.count(); ++i) {
+                if (Utils::getMd5HashByteArray(variableNames[i]) == var.m_name.hash) {
+                    variable.name = variableNames[i];
                     break;
                 }
             }
@@ -179,17 +191,17 @@ void SceneViewerv5::drawScene()
     f->glBlendEquation(GL_FUNC_ADD);
 
     // pre-render
-    if ((cam.pos.x * zoom) < 0)
-        cam.pos.x = 0;
-
-    if ((cam.pos.y * zoom) < 0)
-        cam.pos.y = 0;
-
     if ((cam.pos.x * zoom) + storedW > (sceneWidth * 0x10) * zoom)
         cam.pos.x = ((sceneWidth * 0x10) - (storedW * invZoom()));
 
     if ((cam.pos.y * zoom) + storedH > (sceneHeight * 0x10) * zoom)
         cam.pos.y = ((sceneHeight * 0x10) - (storedH * invZoom()));
+
+    if ((cam.pos.x * zoom) < 0)
+        cam.pos.x = 0;
+
+    if ((cam.pos.y * zoom) < 0)
+        cam.pos.y = 0;
 
     // draw bg colours
     primitiveShader.use();
@@ -228,14 +240,12 @@ void SceneViewerv5::drawScene()
 
     rectVAO.bind();
 
-    int prevChunk = -1;
     Vector3<float> camOffset(0.0f, 0.0f, 0.0f);
 
-    QVector4D pixelSolidityClrs[5] = { QVector4D(1.0f, 1.0f, 1.0f, 1.0f),
+    QVector4D pixelSolidityClrs[5] = { QVector4D(0.0f, 0.0f, 0.0f, 0.0f),
                                        QVector4D(1.0f, 1.0f, 0.0f, 1.0f),
                                        QVector4D(1.0f, 0.0f, 0.0f, 1.0f),
-                                       QVector4D(0.0f, 0.0f, 0.0f, 0.0f),
-                                       QVector4D(0.0f, 0.0f, 1.0f, 1.0f) };
+                                       QVector4D(1.0f, 1.0f, 1.0f, 1.0f) };
     bool showCLayers[2]            = { showPlaneA, showPlaneB };
 
     for (int l = scene.layers.count() - 1; l >= 0; --l) {
@@ -272,7 +282,7 @@ void SceneViewerv5::drawScene()
 
         int camX = (cam.pos.x + camOffset.x);
         int camY = (cam.pos.y + camOffset.y);
-        
+
         int basedX = camX / 0x10;
         int basedY = camY / 0x10;
 
@@ -285,9 +295,7 @@ void SceneViewerv5::drawScene()
         countX = qMin(basedX + countX + 3, width);
         countY = qMin(basedY + countY + 3, height);
 
-
         for (int y = basedY; y < countY; ++y) {
-            bool yBreak = false;
             for (int x = basedX; x < countX; ++x) {
                 ushort tile = layout[y][x];
                 if (tile != 0xFFFF) {
@@ -360,80 +368,64 @@ void SceneViewerv5::drawScene()
         }
 
         // Collision Previews
-        /*for (int c = 0; c < 2; ++c) {
+        for (int c = 0; c < 2 && l == selectedLayer; ++c) {
             if (showCLayers[c]) {
-                for (int y = 0; y < height; ++y) {
-                    for (int x = 0; x < width; ++x) {
-                        ushort chunkID = layout[y][x];
-                        if (chunkID != 0x0) {
-                            for (int ty = 0; ty < 8; ++ty) {
-                                for (int tx = 0; tx < 8; ++tx) {
-                                    FormatHelpers::Chunks::Tile &tile =
-                                        chunkset.chunks[chunkID].tiles[ty][tx];
+                for (int y = basedY; y < countY; ++y) {
+                    for (int x = basedX; x < countX; ++x) {
+                        ushort tile = layout[y][x];
+                        if (tile != 0xFFFF) {
 
-                                    float xpos = (x * 0x80) + (tx * 0x10) - cam.pos.x;
-                                    float ypos = (y * 0x80) + (ty * 0x10) - cam.pos.y;
+                            float xpos = (x * 0x10) - cam.pos.x;
+                            float ypos = (y * 0x10) - cam.pos.y;
 
-                                    Rect<int> check = Rect<int>();
-                                    check.x         = (int)((xpos + 0x10) * zoom);
-                                    check.y         = (int)((ypos + 0x10) * zoom);
-                                    check.w         = (int)(xpos * zoom);
-                                    check.h         = (int)(ypos * zoom);
+                            float yStore = ypos;
+                            // draw pixel collision
+                            byte solidity = 0;
+                            RSDKv5::TileConfig::CollisionMask &cmask =
+                                tileconfig.collisionPaths[c][tile & 0x3FF];
 
-                                    if (check.x < 0 || check.y < 0 || check.w >= storedW
-                                        || check.h >= storedH) {
-                                        continue;
-                                    }
+                            solidity = !c ? (tile >> 12) & 3 : (tile >> 14) & 3;
 
-                                    float yStore = ypos;
-                                    // draw pixel collision
-                                    byte solidity = 0;
-                                    RSDKv4::Tileconfig::CollisionMask &cmask =
-                                        tileconfig.collisionPaths[c][tile.tileIndex];
+                            if (!solidity)
+                                continue;
 
-                                    solidity = !c ? tile.solidityA : tile.solidityB;
+                            bool flipX = (tile >> 10) & 1;
+                            bool flipY = (tile >> 11) & 1;
+                            for (byte cx = 0; cx < 16; ++cx) {
+                                int hm = cx;
+                                if (flipX)
+                                    hm = 15 - cx;
 
-                                    if (solidity == 3)
-                                        continue;
+                                if (!cmask.collision[hm].solid)
+                                    continue;
 
-                                    for (byte cx = 0; cx < 16; ++cx) {
-                                        int hm = cx;
-                                        if (Utils::getBit(tile.direction, 0))
-                                            hm = 15 - cx;
-
-                                        if (!cmask.collision[hm].solid)
-                                            continue;
-
-                                        byte cy = cmask.collision[hm].height;
-                                        byte ch = 16 - cy;
-                                        if (Utils::getBit(tile.direction, 1) && !cmask.flipY) {
-                                            cy = 0;
-                                            ch = 16 - cmask.collision[hm].height;
-                                        }
-                                        else if (!Utils::getBit(tile.direction, 1) && cmask.flipY) {
-                                            cy = 0;
-                                            ch = cmask.collision[hm].height + 1;
-                                        }
-                                        else if (Utils::getBit(tile.direction, 1) && cmask.flipY) {
-                                            cy = 15 - cmask.collision[hm].height;
-                                            ch = cmask.collision[hm].height + 1;
-                                        }
-
-                                        ypos = yStore + (ch / 2.0);
-
-                                        drawRect((xpos + cx) * zoom, (ypos + cy) * zoom, 15.45,
-                                                 1 * zoom, ch * zoom, pixelSolidityClrs[solidity],
-                                                 primitiveShader);
-                                    }
+                                byte cy = cmask.collision[hm].height;
+                                byte ch = 16 - cy;
+                                if (flipY && !cmask.flipY) {
+                                    cy = 0;
+                                    ch = 16 - cmask.collision[hm].height;
                                 }
+                                else if (!flipY && cmask.flipY) {
+                                    cy = 0;
+                                    ch = cmask.collision[hm].height + 1;
+                                }
+                                else if (flipY && cmask.flipY) {
+                                    cy = 15 - cmask.collision[hm].height;
+                                    ch = cmask.collision[hm].height + 1;
+                                }
+
+                                ypos = yStore + (ch / 2.0);
+
+                                drawRect((xpos + cx) * zoom, (ypos + cy) * zoom, 15.45, 1 * zoom,
+                                         ch * zoom, pixelSolidityClrs[solidity], primitiveShader);
+                                spriteShader.use();
+                                rectVAO.bind();
                             }
-                            spriteShader.use();
-                            rectVAO.bind();
                         }
                     }
                 }
             }
-        }*/
+        }
 
         // PARALLAX
         if (l == selectedLayer && l >= 0) {
@@ -791,6 +783,7 @@ void SceneViewerv5::initializeGL()
     f->glEnable(GL_DEPTH_TEST);
     f->glDepthFunc(GL_LESS);
     f->glEnable(GL_BLEND);
+    f->glEnable(GL_MULTISAMPLE);
     f->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     primitiveShader.loadShader(":/shaders/primitive.glv", QOpenGLShader::Vertex);
@@ -988,86 +981,12 @@ void SceneViewerv5::drawTile(float XPos, float YPos, float ZPos, int tileX, int 
 }
 
 int sprDrawsv5 = 0;
-void SceneViewerv5::drawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY,
-                               int sheetID)
-{
-    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-
-    if (sheetID != m_prevSprite)
-        sprDrawsv5 = 0;
-
-    // Draw Sprite
-    float xpos = XPos - cam.pos.x;
-    float ypos = YPos - cam.pos.y;
-    float zpos = 10.0f + (sprDrawsv5 * 0.001f);
-
-    if (sheetID != m_prevSprite) {
-        objectSprites[sheetID].texturePtr->bind();
-        m_prevSprite = sheetID;
-        sprDrawsv5   = 0;
-    }
-    float w = objectSprites[sheetID].texturePtr->width(),
-          h = objectSprites[sheetID].texturePtr->height();
-
-    Rect<int> check = Rect<int>();
-    check.x         = (int)(xpos + (float)w) * zoom;
-    check.y         = (int)(ypos + (float)h) * zoom;
-    check.w         = (int)(xpos - (w / 2.0f)) * zoom;
-    check.h         = (int)(ypos - (h / 2.0f)) * zoom;
-    if (check.x < 0 || check.y < 0 || check.w >= storedW || check.h >= storedH || !sheetID) {
-        return;
-    }
-
-    spriteShader.use();
-    spriteShader.setValue("flipX", false);
-    spriteShader.setValue("flipY", false);
-    spriteShader.setValue("useAlpha", false);
-    spriteShader.setValue("alpha", 1.0f);
-    QOpenGLVertexArrayObject vao;
-    vao.create();
-    vao.bind();
-
-    double tx = sprX / w;
-    double ty = sprY / h;
-    double tw = (sprX + width) / w;
-    double th = (sprY + height) / h;
-
-    const QVector2D texCoords[] = {
-        QVector2D(tx, ty), QVector2D(tw, ty), QVector2D(tw, th),
-        QVector2D(tw, th), QVector2D(tx, th), QVector2D(tx, ty),
-    };
-
-    QOpenGLBuffer vVBO2D;
-    vVBO2D.create();
-    vVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
-    vVBO2D.bind();
-    vVBO2D.allocate(rectVerticesv5, 6 * sizeof(QVector3D));
-    spriteShader.enableAttributeArray(0);
-    spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
-
-    QOpenGLBuffer tVBO2D;
-    tVBO2D.create();
-    tVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
-    tVBO2D.bind();
-    tVBO2D.allocate(texCoords, 6 * sizeof(QVector2D));
-    spriteShader.enableAttributeArray(1);
-    spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
-
-    QMatrix4x4 matModel;
-    matModel.scale(width * zoom, height * zoom, 1.0f);
-
-    matModel.translate((xpos + (width / 2)) / (float)width, (ypos + (height / 2)) / (float)height,
-                       zpos);
-    spriteShader.setValue("model", matModel);
-
-    f->glDrawArrays(GL_TRIANGLES, 0, 6);
-    sprDrawsv5++;
-}
-
 void SceneViewerv5::drawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY,
-                                      int direction, int sheetID)
+                                      int direction, int inkEffect, int alpha, int sheetID)
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+    if (inkEffect == 1) // blended
+        alpha = 0x80;
 
     if (sheetID != m_prevSprite)
         sprDrawsv5 = 0;
@@ -1096,8 +1015,8 @@ void SceneViewerv5::drawSpriteFlipped(int XPos, int YPos, int width, int height,
     spriteShader.use();
     spriteShader.setValue("flipX", false);
     spriteShader.setValue("flipY", false);
-    spriteShader.setValue("useAlpha", false);
-    spriteShader.setValue("alpha", 1.0f);
+    spriteShader.setValue("useAlpha", true);
+    spriteShader.setValue("alpha", (alpha > 0xFF ? 0xFF : alpha) / 255.0f);
     QOpenGLVertexArrayObject vao;
     vao.create();
     vao.bind();
@@ -1171,88 +1090,21 @@ void SceneViewerv5::drawSpriteFlipped(int XPos, int YPos, int width, int height,
     sprDrawsv5++;
 }
 
-void SceneViewerv5::drawBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY,
-                                      int sheetID)
+void SceneViewerv5::DrawSpriteRotozoom(int XPos, int YPos, int pivotX, int pivotY, int width,
+                                       int height, int sprX, int sprY, int scaleX, int scaleY,
+                                       int direction, short rotation, int inkEffect, int alpha,
+                                       int sheetID)
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+
+    if (inkEffect == 1) // blended
+        alpha = 0x80;
 
     if (sheetID != m_prevSprite)
         sprDrawsv5 = 0;
 
-    // Draw Sprite
-    float xpos = XPos - cam.pos.x;
-    float ypos = YPos - cam.pos.y;
-    float zpos = 10.0f + (sprDrawsv5 * 0.001f);
-
-    if (sheetID != m_prevSprite) {
-        objectSprites[sheetID].texturePtr->bind();
-        m_prevSprite = sheetID;
-    }
-    float w = objectSprites[sheetID].texturePtr->width(),
-          h = objectSprites[sheetID].texturePtr->height();
-
-    Rect<int> check = Rect<int>();
-    check.x         = (int)(xpos + (float)w) * zoom;
-    check.y         = (int)(ypos + (float)h) * zoom;
-    check.w         = (int)(xpos - (w / 2.0f)) * zoom;
-    check.h         = (int)(ypos - (h / 2.0f)) * zoom;
-    if (check.x < 0 || check.y < 0 || check.w >= storedW || check.h >= storedH || !sheetID) {
-        return;
-    }
-
-    spriteShader.use();
-    spriteShader.setValue("flipX", false);
-    spriteShader.setValue("flipY", false);
-    spriteShader.setValue("useAlpha", true);
-    spriteShader.setValue("alpha", 0.5f);
-    QOpenGLVertexArrayObject vao;
-    vao.create();
-    vao.bind();
-
-    float tx = sprX / w;
-    float ty = sprY / h;
-    float tw = width / w;
-    float th = height / h;
-
-    const QVector2D texCoords[] = {
-        QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
-        QVector2D(tx + tw, ty + th), QVector2D(tx, ty + th), QVector2D(tx, ty),
-    };
-
-    QOpenGLBuffer vVBO2D;
-    vVBO2D.create();
-    vVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
-    vVBO2D.bind();
-    vVBO2D.allocate(rectVerticesv5, 6 * sizeof(QVector3D));
-    spriteShader.enableAttributeArray(0);
-    spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
-
-    QOpenGLBuffer tVBO2D;
-    tVBO2D.create();
-    tVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
-    tVBO2D.bind();
-    tVBO2D.allocate(texCoords, 6 * sizeof(QVector2D));
-    spriteShader.enableAttributeArray(1);
-    spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
-
-    QMatrix4x4 matModel;
-    matModel.scale(width * zoom, height * zoom, 1.0f);
-
-    matModel.translate((xpos + (width / 2)) / (float)width, (ypos + (height / 2)) / (float)height,
-                       zpos);
-    spriteShader.setValue("model", matModel);
-
-    f->glDrawArrays(GL_TRIANGLES, 0, 6);
-    sprDrawsv5++;
-}
-
-void SceneViewerv5::drawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX,
-                                           int sprY, int alpha, int sheetID)
-{
-    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-
-    if (sheetID != m_prevSprite)
-        sprDrawsv5 = 0;
+    // XPos += pivotX;
+    // YPos += pivotY;
 
     // Draw Sprite
     float xpos = XPos - cam.pos.x;
@@ -1289,10 +1141,42 @@ void SceneViewerv5::drawAlphaBlendedSprite(int XPos, int YPos, int width, int he
     float tw = width / w;
     float th = height / h;
 
-    const QVector2D texCoords[] = {
-        QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
-        QVector2D(tx + tw, ty + th), QVector2D(tx, ty + th), QVector2D(tx, ty),
-    };
+    QVector2D *texCoords = nullptr;
+    switch (direction) {
+        case 0:
+        default: {
+            QVector2D tc[] = {
+                QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
+                QVector2D(tx + tw, ty + th), QVector2D(tx, ty + th), QVector2D(tx, ty),
+            };
+            texCoords = tc;
+            break;
+        }
+        case 1: {
+            QVector2D tc[] = {
+                QVector2D(tx + tw, ty), QVector2D(tx, ty),           QVector2D(tx, ty + th),
+                QVector2D(tx, ty + th), QVector2D(tx + tw, ty + th), QVector2D(tx + tw, ty),
+            };
+            texCoords = tc;
+            break;
+        }
+        case 2: {
+            QVector2D tc[] = {
+                QVector2D(tx, ty + th), QVector2D(tx + tw, ty + th), QVector2D(tx + tw, ty),
+                QVector2D(tx + tw, ty), QVector2D(tx, ty),           QVector2D(tx, ty + th),
+            };
+            texCoords = tc;
+            break;
+        }
+        case 3: {
+            QVector2D tc[] = {
+                QVector2D(tx + tw, ty + th), QVector2D(tx, ty + th), QVector2D(tx, ty),
+                QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
+            };
+            texCoords = tc;
+            break;
+        }
+    }
 
     QOpenGLBuffer vVBO2D;
     vVBO2D.create();
@@ -1311,7 +1195,15 @@ void SceneViewerv5::drawAlphaBlendedSprite(int XPos, int YPos, int width, int he
     spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
 
     QMatrix4x4 matModel;
-    matModel.scale(width * zoom, height * zoom, 1.0f);
+    float scalefX = (512.0f / scaleX);
+    float scalefY = (512.0f / scaleY);
+    int angle     = 0x200 - (rotation & 0x1FF);
+    if (!(rotation & 0x1FF))
+        angle = rotation & 0x1FF;
+    float rotationf = (angle / 512.0f) * 360.0f;
+
+    matModel.scale((width * scalefX) * zoom, (height * scalefY) * zoom, 1.0f);
+    matModel.rotate(rotationf, 0.0, 0.0, 1.0);
 
     matModel.translate((xpos + (width / 2)) / (float)width, (ypos + (height / 2)) / (float)height,
                        zpos);

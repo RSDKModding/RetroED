@@ -11,6 +11,7 @@ include(dependencies/phantom/phantom.pri)
 include(dependencies/qtgifimage/src/gifimage/qtgifimage.pri)
 include(dependencies/qtcolorwidgets/color_widgets.pri)
 include(dependencies/rsdk_reverse/rsdk_reverse.pri)
+include(dependencies/QtPropertyBrowser/QtPropertyBrowser.pri)
 
 QMAKE_LFLAGS += -lz
 LIBS += -lz
@@ -62,6 +63,7 @@ SOURCES += \
     tools/sceneviewerv5.cpp \
     tools/scriptunpacker.cpp \
     tools/staticobjecteditor.cpp \
+    tools/utils/propertygrid.cpp \
     utils/appconfig.cpp \
     utils/retroedutils.cpp \
     utils/shaders.cpp \
@@ -111,6 +113,7 @@ HEADERS += \
     tools/sceneviewerv5.hpp \
     tools/scriptunpacker.hpp \
     tools/staticobjecteditor.hpp \
+    tools/utils/propertygrid.hpp \
     utils/appconfig.hpp \
     utils/retroedutils.hpp \
     utils/shaders.hpp \

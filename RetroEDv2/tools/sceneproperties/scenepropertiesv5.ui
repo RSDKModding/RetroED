@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>253</width>
-    <height>196</height>
+    <height>198</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -31,7 +31,7 @@
         <x>0</x>
         <y>0</y>
         <width>233</width>
-        <height>176</height>
+        <height>178</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
@@ -42,10 +42,13 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="0" colspan="2">
-        <widget class="QPushButton" name="editPalette">
+       <item row="2" column="1">
+        <widget class="QCheckBox" name="loadGlobals">
+         <property name="layoutDirection">
+          <enum>Qt::RightToLeft</enum>
+         </property>
          <property name="text">
-          <string>Edit Palette</string>
+          <string/>
          </property>
         </widget>
        </item>
@@ -56,10 +59,38 @@
          </property>
         </widget>
        </item>
+       <item row="5" column="0" colspan="2">
+        <widget class="QPushButton" name="editChunks">
+         <property name="text">
+          <string>Edit Chunks</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0" colspan="2">
+        <widget class="QPushButton" name="editPalette">
+         <property name="text">
+          <string>Edit Palette</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label_14">
          <property name="text">
           <string>Scene Properties</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>Load Global Objects</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="2">
+        <widget class="Line" name="line_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
@@ -75,37 +106,6 @@
           </size>
          </property>
         </spacer>
-       </item>
-       <item row="2" column="1">
-        <widget class="QCheckBox" name="loadGlobals">
-         <property name="layoutDirection">
-          <enum>Qt::RightToLeft</enum>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0" colspan="2">
-        <widget class="QPushButton" name="editChunks">
-         <property name="text">
-          <string>Edit Chunks</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0" colspan="2">
-        <widget class="Line" name="line_4">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_11">
-         <property name="text">
-          <string>Load Global Objects</string>
-         </property>
-        </widget>
        </item>
       </layout>
      </widget>

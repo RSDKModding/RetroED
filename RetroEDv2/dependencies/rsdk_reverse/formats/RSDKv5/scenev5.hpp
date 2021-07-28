@@ -214,7 +214,7 @@ public:
         byte value_uint8     = 0;
         ushort value_uint16  = 0;
         uint value_uint32    = 0;
-        char value_int8      = 0;
+        sbyte value_int8     = 0;
         short value_int16    = 0;
         int value_int32      = 0;
         int value_enum       = 0;

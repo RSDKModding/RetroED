@@ -77,6 +77,7 @@ void SceneLayerPropertiesv5::unsetUI()
     disconnect(ui->width, nullptr, nullptr, nullptr);
     disconnect(ui->height, nullptr, nullptr, nullptr);
     disconnect(ui->type, nullptr, nullptr, nullptr);
+    disconnect(ui->drawOrder, nullptr, nullptr, nullptr);
     disconnect(ui->relSpeed, nullptr, nullptr, nullptr);
     disconnect(ui->constSpeed, nullptr, nullptr, nullptr);
 }

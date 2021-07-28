@@ -3,6 +3,42 @@
 
 typedef uint bool32;
 
+enum Scopes {
+    SCOPE_NONE,
+    SCOPE_GLOBAL,
+    SCOPE_STAGE,
+};
+
+enum InkEffects {
+    INK_NONE,
+    INK_BLEND,
+    INK_ALPHA,
+    INK_ADD,
+    INK_SUB,
+    INK_LOOKUP,
+    INK_MASKED,
+    INK_UNMASKED,
+};
+
+enum DrawFX { FX_NONE = 0, FX_FLIP = 1, FX_ROTATE = 2, FX_SCALE = 4 };
+
+enum FlipFlags { FLIP_NONE, FLIP_X, FLIP_Y, FLIP_XY };
+
+enum VarTypes {
+    VAR_UINT8,
+    VAR_UINT16,
+    VAR_UINT32,
+    VAR_INT8,
+    VAR_INT16,
+    VAR_INT32,
+    VAR_ENUM,
+    VAR_BOOL,
+    VAR_STRING,
+    VAR_VECTOR2,
+    VAR_UNKNOWN,
+    VAR_COLOUR,
+};
+
 struct GameObject {
     short objectID;
     byte active;
@@ -173,6 +209,87 @@ struct ScreenInfo {
     int waterDrawPos;
 };
 
+struct Matrix {
+    int values[4][4];
+};
+
+struct TextInfo {
+    ushort *text;
+    ushort textLength;
+    ushort length;
+};
+
+struct Hitbox {
+    short left;
+    short top;
+    short right;
+    short bottom;
+};
+
+struct SpriteFrame {
+    ushort sprX;
+    ushort sprY;
+    ushort width;
+    ushort height;
+    short pivotX;
+    short pivotY;
+    ushort delay;
+    short id;
+    byte sheetID;
+    byte hitboxCnt;
+    Hitbox hitboxes[8];
+};
+
+struct Animator {
+    SpriteFrame *framePtrs;
+    int frameID;
+    short animationID;
+    short prevAnimationID;
+    short animationSpeed;
+    short animationTimer;
+    short frameDelay;
+    short frameCount;
+    byte loopIndex;
+    byte rotationFlag;
+};
+
+struct ScrollInfo {
+    int tilePos;
+    int parallaxFactor;
+    int scrollSpeed;
+    int scrollPos;
+    byte deform;
+    byte unknown;
+};
+
+struct ScanlineInfo {
+    Vector2<int> position;
+    Vector2<int> deform;
+};
+
+struct TileLayer {
+    byte behaviour;
+    byte drawLayer[4];
+    byte widthShift;
+    byte heightShift;
+    ushort width;
+    ushort height;
+    Vector2<int> position;
+    int parallaxFactor;
+    int scrollSpeed;
+    int scrollPos;
+    int deformationOffset;
+    int deformationOffsetW;
+    int deformationData[0x400];
+    int deformationDataW[0x400];
+    void (*scanlineCallback)(ScanlineInfo *);
+    ushort scrollInfoCount;
+    ScrollInfo scrollInfo[0x100];
+    uint name[4];
+    ushort *layout;
+    byte *lineScroll;
+};
+
 struct GameInfo {
     void *functionPtrs;
     void *APIPtrs;
@@ -217,6 +334,7 @@ class GameLink
 public:
     GameLink();
 
+    void Setup();
     void LinkGameObjects();
 };
 

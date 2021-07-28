@@ -96,6 +96,9 @@ public:
     QVector3D *vertsPtr  = nullptr;
     QVector2D *tVertsPtr = nullptr;
 
+    // TEMP until SetEditableVar() gets completed
+    QList<QString> variableNames;
+
     int m_prevSprite = -1;
 
     int addGraphicsFile(char *sheetPath);
@@ -196,13 +199,11 @@ public:
 
     void drawTile(float XPos, float YPos, float ZPos, int tileX, int tileY, byte direction);
 
-    void drawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID);
     void drawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction,
-                           int sheetID);
-
-    void drawBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID);
-    void drawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY,
-                                int alpha, int sheetID);
+                           int inkEffect, int alpha, int sheetID);
+    void DrawSpriteRotozoom(int x, int y, int pivotX, int pivotY, int width, int height, int sprX,
+                            int sprY, int scaleX, int scaleY, int direction, short rotation,
+                            int inkEffect, int alpha, int sheetID);
 
 protected:
     void initializeGL();

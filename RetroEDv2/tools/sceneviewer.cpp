@@ -322,8 +322,23 @@ void SceneViewer::drawScene()
 
         int vertCnt = 0;
 
-        for (int y = 0; y < height; ++y) {
-            for (int x = 0; x < width; ++x) {
+        int camX = (cam.pos.x + camOffset.x);
+        int camY = (cam.pos.y + camOffset.y);
+
+        int basedX = camX / 0x80;
+        int basedY = camY / 0x80;
+
+        int countX = width * 0x80 > storedW ? (storedW / 0x80) : width;
+        int countY = height * 0x80 > storedH ? (storedH / 0x80) : height;
+
+        countX = ceil(countX / zoom);
+        countY = ceil(countY / zoom);
+
+        countX = qMin(basedX + countX + 2, width);
+        countY = qMin(basedY + countY + 2, height);
+
+        for (int y = basedY; y < countY; ++y) {
+            for (int x = basedX; x < countX; ++x) {
                 ushort chunkID = layout[y][x];
                 if (chunkID != 0x0) {
                     for (int ty = 0; ty < 8; ++ty) {
@@ -334,18 +349,7 @@ void SceneViewer::drawScene()
                             float ypos = (y * 0x80) + (ty * 0x10) - (cam.pos.y + camOffset.y);
                             float zpos = selectedLayer == l ? 8.5 : (8 - l);
                             if (tile.visualPlane == 1)
-                                zpos += 0.1; // high plane
-
-                            Rect<int> check = Rect<int>();
-                            check.x         = (int)((xpos + 0x10) * zoom);
-                            check.y         = (int)((ypos + 0x10) * zoom);
-                            check.w         = (int)((xpos - (0x10 / 2)) * zoom);
-                            check.h         = (int)((ypos - (0x10 / 2)) * zoom);
-
-                            if (check.x < 0 || check.y < 0 || check.w >= storedW
-                                || check.h >= storedH) {
-                                continue;
-                            }
+                                zpos += 0.25; // high plane
 
                             vertsPtr[vertCnt + 0].setX(0.0f + (xpos / 0x10));
                             vertsPtr[vertCnt + 0].setY(0.0f + (ypos / 0x10));

@@ -143,7 +143,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         viewer->cam.pos.x = viewer->entities[c].pos.x - (viewer->storedW / 2);
         viewer->cam.pos.y = viewer->entities[c].pos.y - (viewer->storedH / 2);
 
-        m_objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
+        m_objProp->setupUI(&viewer->objects, &viewer->entities[viewer->selectedEntity]);
         ui->propertiesBox->setCurrentWidget(ui->objPropPage);
     });
 
@@ -301,12 +301,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         for (int o = 0; o < viewer->objects.count(); ++o)
             ui->objectList->addItem(viewer->objects[o].name);
 
-        m_objProp->typeBox->blockSignals(true);
-        m_objProp->typeBox->clear();
-        for (int o = 0; o < viewer->objects.count(); ++o)
-            m_objProp->typeBox->addItem(viewer->objects[o].name);
-        m_objProp->typeBox->blockSignals(false);
-
         createEntityList();
     });
 
@@ -329,13 +323,15 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 QPainter painter(&image);
 
                 for (int i = 0; i < viewer->scene.layers.count(); ++i) {
-                    if (dlg->exportBG[i][0] || dlg->exportBG[i][1]) {
+                    if (dlg->exportBG[i][0]) {
                         for (int y = 0; y < viewer->scene.layers[i].height; ++y) {
                             for (int x = 0; x < viewer->scene.layers[i].width; ++x) {
-                                ushort tile     = viewer->scene.layers[i].layout[y][x];
-                                QImage &tileImg = viewer->tiles[tile & 0x3FF];
+                                ushort tile = viewer->scene.layers[i].layout[y][x];
+                                if (tile != 0xFFFF) {
+                                    QImage tileImg = viewer->tiles[tile & 0x3FF];
 
-                                painter.drawImage(x * 0x10, y * 0x10, tileImg);
+                                    painter.drawImage(x * 0x10, y * 0x10, tileImg);
+                                }
                             }
                         }
                     }
@@ -632,11 +628,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                             Rect<float> box;
 
                             for (int o = 0; o < viewer->entities.count(); ++o) {
-                                box = Rect<float>(
-                                    viewer->entities[o].pos.x + viewer->entities[o].selBox.x,
-                                    viewer->entities[o].pos.y + viewer->entities[o].selBox.y,
-                                    viewer->entities[o].pos.x + viewer->entities[o].selBox.w,
-                                    viewer->entities[o].pos.y + viewer->entities[o].selBox.h);
+                                box = Rect<float>(viewer->entities[o].pos.x - 0x10,
+                                                  viewer->entities[o].pos.y - 0x10, 0x20, 0x20);
 
                                 Vector2<float> pos = Vector2<float>(
                                     (mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x,
@@ -644,7 +637,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 if (box.contains(pos)) {
                                     viewer->selectedEntity = o;
 
-                                    m_objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
+                                    m_objProp->setupUI(&viewer->objects,
+                                                       &viewer->entities[viewer->selectedEntity]);
                                     ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                     break;
                                 }
@@ -722,10 +716,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                         bool found = false;
 
                         for (int o = 0; o < viewer->entities.count(); ++o) {
-                            box = Rect<float>(viewer->entities[o].pos.x + viewer->entities[o].selBox.x,
-                                              viewer->entities[o].pos.y + viewer->entities[o].selBox.y,
-                                              viewer->entities[o].pos.x + viewer->entities[o].selBox.w,
-                                              viewer->entities[o].pos.y + viewer->entities[o].selBox.h);
+                            box = Rect<float>(viewer->entities[o].pos.x - 0x10,
+                                              viewer->entities[o].pos.y - 0x10, 0x20, 0x20);
 
                             Vector2<float> pos = Vector2<float>(
                                 (mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x,
@@ -734,7 +726,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 viewer->selectedEntity = o;
                                 found                  = true;
 
-                                m_objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
+                                m_objProp->setupUI(&viewer->objects,
+                                                   &viewer->entities[viewer->selectedEntity]);
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                 break;
                             }
@@ -1064,12 +1057,6 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x10) - viewer->storedH);
     ui->horizontalScrollBar->setPageStep(0x10);
     ui->verticalScrollBar->setPageStep(0x10);
-
-    m_objProp->typeBox->clear();
-    // if (!sceneVer)
-    //     ui->m_typeBox->addItem("Dev Output");
-    for (int o = 0; o < viewer->objects.count(); ++o)
-        m_objProp->typeBox->addItem(viewer->objects[o].name);
 
     m_scnProp->setupUI(&viewer->scene, &viewer->stageConfig);
 

@@ -25,5 +25,6 @@
         <file>fonts/Consolas.ttf</file>
         <file>fonts/consolaz.ttf</file>
         <file>icons/ic_help_48px.svg</file>
+        <file>resources/variableList.txt</file>
     </qresource>
 </RCC>

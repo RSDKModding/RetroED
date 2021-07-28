@@ -8,12 +8,12 @@ public:
     Writer(QDataStream *customStream);
     Writer(QByteArray *byteArray, QIODevice::OpenModeFlag mode = QIODevice::WriteOnly);
 
-    inline bool seek(qint64 position) { return m_stream->device()->seek(position); };
+    inline bool seek(qint64 position) { return stream->device()->seek(position); };
     inline qint64 tell() { return m_file->pos(); };
     inline bool flush()
     {
         if (!m_file)
-            m_stream->device()->close();
+            stream->device()->close();
         else
             return m_file->commit();
         return false;
@@ -23,13 +23,13 @@ public:
 
     template <typename T> inline void write(T data)
     {
-        m_stream->writeRawData((char *)&data, sizeof(data));
+        stream->writeRawData((char *)&data, sizeof(data));
     }
 
     inline void write(byte *data, int len, bool compressed = false)
     {
         if (!compressed)
-            m_stream->writeRawData((const char *)data, len);
+            stream->writeRawData((const char *)data, len);
         else {
             QByteArray compressed = qCompress(data, len);
             compressed.remove(0, 4);
@@ -94,12 +94,12 @@ public:
         }
     }
 
-    bool m_initialised = false;
-    QString filePath   = "";
+    bool initialised = false;
+    QString filePath = "";
 
 private:
     QSharedPointer<QSaveFile> m_file;
-    QSharedPointer<QDataStream> m_stream;
+    QSharedPointer<QDataStream> stream;
 };
 
 #endif // WRITER_H

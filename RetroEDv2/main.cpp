@@ -109,6 +109,8 @@ int main(int argc, char *argv[])
         writer.flush();
     }
 
+    gameLink.Setup();
+
     MainWindow w;
     w.show();
     return a.exec();

@@ -103,6 +103,8 @@ public:
 #include "tools/decompiler/decompilerv1.hpp"
 
 // Form Utils
+#include "tools/utils/propertygrid.hpp"
+
 #include "tools/sceneviewer.hpp"
 #include "tools/sceneproperties/sceneproperties.hpp"
 #include "tools/sceneproperties/scenelayerproperties.hpp"

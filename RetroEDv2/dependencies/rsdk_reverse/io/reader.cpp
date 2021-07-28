@@ -4,8 +4,8 @@ Reader::Reader(QString filepath) : file(new QFile(filepath)), stream(new QDataSt
 {
     initialised = file->open(QIODevice::ReadOnly);
 
-    filepath = filepath;
-    filesize = file->size();
+    this->filepath = filepath;
+    this->filesize = file->size();
 }
 
 Reader::Reader(QDataStream *stream) : stream(stream)

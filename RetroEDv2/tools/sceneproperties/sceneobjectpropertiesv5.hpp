@@ -53,12 +53,13 @@ public:
     explicit SceneObjectPropertiesv5(QWidget *parent = nullptr);
     ~SceneObjectPropertiesv5();
 
-    void setupUI(SceneEntity *entity);
+    void setupUI(QList<SceneObject> *objects, SceneEntity *entity);
     void unsetUI();
 
     void updateUI();
 
-    QComboBox *typeBox = nullptr;
+    QComboBox *typeBox          = nullptr;
+    PropertyBrowser *properties = nullptr;
 
 private:
     Ui::SceneObjectPropertiesv5 *ui;
