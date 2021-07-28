@@ -137,6 +137,10 @@ public:
     }
 
     int storedW, storedH;
+    int sceneWidth, sceneHeight;
+
+    QVector3D *vertsPtr  = nullptr;
+    QVector2D *tVertsPtr = nullptr;
 
     int m_prevSprite = -1;
 

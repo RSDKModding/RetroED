@@ -27,9 +27,6 @@ SceneViewerv5::~SceneViewerv5()
 
     screenVAO.destroy();
     rectVAO.destroy();
-
-    delete[] vertsPtr;
-    delete[] tVertsPtr;
 }
 
 void SceneViewerv5::loadScene(QString path)
@@ -747,6 +744,15 @@ void SceneViewerv5::unloadScene()
     selectedScrollInfo = -1;
     selectedObject     = -1;
     isSelecting        = false;
+
+    if (vertsPtr)
+        delete[] vertsPtr;
+    if (tVertsPtr)
+        delete[] tVertsPtr;
+    vertsPtr    = NULL;
+    tVertsPtr   = NULL;
+    sceneWidth  = 0;
+    sceneHeight = 0;
 }
 
 void SceneViewerv5::initializeGL()

@@ -93,14 +93,13 @@ public:
     int storedW, storedH;
     int sceneWidth, sceneHeight;
 
+    QVector3D *vertsPtr  = nullptr;
+    QVector2D *tVertsPtr = nullptr;
+
     int m_prevSprite = -1;
 
     int addGraphicsFile(char *sheetPath);
     void removeGraphicsFile(char *sheetPath, int slot);
-
-    QVector3D *vertsPtr  = nullptr;
-    QVector2D *tVertsPtr = nullptr;
-
     inline void getTileVerts(QVector2D *arr, int index, int tileIndex, byte direction)
     {
         float w = m_tilesetTexture->width(), h = m_tilesetTexture->height();

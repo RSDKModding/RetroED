@@ -57,6 +57,19 @@ void SceneViewer::loadScene(QString path, byte ver)
     for (int l = background.layers.count(); l < 8; ++l)
         background.layers.append(FormatHelpers::Background::Layer());
 
+    sceneWidth  = scene.width;
+    sceneHeight = scene.height;
+
+    for (int i = 0; i < background.layers.count(); ++i) {
+        if (background.layers[i].width > sceneWidth)
+            sceneWidth = background.layers[i].width;
+        if (background.layers[i].height > sceneHeight)
+            sceneHeight = background.layers[i].height;
+    }
+
+    vertsPtr  = new QVector3D[sceneHeight * sceneWidth * 0x80 * 6];
+    tVertsPtr = new QVector2D[sceneHeight * sceneWidth * 0x80 * 6];
+
     if (ver != ENGINE_v1) {
         scene.objectTypeNames.clear();
 
@@ -307,9 +320,7 @@ void SceneViewer::drawScene()
         spriteShader.setValue("flipX", false);
         spriteShader.setValue("flipY", false);
 
-        QVector3D *vertsPtr  = new QVector3D[height * width * 0x80 * 6];
-        QVector2D *tVertsPtr = new QVector2D[height * width * 0x80 * 6];
-        int vertCnt          = 0;
+        int vertCnt = 0;
 
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x) {
@@ -399,9 +410,6 @@ void SceneViewer::drawScene()
             vao.release();
             tVBO2D.release();
             vVBO2D.release();
-
-            delete[] vertsPtr;
-            delete[] tVertsPtr;
         }
 
         // Collision Previews
@@ -888,6 +896,15 @@ void SceneViewer::unloadScene()
     selectedScrollInfo = -1;
     selectedObject     = -1;
     m_selecting        = false;
+
+    if (vertsPtr)
+        delete[] vertsPtr;
+    if (tVertsPtr)
+        delete[] tVertsPtr;
+    vertsPtr    = NULL;
+    tVertsPtr   = NULL;
+    sceneWidth  = 0;
+    sceneHeight = 0;
 }
 
 void SceneViewer::initializeGL()
