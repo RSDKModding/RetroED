@@ -10,6 +10,37 @@
 
 enum PropertiesTabIDs { PROP_SCN, PROP_LAYER, PROP_TILE, PROP_ENTITY, PROP_SCROLL };
 
+ChunkSelector::ChunkSelector(QWidget *parent) : QWidget(parent), m_parent((SceneEditor *)parent)
+{
+    QScrollArea *scrollArea = new QScrollArea(this);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    scrollArea->setGeometry(10, 10, 200, 200);
+
+    QWidget *chunkArea = new QWidget();
+
+    QGridLayout *layout = new QGridLayout();
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
+
+    int i = 0;
+    for (auto &&im : m_parent->viewer->chunks) {
+        auto *chunk = new ChunkLabel(&m_parent->viewer->selectedChunk, i, chunkArea);
+        chunk->setPixmap(QPixmap::fromImage(im).scaled(im.width(), im.height()));
+        chunk->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        chunk->resize(im.width(), im.height());
+        layout->addWidget(chunk, i, 1);
+        chunk->setFixedSize(im.width(), im.height() * 1.1f);
+        i++;
+        connect(chunk, &ChunkLabel::requestRepaint, chunkArea, QOverload<>::of(&QWidget::update));
+    }
+
+    chunkArea->setLayout(layout);
+    scrollArea->setWidget(chunkArea);
+    QVBoxLayout *l = new QVBoxLayout(this);
+    l->addWidget(scrollArea);
+    setLayout(l);
+}
+
 SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEditor)
 {
     ui->setupUi(this);
@@ -44,10 +75,10 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     ui->scrPropFrame->layout()->addWidget(m_scrProp);
     m_scrProp->show();
 
-    // m_chkProp = new ChunkSelector(this);
-    // m_chkProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    // ui->chunksPage->layout()->addWidget(m_chkProp);
-    // m_chkProp->show();
+    m_chkProp = new ChunkSelector(this);
+    m_chkProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->chunksPage->layout()->addWidget(m_chkProp);
+    m_chkProp->show();
 
     viewer->m_sbHorizontal = ui->horizontalScrollBar;
     viewer->m_sbVertical   = ui->verticalScrollBar;
@@ -1323,10 +1354,10 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
         delete m_chkProp;
     }
 
-    // m_chkProp = new ChunkSelector(this);
-    // m_chkProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    // ui->chunksPage->layout()->addWidget(m_chkProp);
-    // m_chkProp->show();
+    m_chkProp = new ChunkSelector(this);
+    m_chkProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->chunksPage->layout()->addWidget(m_chkProp);
+    m_chkProp->show();
 
     ui->layerList->setCurrentRow(0);
     viewer->selectedLayer = 0;
@@ -1598,9 +1629,9 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
             stageConfig.objects.append(name.replace(" ", ""));
         }
 
-        stageConfig.m_sfx.clear();
+        stageConfig.soundFX.clear();
         for (auto s : viewer->stageConfig.m_soundFX)
-            stageConfig.m_sfx.append(RSDKv5::StageConfig::WAVConfiguration(s.m_path, 1));
+            stageConfig.soundFX.append(RSDKv5::StageConfig::WAVConfiguration(s.m_path, 1));
 
         stageConfig.m_palettes[0].m_activeRows[6] = true;
         stageConfig.m_palettes[0].m_activeRows[7] = true;
@@ -1623,23 +1654,23 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
                 // TODO:: retro sonic
 
                 if (viewer->gameType != ENGINE_v1) {
-                    tileConfig.collisionPaths[c][t].m_behaviour =
+                    tileConfig.collisionPaths[c][t].behaviour =
                         viewer->tileconfig.collisionPaths[c][t].behaviour;
-                    tileConfig.collisionPaths[c][t].m_isCeiling =
+                    tileConfig.collisionPaths[c][t].flipY =
                         viewer->tileconfig.collisionPaths[c][t].flipY;
-                    tileConfig.collisionPaths[c][t].m_floorAngle =
+                    tileConfig.collisionPaths[c][t].floorAngle =
                         viewer->tileconfig.collisionPaths[c][t].floorAngle;
-                    tileConfig.collisionPaths[c][t].m_lWallAngle =
+                    tileConfig.collisionPaths[c][t].lWallAngle =
                         viewer->tileconfig.collisionPaths[c][t].lWallAngle;
-                    tileConfig.collisionPaths[c][t].m_rWallAngle =
+                    tileConfig.collisionPaths[c][t].rWallAngle =
                         viewer->tileconfig.collisionPaths[c][t].rWallAngle;
-                    tileConfig.collisionPaths[c][t].m_roofAngle =
+                    tileConfig.collisionPaths[c][t].roofAngle =
                         viewer->tileconfig.collisionPaths[c][t].roofAngle;
 
                     for (int h = 0; h < 0x10; ++h) {
-                        tileConfig.collisionPaths[c][t].m_collision[h] =
+                        tileConfig.collisionPaths[c][t].collision[h].height =
                             viewer->tileconfig.collisionPaths[c][t].collision[c].height;
-                        tileConfig.collisionPaths[c][t].m_hasCollision[h] =
+                        tileConfig.collisionPaths[c][t].collision[h].solid =
                             viewer->tileconfig.collisionPaths[c][t].collision[c].solid;
                     }
                 }

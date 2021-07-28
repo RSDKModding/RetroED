@@ -10,43 +10,49 @@ public:
     class CollisionMask
     {
     public:
+        struct HeightMask {
+            HeightMask() {}
+
+            byte height = 0;
+            bool solid  = false;
+        };
+
         CollisionMask() {}
 
         void read(Reader &reader)
         {
             QByteArray buf = reader.readByteArray(0x10);
-            for (int i = 0; i < 0x10; ++i) m_collision[i] = buf[i];
+            for (int i = 0; i < 0x10; ++i) collision[i].height = buf[i];
             buf = reader.readByteArray(0x10);
-            for (int i = 0; i < 0x10; ++i) m_hasCollision[i] = buf[i];
-            m_isCeiling  = reader.read<bool>();
-            m_floorAngle = reader.read<byte>();
-            m_rWallAngle = reader.read<byte>();
-            m_lWallAngle = reader.read<byte>();
-            m_roofAngle  = reader.read<byte>();
-            m_behaviour  = reader.read<byte>();
+            for (int i = 0; i < 0x10; ++i) collision[i].solid = buf[i];
+            flipY      = reader.read<bool>();
+            floorAngle = reader.read<byte>();
+            rWallAngle = reader.read<byte>();
+            lWallAngle = reader.read<byte>();
+            roofAngle  = reader.read<byte>();
+            behaviour  = reader.read<byte>();
         }
 
         void write(Writer &writer)
         {
-            for (int i = 0; i < 0x10; ++i) writer.write(m_collision[i]);
-            for (int i = 0; i < 0x10; ++i) writer.write(m_hasCollision[i]);
+            for (int i = 0; i < 0x10; ++i) writer.write(collision[i].height);
+            for (int i = 0; i < 0x10; ++i) writer.write(collision[i].solid);
 
-            writer.write(m_isCeiling);
-            writer.write(m_floorAngle);
-            writer.write(m_rWallAngle);
-            writer.write(m_lWallAngle);
-            writer.write(m_roofAngle);
-            writer.write(m_behaviour);
+            writer.write(flipY);
+            writer.write(floorAngle);
+            writer.write(rWallAngle);
+            writer.write(lWallAngle);
+            writer.write(roofAngle);
+            writer.write(behaviour);
         }
 
-        byte m_collision[0x10];
-        bool m_hasCollision[0x10];
-        byte m_floorAngle = 0x00;
-        byte m_rWallAngle = 0xC0;
-        byte m_lWallAngle = 0x40;
-        byte m_roofAngle  = 0x80;
-        byte m_behaviour  = 0;
-        bool m_isCeiling  = false;
+        HeightMask collision[16];
+        byte floorAngle = 0x00;
+        byte rWallAngle = 0xC0;
+        byte lWallAngle = 0x40;
+        byte roofAngle  = 0x80;
+        byte behaviour  = 0;
+        bool flipY      = false;
     };
 
     TileConfig() {}

@@ -28,12 +28,11 @@ public:
     Vector2<int> snapSize;
 
     SceneViewerv5 *viewer;
-    SceneProperties *m_scnProp       = nullptr;
-    SceneLayerProperties *m_lyrProp  = nullptr;
-    SceneTileProperties *m_tileProp  = nullptr;
-    SceneObjectProperties *m_objProp = nullptr;
-    SceneScrollProperties *m_scrProp = nullptr;
-    ChunkSelector *m_chkProp         = nullptr;
+    ScenePropertiesv5 *m_scnProp       = nullptr;
+    SceneLayerPropertiesv5 *m_lyrProp  = nullptr;
+    SceneTilePropertiesv5 *m_tileProp  = nullptr;
+    SceneObjectPropertiesv5 *m_objProp = nullptr;
+    SceneScrollPropertiesv5 *m_scrProp = nullptr;
 
     void loadScene(QString scnPath, QString gcfPath, byte gameType);
 
@@ -59,47 +58,6 @@ private:
     void exportRSDKv5(ExportRSDKv5Scene *dlg);
 
     Ui::SceneEditorv5 *ui;
-};
-
-class ChunkLabel : public QLabel
-{
-    Q_OBJECT
-public:
-    ChunkLabel(int *sel, int index, QWidget *parent) : QLabel(parent), m_sel(sel), m_index(index) {}
-
-signals:
-    void requestRepaint();
-
-protected:
-    void mousePressEvent(QMouseEvent *) override
-    {
-        *m_sel = m_index;
-        emit requestRepaint();
-    }
-    void paintEvent(QPaintEvent *event) override
-    {
-        QLabel::paintEvent(event);
-        QPainter p(this);
-        if (m_index == *m_sel) {
-            p.setBrush(qApp->palette().highlight());
-            p.setOpacity(0.5);
-            p.drawRect(this->rect());
-        }
-    }
-    QSize sizeHint() const override { return QSize(0, 0); }
-
-private:
-    int *m_sel = nullptr;
-    int m_index;
-};
-
-class ChunkSelector : public QWidget
-{
-    Q_OBJECT
-public:
-    ChunkSelector(QWidget *parent = nullptr);
-
-    SceneEditorv5 *m_parent = nullptr;
 };
 
 #endif // SCENEEDITOR_V5_H

@@ -110,12 +110,19 @@ public:
 #include "tools/sceneproperties/scenescrollproperties.hpp"
 #include "tools/sceneproperties/scenetileproperties.hpp"
 #include "tools/sceneproperties/sceneexportimgoptions.hpp"
+
+#include "tools/sceneproperties/scenepropertiesv5.hpp"
+#include "tools/sceneproperties/scenelayerpropertiesv5.hpp"
+#include "tools/sceneproperties/sceneobjectpropertiesv5.hpp"
+#include "tools/sceneproperties/scenescrollpropertiesv5.hpp"
+#include "tools/sceneproperties/scenetilepropertiesv5.hpp"
 #include "tools/sceneviewerv5.hpp"
 
 #include "tools/sceneproperties/stageconfigeditorv1.hpp"
 #include "tools/sceneproperties/stageconfigeditorv2.hpp"
 #include "tools/sceneproperties/stageconfigeditorv3.hpp"
 #include "tools/sceneproperties/stageconfigeditorv4.hpp"
+#include "tools/sceneproperties/stageconfigeditorv5.hpp"
 #include "tools/sceneproperties/chunkeditor.hpp"
 #include "tools/exportrsdkv5scene.hpp"
 

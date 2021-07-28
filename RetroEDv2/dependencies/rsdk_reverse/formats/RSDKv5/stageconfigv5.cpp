@@ -16,8 +16,8 @@ void RSDKv5::StageConfig::read(Reader &reader)
     for (int i = 0; i < 8; ++i) m_palettes[i].read(reader);
 
     byte sfxCnt = reader.read<byte>();
-    m_sfx.clear();
-    for (int i = 0; i < sfxCnt; ++i) m_sfx.append(WAVConfiguration(reader));
+    soundFX.clear();
+    for (int i = 0; i < sfxCnt; ++i) soundFX.append(WAVConfiguration(reader));
 }
 
 void RSDKv5::StageConfig::write(Writer &writer)
@@ -32,8 +32,8 @@ void RSDKv5::StageConfig::write(Writer &writer)
 
     for (int i = 0; i < 8; ++i) m_palettes[i].write(writer, true);
 
-    writer.write((byte)m_sfx.count());
-    for (int i = 0; i < (byte)m_sfx.count(); ++i) m_sfx[i].write(writer);
+    writer.write((byte)soundFX.count());
+    for (int i = 0; i < (byte)soundFX.count(); ++i) soundFX[i].write(writer);
 
     writer.flush();
 }

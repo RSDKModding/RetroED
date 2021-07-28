@@ -10,27 +10,27 @@ public:
     class WAVConfiguration
     {
     public:
-        QString m_name           = "SFX.wav";
-        byte m_maxConcurrentPlay = 1;
+        QString path           = "SFX.wav";
+        byte maxConcurrentPlay = 1;
 
         WAVConfiguration() {}
         WAVConfiguration(QString name, byte maxPlays)
         {
-            m_name              = name;
-            m_maxConcurrentPlay = maxPlays;
+            path              = name;
+            maxConcurrentPlay = maxPlays;
         }
         WAVConfiguration(Reader &reader) { read(reader); }
 
         inline void read(Reader reader)
         {
-            m_name              = reader.readString();
-            m_maxConcurrentPlay = reader.read<byte>();
+            path              = reader.readString();
+            maxConcurrentPlay = reader.read<byte>();
         }
 
         inline void write(Writer &writer)
         {
-            writer.write(m_name);
-            writer.write(m_maxConcurrentPlay);
+            writer.write(path);
+            writer.write(maxConcurrentPlay);
         }
     };
 
@@ -61,7 +61,7 @@ public:
     bool loadGlobalObjects = true;
     QList<QString> objects;
     RSDKv5::Palette m_palettes[8];
-    QList<WAVConfiguration> m_sfx;
+    QList<WAVConfiguration> soundFX;
 
     QString m_filename = "";
 };

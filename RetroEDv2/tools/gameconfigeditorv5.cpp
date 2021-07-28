@@ -416,7 +416,7 @@ void GameconfigEditorv5::setupUI()
 
     ui->scSfxList->setCurrentRow(0x00);
     ui->scSfxList->clear();
-    for (auto &s : m_stageconfig.m_sfx) ui->scSfxList->addItem(s.m_name);
+    for (auto &s : m_stageconfig.soundFX) ui->scSfxList->addItem(s.path);
     ui->scSfxName->setText("");
     ui->scMaxConcurrentPlays->setValue(0x00);
 
@@ -737,8 +737,8 @@ void GameconfigEditorv5::setupUI()
         ui->scSfxName->blockSignals(true);
         ui->scMaxConcurrentPlays->blockSignals(true);
 
-        ui->scSfxName->setText(m_stageconfig.m_sfx[c].m_name);
-        ui->scMaxConcurrentPlays->setValue(m_stageconfig.m_sfx[c].m_maxConcurrentPlay);
+        ui->scSfxName->setText(m_stageconfig.soundFX[c].path);
+        ui->scMaxConcurrentPlays->setValue(m_stageconfig.soundFX[c].maxConcurrentPlay);
 
         ui->scSfxName->blockSignals(false);
         ui->scMaxConcurrentPlays->blockSignals(false);
@@ -751,9 +751,9 @@ void GameconfigEditorv5::setupUI()
 
     connect(ui->scAddSfx, &QToolButton::clicked, [this] {
         uint c = ui->scSfxList->currentRow() + 1;
-        m_stageconfig.m_sfx.insert(c, RSDKv5::StageConfig::WAVConfiguration());
+        m_stageconfig.soundFX.insert(c, RSDKv5::StageConfig::WAVConfiguration());
         auto *item = new QListWidgetItem();
-        item->setText(m_stageconfig.m_sfx[c].m_name);
+        item->setText(m_stageconfig.soundFX[c].path);
         ui->scSfxList->insertItem(c, item);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -763,7 +763,7 @@ void GameconfigEditorv5::setupUI()
     connect(ui->scUpSfx, &QToolButton::clicked, [this] {
         uint c     = ui->scSfxList->currentRow();
         auto *item = ui->scSfxList->takeItem(c);
-        m_stageconfig.m_sfx.move(c, c - 1);
+        m_stageconfig.soundFX.move(c, c - 1);
         ui->scSfxList->insertItem(c - 1, item);
         ui->scSfxList->setCurrentRow(c - 1);
     });
@@ -771,7 +771,7 @@ void GameconfigEditorv5::setupUI()
     connect(ui->scDownSfx, &QToolButton::clicked, [this] {
         uint c     = ui->scSfxList->currentRow();
         auto *item = ui->scSfxList->takeItem(c);
-        m_stageconfig.m_sfx.move(c, c + 1);
+        m_stageconfig.soundFX.move(c, c + 1);
         ui->scSfxList->insertItem(c + 1, item);
         ui->scSfxList->setCurrentRow(c + 1);
     });
@@ -780,19 +780,19 @@ void GameconfigEditorv5::setupUI()
         int c = ui->scSfxList->currentRow();
         int n = ui->scSfxList->currentRow() == ui->scSfxList->count() - 1 ? c - 1 : c;
         delete ui->scSfxList->item(c);
-        m_stageconfig.m_sfx.removeAt(c);
+        m_stageconfig.soundFX.removeAt(c);
         ui->scSfxList->blockSignals(true);
         ui->scSfxList->setCurrentRow(n);
         ui->scSfxList->blockSignals(false);
     });
     connect(ui->scSfxName, &QLineEdit::textChanged, [this](QString s) {
-        m_stageconfig.m_sfx[ui->scSfxList->currentRow()].m_name = s;
+        m_stageconfig.soundFX[ui->scSfxList->currentRow()].path = s;
 
         ui->scSfxList->item(ui->scSfxList->currentRow())
-            ->setText(m_stageconfig.m_sfx[ui->scSfxList->currentRow()].m_name);
+            ->setText(m_stageconfig.soundFX[ui->scSfxList->currentRow()].path);
     });
     connect(ui->scMaxConcurrentPlays, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
-        m_stageconfig.m_sfx[ui->scSfxList->currentRow()].m_maxConcurrentPlay = v;
+        m_stageconfig.soundFX[ui->scSfxList->currentRow()].maxConcurrentPlay = v;
     });
 }
 

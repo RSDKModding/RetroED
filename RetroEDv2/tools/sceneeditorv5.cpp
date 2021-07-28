@@ -12,27 +12,27 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     ui->viewerFrame->layout()->addWidget(viewer);
     viewer->show();
 
-    m_scnProp = new SceneProperties(this);
+    m_scnProp = new ScenePropertiesv5(this);
     m_scnProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->scenePropFrame->layout()->addWidget(m_scnProp);
     m_scnProp->show();
 
-    m_lyrProp = new SceneLayerProperties(this);
+    m_lyrProp = new SceneLayerPropertiesv5(this);
     m_lyrProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->layerPropFrame->layout()->addWidget(m_lyrProp);
     m_lyrProp->show();
 
-    m_tileProp = new SceneTileProperties(this);
+    m_tileProp = new SceneTilePropertiesv5(this);
     m_tileProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->tilePropFrame->layout()->addWidget(m_tileProp);
     m_tileProp->show();
 
-    m_objProp = new SceneObjectProperties(this);
+    m_objProp = new SceneObjectPropertiesv5(this);
     m_objProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->objPropFrame->layout()->addWidget(m_objProp);
     m_objProp->show();
 
-    m_scrProp = new SceneScrollProperties(this);
+    m_scrProp = new SceneScrollPropertiesv5(this);
     m_scrProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->scrPropFrame->layout()->addWidget(m_scrProp);
     m_scrProp->show();
@@ -49,10 +49,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     snapSize = Vector2<int>(0x10, 0x10);
 
     ui->showParallax->setIcon(Utils::getColouredIcon(":/icons/ic_horizontal_split_48px.svg"));
-    ui->showChunkGrid->setIcon(Utils::getColouredIcon(":/icons/ic_grid_48px.svg"));
     ui->showTileGrid->setIcon(Utils::getColouredIcon(":/icons/ic_grid_48px.svg"));
     ui->showPixelGrid->setIcon(Utils::getColouredIcon(":/icons/ic_grid_48px.svg"));
-    ui->exportRSDKv5->setIcon(Utils::getColouredIcon(":/icons/ic_redo_48px.svg"));
 
     ui->toolBox->setCurrentIndex(0);
     ui->propertiesBox->setCurrentIndex(0);
@@ -75,7 +73,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         viewer->selectedLayer = c;
 
-        // m_lyrProp->setupUI(&viewer->scene, &viewer->scene.layers[viewer->selectedLayer]);
+        m_lyrProp->setupUI(&viewer->scene, viewer->selectedLayer);
         ui->propertiesBox->setCurrentWidget(ui->layerPropPage);
 
         createScrollList();
@@ -145,10 +143,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         viewer->cam.pos.x = viewer->entities[c].pos.x - (viewer->storedW / 2);
         viewer->cam.pos.y = viewer->entities[c].pos.y - (viewer->storedH / 2);
 
-        // m_objProp->setupUI(&viewer->scene.objects[viewer->selectedEntity],
-        //                   &viewer->m_compilerv3.m_objectEntityList[viewer->selectedEntity],
-        //                   &viewer->m_compilerv4.m_objectEntityList[viewer->selectedEntity],
-        //                   viewer->gameType);
+        m_objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
         ui->propertiesBox->setCurrentWidget(ui->objPropPage);
     });
 
@@ -187,7 +182,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         viewer->selectedScrollInfo = c;
 
-        // m_scrProp->setupUI(&viewer->scene.layers[viewer->selectedLayer].scrollInfos[c]);
+        m_scrProp->setupUI(&viewer->scene.layers[viewer->selectedLayer].scrollInfos[c]);
         ui->propertiesBox->setCurrentWidget(ui->scrollPropPage);
     });
 
@@ -250,7 +245,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->showCollisionB->setChecked(viewer->showPlaneB);
     });
 
-    connect(ui->showChunkGrid, &QPushButton::clicked, [this] { viewer->showChunkGrid ^= 1; });
     connect(ui->showTileGrid, &QPushButton::clicked, [this] { viewer->showTileGrid ^= 1; });
     connect(ui->showPixelGrid, &QPushButton::clicked, [this] { viewer->showPixelGrid ^= 1; });
 
@@ -262,8 +256,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     connect(m_scnProp->m_editSCF, &QPushButton::clicked, [this] {
         QList<int> newTypes;
 
-        // StageconfigEditorv5 *edit = new StageconfigEditorv5(&viewer->stageConfig, this);
-        // edit->exec();
+        StageconfigEditorv5 *edit = new StageconfigEditorv5(&viewer->stageConfig, this);
+        edit->exec();
 
         QList<QString> names;
         for (auto &obj : viewer->stageConfig.objects) {
@@ -271,6 +265,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         }
 
         int o = 0;
+        newTypes.clear();
         newTypes.append(0); // Blank Object
         // Globals stay the same
         if (viewer->stageConfig.loadGlobalObjects) {
@@ -282,33 +277,32 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         }
 
         int cnt = newTypes.count();
-        for (SceneObject &object : viewer->objects) {
-            int index = names.indexOf(object.name);
+        for (QString &object : viewer->stageConfig.objects) {
+            int index = names.indexOf(object);
             if (index >= 0) {
                 index += cnt;
             }
             else {
-                viewer->objects.removeOne(object);
+                viewer->objects.removeAt(newTypes.count());
             }
             newTypes.append(index);
         }
 
         for (SceneEntity &entity : viewer->entities) {
-            if (newTypes[entity.type] >= 0)
+            if (newTypes[entity.type] >= 0) {
                 entity.type = newTypes[entity.type];
+            }
             else {
                 viewer->entities.removeOne(entity);
             }
         }
 
         ui->objectList->clear();
-        ui->objectList->addItem("Blank Object");
         for (int o = 0; o < viewer->objects.count(); ++o)
             ui->objectList->addItem(viewer->objects[o].name);
 
         m_objProp->typeBox->blockSignals(true);
         m_objProp->typeBox->clear();
-        m_objProp->typeBox->addItem("Blank Object");
         for (int o = 0; o < viewer->objects.count(); ++o)
             m_objProp->typeBox->addItem(viewer->objects[o].name);
         m_objProp->typeBox->blockSignals(false);
@@ -400,10 +394,6 @@ bool SceneEditorv5::event(QEvent *event)
             "RSDKv5 Scenes (Pre-Plus) (Scene*.bin)",
         };
 
-        QList<QString> gcTypes = {
-            "RSDKv5 GameConfig (GameConfig*.bin)",
-        };
-
         QFileDialog filedialog(this, tr("Open Scene"), "",
                                tr(QString("%1;;%2").arg(types[0]).arg(types[1]).toStdString().c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
@@ -412,7 +402,7 @@ bool SceneEditorv5::event(QEvent *event)
             QString gcPath = "";
 
             QFileDialog gcdialog(this, tr("Open GameConfig"), "",
-                                 tr(gcTypes[filter].toStdString().c_str()));
+                                 tr("RSDKv5 GameConfig (GameConfig*.bin)"));
             gcdialog.setAcceptMode(QFileDialog::AcceptOpen);
             if (gcdialog.exec() == QDialog::Accepted) {
                 gcPath = gcdialog.selectedFiles()[0];
@@ -643,23 +633,18 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
 
                             for (int o = 0; o < viewer->entities.count(); ++o) {
                                 box = Rect<float>(
-                                    (viewer->entities[o].pos.x - viewer->entities[o].selBox.x),
-                                    (viewer->entities[o].pos.y - viewer->entities[o].selBox.y),
-                                    viewer->entities[o].selBox.x + viewer->entities[o].selBox.w,
-                                    viewer->entities[o].selBox.y + viewer->entities[o].selBox.h);
+                                    viewer->entities[o].pos.x + viewer->entities[o].selBox.x,
+                                    viewer->entities[o].pos.y + viewer->entities[o].selBox.y,
+                                    viewer->entities[o].pos.x + viewer->entities[o].selBox.w,
+                                    viewer->entities[o].pos.y + viewer->entities[o].selBox.h);
 
                                 Vector2<float> pos = Vector2<float>(
                                     (mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x,
-                                    (mEvent->pos().y() * viewer->invZoom()) + +viewer->cam.pos.y);
+                                    (mEvent->pos().y() * viewer->invZoom()) + viewer->cam.pos.y);
                                 if (box.contains(pos)) {
                                     viewer->selectedEntity = o;
 
-                                    // m_objProp->setupUI(&viewer->scene.objects[viewer->selectedEntity],
-                                    //                   &viewer->m_compilerv3
-                                    //                        .m_objectEntityList[viewer->selectedEntity],
-                                    //                   &viewer->m_compilerv4
-                                    //                        .m_objectEntityList[viewer->selectedEntity],
-                                    //                   viewer->gameType);
+                                    m_objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
                                     ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                     break;
                                 }
@@ -721,10 +706,10 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                         ushort tile =
                                             viewer->scene.layers[viewer->selectedLayer].layout[y][x];
 
-                                        // m_tileProp->setupUI(
-                                        //    &viewer->tileconfig.collisionPaths[0][tile & 0x3FF],
-                                        //    &viewer->tileconfig.collisionPaths[1][tile & 0x3FF], tile,
-                                        //    viewer->tiles[tile & 0x3FF]);
+                                        m_tileProp->setupUI(
+                                            &viewer->tileconfig.collisionPaths[0][tile & 0x3FF],
+                                            &viewer->tileconfig.collisionPaths[1][tile & 0x3FF], &tile,
+                                            viewer->tiles[tile & 0x3FF]);
                                         ui->propertiesBox->setCurrentIndex(PROP_TILE);
                                         break;
                                     }
@@ -737,11 +722,10 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                         bool found = false;
 
                         for (int o = 0; o < viewer->entities.count(); ++o) {
-                            box = Rect<float>(
-                                (viewer->entities[o].pos.x - viewer->entities[o].selBox.x),
-                                (viewer->entities[o].pos.y - viewer->entities[o].selBox.y),
-                                viewer->entities[o].selBox.x + viewer->entities[o].selBox.w,
-                                viewer->entities[o].selBox.y + viewer->entities[o].selBox.h);
+                            box = Rect<float>(viewer->entities[o].pos.x + viewer->entities[o].selBox.x,
+                                              viewer->entities[o].pos.y + viewer->entities[o].selBox.y,
+                                              viewer->entities[o].pos.x + viewer->entities[o].selBox.w,
+                                              viewer->entities[o].pos.y + viewer->entities[o].selBox.h);
 
                             Vector2<float> pos = Vector2<float>(
                                 (mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x,
@@ -750,11 +734,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 viewer->selectedEntity = o;
                                 found                  = true;
 
-                                // m_objProp->setupUI(
-                                //    &viewer->scene.objects[viewer->selectedEntity],
-                                //    &viewer->m_compilerv3.m_objectEntityList[viewer->selectedEntity],
-                                //    &viewer->m_compilerv4.m_objectEntityList[viewer->selectedEntity],
-                                //    viewer->gameType);
+                                m_objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                 break;
                             }
@@ -1083,22 +1063,21 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     ui->verticalScrollBar->setPageStep(0x10);
 
     m_objProp->typeBox->clear();
-    m_objProp->typeBox->addItem("Blank Object");
     // if (!sceneVer)
     //     ui->m_typeBox->addItem("Dev Output");
     for (int o = 0; o < viewer->objects.count(); ++o)
         m_objProp->typeBox->addItem(viewer->objects[o].name);
 
-    // m_scnProp->setupUI(&viewer->scene);
+    m_scnProp->setupUI(&viewer->scene, &viewer->stageConfig);
 
     m_scnProp->loadGlobalCB->blockSignals(true);
     m_scnProp->loadGlobalCB->setChecked(viewer->stageConfig.loadGlobalObjects);
     m_scnProp->loadGlobalCB->blockSignals(false);
 
-    if (m_chkProp) {
-        ui->chunksPage->layout()->removeWidget(m_chkProp);
-        delete m_chkProp;
-    }
+    // if (m_chkProp) {
+    //    ui->chunksPage->layout()->removeWidget(m_chkProp);
+    //    delete m_chkProp;
+    //}
 
     // m_chkProp = new ChunkSelector(this);
     // m_chkProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -1111,7 +1090,7 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     ui->toolBox->setCurrentIndex(0);
     ui->propertiesBox->setCurrentIndex(0);
 
-    // m_scnProp->setupUI(&viewer->scene);
+    m_scnProp->setupUI(&viewer->scene, &viewer->stageConfig);
     m_lyrProp->unsetUI();
     m_tileProp->unsetUI();
     m_objProp->unsetUI();

@@ -31,7 +31,6 @@ SOURCES += \
     tools/rsvtool.cpp \
     tools/savefileeditorv3.cpp \
     tools/savefileeditorv4.cpp \
-    tools/sceneProperties/chunkeditor.cpp \
     tools/exportrsdkv5scene.cpp \
     tools/gameconfigeditorv2.cpp \
     tools/gameconfigeditorv3.cpp \
@@ -39,21 +38,28 @@ SOURCES += \
     tools/gfxtool.cpp \
     tools/paletteeditor.cpp \
     tools/rsdkunpacker.cpp \
-    tools/sceneProperties/scenelayerproperties.cpp \
-    tools/sceneProperties/sceneobjectproperties.cpp \
-    tools/sceneProperties/sceneproperties.cpp \
-    tools/sceneProperties/scenescrollproperties.cpp \
     tools/sceneeditor.cpp \
     tools/sceneeditorv5.cpp \
+    tools/sceneproperties/chunkeditor.cpp \
     tools/sceneproperties/sceneexportimgoptions.cpp \
+    tools/sceneproperties/scenelayerproperties.cpp \
+    tools/sceneproperties/scenelayerpropertiesv5.cpp \
+    tools/sceneproperties/sceneobjectproperties.cpp \
+    tools/sceneproperties/sceneobjectpropertiesv5.cpp \
+    tools/sceneproperties/sceneproperties.cpp \
+    tools/sceneproperties/scenepropertiesv5.cpp \
+    tools/sceneproperties/scenescrollproperties.cpp \
+    tools/sceneproperties/scenescrollpropertiesv5.cpp \
     tools/sceneproperties/scenetileproperties.cpp \
+    tools/sceneproperties/scenetilepropertiesv5.cpp \
     tools/sceneproperties/stageconfigeditorv2.cpp \
+    tools/sceneproperties/stageconfigeditorv3.cpp \
     tools/sceneproperties/stageconfigeditorv4.cpp \
     tools/sceneproperties/stageconfigeditorv1.cpp \
+    tools/sceneproperties/stageconfigeditorv5.cpp \
     tools/sceneviewer.cpp \
     tools/sceneviewerv5.cpp \
     tools/scriptunpacker.cpp \
-    tools/sceneProperties/stageconfigeditorv3.cpp \
     tools/staticobjecteditor.cpp \
     utils/appconfig.cpp \
     utils/retroedutils.cpp \
@@ -73,7 +79,6 @@ HEADERS += \
     tools/rsvtool.hpp \
     tools/savefileeditorv3.hpp \
     tools/savefileeditorv4.hpp \
-    tools/sceneProperties/chunkeditor.hpp \
     tools/exportrsdkv5scene.hpp \
     tools/gameconfigeditorv2.hpp \
     tools/gameconfigeditorv3.hpp \
@@ -81,21 +86,28 @@ HEADERS += \
     tools/gfxtool.hpp \
     tools/paletteeditor.hpp \
     tools/rsdkunpacker.hpp \
-    tools/sceneProperties/scenelayerproperties.hpp \
-    tools/sceneProperties/sceneobjectproperties.hpp \
-    tools/sceneProperties/sceneproperties.hpp \
-    tools/sceneProperties/scenescrollproperties.hpp \
     tools/sceneeditor.hpp \
     tools/sceneeditorv5.hpp \
+    tools/sceneproperties/chunkeditor.hpp \
     tools/sceneproperties/sceneexportimgoptions.hpp \
+    tools/sceneproperties/scenelayerproperties.hpp \
+    tools/sceneproperties/scenelayerpropertiesv5.hpp \
+    tools/sceneproperties/sceneobjectproperties.hpp \
+    tools/sceneproperties/sceneobjectpropertiesv5.hpp \
+    tools/sceneproperties/sceneproperties.hpp \
+    tools/sceneproperties/scenepropertiesv5.hpp \
+    tools/sceneproperties/scenescrollproperties.hpp \
+    tools/sceneproperties/scenescrollpropertiesv5.hpp \
     tools/sceneproperties/scenetileproperties.hpp \
+    tools/sceneproperties/scenetilepropertiesv5.hpp \
     tools/sceneproperties/stageconfigeditorv2.hpp \
+    tools/sceneproperties/stageconfigeditorv3.hpp \
     tools/sceneproperties/stageconfigeditorv4.hpp \
     tools/sceneproperties/stageconfigeditorv1.hpp \
+    tools/sceneproperties/stageconfigeditorv5.hpp \
     tools/sceneviewer.hpp \
     tools/sceneviewerv5.hpp \
     tools/scriptunpacker.hpp \
-    tools/sceneProperties/stageconfigeditorv3.hpp \
     tools/staticobjecteditor.hpp \
     utils/appconfig.hpp \
     utils/retroedutils.hpp \
@@ -110,7 +122,6 @@ FORMS += \
     tools/rsvtool.ui \
     tools/savefileeditorv3.ui \
     tools/savefileeditorv4.ui \
-    tools/sceneProperties/chunkeditor.ui \
     tools/exportrsdkv5scene.ui \
     tools/gameconfigeditorv2.ui \
     tools/gameconfigeditorv3.ui \
@@ -118,19 +129,26 @@ FORMS += \
     tools/gfxtool.ui \
     tools/paletteeditor.ui \
     tools/rsdkunpacker.ui \
-    tools/sceneProperties/scenelayerproperties.ui \
-    tools/sceneProperties/sceneobjectproperties.ui \
-    tools/sceneProperties/sceneproperties.ui \
-    tools/sceneProperties/scenescrollproperties.ui \
     tools/sceneeditor.ui \
     tools/sceneeditorv5.ui \
+    tools/sceneproperties/chunkeditor.ui \
     tools/sceneproperties/sceneexportimgoptions.ui \
+    tools/sceneproperties/scenelayerproperties.ui \
+    tools/sceneproperties/scenelayerpropertiesv5.ui \
+    tools/sceneproperties/sceneobjectproperties.ui \
+    tools/sceneproperties/sceneobjectpropertiesv5.ui \
+    tools/sceneproperties/sceneproperties.ui \
+    tools/sceneproperties/scenepropertiesv5.ui \
+    tools/sceneproperties/scenescrollproperties.ui \
+    tools/sceneproperties/scenescrollpropertiesv5.ui \
     tools/sceneproperties/scenetileproperties.ui \
+    tools/sceneproperties/scenetilepropertiesv5.ui \
     tools/sceneproperties/stageconfigeditorv2.ui \
+    tools/sceneproperties/stageconfigeditorv3.ui \
     tools/sceneproperties/stageconfigeditorv4.ui \
     tools/sceneproperties/stageconfigeditorv1.ui \
+    tools/sceneproperties/stageconfigeditorv5.ui \
     tools/scriptunpacker.ui \
-    tools/sceneProperties/stageconfigeditorv3.ui \
     tools/staticobjecteditor.ui
 
 # Default rules for deployment.
