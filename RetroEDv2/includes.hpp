@@ -110,6 +110,7 @@ public:
 #include "tools/sceneproperties/scenescrollproperties.hpp"
 #include "tools/sceneproperties/scenetileproperties.hpp"
 #include "tools/sceneproperties/sceneexportimgoptions.hpp"
+#include "tools/sceneviewerv5.hpp"
 
 #include "tools/sceneproperties/stageconfigeditorv1.hpp"
 #include "tools/sceneproperties/stageconfigeditorv2.hpp"
@@ -132,6 +133,7 @@ public:
 #include "tools/rsdkunpacker.hpp"
 #include "tools/scriptunpacker.hpp"
 #include "tools/sceneeditor.hpp"
+#include "tools/sceneeditorv5.hpp"
 #include "tools/rsvtool.hpp"
 
 #include "mainwindow.hpp"

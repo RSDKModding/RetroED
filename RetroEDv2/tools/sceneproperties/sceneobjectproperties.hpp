@@ -22,7 +22,7 @@ public:
 
     void updateUI();
 
-    QComboBox *m_typeBox = nullptr;
+    QComboBox *typeBox = nullptr;
 
 private:
     Ui::SceneObjectProperties *ui;

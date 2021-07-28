@@ -44,12 +44,14 @@ SOURCES += \
     tools/sceneProperties/sceneproperties.cpp \
     tools/sceneProperties/scenescrollproperties.cpp \
     tools/sceneeditor.cpp \
+    tools/sceneeditorv5.cpp \
     tools/sceneproperties/sceneexportimgoptions.cpp \
     tools/sceneproperties/scenetileproperties.cpp \
     tools/sceneproperties/stageconfigeditorv2.cpp \
     tools/sceneproperties/stageconfigeditorv4.cpp \
     tools/sceneproperties/stageconfigeditorv1.cpp \
     tools/sceneviewer.cpp \
+    tools/sceneviewerv5.cpp \
     tools/scriptunpacker.cpp \
     tools/sceneProperties/stageconfigeditorv3.cpp \
     tools/staticobjecteditor.cpp \
@@ -84,12 +86,14 @@ HEADERS += \
     tools/sceneProperties/sceneproperties.hpp \
     tools/sceneProperties/scenescrollproperties.hpp \
     tools/sceneeditor.hpp \
+    tools/sceneeditorv5.hpp \
     tools/sceneproperties/sceneexportimgoptions.hpp \
     tools/sceneproperties/scenetileproperties.hpp \
     tools/sceneproperties/stageconfigeditorv2.hpp \
     tools/sceneproperties/stageconfigeditorv4.hpp \
     tools/sceneproperties/stageconfigeditorv1.hpp \
     tools/sceneviewer.hpp \
+    tools/sceneviewerv5.hpp \
     tools/scriptunpacker.hpp \
     tools/sceneProperties/stageconfigeditorv3.hpp \
     tools/staticobjecteditor.hpp \
@@ -119,6 +123,7 @@ FORMS += \
     tools/sceneProperties/sceneproperties.ui \
     tools/sceneProperties/scenescrollproperties.ui \
     tools/sceneeditor.ui \
+    tools/sceneeditorv5.ui \
     tools/sceneproperties/sceneexportimgoptions.ui \
     tools/sceneproperties/scenetileproperties.ui \
     tools/sceneproperties/stageconfigeditorv2.ui \

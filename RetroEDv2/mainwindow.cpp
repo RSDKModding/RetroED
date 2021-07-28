@@ -80,25 +80,36 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     file->addSeparator();
 
     QMenu *rfMenu = new QMenu("Recent Files");
-    for (auto &r : appConfig.m_recentFiles) {
-        rfMenu->addAction(r.m_path, [this, r] {
+    for (auto &r : appConfig.recentFiles) {
+        rfMenu->addAction(r.path, [this, r] {
             switch (r.m_tool) {
                 case TOOL_SCENEEDITOR: {
-                    SceneEditor *tool = new SceneEditor();
-                    tool->installEventFilter(this);
-                    ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Scene Editor"));
+                    if (r.gameVer == ENGINE_v5) {
+                        SceneEditorv5 *tool = new SceneEditorv5();
+                        tool->installEventFilter(this);
+                        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Scene Editor (v5)"));
 
-                    if (QFile::exists(r.m_path)
-                        && (QFile::exists(r.m_extra[0]) || r.m_gameVer == ENGINE_v1))
-                        tool->loadScene(r.m_path, r.m_extra[0], r.m_gameVer);
+                        if (QFile::exists(r.path)
+                            && (QFile::exists(r.extra[0]) || r.gameVer == ENGINE_v1))
+                            tool->loadScene(r.path, r.extra[0], r.gameVer);
+                    }
+                    else {
+                        SceneEditor *tool = new SceneEditor();
+                        tool->installEventFilter(this);
+                        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Scene Editor"));
+
+                        if (QFile::exists(r.path)
+                            && (QFile::exists(r.extra[0]) || r.gameVer == ENGINE_v1))
+                            tool->loadScene(r.path, r.extra[0], r.gameVer);
+                    }
 
                     break;
                 }
                 case TOOL_SCRIPTUNPACKER: break;
                 case TOOL_RSDKUNPACKER: break;
                 case TOOL_PALETTEDITOR: {
-                    if (QFile::exists(r.m_path)) {
-                        PaletteEditor *tool = new PaletteEditor(r.m_path, r.m_gameVer);
+                    if (QFile::exists(r.path)) {
+                        PaletteEditor *tool = new PaletteEditor(r.path, r.gameVer);
                         tool->installEventFilter(this);
                         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Palette Editor"));
                     }
@@ -106,28 +117,28 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                 }
                 case TOOL_GFXTOOL: break;
                 case TOOL_GAMECONFIGEDITOR:
-                    switch (r.m_gameVer) {
+                    switch (r.gameVer) {
                         case ENGINE_v2: {
-                            GameconfigEditorv2 *tool = new GameconfigEditorv2(r.m_path);
+                            GameconfigEditorv2 *tool = new GameconfigEditorv2(r.path);
                             ui->toolTabs->setCurrentIndex(
                                 ui->toolTabs->addTab(tool, "Gameconfig Editor"));
                             break;
                         }
                         case ENGINE_v3: {
-                            GameconfigEditorv3 *tool = new GameconfigEditorv3(r.m_path);
+                            GameconfigEditorv3 *tool = new GameconfigEditorv3(r.path);
                             ui->toolTabs->setCurrentIndex(
                                 ui->toolTabs->addTab(tool, "Gameconfig Editor"));
                             break;
                         }
                         case ENGINE_v4: {
-                            GameconfigEditorv4 *tool = new GameconfigEditorv4(r.m_path);
+                            GameconfigEditorv4 *tool = new GameconfigEditorv4(r.path);
                             ui->toolTabs->setCurrentIndex(
                                 ui->toolTabs->addTab(tool, "Gameconfig Editor"));
                             break;
                         }
                         case ENGINE_v5: {
                             GameconfigEditorv5 *tool =
-                                new GameconfigEditorv5(r.m_path, r.m_extra[0] == "StageConfig");
+                                new GameconfigEditorv5(r.path, r.extra[0] == "StageConfig");
                             ui->toolTabs->setCurrentIndex(
                                 ui->toolTabs->addTab(tool, "Gameconfig Editor"));
                             break;
@@ -137,8 +148,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                     break;
                 case TOOL_RSVUNPACKER: break;
                 case TOOL_STATICOBJECTEDITOR: {
-                    if (QFile::exists(r.m_path)) {
-                        StaticObjectEditor *tool = new StaticObjectEditor(r.m_path);
+                    if (QFile::exists(r.path)) {
+                        StaticObjectEditor *tool = new StaticObjectEditor(r.path);
                         tool->installEventFilter(this);
                         ui->toolTabs->setCurrentIndex(
                             ui->toolTabs->addTab(tool, "Static Object Editor"));
@@ -178,9 +189,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 #if RETROED_VER >= 0x110 || RETROED_DEBUG
     scn->addAction("v5 (Sonic Mania)", [this] {
         setStatus("Opening Scene Editor");
-        // SceneEditorv5 *tool = new SceneEditorv5();
-        // tool->installEventFilter(this);
-        // ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Scene Editor"));
+        SceneEditorv5 *tool = new SceneEditorv5();
+        tool->installEventFilter(this);
+        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Scene Editor (v5)"));
     });
 #endif
     tools->addMenu(scn);

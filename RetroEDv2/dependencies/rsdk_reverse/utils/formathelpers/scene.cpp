@@ -137,13 +137,13 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
             for (int i = 0; i < 4; ++i) m_activeLayer[i] = scn.m_activeLayer[i];
             m_midpoint = scn.m_midpoint;
 
-            width  = scn.m_width;
-            height = scn.m_height;
+            width  = scn.width;
+            height = scn.height;
 
             for (int y = 0; y < height; ++y) {
                 layout.append(QList<ushort>());
                 for (int x = 0; x < width; ++x) {
-                    layout[y].append(scn.m_layout[y][x]);
+                    layout[y].append(scn.layout[y][x]);
                 }
             }
 
@@ -299,13 +299,13 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
             for (int i = 0; i < 4; ++i) scn.m_activeLayer[i] = m_activeLayer[i];
             scn.m_midpoint = m_midpoint;
 
-            scn.m_width  = width;
-            scn.m_height = height;
+            scn.width  = width;
+            scn.height = height;
 
-            for (int y = 0; y < scn.m_height; ++y) {
-                scn.m_layout.append(QList<ushort>());
-                for (int x = 0; x < scn.m_width; ++x) {
-                    scn.m_layout[y].append(layout[y][x]);
+            for (int y = 0; y < scn.height; ++y) {
+                scn.layout.append(QList<ushort>());
+                for (int x = 0; x < scn.width; ++x) {
+                    scn.layout[y].append(layout[y][x]);
                 }
             }
 

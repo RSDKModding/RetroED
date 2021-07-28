@@ -58,8 +58,8 @@ public:
 
     byte m_signature[4] = { 'C', 'F', 'G', 0 };
 
-    bool m_loadGlobalObjects = true;
-    QList<QString> m_objects;
+    bool loadGlobalObjects = true;
+    QList<QString> objects;
     RSDKv5::Palette m_palettes[8];
     QList<WAVConfiguration> m_sfx;
 

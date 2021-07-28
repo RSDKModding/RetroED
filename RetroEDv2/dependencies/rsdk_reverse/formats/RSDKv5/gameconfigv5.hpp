@@ -123,15 +123,15 @@ public:
     };
 
     GameConfig() {}
-    GameConfig(QString filename) { read(filename); }
-    GameConfig(Reader &reader) { read(reader); }
+    GameConfig(QString filename, bool oldVer = false) { read(filename, oldVer); }
+    GameConfig(Reader &reader, bool oldVer = false) { read(reader, oldVer); }
 
-    inline void read(QString filename)
+    inline void read(QString filename, bool oldVer = false)
     {
         Reader reader(filename);
-        read(reader);
+        read(reader, oldVer);
     }
-    void read(Reader &reader);
+    void read(Reader &reader, bool oldVer = false);
 
     inline void write(QString filename)
     {
@@ -146,21 +146,21 @@ public:
 
     byte m_signature[4] = { 'C', 'F', 'G', 0 };
 
-    QString m_gameName             = "RSDKv5 Game";
-    QString m_gameSubname          = "Powered By the Retro Engine!";
-    QString m_version              = "1.06.0";
-    byte m_startSceneCategoryIndex = 0;
-    ushort m_startSceneIndex       = 0;
+    QString gameTitle            = "RSDKv5 Game";
+    QString gameSubtitle         = "Powered By the Retro Engine!";
+    QString version              = "1.06.0";
+    byte startSceneCategoryIndex = 0;
+    ushort startSceneIndex       = 0;
 
-    QList<QString> m_objects;
-    RSDKv5::Palette m_palettes[8];
-    QList<WAVConfiguration> m_sfx;
+    QList<QString> objects;
+    RSDKv5::Palette palettes[8];
+    QList<WAVConfiguration> sfx;
 
-    QList<Category> m_sceneCategories;
-    QList<ConfigurableMemoryEntry> m_gameOptions;
+    QList<Category> sceneCategories;
+    QList<ConfigurableMemoryEntry> globalVariables;
 
     QString m_filename = "";
-    bool m_readMode    = false;
+    bool readMode      = false;
 };
 
 } // namespace RSDKv5

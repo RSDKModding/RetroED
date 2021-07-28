@@ -51,51 +51,55 @@ void RSDKv5::Scene::AttributeValue::write(Writer &writer)
 
 void RSDKv5::Scene::SceneLayer::read(Reader &reader)
 {
-    m_unknownByte = reader.read<byte>();
+    unknown = reader.read<byte>();
 
     m_name = reader.readString();
 
-    m_behaviour    = reader.read<byte>();
-    m_drawingOrder = reader.read<byte>();
+    type      = reader.read<byte>();
+    drawOrder = reader.read<byte>();
 
-    m_width  = reader.read<ushort>();
-    m_height = reader.read<ushort>();
+    width  = reader.read<ushort>();
+    height = reader.read<ushort>();
 
-    m_relativeSpeed = reader.read<short>(); // << 0
-    m_constantSpeed = reader.read<short>(); // << 8
+    relativeSpeed = reader.read<short>(); // << 0
+    constantSpeed = reader.read<short>(); // << 8
 
     ushort scrollInfoCount = reader.read<ushort>();
-    for (int i = 0; i < scrollInfoCount; ++i) m_scrollingInfo.append(ScrollInfo(reader));
+    for (int i = 0; i < scrollInfoCount; ++i) scrollingInfo.append(ScrollInfo(reader));
 
-    m_scrollIndexes = reader.readZLib();
+    lineIndexes = reader.readZLib();
 
-    m_tiles.resize(m_height);
     Reader creader = reader.getCReader();
-    for (ushort y = 0; y < m_height; ++y) {
-        m_tiles[y].resize(m_width);
-        for (ushort x = 0; x < m_width; ++x) m_tiles[y][x] = creader.read<ushort>();
+    layout.resize(height);
+    for (int y = 0; y < height; ++y) {
+        layout[y].resize(width);
+        for (int x = 0; x < width; ++x) layout[y][x] = creader.read<ushort>();
     }
+
+    scrollInfoFromIndices();
 }
 
 void RSDKv5::Scene::SceneLayer::write(Writer &writer)
 {
-    writer.write(m_unknownByte);
+    scrollIndicesFromInfo();
+
+    writer.write(unknown);
 
     writer.write(m_name + '\0');
 
-    writer.write(m_behaviour);
-    writer.write(m_drawingOrder);
+    writer.write(type);
+    writer.write(drawOrder);
 
-    writer.write(m_width);
-    writer.write(m_height);
+    writer.write(width);
+    writer.write(height);
 
-    writer.write(m_relativeSpeed);
-    writer.write(m_constantSpeed);
+    writer.write(relativeSpeed);
+    writer.write(constantSpeed);
 
-    writer.write((ushort)m_scrollingInfo.count());
-    for (ScrollInfo &info : m_scrollingInfo) info.write(writer);
+    writer.write((ushort)scrollingInfo.count());
+    for (ScrollInfo &info : scrollingInfo) info.write(writer);
 
-    writer.writeCompressed(m_scrollIndexes);
+    writer.writeCompressed(lineIndexes);
 
     QByteArray bytes;
     QBuffer buffer(&bytes);
@@ -103,64 +107,161 @@ void RSDKv5::Scene::SceneLayer::write(Writer &writer)
     QDataStream *mem = new QDataStream(&buffer);
     Writer cwriter(mem);
 
-    for (int y = 0; y < m_height; ++y) {
-        for (int x = 0; x < m_width; ++x) cwriter.write(m_tiles[y][x]);
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) cwriter.write(layout[y][x]);
     }
     writer.writeCompressed(bytes);
 }
 
 void RSDKv5::Scene::SceneLayer::resize(ushort width, ushort height)
 {
-    ushort oldWidth  = m_width;
-    ushort oldHeight = m_height;
-    m_width          = width;
-    m_height         = height;
-    m_scrollIndexes.resize(m_height * 0x10);
-    m_tiles.resize(height);
+    ushort oldWidth  = width;
+    ushort oldHeight = height;
+    this->width      = width;
+    this->height     = height;
+    lineIndexes.resize(height * 0x10);
 
-    for (ushort y = oldHeight; y < m_height; ++y) {
-        m_tiles[y].resize(oldWidth);
+    layout.resize(height);
+    for (int y = oldHeight; y < height; ++y) {
+        layout[y].resize(oldWidth);
         for (int x = 0; x < oldWidth; ++x) {
-            m_tiles[y][x] = 0;
+            layout[y][x] = 0;
         }
     }
 
-    for (ushort y = 0; y < m_height; ++y) {
-        m_tiles[y].resize(m_width);
-        for (ushort x = oldWidth; x < m_width; ++x) m_tiles[y][x] = 0;
+    for (int y = 0; y < height; ++y) {
+        layout[y].resize(width);
+        for (ushort x = oldWidth; x < width; ++x) layout[y][x] = 0;
+    }
+}
+
+void RSDKv5::Scene::SceneLayer::scrollInfoFromIndices()
+{
+    scrollInfos.clear();
+    QList<ScrollInfo> infos;
+    if (type == 0 || type == 1)
+        infos = scrollingInfo;
+    else
+        return;
+    ;
+
+    int prev  = lineIndexes.count() > 0 ? lineIndexes[0] : -1;
+    int start = 0;
+    int h     = 0;
+
+    for (; h < lineIndexes.count(); ++h) {
+        if ((byte)lineIndexes[h] != prev) {
+            ScrollIndexInfo info;
+
+            info.startLine       = start;
+            info.length          = (h - start);
+            info.m_relativeSpeed = infos[prev].relativeSpeed;
+            info.m_constantSpeed = infos[prev].constantSpeed;
+            info.m_scrollPos     = 0.0f;
+            info.m_behaviour     = infos[prev].behaviour;
+
+            scrollInfos.append(info);
+            start = h;
+        }
+
+        prev = (byte)lineIndexes[h];
+    }
+
+    {
+        ScrollIndexInfo info;
+
+        info.startLine       = start;
+        info.length          = (h - start);
+        info.m_relativeSpeed = infos[0].relativeSpeed;
+        info.m_constantSpeed = infos[0].constantSpeed;
+        info.m_scrollPos     = 0.0f;
+        info.m_behaviour     = infos[0].behaviour;
+
+        scrollInfos.append(info);
+    }
+}
+
+void RSDKv5::Scene::SceneLayer::scrollIndicesFromInfo()
+{
+    bool hScroll = type == 1;
+    lineIndexes.clear();
+
+    if (type != 0 && type != 1) {
+        // other layers dont need any scrolling, TODO: check this works
+        return;
+    }
+    if (width == 0 || height == 0)
+        return; // basically invalid layers, dont write em
+
+    if (hScroll) {
+        lineIndexes.resize(height * 0x80);
+    }
+    else {
+        lineIndexes.resize(width * 0x80);
+    }
+
+    int id = 0;
+    for (ScrollIndexInfo &info : scrollInfos) {
+        int infoID = id;
+        ScrollInfo sInfo;
+        sInfo.behaviour     = info.m_behaviour;
+        sInfo.relativeSpeed = info.m_relativeSpeed;
+        sInfo.constantSpeed = info.m_constantSpeed;
+
+        int scrollID = 0;
+        for (ScrollInfo &info : scrollingInfo) {
+            if (info.relativeSpeed == sInfo.relativeSpeed && info.constantSpeed == sInfo.constantSpeed
+                && info.behaviour == sInfo.behaviour) {
+                infoID = scrollID;
+                break;
+            }
+            ++scrollID;
+        }
+
+        for (int i = info.startLine; i < info.startLine + info.length; ++i) {
+            lineIndexes[i] = (byte)infoID;
+        }
+
+        // New Info needs to be added
+        if (infoID == id) {
+            scrollingInfo.append(sInfo);
+            ++id;
+        }
     }
 }
 
 void RSDKv5::Scene::SceneEditorMetadata::read(Reader &reader)
 {
-    m_unknownByte      = reader.read<byte>();
-    byte r             = reader.read<byte>();
-    byte g             = reader.read<byte>();
-    byte b             = reader.read<byte>();
-    byte a             = reader.read<byte>();
-    m_backgroundColor1 = QColor(r, g, b, a);
-    r                  = reader.read<byte>();
-    g                  = reader.read<byte>();
-    b                  = reader.read<byte>();
-    a                  = reader.read<byte>();
-    m_backgroundColor2 = QColor(r, g, b, a);
-    m_unknownBytes     = reader.readByteArray(7);
-    m_stampName        = reader.readString();
-    m_unknownByte2     = reader.read<byte>();
+    unknown1         = reader.read<byte>();
+    byte r           = reader.read<byte>();
+    byte g           = reader.read<byte>();
+    byte b           = reader.read<byte>();
+    byte a           = reader.read<byte>();
+    backgroundColor1 = QColor(r, g, b, a);
+
+    r                = reader.read<byte>();
+    g                = reader.read<byte>();
+    b                = reader.read<byte>();
+    a                = reader.read<byte>();
+    backgroundColor2 = QColor(r, g, b, a);
+
+    unknown2  = reader.readByteArray(7);
+    stampName = reader.readString();
+    unknown3  = reader.read<byte>();
 }
 
 void RSDKv5::Scene::SceneEditorMetadata::write(Writer &writer)
 {
-    writer.write(m_unknownByte);
-    writer.write((byte)m_backgroundColor1.red());
-    writer.write((byte)m_backgroundColor1.green());
-    writer.write((byte)m_backgroundColor1.blue());
-    writer.write((byte)m_backgroundColor1.alpha());
-    writer.write((byte)m_backgroundColor2.red());
-    writer.write((byte)m_backgroundColor2.green());
-    writer.write((byte)m_backgroundColor2.blue());
-    writer.write((byte)m_backgroundColor2.alpha());
-    writer.write(m_unknownBytes);
-    writer.write(m_stampName + '\0');
-    writer.write(m_unknownByte2);
+    writer.write(unknown1);
+    writer.write((byte)backgroundColor1.red());
+    writer.write((byte)backgroundColor1.green());
+    writer.write((byte)backgroundColor1.blue());
+    writer.write((byte)backgroundColor1.alpha());
+    writer.write((byte)backgroundColor2.red());
+    writer.write((byte)backgroundColor2.green());
+    writer.write((byte)backgroundColor2.blue());
+    writer.write((byte)backgroundColor2.alpha());
+    writer.write(unknown2);
+    writer.write(stampName + '\0');
+    writer.write(unknown3);
 }

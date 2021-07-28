@@ -25,12 +25,12 @@ public:
     class SceneEditorMetadata
     {
     public:
-        byte m_unknownByte        = 3; // usually 2,3 or 4
-        QColor m_backgroundColor1 = QColor(0xFF, 0, 0xFF);
-        QColor m_backgroundColor2 = QColor(0, 0xFF, 0);
-        QByteArray m_unknownBytes; // Const: 01010400010400
-        QString m_stampName = "Stamps.bin";
-        byte m_unknownByte2;
+        byte unknown1           = 3; // usually 2,3 or 4
+        QColor backgroundColor1 = QColor(0xFF, 0, 0xFF);
+        QColor backgroundColor2 = QColor(0, 0xFF, 0);
+        QByteArray unknown2; // Const: 01010400010400
+        QString stampName = "Stamps.bin";
+        byte unknown3;
 
         SceneEditorMetadata() {}
         SceneEditorMetadata(Reader &reader) { read(reader); }
@@ -42,52 +42,73 @@ public:
     class ScrollInfo
     {
     public:
-        short m_relativeSpeed = 1 << 8;
-        short m_constantspeed = 0;
-        byte m_behaviour      = 0;
-        byte m_drawOrder      = 0;
+        short relativeSpeed = 1 << 8;
+        short constantSpeed = 0;
+        byte behaviour      = 0;
+        byte m_drawOrder    = 0;
 
         ScrollInfo() {}
         ScrollInfo(Reader &reader) { read(reader); }
 
         inline void read(Reader &reader)
         {
-            m_relativeSpeed = reader.read<short>(); // << 0
-            m_constantspeed = reader.read<short>(); // << 8
+            relativeSpeed = reader.read<short>(); // << 0
+            constantSpeed = reader.read<short>(); // << 8
 
-            m_behaviour = reader.read<byte>();
+            behaviour   = reader.read<byte>();
             m_drawOrder = reader.read<byte>();
         }
 
         inline void write(Writer &writer)
         {
-            writer.write(m_relativeSpeed);
-            writer.write(m_constantspeed);
+            writer.write(relativeSpeed);
+            writer.write(constantSpeed);
 
-            writer.write(m_behaviour);
+            writer.write(behaviour);
             writer.write(m_drawOrder);
+        }
+    };
+
+    class ScrollIndexInfo
+    {
+    public:
+        int startLine = 0;
+        int length    = 1;
+
+        float m_scrollPos     = 0.0f; // not written, for scene viewer only
+        float m_relativeSpeed = 1.0f;
+        float m_constantSpeed = 0.0f;
+        byte m_behaviour      = 0;
+
+        bool operator==(const ScrollIndexInfo &other) const
+        {
+            return startLine == other.startLine && length == other.length
+                   && m_scrollPos == other.m_scrollPos && m_relativeSpeed == other.m_relativeSpeed
+                   && m_constantSpeed == other.m_constantSpeed && m_behaviour == other.m_behaviour;
         }
     };
 
     class SceneLayer
     {
     public:
-        byte m_unknownByte = 0;
+        byte unknown = 0;
 
         QString m_name = "";
 
-        byte m_behaviour    = 0;
-        byte m_drawingOrder = 2;
-        ushort m_width      = 16;
-        ushort m_height     = 16;
+        byte type      = 0;
+        byte drawOrder = 2;
+        ushort width   = 16;
+        ushort height  = 16;
 
-        short m_relativeSpeed = 1 << 8;
-        short m_constantSpeed = 0 << 8;
+        short relativeSpeed = 1 << 8;
+        short constantSpeed = 0 << 8;
 
-        QList<ScrollInfo> m_scrollingInfo;
-        QByteArray m_scrollIndexes;
+        QList<ScrollInfo> scrollingInfo;
+        QByteArray lineIndexes;
 
-        QVector<QVector<ushort>> m_tiles;
+        QList<ScrollIndexInfo> scrollInfos;
+
+        QVector<QVector<ushort>> layout;
 
         SceneLayer() {}
         SceneLayer(Reader &reader) { read(reader); }
@@ -96,6 +117,9 @@ public:
         void write(Writer &writer);
 
         void resize(ushort width, ushort height);
+
+        void scrollIndicesFromInfo();
+        void scrollInfoFromIndices();
     };
 
     struct Position {
@@ -138,21 +162,21 @@ public:
     class NameIdentifier
     {
     public:
-        QByteArray m_hash;
+        QByteArray hash;
         QString m_name = "";
 
         NameIdentifier(QString name)
         {
-            m_hash = Utils::getMd5HashByteArray(name);
+            hash   = Utils::getMd5HashByteArray(name);
             m_name = name;
         }
 
         NameIdentifier(Reader &reader) { read(reader); }
 
-        inline void read(Reader &reader) { m_hash = reader.readByteArray(0x10); }
-        inline void write(Writer &writer) { writer.write(m_hash); }
+        inline void read(Reader &reader) { hash = reader.readByteArray(0x10); }
+        inline void write(Writer &writer) { writer.write(hash); }
 
-        QString hashString() { return Utils::getMd5HashString(m_hash); }
+        QString hashString() { return Utils::getMd5HashString(hash); }
 
         QString toString()
         {
@@ -166,7 +190,7 @@ public:
     {
     public:
         NameIdentifier m_name = NameIdentifier(QString("attribute"));
-        AttributeTypes m_type = (AttributeTypes)0;
+        AttributeTypes type   = (AttributeTypes)0;
 
         AttributeInfo() {}
         AttributeInfo(Reader &reader) { read(reader); }
@@ -174,13 +198,13 @@ public:
         inline void read(Reader &reader)
         {
             m_name.read(reader);
-            m_type = (AttributeTypes)reader.read<byte>();
+            type = (AttributeTypes)reader.read<byte>();
         }
 
         inline void write(Writer &writer)
         {
             m_name.write(writer);
-            writer.write((byte)m_type);
+            writer.write((byte)type);
         }
     };
 
@@ -219,10 +243,10 @@ public:
     {
     public:
         ushort m_slotID = 0;
-        Position m_position;
+        Position position;
         SceneObject *m_parent = nullptr;
 
-        QList<AttributeValue> m_attributes;
+        QList<AttributeValue> variables;
         SceneEntity() {}
 
         SceneEntity(Reader &reader, SceneObject *obj, QList<AttributeInfo> &attributes)
@@ -233,19 +257,19 @@ public:
         {
             m_parent = obj;
             m_slotID = reader.read<ushort>();
-            m_position.read(reader);
+            position.read(reader);
 
-            m_attributes.clear();
+            variables.clear();
             for (AttributeInfo &attribute : attributes)
-                m_attributes.append(AttributeValue(reader, attribute.m_type));
+                variables.append(AttributeValue(reader, attribute.type));
         }
 
         inline void write(Writer &writer)
         {
             writer.write(m_slotID);
-            m_position.write(writer);
+            position.write(writer);
 
-            for (AttributeValue &attribute : m_attributes) attribute.write(writer);
+            for (AttributeValue &attribute : variables) attribute.write(writer);
         }
     };
 
@@ -253,15 +277,15 @@ public:
     {
     public:
         NameIdentifier m_name = NameIdentifier(QString("Object"));
-        QList<AttributeInfo> m_attributes;
-        QList<SceneEntity> m_entities;
+        QList<AttributeInfo> variables;
+        QList<SceneEntity> entities;
 
         SceneObject() {}
 
         SceneObject(NameIdentifier name, QList<AttributeInfo> attributes)
         {
-            m_name       = name;
-            m_attributes = attributes;
+            m_name    = name;
+            variables = attributes;
         }
 
         SceneObject(Reader &reader) { read(reader); }
@@ -270,24 +294,23 @@ public:
             m_name.read(reader);
 
             byte attribCount = reader.read<byte>();
-            m_attributes.clear();
-            for (int i = 1; i < attribCount; ++i) m_attributes.append(AttributeInfo(reader));
+            variables.clear();
+            for (int i = 1; i < attribCount; ++i) variables.append(AttributeInfo(reader));
 
             ushort entityCount = reader.read<ushort>();
-            m_entities.clear();
-            for (int i = 0; i < entityCount; ++i)
-                m_entities.append(SceneEntity(reader, this, m_attributes));
+            entities.clear();
+            for (int i = 0; i < entityCount; ++i) entities.append(SceneEntity(reader, this, variables));
         }
 
         inline void write(Writer &writer)
         {
             m_name.write(writer);
 
-            writer.write((byte)(m_attributes.count() + 1));
-            for (AttributeInfo &attribute : m_attributes) attribute.write(writer);
+            writer.write((byte)(variables.count() + 1));
+            for (AttributeInfo &attribute : variables) attribute.write(writer);
 
-            writer.write((ushort)m_entities.count());
-            for (SceneEntity &entity : m_entities) entity.write(writer);
+            writer.write((ushort)entities.count());
+            for (SceneEntity &entity : entities) entity.write(writer);
         }
     };
 
@@ -310,12 +333,12 @@ public:
         m_editorMetadata.read(reader);
 
         byte layerCount = reader.read<byte>();
-        m_layers.clear();
-        for (int i = 0; i < layerCount; ++i) m_layers.append(SceneLayer(reader));
+        layers.clear();
+        for (int i = 0; i < layerCount; ++i) layers.append(SceneLayer(reader));
 
         byte objectCount = reader.read<byte>();
-        m_objects.clear();
-        for (int i = 0; i < objectCount; ++i) m_objects.append(SceneObject(reader));
+        objects.clear();
+        for (int i = 0; i < objectCount; ++i) objects.append(SceneObject(reader));
     }
 
     inline void write(QString filename)
@@ -334,11 +357,11 @@ public:
 
         m_editorMetadata.write(writer);
 
-        writer.write((byte)m_layers.count());
-        for (SceneLayer &layer : m_layers) layer.write(writer);
+        writer.write((byte)layers.count());
+        for (SceneLayer &layer : layers) layer.write(writer);
 
-        writer.write((byte)m_objects.count());
-        for (SceneObject &obj : m_objects) obj.write(writer);
+        writer.write((byte)objects.count());
+        for (SceneObject &obj : objects) obj.write(writer);
 
         writer.flush();
     }
@@ -346,8 +369,8 @@ public:
     byte m_signature[4] = { 'S', 'C', 'N', 0 };
 
     SceneEditorMetadata m_editorMetadata;
-    QList<SceneLayer> m_layers;
-    QList<SceneObject> m_objects;
+    QList<SceneLayer> layers;
+    QList<SceneObject> objects;
 
     QString filepath = "";
 };

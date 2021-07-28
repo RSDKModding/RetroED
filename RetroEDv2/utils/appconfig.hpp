@@ -23,10 +23,10 @@ public:
         void read(Reader &reader);
         void write(Writer &writer);
 
-        byte m_gameVer = 0;
+        byte gameVer = 0;
         byte m_tool    = 0xFF;
-        QString m_path = "";
-        QList<QString> m_extra;
+        QString path = "";
+        QList<QString> extra;
     };
 
     AppConfig() {}
@@ -53,7 +53,7 @@ public:
 
     void addRecentFile(byte gameVer, byte tool, QString path, QList<QString> extra);
 
-    QList<RecentFileInfo> m_recentFiles;
+    QList<RecentFileInfo> recentFiles;
 
     QString m_filename;
     const byte m_fileVer = 1;

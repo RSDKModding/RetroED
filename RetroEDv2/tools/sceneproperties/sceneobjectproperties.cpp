@@ -10,7 +10,7 @@ SceneObjectProperties::SceneObjectProperties(QWidget *parent)
     connect(timer, &QTimer::timeout, this, QOverload<>::of(&SceneObjectProperties::updateUI));
     timer->start(1000.0f / 60.0f);
 
-    m_typeBox = ui->type;
+    typeBox = ui->type;
 }
 
 SceneObjectProperties::~SceneObjectProperties() { delete ui; }

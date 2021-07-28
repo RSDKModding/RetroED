@@ -83,15 +83,15 @@ public:
 
     QString m_title = "Stage";
 
-    QList<QList<ushort>> m_layout;
+    QList<QList<ushort>> layout;
 
     byte m_activeLayer[4];
     byte m_midpoint = 3;
 
     QList<Object> m_objects;
 
-    byte m_width;
-    byte m_height;
+    byte width;
+    byte height;
 
     QString m_filename = "";
 };

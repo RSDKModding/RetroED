@@ -7,7 +7,7 @@ SceneProperties::SceneProperties(QWidget *parent) : QWidget(parent), ui(new Ui::
 
     m_musBox = ui->music;
 
-    m_loadGlobalCB = ui->loadGlobals;
+    loadGlobalCB = ui->loadGlobals;
 
     m_editTIL = ui->editChunks;
     m_editSCF = ui->editStageconfig;

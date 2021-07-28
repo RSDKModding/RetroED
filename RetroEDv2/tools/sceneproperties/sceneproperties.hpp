@@ -21,7 +21,7 @@ public:
 
     QComboBox *m_musBox = nullptr;
 
-    QCheckBox *m_loadGlobalCB = nullptr;
+    QCheckBox *loadGlobalCB = nullptr;
 
     QPushButton *m_editTIL = nullptr;
     QPushButton *m_editSCF = nullptr;

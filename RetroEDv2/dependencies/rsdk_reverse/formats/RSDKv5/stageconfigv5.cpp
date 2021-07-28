@@ -7,11 +7,11 @@ void RSDKv5::StageConfig::read(Reader &reader)
     if (!reader.matchesSignature(m_signature, 4))
         return;
 
-    m_loadGlobalObjects = reader.read<bool>();
+    loadGlobalObjects = reader.read<bool>();
 
     byte objCnt = reader.read<byte>();
-    m_objects.clear();
-    for (int i = 0; i < objCnt; ++i) m_objects.append(reader.readString());
+    objects.clear();
+    for (int i = 0; i < objCnt; ++i) objects.append(reader.readString());
 
     for (int i = 0; i < 8; ++i) m_palettes[i].read(reader);
 
@@ -25,10 +25,10 @@ void RSDKv5::StageConfig::write(Writer &writer)
     m_filename = writer.filePath;
     writer.write(m_signature, 4);
 
-    writer.write(m_loadGlobalObjects);
+    writer.write(loadGlobalObjects);
 
-    writer.write((byte)m_objects.count());
-    for (int i = 0; i < (byte)m_objects.count(); ++i) writer.write(m_objects[i]);
+    writer.write((byte)objects.count());
+    for (int i = 0; i < (byte)objects.count(); ++i) writer.write(objects[i]);
 
     for (int i = 0; i < 8; ++i) m_palettes[i].write(writer, true);
 

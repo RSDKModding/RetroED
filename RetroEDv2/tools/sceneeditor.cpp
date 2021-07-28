@@ -10,37 +10,6 @@
 
 enum PropertiesTabIDs { PROP_SCN, PROP_LAYER, PROP_TILE, PROP_ENTITY, PROP_SCROLL };
 
-ChunkSelector::ChunkSelector(QWidget *parent) : QWidget(parent), m_parent((SceneEditor *)parent)
-{
-    QScrollArea *scrollArea = new QScrollArea(this);
-    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    scrollArea->setGeometry(10, 10, 200, 200);
-
-    QWidget *chunkArea = new QWidget();
-
-    QGridLayout *layout = new QGridLayout();
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
-
-    int i = 0;
-    for (auto &&im : m_parent->viewer->chunks) {
-        auto *chunk = new ChunkLabel(&m_parent->viewer->selectedChunk, i, chunkArea);
-        chunk->setPixmap(QPixmap::fromImage(im).scaled(im.width(), im.height()));
-        chunk->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        chunk->resize(im.width(), im.height());
-        layout->addWidget(chunk, i, 1);
-        chunk->setFixedSize(im.width(), im.height() * 1.1f);
-        i++;
-        connect(chunk, &ChunkLabel::requestRepaint, chunkArea, QOverload<>::of(&QWidget::update));
-    }
-
-    chunkArea->setLayout(layout);
-    scrollArea->setWidget(chunkArea);
-    QVBoxLayout *l = new QVBoxLayout(this);
-    l->addWidget(scrollArea);
-    setLayout(l);
-}
-
 SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEditor)
 {
     ui->setupUi(this);
@@ -75,10 +44,10 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     ui->scrPropFrame->layout()->addWidget(m_scrProp);
     m_scrProp->show();
 
-    m_chkProp = new ChunkSelector(this);
-    m_chkProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->chunksPage->layout()->addWidget(m_chkProp);
-    m_chkProp->show();
+    // m_chkProp = new ChunkSelector(this);
+    // m_chkProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    // ui->chunksPage->layout()->addWidget(m_chkProp);
+    // m_chkProp->show();
 
     viewer->m_sbHorizontal = ui->horizontalScrollBar;
     viewer->m_sbVertical   = ui->verticalScrollBar;
@@ -292,7 +261,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(ui->showTileGrid, &QPushButton::clicked, [this] { viewer->showTileGrid ^= 1; });
     connect(ui->showPixelGrid, &QPushButton::clicked, [this] { viewer->showPixelGrid ^= 1; });
 
-    connect(m_scnProp->m_loadGlobalCB, &QCheckBox::toggled,
+    connect(m_scnProp->loadGlobalCB, &QCheckBox::toggled,
             [this](bool b) { viewer->stageConfig.loadGlobalScripts = b; });
 
     connect(ui->showParallax, &QPushButton::clicked, [this] { viewer->showParallax ^= 1; });
@@ -435,12 +404,12 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         for (int o = 0; o < viewer->scene.objectTypeNames.count(); ++o)
             ui->objectList->addItem(viewer->scene.objectTypeNames[o]);
 
-        m_objProp->m_typeBox->blockSignals(true);
-        m_objProp->m_typeBox->clear();
-        m_objProp->m_typeBox->addItem("Blank Object");
+        m_objProp->typeBox->blockSignals(true);
+        m_objProp->typeBox->clear();
+        m_objProp->typeBox->addItem("Blank Object");
         for (int o = 0; o < viewer->scene.objectTypeNames.count(); ++o)
-            m_objProp->m_typeBox->addItem(viewer->scene.objectTypeNames[o]);
-        m_objProp->m_typeBox->blockSignals(false);
+            m_objProp->typeBox->addItem(viewer->scene.objectTypeNames[o]);
+        m_objProp->typeBox->blockSignals(false);
 
         createEntityList();
 
@@ -1331,10 +1300,10 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     ui->horizontalScrollBar->setPageStep(0x80);
     ui->verticalScrollBar->setPageStep(0x80);
 
-    m_objProp->m_typeBox->clear();
-    m_objProp->m_typeBox->addItem("Blank Object");
+    m_objProp->typeBox->clear();
+    m_objProp->typeBox->addItem("Blank Object");
     for (int o = 0; o < viewer->scene.objectTypeNames.count(); ++o)
-        m_objProp->m_typeBox->addItem(viewer->scene.objectTypeNames[o]);
+        m_objProp->typeBox->addItem(viewer->scene.objectTypeNames[o]);
 
     if (viewer->gameType == ENGINE_v1) {
         m_scnProp->m_musBox->clear();
@@ -1344,20 +1313,20 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     }
     m_scnProp->setupUI(&viewer->scene, viewer->gameType);
 
-    m_scnProp->m_loadGlobalCB->blockSignals(true);
-    m_scnProp->m_loadGlobalCB->setDisabled(viewer->gameType == ENGINE_v1);
-    m_scnProp->m_loadGlobalCB->setChecked(viewer->stageConfig.loadGlobalScripts);
-    m_scnProp->m_loadGlobalCB->blockSignals(false);
+    m_scnProp->loadGlobalCB->blockSignals(true);
+    m_scnProp->loadGlobalCB->setDisabled(viewer->gameType == ENGINE_v1);
+    m_scnProp->loadGlobalCB->setChecked(viewer->stageConfig.loadGlobalScripts);
+    m_scnProp->loadGlobalCB->blockSignals(false);
 
     if (m_chkProp) {
         ui->chunksPage->layout()->removeWidget(m_chkProp);
         delete m_chkProp;
     }
 
-    m_chkProp = new ChunkSelector(this);
-    m_chkProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->chunksPage->layout()->addWidget(m_chkProp);
-    m_chkProp->show();
+    // m_chkProp = new ChunkSelector(this);
+    // m_chkProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    // ui->chunksPage->layout()->addWidget(m_chkProp);
+    // m_chkProp->show();
 
     ui->layerList->setCurrentRow(0);
     viewer->selectedLayer = 0;
@@ -1621,12 +1590,12 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
     RSDKv5::StageConfig stageConfig;
 
     if (dlg->exportStageConfig) {
-        stageConfig.m_loadGlobalObjects = viewer->stageConfig.loadGlobalScripts;
+        stageConfig.loadGlobalObjects = viewer->stageConfig.loadGlobalScripts;
 
-        stageConfig.m_objects.clear();
+        stageConfig.objects.clear();
         for (auto o : viewer->stageConfig.objects) {
             QString name = o.m_name;
-            stageConfig.m_objects.append(name.replace(" ", ""));
+            stageConfig.objects.append(name.replace(" ", ""));
         }
 
         stageConfig.m_sfx.clear();
@@ -1686,7 +1655,7 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
         // TODO:
     }
 
-    scene.m_layers.clear();
+    scene.layers.clear();
     if (dlg->exportLayers) {
         for (int l = 0; l < 9; ++l) {
             QString layerName = !l ? "FG " : QString("BG %1 ").arg(l);
@@ -1697,7 +1666,7 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
                 RSDKv5::Scene::SceneLayer layer;
                 layer.m_name = layerName + (!p ? "Low" : "High");
                 layer.resize(viewer->layerWidth(l) * 8, viewer->layerHeight(l) * 8);
-                layer.m_drawingOrder = 16;
+                layer.drawOrder = 16;
 
                 switch (viewer->gameType) {
                     case ENGINE_v4:
@@ -1710,18 +1679,18 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
                                 if (vPlane == p) {
                                     if (viewer->scene.m_midpoint < 3 && viewer->gameType == ENGINE_v4) {
                                         switch (i) {
-                                            case 0: layer.m_drawingOrder = 1; break;
-                                            case 1: layer.m_drawingOrder = 2; break;
-                                            case 2: layer.m_drawingOrder = 5; break;
-                                            case 3: layer.m_drawingOrder = 5; break;
+                                            case 0: layer.drawOrder = 1; break;
+                                            case 1: layer.drawOrder = 2; break;
+                                            case 2: layer.drawOrder = 5; break;
+                                            case 3: layer.drawOrder = 5; break;
                                         }
                                     }
                                     else {
                                         switch (i) {
-                                            case 0: layer.m_drawingOrder = 1; break;
-                                            case 1: layer.m_drawingOrder = 2; break;
-                                            case 2: layer.m_drawingOrder = 3; break;
-                                            case 3: layer.m_drawingOrder = 5; break;
+                                            case 0: layer.drawOrder = 1; break;
+                                            case 1: layer.drawOrder = 2; break;
+                                            case 2: layer.drawOrder = 3; break;
+                                            case 3: layer.drawOrder = 5; break;
                                         }
                                     }
                                 }
@@ -1735,13 +1704,13 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
                     }
                 }
 
-                layer.m_behaviour     = 1;
-                layer.m_relativeSpeed = 0x100;
-                layer.m_constantSpeed = 0x000;
+                layer.type          = 1;
+                layer.relativeSpeed = 0x100;
+                layer.constantSpeed = 0x000;
 
                 if (l > 0) {
-                    layer.m_relativeSpeed = viewer->background.layers[l - 1].m_relativeSpeed * 0x100;
-                    layer.m_constantSpeed = viewer->background.layers[l - 1].m_constantSpeed * 0x100;
+                    layer.relativeSpeed = viewer->background.layers[l - 1].m_relativeSpeed * 0x100;
+                    layer.constantSpeed = viewer->background.layers[l - 1].m_constantSpeed * 0x100;
                 }
 
                 int cnt = 0;
@@ -1753,7 +1722,7 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
                             for (int tx = 0; tx < 8; ++tx) {
                                 // check we're on the right plane
                                 if (chunk.tiles[ty][tx].visualPlane != p) {
-                                    layer.m_tiles[(y * 8) + ty][(x * 8) + tx] = 0xFFFF;
+                                    layer.layout[(y * 8) + ty][(x * 8) + tx] = 0xFFFF;
                                     continue;
                                 }
                                 cnt++;
@@ -1774,35 +1743,35 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
                                 Utils::setBit(tile, solB == 0 || solB == 1, 14);
                                 Utils::setBit(tile, solB == 0 || solB == 2, 15);
 
-                                layer.m_tiles[(y * 8) + ty][(x * 8) + tx] = tile;
+                                layer.layout[(y * 8) + ty][(x * 8) + tx] = tile;
                             }
                         }
                     }
                 }
 
-                if (scene.m_layers.count() < 8 && cnt)
-                    scene.m_layers.append(layer);
+                if (scene.layers.count() < 8 && cnt)
+                    scene.layers.append(layer);
             }
         }
     }
 
-    scene.m_objects.clear();
+    scene.objects.clear();
     if (dlg->exportObjects) {
         RSDKv5::Scene::SceneObject blank;
         blank.m_name.m_name = "Blank Object";
 
-        blank.m_attributes.clear();
+        blank.variables.clear();
         RSDKv5::Scene::AttributeInfo blankFilter;
         blankFilter.m_name = RSDKv5::Scene::NameIdentifier("filter");
-        blankFilter.m_type = RSDKv5::AttributeTypes::UINT8;
-        blank.m_attributes.append(blankFilter);
+        blankFilter.type   = RSDKv5::AttributeTypes::UINT8;
+        blank.variables.append(blankFilter);
 
         RSDKv5::Scene::AttributeInfo blankPropertyValue;
         blankPropertyValue.m_name = RSDKv5::Scene::NameIdentifier("propertyValue");
-        blankPropertyValue.m_type = RSDKv5::AttributeTypes::UINT8;
-        blank.m_attributes.append(blankPropertyValue);
+        blankPropertyValue.type   = RSDKv5::AttributeTypes::UINT8;
+        blank.variables.append(blankPropertyValue);
 
-        scene.m_objects.append(blank);
+        scene.objects.append(blank);
 
         for (int o = 0; o < viewer->scene.objectTypeNames.count(); ++o) {
             RSDKv5::Scene::SceneObject obj;
@@ -1810,38 +1779,38 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
             QString objName = viewer->scene.objectTypeNames[o];
             objName.replace(" ", "");
             obj.m_name = RSDKv5::Scene::NameIdentifier(objName);
-            obj.m_attributes.clear();
+            obj.variables.clear();
             RSDKv5::Scene::AttributeInfo filter;
             filter.m_name = RSDKv5::Scene::NameIdentifier("filter");
-            filter.m_type = RSDKv5::AttributeTypes::UINT8;
-            obj.m_attributes.append(filter);
+            filter.type   = RSDKv5::AttributeTypes::UINT8;
+            obj.variables.append(filter);
 
             RSDKv5::Scene::AttributeInfo propertyValue;
             propertyValue.m_name = RSDKv5::Scene::NameIdentifier("propertyValue");
-            propertyValue.m_type = RSDKv5::AttributeTypes::UINT8;
-            obj.m_attributes.append(propertyValue);
+            propertyValue.type   = RSDKv5::AttributeTypes::UINT8;
+            obj.variables.append(propertyValue);
 
-            scene.m_objects.append(obj);
+            scene.objects.append(obj);
         }
 
         for (int e = 0; e < viewer->scene.objects.count(); ++e) {
             RSDKv5::Scene::SceneEntity entity;
-            entity.m_position.x = viewer->scene.objects[e].m_position.x;
-            entity.m_position.y = viewer->scene.objects[e].m_position.y;
+            entity.position.x = viewer->scene.objects[e].m_position.x;
+            entity.position.y = viewer->scene.objects[e].m_position.y;
 
-            entity.m_parent = &scene.m_objects[viewer->scene.objects[e].type];
+            entity.m_parent = &scene.objects[viewer->scene.objects[e].type];
             entity.m_slotID = e;
 
-            entity.m_attributes.clear();
+            entity.variables.clear();
             RSDKv5::Scene::AttributeValue filter;
             filter.value_uint8 = 0x05;
-            entity.m_attributes.append(filter);
+            entity.variables.append(filter);
 
             RSDKv5::Scene::AttributeValue propertyValue;
             propertyValue.value_uint8 = viewer->scene.objects[e].m_propertyValue;
-            entity.m_attributes.append(propertyValue);
+            entity.variables.append(propertyValue);
 
-            entity.m_parent->m_entities.append(entity);
+            entity.m_parent->entities.append(entity);
         }
     }
 

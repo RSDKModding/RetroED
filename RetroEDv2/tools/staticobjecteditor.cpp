@@ -21,7 +21,8 @@ StaticObjectEditor::StaticObjectEditor(QString filePath, QWidget *parent)
             writer.writeLine(QString("struct %1 {").arg(info.m_name));
             for (int a = 0; a < staticObject.values.count(); ++a) {
                 QString type = "unknown";
-                switch (staticObject.values[a].type) {
+                switch (staticObject.values[a].type & 0x7F) {
+                    default: type = "invalid"; break;
                     case RSDKv5::StaticObject::SVAR_UINT8: type = "byte"; break;
                     case RSDKv5::StaticObject::SVAR_UINT16: type = "ushort"; break;
                     case RSDKv5::StaticObject::SVAR_UINT32: type = "uint"; break;
@@ -29,7 +30,7 @@ StaticObjectEditor::StaticObjectEditor(QString filePath, QWidget *parent)
                     case RSDKv5::StaticObject::SVAR_INT16: type = "short"; break;
                     case RSDKv5::StaticObject::SVAR_INT32: type = "int"; break;
                     case RSDKv5::StaticObject::SVAR_BOOL: type = "bool"; break;
-                    case RSDKv5::StaticObject::SVAR_PTR: type = "void *"; break;
+                    case RSDKv5::StaticObject::SVAR_PTR: type = "void*"; break;
                     case RSDKv5::StaticObject::SVAR_VEC2: type = "Vector2"; break;
                     case RSDKv5::StaticObject::SVAR_TEXT: type = "TextInfo"; break;
                     case RSDKv5::StaticObject::SVAR_ANIMATOR: type = "Animator"; break;

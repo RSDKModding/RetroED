@@ -20,23 +20,23 @@ void RSDKv4::Scene::read(Reader &reader)
 
     // Map width in chunk units
     // In RSDKv4, it's one byte long, no idea why it reads 2 bytes
-    m_width = reader.read<byte>();
+    width = reader.read<byte>();
     reader.read<byte>();
 
-    m_height = reader.read<byte>();
+    height = reader.read<byte>();
     reader.read<byte>();
 
-    m_layout.reserve(m_height);
-    for (int y = 0; y < m_height; ++y) {
-        m_layout.append(QList<ushort>());
-        m_layout[y].reserve(m_width);
-        for (int x = 0; x < m_width; ++x) {
+    layout.reserve(height);
+    for (int y = 0; y < height; ++y) {
+        layout.append(QList<ushort>());
+        layout[y].reserve(width);
+        for (int x = 0; x < width; ++x) {
             // 128x128 Block number is 16-bit
             // Big-Endian in RSDKv4
             byte b0 = 0, b1 = 0;
             b0 = reader.read<byte>();
             b1 = reader.read<byte>();
-            m_layout[y].append((ushort)(b0 + (b1 << 8)));
+            layout[y].append((ushort)(b0 + (b1 << 8)));
         }
     }
 
@@ -62,17 +62,17 @@ void RSDKv4::Scene::write(Writer &writer)
     writer.write(m_midpoint);
 
     // Write width and height
-    writer.write((byte)m_width);
+    writer.write((byte)width);
     writer.write((byte)0x00);
 
-    writer.write((byte)m_height);
+    writer.write((byte)height);
     writer.write((byte)0x00);
 
     // Write tile map
-    for (int h = 0; h < m_height; ++h) {
-        for (int w = 0; w < m_width; ++w) {
-            writer.write((byte)(m_layout[h][w] & 0xFF));
-            writer.write((byte)(m_layout[h][w] >> 8));
+    for (int h = 0; h < height; ++h) {
+        for (int w = 0; w < width; ++w) {
+            writer.write((byte)(layout[h][w] & 0xFF));
+            writer.write((byte)(layout[h][w] >> 8));
         }
     }
 
