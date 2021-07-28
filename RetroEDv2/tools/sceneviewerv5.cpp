@@ -43,6 +43,13 @@ void SceneViewerv5::loadScene(QString path)
     tileconfig.read(basePath + "TileConfig.bin");
     stageConfig.read(basePath + "StageConfig.bin");
 
+    bgColour    = Colour(scene.editorMetadata.backgroundColor1.red(),
+                      scene.editorMetadata.backgroundColor1.green(),
+                      scene.editorMetadata.backgroundColor1.blue());
+    altBGColour = Colour(scene.editorMetadata.backgroundColor2.red(),
+                         scene.editorMetadata.backgroundColor2.green(),
+                         scene.editorMetadata.backgroundColor2.blue());
+
     objects.clear();
     entities.clear();
 
@@ -185,8 +192,8 @@ void SceneViewerv5::drawScene()
 
     // draw bg colours
     primitiveShader.use();
-    primitiveShader.setValue("colour", QVector4D(m_altBGColour.r / 255.0f, m_altBGColour.g / 255.0f,
-                                                 m_altBGColour.b / 255.0f, 1.0f));
+    primitiveShader.setValue("colour", QVector4D(altBGColour.r / 255.0f, altBGColour.g / 255.0f,
+                                                 altBGColour.b / 255.0f, 1.0f));
     primitiveShader.setValue("projection", getProjectionMatrix());
     primitiveShader.setValue("view", QMatrix4x4());
     rectVAO.bind();
@@ -245,11 +252,12 @@ void SceneViewerv5::drawScene()
         camOffset = Vector3<float>(0.0f, 0.0f, 0.0f);
 
         if (selectedLayer >= 0) {
-            spriteShader.setValue("useAlpha", true);
             if (selectedLayer == l) {
+                spriteShader.setValue("useAlpha", false);
                 spriteShader.setValue("alpha", 1.0f);
             }
             else {
+                spriteShader.setValue("useAlpha", true);
                 spriteShader.setValue("alpha", 0.5f);
             }
         }
@@ -258,8 +266,6 @@ void SceneViewerv5::drawScene()
         m_tilesetTexture->bind();
         spriteShader.setValue("flipX", false);
         spriteShader.setValue("flipY", false);
-        spriteShader.setValue("useAlpha", false);
-        spriteShader.setValue("alpha", 1.0f);
 
         QVector3D *vertsPtr  = new QVector3D[height * width * 0x10 * 6];
         QVector2D *tVertsPtr = new QVector2D[height * width * 0x10 * 6];
@@ -825,7 +831,7 @@ void SceneViewerv5::paintGL()
     // Draw the scene:
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
-    f->glClearColor(m_bgColour.r / 255.0f, m_bgColour.g / 255.0f, m_bgColour.b / 255.0f, 1.0f);
+    f->glClearColor(bgColour.r / 255.0f, bgColour.g / 255.0f, bgColour.b / 255.0f, 1.0f);
     f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     drawScene();

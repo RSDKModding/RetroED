@@ -32,6 +32,9 @@ typedef unsigned long long uint64;
 
 enum EngineVersion { ENGINE_v5, ENGINE_v4, ENGINE_v3, ENGINE_v2, ENGINE_v1, ENGINE_NONE = 0xFF };
 
+// RSDKv5 Link
+#include "tools/gamelink/gamelink.hpp"
+
 // RSDKv1
 #include "formats/RSDKv1/animationv1.hpp"
 #include "formats/RSDKv1/backgroundv1.hpp"

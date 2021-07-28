@@ -42,29 +42,29 @@ public:
     class ScrollInfo
     {
     public:
-        short relativeSpeed = 1 << 8;
-        short constantSpeed = 0;
-        byte behaviour      = 0;
-        byte m_drawOrder    = 0;
+        short parallaxFactor = 1 << 8;
+        short scrollSpeed    = 0;
+        byte deform          = 0;
+        byte m_drawOrder     = 0;
 
         ScrollInfo() {}
         ScrollInfo(Reader &reader) { read(reader); }
 
         inline void read(Reader &reader)
         {
-            relativeSpeed = reader.read<short>(); // << 0
-            constantSpeed = reader.read<short>(); // << 8
+            parallaxFactor = reader.read<short>(); // << 0
+            scrollSpeed    = reader.read<short>(); // << 8
 
-            behaviour   = reader.read<byte>();
+            deform      = reader.read<byte>();
             m_drawOrder = reader.read<byte>();
         }
 
         inline void write(Writer &writer)
         {
-            writer.write(relativeSpeed);
-            writer.write(constantSpeed);
+            writer.write(parallaxFactor);
+            writer.write(scrollSpeed);
 
-            writer.write(behaviour);
+            writer.write(deform);
             writer.write(m_drawOrder);
         }
     };
@@ -75,16 +75,16 @@ public:
         int startLine = 0;
         int length    = 1;
 
-        float m_scrollPos     = 0.0f; // not written, for scene viewer only
-        float m_relativeSpeed = 1.0f;
-        float m_constantSpeed = 0.0f;
-        byte m_behaviour      = 0;
+        float m_scrollPos    = 0.0f; // not written, for scene viewer only
+        float parallaxFactor = 1.0f;
+        float scrollSpeed    = 0.0f;
+        byte deform          = 0;
 
         bool operator==(const ScrollIndexInfo &other) const
         {
             return startLine == other.startLine && length == other.length
-                   && m_scrollPos == other.m_scrollPos && m_relativeSpeed == other.m_relativeSpeed
-                   && m_constantSpeed == other.m_constantSpeed && m_behaviour == other.m_behaviour;
+                   && m_scrollPos == other.m_scrollPos && parallaxFactor == other.parallaxFactor
+                   && scrollSpeed == other.scrollSpeed && deform == other.deform;
         }
     };
 
@@ -100,8 +100,8 @@ public:
         ushort width   = 16;
         ushort height  = 16;
 
-        short relativeSpeed = 1 << 8;
-        short constantSpeed = 0 << 8;
+        short parallaxFactor = 1 << 8;
+        short scrollSpeed    = 0 << 8;
 
         QList<ScrollInfo> scrollingInfo;
         QByteArray lineIndexes;
@@ -330,7 +330,7 @@ public:
         if (!reader.matchesSignature(m_signature, 4))
             return;
 
-        m_editorMetadata.read(reader);
+        editorMetadata.read(reader);
 
         byte layerCount = reader.read<byte>();
         layers.clear();
@@ -355,7 +355,7 @@ public:
         filepath = writer.filePath;
         writer.write(m_signature, 4);
 
-        m_editorMetadata.write(writer);
+        editorMetadata.write(writer);
 
         writer.write((byte)layers.count());
         for (SceneLayer &layer : layers) layer.write(writer);
@@ -368,7 +368,7 @@ public:
 
     byte m_signature[4] = { 'S', 'C', 'N', 0 };
 
-    SceneEditorMetadata m_editorMetadata;
+    SceneEditorMetadata editorMetadata;
     QList<SceneLayer> layers;
     QList<SceneObject> objects;
 

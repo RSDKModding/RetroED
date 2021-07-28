@@ -45,9 +45,9 @@ public:
 
         byte width          = 0;
         byte height         = 0;
-        byte behaviour      = 0;
-        float m_relativeSpeed = 1.0f;
-        float m_constantSpeed = 0.0f;
+        byte type      = 0;
+        float parallaxFactor = 1.0f;
+        float scrollSpeed = 0.0f;
         QByteArray m_lineIndexes;
 
         QList<ScrollIndexInfo> scrollInfos;

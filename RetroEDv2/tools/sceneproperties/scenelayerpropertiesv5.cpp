@@ -21,8 +21,8 @@ void SceneLayerPropertiesv5::setupUI(RSDKv5::Scene *scn, byte lID)
     ui->height->setValue(scn->layers[lID].height);
     ui->type->setCurrentIndex(scn->layers[lID].type);
     ui->drawOrder->setValue(scn->layers[lID].drawOrder);
-    ui->relSpeed->setValue(scn->layers[lID].relativeSpeed / 256.0f);
-    ui->constSpeed->setValue((scn->layers[lID].constantSpeed << 8) / 256.0f);
+    ui->relSpeed->setValue(scn->layers[lID].parallaxFactor / 256.0f);
+    ui->constSpeed->setValue(scn->layers[lID].scrollSpeed / 256.0f);
 
     connect(ui->width, QOverload<int>::of(&QSpinBox::valueChanged), [scn, lID](int v) {
         if (v > scn->layers[lID].width) {
@@ -66,10 +66,10 @@ void SceneLayerPropertiesv5::setupUI(RSDKv5::Scene *scn, byte lID)
             [scn, lID](int v) { scn->layers[lID].drawOrder = (byte)v; });
 
     connect(ui->relSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            [scn, lID](double v) { scn->layers[lID].relativeSpeed = v * 256.0f; });
+            [scn, lID](double v) { scn->layers[lID].parallaxFactor = v * 256; });
 
     connect(ui->constSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            [scn, lID](double v) { scn->layers[lID].constantSpeed = (int)(v * 256.0f) >> 8; });
+            [scn, lID](double v) { scn->layers[lID].scrollSpeed = v * 256; });
 }
 
 void SceneLayerPropertiesv5::unsetUI()

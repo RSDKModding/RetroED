@@ -77,8 +77,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->propertiesBox->setCurrentWidget(ui->layerPropPage);
 
         createScrollList();
-        ui->addScr->setDisabled(c < 1);
-        ui->rmScr->setDisabled(c < 1);
+        ui->addScr->setDisabled(c == -1);
+        ui->rmScr->setDisabled(c == -1);
     });
 
     connect(ui->objectList, &QListWidget::currentRowChanged, [this](int c) {
@@ -1096,7 +1096,7 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     m_objProp->unsetUI();
     m_scrProp->unsetUI();
 
-    // LinkGameObjects()
+    gameLink.LinkGameObjects();
 
     appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, scnPath, QList<QString>{ gcfPath });
     setStatus("Loaded Scene: " + QFileInfo(scnPath).fileName());
@@ -1120,7 +1120,7 @@ void SceneEditorv5::createScrollList()
 {
     ui->scrollList->clear();
 
-    if (viewer->selectedLayer < 1 || viewer->selectedLayer >= 9)
+    if (viewer->selectedLayer < 0 || viewer->selectedLayer >= viewer->scene.layers.count())
         return;
 
     ui->scrollList->blockSignals(true);

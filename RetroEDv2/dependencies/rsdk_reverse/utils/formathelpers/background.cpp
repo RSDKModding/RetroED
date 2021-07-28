@@ -36,9 +36,9 @@ void FormatHelpers::Background::read(byte ver, QString filename)
                 Layer layer;
                 layer.width         = lyr.width;
                 layer.height        = lyr.height;
-                layer.behaviour     = lyr.behaviour;
-                layer.m_relativeSpeed = lyr.relativeSpeed / 64.0f;
-                layer.m_constantSpeed = (lyr.constantSpeed << 10) / 65536.0f;
+                layer.type     = lyr.behaviour;
+                layer.parallaxFactor = lyr.relativeSpeed / 64.0f;
+                layer.scrollSpeed = (lyr.constantSpeed << 10) / 65536.0f;
                 layer.m_lineIndexes   = lyr.lineIndexes;
 
                 layer.layout.clear();
@@ -77,9 +77,9 @@ void FormatHelpers::Background::read(byte ver, QString filename)
                 Layer layer;
                 layer.width         = lyr.m_width;
                 layer.height        = lyr.m_height;
-                layer.behaviour     = lyr.m_behaviour;
-                layer.m_relativeSpeed = lyr.m_relativeSpeed / 64.0f;
-                layer.m_constantSpeed = (lyr.m_constantSpeed << 10) / 65536.0f;
+                layer.type     = lyr.m_behaviour;
+                layer.parallaxFactor = lyr.m_relativeSpeed / 64.0f;
+                layer.scrollSpeed = (lyr.m_constantSpeed << 10) / 65536.0f;
                 layer.m_lineIndexes   = lyr.m_lineIndexes;
 
                 layer.layout.clear();
@@ -118,9 +118,9 @@ void FormatHelpers::Background::read(byte ver, QString filename)
                 Layer layer;
                 layer.width         = lyr.m_width;
                 layer.height        = lyr.m_height;
-                layer.behaviour     = lyr.m_behaviour;
-                layer.m_relativeSpeed = lyr.m_relativeSpeed / 256.0f;
-                layer.m_constantSpeed = (lyr.m_constantSpeed << 10) / 65536.0f;
+                layer.type     = lyr.m_behaviour;
+                layer.parallaxFactor = lyr.m_relativeSpeed / 256.0f;
+                layer.scrollSpeed = (lyr.m_constantSpeed << 10) / 65536.0f;
                 layer.m_lineIndexes   = lyr.m_lineIndexes;
 
                 layer.layout.clear();
@@ -159,9 +159,9 @@ void FormatHelpers::Background::read(byte ver, QString filename)
                 Layer layer;
                 layer.width         = lyr.m_width;
                 layer.height        = lyr.m_height;
-                layer.behaviour     = lyr.m_behaviour;
-                layer.m_relativeSpeed = lyr.m_relativeSpeed / 256.0f;
-                layer.m_constantSpeed = (lyr.m_constantSpeed << 10) / 65536.0f;
+                layer.type     = lyr.m_behaviour;
+                layer.parallaxFactor = lyr.m_relativeSpeed / 256.0f;
+                layer.scrollSpeed = (lyr.m_constantSpeed << 10) / 65536.0f;
                 layer.m_lineIndexes   = lyr.m_lineIndexes;
 
                 layer.layout.clear();
@@ -218,9 +218,9 @@ void FormatHelpers::Background::write(byte ver, QString filename)
                 RSDKv1::Background::Layer layer;
                 layer.width         = lyr.width;
                 layer.height        = lyr.height;
-                layer.behaviour     = lyr.behaviour;
-                layer.relativeSpeed = lyr.m_relativeSpeed * 64;
-                layer.constantSpeed = (int)(lyr.m_constantSpeed * 65536) >> 10;
+                layer.behaviour     = lyr.type;
+                layer.relativeSpeed = lyr.parallaxFactor * 64;
+                layer.constantSpeed = (int)(lyr.scrollSpeed * 65536) >> 10;
                 layer.lineIndexes   = lyr.m_lineIndexes;
 
                 layer.layout.clear();
@@ -264,9 +264,9 @@ void FormatHelpers::Background::write(byte ver, QString filename)
                 RSDKv2::Background::Layer layer;
                 layer.m_width         = lyr.width;
                 layer.m_height        = lyr.height;
-                layer.m_behaviour     = lyr.behaviour;
-                layer.m_relativeSpeed = lyr.m_relativeSpeed * 64;
-                layer.m_constantSpeed = (int)(lyr.m_constantSpeed * 65536) >> 10;
+                layer.m_behaviour     = lyr.type;
+                layer.m_relativeSpeed = lyr.parallaxFactor * 64;
+                layer.m_constantSpeed = (int)(lyr.scrollSpeed * 65536) >> 10;
                 layer.m_lineIndexes   = lyr.m_lineIndexes;
 
                 layer.m_layout.clear();
@@ -310,9 +310,9 @@ void FormatHelpers::Background::write(byte ver, QString filename)
                 RSDKv3::Background::Layer layer;
                 layer.m_width         = lyr.width;
                 layer.m_height        = lyr.height;
-                layer.m_behaviour     = lyr.behaviour;
-                layer.m_relativeSpeed = lyr.m_relativeSpeed * 256;
-                layer.m_constantSpeed = (int)(lyr.m_constantSpeed * 65536) >> 10;
+                layer.m_behaviour     = lyr.type;
+                layer.m_relativeSpeed = lyr.parallaxFactor * 256;
+                layer.m_constantSpeed = (int)(lyr.scrollSpeed * 65536) >> 10;
                 layer.m_lineIndexes   = lyr.m_lineIndexes;
 
                 layer.m_layout.clear();
@@ -353,9 +353,9 @@ void FormatHelpers::Background::write(byte ver, QString filename)
                 RSDKv4::Background::Layer layer;
                 layer.m_width         = lyr.width;
                 layer.m_height        = lyr.height;
-                layer.m_behaviour     = lyr.behaviour;
-                layer.m_relativeSpeed = lyr.m_relativeSpeed * 256;
-                layer.m_constantSpeed = (int)(lyr.m_constantSpeed * 65536) >> 10;
+                layer.m_behaviour     = lyr.type;
+                layer.m_relativeSpeed = lyr.parallaxFactor * 256;
+                layer.m_constantSpeed = (int)(lyr.scrollSpeed * 65536) >> 10;
                 layer.m_lineIndexes   = lyr.m_lineIndexes;
 
                 layer.m_layout.clear();
@@ -379,9 +379,9 @@ void FormatHelpers::Background::scrollInfoFromIndices()
     for (Layer &layer : layers) {
         layer.scrollInfos.clear();
         QList<ScrollInfo> infos;
-        if (layer.behaviour == 1)
+        if (layer.type == 1)
             infos = m_hScroll;
-        else if (layer.behaviour == 2)
+        else if (layer.type == 2)
             infos = m_vScroll;
         else
             continue;
@@ -432,10 +432,10 @@ void FormatHelpers::Background::scrollIndicesFromInfo()
     int vID = 0;
 
     for (Layer &layer : layers) {
-        bool hScroll = layer.behaviour == 1;
+        bool hScroll = layer.type == 1;
         layer.m_lineIndexes.clear();
 
-        if (layer.behaviour != 1 && layer.behaviour != 2) {
+        if (layer.type != 1 && layer.type != 2) {
             // other layers dont need any scrolling, TODO: check this works
             continue;
         }

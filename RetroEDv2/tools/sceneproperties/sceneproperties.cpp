@@ -39,22 +39,22 @@ void SceneProperties::setupUI(FormatHelpers::Scene *scn, byte ver)
         ui->activeLayer3->setDisabled(false);
         ui->layerMidpoint->setDisabled(false);
 
-        ui->activeLayer0->setCurrentIndex(scn->m_activeLayer[0]);
-        ui->activeLayer1->setCurrentIndex(scn->m_activeLayer[1]);
-        ui->activeLayer2->setCurrentIndex(scn->m_activeLayer[2]);
-        ui->activeLayer3->setCurrentIndex(scn->m_activeLayer[3]);
-        ui->layerMidpoint->setCurrentIndex(scn->m_midpoint);
+        ui->activeLayer0->setCurrentIndex(scn->activeLayer[0]);
+        ui->activeLayer1->setCurrentIndex(scn->activeLayer[1]);
+        ui->activeLayer2->setCurrentIndex(scn->activeLayer[2]);
+        ui->activeLayer3->setCurrentIndex(scn->activeLayer[3]);
+        ui->layerMidpoint->setCurrentIndex(scn->midpoint);
 
         connect(ui->activeLayer0, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                [scn](int v) { scn->m_activeLayer[0] = (byte)v; });
+                [scn](int v) { scn->activeLayer[0] = (byte)v; });
         connect(ui->activeLayer1, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                [scn](int v) { scn->m_activeLayer[1] = (byte)v; });
+                [scn](int v) { scn->activeLayer[1] = (byte)v; });
         connect(ui->activeLayer2, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                [scn](int v) { scn->m_activeLayer[2] = (byte)v; });
+                [scn](int v) { scn->activeLayer[2] = (byte)v; });
         connect(ui->activeLayer3, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                [scn](int v) { scn->m_activeLayer[3] = (byte)v; });
+                [scn](int v) { scn->activeLayer[3] = (byte)v; });
         connect(ui->layerMidpoint, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                [scn](int v) { scn->m_midpoint = (byte)v; });
+                [scn](int v) { scn->midpoint = (byte)v; });
     }
     else {
         ui->background->setDisabled(false);

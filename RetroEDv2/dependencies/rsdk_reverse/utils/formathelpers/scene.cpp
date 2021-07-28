@@ -7,11 +7,11 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
 
     m_title = "Stage";
 
-    m_activeLayer[0] = 9;
-    m_activeLayer[1] = 9;
-    m_activeLayer[2] = 9;
-    m_activeLayer[3] = 9;
-    m_midpoint       = 3;
+    activeLayer[0] = 9;
+    activeLayer[1] = 9;
+    activeLayer[2] = 9;
+    activeLayer[3] = 9;
+    midpoint       = 3;
 
     m_music      = 0;
     m_background = 0;
@@ -68,8 +68,8 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
 
             m_title = scn.m_title;
 
-            for (int i = 0; i < 4; ++i) m_activeLayer[i] = scn.m_activeLayer[i];
-            m_midpoint = scn.m_midpoint;
+            for (int i = 0; i < 4; ++i) activeLayer[i] = scn.m_activeLayer[i];
+            midpoint = scn.m_midpoint;
 
             width  = scn.m_width;
             height = scn.m_height;
@@ -101,8 +101,8 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
 
             m_title = scn.m_title;
 
-            for (int i = 0; i < 4; ++i) m_activeLayer[i] = scn.m_activeLayer[i];
-            m_midpoint = scn.m_midpoint;
+            for (int i = 0; i < 4; ++i) activeLayer[i] = scn.m_activeLayer[i];
+            midpoint = scn.m_midpoint;
 
             width  = scn.m_width;
             height = scn.m_height;
@@ -134,8 +134,8 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
 
             m_title = scn.m_title;
 
-            for (int i = 0; i < 4; ++i) m_activeLayer[i] = scn.m_activeLayer[i];
-            m_midpoint = scn.m_midpoint;
+            for (int i = 0; i < 4; ++i) activeLayer[i] = scn.m_activeLayer[i];
+            midpoint = scn.m_midpoint;
 
             width  = scn.width;
             height = scn.height;
@@ -225,8 +225,8 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
 
             scn.m_title = m_title;
 
-            for (int i = 0; i < 4; ++i) scn.m_activeLayer[i] = m_activeLayer[i];
-            scn.m_midpoint = m_midpoint;
+            for (int i = 0; i < 4; ++i) scn.m_activeLayer[i] = activeLayer[i];
+            scn.m_midpoint = midpoint;
 
             scn.m_width  = width;
             scn.m_height = height;
@@ -261,8 +261,8 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
 
             scn.m_title = m_title;
 
-            for (int i = 0; i < 4; ++i) scn.m_activeLayer[i] = m_activeLayer[i];
-            scn.m_midpoint = m_midpoint;
+            for (int i = 0; i < 4; ++i) scn.m_activeLayer[i] = activeLayer[i];
+            scn.m_midpoint = midpoint;
 
             scn.m_width  = width;
             scn.m_height = height;
@@ -296,8 +296,8 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
 
             scn.m_title = m_title;
 
-            for (int i = 0; i < 4; ++i) scn.m_activeLayer[i] = m_activeLayer[i];
-            scn.m_midpoint = m_midpoint;
+            for (int i = 0; i < 4; ++i) scn.m_activeLayer[i] = activeLayer[i];
+            scn.m_midpoint = midpoint;
 
             scn.width  = width;
             scn.height = height;

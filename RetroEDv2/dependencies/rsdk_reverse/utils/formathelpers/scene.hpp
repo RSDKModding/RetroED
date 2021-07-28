@@ -43,8 +43,8 @@ public:
 
     QString m_title = "ACT";
 
-    byte m_activeLayer[4];
-    byte m_midpoint = 3;
+    byte activeLayer[4];
+    byte midpoint = 3;
 
     byte m_music      = 0;
     byte m_background = 0;

@@ -61,8 +61,8 @@ void RSDKv5::Scene::SceneLayer::read(Reader &reader)
     width  = reader.read<ushort>();
     height = reader.read<ushort>();
 
-    relativeSpeed = reader.read<short>(); // << 0
-    constantSpeed = reader.read<short>(); // << 8
+    parallaxFactor = reader.read<short>(); // << 0
+    scrollSpeed    = reader.read<short>(); // << 8
 
     ushort scrollInfoCount = reader.read<ushort>();
     for (int i = 0; i < scrollInfoCount; ++i) scrollingInfo.append(ScrollInfo(reader));
@@ -93,8 +93,8 @@ void RSDKv5::Scene::SceneLayer::write(Writer &writer)
     writer.write(width);
     writer.write(height);
 
-    writer.write(relativeSpeed);
-    writer.write(constantSpeed);
+    writer.write(parallaxFactor);
+    writer.write(scrollSpeed);
 
     writer.write((ushort)scrollingInfo.count());
     for (ScrollInfo &info : scrollingInfo) info.write(writer);
@@ -143,7 +143,6 @@ void RSDKv5::Scene::SceneLayer::scrollInfoFromIndices()
         infos = scrollingInfo;
     else
         return;
-    ;
 
     int prev  = lineIndexes.count() > 0 ? lineIndexes[0] : -1;
     int start = 0;
@@ -153,12 +152,12 @@ void RSDKv5::Scene::SceneLayer::scrollInfoFromIndices()
         if ((byte)lineIndexes[h] != prev) {
             ScrollIndexInfo info;
 
-            info.startLine       = start;
-            info.length          = (h - start);
-            info.m_relativeSpeed = infos[prev].relativeSpeed;
-            info.m_constantSpeed = infos[prev].constantSpeed;
-            info.m_scrollPos     = 0.0f;
-            info.m_behaviour     = infos[prev].behaviour;
+            info.startLine      = start;
+            info.length         = (h - start);
+            info.parallaxFactor = infos[prev].parallaxFactor / 256.0f;
+            info.scrollSpeed    = infos[prev].scrollSpeed / 256.0f;
+            info.m_scrollPos    = 0.0f;
+            info.deform         = infos[prev].deform;
 
             scrollInfos.append(info);
             start = h;
@@ -170,12 +169,12 @@ void RSDKv5::Scene::SceneLayer::scrollInfoFromIndices()
     {
         ScrollIndexInfo info;
 
-        info.startLine       = start;
-        info.length          = (h - start);
-        info.m_relativeSpeed = infos[0].relativeSpeed;
-        info.m_constantSpeed = infos[0].constantSpeed;
-        info.m_scrollPos     = 0.0f;
-        info.m_behaviour     = infos[0].behaviour;
+        info.startLine      = start;
+        info.length         = (h - start);
+        info.parallaxFactor = infos[0].parallaxFactor / 256.0f;
+        info.scrollSpeed    = infos[0].scrollSpeed / 256.0f;
+        info.m_scrollPos    = 0.0f;
+        info.deform         = infos[0].deform;
 
         scrollInfos.append(info);
     }
@@ -194,24 +193,24 @@ void RSDKv5::Scene::SceneLayer::scrollIndicesFromInfo()
         return; // basically invalid layers, dont write em
 
     if (hScroll) {
-        lineIndexes.resize(height * 0x80);
+        lineIndexes.resize(height * 0x10);
     }
     else {
-        lineIndexes.resize(width * 0x80);
+        lineIndexes.resize(width * 0x10);
     }
 
     int id = 0;
     for (ScrollIndexInfo &info : scrollInfos) {
         int infoID = id;
         ScrollInfo sInfo;
-        sInfo.behaviour     = info.m_behaviour;
-        sInfo.relativeSpeed = info.m_relativeSpeed;
-        sInfo.constantSpeed = info.m_constantSpeed;
+        sInfo.deform         = info.deform;
+        sInfo.parallaxFactor = info.parallaxFactor * 256;
+        sInfo.scrollSpeed    = info.scrollSpeed * 256;
 
         int scrollID = 0;
         for (ScrollInfo &info : scrollingInfo) {
-            if (info.relativeSpeed == sInfo.relativeSpeed && info.constantSpeed == sInfo.constantSpeed
-                && info.behaviour == sInfo.behaviour) {
+            if (info.parallaxFactor == sInfo.parallaxFactor && info.scrollSpeed == sInfo.scrollSpeed
+                && info.deform == sInfo.deform) {
                 infoID = scrollID;
                 break;
             }
@@ -233,15 +232,15 @@ void RSDKv5::Scene::SceneLayer::scrollIndicesFromInfo()
 void RSDKv5::Scene::SceneEditorMetadata::read(Reader &reader)
 {
     unknown1         = reader.read<byte>();
-    byte r           = reader.read<byte>();
-    byte g           = reader.read<byte>();
     byte b           = reader.read<byte>();
+    byte g           = reader.read<byte>();
+    byte r           = reader.read<byte>();
     byte a           = reader.read<byte>();
     backgroundColor1 = QColor(r, g, b, a);
 
-    r                = reader.read<byte>();
-    g                = reader.read<byte>();
     b                = reader.read<byte>();
+    g                = reader.read<byte>();
+    r                = reader.read<byte>();
     a                = reader.read<byte>();
     backgroundColor2 = QColor(r, g, b, a);
 

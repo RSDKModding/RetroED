@@ -1704,11 +1704,11 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
                     case ENGINE_v3:
                     case ENGINE_v2: {
                         for (int i = 0; i < 4; ++i) {
-                            if (l == viewer->scene.m_activeLayer[i]) {
-                                byte vPlane = i >= viewer->scene.m_midpoint;
+                            if (l == viewer->scene.activeLayer[i]) {
+                                byte vPlane = i >= viewer->scene.midpoint;
 
                                 if (vPlane == p) {
-                                    if (viewer->scene.m_midpoint < 3 && viewer->gameType == ENGINE_v4) {
+                                    if (viewer->scene.midpoint < 3 && viewer->gameType == ENGINE_v4) {
                                         switch (i) {
                                             case 0: layer.drawOrder = 1; break;
                                             case 1: layer.drawOrder = 2; break;
@@ -1735,13 +1735,13 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
                     }
                 }
 
-                layer.type          = 1;
-                layer.relativeSpeed = 0x100;
-                layer.constantSpeed = 0x000;
+                layer.type           = 0;
+                layer.parallaxFactor = 1.0 * 0x100;
+                layer.scrollSpeed    = 0.0 * 0x100;
 
                 if (l > 0) {
-                    layer.relativeSpeed = viewer->background.layers[l - 1].m_relativeSpeed * 0x100;
-                    layer.constantSpeed = viewer->background.layers[l - 1].m_constantSpeed * 0x100;
+                    layer.parallaxFactor = viewer->background.layers[l - 1].parallaxFactor * 0x100;
+                    layer.scrollSpeed    = viewer->background.layers[l - 1].scrollSpeed * 0x100;
                 }
 
                 int cnt = 0;

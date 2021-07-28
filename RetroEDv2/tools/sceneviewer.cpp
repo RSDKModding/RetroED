@@ -292,11 +292,12 @@ void SceneViewer::drawScene()
         camOffset = Vector3<float>(0.0f, 0.0f, 0.0f);
 
         if (selectedLayer >= 0) {
-            spriteShader.setValue("useAlpha", true);
             if (selectedLayer == l) {
+                spriteShader.setValue("useAlpha", false);
                 spriteShader.setValue("alpha", 1.0f);
             }
             else {
+                spriteShader.setValue("useAlpha", true);
                 spriteShader.setValue("alpha", 0.5f);
             }
         }
@@ -305,8 +306,6 @@ void SceneViewer::drawScene()
         m_tilesetTexture->bind();
         spriteShader.setValue("flipX", false);
         spriteShader.setValue("flipY", false);
-        spriteShader.setValue("useAlpha", false);
-        spriteShader.setValue("alpha", 1.0f);
 
         QVector3D *vertsPtr  = new QVector3D[height * width * 0x80 * 6];
         QVector2D *tVertsPtr = new QVector2D[height * width * 0x80 * 6];
@@ -483,7 +482,7 @@ void SceneViewer::drawScene()
 
         // PARALLAX
         if (l == selectedLayer && l > 0) {
-            if (background.layers[l - 1].behaviour == 1 || background.layers[l - 1].behaviour == 2) {
+            if (background.layers[l - 1].type == 1 || background.layers[l - 1].type == 2) {
                 primitiveShader.use();
                 primitiveShader.setValue("projection", getProjectionMatrix());
                 primitiveShader.setValue("view", QMatrix4x4());
@@ -510,7 +509,7 @@ void SceneViewer::drawScene()
                             clr = Vector4<float>(0.0f, 0.0f, 1.0f, 1.0f);
                         float zpos = (isSelected ? 15.55f : 15.5f);
 
-                        if (background.layers[l - 1].behaviour == 1) {
+                        if (background.layers[l - 1].type == 1) {
                             int w = (width * 0x80) * zoom;
                             drawLine(0.0f * zoom, (info.startLine - cam.pos.y) * zoom, zpos,
                                      (w - cam.pos.x) * zoom, (info.startLine - cam.pos.y) * zoom, zpos,
@@ -521,7 +520,7 @@ void SceneViewer::drawScene()
                                      ((info.startLine + info.length) - cam.pos.y) * zoom, zpos, clr,
                                      primitiveShader);
                         }
-                        else if (background.layers[l - 1].behaviour == 2) {
+                        else if (background.layers[l - 1].type == 2) {
                             int h = (height * 0x80) * zoom;
                             drawLine((info.startLine - cam.pos.x) * zoom, 0.0f * zoom, zpos,
                                      (info.startLine - cam.pos.x) * zoom, (h - cam.pos.y) * zoom, zpos,

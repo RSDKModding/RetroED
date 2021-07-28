@@ -87,8 +87,8 @@ public:
     QScrollBar *m_sbHorizontal = nullptr;
     QScrollBar *m_sbVertical   = nullptr;
 
-    Colour m_bgColour    = Colour(0x20, 0x20, 0x20);
-    Colour m_altBGColour = Colour(0x30, 0x30, 0x30);
+    Colour bgColour    = Colour(0x20, 0x20, 0x20);
+    Colour altBGColour = Colour(0x30, 0x30, 0x30);
 
     int storedW, storedH;
     int sceneWidth, sceneHeight;
