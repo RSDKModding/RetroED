@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>957</width>
+    <width>964</width>
     <height>513</height>
    </rect>
   </property>
@@ -209,7 +209,14 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="6">
+      <item row="0" column="10">
+       <widget class="QCheckBox" name="tileSolidLRBA">
+        <property name="text">
+         <string>Solid A (LRB)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="15">
        <widget class="QToolButton" name="showCollisionB">
         <property name="minimumSize">
          <size>
@@ -228,7 +235,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="7">
+      <item row="0" column="16">
        <widget class="QToolButton" name="showParallax">
         <property name="minimumSize">
          <size>
@@ -251,6 +258,13 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="12">
+       <widget class="QCheckBox" name="tileSolidLRBB">
+        <property name="text">
+         <string>Solid B (LRB)</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="3">
        <widget class="QSpinBox" name="sceneFilter">
         <property name="minimumSize">
@@ -270,7 +284,14 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="4">
+      <item row="0" column="9">
+       <widget class="QCheckBox" name="tileSolidTopA">
+        <property name="text">
+         <string>Solid A (Top)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="13">
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -332,7 +353,28 @@
         </item>
        </widget>
       </item>
-      <item row="0" column="5">
+      <item row="0" column="11">
+       <widget class="QCheckBox" name="tileSolidTopB">
+        <property name="text">
+         <string>Solid B (Top)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="6">
+       <widget class="QCheckBox" name="tileFlipX">
+        <property name="text">
+         <string>Flip X</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Tool</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="14">
        <widget class="QToolButton" name="showCollisionA">
         <property name="minimumSize">
          <size>
@@ -351,7 +393,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="8">
+      <item row="0" column="17">
        <widget class="QToolButton" name="showTileGrid">
         <property name="minimumSize">
          <size>
@@ -374,6 +416,13 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="8">
+       <widget class="QCheckBox" name="tileFlipY">
+        <property name="text">
+         <string>Flip Y</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="2">
        <widget class="QLabel" name="label">
         <property name="text">
@@ -381,7 +430,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="9">
+      <item row="0" column="18">
        <widget class="QToolButton" name="showPixelGrid">
         <property name="minimumSize">
          <size>
@@ -407,7 +456,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="10">
+      <item row="0" column="19">
        <widget class="QToolButton" name="exportSceneImg">
         <property name="minimumSize">
          <size>
@@ -420,10 +469,10 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_2">
+      <item row="0" column="5">
+       <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Tool</string>
+         <string>Defaults:</string>
         </property>
        </widget>
       </item>

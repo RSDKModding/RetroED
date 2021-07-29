@@ -1220,10 +1220,10 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 case TOOL_SELECT: break;
                 case TOOL_PENCIL:
                     if (kEvent->key() == Qt::Key_Z)
-                        viewer->m_tileFlip.x = true;
+                        viewer->tileFlip.x = true;
 
                     if (kEvent->key() == Qt::Key_X)
-                        viewer->m_tileFlip.y = true;
+                        viewer->tileFlip.y = true;
 
                     if (kEvent->key() == Qt::Key_Delete || kEvent->key() == Qt::Key_Backspace) {
                         if (viewer->selectedLayer >= 0) {

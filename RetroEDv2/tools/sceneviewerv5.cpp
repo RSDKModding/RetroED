@@ -609,7 +609,7 @@ void SceneViewerv5::drawScene()
         xpos -= (cam.pos.x + camOffset.x);
         ypos -= (cam.pos.y + camOffset.y);
 
-        byte direction = 0; // Utils::getBit(tile, 10) | (Utils::getBit(tile, 11) << 1);
+        byte direction = (int)(tileFlip.x) | ((int)(tileFlip.y) << 1);
         drawTile(xpos, ypos, zpos, 0, selectedTile * 0x10, direction);
     }
 

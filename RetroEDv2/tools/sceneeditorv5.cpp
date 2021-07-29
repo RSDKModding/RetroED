@@ -89,6 +89,13 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     ui->showTileGrid->setIcon(Utils::getColouredIcon(":/icons/ic_grid_48px.svg"));
     ui->showPixelGrid->setIcon(Utils::getColouredIcon(":/icons/ic_grid_48px.svg"));
 
+    connect(ui->tileFlipX, &QCheckBox::toggled, [this](bool c) { viewer->tileFlip.x = c; });
+    connect(ui->tileFlipY, &QCheckBox::toggled, [this](bool c) { viewer->tileFlip.y = c; });
+    connect(ui->tileSolidTopA, &QCheckBox::toggled, [this](bool c) { viewer->tileSolidA.x = c; });
+    connect(ui->tileSolidLRBA, &QCheckBox::toggled, [this](bool c) { viewer->tileSolidA.y = c; });
+    connect(ui->tileSolidTopB, &QCheckBox::toggled, [this](bool c) { viewer->tileSolidB.x = c; });
+    connect(ui->tileSolidLRBB, &QCheckBox::toggled, [this](bool c) { viewer->tileSolidB.y = c; });
+
     ui->toolBox->setCurrentIndex(0);
     ui->propertiesBox->setCurrentIndex(0);
 
@@ -537,15 +544,25 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
         tx -= fmodf(tx2, 0x10);
         ty -= fmodf(ty2, 0x10);
 
-        // Draw Selected Tile Preview
         float xpos = tx + viewer->cam.pos.x;
         float ypos = ty + viewer->cam.pos.y;
 
         xpos /= 0x10;
         ypos /= 0x10;
+
+        ushort tile = viewer->selectedTile;
+        Utils::setBit(tile, viewer->tileFlip.x, 10);
+        Utils::setBit(tile, viewer->tileFlip.y, 11);
+        Utils::setBit(tile, viewer->tileSolidA.x, 12);
+        Utils::setBit(tile, viewer->tileSolidA.y, 13);
+        Utils::setBit(tile, viewer->tileSolidB.x, 14);
+        Utils::setBit(tile, viewer->tileSolidB.y, 15);
+        if (viewer->selectedTile == 0xFFFF)
+            tile = 0xFFFF;
+
         if (ypos >= 0 && ypos < viewer->scene.layers[viewer->selectedLayer].height) {
             if (xpos >= 0 && xpos < viewer->scene.layers[viewer->selectedLayer].width) {
-                viewer->scene.layers[viewer->selectedLayer].layout[ypos][xpos] = viewer->selectedTile;
+                viewer->scene.layers[viewer->selectedLayer].layout[ypos][xpos] = tile;
             }
         }
     };
@@ -633,8 +650,10 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                     }
                     case TOOL_ERASER: {
                         if (viewer->isSelecting) {
-                            viewer->selectedTile = 0x00;
+                            int sel              = viewer->selectedTile;
+                            viewer->selectedTile = 0xFFFF;
                             setTile(mEvent->pos().x(), mEvent->pos().y());
+                            viewer->selectedTile = sel;
                         }
                         break;
                     }
@@ -721,6 +740,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                             &viewer->scene.layers[viewer->selectedLayer].layout[y][x],
                                             viewer->tiles[tile & 0x3FF]);
                                         ui->propertiesBox->setCurrentIndex(PROP_TILE);
+                                        viewer->selectedTile = tile;
                                         break;
                                     }
                                 }
@@ -844,8 +864,10 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                     }
                     case TOOL_ERASER: {
                         if (viewer->isSelecting) {
-                            viewer->selectedTile = 0x0;
+                            int sel              = viewer->selectedTile;
+                            viewer->selectedTile = 0xFFFF;
                             setTile(viewer->mousePos.x, viewer->mousePos.y);
+                            viewer->selectedTile = sel;
                         }
                         break;
                     }
@@ -972,10 +994,10 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                 case TOOL_SELECT: break;
                 case TOOL_PENCIL:
                     if (kEvent->key() == Qt::Key_Z)
-                        viewer->m_tileFlip.x = true;
+                        viewer->tileFlip.x = true;
 
                     if (kEvent->key() == Qt::Key_X)
-                        viewer->m_tileFlip.y = true;
+                        viewer->tileFlip.y = true;
 
                     if (kEvent->key() == Qt::Key_Delete || kEvent->key() == Qt::Key_Backspace) {
                         if (viewer->selectedLayer >= 0) {

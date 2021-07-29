@@ -68,7 +68,7 @@ public:
 
     // Layer Editing
     Vector2<float> m_tilePos = Vector2<float>(0.0f, 0.0f);
-    Vector2<bool> m_tileFlip = Vector2<bool>(false, false);
+    Vector2<bool> tileFlip = Vector2<bool>(false, false);
     int selectedChunk        = -1;
     int selectedLayer        = -1;
 
