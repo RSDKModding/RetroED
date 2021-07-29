@@ -109,7 +109,7 @@ void SceneViewerv5::loadScene(QString path)
 
         for (RSDKv5::Scene::SceneEntity &ent : obj.entities) {
             SceneEntity entity;
-            entity.slotID = ent.m_slotID;
+            entity.slotID = ent.slotID;
             entity.type   = type;
             entity.pos.x  = ent.position.x / 65536.0f;
             entity.pos.y  = ent.position.y / 65536.0f;
@@ -151,8 +151,52 @@ void SceneViewerv5::loadScene(QString path)
         tex.texturePtr = createTexture(missingObj);
         objectSprites.append(tex);
     }
+}
 
-    m_rsPlayerSprite = createTexture(QImage(":/icons/player_v1.png"));
+void SceneViewerv5::saveScene(QString path)
+{
+    // saving
+    QString pth      = path;
+    QString basePath = pth.replace(QFileInfo(pth).fileName(), "");
+
+    scene.objects.clear();
+    for (SceneObject &obj : objects) {
+        RSDKv5::Scene::SceneObject object;
+        object.m_name = RSDKv5::Scene::NameIdentifier(obj.name);
+        for (int v = 0; v < obj.variables.count(); ++v) {
+            RSDKv5::Scene::VariableInfo variable;
+            variable.m_name = RSDKv5::Scene::NameIdentifier(obj.variables[v].name);
+            variable.type   = (RSDKv5::VariableTypes)obj.variables[v].type;
+            object.variables.append(variable);
+        }
+        scene.objects.append(object);
+    }
+
+    for (SceneEntity &entity : entities) {
+        if (entity.type >= 0 && entity.type < objects.count()) {
+            RSDKv5::Scene::SceneEntity ent;
+            ent.slotID     = entity.slotID;
+            ent.position.x = entity.pos.x * 65536.0f;
+            ent.position.y = entity.pos.y * 65536.0f;
+
+            ent.variables.clear();
+            int v = 0;
+            for (; v < entity.variables.count(); ++v) {
+                ent.variables.append(entity.variables[v]);
+            }
+
+            ent.parent = &scene.objects[entity.type];
+            scene.objects[entity.type].entities.append(ent);
+        }
+        else {
+            // what happened here???
+        }
+    }
+
+    scene.write(path);
+
+    tileconfig.write(basePath + "TileConfig.bin");
+    stageConfig.write(basePath + "StageConfig.bin");
 }
 
 void SceneViewerv5::updateScene()
@@ -493,6 +537,18 @@ void SceneViewerv5::drawScene()
     spriteShader.setValue("useAlpha", false);
     spriteShader.setValue("alpha", 1.0f);
     for (int o = 0; o < entities.count(); ++o) {
+
+        int filter = 0xFF;
+        for (int v = 0; v < objects[entities[o].type].variables.count(); ++v) {
+            if (objects[entities[o].type].variables[v].name == "filter") {
+                filter = entities[o].variables[v].value_uint8;
+                break;
+            }
+        }
+
+        if (!(filter & sceneFilter))
+            continue;
+
         /*auto &curObj = m_compilerv4.m_objectScriptList[scene.objects[o].type];
 
         if (curObj.eventRSDKDraw.m_scriptCodePtr != SCRIPTDATA_COUNT - 1) {
@@ -723,11 +779,6 @@ void SceneViewerv5::unloadScene()
         objectSprites[o].name = "";
     }
     objectSprites.clear();
-
-    if (m_rsPlayerSprite) {
-        m_rsPlayerSprite->destroy();
-        delete m_rsPlayerSprite;
-    }
 
     cam                = SceneCamerav5();
     selectedTile       = -1;

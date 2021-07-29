@@ -52,6 +52,12 @@ public:
         write(compressed);
     }
 
+    inline void writeCompressedRaw(QByteArray data)
+    {
+        QByteArray compressed = qCompress(data);
+        compressed.remove(0, 4);
+        write(compressed);
+    }
     inline void write(QString string, int mode = 0)
     {
         if (!mode) {

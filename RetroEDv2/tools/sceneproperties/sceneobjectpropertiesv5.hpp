@@ -17,7 +17,7 @@ struct SceneEntity {
     byte type          = 0;
     Vector2<float> pos = Vector2<float>(0, 0);
     Rect<int> selBox   = Rect<int>(-0x10, -0x10, 0x10, 0x10);
-    QList<RSDKv5::Scene::AttributeValue> variables;
+    QList<RSDKv5::Scene::VariableValue> variables;
 
     SceneEntity() {}
 

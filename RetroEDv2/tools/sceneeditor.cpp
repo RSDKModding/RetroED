@@ -1792,14 +1792,14 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
         blank.m_name.m_name = "Blank Object";
 
         blank.variables.clear();
-        RSDKv5::Scene::AttributeInfo blankFilter;
+        RSDKv5::Scene::VariableInfo blankFilter;
         blankFilter.m_name = RSDKv5::Scene::NameIdentifier("filter");
-        blankFilter.type   = RSDKv5::AttributeTypes::UINT8;
+        blankFilter.type   = RSDKv5::VariableTypes::UINT8;
         blank.variables.append(blankFilter);
 
-        RSDKv5::Scene::AttributeInfo blankPropertyValue;
+        RSDKv5::Scene::VariableInfo blankPropertyValue;
         blankPropertyValue.m_name = RSDKv5::Scene::NameIdentifier("propertyValue");
-        blankPropertyValue.type   = RSDKv5::AttributeTypes::UINT8;
+        blankPropertyValue.type   = RSDKv5::VariableTypes::UINT8;
         blank.variables.append(blankPropertyValue);
 
         scene.objects.append(blank);
@@ -1811,14 +1811,14 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
             objName.replace(" ", "");
             obj.m_name = RSDKv5::Scene::NameIdentifier(objName);
             obj.variables.clear();
-            RSDKv5::Scene::AttributeInfo filter;
+            RSDKv5::Scene::VariableInfo filter;
             filter.m_name = RSDKv5::Scene::NameIdentifier("filter");
-            filter.type   = RSDKv5::AttributeTypes::UINT8;
+            filter.type   = RSDKv5::VariableTypes::UINT8;
             obj.variables.append(filter);
 
-            RSDKv5::Scene::AttributeInfo propertyValue;
+            RSDKv5::Scene::VariableInfo propertyValue;
             propertyValue.m_name = RSDKv5::Scene::NameIdentifier("propertyValue");
-            propertyValue.type   = RSDKv5::AttributeTypes::UINT8;
+            propertyValue.type   = RSDKv5::VariableTypes::UINT8;
             obj.variables.append(propertyValue);
 
             scene.objects.append(obj);
@@ -1829,19 +1829,19 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
             entity.position.x = viewer->scene.objects[e].m_position.x;
             entity.position.y = viewer->scene.objects[e].m_position.y;
 
-            entity.m_parent = &scene.objects[viewer->scene.objects[e].type];
-            entity.m_slotID = e;
+            entity.parent = &scene.objects[viewer->scene.objects[e].type];
+            entity.slotID = e;
 
             entity.variables.clear();
-            RSDKv5::Scene::AttributeValue filter;
+            RSDKv5::Scene::VariableValue filter;
             filter.value_uint8 = 0x05;
             entity.variables.append(filter);
 
-            RSDKv5::Scene::AttributeValue propertyValue;
+            RSDKv5::Scene::VariableValue propertyValue;
             propertyValue.value_uint8 = viewer->scene.objects[e].m_propertyValue;
             entity.variables.append(propertyValue);
 
-            entity.m_parent->entities.append(entity);
+            entity.parent->entities.append(entity);
         }
     }
 

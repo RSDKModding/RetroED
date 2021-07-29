@@ -66,7 +66,7 @@ void SceneObjectPropertiesv5::setupUI(QList<SceneObject> *objects, SceneEntity *
             // TODO
         }
         else {
-            switch ((int)var.m_type) {
+            switch ((int)var.type) {
                 default: break;
                 case VAR_UINT8: {
                     valGroup.append(new Property("uint8", &entity->variables[v].value_uint8));

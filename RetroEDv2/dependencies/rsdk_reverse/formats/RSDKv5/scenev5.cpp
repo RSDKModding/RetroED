@@ -1,20 +1,20 @@
 #include "include.hpp"
 
-void RSDKv5::Scene::AttributeValue::read(Reader &reader)
+void RSDKv5::Scene::VariableValue::read(Reader &reader)
 {
-    switch (m_type) {
-        case AttributeTypes::UINT8: value_uint8 = reader.read<byte>(); break;
-        case AttributeTypes::UINT16: value_uint16 = reader.read<ushort>(); break;
-        case AttributeTypes::UINT32: value_uint32 = reader.read<uint>(); break;
-        case AttributeTypes::INT8: value_int8 = reader.read<char>(); break;
-        case AttributeTypes::INT16: value_int16 = reader.read<short>(); break;
-        case AttributeTypes::INT32: value_int32 = reader.read<int>(); break;
-        case AttributeTypes::ENUM: value_enum = reader.read<int>(); break;
-        case AttributeTypes::BOOL: value_bool = reader.read<uint>() != 0; break;
-        case AttributeTypes::STRING: value_string = reader.readString(1); break;
-        case AttributeTypes::VECTOR2: value_vector2 = Position(reader); break;
-        case AttributeTypes::UNKNOWN: value_vector3 = Position(reader); break;
-        case AttributeTypes::COLOR: {
+    switch (type) {
+        case VariableTypes::UINT8: value_uint8 = reader.read<byte>(); break;
+        case VariableTypes::UINT16: value_uint16 = reader.read<ushort>(); break;
+        case VariableTypes::UINT32: value_uint32 = reader.read<uint>(); break;
+        case VariableTypes::INT8: value_int8 = reader.read<char>(); break;
+        case VariableTypes::INT16: value_int16 = reader.read<short>(); break;
+        case VariableTypes::INT32: value_int32 = reader.read<int>(); break;
+        case VariableTypes::ENUM: value_enum = reader.read<int>(); break;
+        case VariableTypes::BOOL: value_bool = reader.read<uint>() != 0; break;
+        case VariableTypes::STRING: value_string = reader.readString(1); break;
+        case VariableTypes::VECTOR2: value_vector2 = Position(reader); break;
+        case VariableTypes::UNKNOWN: value_vector3 = Position(reader); break;
+        case VariableTypes::COLOR: {
             byte r      = reader.read<byte>();
             byte g      = reader.read<byte>();
             byte b      = reader.read<byte>();
@@ -25,24 +25,24 @@ void RSDKv5::Scene::AttributeValue::read(Reader &reader)
     }
 }
 
-void RSDKv5::Scene::AttributeValue::write(Writer &writer)
+void RSDKv5::Scene::VariableValue::write(Writer &writer)
 {
-    switch (m_type) {
-        case AttributeTypes::UINT8: writer.write(value_uint8); break;
-        case AttributeTypes::UINT16: writer.write(value_uint16); break;
-        case AttributeTypes::UINT32: writer.write(value_uint32); break;
-        case AttributeTypes::INT8: writer.write(value_int8); break;
-        case AttributeTypes::INT16: writer.write(value_int16); break;
-        case AttributeTypes::INT32: writer.write(value_int32); break;
-        case AttributeTypes::ENUM: writer.write(value_enum); break;
-        case AttributeTypes::BOOL: writer.write((uint)(value_bool ? 1 : 0)); break;
-        case AttributeTypes::STRING: writer.write(value_string, 1); break;
-        case AttributeTypes::VECTOR2: value_vector2.write(writer); break;
-        case AttributeTypes::UNKNOWN: value_vector3.write(writer, true); break;
-        case AttributeTypes::COLOR: {
-            writer.write((byte)value_color.red());
-            writer.write((byte)value_color.green());
+    switch (type) {
+        case VariableTypes::UINT8: writer.write(value_uint8); break;
+        case VariableTypes::UINT16: writer.write(value_uint16); break;
+        case VariableTypes::UINT32: writer.write(value_uint32); break;
+        case VariableTypes::INT8: writer.write(value_int8); break;
+        case VariableTypes::INT16: writer.write(value_int16); break;
+        case VariableTypes::INT32: writer.write(value_int32); break;
+        case VariableTypes::ENUM: writer.write(value_enum); break;
+        case VariableTypes::BOOL: writer.write((uint)(value_bool ? 1 : 0)); break;
+        case VariableTypes::STRING: writer.write(value_string, 1); break;
+        case VariableTypes::VECTOR2: value_vector2.write(writer); break;
+        case VariableTypes::UNKNOWN: value_vector3.write(writer, true); break;
+        case VariableTypes::COLOR: {
             writer.write((byte)value_color.blue());
+            writer.write((byte)value_color.green());
+            writer.write((byte)value_color.red());
             writer.write((byte)value_color.alpha());
             break;
         }
@@ -144,9 +144,9 @@ void RSDKv5::Scene::SceneLayer::scrollInfoFromIndices()
     else
         return;
 
-    int prev  = lineIndexes.count() > 0 ? lineIndexes[0] : -1;
+    int prev  = lineIndexes.count() > 0 ? lineIndexes[0] : 0;
     int start = 0;
-    int h     = 0;
+    int h     = 1;
 
     for (; h < lineIndexes.count(); ++h) {
         if ((byte)lineIndexes[h] != prev) {
@@ -156,7 +156,7 @@ void RSDKv5::Scene::SceneLayer::scrollInfoFromIndices()
             info.length         = (h - start);
             info.parallaxFactor = infos[prev].parallaxFactor / 256.0f;
             info.scrollSpeed    = infos[prev].scrollSpeed / 256.0f;
-            info.m_scrollPos    = 0.0f;
+            info.scrollPos      = 0.0f;
             info.deform         = infos[prev].deform;
 
             scrollInfos.append(info);
@@ -171,10 +171,10 @@ void RSDKv5::Scene::SceneLayer::scrollInfoFromIndices()
 
         info.startLine      = start;
         info.length         = (h - start);
-        info.parallaxFactor = infos[0].parallaxFactor / 256.0f;
-        info.scrollSpeed    = infos[0].scrollSpeed / 256.0f;
-        info.m_scrollPos    = 0.0f;
-        info.deform         = infos[0].deform;
+        info.parallaxFactor = infos[prev].parallaxFactor / 256.0f;
+        info.scrollSpeed    = infos[prev].scrollSpeed / 256.0f;
+        info.scrollPos      = 0.0f;
+        info.deform         = infos[prev].deform;
 
         scrollInfos.append(info);
     }
@@ -182,11 +182,12 @@ void RSDKv5::Scene::SceneLayer::scrollInfoFromIndices()
 
 void RSDKv5::Scene::SceneLayer::scrollIndicesFromInfo()
 {
-    bool hScroll = type == 1;
+    bool hScroll = type == 0;
     lineIndexes.clear();
+    scrollingInfo.clear();
 
     if (type != 0 && type != 1) {
-        // other layers dont need any scrolling, TODO: check this works
+        // other layers dont need any scrolling
         return;
     }
     if (width == 0 || height == 0)
@@ -252,13 +253,13 @@ void RSDKv5::Scene::SceneEditorMetadata::read(Reader &reader)
 void RSDKv5::Scene::SceneEditorMetadata::write(Writer &writer)
 {
     writer.write(unknown1);
-    writer.write((byte)backgroundColor1.red());
-    writer.write((byte)backgroundColor1.green());
     writer.write((byte)backgroundColor1.blue());
+    writer.write((byte)backgroundColor1.green());
+    writer.write((byte)backgroundColor1.red());
     writer.write((byte)backgroundColor1.alpha());
-    writer.write((byte)backgroundColor2.red());
-    writer.write((byte)backgroundColor2.green());
     writer.write((byte)backgroundColor2.blue());
+    writer.write((byte)backgroundColor2.green());
+    writer.write((byte)backgroundColor2.red());
     writer.write((byte)backgroundColor2.alpha());
     writer.write(unknown2);
     writer.write(stampName + '\0');

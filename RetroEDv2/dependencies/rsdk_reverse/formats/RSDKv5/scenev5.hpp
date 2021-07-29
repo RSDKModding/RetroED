@@ -4,7 +4,7 @@
 namespace RSDKv5
 {
 
-enum AttributeTypes {
+enum VariableTypes {
     UINT8   = 0,
     UINT16  = 1,
     UINT32  = 2,
@@ -15,7 +15,7 @@ enum AttributeTypes {
     BOOL    = 7,
     STRING  = 8,
     VECTOR2 = 9,
-    UNKNOWN = 10, // A wild guess, but nonetheless likely
+    UNKNOWN = 10,
     COLOR   = 11
 };
 
@@ -75,7 +75,7 @@ public:
         int startLine = 0;
         int length    = 1;
 
-        float m_scrollPos    = 0.0f; // not written, for scene viewer only
+        float scrollPos      = 0.0f; // not written, for scene viewer only
         float parallaxFactor = 1.0f;
         float scrollSpeed    = 0.0f;
         byte deform          = 0;
@@ -83,7 +83,7 @@ public:
         bool operator==(const ScrollIndexInfo &other) const
         {
             return startLine == other.startLine && length == other.length
-                   && m_scrollPos == other.m_scrollPos && parallaxFactor == other.parallaxFactor
+                   && scrollPos == other.scrollPos && parallaxFactor == other.parallaxFactor
                    && scrollSpeed == other.scrollSpeed && deform == other.deform;
         }
     };
@@ -186,29 +186,29 @@ public:
         }
     };
 
-    class AttributeInfo
+    class VariableInfo
     {
     public:
-        NameIdentifier m_name = NameIdentifier(QString("attribute"));
-        AttributeTypes type   = (AttributeTypes)0;
+        NameIdentifier m_name = NameIdentifier(QString("variable"));
+        byte type             = 0;
 
-        AttributeInfo() {}
-        AttributeInfo(Reader &reader) { read(reader); }
+        VariableInfo() {}
+        VariableInfo(Reader &reader) { read(reader); }
 
         inline void read(Reader &reader)
         {
             m_name.read(reader);
-            type = (AttributeTypes)reader.read<byte>();
+            type = reader.read<byte>();
         }
 
         inline void write(Writer &writer)
         {
             m_name.write(writer);
-            writer.write((byte)type);
+            writer.write(type);
         }
     };
 
-    class AttributeValue
+    class VariableValue
     {
     public:
         byte value_uint8     = 0;
@@ -224,12 +224,12 @@ public:
         Position value_vector3;
         QColor value_color;
 
-        AttributeTypes m_type;
+        byte type;
 
-        AttributeValue() {}
-        AttributeValue(Reader &reader, AttributeTypes type)
+        VariableValue() {}
+        VariableValue(Reader &reader, int type)
         {
-            m_type = type;
+            this->type = type;
             read(reader);
         }
 
@@ -242,34 +242,33 @@ public:
     class SceneEntity
     {
     public:
-        ushort m_slotID = 0;
+        ushort slotID = 0;
         Position position;
-        SceneObject *m_parent = nullptr;
+        SceneObject *parent = nullptr;
 
-        QList<AttributeValue> variables;
+        QList<VariableValue> variables;
         SceneEntity() {}
 
-        SceneEntity(Reader &reader, SceneObject *obj, QList<AttributeInfo> &attributes)
+        SceneEntity(Reader &reader, SceneObject *obj, QList<VariableInfo> &vars)
         {
-            read(reader, obj, attributes);
+            read(reader, obj, vars);
         }
-        inline void read(Reader &reader, SceneObject *obj, QList<AttributeInfo> &attributes)
+        inline void read(Reader &reader, SceneObject *obj, QList<VariableInfo> &vars)
         {
-            m_parent = obj;
-            m_slotID = reader.read<ushort>();
+            parent = obj;
+            slotID = reader.read<ushort>();
             position.read(reader);
 
             variables.clear();
-            for (AttributeInfo &attribute : attributes)
-                variables.append(AttributeValue(reader, attribute.type));
+            for (VariableInfo &variable : vars) variables.append(VariableValue(reader, variable.type));
         }
 
         inline void write(Writer &writer)
         {
-            writer.write(m_slotID);
+            writer.write(slotID);
             position.write(writer);
 
-            for (AttributeValue &attribute : variables) attribute.write(writer);
+            for (VariableValue &variable : variables) variable.write(writer);
         }
     };
 
@@ -277,15 +276,15 @@ public:
     {
     public:
         NameIdentifier m_name = NameIdentifier(QString("Object"));
-        QList<AttributeInfo> variables;
+        QList<VariableInfo> variables;
         QList<SceneEntity> entities;
 
         SceneObject() {}
 
-        SceneObject(NameIdentifier name, QList<AttributeInfo> attributes)
+        SceneObject(NameIdentifier name, QList<VariableInfo> vars)
         {
             m_name    = name;
-            variables = attributes;
+            variables = vars;
         }
 
         SceneObject(Reader &reader) { read(reader); }
@@ -293,9 +292,9 @@ public:
         {
             m_name.read(reader);
 
-            byte attribCount = reader.read<byte>();
+            byte varCount = reader.read<byte>();
             variables.clear();
-            for (int i = 1; i < attribCount; ++i) variables.append(AttributeInfo(reader));
+            for (int i = 1; i < varCount; ++i) variables.append(VariableInfo(reader));
 
             ushort entityCount = reader.read<ushort>();
             entities.clear();
@@ -307,7 +306,7 @@ public:
             m_name.write(writer);
 
             writer.write((byte)(variables.count() + 1));
-            for (AttributeInfo &attribute : variables) attribute.write(writer);
+            for (VariableInfo &variable : variables) variable.write(writer);
 
             writer.write((ushort)entities.count());
             for (SceneEntity &entity : entities) entity.write(writer);

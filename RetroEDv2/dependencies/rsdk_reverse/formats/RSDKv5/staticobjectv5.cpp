@@ -23,19 +23,19 @@ void RSDKv5::StaticObject::read(Reader &reader)
 
             switch (dataType) {
                 default: break;
-                case AttributeTypes::UINT8: {
+                case VariableTypes::UINT8: {
                     for (uint d = 0; d < dataSize; ++d) array.entries.append(reader.read<byte>());
 
                     memPos += arraySize;
                     break;
                 }
-                case AttributeTypes::INT8: {
+                case VariableTypes::INT8: {
                     for (uint d = 0; d < dataSize; ++d) array.entries.append(reader.read<char>());
 
                     memPos += arraySize;
                     break;
                 }
-                case AttributeTypes::UINT16: {
+                case VariableTypes::UINT16: {
                     int tmpOffset = (int)((memPos & 0xFFFFFFFE) + 2);
                     if ((memPos & 0xFFFFFFFE) >= memPos)
                         tmpOffset = memPos;
@@ -50,7 +50,7 @@ void RSDKv5::StaticObject::read(Reader &reader)
                     memPos += 2 * arraySize;
                     break;
                 }
-                case AttributeTypes::INT16: {
+                case VariableTypes::INT16: {
                     int tmpOffset = (int)((memPos & 0xFFFFFFFE) + 2);
                     if ((memPos & 0xFFFFFFFE) >= memPos)
                         tmpOffset = memPos;
@@ -64,7 +64,7 @@ void RSDKv5::StaticObject::read(Reader &reader)
                     memPos += 2 * arraySize;
                     break;
                 }
-                case AttributeTypes::UINT32: {
+                case VariableTypes::UINT32: {
                     int tmpOffset = (int)((memPos & 0xFFFFFFFC) + 4);
                     if ((memPos & 0xFFFFFFFC) >= memPos)
                         tmpOffset = memPos;
@@ -81,7 +81,7 @@ void RSDKv5::StaticObject::read(Reader &reader)
                     memPos += 4 * arraySize;
                     break;
                 }
-                case AttributeTypes::INT32: {
+                case VariableTypes::INT32: {
                     int tmpOffset = (int)((memPos & 0xFFFFFFFC) + 4);
                     if ((memPos & 0xFFFFFFFC) >= memPos)
                         tmpOffset = memPos;
@@ -97,7 +97,7 @@ void RSDKv5::StaticObject::read(Reader &reader)
                     memPos += 4 * arraySize;
                     break;
                 }
-                case AttributeTypes::ENUM: {
+                case VariableTypes::ENUM: {
                     int tmpOffset = (int)((memPos & 0xFFFFFFFC) + 4);
                     if ((memPos & 0xFFFFFFFC) >= memPos)
                         tmpOffset = memPos;
@@ -126,38 +126,38 @@ void RSDKv5::StaticObject::read(Reader &reader)
 
             int buffer = 0;
             switch (dataType) {
-                case AttributeTypes::UINT8:
-                case AttributeTypes::INT8: memPos += arraySize; break;
-                case AttributeTypes::UINT16:
-                case AttributeTypes::INT16:
+                case VariableTypes::UINT8:
+                case VariableTypes::INT8: memPos += arraySize; break;
+                case VariableTypes::UINT16:
+                case VariableTypes::INT16:
                     buffer = (int)((memPos & 0xFFFFFFFE) + 2);
                     if ((memPos & 0xFFFFFFFE) >= memPos)
                         buffer = memPos;
                     memPos = buffer + 2 * arraySize;
                     break;
-                case AttributeTypes::UINT32:
-                case AttributeTypes::INT32:
-                case AttributeTypes::ENUM:
-                case AttributeTypes::BOOL:
+                case VariableTypes::UINT32:
+                case VariableTypes::INT32:
+                case VariableTypes::ENUM:
+                case VariableTypes::BOOL:
                     buffer = (int)((memPos & 0xFFFFFFFC) + 4);
                     if ((memPos & 0xFFFFFFFC) >= memPos)
                         buffer = memPos;
                     memPos = buffer + 4 * arraySize;
                     break;
-                case AttributeTypes::STRING:
-                case AttributeTypes::VECTOR2:
+                case VariableTypes::STRING:
+                case VariableTypes::VECTOR2:
                     buffer = (int)((memPos & 0xFFFFFFFC) + 4);
                     if ((memPos & 0xFFFFFFFC) >= memPos)
                         buffer = memPos;
                     memPos = buffer + 8 * arraySize;
                     break;
-                case AttributeTypes::UNKNOWN:
+                case VariableTypes::UNKNOWN:
                     buffer = (int)((memPos & 0xFFFFFFFC) + 4);
                     if ((memPos & 0xFFFFFFFC) >= memPos)
                         buffer = memPos;
                     memPos = buffer + 24 * arraySize;
                     break;
-                case AttributeTypes::COLOR:
+                case VariableTypes::COLOR:
                     buffer = (int)((memPos & 0xFFFFFFFE) + 2);
                     if ((memPos & 0xFFFFFFFE) >= memPos)
                         buffer = memPos;
@@ -182,21 +182,21 @@ void RSDKv5::StaticObject::write(Writer &writer)
             writer.write(array.dataSize);
 
             switch (array.type) {
-                case AttributeTypes::UINT8:
-                case AttributeTypes::INT8:
+                case VariableTypes::UINT8:
+                case VariableTypes::INT8:
                     for (int i = 0; i < array.dataSize; ++i) writer.write(array.entries[i]);
                     break;
-                case AttributeTypes::UINT16:
-                case AttributeTypes::INT16:
+                case VariableTypes::UINT16:
+                case VariableTypes::INT16:
                     for (int i = 0; i < array.dataSize; ++i) {
                         Utils::intBytes b = Utils::intBytes(array.entries[i]);
                         writer.write(b.m_bytes[0]);
                         writer.write(b.m_bytes[1]);
                     }
                     break;
-                case AttributeTypes::UINT32:
-                case AttributeTypes::INT32:
-                case AttributeTypes::ENUM:
+                case VariableTypes::UINT32:
+                case VariableTypes::INT32:
+                case VariableTypes::ENUM:
                     for (int i = 0; i < array.dataSize; ++i) {
                         Utils::intBytes b = Utils::intBytes(array.entries[i]);
                         writer.write(b.m_bytes[0]);
@@ -218,38 +218,38 @@ uint RSDKv5::StaticObject::getOffset(int arrayID)
     for (int a = 0; a < arrayID; ++a) {
         int buffer = 0;
         switch (values[a].type) {
-            case AttributeTypes::UINT8:
-            case AttributeTypes::INT8: memPos += values[a].size; break;
-            case AttributeTypes::UINT16:
-            case AttributeTypes::INT16:
+            case VariableTypes::UINT8:
+            case VariableTypes::INT8: memPos += values[a].size; break;
+            case VariableTypes::UINT16:
+            case VariableTypes::INT16:
                 buffer = (int)((memPos & 0xFFFFFFFE) + 2);
                 if ((memPos & 0xFFFFFFFE) >= memPos)
                     buffer = memPos;
                 memPos = buffer + 2 * values[a].size;
                 break;
-            case AttributeTypes::UINT32:
-            case AttributeTypes::INT32:
-            case AttributeTypes::ENUM:
-            case AttributeTypes::BOOL:
+            case VariableTypes::UINT32:
+            case VariableTypes::INT32:
+            case VariableTypes::ENUM:
+            case VariableTypes::BOOL:
                 buffer = (int)((memPos & 0xFFFFFFFC) + 4);
                 if ((memPos & 0xFFFFFFFC) >= memPos)
                     buffer = memPos;
                 memPos = buffer + 4 * values[a].size;
                 break;
-            case AttributeTypes::STRING:
-            case AttributeTypes::VECTOR2:
+            case VariableTypes::STRING:
+            case VariableTypes::VECTOR2:
                 buffer = (int)((memPos & 0xFFFFFFFC) + 4);
                 if ((memPos & 0xFFFFFFFC) >= memPos)
                     buffer = memPos;
                 memPos = buffer + 8 * values[a].size;
                 break;
-            case AttributeTypes::UNKNOWN:
+            case VariableTypes::UNKNOWN:
                 buffer = (int)((memPos & 0xFFFFFFFC) + 4);
                 if ((memPos & 0xFFFFFFFC) >= memPos)
                     buffer = memPos;
                 memPos = buffer + 24 * values[a].size;
                 break;
-            case AttributeTypes::COLOR:
+            case VariableTypes::COLOR:
                 buffer = (int)((memPos & 0xFFFFFFFE) + 2);
                 if ((memPos & 0xFFFFFFFE) >= memPos)
                     buffer = memPos;
@@ -264,18 +264,18 @@ uint RSDKv5::StaticObject::getOffset(int arrayID)
 int RSDKv5::StaticObject::getDataSize(int type)
 {
     switch (type) {
-        case AttributeTypes::UINT8:
-        case AttributeTypes::INT8: return 1;
-        case AttributeTypes::UINT16:
-        case AttributeTypes::INT16: return 2;
-        case AttributeTypes::UINT32:
-        case AttributeTypes::INT32:
-        case AttributeTypes::ENUM:
-        case AttributeTypes::BOOL: return 4;
-        case AttributeTypes::STRING:
-        case AttributeTypes::VECTOR2: return 8;
-        case AttributeTypes::UNKNOWN: return 24;
-        case AttributeTypes::COLOR: return 8;
+        case VariableTypes::UINT8:
+        case VariableTypes::INT8: return 1;
+        case VariableTypes::UINT16:
+        case VariableTypes::INT16: return 2;
+        case VariableTypes::UINT32:
+        case VariableTypes::INT32:
+        case VariableTypes::ENUM:
+        case VariableTypes::BOOL: return 4;
+        case VariableTypes::STRING:
+        case VariableTypes::VECTOR2: return 8;
+        case VariableTypes::UNKNOWN: return 24;
+        case VariableTypes::COLOR: return 8;
         default: return 0;
     }
 }

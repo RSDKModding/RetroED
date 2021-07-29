@@ -3,7 +3,7 @@
 void RSDKv5::UserDB::read(Reader &reader)
 {
     filepath       = reader.filepath;
-    Reader creader = reader.getCReader();
+    Reader creader = reader.getCReaderRaw();
 
     uint sig = creader.read<uint>();
     if (sig != signature) {
@@ -40,7 +40,7 @@ void RSDKv5::UserDB::write(Writer &writer)
     cwriter.write(signature);
     int loop = 0;
     while (loop++ < 2) {
-        if (loop == 1)
+        if (loop == 2)
             cwriter.write((uint)(compressed.size() - 4)); // data size (real)
         else
             cwriter.write(0x00); // data size (fake)
@@ -56,6 +56,6 @@ void RSDKv5::UserDB::write(Writer &writer)
             cwriter.seek(4);
     }
 
-    writer.writeCompressed(compressed);
+    writer.writeCompressedRaw(compressed);
     writer.flush();
 }

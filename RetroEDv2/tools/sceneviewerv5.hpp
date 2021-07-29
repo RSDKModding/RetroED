@@ -28,6 +28,7 @@ public:
     };
 
     void loadScene(QString path);
+    void saveScene(QString path);
 
     void updateScene();
     void drawScene();
@@ -68,6 +69,8 @@ public:
     // Entity Editing
     int selectedObject = -1; // placing
     int selectedEntity = -1; // viewing
+
+    int sceneFilter = 0xFF;
 
     // Parallax Editing
     bool showParallax      = false;
@@ -216,8 +219,6 @@ private:
     QOpenGLVertexArrayObject screenVAO, rectVAO;
     QOpenGLTexture *m_tilesetTexture = nullptr;
     QList<TextureInfo> objectSprites;
-
-    QOpenGLTexture *m_rsPlayerSprite = nullptr;
 
     QMatrix4x4 m_matView;
 

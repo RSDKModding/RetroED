@@ -278,19 +278,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     QMenu *gameManager = new QMenu("Game Manager");
     gameManager->addAction("Change executable", [this] {
         QFileDialog filedialog(this, tr("Open Executable"), "",
-                               "Windows Executables (*.exe)"); // TODO: multiplatform support
+                               "Windows Executables (*.exe);;All Files (*)");
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted)
-            m_exePath = filedialog.selectedFiles()[0];
+            gamePath = filedialog.selectedFiles()[0];
     });
 
     auto runGame = [this] {
-        if (QFile::exists(m_exePath)) {
+        if (QFile::exists(gamePath)) {
             QStringList args;
-            args << m_exePath;
+            // args << "console=true";
             QProcess proc;
-            proc.setProgram(m_exePath);
-            proc.setWorkingDirectory(QFileInfo(m_exePath).absolutePath());
+            proc.setProgram(gamePath);
+            proc.setWorkingDirectory(QFileInfo(gamePath).absolutePath());
             proc.setArguments(args);
             proc.startDetached();
             proc.waitForStarted();
@@ -307,11 +307,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     QMenu *about = new QMenu("About");
     about->addAction("About RetroED", [] {
-        QMessageBox msgBox(
-            QMessageBox::Information, "RetroED",
-            QString("RetroED - Retro Engine Editor v2.0\nGeneral Purpose Editor for RSDK "
-                    "Files\n\nCreated by: Rubberduckycooly"),
-            QMessageBox::NoButton);
+        QMessageBox msgBox(QMessageBox::Information, "RetroED",
+                           QString("RetroED - Retro Engine Editor v2.0\n"
+                                   "General Purpose Editor for RSDK Files\n"
+                                   "\n"
+                                   "Created by: Rubberduckycooly"),
+                           QMessageBox::NoButton);
         msgBox.exec();
     });
     ui->menubar->addMenu(about);

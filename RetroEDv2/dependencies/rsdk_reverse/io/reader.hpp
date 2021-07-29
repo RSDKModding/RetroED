@@ -37,6 +37,7 @@ public:
             stream->device()->close();
     }
     inline Reader getCReader() { return Reader(new QDataStream(readZLib())); }
+    inline Reader getCReaderRaw() { return Reader(new QDataStream(readZLib(true))); }
 
     inline bool matchesSignature(const QByteArray &magic)
     {
@@ -91,7 +92,7 @@ public:
             return result;
         return qUncompress(result);
     }
-    QByteArray readZLib();
+    QByteArray readZLib(bool raw = false);
 
     QSharedPointer<QFile> file;
 

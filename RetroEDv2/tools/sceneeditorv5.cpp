@@ -60,6 +60,9 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
     connect(ui->verticalScrollBar, &QScrollBar::valueChanged, [this](int v) { viewer->cam.pos.y = v; });
 
+    connect(ui->sceneFilter, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { viewer->sceneFilter = v; });
+
     connect(ui->layerList, &QListWidget::currentRowChanged, [this](int c) {
         // m_uo->setDisabled(c == -1);
         // m_do->setDisabled(c == -1);
@@ -422,9 +425,7 @@ bool SceneEditorv5::event(QEvent *event)
             setStatus("Saving Scene...");
             QString basePath = path.replace(QFileInfo(path).fileName(), "");
 
-            // viewer->scene.write(filter + 1, filedialog.selectedFiles()[0]);
-            // viewer->tileconfig.write(basePath + "TileConfig.bin");
-            // viewer->stageConfig.write(filter + 1, basePath + "StageConfig.bin");
+            viewer->saveScene(path);
 
             setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));
             return true;
@@ -435,24 +436,13 @@ bool SceneEditorv5::event(QEvent *event)
             };
 
             QFileDialog filedialog(this, tr("Save Scene"), "",
-                                   tr(QString("%1;;%2;;%3;;%4")
-                                          .arg(types[0])
-                                          .arg(types[1])
-                                          .arg(types[2])
-                                          .arg(types[3])
-                                          .toStdString()
-                                          .c_str()));
+                                   tr(QString("%1;;%2;;%3;;%4").arg(types[0]).toStdString().c_str()));
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
-                int filter = types.indexOf(filedialog.selectedNameFilter());
-
                 setStatus("Saving Scene...");
-                QString path     = filedialog.selectedFiles()[0];
-                QString basePath = path.replace(QFileInfo(path).fileName(), "");
+                QString path = filedialog.selectedFiles()[0];
 
-                // viewer->scene.write(filter + 1, filedialog.selectedFiles()[0]);
-                // viewer->tileconfig.write(basePath + "TileConfig.bin");
-                // viewer->stageConfig.write(filter + 1, basePath + "StageConfig.bin");
+                viewer->saveScene(path);
 
                 appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, filedialog.selectedFiles()[0],
                                         QList<QString>{ viewer->gameConfig.m_filename });
@@ -467,24 +457,13 @@ bool SceneEditorv5::event(QEvent *event)
         };
 
         QFileDialog filedialog(this, tr("Save Scene"), "",
-                               tr(QString("%1;;%2;;%3;;%4")
-                                      .arg(types[0])
-                                      .arg(types[1])
-                                      .arg(types[2])
-                                      .arg(types[3])
-                                      .toStdString()
-                                      .c_str()));
+                               tr(QString("%1;;%2;;%3;;%4").arg(types[0]).toStdString().c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
-            int filter = types.indexOf(filedialog.selectedNameFilter());
-
             setStatus("Saving Scene...");
-            QString path     = filedialog.selectedFiles()[0];
-            QString basePath = path.replace(QFileInfo(path).fileName(), "");
+            QString path = filedialog.selectedFiles()[0];
 
-            // viewer->scene.write(filter + 1, filedialog.selectedFiles()[0]);
-            // viewer->tileconfig.write(basePath + "CollisionMasks.bin");
-            // viewer->stageConfig.write(filter + 1, basePath + "StageConfig.bin");
+            viewer->saveScene(path);
 
             appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, filedialog.selectedFiles()[0],
                                     QList<QString>{ viewer->gameConfig.m_filename });
@@ -766,18 +745,20 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                 viewer->cam.pos.x -= (viewer->mousePos.x - viewer->m_reference.x()) * viewer->invZoom();
                 viewer->cam.pos.y -= (viewer->mousePos.y - viewer->m_reference.y()) * viewer->invZoom();
                 viewer->m_reference = mEvent->pos();
-                QPoint lp = viewer->mapFromGlobal(QCursor::pos());
+                QPoint lp           = viewer->mapFromGlobal(QCursor::pos());
                 if (!viewer->rect().contains(lp)) {
-                    if (lp.x() < viewer->x()) lp.setX(lp.x() + viewer->width());
-                    else if (lp.x() > viewer->x() + viewer->width()) 
+                    if (lp.x() < viewer->x())
+                        lp.setX(lp.x() + viewer->width());
+                    else if (lp.x() > viewer->x() + viewer->width())
                         lp.setX(lp.x() - viewer->width());
-                    if (lp.y() < viewer->y()) lp.setY(lp.y() + viewer->height());
-                    else if (lp.y() > viewer->y() + viewer->height()) 
+                    if (lp.y() < viewer->y())
+                        lp.setY(lp.y() + viewer->height());
+                    else if (lp.y() > viewer->y() + viewer->height())
                         lp.setY(lp.y() - viewer->height());
                     viewer->m_reference = lp;
                     QCursor::setPos(viewer->mapToGlobal(lp));
                 }
-                status              = true;
+                status = true;
 
                 ui->horizontalScrollBar->blockSignals(true);
                 ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x10) - viewer->storedW);

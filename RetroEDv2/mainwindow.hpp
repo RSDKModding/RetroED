@@ -21,6 +21,6 @@ public:
 private:
     Ui::MainWindow *ui;
 
-    QString m_exePath = "";
+    QString gamePath = "";
 };
 #endif // MAINWINDOW_H
