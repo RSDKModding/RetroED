@@ -313,7 +313,7 @@ struct GameInfo {
 #define v5_ENTITY_COUNT         (v5_RESERVE_ENTITY_COUNT + v5_SCENEENTITY_COUNT + v5_TEMPENTITY_COUNT)
 #define v5_TEMPENTITY_START     (v5_ENTITY_COUNT - v5_TEMPENTITY_COUNT)
 
-extern int objectCount;
+extern int gameObjectCount;
 extern GameObjectInfo objectList[v5_OBJECT_COUNT];
 extern GameEntityBase objectEntityList[v5_ENTITY_COUNT];
 
@@ -336,6 +336,8 @@ public:
 
     void Setup();
     void LinkGameObjects();
+
+    GameObjectInfo *GetObjectInfo(QString name);
 };
 
 extern GameLink gameLink;

@@ -17,6 +17,8 @@ public:
 class SceneViewerv5 : public QOpenGLWidget
 {
 public:
+    enum EventTypes { EVENT_LOAD, EVENT_CREATE, EVENT_UPDATE, EVENT_DRAW };
+
     SceneViewerv5(QWidget *parent);
     ~SceneViewerv5();
 
@@ -103,6 +105,8 @@ public:
     QList<QString> variableNames;
 
     int m_prevSprite = -1;
+
+    void callGameEvent(GameObjectInfo *info, byte eventID);
 
     int addGraphicsFile(char *sheetPath);
     void removeGraphicsFile(char *sheetPath, int slot);

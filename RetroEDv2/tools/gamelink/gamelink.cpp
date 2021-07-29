@@ -1,6 +1,6 @@
 #include "include.hpp"
 
-int objectCount = 0;
+int gameObjectCount = 0;
 GameObjectInfo objectList[v5_OBJECT_COUNT];
 GameEntityBase objectEntityList[v5_ENTITY_COUNT];
 
@@ -425,4 +425,21 @@ void GameLink::LinkGameObjects()
     info.screenInfo   = screens;
 
     // LinkGameLogic(&info);
+}
+
+GameObjectInfo *GameLink::GetObjectInfo(QString name)
+{
+    QByteArray hashData = Utils::getMd5HashByteArray(name);
+    byte data[0x10];
+    for (int i = 0; i < 0x10; ++i) data[i] = hashData[i];
+
+    uint hash[4];
+    memcpy(hash, data, 0x10 * sizeof(byte));
+
+    for (int i = 0; i < gameObjectCount; ++i) {
+        if (memcmp(hash, objectList[i].hash, 0x10 * sizeof(byte)) == 0) {
+            return &objectList[i];
+        }
+    }
+    return NULL;
 }

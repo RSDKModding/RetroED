@@ -14,8 +14,8 @@ class TileCollisionWidgetv5 : public QDialog
     Q_OBJECT
 public:
     explicit TileCollisionWidgetv5(QWidget *parent = nullptr);
-    RSDKv5::TileConfig::CollisionMask *m_cmask = nullptr;
-    QImage m_tileImg;
+    RSDKv5::TileConfig::CollisionMask *cmask = nullptr;
+    QImage tileImg;
 
 protected:
     void paintEvent(QPaintEvent *) override;
@@ -47,10 +47,10 @@ public:
 
 private:
     Ui::SceneTilePropertiesv5 *ui;
-    QImage m_tileImg;
-    int m_collisionLyr = 0;
+    QImage tileImg;
+    int collisionLyr = 0;
 
-    RSDKv5::TileConfig::CollisionMask *m_cmask[2] = { nullptr, nullptr };
+    RSDKv5::TileConfig::CollisionMask *cmask[2] = { nullptr, nullptr };
 };
 
 #endif // SCENETILEPROPERTIES_V5_H

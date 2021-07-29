@@ -549,16 +549,7 @@ void SceneViewerv5::drawScene()
         if (!(filter & sceneFilter))
             continue;
 
-        /*auto &curObj = m_compilerv4.m_objectScriptList[scene.objects[o].type];
-
-        if (curObj.eventRSDKDraw.m_scriptCodePtr != SCRIPTDATA_COUNT - 1) {
-            m_compilerv4.m_objectEntityPos = o;
-            m_compilerv4.processScript(curObj.eventRSDKDraw.m_scriptCodePtr,
-                                       curObj.eventRSDKDraw.m_jumpTablePtr,
-                                       Compilerv4::EVENT_RSDKDRAW);
-            continue;
-        }*/
-
+        callGameEvent(gameLink.GetObjectInfo(objects[entities[o].type].name), EVENT_DRAW);
         spriteShader.use();
         rectVAO.bind();
         // Draw Object
@@ -640,18 +631,12 @@ void SceneViewerv5::drawScene()
         float cx = cam.pos.x;
         float cy = cam.pos.y;
 
-        /*auto &curObj = m_compilerv4.m_objectScriptList[selectedObject];
-
-        if (curObj.eventRSDKDraw.m_scriptCodePtr != ENTITY_COUNT - 1) {
-            m_compilerv4.m_objectEntityList[ENTITY_COUNT - 1].type = selectedObject;
-            m_compilerv4.m_objectEntityList[ENTITY_COUNT - 1].XPos = (ex + cx) * 65536.0f;
-            m_compilerv4.m_objectEntityList[ENTITY_COUNT - 1].YPos = (ey + cy) * 65536.0f;
-            m_compilerv4.m_objectEntityPos                         = ENTITY_COUNT - 1;
-            m_compilerv4.processScript(curObj.eventRSDKDraw.m_scriptCodePtr,
-                                       curObj.eventRSDKDraw.m_jumpTablePtr,
-                                       Compilerv4::EVENT_RSDKDRAW);
-            flag = true;
-        }*/
+        SceneEntity tempEntity;
+        tempEntity.type   = selectedObject;
+        tempEntity.pos.x  = (ex + cx) * 65536.0f;
+        tempEntity.pos.y  = (ey + cy) * 65536.0f;
+        tempEntity.slotID = 0xFFFF;
+        callGameEvent(gameLink.GetObjectInfo(objects[selectedObject].name), EVENT_DRAW);
 
         if (!flag) {
             // Draw Selected Object Preview
@@ -796,6 +781,47 @@ void SceneViewerv5::unloadScene()
     tVertsPtr   = NULL;
     sceneWidth  = 0;
     sceneHeight = 0;
+}
+
+void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID)
+{
+    if (!info)
+        return;
+
+    switch (eventID) {
+        default: break;
+        case EVENT_LOAD:
+            if (info->editorLoad)
+                info->editorLoad();
+            break;
+        case EVENT_CREATE:
+            // TODO: that
+            sceneInfo.entity     = NULL;
+            sceneInfo.entitySlot = 0;
+            if (info->create)
+                info->create(NULL);
+            sceneInfo.entity     = NULL;
+            sceneInfo.entitySlot = 0;
+            break;
+        case EVENT_UPDATE:
+            // TODO: that
+            sceneInfo.entity     = NULL;
+            sceneInfo.entitySlot = 0;
+            if (info->update)
+                info->update();
+            sceneInfo.entity     = NULL;
+            sceneInfo.entitySlot = 0;
+            break;
+        case EVENT_DRAW:
+            // TODO: that
+            sceneInfo.entity     = NULL;
+            sceneInfo.entitySlot = 0;
+            if (info->editorDraw)
+                info->editorDraw();
+            sceneInfo.entity     = NULL;
+            sceneInfo.entitySlot = 0;
+            break;
+    }
 }
 
 void SceneViewerv5::initializeGL()

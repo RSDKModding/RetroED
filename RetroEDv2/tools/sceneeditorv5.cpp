@@ -681,7 +681,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
 
                                         m_tileProp->setupUI(
                                             &viewer->tileconfig.collisionPaths[0][tile & 0x3FF],
-                                            &viewer->tileconfig.collisionPaths[1][tile & 0x3FF], &tile,
+                                            &viewer->tileconfig.collisionPaths[1][tile & 0x3FF],
+                                            &viewer->scene.layers[viewer->selectedLayer].layout[y][x],
                                             viewer->tiles[tile & 0x3FF]);
                                         ui->propertiesBox->setCurrentIndex(PROP_TILE);
                                         break;
@@ -1079,6 +1080,11 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     m_scrProp->unsetUI();
 
     gameLink.LinkGameObjects();
+
+    for (int i = 0; i < viewer->objects.count(); ++i) {
+        viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[i].name),
+                              SceneViewerv5::EVENT_LOAD);
+    }
 
     appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, scnPath, QList<QString>{ gcfPath });
     setStatus("Loaded Scene: " + QFileInfo(scnPath).fileName());
