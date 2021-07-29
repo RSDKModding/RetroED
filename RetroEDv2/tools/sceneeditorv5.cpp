@@ -766,6 +766,17 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                 viewer->cam.pos.x -= (viewer->mousePos.x - viewer->m_reference.x()) * viewer->invZoom();
                 viewer->cam.pos.y -= (viewer->mousePos.y - viewer->m_reference.y()) * viewer->invZoom();
                 viewer->m_reference = mEvent->pos();
+                QPoint lp = viewer->mapFromGlobal(QCursor::pos());
+                if (!viewer->rect().contains(lp)) {
+                    if (lp.x() < viewer->x()) lp.setX(lp.x() + viewer->width());
+                    else if (lp.x() > viewer->x() + viewer->width()) 
+                        lp.setX(lp.x() - viewer->width());
+                    if (lp.y() < viewer->y()) lp.setY(lp.y() + viewer->height());
+                    else if (lp.y() > viewer->y() + viewer->height()) 
+                        lp.setY(lp.y() - viewer->height());
+                    viewer->m_reference = lp;
+                    QCursor::setPos(viewer->mapToGlobal(lp));
+                }
                 status              = true;
 
                 ui->horizontalScrollBar->blockSignals(true);
