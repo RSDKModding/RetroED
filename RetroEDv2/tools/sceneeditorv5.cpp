@@ -3,6 +3,43 @@
 
 enum PropertiesTabIDs { PROP_SCN, PROP_LAYER, PROP_TILE, PROP_ENTITY, PROP_SCROLL };
 
+TileSelector::TileSelector(QWidget *parent) : QWidget(parent), parentPtr((SceneEditorv5 *)parent)
+{
+    QScrollArea *scrollArea = new QScrollArea(this);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    scrollArea->setGeometry(10, 10, 200, 200);
+
+    QWidget *tileArea = new QWidget();
+
+    QGridLayout *layout = new QGridLayout();
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(1);
+
+    int i = 0;
+    int x = 0, y = 0;
+    for (auto &&im : parentPtr->viewer->tiles) {
+        auto *tile = new TileLabel(&parentPtr->viewer->selectedTile, i, tileArea);
+        tile->setPixmap(QPixmap::fromImage(im).scaled(im.width() * 2, im.height() * 2));
+        tile->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        tile->resize(im.width(), im.height());
+        layout->addWidget(tile, y, x);
+        x++;
+        if (x >= 4) {
+            x = 0;
+            y += 1;
+        }
+        tile->setFixedSize(im.width() * 2, im.height() * 2);
+        i++;
+        connect(tile, &TileLabel::requestRepaint, tileArea, QOverload<>::of(&QWidget::update));
+    }
+
+    tileArea->setLayout(layout);
+    scrollArea->setWidget(tileArea);
+    QVBoxLayout *l = new QVBoxLayout(this);
+    l->addWidget(scrollArea);
+    setLayout(l);
+}
+
 SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEditorv5)
 {
     ui->setupUi(this);
@@ -12,35 +49,35 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     ui->viewerFrame->layout()->addWidget(viewer);
     viewer->show();
 
-    m_scnProp = new ScenePropertiesv5(this);
-    m_scnProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->scenePropFrame->layout()->addWidget(m_scnProp);
-    m_scnProp->show();
+    scnProp = new ScenePropertiesv5(this);
+    scnProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->scenePropFrame->layout()->addWidget(scnProp);
+    scnProp->show();
 
-    m_lyrProp = new SceneLayerPropertiesv5(this);
-    m_lyrProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->layerPropFrame->layout()->addWidget(m_lyrProp);
-    m_lyrProp->show();
+    lyrProp = new SceneLayerPropertiesv5(this);
+    lyrProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->layerPropFrame->layout()->addWidget(lyrProp);
+    lyrProp->show();
 
-    m_tileProp = new SceneTilePropertiesv5(this);
-    m_tileProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->tilePropFrame->layout()->addWidget(m_tileProp);
-    m_tileProp->show();
+    tileProp = new SceneTilePropertiesv5(this);
+    tileProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->tilePropFrame->layout()->addWidget(tileProp);
+    tileProp->show();
 
-    m_objProp = new SceneObjectPropertiesv5(this);
-    m_objProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->objPropFrame->layout()->addWidget(m_objProp);
-    m_objProp->show();
+    objProp = new SceneObjectPropertiesv5(this);
+    objProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->objPropFrame->layout()->addWidget(objProp);
+    objProp->show();
 
-    m_scrProp = new SceneScrollPropertiesv5(this);
-    m_scrProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->scrPropFrame->layout()->addWidget(m_scrProp);
-    m_scrProp->show();
+    scrProp = new SceneScrollPropertiesv5(this);
+    scrProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->scrPropFrame->layout()->addWidget(scrProp);
+    scrProp->show();
 
-    // m_chkProp = new ChunkSelector(this);
-    // m_chkProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    // ui->chunksPage->layout()->addWidget(m_chkProp);
-    // m_chkProp->show();
+    tileSel = new TileSelector(this);
+    tileSel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->tilesPage->layout()->addWidget(tileSel);
+    tileSel->show();
 
     viewer->m_sbHorizontal = ui->horizontalScrollBar;
     viewer->m_sbVertical   = ui->verticalScrollBar;
@@ -76,7 +113,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         viewer->selectedLayer = c;
 
-        m_lyrProp->setupUI(&viewer->scene, viewer->selectedLayer);
+        lyrProp->setupUI(&viewer->scene, viewer->selectedLayer);
         ui->propertiesBox->setCurrentWidget(ui->layerPropPage);
 
         createScrollList();
@@ -146,7 +183,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         viewer->cam.pos.x = viewer->entities[c].pos.x - (viewer->storedW / 2);
         viewer->cam.pos.y = viewer->entities[c].pos.y - (viewer->storedH / 2);
 
-        m_objProp->setupUI(&viewer->objects, &viewer->entities[viewer->selectedEntity]);
+        objProp->setupUI(&viewer->objects, &viewer->entities[viewer->selectedEntity]);
         ui->propertiesBox->setCurrentWidget(ui->objPropPage);
     });
 
@@ -185,7 +222,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         viewer->selectedScrollInfo = c;
 
-        m_scrProp->setupUI(&viewer->scene.layers[viewer->selectedLayer].scrollInfos[c]);
+        scrProp->setupUI(&viewer->scene.layers[viewer->selectedLayer].scrollInfos[c]);
         ui->propertiesBox->setCurrentWidget(ui->scrollPropPage);
     });
 
@@ -215,7 +252,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         // m_mainView->m_selectedTile = -1;
         // m_mainView->m_selectedStamp = -1;
         viewer->selectedEntity = -1;
-        m_objProp->unsetUI();
+        objProp->unsetUI();
         viewer->isSelecting = false;
 
         unsetCursor();
@@ -251,12 +288,12 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     connect(ui->showTileGrid, &QPushButton::clicked, [this] { viewer->showTileGrid ^= 1; });
     connect(ui->showPixelGrid, &QPushButton::clicked, [this] { viewer->showPixelGrid ^= 1; });
 
-    connect(m_scnProp->loadGlobalCB, &QCheckBox::toggled,
+    connect(scnProp->loadGlobalCB, &QCheckBox::toggled,
             [this](bool b) { viewer->stageConfig.loadGlobalObjects = b; });
 
     connect(ui->showParallax, &QPushButton::clicked, [this] { viewer->showParallax ^= 1; });
 
-    connect(m_scnProp->m_editSCF, &QPushButton::clicked, [this] {
+    connect(scnProp->m_editSCF, &QPushButton::clicked, [this] {
         QList<int> newTypes;
 
         StageconfigEditorv5 *edit = new StageconfigEditorv5(&viewer->stageConfig, this);
@@ -307,7 +344,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         createEntityList();
     });
 
-    connect(m_scnProp->m_editPAL, &QPushButton::clicked, [this] {
+    connect(scnProp->m_editPAL, &QPushButton::clicked, [this] {
         PaletteEditor *edit = new PaletteEditor(viewer->stageConfig.m_filename, 1);
         edit->setWindowTitle("Edit StageConfig Palette");
         edit->show();
@@ -423,7 +460,6 @@ bool SceneEditorv5::event(QEvent *event)
 
         if (QFile::exists(path)) {
             setStatus("Saving Scene...");
-            QString basePath = path.replace(QFileInfo(path).fileName(), "");
 
             viewer->saveScene(path);
 
@@ -526,7 +562,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
         ui->selToolBox->setCurrentIndex(tool);
         ui->selToolBox->setDisabled(false);
         viewer->selectedEntity = -1;
-        m_objProp->unsetUI();
+        objProp->unsetUI();
         viewer->isSelecting = false;
 
         unsetCursor();
@@ -616,8 +652,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 if (box.contains(pos)) {
                                     viewer->selectedEntity = o;
 
-                                    m_objProp->setupUI(&viewer->objects,
-                                                       &viewer->entities[viewer->selectedEntity]);
+                                    objProp->setupUI(&viewer->objects,
+                                                     &viewer->entities[viewer->selectedEntity]);
                                     ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                     break;
                                 }
@@ -679,7 +715,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                         ushort tile =
                                             viewer->scene.layers[viewer->selectedLayer].layout[y][x];
 
-                                        m_tileProp->setupUI(
+                                        tileProp->setupUI(
                                             &viewer->tileconfig.collisionPaths[0][tile & 0x3FF],
                                             &viewer->tileconfig.collisionPaths[1][tile & 0x3FF],
                                             &viewer->scene.layers[viewer->selectedLayer].layout[y][x],
@@ -706,8 +742,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 viewer->selectedEntity = o;
                                 found                  = true;
 
-                                m_objProp->setupUI(&viewer->objects,
-                                                   &viewer->entities[viewer->selectedEntity]);
+                                objProp->setupUI(&viewer->objects,
+                                                 &viewer->entities[viewer->selectedEntity]);
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                 break;
                             }
@@ -719,7 +755,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                             ui->objectList->setCurrentRow(-1);
                             ui->entityList->setCurrentRow(-1);
 
-                            m_objProp->unsetUI();
+                            objProp->unsetUI();
                         }
                         break;
                     }
@@ -972,7 +1008,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                             viewer->scene.objects.removeAt(viewer->selectedEntity);
                             viewer->selectedEntity = -1;
 
-                            m_objProp->unsetUI();
+                            objProp->unsetUI();
                             createEntityList();
                         }
                     }
@@ -1051,21 +1087,21 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     ui->horizontalScrollBar->setPageStep(0x10);
     ui->verticalScrollBar->setPageStep(0x10);
 
-    m_scnProp->setupUI(&viewer->scene, &viewer->stageConfig);
+    scnProp->setupUI(&viewer->scene, &viewer->stageConfig);
 
-    m_scnProp->loadGlobalCB->blockSignals(true);
-    m_scnProp->loadGlobalCB->setChecked(viewer->stageConfig.loadGlobalObjects);
-    m_scnProp->loadGlobalCB->blockSignals(false);
+    scnProp->loadGlobalCB->blockSignals(true);
+    scnProp->loadGlobalCB->setChecked(viewer->stageConfig.loadGlobalObjects);
+    scnProp->loadGlobalCB->blockSignals(false);
 
-    // if (m_chkProp) {
-    //    ui->chunksPage->layout()->removeWidget(m_chkProp);
-    //    delete m_chkProp;
-    //}
+    if (tileSel) {
+        ui->tilesPage->layout()->removeWidget(tileSel);
+        delete tileSel;
+    }
 
-    // m_chkProp = new ChunkSelector(this);
-    // m_chkProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    // ui->chunksPage->layout()->addWidget(m_chkProp);
-    // m_chkProp->show();
+    tileSel = new TileSelector(this);
+    tileSel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->tilesPage->layout()->addWidget(tileSel);
+    tileSel->show();
 
     ui->layerList->setCurrentRow(0);
     viewer->selectedLayer = 0;
@@ -1073,11 +1109,11 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     ui->toolBox->setCurrentIndex(0);
     ui->propertiesBox->setCurrentIndex(0);
 
-    m_scnProp->setupUI(&viewer->scene, &viewer->stageConfig);
-    m_lyrProp->unsetUI();
-    m_tileProp->unsetUI();
-    m_objProp->unsetUI();
-    m_scrProp->unsetUI();
+    scnProp->setupUI(&viewer->scene, &viewer->stageConfig);
+    lyrProp->unsetUI();
+    tileProp->unsetUI();
+    objProp->unsetUI();
+    scrProp->unsetUI();
 
     gameLink.LinkGameObjects();
 

@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-class ChunkSelector;
+class TileSelector;
 
 namespace Ui
 {
@@ -28,11 +28,12 @@ public:
     Vector2<int> snapSize;
 
     SceneViewerv5 *viewer;
-    ScenePropertiesv5 *m_scnProp       = nullptr;
-    SceneLayerPropertiesv5 *m_lyrProp  = nullptr;
-    SceneTilePropertiesv5 *m_tileProp  = nullptr;
-    SceneObjectPropertiesv5 *m_objProp = nullptr;
-    SceneScrollPropertiesv5 *m_scrProp = nullptr;
+    ScenePropertiesv5 *scnProp       = nullptr;
+    SceneLayerPropertiesv5 *lyrProp  = nullptr;
+    SceneTilePropertiesv5 *tileProp  = nullptr;
+    SceneObjectPropertiesv5 *objProp = nullptr;
+    SceneScrollPropertiesv5 *scrProp = nullptr;
+    TileSelector *tileSel            = nullptr;
 
     void loadScene(QString scnPath, QString gcfPath, byte gameType);
 
@@ -58,6 +59,50 @@ private:
     void exportRSDKv5(ExportRSDKv5Scene *dlg);
 
     Ui::SceneEditorv5 *ui;
+};
+
+class TileLabel : public QLabel
+{
+    Q_OBJECT
+public:
+    TileLabel(int *select, int tileIndex, QWidget *parent)
+        : QLabel(parent), sel(select), index(tileIndex)
+    {
+    }
+
+signals:
+    void requestRepaint();
+
+protected:
+    void mousePressEvent(QMouseEvent *) override
+    {
+        *sel = index;
+        emit requestRepaint();
+    }
+    void paintEvent(QPaintEvent *event) override
+    {
+        QLabel::paintEvent(event);
+        QPainter p(this);
+        if (index == *sel) {
+            p.setBrush(qApp->palette().highlight());
+            p.setOpacity(0.5);
+            p.drawRect(this->rect());
+        }
+    }
+    QSize sizeHint() const override { return QSize(0, 0); }
+
+private:
+    int *sel = nullptr;
+    int index;
+};
+
+class TileSelector : public QWidget
+{
+    Q_OBJECT
+public:
+    TileSelector(QWidget *parent = nullptr);
+
+    SceneEditorv5 *parentPtr = nullptr;
 };
 
 #endif // SCENEEDITOR_V5_H

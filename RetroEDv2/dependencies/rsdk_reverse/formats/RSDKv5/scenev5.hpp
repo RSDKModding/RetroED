@@ -326,7 +326,7 @@ public:
     {
         filepath = reader.filepath;
 
-        if (!reader.matchesSignature(m_signature, 4))
+        if (!reader.matchesSignature(signature, 4))
             return;
 
         editorMetadata.read(reader);
@@ -352,7 +352,7 @@ public:
     void write(Writer &writer)
     {
         filepath = writer.filePath;
-        writer.write(m_signature, 4);
+        writer.write(signature, 4);
 
         editorMetadata.write(writer);
 
@@ -365,7 +365,7 @@ public:
         writer.flush();
     }
 
-    byte m_signature[4] = { 'S', 'C', 'N', 0 };
+    byte signature[4] = { 'S', 'C', 'N', 0 };
 
     SceneEditorMetadata editorMetadata;
     QList<SceneLayer> layers;

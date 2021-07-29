@@ -18,19 +18,19 @@
     <widget class="QToolBox" name="toolBox">
      <property name="maximumSize">
       <size>
-       <width>175</width>
+       <width>185</width>
        <height>16777215</height>
       </size>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="layerPage">
       <property name="geometry">
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>175</width>
+        <width>185</width>
         <height>271</height>
        </rect>
       </property>
@@ -48,7 +48,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>175</width>
+        <width>185</width>
         <height>271</height>
        </rect>
       </property>
@@ -62,7 +62,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>175</width>
+        <width>185</width>
         <height>271</height>
        </rect>
       </property>
@@ -107,7 +107,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>175</width>
+        <width>185</width>
         <height>271</height>
        </rect>
       </property>
@@ -152,7 +152,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>175</width>
+        <width>185</width>
         <height>271</height>
        </rect>
       </property>
@@ -312,7 +312,7 @@
         </item>
         <item>
          <property name="text">
-          <string>Chunk Tool</string>
+          <string>Pencil Tool</string>
          </property>
         </item>
         <item>
