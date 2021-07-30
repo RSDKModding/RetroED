@@ -485,7 +485,7 @@ void SceneViewerv5::drawScene()
 
                             byte flipmode = flipY | (cmask.flipY << 1);
 
-                            /*for (byte cx = 0; cx < 16; ++cx) {
+                            for (byte cx = 0; cx < 16; ++cx) {
                                 int hm = cx;
                                 if (flipX)
                                     hm = 15 - cx;
@@ -527,7 +527,7 @@ void SceneViewerv5::drawScene()
                                     placeCol(xpos + cx, ypos + rcy, -16, 2);
                                 }
                             }//*/
-                            if (true || solidity == 3) {
+                            if (solidity == 3) {
                                 cleanCol(xpos, ypos, 16, 16);
                                 for (byte cx = 0; cx < 16; ++cx) {
                                     int hm = cx;
