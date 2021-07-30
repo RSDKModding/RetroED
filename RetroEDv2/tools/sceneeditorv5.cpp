@@ -565,6 +565,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                 viewer->scene.layers[viewer->selectedLayer].layout[ypos][xpos] = tile;
             }
         }
+        
     };
 
     auto resetTools = [this](byte tool) {
@@ -818,12 +819,10 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                 status = true;
 
                 ui->horizontalScrollBar->blockSignals(true);
-                ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x10) - viewer->storedW);
                 ui->horizontalScrollBar->setValue(viewer->cam.pos.x);
                 ui->horizontalScrollBar->blockSignals(false);
 
                 ui->verticalScrollBar->blockSignals(true);
-                ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x10) - viewer->storedH);
                 ui->verticalScrollBar->setValue(viewer->cam.pos.y);
                 ui->verticalScrollBar->blockSignals(false);
             }
@@ -924,10 +923,29 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
             QWheelEvent *wEvent = static_cast<QWheelEvent *>(event);
 
             if (wEvent->modifiers() & Qt::ControlModifier) {
+                float oz = viewer->invZoom();
                 if (wEvent->angleDelta().y() > 0 && viewer->zoom < 20)
-                    viewer->zoom *= 1.5;
+                    viewer->zoom *= 2;
                 else if (wEvent->angleDelta().y() < 0 && viewer->zoom > 0.5)
-                    viewer->zoom /= 1.5;
+                    viewer->zoom /= 2;
+                ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x10)
+                                                    - viewer->storedW / viewer->zoom);
+                ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x10)
+                                                  - viewer->storedH / viewer->zoom);
+
+                /*if (float diff = viewer->invZoom() - oz) {
+
+                    int x0 = (int)((viewer->mousePos.x * oz) + viewer->cam.pos.x);
+                    int y0 = (int)((viewer->mousePos.y * oz) + viewer->cam.pos.y);
+
+                    /*int xi = viewer->cam.pos.x - x0;
+                    int yi = viewer->cam.pos.y - y0;
+
+                    viewer->cam.pos.x = xi * //*//*
+
+                    viewer->cam.pos.x = -(x0 * diff);
+                    viewer->cam.pos.y = -(y0 * diff);
+                }//*/
                 return true;
             }
             viewer->cam.pos.y -= wEvent->angleDelta().y() / 8;
@@ -1101,8 +1119,12 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
             viewer->sceneHeight = viewer->scene.layers[l].height;
     }
 
-    viewer->vertsPtr  = new QVector3D[viewer->sceneHeight * viewer->sceneWidth * 0x10 * 6];
+    viewer->vertsPtr  = new QVector3D[viewer->sceneHeight * viewer->sceneWidth * 0x10 * 6 * 2];
     viewer->tVertsPtr = new QVector2D[viewer->sceneHeight * viewer->sceneWidth * 0x10 * 6];
+
+    viewer->colTex = new QImage(viewer->sceneWidth * 0x10, viewer->sceneHeight * 0x10, QImage::Format_Indexed8);
+    viewer->colTex->setColorTable({ qRgb(0, 0, 0), qRgb(255, 255, 0), qRgb(255, 0, 0),
+                                    qRgb(255, 255, 255) });
 
     ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x10) - viewer->storedW);
     ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x10) - viewer->storedH);

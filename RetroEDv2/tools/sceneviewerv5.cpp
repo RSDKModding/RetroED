@@ -225,6 +225,40 @@ void SceneViewerv5::updateScene()
     }
 }
 
+void SceneViewerv5::cleanCol(int x, int y, int w, int h) {
+    int ty = y + h;
+    int tx = x + w;
+    for (; x < tx; ++x) {
+        for (; y < ty; ++y) {
+            colTex->setPixel(x, y, 0);
+        }
+        y -= h;
+    }
+}
+
+void SceneViewerv5::placeCol(int x, int y, sbyte h, int sol, int w)
+{
+    // rmg code opts at its finest
+    if (h < 0) {
+        y += h;
+        h *= -1;
+    }
+    int ty = y + h;
+    int tx = x + w;
+    for (; x < tx; ++x) {
+        for (; y < ty; ++y) {
+            QRgb c = colTex->pixel(x, y);
+            if (qBlue(c))
+                continue;
+            if (qRed(c) && ((sol == 1 && !qGreen(c)) || (sol == 2 && qGreen(c))))
+                colTex->setPixel(x, y, 3);
+            else
+                colTex->setPixel(x, y, sol);
+        }
+        y -= h;
+    }
+}
+
 void SceneViewerv5::drawScene()
 {
     if (!m_tilesetTexture)
@@ -286,11 +320,7 @@ void SceneViewerv5::drawScene()
 
     Vector3<float> camOffset(0.0f, 0.0f, 0.0f);
 
-    QVector4D pixelSolidityClrs[5] = { QVector4D(0.0f, 0.0f, 0.0f, 0.0f),
-                                       QVector4D(1.0f, 1.0f, 0.0f, 1.0f),
-                                       QVector4D(1.0f, 0.0f, 0.0f, 1.0f),
-                                       QVector4D(1.0f, 1.0f, 1.0f, 1.0f) };
-    bool showCLayers[2]            = { showPlaneA, showPlaneB };
+    bool showCLayers[2] = { showPlaneA, showPlaneB };
 
     for (int l = scene.layers.count() - 1; l >= 0; --l) {
         // TILE LAYERS
@@ -349,27 +379,25 @@ void SceneViewerv5::drawScene()
 
                     vertsPtr[vertCnt + 0].setX(0.0f + (xpos / 0x10));
                     vertsPtr[vertCnt + 0].setY(0.0f + (ypos / 0x10));
-                    vertsPtr[vertCnt + 0].setZ(zpos);
 
                     vertsPtr[vertCnt + 1].setX(1.0f + (xpos / 0x10));
                     vertsPtr[vertCnt + 1].setY(0.0f + (ypos / 0x10));
-                    vertsPtr[vertCnt + 1].setZ(zpos);
 
                     vertsPtr[vertCnt + 2].setX(1.0f + (xpos / 0x10));
                     vertsPtr[vertCnt + 2].setY(1.0f + (ypos / 0x10));
-                    vertsPtr[vertCnt + 2].setZ(zpos);
 
                     vertsPtr[vertCnt + 3].setX(1.0f + (xpos / 0x10));
                     vertsPtr[vertCnt + 3].setY(1.0f + (ypos / 0x10));
-                    vertsPtr[vertCnt + 3].setZ(zpos);
 
                     vertsPtr[vertCnt + 4].setX(0.0f + (xpos / 0x10));
                     vertsPtr[vertCnt + 4].setY(1.0f + (ypos / 0x10));
-                    vertsPtr[vertCnt + 4].setZ(zpos);
 
                     vertsPtr[vertCnt + 5].setX(0.0f + (xpos / 0x10));
                     vertsPtr[vertCnt + 5].setY(0.0f + (ypos / 0x10));
-                    vertsPtr[vertCnt + 5].setZ(zpos);
+
+                    for (int i = 0; i < 6; ++i) {
+                        vertsPtr[vertCnt + i].setZ(zpos);
+                    }
 
                     byte direction = Utils::getBit(tile, 10) | (Utils::getBit(tile, 11) << 1);
                     getTileVerts(tVertsPtr, vertCnt, (tile & 0x3FF) * 0x10, direction);
@@ -390,7 +418,7 @@ void SceneViewerv5::drawScene()
             vVBO2D.bind();
             vVBO2D.allocate(vertsPtr, vertCnt * sizeof(QVector3D));
             spriteShader.enableAttributeArray(0);
-            spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+            spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0); //*/
 
             QOpenGLBuffer tVBO2D;
             tVBO2D.create();
@@ -398,7 +426,7 @@ void SceneViewerv5::drawScene()
             tVBO2D.bind();
             tVBO2D.allocate(tVertsPtr, vertCnt * sizeof(QVector2D));
             spriteShader.enableAttributeArray(1);
-            spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
+            spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0); //*/
 
             QMatrix4x4 matModel;
             matModel.scale(0x10 * zoom, 0x10 * zoom, 1.0f);
@@ -411,19 +439,26 @@ void SceneViewerv5::drawScene()
             vVBO2D.release();
         }
 
+        vertCnt = 0;
+
+        // welcome to the magic of rmg code. dangerous-looking code ahead
+        // there's definitely better ways to do this, but for now this is what we gotta do
+
+
         // Collision Previews
-        for (int c = 0; c < 2 && l == selectedLayer; ++c) {
+        for (int c = 0; c < 2 && l == selectedLayer; ++c)
+        {
             if (showCLayers[c]) {
-                for (int y = basedY; y < countY; ++y) {
+                cleanCol(basedX * 16, basedY * 16, (countX - basedX) * 16,
+                                      (countY - basedY) * 16);
+                for (int y = countY - 1; y >= basedY; --y) {
                     for (int x = basedX; x < countX; ++x) {
                         ushort tile = layout[y][x];
                         if (tile != 0xFFFF) {
-
-                            float xpos = (x * 0x10) - cam.pos.x;
-                            float ypos = (y * 0x10) - cam.pos.y;
-
-                            float yStore = ypos;
                             // draw pixel collision
+                            float xpos = (x * 0x10);
+                            float ypos = (y * 0x10);
+
                             byte solidity = 0;
                             RSDKv5::TileConfig::CollisionMask &cmask =
                                 tileconfig.collisionPaths[c][tile & 0x3FF];
@@ -435,7 +470,10 @@ void SceneViewerv5::drawScene()
 
                             bool flipX = (tile >> 10) & 1;
                             bool flipY = (tile >> 11) & 1;
-                            for (byte cx = 0; cx < 16; ++cx) {
+
+                            byte flipmode = flipY | (cmask.flipY << 1);
+
+                            /*for (byte cx = 0; cx < 16; ++cx) {
                                 int hm = cx;
                                 if (flipX)
                                     hm = 15 - cx;
@@ -443,31 +481,155 @@ void SceneViewerv5::drawScene()
                                 if (!cmask.collision[hm].solid)
                                     continue;
 
-                                byte cy = cmask.collision[hm].height;
-                                byte ch = 16 - cy;
-                                if (flipY && !cmask.flipY) {
-                                    cy = 0;
-                                    ch = 16 - cmask.collision[hm].height;
-                                }
-                                else if (!flipY && cmask.flipY) {
-                                    cy = 0;
-                                    ch = cmask.collision[hm].height + 1;
-                                }
-                                else if (flipY && cmask.flipY) {
-                                    cy = 15 - cmask.collision[hm].height;
-                                    ch = cmask.collision[hm].height + 1;
-                                }
+                                byte h  = cmask.collision[hm].height;
+                                byte cy = h;
+                                if (solidity != 2) {
+                                    //yellow
+                                    byte ycy = cy;
 
-                                ypos = yStore + (ch / 2.0);
+                                    if (flipmode) {
+                                        if (flipmode <= 2)
+                                            ycy = 0;
+                                        if (flipmode == 3)
+                                            ycy = 15 - h;
+                                    }
 
-                                drawRect((xpos + cx) * zoom, (ypos + cy) * zoom, 15.45, 1 * zoom,
-                                         ch * zoom, pixelSolidityClrs[solidity], primitiveShader);
-                                spriteShader.use();
-                                rectVAO.bind();
+                                    placeCol(xpos + cx, ypos + ycy, 16, 1);
+                                }
+                                if (solidity != 1) {
+                                    //red
+                                    byte rcy = h, rch = 16 - h;
+                                    if (flipmode) {
+                                        if (flipmode <= 2)
+                                            rcy = 0;
+                                        if (flipmode >= 2) {
+                                            rch = h + 1;
+                                            if (flipmode == 3) {
+                                                rcy = 15 - h;
+                                            }
+                                        }
+                                    }
+
+                                    rcy = rcy + rch;
+
+                                    placeCol(xpos + cx, ypos + rcy, -16, 2);
+                                }
+                            }//*/
+                            if (true || solidity == 3) {
+                                cleanCol(xpos, ypos, 16, 16);
+                                for (byte cx = 0; cx < 16; ++cx) {
+                                    int hm = cx;
+                                    if (flipX)
+                                        hm = 15 - cx;
+
+                                    if (!cmask.collision[hm].solid)
+                                        continue;
+
+                                    byte h  = cmask.collision[hm].height;
+                                    byte cy = h, ch = 16 - h;
+                                    if (flipmode) {
+                                        if (flipmode <= 2)
+                                            cy = 0;
+                                        if (flipmode >= 2) {
+                                            ch = h + 1;
+                                            if (flipmode == 3) {
+                                                cy = 15 - h;
+                                            }
+                                        }
+                                    }
+                                    placeCol(xpos + cx, ypos + cy, ch, solidity);
+                                }
                             }
                         }
                     }
                 }
+
+                float x = cam.pos.x + camOffset.x;
+                float y = cam.pos.y + camOffset.y;
+
+                auto tileGL = createTexture(colTex->copy(x, y, storedW / zoom, storedH / zoom));
+
+                tileGL->bind();
+
+                float w = storedW / 16.0f / zoom;
+                float h = storedH / 16.0f / zoom;
+
+                vertsPtr[0].setX(0);
+                vertsPtr[0].setY(0);
+
+                vertsPtr[1].setX(w);
+                vertsPtr[1].setY(0);
+
+                vertsPtr[2].setX(w);
+                vertsPtr[2].setY(h);
+
+                vertsPtr[3].setX(w);
+                vertsPtr[3].setY(h);
+
+                vertsPtr[4].setX(0);
+                vertsPtr[4].setY(h);
+
+                vertsPtr[5].setX(0);
+                vertsPtr[5].setY(0);
+
+                tVertsPtr[0].setX(0);
+                tVertsPtr[0].setY(0);
+
+                tVertsPtr[1].setX(1);
+                tVertsPtr[1].setY(0);
+
+                tVertsPtr[2].setX(1);
+                tVertsPtr[2].setY(1);
+
+                tVertsPtr[3].setX(1);
+                tVertsPtr[3].setY(1);
+
+                tVertsPtr[4].setX(0);
+                tVertsPtr[4].setY(1);
+
+                tVertsPtr[5].setX(0);
+                tVertsPtr[5].setY(0);
+
+                for (int i = 0; i < 6; ++i) {
+                    vertsPtr[i].setZ(15.45);
+                }
+
+                spriteShader.setValue("useAlpha", true);
+                spriteShader.setValue("alpha", 1.0f);
+                spriteShader.setValue("transparentColour", QVector3D(0.0f, 0.0f, 0.0f));
+
+                {
+                    QOpenGLVertexArrayObject vao;
+                    vao.create();
+                    vao.bind();
+
+                    QOpenGLBuffer vVBO2D;
+                    vVBO2D.create();
+                    vVBO2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
+                    vVBO2D.bind();
+                    vVBO2D.allocate(vertsPtr, 6 * sizeof(QVector3D));
+                    spriteShader.enableAttributeArray(0);
+                    spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0); //*/
+
+                    QOpenGLBuffer tVBO2D;
+                    tVBO2D.create();
+                    tVBO2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
+                    tVBO2D.bind();
+                    tVBO2D.allocate(tVertsPtr, 6 * sizeof(QVector2D));
+                    spriteShader.enableAttributeArray(1);
+                    spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0); //*/
+
+                    QMatrix4x4 matModel;
+                    matModel.scale(0x10 * zoom, 0x10 * zoom, 1.0f);
+                    spriteShader.setValue("model", matModel);
+
+                    f->glDrawArrays(GL_TRIANGLES, 0, 6);
+
+                    vao.release();
+                    tVBO2D.release();
+                    vVBO2D.release();
+                }
+                tileGL->release();
             }
         }
 

@@ -7,7 +7,7 @@ public:
     float m_near = 0.01f;
     float m_far  = 1000.0f;
 
-    Vector3<float> pos = Vector3<float>(0.0f, 0.0f, 0.0f);
+    Vector2<float> pos = Vector2<float>(0.0f, 0.0f);
 
     Vector2<float> m_lastMousePos = Vector2<float>(0.0f, 0.0f);
 
@@ -102,6 +102,8 @@ public:
 
     QVector3D *vertsPtr  = nullptr;
     QVector2D *tVertsPtr = nullptr;
+
+    QImage *colTex = nullptr;
 
     // TEMP until SetEditableVar() gets completed
     QList<QString> variableNames;
@@ -345,6 +347,10 @@ private:
         else {
         }
     }
+
+    void placeCol(int x, int y, sbyte h, int sol, int w = 1);
+
+    inline void cleanCol(int x, int y, int w, int h);
 };
 
 #endif // SCENEVIEWER_V5_H
