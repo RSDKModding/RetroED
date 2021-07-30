@@ -314,8 +314,8 @@ struct GameInfo {
 #define v5_TEMPENTITY_START     (v5_ENTITY_COUNT - v5_TEMPENTITY_COUNT)
 
 extern int gameObjectCount;
-extern GameObjectInfo objectList[v5_OBJECT_COUNT];
-extern GameEntityBase objectEntityList[v5_ENTITY_COUNT];
+extern GameObjectInfo gameObjectList[v5_OBJECT_COUNT];
+extern GameEntityBase gameEntityList[v5_ENTITY_COUNT];
 
 extern SceneInfo sceneInfo;
 extern EngineInfo engineInfo;
@@ -328,6 +328,11 @@ extern TriggerState triggerR[5];
 extern TouchMouseData touchMouse;
 extern UnknownInfo unknownInfo;
 extern ScreenInfo screens[4];
+
+#include "gamemath.hpp"
+#include "gameobjects.hpp"
+#include "gamematrix.hpp"
+#include "gamedraw.hpp"
 
 class GameLink
 {

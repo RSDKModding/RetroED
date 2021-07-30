@@ -1,6 +1,8 @@
 #include "includes.hpp"
 #include "ui_mainwindow.h"
 
+SceneEditorv5 *v5Editor = nullptr;
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -11,6 +13,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     icon_down = QIcon(Utils::getColouredIcon(":/icons/ic_arrow_downward_48px.svg"));
     icon_add  = QIcon(Utils::getColouredIcon(":/icons/ic_add_circle_48px.svg"));
     icon_rm   = QIcon(Utils::getColouredIcon(":/icons/ic_cancel_48px.svg"));
+
+    connect(ui->toolTabs, &QTabWidget::currentChanged,
+            [this](int) { v5Editor = qobject_cast<SceneEditorv5 *>(ui->toolTabs->currentWidget()); });
 
     QShortcut *closeTab = new QShortcut(ui->toolTabs);
     closeTab->setKey(Qt::CTRL + Qt::Key_W);

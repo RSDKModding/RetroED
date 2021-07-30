@@ -157,6 +157,9 @@ extern QIcon icon_add;
 extern QIcon icon_rm;
 
 extern QLabel *statusLabel;
+
+extern SceneEditorv5 *v5Editor;
+
 void setStatus(QString status);
 
 #endif // INCLUDES_H

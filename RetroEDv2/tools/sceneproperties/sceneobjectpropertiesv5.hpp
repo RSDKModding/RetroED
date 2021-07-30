@@ -8,8 +8,10 @@ class VariableInfo
 public:
     QString name = "Variable";
     byte type    = 0;
+    int offset = 0;
 
     VariableInfo() {}
+    VariableInfo(QString n, byte t, int o) : name(n), type(t), offset(o) {};
 };
 
 struct SceneEntity {

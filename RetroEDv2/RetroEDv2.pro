@@ -29,6 +29,10 @@ SOURCES += \
     tools/decompiler/decompilerv1.cpp \
     tools/gameconfigeditorv5.cpp \
     tools/gamelink/gamelink.cpp \
+    tools/gamelink/gamemath.cpp \
+    tools/gamelink/gameobjects.cpp \
+    tools/gamelink/gamematrix.cpp \
+    tools/gamelink/gamedraw.cpp \
     tools/paletteeditor/colourdialog.cpp \
     tools/rsvtool.cpp \
     tools/savefileeditorv3.cpp \
@@ -79,6 +83,10 @@ HEADERS += \
     tools/decompiler/decompilerv1.hpp \
     tools/gameconfigeditorv5.hpp \
     tools/gamelink/gamelink.hpp \
+    tools/gamelink/gamemath.hpp \
+    tools/gamelink/gameobjects.hpp \
+    tools/gamelink/gamematrix.hpp \
+    tools/gamelink/gamedraw.hpp \
     tools/paletteeditor/colourdialog.hpp \
     tools/rsvtool.hpp \
     tools/savefileeditorv3.hpp \

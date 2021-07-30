@@ -108,6 +108,14 @@ public:
     // TEMP until SetEditableVar() gets completed
     QList<QString> variableNames;
 
+    inline float incZ()
+    {
+        float c = currZ;
+        currZ += 0.01;
+        return c;
+    }
+    float currZ = 16;
+
     int m_prevSprite = -1;
 
     void callGameEvent(GameObjectInfo *info, byte eventID);
@@ -208,6 +216,9 @@ public:
         }
     }
 
+    Shader primitiveShader;
+    Shader spriteShader;
+
     void drawTile(float XPos, float YPos, float ZPos, int tileX, int tileY, byte direction);
 
     void drawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction,
@@ -215,47 +226,6 @@ public:
     void DrawSpriteRotozoom(int x, int y, int pivotX, int pivotY, int width, int height, int sprX,
                             int sprY, int scaleX, int scaleY, int direction, short rotation,
                             int inkEffect, int alpha, int sheetID);
-
-protected:
-    void initializeGL();
-    void resizeGL(int w, int h);
-    void paintGL();
-
-    QSize sizeHint() const { return QSize(0, 0); }
-
-private:
-    QOpenGLVertexArrayObject screenVAO, rectVAO;
-    QOpenGLTexture *m_tilesetTexture = nullptr;
-    QList<TextureInfo> objectSprites;
-
-    QMatrix4x4 m_matView;
-
-    Shader primitiveShader;
-    Shader spriteShader;
-
-    inline QOpenGLTexture *createTexture(QImage src)
-    {
-        QOpenGLTexture *tex = new QOpenGLTexture(QOpenGLTexture::Target::Target2D);
-        tex->create();
-        tex->bind();
-        tex->setWrapMode(QOpenGLTexture::DirectionS, QOpenGLTexture::WrapMode::Repeat);
-        tex->setWrapMode(QOpenGLTexture::DirectionT, QOpenGLTexture::WrapMode::Repeat);
-        tex->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
-        tex->setFormat(QOpenGLTexture::RGBA8_UNorm);
-        tex->setSize(src.width(), src.height());
-        tex->setData(src, QOpenGLTexture::MipMapGeneration::GenerateMipMaps);
-        return tex;
-    }
-
-    // void processParallax(Scene::SceneLayer &layer);
-
-    inline QMatrix4x4 getProjectionMatrix()
-    {
-        QMatrix4x4 matWorld;
-        cam.m_aspectRatio = storedW / (float)storedH;
-        matWorld.ortho(0.0f, (float)storedW, (float)storedH, 0.0f, -16.0f, 16.0f);
-        return matWorld;
-    }
 
     inline void drawPoint(float x, float y, float z, Vector4<float> colour, Shader &shader)
     {
@@ -347,6 +317,46 @@ private:
         else {
         }
     }
+
+protected:
+    void initializeGL();
+    void resizeGL(int w, int h);
+    void paintGL();
+
+    QSize sizeHint() const { return QSize(0, 0); }
+
+private:
+    QOpenGLVertexArrayObject screenVAO, rectVAO;
+    QOpenGLTexture *m_tilesetTexture = nullptr;
+    QList<TextureInfo> objectSprites;
+
+    QMatrix4x4 m_matView;
+
+
+    inline QOpenGLTexture *createTexture(QImage src)
+    {
+        QOpenGLTexture *tex = new QOpenGLTexture(QOpenGLTexture::Target::Target2D);
+        tex->create();
+        tex->bind();
+        tex->setWrapMode(QOpenGLTexture::DirectionS, QOpenGLTexture::WrapMode::Repeat);
+        tex->setWrapMode(QOpenGLTexture::DirectionT, QOpenGLTexture::WrapMode::Repeat);
+        tex->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
+        tex->setFormat(QOpenGLTexture::RGBA8_UNorm);
+        tex->setSize(src.width(), src.height());
+        tex->setData(src, QOpenGLTexture::MipMapGeneration::GenerateMipMaps);
+        return tex;
+    }
+
+    // void processParallax(Scene::SceneLayer &layer);
+
+    inline QMatrix4x4 getProjectionMatrix()
+    {
+        QMatrix4x4 matWorld;
+        cam.m_aspectRatio = storedW / (float)storedH;
+        matWorld.ortho(0.0f, (float)storedW, (float)storedH, 0.0f, -16.0f, 16.0f);
+        return matWorld;
+    }
+
 
     void placeCol(int x, int y, sbyte h, int sol, int w = 1);
 
