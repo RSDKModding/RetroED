@@ -20,11 +20,29 @@ SceneViewerv5::SceneViewerv5(QWidget *)
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, QOverload<>::of(&SceneViewerv5::updateScene));
     timer->start(1000.0f / 60.0f);
+
+    for (int a = 0; a < v5_SPRFILE_COUNT; ++a) {
+        spriteAnimationList[a].scope = SCOPE_NONE;
+    }
+    for (int s = 0; s < v5_SURFACE_MAX; ++s) {
+        gfxSurface[s].scope = SCOPE_NONE;
+    }
 }
 
 SceneViewerv5::~SceneViewerv5()
 {
     unloadScene();
+
+    for (int o = 0; o < v5_SURFACE_MAX; ++o) {
+        if (gfxSurface[o].scope != SCOPE_NONE) {
+            if (gfxSurface[o].texturePtr) {
+                gfxSurface[o].texturePtr->destroy();
+                delete gfxSurface[o].texturePtr;
+            }
+            gfxSurface[o].texturePtr = nullptr;
+            gfxSurface[o].scope      = SCOPE_NONE;
+        }
+    }
 
     screenVAO.destroy();
     rectVAO.destroy();
@@ -46,6 +64,15 @@ void SceneViewerv5::loadScene(QString path)
 
             file.close();
         }
+    }
+
+    // Default Texture
+    if (gfxSurface[0].scope == SCOPE_NONE) {
+        gfxSurface[0].scope      = SCOPE_GLOBAL;
+        gfxSurface[0].name       = ":/icons/missing.png";
+        missingObj               = QImage(gfxSurface[0].name);
+        gfxSurface[0].texturePtr = createTexture(missingObj);
+        Utils::getHashInt(gfxSurface[0].name, gfxSurface[0].hash);
     }
 
     // loading
@@ -96,11 +123,13 @@ void SceneViewerv5::loadScene(QString path)
             auto &var = obj.variables[v];
             VariableInfo variable;
             variable.name = var.m_name.hashString();
+            variable.hash = var.m_name.hash;
             variable.type = var.type;
 
             for (int i = 0; i < variableNames.count(); ++i) {
                 if (Utils::getMd5HashByteArray(variableNames[i]) == var.m_name.hash) {
                     variable.name = variableNames[i];
+                    variable.hash = Utils::getMd5HashByteArray(variable.name);
                     break;
                 }
             }
@@ -135,21 +164,6 @@ void SceneViewerv5::loadScene(QString path)
 
             tiles.append(tileTex);
         }
-
-        // for (FormatHelpers::Chunks::Chunk &c : chunkset.chunks) {
-        //    QImage img = c.getImage(tiles);
-        //    chunks.append(img);
-        //}
-    }
-
-    // objects
-    objectSprites.clear();
-    {
-        TextureInfo tex;
-        tex.name       = ":/icons/missing.png";
-        missingObj     = QImage(tex.name);
-        tex.texturePtr = createTexture(missingObj);
-        objectSprites.append(tex);
     }
 }
 
@@ -225,7 +239,8 @@ void SceneViewerv5::updateScene()
     }
 }
 
-void SceneViewerv5::cleanCol(int x, int y, int w, int h) {
+void SceneViewerv5::cleanCol(int x, int y, int w, int h)
+{
     int ty = y + h;
     int tx = x + w;
     for (; x < tx; ++x) {
@@ -444,13 +459,10 @@ void SceneViewerv5::drawScene()
         // welcome to the magic of rmg code. dangerous-looking code ahead
         // there's definitely better ways to do this, but for now this is what we gotta do
 
-
         // Collision Previews
-        for (int c = 0; c < 2 && l == selectedLayer; ++c)
-        {
+        for (int c = 0; c < 2 && l == selectedLayer; ++c) {
             if (showCLayers[c]) {
-                cleanCol(basedX * 16, basedY * 16, (countX - basedX) * 16,
-                                      (countY - basedY) * 16);
+                cleanCol(basedX * 16, basedY * 16, (countX - basedX) * 16, (countY - basedY) * 16);
                 for (int y = countY - 1; y >= basedY; --y) {
                     for (int x = basedX; x < countX; ++x) {
                         ushort tile = layout[y][x];
@@ -691,7 +703,14 @@ void SceneViewerv5::drawScene()
     }
 
     // ENTITIES
-    m_prevSprite = -1;
+    prevSprite = -1;
+
+    primitiveShader.use();
+    primitiveShader.setValue("projection", getProjectionMatrix());
+    primitiveShader.setValue("view", QMatrix4x4());
+    primitiveShader.setValue("useAlpha", false);
+    primitiveShader.setValue("alpha", 1.0f);
+
     spriteShader.use();
     rectVAO.bind();
     spriteShader.setValue("flipX", false);
@@ -699,6 +718,7 @@ void SceneViewerv5::drawScene()
     spriteShader.setValue("useAlpha", false);
     spriteShader.setValue("alpha", 1.0f);
     for (int o = 0; o < entities.count(); ++o) {
+        validDraw = false;
 
         int filter = 0xFF;
         for (int v = 0; v < objects[entities[o].type].variables.count(); ++v) {
@@ -711,36 +731,40 @@ void SceneViewerv5::drawScene()
         if (!(filter & sceneFilter))
             continue;
 
-        callGameEvent(gameLink.GetObjectInfo(objects[entities[o].type].name), EVENT_DRAW);
-        spriteShader.use();
-        rectVAO.bind();
-        // Draw Object
-        float xpos = entities[o].pos.x - (cam.pos.x);
-        float ypos = entities[o].pos.y - (cam.pos.y);
-        float zpos = 10.0f;
+        callGameEvent(gameLink.GetObjectInfo(objects[entities[o].type].name), EVENT_DRAW, o);
 
-        int w = objectSprites[0].texturePtr->width(), h = objectSprites[0].texturePtr->height();
-        if (m_prevSprite) {
-            objectSprites[0].texturePtr->bind();
-            m_prevSprite = 0;
+        // Draw Default Object Sprite if invalid
+        if (!validDraw) {
+            spriteShader.use();
+            rectVAO.bind();
+
+            float xpos = entities[o].pos.x - (cam.pos.x);
+            float ypos = entities[o].pos.y - (cam.pos.y);
+            float zpos = 10.0f;
+
+            int w = gfxSurface[0].texturePtr->width(), h = gfxSurface[0].texturePtr->height();
+            if (prevSprite) {
+                gfxSurface[0].texturePtr->bind();
+                prevSprite = 0;
+            }
+
+            Rect<int> check = Rect<int>();
+            check.x         = (int)(xpos + (float)w) * zoom;
+            check.y         = (int)(ypos + (float)h) * zoom;
+            check.w         = (int)(xpos - (w / 2.0f)) * zoom;
+            check.h         = (int)(ypos - (h / 2.0f)) * zoom;
+            if (check.x < 0 || check.y < 0 || check.w >= storedW || check.h >= storedH) {
+                continue;
+            }
+
+            QMatrix4x4 matModel;
+            matModel.scale(w * zoom, h * zoom, 1.0f);
+
+            matModel.translate(xpos / (float)w, ypos / (float)h, zpos);
+            spriteShader.setValue("model", matModel);
+
+            f->glDrawArrays(GL_TRIANGLES, 0, 6);
         }
-
-        Rect<int> check = Rect<int>();
-        check.x         = (int)(xpos + (float)w) * zoom;
-        check.y         = (int)(ypos + (float)h) * zoom;
-        check.w         = (int)(xpos - (w / 2.0f)) * zoom;
-        check.h         = (int)(ypos - (h / 2.0f)) * zoom;
-        if (check.x < 0 || check.y < 0 || check.w >= storedW || check.h >= storedH) {
-            continue;
-        }
-
-        QMatrix4x4 matModel;
-        matModel.scale(w * zoom, h * zoom, 1.0f);
-
-        matModel.translate(xpos / (float)w, ypos / (float)h, zpos);
-        spriteShader.setValue("model", matModel);
-
-        f->glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
     // TILE PREVIEW
@@ -783,9 +807,8 @@ void SceneViewerv5::drawScene()
     spriteShader.setValue("useAlpha", true);
     spriteShader.setValue("alpha", 0.75f);
     if (selectedObject >= 0 && isSelecting && curTool == TOOL_ENTITY) {
-        bool flag = false;
-        float ex  = tilePos.x;
-        float ey  = tilePos.y;
+        float ex = tilePos.x;
+        float ey = tilePos.y;
 
         ex *= invZoom();
         ey *= invZoom();
@@ -793,21 +816,23 @@ void SceneViewerv5::drawScene()
         float cx = cam.pos.x;
         float cy = cam.pos.y;
 
+        validDraw = false;
         SceneEntity tempEntity;
         tempEntity.type   = selectedObject;
         tempEntity.pos.x  = (ex + cx) * 65536.0f;
         tempEntity.pos.y  = (ey + cy) * 65536.0f;
         tempEntity.slotID = 0xFFFF;
-        callGameEvent(gameLink.GetObjectInfo(objects[selectedObject].name), EVENT_DRAW);
+        callGameEvent(gameLink.GetObjectInfo(objects[selectedObject].name), EVENT_DRAW,
+                      v5_ENTITY_COUNT - 1);
 
-        if (!flag) {
+        if (!validDraw) {
             // Draw Selected Object Preview
             float xpos = ex;
             float ypos = ey;
             float zpos = 15.0f;
 
-            int w = objectSprites[0].texturePtr->width(), h = objectSprites[0].texturePtr->height();
-            objectSprites[0].texturePtr->bind();
+            int w = gfxSurface[0].texturePtr->width(), h = gfxSurface[0].texturePtr->height();
+            gfxSurface[0].texturePtr->bind();
 
             QMatrix4x4 matModel;
             matModel.scale(w * zoom, h * zoom, 1.0f);
@@ -833,8 +858,8 @@ void SceneViewerv5::drawScene()
     primitiveShader.setValue("model", matModel);
     if (selectedEntity >= 0) {
         SceneEntity &entity = entities[selectedEntity];
-        int w = objectSprites[0].texturePtr->width(), h = objectSprites[0].texturePtr->height();
-        objectSprites[0].texturePtr->bind();
+        int w = gfxSurface[0].texturePtr->width(), h = gfxSurface[0].texturePtr->height();
+        gfxSurface[0].texturePtr->bind();
 
         drawRect(((entity.pos.x - cam.pos.x) - (w / 2)) * zoom,
                  ((entity.pos.y - cam.pos.y) - (h / 2)) * zoom, 15.7f, w * zoom, h * zoom,
@@ -920,12 +945,14 @@ void SceneViewerv5::unloadScene()
     m_tilesetTexture = nullptr;
     tiles.clear();
 
-    for (int o = 0; o < objectSprites.count(); ++o) {
-        objectSprites[o].texturePtr->destroy();
-        delete objectSprites[o].texturePtr;
-        objectSprites[o].name = "";
+    for (int o = 0; o < v5_SURFACE_MAX; ++o) {
+        if (gfxSurface[o].scope == SCOPE_STAGE) {
+            if (gfxSurface[o].texturePtr)
+                delete gfxSurface[o].texturePtr;
+            gfxSurface[o].texturePtr = nullptr;
+            gfxSurface[o].scope      = SCOPE_NONE;
+        }
     }
-    objectSprites.clear();
 
     cam                = SceneCamerav5();
     selectedTile       = -1;
@@ -945,7 +972,7 @@ void SceneViewerv5::unloadScene()
     sceneHeight = 0;
 }
 
-void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID)
+void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, int id)
 {
     if (!info)
         return;
@@ -957,9 +984,8 @@ void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID)
                 info->editorLoad();
             break;
         case EVENT_CREATE:
-            // TODO: that
-            sceneInfo.entity     = NULL;
-            sceneInfo.entitySlot = 0;
+            sceneInfo.entity     = entities[id].gameEntity;
+            sceneInfo.entitySlot = entities[id].slotID;
             if (info->create)
                 info->create(NULL);
             sceneInfo.entity     = NULL;
@@ -967,21 +993,24 @@ void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID)
             break;
         case EVENT_UPDATE:
             // TODO: that
-            sceneInfo.entity     = NULL;
-            sceneInfo.entitySlot = 0;
+            sceneInfo.entity     = entities[id].gameEntity;
+            sceneInfo.entitySlot = entities[id].slotID;
             if (info->update)
                 info->update();
             sceneInfo.entity     = NULL;
             sceneInfo.entitySlot = 0;
             break;
         case EVENT_DRAW:
-            // TODO: that
-            sceneInfo.entity     = NULL;
-            sceneInfo.entitySlot = 0;
+            sceneInfo.entity     = entities[id].gameEntity;
+            sceneInfo.entitySlot = entities[id].slotID;
             if (info->editorDraw)
                 info->editorDraw();
             sceneInfo.entity     = NULL;
             sceneInfo.entitySlot = 0;
+            break;
+        case EVENT_SERIALIZE:
+            if (info->serialize)
+                info->serialize();
             break;
     }
 }
@@ -1081,55 +1110,34 @@ void SceneViewerv5::paintGL()
     drawScene();
 }
 
-int SceneViewerv5::addGraphicsFile(char *sheetPath)
+int SceneViewerv5::addGraphicsFile(char *sheetPath, int sheetID, byte scope)
 {
-    QString path = dataPath + "/Sprites/" + sheetPath;
-    if (!QFile::exists(path))
-        return 0;
-
-    for (int i = 1; i < objectSprites.count(); ++i) {
-        if (QString(sheetPath) == objectSprites[i].name)
-            return i;
-    }
-
-    int sheetID = -1;
-    for (int i = 1; i < objectSprites.count(); ++i) {
-        if (objectSprites[i].name == "")
-            sheetID = i;
-    }
-
-    if (sheetID >= 0) {
-        QImage sheet(path);
-        TextureInfo tex;
-        tex.name               = QString(sheetPath);
-        tex.texturePtr         = createTexture(sheet);
-        objectSprites[sheetID] = tex;
+    if (sheetID >= 0 && sheetID < v5_SURFACE_MAX) {
+        QImage sheet(sheetPath);
+        gfxSurface[sheetID].name = QString(sheetPath);
+        Utils::getHashInt(sheetPath, gfxSurface[sheetID].hash);
+        gfxSurface[sheetID].texturePtr = createTexture(sheet);
+        gfxSurface[sheetID].scope      = scope;
+        gfxSurface[sheetID].width      = sheet.width();
+        gfxSurface[sheetID].height     = sheet.height();
         return sheetID;
     }
-    else {
-        QImage sheet(path);
-        int cnt = objectSprites.count();
-        TextureInfo tex;
-        tex.name       = QString(sheetPath);
-        tex.texturePtr = createTexture(sheet);
-        objectSprites.append(tex);
-        return cnt;
-    }
+    return -1;
 }
 
 void SceneViewerv5::removeGraphicsFile(char *sheetPath, int slot)
 {
     if (slot >= 0) {
-        objectSprites[slot].texturePtr->destroy();
-        delete objectSprites[slot].texturePtr;
-        objectSprites[slot].name = "";
+        gfxSurface[slot].texturePtr->destroy();
+        delete gfxSurface[slot].texturePtr;
+        gfxSurface[slot].scope = SCOPE_NONE;
     }
     else {
-        for (int i = 1; i < objectSprites.count(); ++i) {
-            if (QString(sheetPath) == objectSprites[i].name) {
-                objectSprites[slot].texturePtr->destroy();
-                delete objectSprites[slot].texturePtr;
-                objectSprites[slot].name = "";
+        for (int i = 1; i < v5_SURFACE_MAX; ++i) {
+            if (QString(sheetPath) == gfxSurface[i].name) {
+                gfxSurface[i].texturePtr->destroy();
+                delete gfxSurface[i].texturePtr;
+                gfxSurface[i].scope = SCOPE_NONE;
             }
         }
     }
@@ -1224,23 +1232,48 @@ void SceneViewerv5::drawSpriteFlipped(int XPos, int YPos, int width, int height,
                                       int direction, int inkEffect, int alpha, int sheetID)
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-    if (inkEffect == 1) // blended
-        alpha = 0x80;
 
-    if (sheetID != m_prevSprite)
+    switch (inkEffect) {
+        case INK_NONE: alpha = 0xFF; break;
+        case INK_BLEND: alpha = 0x80; break;
+        case INK_ALPHA:
+            if (alpha > 0xFF) {
+                inkEffect = INK_NONE;
+            }
+            else if (alpha <= 0) {
+                return;
+            }
+            break;
+        case INK_ADD:
+        case INK_SUB:
+            if (alpha > 0xFF) {
+                alpha = 0xFF;
+            }
+            else if (alpha <= 0) {
+                return;
+            }
+            break;
+        case INK_LOOKUP:
+            // if (!lookupTable)
+            //    return;
+            break;
+        case INK_MASKED: alpha = 0xFF; break;
+        case INK_UNMASKED: alpha = 0xFF; break;
+    }
+
+    if (sheetID != prevSprite)
         sprDrawsv5 = 0;
 
     // Draw Sprite
-    float xpos = XPos - cam.pos.x;
-    float ypos = YPos - cam.pos.y;
+    float xpos = XPos;
+    float ypos = YPos;
     float zpos = 10.0f + (sprDrawsv5 * 0.001f);
 
-    if (sheetID != m_prevSprite) {
-        objectSprites[sheetID].texturePtr->bind();
-        m_prevSprite = sheetID;
+    if (sheetID != prevSprite) {
+        gfxSurface[sheetID].texturePtr->bind();
+        prevSprite = sheetID;
     }
-    float w = objectSprites[sheetID].texturePtr->width(),
-          h = objectSprites[sheetID].texturePtr->height();
+    float w = gfxSurface[sheetID].texturePtr->width(), h = gfxSurface[sheetID].texturePtr->height();
 
     Rect<int> check = Rect<int>();
     check.x         = (int)(xpos + (float)w) * zoom;
@@ -1327,35 +1360,60 @@ void SceneViewerv5::drawSpriteFlipped(int XPos, int YPos, int width, int height,
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
     sprDrawsv5++;
+    validDraw = true;
 }
 
-void SceneViewerv5::DrawSpriteRotozoom(int XPos, int YPos, int pivotX, int pivotY, int width,
+void SceneViewerv5::drawSpriteRotozoom(int XPos, int YPos, int pivotX, int pivotY, int width,
                                        int height, int sprX, int sprY, int scaleX, int scaleY,
                                        int direction, short rotation, int inkEffect, int alpha,
                                        int sheetID)
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
-    if (inkEffect == 1) // blended
-        alpha = 0x80;
+    switch (inkEffect) {
+        case INK_NONE: alpha = 0xFF; break;
+        case INK_BLEND: alpha = 0x80; break;
+        case INK_ALPHA:
+            if (alpha > 0xFF) {
+                inkEffect = INK_NONE;
+            }
+            else if (alpha <= 0) {
+                return;
+            }
+            break;
+        case INK_ADD:
+        case INK_SUB:
+            if (alpha > 0xFF) {
+                alpha = 0xFF;
+            }
+            else if (alpha <= 0) {
+                return;
+            }
+            break;
+        case INK_LOOKUP:
+            // if (!lookupTable)
+            //    return;
+            break;
+        case INK_MASKED: alpha = 0xFF; break;
+        case INK_UNMASKED: alpha = 0xFF; break;
+    }
 
-    if (sheetID != m_prevSprite)
+    if (sheetID != prevSprite)
         sprDrawsv5 = 0;
 
     // XPos += pivotX;
     // YPos += pivotY;
 
     // Draw Sprite
-    float xpos = XPos - cam.pos.x;
-    float ypos = YPos - cam.pos.y;
+    float xpos = XPos;
+    float ypos = YPos;
     float zpos = 10.0f + (sprDrawsv5 * 0.001f);
 
-    if (sheetID != m_prevSprite) {
-        objectSprites[sheetID].texturePtr->bind();
-        m_prevSprite = sheetID;
+    if (sheetID != prevSprite) {
+        gfxSurface[sheetID].texturePtr->bind();
+        prevSprite = sheetID;
     }
-    float w = objectSprites[sheetID].texturePtr->width(),
-          h = objectSprites[sheetID].texturePtr->height();
+    float w = gfxSurface[sheetID].texturePtr->width(), h = gfxSurface[sheetID].texturePtr->height();
 
     Rect<int> check = Rect<int>();
     check.x         = (int)(xpos + (float)w) * zoom;
@@ -1450,4 +1508,96 @@ void SceneViewerv5::DrawSpriteRotozoom(int XPos, int YPos, int pivotX, int pivot
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
     sprDrawsv5++;
+    validDraw = true;
+}
+
+void SceneViewerv5::drawLine(float x1, float y1, float z1, float x2, float y2, float z2,
+                             Vector4<float> colour, Shader &shader)
+{
+    shader.use();
+    float zpos          = 10.0f + (sprDrawsv5 * 0.001f);
+    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+
+    shader.setValue("colour", QVector4D(colour.x, colour.y, colour.z, colour.w));
+
+    QVector3D vertsPtr[2] = { QVector3D(x1, y1, zpos), QVector3D(x2, y2, zpos) };
+
+    QOpenGLVertexArrayObject VAO;
+    VAO.create();
+    VAO.bind();
+
+    QOpenGLBuffer VBO;
+    VBO.create();
+    VBO.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    VBO.bind();
+    VBO.allocate(vertsPtr, 2 * sizeof(QVector3D));
+    shader.enableAttributeArray(0);
+    shader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+
+    f->glDrawArrays(GL_LINES, 0, 2);
+
+    VAO.release();
+    VBO.release();
+
+    VAO.destroy();
+    VBO.destroy();
+
+    sprDrawsv5++;
+    validDraw = true;
+}
+
+void SceneViewerv5::drawRect(float x, float y, float z, float w, float h, Vector4<float> colour,
+                             Shader &shader, bool outline)
+{
+    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+
+    shader.use();
+    float zpos = 10.0f + (sprDrawsv5 * 0.001f);
+    if (outline) {
+        // top
+        drawLine(x, y, zpos, x + w, y, zpos, colour, shader);
+        // bottom
+        drawLine(x, y + h, zpos, x + w, y + h, zpos, colour, shader);
+        // left
+        drawLine(x, y, zpos, x, y + h, zpos, colour, shader);
+        // right
+        drawLine(x + w, y, zpos, x + w, y + h, zpos, colour, shader);
+
+        validDraw = true;
+    }
+    else {
+        shader.setValue("colour", QVector4D(colour.x, colour.y, colour.z, colour.w));
+
+        rectVAO.bind();
+
+        QMatrix4x4 matModel;
+        matModel.scale(w, h, 1.0f);
+        matModel.translate(x / w, y / h, zpos);
+        shader.setValue("model", matModel);
+
+        f->glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        rectVAO.release();
+
+        sprDrawsv5++;
+        validDraw = true;
+    }
+}
+
+void SceneViewerv5::drawCircle(float x, float y, float z, float r, Vector4<float> colour,
+                               Shader &shader, bool outline)
+{
+    Q_UNUSED(x)
+    Q_UNUSED(y)
+    Q_UNUSED(z)
+    Q_UNUSED(r)
+    Q_UNUSED(colour)
+    Q_UNUSED(shader)
+
+    // QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+
+    if (outline) {
+    }
+    else {
+    }
 }

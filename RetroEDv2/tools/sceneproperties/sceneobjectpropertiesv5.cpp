@@ -42,23 +42,37 @@ void SceneObjectPropertiesv5::setupUI(QList<SceneObject> *objects, SceneEntity *
         // entity type was changed
         // TODO: clear & reset variables
     });
+    connect(infoGroup[1], &Property::changed, [] {
+        // entity slot was changed
+        // TODO:
+        // check if slot avaliable
+        // if not, dont change slot
+        // if it is, reset the linked entity slot and the new entity slot
+        // and init the new entity slot's data to suit the type
+    });
 
     QList<Property *> posGroup = { new Property("x", &entity->pos.x),
                                    new Property("y", &entity->pos.y) };
 
-    connect(posGroup[0], &Property::changed, [this] { /*TODO*/ });
+    connect(posGroup[0], &Property::changed, [entity] {
+        if (entity->gameEntity) {
+            entity->gameEntity->position.x = entity->pos.x * 65536.0f;
+        }
+    });
 
-    connect(posGroup[1], &Property::changed, [this] { /*TODO*/ });
+    connect(posGroup[1], &Property::changed, [entity] {
+        if (entity->gameEntity) {
+            entity->gameEntity->position.y = entity->pos.y * 65536.0f;
+        }
+    });
 
     for (int v = 0; v < entity->variables.count(); ++v) {
         auto &var = entity->variables[v];
 
-        QString varName = (*objects)[entity->type].variables[v].name;
-        Property *group = new Property(varName);
+        SceneObject *object = &(*objects)[entity->type];
+        QString varName     = (*objects)[entity->type].variables[v].name;
+        Property *group     = new Property(varName);
         QList<Property *> valGroup;
-
-        // ushort id           = entity->type;
-        // GameObjectInfo *obj = NULL;
 
         QList<PropertyValue> aliases;
 
@@ -72,8 +86,11 @@ void SceneObjectPropertiesv5::setupUI(QList<SceneObject> *objects, SceneEntity *
                     valGroup.append(new Property("uint8", &entity->variables[v].value_uint8));
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
-                    connect(prop, &Property::changed, [prop, v, entity] {
-                        // byte *val                        = (byte *)prop->valuePtr;
+                    connect(prop, &Property::changed, [prop, v, entity, object] {
+                        if (object && entity->gameEntity) {
+                            byte *dataPtr = &((byte *)entity->gameEntity)[object->variables[v].offset];
+                            memcpy(dataPtr, prop->valuePtr, sizeof(byte));
+                        }
                     });
                     break;
                 }
@@ -81,8 +98,11 @@ void SceneObjectPropertiesv5::setupUI(QList<SceneObject> *objects, SceneEntity *
                     valGroup.append(new Property("uint16", &entity->variables[v].value_uint16));
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
-                    connect(prop, &Property::changed, [prop, v, entity] {
-                        // ushort *val                       = (ushort *)prop->valuePtr;
+                    connect(prop, &Property::changed, [prop, v, entity, object] {
+                        if (object && entity->gameEntity) {
+                            byte *dataPtr = &((byte *)entity->gameEntity)[object->variables[v].offset];
+                            memcpy(dataPtr, prop->valuePtr, sizeof(ushort));
+                        }
                     });
                     break;
                 }
@@ -90,8 +110,11 @@ void SceneObjectPropertiesv5::setupUI(QList<SceneObject> *objects, SceneEntity *
                     valGroup.append(new Property("uint32", &entity->variables[v].value_uint32));
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
-                    connect(prop, &Property::changed, [prop, v, entity] {
-                        // uint *val                        = (uint *)prop->valuePtr;
+                    connect(prop, &Property::changed, [prop, v, entity, object] {
+                        if (object && entity->gameEntity) {
+                            byte *dataPtr = &((byte *)entity->gameEntity)[object->variables[v].offset];
+                            memcpy(dataPtr, prop->valuePtr, sizeof(ushort));
+                        }
                     });
                     break;
                 }
@@ -99,8 +122,11 @@ void SceneObjectPropertiesv5::setupUI(QList<SceneObject> *objects, SceneEntity *
                     valGroup.append(new Property("int8", &entity->variables[v].value_int8));
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
-                    connect(prop, &Property::changed, [prop, v, entity] {
-                        // sbyte *val                      = (sbyte *)prop->valuePtr;
+                    connect(prop, &Property::changed, [prop, v, entity, object] {
+                        if (object && entity->gameEntity) {
+                            byte *dataPtr = &((byte *)entity->gameEntity)[object->variables[v].offset];
+                            memcpy(dataPtr, prop->valuePtr, sizeof(sbyte));
+                        }
                     });
                     break;
                 }
@@ -108,8 +134,11 @@ void SceneObjectPropertiesv5::setupUI(QList<SceneObject> *objects, SceneEntity *
                     valGroup.append(new Property("int16", &entity->variables[v].value_int16));
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
-                    connect(prop, &Property::changed, [prop, v, entity] {
-                        // short *val                       = (short *)prop->valuePtr;
+                    connect(prop, &Property::changed, [prop, v, entity, object] {
+                        if (object && entity->gameEntity) {
+                            byte *dataPtr = &((byte *)entity->gameEntity)[object->variables[v].offset];
+                            memcpy(dataPtr, prop->valuePtr, sizeof(short));
+                        }
                     });
                     break;
                 }
@@ -117,8 +146,11 @@ void SceneObjectPropertiesv5::setupUI(QList<SceneObject> *objects, SceneEntity *
                     valGroup.append(new Property("int32", &entity->variables[v].value_int32));
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
-                    connect(prop, &Property::changed, [prop, v, entity] {
-                        // int *val                         = (int *)prop->valuePtr;
+                    connect(prop, &Property::changed, [prop, v, entity, object] {
+                        if (object && entity->gameEntity) {
+                            byte *dataPtr = &((byte *)entity->gameEntity)[object->variables[v].offset];
+                            memcpy(dataPtr, prop->valuePtr, sizeof(int));
+                        }
                     });
                     break;
                 }
@@ -126,8 +158,11 @@ void SceneObjectPropertiesv5::setupUI(QList<SceneObject> *objects, SceneEntity *
                     valGroup.append(new Property("enum", &entity->variables[v].value_enum));
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
-                    connect(prop, &Property::changed, [prop, v, entity] {
-                        // int *val                        = (int *)prop->valuePtr;/
+                    connect(prop, &Property::changed, [prop, v, entity, object] {
+                        if (object && entity->gameEntity) {
+                            byte *dataPtr = &((byte *)entity->gameEntity)[object->variables[v].offset];
+                            memcpy(dataPtr, prop->valuePtr, sizeof(int));
+                        }
                     });
                     break;
                 }
@@ -135,8 +170,12 @@ void SceneObjectPropertiesv5::setupUI(QList<SceneObject> *objects, SceneEntity *
                     valGroup.append(new Property("bool", &entity->variables[v].value_bool));
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
-                    connect(prop, &Property::changed, [prop, v, entity] {
-                        // int *val                        = (int *)prop->valuePtr;
+                    connect(prop, &Property::changed, [prop, v, entity, object] {
+                        if (object && entity->gameEntity) {
+                            byte *dataPtr = &((byte *)entity->gameEntity)[object->variables[v].offset];
+                            bool32 val    = *((bool *)prop->valuePtr) != false;
+                            memcpy(dataPtr, &val, sizeof(bool32));
+                        }
                     });
                     break;
                 }
@@ -144,8 +183,13 @@ void SceneObjectPropertiesv5::setupUI(QList<SceneObject> *objects, SceneEntity *
                     valGroup.append(new Property("string", &entity->variables[v].value_string));
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
-                    connect(prop, &Property::changed, [prop, v, entity] {
-                        // QString *val                        = (QString *)prop->valuePtr;
+                    connect(prop, &Property::changed, [prop, v, entity, object] {
+                        if (object && entity->gameEntity) {
+                            TextInfo *dataPtr =
+                                (TextInfo *)&((byte *)entity->gameEntity)[object->variables[v].offset];
+                            QString val = *((QString *)prop->valuePtr);
+                            FunctionTable::setText(dataPtr, (char *)val.toStdString().c_str(), false);
+                        }
                     });
                     break;
                 }
@@ -153,8 +197,13 @@ void SceneObjectPropertiesv5::setupUI(QList<SceneObject> *objects, SceneEntity *
                     valGroup.append(new Property("colour", &entity->variables[v].value_color));
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
-                    connect(prop, &Property::changed, [prop, v, entity] {
-                        // QColor *val                        = (QColor *)prop->valuePtr;
+                    connect(prop, &Property::changed, [prop, v, entity, object] {
+                        if (object && entity->gameEntity) {
+                            byte *dataPtr = &((byte *)entity->gameEntity)[object->variables[v].offset];
+                            QColor *val   = (QColor *)prop->valuePtr;
+                            uint clr      = (val->red() << 16) | (val->green() << 8) | (val->blue());
+                            memcpy(dataPtr, &clr, sizeof(uint));
+                        }
                     });
                     break;
                 }
@@ -162,15 +211,22 @@ void SceneObjectPropertiesv5::setupUI(QList<SceneObject> *objects, SceneEntity *
                     valGroup.append(new Property("x", &entity->variables[v].value_vector2.x));
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
-                    connect(prop, &Property::changed, [prop, v, entity] {
-                        // int *val                        = (int *)prop->valuePtr;
+                    connect(prop, &Property::changed, [prop, v, entity, object] {
+                        if (object && entity->gameEntity) {
+                            byte *dataPtr = &((byte *)entity->gameEntity)[object->variables[v].offset];
+                            memcpy(dataPtr, prop->valuePtr, sizeof(int));
+                        }
                     });
 
                     valGroup.append(new Property("y", &entity->variables[v].value_vector2.y));
                     prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
-                    connect(prop, &Property::changed, [prop, v, entity] {
-                        // int *val                        = (int *)prop->valuePtr;
+                    connect(prop, &Property::changed, [prop, v, entity, object] {
+                        if (object && entity->gameEntity) {
+                            byte *dataPtr = &(
+                                (byte *)entity->gameEntity)[object->variables[v].offset + sizeof(int)];
+                            memcpy(dataPtr, prop->valuePtr, sizeof(int));
+                        }
                     });
                     break;
                 }

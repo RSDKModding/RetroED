@@ -37,6 +37,11 @@ public:
 
     void loadScene(QString scnPath, QString gcfPath, byte gameType);
 
+    QString dataPath = "";
+
+    // Game Data Storage
+    DataStorage dataStorage[DATASET_MAX];
+
 protected:
     bool event(QEvent *event);
     bool eventFilter(QObject *object, QEvent *event);

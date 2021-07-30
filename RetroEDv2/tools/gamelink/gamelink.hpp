@@ -305,17 +305,13 @@ struct GameInfo {
     UnknownInfo *unknown;
     ScreenInfo *screenInfo;
 };
-#define v5_OBJECT_COUNT (0x400)
-// 0x800 scene objects, 0x40 reserved ones, and 0x100 spare slots for creation
-#define v5_RESERVE_ENTITY_COUNT (0x40)
-#define v5_TEMPENTITY_COUNT     (0x100)
-#define v5_SCENEENTITY_COUNT    (0x800)
-#define v5_ENTITY_COUNT         (v5_RESERVE_ENTITY_COUNT + v5_SCENEENTITY_COUNT + v5_TEMPENTITY_COUNT)
-#define v5_TEMPENTITY_START     (v5_ENTITY_COUNT - v5_TEMPENTITY_COUNT)
 
-extern int gameObjectCount;
-extern GameObjectInfo gameObjectList[v5_OBJECT_COUNT];
-extern GameEntityBase gameEntityList[v5_ENTITY_COUNT];
+extern byte *gameGlobalVariablesPtr;
+
+namespace FunctionTable
+{
+void initGameOptions(void **options, int size);
+} // namespace FunctionTable
 
 extern SceneInfo sceneInfo;
 extern EngineInfo engineInfo;
@@ -329,9 +325,11 @@ extern TouchMouseData touchMouse;
 extern UnknownInfo unknownInfo;
 extern ScreenInfo screens[4];
 
+#include "gamestorage.hpp"
 #include "gamemath.hpp"
 #include "gameobjects.hpp"
 #include "gamematrix.hpp"
+#include "gametext.hpp"
 #include "gamedraw.hpp"
 
 class GameLink
@@ -340,9 +338,10 @@ public:
     GameLink();
 
     void Setup();
-    void LinkGameObjects();
+    void LinkGameObjects(QString gameName = "Game");
 
     GameObjectInfo *GetObjectInfo(QString name);
+    GameObjectInfo *GetObjectInfo(int type);
 };
 
 extern GameLink gameLink;

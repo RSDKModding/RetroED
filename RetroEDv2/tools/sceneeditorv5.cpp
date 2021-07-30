@@ -423,9 +423,16 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     for (QWidget *w : findChildren<QWidget *>()) {
         w->installEventFilter(this);
     }
+
+    InitStorage(dataStorage);
 }
 
-SceneEditorv5::~SceneEditorv5() { delete ui; }
+SceneEditorv5::~SceneEditorv5()
+{
+    delete ui;
+
+    ReleaseStorage(dataStorage);
+}
 
 bool SceneEditorv5::event(QEvent *event)
 {
@@ -565,7 +572,6 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                 viewer->scene.layers[viewer->selectedLayer].layout[ypos][xpos] = tile;
             }
         }
-        
     };
 
     auto resetTools = [this](byte tool) {
@@ -1089,12 +1095,18 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
 {
     setStatus("Loading Scene...");
 
-    if (gcfPath != viewer->gameConfig.m_filename)
+    ClearUnusedStorage(dataStorage, DATASET_STG);
+    ClearUnusedStorage(dataStorage, DATASET_STR);
+    ClearUnusedStorage(dataStorage, DATASET_TMP);
+
+    if (gcfPath != viewer->gameConfig.m_filename) {
         viewer->gameConfig.read(gcfPath, sceneVer == 1);
-    QString dataPath = QFileInfo(gcfPath).absolutePath();
-    QDir dir(dataPath);
-    dir.cdUp();
-    viewer->dataPath = dir.path();
+        dataPath = QFileInfo(gcfPath).absolutePath();
+        QDir dir(dataPath);
+        dir.cdUp();
+        dataPath = dir.path();
+    }
+    viewer->dataPath = dataPath;
 
     viewer->loadScene(scnPath);
 
@@ -1103,9 +1115,9 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
         ui->layerList->addItem(viewer->scene.layers[l].m_name);
 
     ui->objectList->clear();
-    // ui->objectList->addItem("Blank Object");
+    // ui->objectList->addItem("BlankObject");
     // if (!sceneVer)
-    //     ui->objectList->addItem("Dev Output");
+    //     ui->objectList->addItem("DevOutput");
     for (int o = 0; o < viewer->objects.count(); ++o) ui->objectList->addItem(viewer->objects[o].name);
 
     createEntityList();
@@ -1122,9 +1134,10 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     viewer->vertsPtr  = new QVector3D[viewer->sceneHeight * viewer->sceneWidth * 0x10 * 6 * 2];
     viewer->tVertsPtr = new QVector2D[viewer->sceneHeight * viewer->sceneWidth * 0x10 * 6];
 
-    viewer->colTex = new QImage(viewer->sceneWidth * 0x10, viewer->sceneHeight * 0x10, QImage::Format_Indexed8);
-    viewer->colTex->setColorTable({ qRgb(0, 0, 0), qRgb(255, 255, 0), qRgb(255, 0, 0),
-                                    qRgb(255, 255, 255) });
+    viewer->colTex =
+        new QImage(viewer->sceneWidth * 0x10, viewer->sceneHeight * 0x10, QImage::Format_Indexed8);
+    viewer->colTex->setColorTable(
+        { qRgb(0, 0, 0), qRgb(255, 255, 0), qRgb(255, 0, 0), qRgb(255, 255, 255) });
 
     ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x10) - viewer->storedW);
     ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x10) - viewer->storedH);
@@ -1162,8 +1175,36 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     gameLink.LinkGameObjects();
 
     for (int i = 0; i < viewer->objects.count(); ++i) {
+        GameObjectInfo *info = gameLink.GetObjectInfo(viewer->objects[i].name);
+        if (info) {
+            AllocateStorage(v5Editor->dataStorage, info->objectSize, (void **)info->type, DATASET_STG,
+                            true);
+
+            GameObject *obj = *info->type;
+            obj->objectID   = i;
+            obj->active     = ACTIVE_NORMAL;
+        }
+    }
+
+    for (int i = 0; i < viewer->objects.count(); ++i) {
+        if (sceneVer != 1)
+            FunctionTable::setEditableVar(VAR_UINT8, "filter", i, offsetof(GameEntity, filter));
         viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[i].name),
-                              SceneViewerv5::EVENT_LOAD);
+                              SceneViewerv5::EVENT_SERIALIZE, i);
+        viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[i].name),
+                              SceneViewerv5::EVENT_LOAD, i);
+    }
+
+    for (int i = 0; i < viewer->entities.count(); ++i) {
+        viewer->entities[i].gameEntity = &viewer->gameEntityList[viewer->entities[i].slotID];
+        GameEntity *entityPtr          = viewer->entities[i].gameEntity;
+        memset(entityPtr, 0, sizeof(GameEntityBase));
+        entityPtr->position.x  = viewer->entities[i].pos.x * 65536.0f;
+        entityPtr->position.y  = viewer->entities[i].pos.y * 65536.0f;
+        entityPtr->interaction = true;
+
+        viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[viewer->entities[i].type].name),
+                              SceneViewerv5::EVENT_CREATE, i);
     }
 
     appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, scnPath, QList<QString>{ gcfPath });

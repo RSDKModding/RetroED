@@ -8,17 +8,21 @@ class VariableInfo
 public:
     QString name = "Variable";
     byte type    = 0;
-    int offset = 0;
+    int offset   = 0;
+    QByteArray hash;
 
     VariableInfo() {}
-    VariableInfo(QString n, byte t, int o) : name(n), type(t), offset(o) {};
+    VariableInfo(QString n, byte t, int o) : name(n), type(t), offset(o)
+    {
+        hash = Utils::getMd5HashByteArray(name);
+    }
 };
 
 struct SceneEntity {
-    ushort slotID      = 0;
-    byte type          = 0;
-    Vector2<float> pos = Vector2<float>(0, 0);
-    Rect<int> selBox   = Rect<int>(-0x10, -0x10, 0x10, 0x10);
+    ushort slotID          = 0;
+    byte type              = 0;
+    Vector2<float> pos     = Vector2<float>(0, 0);
+    GameEntity *gameEntity = NULL;
     QList<RSDKv5::Scene::VariableValue> variables;
 
     SceneEntity() {}

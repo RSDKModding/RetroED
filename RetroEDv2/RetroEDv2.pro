@@ -14,7 +14,10 @@ include(dependencies/rsdk_reverse/rsdk_reverse.pri)
 include(dependencies/QtPropertyBrowser/QtPropertyBrowser.pri)
 
 QMAKE_LFLAGS += -lz
+
+!win32 {
 LIBS += -lz
+}
 
 INCLUDEPATH += \
     utils/
@@ -33,6 +36,8 @@ SOURCES += \
     tools/gamelink/gameobjects.cpp \
     tools/gamelink/gamematrix.cpp \
     tools/gamelink/gamedraw.cpp \
+    tools/gamelink/gamestorage.cpp \
+    tools/gamelink/gametext.cpp \
     tools/paletteeditor/colourdialog.cpp \
     tools/rsvtool.cpp \
     tools/savefileeditorv3.cpp \
@@ -87,6 +92,8 @@ HEADERS += \
     tools/gamelink/gameobjects.hpp \
     tools/gamelink/gamematrix.hpp \
     tools/gamelink/gamedraw.hpp \
+    tools/gamelink/gamestorage.hpp \
+    tools/gamelink/gametext.hpp \
     tools/paletteeditor/colourdialog.hpp \
     tools/rsvtool.hpp \
     tools/savefileeditorv3.hpp \

@@ -30,6 +30,7 @@
 #include <QPainter>
 #include <cmath>
 #include <QPainterPath>
+#include <stdexcept>
 
 namespace color_widgets
 {

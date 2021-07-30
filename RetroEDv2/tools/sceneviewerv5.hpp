@@ -17,17 +17,10 @@ public:
 class SceneViewerv5 : public QOpenGLWidget
 {
 public:
-    enum EventTypes { EVENT_LOAD, EVENT_CREATE, EVENT_UPDATE, EVENT_DRAW };
+    enum EventTypes { EVENT_LOAD, EVENT_CREATE, EVENT_UPDATE, EVENT_DRAW, EVENT_SERIALIZE };
 
     SceneViewerv5(QWidget *parent);
     ~SceneViewerv5();
-
-    struct TextureInfo {
-        TextureInfo() {}
-
-        QString name               = "";
-        QOpenGLTexture *texturePtr = nullptr;
-    };
 
     void loadScene(QString path);
     void saveScene(QString path);
@@ -116,11 +109,22 @@ public:
     }
     float currZ = 16;
 
-    int m_prevSprite = -1;
+    int prevSprite = -1;
 
-    void callGameEvent(GameObjectInfo *info, byte eventID);
+    // Game Logic
+    GameEntityBase gameEntityList[v5_ENTITY_COUNT];
 
-    int addGraphicsFile(char *sheetPath);
+    ForeachStackInfo foreachStackList[FOREACH_STACK_COUNT];
+    ForeachStackInfo *foreachStackPtr;
+
+    TypeGroupList typeGroups[TYPEGROUP_COUNT];
+
+    void callGameEvent(GameObjectInfo *info, byte eventID, int id);
+
+    SpriteAnimation spriteAnimationList[v5_SPRFILE_COUNT];
+    GFXSurface gfxSurface[v5_SURFACE_MAX];
+
+    int addGraphicsFile(char *sheetPath, int sheetID, byte scope);
     void removeGraphicsFile(char *sheetPath, int slot);
     inline void getTileVerts(QVector2D *arr, int index, int tileIndex, byte direction)
     {
@@ -223,100 +227,18 @@ public:
 
     void drawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction,
                            int inkEffect, int alpha, int sheetID);
-    void DrawSpriteRotozoom(int x, int y, int pivotX, int pivotY, int width, int height, int sprX,
+    void drawSpriteRotozoom(int x, int y, int pivotX, int pivotY, int width, int height, int sprX,
                             int sprY, int scaleX, int scaleY, int direction, short rotation,
                             int inkEffect, int alpha, int sheetID);
 
-    inline void drawPoint(float x, float y, float z, Vector4<float> colour, Shader &shader)
-    {
-        Q_UNUSED(x)
-        Q_UNUSED(y)
-        Q_UNUSED(z)
-        Q_UNUSED(colour)
-        Q_UNUSED(shader)
-        // QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-    }
+    void drawLine(float x1, float y1, float z1, float x2, float y2, float z2, Vector4<float> colour,
+                  Shader &shader);
 
-    inline void drawLine(float x1, float y1, float z1, float x2, float y2, float z2,
-                         Vector4<float> colour, Shader &shader)
-    {
-        shader.use();
-        QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+    void drawRect(float x, float y, float z, float w, float h, Vector4<float> colour, Shader &shader,
+                  bool outline = false);
 
-        shader.setValue("colour", QVector4D(colour.x, colour.y, colour.z, colour.w));
-
-        QVector3D vertsPtr[2] = { QVector3D(x1, y1, z1), QVector3D(x2, y2, z2) };
-
-        QOpenGLVertexArrayObject VAO;
-        VAO.create();
-        VAO.bind();
-
-        QOpenGLBuffer VBO;
-        VBO.create();
-        VBO.setUsagePattern(QOpenGLBuffer::DynamicDraw);
-        VBO.bind();
-        VBO.allocate(vertsPtr, 2 * sizeof(QVector3D));
-        shader.enableAttributeArray(0);
-        shader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
-
-        f->glDrawArrays(GL_LINES, 0, 2);
-
-        VAO.release();
-        VBO.release();
-
-        VAO.destroy();
-        VBO.destroy();
-    }
-
-    inline void drawRect(float x, float y, float z, float w, float h, Vector4<float> colour,
-                         Shader &shader, bool outline = false)
-    {
-        QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-
-        shader.use();
-        if (outline) {
-            // top
-            drawLine(x, y, z, x + w, y, z, colour, shader);
-            // bottom
-            drawLine(x, y + h, z, x + w, y + h, z, colour, shader);
-            // left
-            drawLine(x, y, z, x, y + h, z, colour, shader);
-            // right
-            drawLine(x + w, y, z, x + w, y + h, z, colour, shader);
-        }
-        else {
-            shader.setValue("colour", QVector4D(colour.x, colour.y, colour.z, colour.w));
-
-            rectVAO.bind();
-
-            QMatrix4x4 matModel;
-            matModel.scale(w, h, 1.0f);
-            matModel.translate(x / w, y / h, z);
-            shader.setValue("model", matModel);
-
-            f->glDrawArrays(GL_TRIANGLES, 0, 6);
-
-            rectVAO.release();
-        }
-    }
-
-    inline void drawCircle(float x, float y, float z, float r, Vector4<float> colour, Shader &shader,
-                           bool outline = false)
-    {
-        Q_UNUSED(x)
-        Q_UNUSED(y)
-        Q_UNUSED(z)
-        Q_UNUSED(r)
-        Q_UNUSED(colour)
-        Q_UNUSED(shader)
-
-        // QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-
-        if (outline) {
-        }
-        else {
-        }
-    }
+    void drawCircle(float x, float y, float z, float r, Vector4<float> colour, Shader &shader,
+                    bool outline = false);
 
 protected:
     void initializeGL();
@@ -328,10 +250,8 @@ protected:
 private:
     QOpenGLVertexArrayObject screenVAO, rectVAO;
     QOpenGLTexture *m_tilesetTexture = nullptr;
-    QList<TextureInfo> objectSprites;
 
     QMatrix4x4 m_matView;
-
 
     inline QOpenGLTexture *createTexture(QImage src)
     {
@@ -356,7 +276,6 @@ private:
         matWorld.ortho(0.0f, (float)storedW, (float)storedH, 0.0f, -16.0f, 16.0f);
         return matWorld;
     }
-
 
     void placeCol(int x, int y, sbyte h, int sol, int w = 1);
 

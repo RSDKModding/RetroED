@@ -1,8 +1,4 @@
-#include "include.hpp"
-
-int gameObjectCount = 0;
-GameObjectInfo gameObjectList[v5_OBJECT_COUNT];
-GameEntityBase gameEntityList[v5_ENTITY_COUNT];
+#include "includes.hpp"
 
 SceneInfo sceneInfo;
 EngineInfo engineInfo;
@@ -47,7 +43,6 @@ enum FunctionTableIDs {
     FunctionTable_GetObjectByName,
     FunctionTable_ClearScreens,
     FunctionTable_AddScreen,
-    FunctionTable_GetFuncPtr,
     FunctionTable_GetSettingsValue,
     FunctionTable_SetSettingsValue,
     FunctionTable_UpdateWindow,
@@ -201,11 +196,20 @@ enum FunctionTableIDs {
     FunctionTable_Count,
 };
 
-#define FUNCTABLE_COUNT (180)
-void *RSDKFunctionTable[FUNCTABLE_COUNT];
+void *RSDKFunctionTable[FunctionTable_Count];
 void nullFunc() {}
 
 #define addToRSDKFunctionTable(id, func) RSDKFunctionTable[id] = (void *)func;
+
+byte *gameGlobalVariablesPtr = NULL;
+void FunctionTable::initGameOptions(void **options, int size)
+{
+    gameGlobalVariablesPtr = NULL;
+    if (!v5Editor)
+        return;
+    AllocateStorage(v5Editor->dataStorage, size, options, DATASET_STG, true);
+    gameGlobalVariablesPtr = (byte *)*options;
+}
 
 GameLink gameLink;
 
@@ -215,25 +219,26 @@ void GameLink::Setup()
 {
     using namespace FunctionTable;
     calculateTrigAngles();
+
     // Function Table
-    addToRSDKFunctionTable(FunctionTable_InitGameOptions, nullFunc);
+    addToRSDKFunctionTable(FunctionTable_InitGameOptions, initGameOptions);
     addToRSDKFunctionTable(FunctionTable_RegisterObject, registerObject);
-    addToRSDKFunctionTable(FunctionTable_RegisterObjectContainer, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_GetActiveEntities, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_GetEntities, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_BreakForeachLoop, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_SetEditableVar, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_GetObjectByID, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_GetEntityID, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_GetEntityCount, nullFunc);
+    addToRSDKFunctionTable(FunctionTable_RegisterObjectContainer, registerObjectContainer);
+    addToRSDKFunctionTable(FunctionTable_GetActiveEntities, getActiveEntities);
+    addToRSDKFunctionTable(FunctionTable_GetEntities, getEntities);
+    addToRSDKFunctionTable(FunctionTable_BreakForeachLoop, breakForeachLoop);
+    addToRSDKFunctionTable(FunctionTable_SetEditableVar, setEditableVar);
+    addToRSDKFunctionTable(FunctionTable_GetObjectByID, getObjectByID);
+    addToRSDKFunctionTable(FunctionTable_GetEntityID, getEntityID);
+    addToRSDKFunctionTable(FunctionTable_GetEntityCount, getEntityCount);
     addToRSDKFunctionTable(FunctionTable_GetDrawListRef, nullFunc);
     addToRSDKFunctionTable(FunctionTable_GetDrawListRefPtr, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_ResetEntityPtr, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_ResetEntitySlot, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_CreateEntity, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_CopyEntity, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_CheckOnScreen, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_CheckPosOnScreen, nullFunc);
+    addToRSDKFunctionTable(FunctionTable_ResetEntityPtr, resetEntityPtr);
+    addToRSDKFunctionTable(FunctionTable_ResetEntitySlot, resetEntitySlot);
+    addToRSDKFunctionTable(FunctionTable_CreateEntity, createEntity);
+    addToRSDKFunctionTable(FunctionTable_CopyEntity, copyEntity);
+    addToRSDKFunctionTable(FunctionTable_CheckOnScreen, checkOnScreen);
+    addToRSDKFunctionTable(FunctionTable_CheckPosOnScreen, checkPosOnScreen);
     addToRSDKFunctionTable(FunctionTable_AddDrawListRef, nullFunc);
     addToRSDKFunctionTable(FunctionTable_SwapDrawLayers, nullFunc);
     addToRSDKFunctionTable(FunctionTable_SetDrawLayerProperties, nullFunc);
@@ -278,21 +283,21 @@ void GameLink::Setup()
     addToRSDKFunctionTable(FunctionTable_MatrixRotateXYZ, matrixRotateXYZ);
     addToRSDKFunctionTable(FunctionTable_MatrixInverse, matrixInverse);
     addToRSDKFunctionTable(FunctionTable_MatrixCopy, matrixCopy);
-    addToRSDKFunctionTable(FunctionTable_SetText, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_CopyString, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_PrependText, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_AppendString, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_AppendText, nullFunc);
+    addToRSDKFunctionTable(FunctionTable_SetText, setText);
+    addToRSDKFunctionTable(FunctionTable_CopyString, copyString);
+    addToRSDKFunctionTable(FunctionTable_PrependText, prependText);
+    addToRSDKFunctionTable(FunctionTable_AppendString, appendString);
+    addToRSDKFunctionTable(FunctionTable_AppendText, appendText);
     addToRSDKFunctionTable(FunctionTable_LoadStrings, nullFunc);
     addToRSDKFunctionTable(FunctionTable_SplitStringList, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_GetCString, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_StringCompare, nullFunc);
+    addToRSDKFunctionTable(FunctionTable_GetCString, getCString);
+    addToRSDKFunctionTable(FunctionTable_StringCompare, stringCompare);
     addToRSDKFunctionTable(FunctionTable_GetDisplayInfo, nullFunc);
     addToRSDKFunctionTable(FunctionTable_GetWindowSize, nullFunc);
     addToRSDKFunctionTable(FunctionTable_SetScreenSize, nullFunc);
     addToRSDKFunctionTable(FunctionTable_SetClipBounds, nullFunc);
     addToRSDKFunctionTable(FunctionTable_SetScreenSplitVerticies, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_LoadSpriteSheet, nullFunc);
+    addToRSDKFunctionTable(FunctionTable_LoadSpriteSheet, loadSpriteSheet);
     addToRSDKFunctionTable(FunctionTable_SetLookupTable, nullFunc);
     addToRSDKFunctionTable(FunctionTable_SetPaletteMask, nullFunc);
     addToRSDKFunctionTable(FunctionTable_SetPaletteEntry, nullFunc);
@@ -326,17 +331,17 @@ void GameLink::Setup()
     addToRSDKFunctionTable(FunctionTable_SetModelAnimation, nullFunc);
     addToRSDKFunctionTable(FunctionTable_SetupMeshAnimation, nullFunc);
     addToRSDKFunctionTable(FunctionTable_Draw3DScene, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_LoadAnimation, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_CreateAnimation, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_SetSpriteAnimation, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_EditAnimation, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_SetSpriteString, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_GetAnimation, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_GetFrame, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_GetHitbox, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_GetFrameID, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_GetStringWidth, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_ProcessAnimation, nullFunc);
+    addToRSDKFunctionTable(FunctionTable_LoadAnimation, loadSpriteAnimation);
+    addToRSDKFunctionTable(FunctionTable_CreateAnimation, createSpriteAnimation);
+    addToRSDKFunctionTable(FunctionTable_SetSpriteAnimation, setSpriteAnimation);
+    addToRSDKFunctionTable(FunctionTable_EditAnimation, editSpriteAnimation);
+    addToRSDKFunctionTable(FunctionTable_SetSpriteString, setSpriteString);
+    addToRSDKFunctionTable(FunctionTable_GetAnimation, GetSpriteAnimation);
+    addToRSDKFunctionTable(FunctionTable_GetFrame, getFrame);
+    addToRSDKFunctionTable(FunctionTable_GetHitbox, getHitbox);
+    addToRSDKFunctionTable(FunctionTable_GetFrameID, getFrameID);
+    addToRSDKFunctionTable(FunctionTable_GetStringWidth, getStringWidth);
+    addToRSDKFunctionTable(FunctionTable_ProcessAnimation, processAnimation);
     addToRSDKFunctionTable(FunctionTable_GetSceneLayer, nullFunc);
     addToRSDKFunctionTable(FunctionTable_GetSceneLayerID, nullFunc);
     addToRSDKFunctionTable(FunctionTable_GetLayerSize, nullFunc);
@@ -392,14 +397,16 @@ void GameLink::Setup()
     addToRSDKFunctionTable(FunctionTable_printFloat, nullFunc);
     addToRSDKFunctionTable(FunctionTable_printVector2, nullFunc);
     addToRSDKFunctionTable(FunctionTable_printHitbox, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_Unknown105, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_Unknown106, nullFunc);
+    addToRSDKFunctionTable(FunctionTable_Unknown105, setActiveVariable);
+    addToRSDKFunctionTable(FunctionTable_Unknown106, addEnumVar);
     addToRSDKFunctionTable(FunctionTable_ClearDebugValues, nullFunc);
     addToRSDKFunctionTable(FunctionTable_SetDebugValue, nullFunc);
 }
 
-void GameLink::LinkGameObjects()
+void GameLink::LinkGameObjects(QString gameName)
 {
+    gameObjectCount = 0;
+
     memset(&gameObjectList, 0, v5_OBJECT_COUNT * sizeof(GameObjectInfo));
     sceneInfo.classCount     = 0;
     sceneInfo.activeCategory = 0;
@@ -426,7 +433,37 @@ void GameLink::LinkGameObjects()
     info.unknown      = &unknownInfo;
     info.screenInfo   = screens;
 
-    // LinkGameLogic(&info);
+    QLibrary logicLib;
+
+    logicLib.setFileName(gameName);
+    logicLib.load();
+    if (!logicLib.isLoaded())
+        qDebug() << logicLib.errorString();
+
+    void (*linkGameLogic)(GameInfo *) = NULL;
+
+    if (logicLib.isLoaded()) {
+        linkGameLogic = (void (*)(GameInfo *))logicLib.resolve("LinkGameLogicDLL");
+    }
+
+    if (linkGameLogic) {
+        // engine adds this obj no matter what game dll is
+        FunctionTable::registerObject(&blankObject, "Blank Object", sizeof(GameEntity),
+                                      sizeof(GameObject), NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+                                      NULL, NULL);
+
+        linkGameLogic(&info);
+        printf("sucessfully linked game logic!\n");
+        printf("linked %d objects!\n", gameObjectCount);
+    }
+    else {
+        printf("failed to link game logic...\n");
+    }
+
+    for (int i = 0; i < gameObjectCount; ++i) {
+        if (gameObjectList[i].type)
+            *gameObjectList[i].type = NULL;
+    }
 }
 
 GameObjectInfo *GameLink::GetObjectInfo(QString name)
@@ -441,6 +478,18 @@ GameObjectInfo *GameLink::GetObjectInfo(QString name)
     for (int i = 0; i < gameObjectCount; ++i) {
         if (memcmp(hash, gameObjectList[i].hash, 0x10 * sizeof(byte)) == 0) {
             return &gameObjectList[i];
+        }
+    }
+    return NULL;
+}
+
+GameObjectInfo *GameLink::GetObjectInfo(int type)
+{
+
+    for (int i = 0; i < gameObjectCount; ++i) {
+        if (gameObjectList[i].type && *gameObjectList[i].type) {
+            if ((*gameObjectList[i].type)->objectID == type)
+                return &gameObjectList[i];
         }
     }
     return NULL;

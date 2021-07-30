@@ -52,6 +52,14 @@ inline QString getMd5HashString(QString input)
 
 inline QString getMd5HashString(QByteArray input) { return input.toHex(); }
 
+inline void getHashInt(QString input, uint *hash)
+{
+    QByteArray hashData = getMd5HashByteArray(QString(input));
+    byte data[0x10];
+    for (int i = 0; i < 0x10; ++i) data[i] = hashData[i];
+    memcpy(hash, data, 0x10 * sizeof(byte));
+}
+
 } // namespace Utils
 
 #endif // RSDK_UTILS_H
