@@ -92,6 +92,7 @@ struct GameObjectInfo {
     GameObject **type;
     int entitySize;
     int objectSize;
+    const char *name;
 };
 
 struct SceneInfo {

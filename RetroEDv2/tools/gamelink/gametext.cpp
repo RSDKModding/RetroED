@@ -29,7 +29,7 @@ void FunctionTable::setText(TextInfo *textInfo, char *text, uint size)
             textInfo->length = textInfo->textLength;
         if (!textInfo->length)
             textInfo->length = 1;
-        AllocateStorage(v5Editor->dataStorage, sizeof(ushort) * textInfo->length,
+        allocateStorage(v5Editor->dataStorage, sizeof(ushort) * textInfo->length,
                         (void **)&textInfo->text, DATASET_STR, false);
 
         char *txt = text;
@@ -55,13 +55,13 @@ void FunctionTable::copyString(TextInfo *dst, TextInfo *src)
     dst->text   = NULL;
     if (dst->length >= textLen) {
         if (!dst->text) {
-            AllocateStorage(v5Editor->dataStorage, sizeof(ushort) * dst->length, (void **)&dst->text,
+            allocateStorage(v5Editor->dataStorage, sizeof(ushort) * dst->length, (void **)&dst->text,
                             DATASET_STR, false);
         }
     }
     else {
         dst->length = textLen;
-        AllocateStorage(v5Editor->dataStorage, sizeof(ushort) * dst->length, (void **)&dst->text,
+        allocateStorage(v5Editor->dataStorage, sizeof(ushort) * dst->length, (void **)&dst->text,
                         DATASET_STR, false);
     }
 
@@ -109,7 +109,7 @@ void FunctionTable::prependText(TextInfo *info, char *text)
 
     if (info->length < len || !info->text) {
         info->length = len;
-        AllocateStorage(v5Editor->dataStorage, sizeof(ushort) * info->length, (void **)&info->text,
+        allocateStorage(v5Editor->dataStorage, sizeof(ushort) * info->length, (void **)&info->text,
                         DATASET_STR, false);
     }
 
@@ -159,7 +159,7 @@ void FunctionTable::appendText(TextInfo *info, char *text)
     int newLen = (len + info->length);
     if (info->length < newLen || !info->text) {
         info->length = newLen;
-        AllocateStorage(v5Editor->dataStorage, sizeof(ushort) * info->length, (void **)&info->text,
+        allocateStorage(v5Editor->dataStorage, sizeof(ushort) * info->length, (void **)&info->text,
                         DATASET_STR, false);
     }
 
@@ -200,7 +200,7 @@ void FunctionTable::appendString(TextInfo *info, TextInfo *string)
     if (info->length < totalLen || !info->text) {
         if (info->text) {
             ushort *buffer = info->text;
-            AllocateStorage(v5Editor->dataStorage, sizeof(ushort) * totalLen, (void **)&info->text,
+            allocateStorage(v5Editor->dataStorage, sizeof(ushort) * totalLen, (void **)&info->text,
                             DATASET_STR, false);
             for (int charID = 0; charID < info->textLength; ++charID) {
                 info->text[charID] = buffer[charID];
@@ -208,7 +208,7 @@ void FunctionTable::appendString(TextInfo *info, TextInfo *string)
             buffer = NULL;
         }
         else {
-            AllocateStorage(v5Editor->dataStorage, sizeof(ushort) * totalLen, (void **)&info->text,
+            allocateStorage(v5Editor->dataStorage, sizeof(ushort) * totalLen, (void **)&info->text,
                             DATASET_STR, false);
         }
         info->length = string->textLength + info->textLength;

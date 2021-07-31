@@ -424,14 +424,14 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         w->installEventFilter(this);
     }
 
-    InitStorage(dataStorage);
+    initStorage(dataStorage);
 }
 
 SceneEditorv5::~SceneEditorv5()
 {
     delete ui;
 
-    ReleaseStorage(dataStorage);
+    releaseStorage(dataStorage);
 }
 
 bool SceneEditorv5::event(QEvent *event)
@@ -1095,9 +1095,9 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
 {
     setStatus("Loading Scene...");
 
-    ClearUnusedStorage(dataStorage, DATASET_STG);
-    ClearUnusedStorage(dataStorage, DATASET_STR);
-    ClearUnusedStorage(dataStorage, DATASET_TMP);
+    clearUnusedStorage(dataStorage, DATASET_STG);
+    clearUnusedStorage(dataStorage, DATASET_STR);
+    clearUnusedStorage(dataStorage, DATASET_TMP);
 
     if (gcfPath != viewer->gameConfig.m_filename) {
         viewer->gameConfig.read(gcfPath, sceneVer == 1);
@@ -1177,7 +1177,7 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     for (int i = 0; i < viewer->objects.count(); ++i) {
         GameObjectInfo *info = gameLink.GetObjectInfo(viewer->objects[i].name);
         if (info) {
-            AllocateStorage(v5Editor->dataStorage, info->objectSize, (void **)info->type, DATASET_STG,
+            allocateStorage(v5Editor->dataStorage, info->objectSize, (void **)info->type, DATASET_STG,
                             true);
 
             GameObject *obj = *info->type;
@@ -1199,9 +1199,39 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
         viewer->entities[i].gameEntity = &viewer->gameEntityList[viewer->entities[i].slotID];
         GameEntity *entityPtr          = viewer->entities[i].gameEntity;
         memset(entityPtr, 0, sizeof(GameEntityBase));
-        entityPtr->position.x  = viewer->entities[i].pos.x * 65536.0f;
-        entityPtr->position.y  = viewer->entities[i].pos.y * 65536.0f;
+        entityPtr->position.x  = Utils::floatToFixed(viewer->entities[i].pos.x);
+        entityPtr->position.y  = Utils::floatToFixed(viewer->entities[i].pos.y);
         entityPtr->interaction = true;
+
+        for (int o = 0; o < viewer->entities[i].variables.length(); o++) {
+            auto var         = viewer->objects[viewer->entities[i].type].variables[o];
+            auto val         = viewer->entities[i].variables[o];
+            auto offset      = &((byte *)entityPtr)[var.offset];
+            switch (var.type) {
+                case VAR_UINT8: memcpy(offset, &val.value_uint8, sizeof(byte)); break;
+                case VAR_INT8: memcpy(offset, &val.value_int8, sizeof(sbyte)); break;
+                case VAR_UINT16: memcpy(offset, &val.value_uint16, sizeof(ushort)); break;
+                case VAR_INT16: memcpy(offset, &val.value_int16, sizeof(short)); break;
+                case VAR_UINT32: memcpy(offset, &val.value_uint32, sizeof(uint)); break;
+                case VAR_INT32: memcpy(offset, &val.value_int32, sizeof(int)); break;
+                case VAR_ENUM: memcpy(offset, &val.value_enum, sizeof(int)); break;
+                case VAR_STRING: {
+                    FunctionTable::setText((TextInfo *)offset,
+                                           (char *)val.value_string.toStdString().c_str(), false);
+                    break;
+                }
+                // i'm cheating w this 1    
+                case VAR_VECTOR2: memcpy(offset, &val.value_vector2.x, sizeof(Vector2<int>)); break;
+                case VAR_UNKNOWN: break; // :urarakaconfuse:
+                case VAR_BOOL: memcpy(offset, &val.value_bool, sizeof(bool32)); break;
+                case VAR_COLOUR: {
+                    auto c   = val.value_color;
+                    uint clr = (c.red() << 16) | (c.green() << 8) | (c.blue());
+                    memcpy(offset, &clr, sizeof(uint));
+                    break;
+                }
+            }
+        }
 
         viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[viewer->entities[i].type].name),
                               SceneViewerv5::EVENT_CREATE, i);

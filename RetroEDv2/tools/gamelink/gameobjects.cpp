@@ -33,6 +33,7 @@ void FunctionTable::registerObject(GameObject **structPtr, const char *name, uin
         info->editorDraw   = editorDraw;
         info->editorLoad   = editorLoad;
         info->serialize    = serialize;
+        info->name = name;
         ++gameObjectCount;
     }
 }
@@ -47,7 +48,7 @@ void FunctionTable::registerObjectContainer(GameObject **structPtr, const char *
     uint hash[4];
     memcpy(hash, data, 0x10 * sizeof(byte));
 
-    AllocateStorage(v5Editor->dataStorage, objectSize, (void **)structPtr, DATASET_STG, true);
+    allocateStorage(v5Editor->dataStorage, objectSize, (void **)structPtr, DATASET_STG, true);
     // LoadStaticObject((byte *)*structPtr, hash, 0);
 }
 

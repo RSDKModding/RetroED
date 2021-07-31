@@ -1,6 +1,6 @@
 #include "include.hpp"
 
-void InitStorage(DataStorage *storages)
+void initStorage(DataStorage *storages)
 {
     if (!storages)
         return;
@@ -18,7 +18,7 @@ void InitStorage(DataStorage *storages)
     }
 }
 
-void ReleaseStorage(DataStorage *storages)
+void releaseStorage(DataStorage *storages)
 {
     if (!storages)
         return;
@@ -40,7 +40,7 @@ void ReleaseStorage(DataStorage *storages)
 // size
 // [storage bytes]
 
-void AllocateStorage(DataStorage *storages, uint size, void **dataPtr, StorageDataSets dataSet,
+void allocateStorage(DataStorage *storages, uint size, void **dataPtr, StorageDataSets dataSet,
                      bool32 clear)
 {
     if (!storages)
@@ -57,11 +57,11 @@ void AllocateStorage(DataStorage *storages, uint size, void **dataPtr, StorageDa
 
         if (storage->entryCount < 0x1000) {
             if (size + sizeof(int) * storage->usedStorage >= storage->storageLimit) {
-                ClearUnusedStorage(storages, dataSet);
+                clearUnusedStorage(storages, dataSet);
 
                 if (size + sizeof(int) * storage->usedStorage >= storage->storageLimit) {
                     if (storage->entryCount >= 0x1000)
-                        CleanEmptyStorage(storages, dataSet);
+                        cleanEmptyStorage(storages, dataSet);
 
                     if (*data && clear) {
                         memset(*data, 0, size);
@@ -91,7 +91,7 @@ void AllocateStorage(DataStorage *storages, uint size, void **dataPtr, StorageDa
             }
             ++storage->entryCount;
             if (storage->entryCount >= 0x1000)
-                CleanEmptyStorage(storages, dataSet);
+                cleanEmptyStorage(storages, dataSet);
 
             if (*data && clear) {
                 memset(*data, 0, size);
@@ -100,7 +100,7 @@ void AllocateStorage(DataStorage *storages, uint size, void **dataPtr, StorageDa
     }
 }
 
-void RemoveStorageEntry(DataStorage *storages, void **dataPtr)
+void removeStorageEntry(DataStorage *storages, void **dataPtr)
 {
     if (!storages)
         return;
@@ -141,13 +141,13 @@ void RemoveStorageEntry(DataStorage *storages, void **dataPtr)
     }
 }
 
-void ClearUnusedStorage(DataStorage *storages, StorageDataSets set)
+void clearUnusedStorage(DataStorage *storages, StorageDataSets set)
 {
     if (!storages)
         return;
 
     ++storages[set].unknown;
-    CleanEmptyStorage(storages, set);
+    cleanEmptyStorage(storages, set);
 
     if (storages[set].usedStorage) {
         int totalSizeA  = 0;
@@ -228,7 +228,7 @@ void ClearUnusedStorage(DataStorage *storages, StorageDataSets set)
     }
 }
 
-void CopyStorage(DataStorage *storages, int **src, int **dst)
+void copyStorage(DataStorage *storages, int **src, int **dst)
 {
     if (!storages)
         return;
@@ -244,12 +244,12 @@ void CopyStorage(DataStorage *storages, int **src, int **dst)
 
             dstSet = dstPtr[-3];
             if (storages[dstSet].entryCount >= 0x1000)
-                CleanEmptyStorage(storages, (StorageDataSets)dstSet);
+                cleanEmptyStorage(storages, (StorageDataSets)dstSet);
         }
     }
 }
 
-void CleanEmptyStorage(DataStorage *storages, StorageDataSets set)
+void cleanEmptyStorage(DataStorage *storages, StorageDataSets set)
 {
     if (!storages)
         return;

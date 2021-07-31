@@ -38,7 +38,7 @@ namespace FunctionTable
 {
 short loadSpriteAnimation(const char *filename, Scopes scope);
 short createSpriteAnimation(const char *filename, uint frameCount, uint animCount, Scopes scope);
-ushort GetSpriteAnimation(ushort sprIndex, const char *name);
+ushort getSpriteAnimation(ushort sprIndex, const char *name);
 SpriteFrame *getFrame(ushort sprIndex, ushort anim, int frame);
 Hitbox *getHitbox(Animator *data, byte hitboxID);
 short getFrameID(Animator *data);
@@ -74,6 +74,8 @@ void drawTile(ushort *tileInfo, int countX, int countY, GameEntity *entityPtr, V
 
 void drawText(Animator *data, Vector2<int> *position, TextInfo *info, int endFrame, int textLength,
               byte align, int spacing, int a8, Vector2<int> *charPositions, bool32 screenRelative);
+
+int checkStageFolder(const char *folder);
 } // namespace FunctionTable
 
 #endif

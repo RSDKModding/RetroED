@@ -18,14 +18,14 @@ struct DataStorage {
     uint unknown;
 };
 
-void InitStorage(DataStorage *dataStorage);
-void ReleaseStorage(DataStorage *dataStorage);
+void initStorage(DataStorage *dataStorage);
+void releaseStorage(DataStorage *dataStorage);
 
-void AllocateStorage(DataStorage *dataStorage, uint size, void **dataPtr, StorageDataSets dataSet,
+void allocateStorage(DataStorage *dataStorage, uint size, void **dataPtr, StorageDataSets dataSet,
                      bool32 clear);
-void ClearUnusedStorage(DataStorage *dataStorage, StorageDataSets set);
-void RemoveStorageEntry(DataStorage *dataStorage, void **dataPtr);
-void CopyStorage(DataStorage *dataStorage, int **src, int **dst);
-void CleanEmptyStorage(DataStorage *dataStorage, StorageDataSets dataSet);
+void clearUnusedStorage(DataStorage *dataStorage, StorageDataSets set);
+void removeStorageEntry(DataStorage *dataStorage, void **dataPtr);
+void copyStorage(DataStorage *dataStorage, int **src, int **dst);
+void cleanEmptyStorage(DataStorage *dataStorage, StorageDataSets dataSet);
 
 #endif // GAMESTORAGE_HPP

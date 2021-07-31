@@ -53,7 +53,7 @@ short FunctionTable::loadSpriteAnimation(const char *filename, Scopes scope)
         memcpy(spr->hash, hash, 4 * sizeof(uint));
 
         uint frameCount = reader.read<uint>();
-        AllocateStorage(v5Editor->dataStorage, frameCount * sizeof(SpriteFrame), (void **)&spr->frames,
+        allocateStorage(v5Editor->dataStorage, frameCount * sizeof(SpriteFrame), (void **)&spr->frames,
                         DATASET_STG, false);
 
         byte sheetCount = reader.read<byte>();
@@ -68,7 +68,7 @@ short FunctionTable::loadSpriteAnimation(const char *filename, Scopes scope)
         }
 
         spr->animCount = reader.read<ushort>();
-        AllocateStorage(v5Editor->dataStorage, spr->animCount * sizeof(SpriteAnimationEntry),
+        allocateStorage(v5Editor->dataStorage, spr->animCount * sizeof(SpriteAnimationEntry),
                         (void **)&spr->animations, DATASET_STG, false);
         int frameID = 0;
         for (int a = 0; a < spr->animCount; ++a) {
@@ -139,17 +139,17 @@ short FunctionTable::createSpriteAnimation(const char *filename, uint frameCount
     spr->scope           = scope;
     memcpy(spr->hash, hash, 4 * sizeof(uint));
 
-    AllocateStorage(v5Editor->dataStorage,
+    allocateStorage(v5Editor->dataStorage,
                     sizeof(SpriteFrame) * (frameCount > 0x400 ? 0x400 : frameCount),
                     (void **)&spr->frames, DATASET_STG, true);
-    AllocateStorage(v5Editor->dataStorage,
+    allocateStorage(v5Editor->dataStorage,
                     sizeof(SpriteAnimationEntry) * (animCount > 0x40 ? 0x40 : animCount),
                     (void **)&spr->animations, DATASET_STG, true);
 
     return id;
 }
 
-ushort FunctionTable::GetSpriteAnimation(ushort sprIndex, const char *name)
+ushort FunctionTable::getSpriteAnimation(ushort sprIndex, const char *name)
 {
     if (!v5Editor)
         return -1;
@@ -458,14 +458,16 @@ void FunctionTable::drawSprite(Animator *data, Vector2<int> *position, bool32 sc
 {
     if (data && data->framePtrs && v5Editor) {
         SpriteFrame *frame = &data->framePtrs[data->frameID];
-        Vector2<int> pos;
-        if (!position)
-            pos = sceneInfo.entity->position;
-        else
-            pos = *position;
+        Vector2<float> pos;
+        if (!position) {
+            pos.x = Utils::fixedToFloat(sceneInfo.entity->position.x);
+            pos.y = Utils::fixedToFloat(sceneInfo.entity->position.y);
+        }
+        else {
+            pos.x = Utils::fixedToFloat(position->x);
+            pos.y = Utils::fixedToFloat(position->y);
+        }
 
-        pos.x >>= 0x10;
-        pos.y >>= 0x10;
         if (!screenRelative) {
             pos.x -= v5Editor->viewer->cam.pos.x;
             pos.y -= v5Editor->viewer->cam.pos.y;
@@ -650,4 +652,9 @@ void FunctionTable::drawText(Animator *data, Vector2<int> *position, TextInfo *i
                              int textLength, byte align, int spacing, int a8,
                              Vector2<int> *charPositions, bool32 screenRelative)
 {
+}
+
+int FunctionTable::checkStageFolder(const char* folder) {
+    if (!v5Editor) return 0;
+    return Utils::getFilenameAndFolder(v5Editor->viewer->scene.filepath).split("/")[0] == folder;
 }

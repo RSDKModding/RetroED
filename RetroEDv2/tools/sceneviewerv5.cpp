@@ -140,8 +140,8 @@ void SceneViewerv5::loadScene(QString path)
             SceneEntity entity;
             entity.slotID = ent.slotID;
             entity.type   = type;
-            entity.pos.x  = ent.position.x / 65536.0f;
-            entity.pos.y  = ent.position.y / 65536.0f;
+            entity.pos.x  = Utils::fixedToFloat(ent.position.x);
+            entity.pos.y  = Utils::fixedToFloat(ent.position.y);
 
             for (int v = 0; v < ent.variables.count(); ++v) {
                 entity.variables.append(ent.variables[v]);
@@ -460,6 +460,9 @@ void SceneViewerv5::drawScene()
         // there's definitely better ways to do this, but for now this is what we gotta do
 
         // Collision Previews
+
+        spriteShader.setValue("transparentColour", QVector3D(0.0f, 0.0f, 0.0f));
+
         for (int c = 0; c < 2 && l == selectedLayer; ++c) {
             if (showCLayers[c]) {
                 cleanCol(basedX * 16, basedY * 16, (countX - basedX) * 16, (countY - basedY) * 16);
@@ -606,9 +609,6 @@ void SceneViewerv5::drawScene()
                     vertsPtr[i].setZ(15.45);
                 }
 
-                spriteShader.setValue("useAlpha", true);
-                spriteShader.setValue("alpha", 1.0f);
-                spriteShader.setValue("transparentColour", QVector3D(0.0f, 0.0f, 0.0f));
 
                 {
                     QOpenGLVertexArrayObject vao;
@@ -644,6 +644,8 @@ void SceneViewerv5::drawScene()
                 tileGL->release();
             }
         }
+        
+        spriteShader.setValue("transparentColour", QVector3D(1.0f, 0.0f, 1.0f));
 
         // PARALLAX
         if (l == selectedLayer && l >= 0) {
@@ -731,9 +733,13 @@ void SceneViewerv5::drawScene()
         if (!(filter & sceneFilter))
             continue;
 
+        entities[o].gameEntity->position.x = Utils::floatToFixed(entities[o].pos.x);
+        entities[o].gameEntity->position.y = Utils::floatToFixed(entities[o].pos.y);
+
         callGameEvent(gameLink.GetObjectInfo(objects[entities[o].type].name), EVENT_DRAW, o);
 
         // Draw Default Object Sprite if invalid
+        // TODO: probably draw text intead
         if (!validDraw) {
             spriteShader.use();
             rectVAO.bind();
@@ -1005,6 +1011,8 @@ void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, int id)
             sceneInfo.entitySlot = entities[id].slotID;
             if (info->editorDraw)
                 info->editorDraw();
+            //if (!validDraw && info->draw) 
+            //    info->draw();
             sceneInfo.entity     = NULL;
             sceneInfo.entitySlot = 0;
             break;
@@ -1228,7 +1236,7 @@ void SceneViewerv5::drawTile(float XPos, float YPos, float ZPos, int tileX, int 
 }
 
 int sprDrawsv5 = 0;
-void SceneViewerv5::drawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY,
+void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, int width, int height, int sprX, int sprY,
                                       int direction, int inkEffect, int alpha, int sheetID)
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
@@ -1363,7 +1371,7 @@ void SceneViewerv5::drawSpriteFlipped(int XPos, int YPos, int width, int height,
     validDraw = true;
 }
 
-void SceneViewerv5::drawSpriteRotozoom(int XPos, int YPos, int pivotX, int pivotY, int width,
+void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, int pivotX, int pivotY, int width,
                                        int height, int sprX, int sprY, int scaleX, int scaleY,
                                        int direction, short rotation, int inkEffect, int alpha,
                                        int sheetID)

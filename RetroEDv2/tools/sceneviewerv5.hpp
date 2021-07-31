@@ -225,9 +225,9 @@ public:
 
     void drawTile(float XPos, float YPos, float ZPos, int tileX, int tileY, byte direction);
 
-    void drawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction,
+    void drawSpriteFlipped(float XPos, float YPos, int width, int height, int sprX, int sprY, int direction,
                            int inkEffect, int alpha, int sheetID);
-    void drawSpriteRotozoom(int x, int y, int pivotX, int pivotY, int width, int height, int sprX,
+    void drawSpriteRotozoom(float x, float y, int pivotX, int pivotY, int width, int height, int sprX,
                             int sprY, int scaleX, int scaleY, int direction, short rotation,
                             int inkEffect, int alpha, int sheetID);
 

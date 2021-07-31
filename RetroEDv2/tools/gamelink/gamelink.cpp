@@ -207,7 +207,7 @@ void FunctionTable::initGameOptions(void **options, int size)
     gameGlobalVariablesPtr = NULL;
     if (!v5Editor)
         return;
-    AllocateStorage(v5Editor->dataStorage, size, options, DATASET_STG, true);
+    allocateStorage(v5Editor->dataStorage, size, options, DATASET_STG, true);
     gameGlobalVariablesPtr = (byte *)*options;
 }
 
@@ -246,7 +246,7 @@ void GameLink::Setup()
     addToRSDKFunctionTable(FunctionTable_SetGameMode, nullFunc);
     addToRSDKFunctionTable(FunctionTable_SetHardResetFlag, nullFunc);
     addToRSDKFunctionTable(FunctionTable_CheckValidScene, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_CheckSceneFolder, nullFunc);
+    addToRSDKFunctionTable(FunctionTable_CheckSceneFolder, checkStageFolder);
     addToRSDKFunctionTable(FunctionTable_InitSceneLoad, nullFunc);
     addToRSDKFunctionTable(FunctionTable_GetObjectByName, nullFunc);
     addToRSDKFunctionTable(FunctionTable_ClearScreens, nullFunc);
@@ -336,7 +336,7 @@ void GameLink::Setup()
     addToRSDKFunctionTable(FunctionTable_SetSpriteAnimation, setSpriteAnimation);
     addToRSDKFunctionTable(FunctionTable_EditAnimation, editSpriteAnimation);
     addToRSDKFunctionTable(FunctionTable_SetSpriteString, setSpriteString);
-    addToRSDKFunctionTable(FunctionTable_GetAnimation, GetSpriteAnimation);
+    addToRSDKFunctionTable(FunctionTable_GetAnimation, getSpriteAnimation);
     addToRSDKFunctionTable(FunctionTable_GetFrame, getFrame);
     addToRSDKFunctionTable(FunctionTable_GetHitbox, getHitbox);
     addToRSDKFunctionTable(FunctionTable_GetFrameID, getFrameID);
