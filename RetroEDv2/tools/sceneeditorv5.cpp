@@ -808,20 +808,25 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
             if (m_mouseDownM || (m_mouseDownL && viewer->curTool == TOOL_MOUSE)) {
                 viewer->cam.pos.x -= (viewer->mousePos.x - viewer->reference.x()) * viewer->invZoom();
                 viewer->cam.pos.y -= (viewer->mousePos.y - viewer->reference.y()) * viewer->invZoom();
+                QPoint lp           = QCursor::pos();
+                QRect screenRect    = QGuiApplication::screenAt(viewer->pos())
+                                       ->availableGeometry()
+                                       .adjusted(20, 20, -19, -19);
                 viewer->reference = mEvent->pos();
-                QPoint lp         = viewer->mapFromGlobal(QCursor::pos());
-                if (!viewer->rect().contains(lp)) {
-                    if (lp.x() < viewer->x())
-                        lp.setX(lp.x() + viewer->width());
-                    else if (lp.x() > viewer->x() + viewer->width())
-                        lp.setX(lp.x() - viewer->width());
-                    if (lp.y() < viewer->y())
-                        lp.setY(lp.y() + viewer->height());
-                    else if (lp.y() > viewer->y() + viewer->height())
-                        lp.setY(lp.y() - viewer->height());
-                    viewer->reference = lp;
-                    QCursor::setPos(viewer->mapToGlobal(lp));
+                if (!screenRect.contains(lp)) {
+                    if (lp.x() < screenRect.x()) 
+                        lp.setX(screenRect.x() + screenRect.width());
+                    if (lp.x() > screenRect.x() + screenRect.width())
+                        lp.setX(screenRect.x());
+                    if (lp.y() < screenRect.y())
+                        lp.setY(screenRect.y() + screenRect.height());
+                    if (lp.y() > screenRect.y() + screenRect.height())
+                        lp.setY(screenRect.y());
+
+                    QCursor::setPos(lp);
+                    viewer->reference = viewer->mapFromGlobal(lp);
                 }
+
                 status = true;
 
                 ui->horizontalScrollBar->blockSignals(true);
