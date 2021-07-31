@@ -392,7 +392,7 @@ void FunctionTable::drawLine(int x1, int y1, int x2, int y2, uint color, int alp
 {
     if (!v5Editor)
         return;
-    float z               = v5Editor->viewer->currZ;
+    float z               = v5Editor->viewer->incZ();
     Vector4<float> rcolor = { ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f,
                               (color & 0xFF) / 255.0f, alpha / 255.0f };
 
@@ -406,7 +406,6 @@ void FunctionTable::drawLine(int x1, int y1, int x2, int y2, uint color, int alp
     float zoom = v5Editor->viewer->zoom;
     v5Editor->viewer->drawLine(x1 * zoom, y1 * zoom, z, x2 * zoom, y2 * zoom, z, rcolor,
                                v5Editor->viewer->primitiveShader);
-    v5Editor->viewer->incZ();
 }
 
 void FunctionTable::drawRect(int x, int y, int width, int height, uint color, int alpha,
@@ -654,7 +653,9 @@ void FunctionTable::drawText(Animator *data, Vector2<int> *position, TextInfo *i
 {
 }
 
-int FunctionTable::checkStageFolder(const char* folder) {
-    if (!v5Editor) return 0;
+int FunctionTable::checkStageFolder(const char *folder)
+{
+    if (!v5Editor)
+        return 0;
     return Utils::getFilenameAndFolder(v5Editor->viewer->scene.filepath).split("/")[0] == folder;
 }

@@ -337,201 +337,173 @@ void SceneViewerv5::drawScene()
 
     bool showCLayers[2] = { showPlaneA, showPlaneB };
 
-    for (int l = scene.layers.count() - 1; l >= 0; --l) {
-        // TILE LAYERS
-        QVector<QVector<ushort>> layout = scene.layers[l].layout;
-        int width                       = scene.layers[l].width;
-        int height                      = scene.layers[l].height;
+    for (int l = 0; l < v5_DRAWLAYER_COUNT; ++l) {
+        drawLayers[l].layerDrawList.clear();
+    }
 
-        spriteShader.use();
-        spriteShader.setValue("useAlpha", false);
-        spriteShader.setValue("alpha", 1.0f);
-        spriteShader.setValue("transparentColour", QVector3D(1.0f, 0.0f, 1.0f));
-        rectVAO.bind();
-        // manage properties
-        camOffset = Vector3<float>(0.0f, 0.0f, 0.0f);
+    for (int t = 0; t < scene.layers.count(); ++t) {
+        byte drawOrder = scene.layers[t].drawOrder;
+        if (drawOrder < v5_DRAWLAYER_COUNT)
+            drawLayers[drawOrder].layerDrawList.append(t);
+    }
 
-        if (selectedLayer >= 0) {
-            if (selectedLayer == l) {
-                spriteShader.setValue("useAlpha", false);
-                spriteShader.setValue("alpha", 1.0f);
+    for (int p = 0; p < v5_DRAWLAYER_COUNT; ++p) {
+        for (int l = scene.layers.count() - 1; l >= 0; --l) {
+            if (scene.layers[l].drawOrder != p) {
+                if (!(selectedLayer == l && p == 15))
+                    continue;
             }
-            else {
-                spriteShader.setValue("useAlpha", true);
-                spriteShader.setValue("alpha", 0.5f);
-            }
-        }
 
-        // draw
-        m_tilesetTexture->bind();
-        spriteShader.setValue("flipX", false);
-        spriteShader.setValue("flipY", false);
+            // TILE LAYERS
+            QVector<QVector<ushort>> layout = scene.layers[l].layout;
+            int width                       = scene.layers[l].width;
+            int height                      = scene.layers[l].height;
 
-        int vertCnt = 0;
+            spriteShader.use();
+            spriteShader.setValue("useAlpha", false);
+            spriteShader.setValue("alpha", 1.0f);
+            spriteShader.setValue("transparentColour", QVector3D(1.0f, 0.0f, 1.0f));
+            rectVAO.bind();
+            // manage properties
+            camOffset = Vector3<float>(0.0f, 0.0f, 0.0f);
 
-        int camX = (cam.pos.x + camOffset.x);
-        int camY = (cam.pos.y + camOffset.y);
-
-        int basedX = camX / 0x10;
-        int basedY = camY / 0x10;
-
-        int countX = width * 0x10 > storedW ? (storedW / 0x10) : width;
-        int countY = height * 0x10 > storedH ? (storedH / 0x10) : height;
-
-        countX = ceil(countX / zoom);
-        countY = ceil(countY / zoom);
-
-        countX = qMin(basedX + countX + 3, width);
-        countY = qMin(basedY + countY + 3, height);
-
-        for (int y = basedY; y < countY; ++y) {
-            for (int x = basedX; x < countX; ++x) {
-                ushort tile = layout[y][x];
-                if (tile != 0xFFFF) {
-                    float xpos = (x * 0x10) - (cam.pos.x + camOffset.x);
-                    float ypos = (y * 0x10) - (cam.pos.y + camOffset.y);
-                    float zpos = selectedLayer == l ? 8.5 : (8 - l);
-
-                    vertsPtr[vertCnt + 0].setX(0.0f + (xpos / 0x10));
-                    vertsPtr[vertCnt + 0].setY(0.0f + (ypos / 0x10));
-
-                    vertsPtr[vertCnt + 1].setX(1.0f + (xpos / 0x10));
-                    vertsPtr[vertCnt + 1].setY(0.0f + (ypos / 0x10));
-
-                    vertsPtr[vertCnt + 2].setX(1.0f + (xpos / 0x10));
-                    vertsPtr[vertCnt + 2].setY(1.0f + (ypos / 0x10));
-
-                    vertsPtr[vertCnt + 3].setX(1.0f + (xpos / 0x10));
-                    vertsPtr[vertCnt + 3].setY(1.0f + (ypos / 0x10));
-
-                    vertsPtr[vertCnt + 4].setX(0.0f + (xpos / 0x10));
-                    vertsPtr[vertCnt + 4].setY(1.0f + (ypos / 0x10));
-
-                    vertsPtr[vertCnt + 5].setX(0.0f + (xpos / 0x10));
-                    vertsPtr[vertCnt + 5].setY(0.0f + (ypos / 0x10));
-
-                    for (int i = 0; i < 6; ++i) {
-                        vertsPtr[vertCnt + i].setZ(zpos);
-                    }
-
-                    byte direction = Utils::getBit(tile, 10) | (Utils::getBit(tile, 11) << 1);
-                    getTileVerts(tVertsPtr, vertCnt, (tile & 0x3FF) * 0x10, direction);
-                    vertCnt += 6;
+            if (selectedLayer >= 0) {
+                if (selectedLayer == l) {
+                    spriteShader.setValue("useAlpha", false);
+                    spriteShader.setValue("alpha", 1.0f);
+                }
+                else {
+                    spriteShader.setValue("useAlpha", true);
+                    spriteShader.setValue("alpha", 0.5f);
                 }
             }
-        }
 
-        // Draw Tiles
-        {
-            QOpenGLVertexArrayObject vao;
-            vao.create();
-            vao.bind();
+            // draw
+            m_tilesetTexture->bind();
+            spriteShader.setValue("flipX", false);
+            spriteShader.setValue("flipY", false);
 
-            QOpenGLBuffer vVBO2D;
-            vVBO2D.create();
-            vVBO2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
-            vVBO2D.bind();
-            vVBO2D.allocate(vertsPtr, vertCnt * sizeof(QVector3D));
-            spriteShader.enableAttributeArray(0);
-            spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0); //*/
+            int vertCnt = 0;
 
-            QOpenGLBuffer tVBO2D;
-            tVBO2D.create();
-            tVBO2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
-            tVBO2D.bind();
-            tVBO2D.allocate(tVertsPtr, vertCnt * sizeof(QVector2D));
-            spriteShader.enableAttributeArray(1);
-            spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0); //*/
+            int camX = (cam.pos.x + camOffset.x);
+            int camY = (cam.pos.y + camOffset.y);
 
-            QMatrix4x4 matModel;
-            matModel.scale(0x10 * zoom, 0x10 * zoom, 1.0f);
-            spriteShader.setValue("model", matModel);
+            int basedX = camX / 0x10;
+            int basedY = camY / 0x10;
 
-            f->glDrawArrays(GL_TRIANGLES, 0, vertCnt);
+            int countX = width * 0x10 > storedW ? (storedW / 0x10) : width;
+            int countY = height * 0x10 > storedH ? (storedH / 0x10) : height;
 
-            vao.release();
-            tVBO2D.release();
-            vVBO2D.release();
-        }
+            countX = ceil(countX / zoom);
+            countY = ceil(countY / zoom);
 
-        vertCnt = 0;
+            countX = qMin(basedX + countX + 3, width);
+            countY = qMin(basedY + countY + 3, height);
 
-        // welcome to the magic of rmg code. dangerous-looking code ahead
-        // there's definitely better ways to do this, but for now this is what we gotta do
+            for (int y = basedY; y < countY; ++y) {
+                for (int x = basedX; x < countX; ++x) {
+                    ushort tile = layout[y][x];
+                    if (tile != 0xFFFF) {
+                        float xpos = (x * 0x10) - (cam.pos.x + camOffset.x);
+                        float ypos = (y * 0x10) - (cam.pos.y + camOffset.y);
+                        float zpos = selectedLayer == l ? 15.5 : (15 - l);
 
-        // Collision Previews
+                        vertsPtr[vertCnt + 0].setX(0.0f + (xpos / 0x10));
+                        vertsPtr[vertCnt + 0].setY(0.0f + (ypos / 0x10));
 
-        spriteShader.setValue("transparentColour", QVector3D(0.0f, 0.0f, 0.0f));
+                        vertsPtr[vertCnt + 1].setX(1.0f + (xpos / 0x10));
+                        vertsPtr[vertCnt + 1].setY(0.0f + (ypos / 0x10));
 
-        for (int c = 0; c < 2 && l == selectedLayer; ++c) {
-            if (showCLayers[c]) {
-                cleanCol(basedX * 16, basedY * 16, (countX - basedX) * 16, (countY - basedY) * 16);
-                for (int y = countY - 1; y >= basedY; --y) {
-                    for (int x = basedX; x < countX; ++x) {
-                        ushort tile = layout[y][x];
-                        if (tile != 0xFFFF) {
-                            // draw pixel collision
-                            float xpos = (x * 0x10);
-                            float ypos = (y * 0x10);
+                        vertsPtr[vertCnt + 2].setX(1.0f + (xpos / 0x10));
+                        vertsPtr[vertCnt + 2].setY(1.0f + (ypos / 0x10));
 
-                            byte solidity = 0;
-                            RSDKv5::TileConfig::CollisionMask &cmask =
-                                tileconfig.collisionPaths[c][tile & 0x3FF];
+                        vertsPtr[vertCnt + 3].setX(1.0f + (xpos / 0x10));
+                        vertsPtr[vertCnt + 3].setY(1.0f + (ypos / 0x10));
 
-                            solidity = !c ? (tile >> 12) & 3 : (tile >> 14) & 3;
+                        vertsPtr[vertCnt + 4].setX(0.0f + (xpos / 0x10));
+                        vertsPtr[vertCnt + 4].setY(1.0f + (ypos / 0x10));
 
-                            if (!solidity)
-                                continue;
+                        vertsPtr[vertCnt + 5].setX(0.0f + (xpos / 0x10));
+                        vertsPtr[vertCnt + 5].setY(0.0f + (ypos / 0x10));
 
-                            bool flipX = (tile >> 10) & 1;
-                            bool flipY = (tile >> 11) & 1;
+                        for (int i = 0; i < 6; ++i) {
+                            vertsPtr[vertCnt + i].setZ(zpos);
+                        }
 
-                            byte flipmode = flipY | (cmask.flipY << 1);
+                        byte direction = Utils::getBit(tile, 10) | (Utils::getBit(tile, 11) << 1);
+                        getTileVerts(tVertsPtr, vertCnt, (tile & 0x3FF) * 0x10, direction);
+                        vertCnt += 6;
+                    }
+                }
+            }
 
-                            for (byte cx = 0; cx < 16; ++cx) {
-                                int hm = cx;
-                                if (flipX)
-                                    hm = 15 - cx;
+            // Draw Tiles
+            {
+                QOpenGLVertexArrayObject vao;
+                vao.create();
+                vao.bind();
 
-                                if (!cmask.collision[hm].solid)
+                QOpenGLBuffer vVBO2D;
+                vVBO2D.create();
+                vVBO2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
+                vVBO2D.bind();
+                vVBO2D.allocate(vertsPtr, vertCnt * sizeof(QVector3D));
+                spriteShader.enableAttributeArray(0);
+                spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0); //*/
+
+                QOpenGLBuffer tVBO2D;
+                tVBO2D.create();
+                tVBO2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
+                tVBO2D.bind();
+                tVBO2D.allocate(tVertsPtr, vertCnt * sizeof(QVector2D));
+                spriteShader.enableAttributeArray(1);
+                spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0); //*/
+
+                QMatrix4x4 matModel;
+                matModel.scale(0x10 * zoom, 0x10 * zoom, 1.0f);
+                spriteShader.setValue("model", matModel);
+
+                f->glDrawArrays(GL_TRIANGLES, 0, vertCnt);
+
+                vao.release();
+                tVBO2D.release();
+                vVBO2D.release();
+            }
+
+            vertCnt = 0;
+
+            // welcome to the magic of rmg code. dangerous-looking code ahead
+            // there's definitely better ways to do this, but for now this is what we gotta do
+
+            // Collision Previews
+
+            spriteShader.setValue("transparentColour", QVector3D(0.0f, 0.0f, 0.0f));
+
+            for (int c = 0; c < 2 && l == selectedLayer; ++c) {
+                if (showCLayers[c]) {
+                    cleanCol(basedX * 16, basedY * 16, (countX - basedX) * 16, (countY - basedY) * 16);
+                    for (int y = countY - 1; y >= basedY; --y) {
+                        for (int x = basedX; x < countX; ++x) {
+                            ushort tile = layout[y][x];
+                            if (tile != 0xFFFF) {
+                                // draw pixel collision
+                                float xpos = (x * 0x10);
+                                float ypos = (y * 0x10);
+
+                                byte solidity = 0;
+                                RSDKv5::TileConfig::CollisionMask &cmask =
+                                    tileconfig.collisionPaths[c][tile & 0x3FF];
+
+                                solidity = !c ? (tile >> 12) & 3 : (tile >> 14) & 3;
+
+                                if (!solidity)
                                     continue;
 
-                                byte h  = cmask.collision[hm].height;
-                                byte cy = h;
-                                if (solidity != 2) {
-                                    // yellow
-                                    byte ycy = cy;
+                                bool flipX = (tile >> 10) & 1;
+                                bool flipY = (tile >> 11) & 1;
 
-                                    if (flipmode) {
-                                        if (flipmode <= 2)
-                                            ycy = 0;
-                                        if (flipmode == 3)
-                                            ycy = 15 - h;
-                                    }
+                                byte flipmode = flipY | (cmask.flipY << 1);
 
-                                    placeCol(xpos + cx, ypos + ycy, 16, 1);
-                                }
-                                if (solidity != 1) {
-                                    // red
-                                    byte rcy = h, rch = 16 - h;
-                                    if (flipmode) {
-                                        if (flipmode <= 2)
-                                            rcy = 0;
-                                        if (flipmode >= 2) {
-                                            rch = h + 1;
-                                            if (flipmode == 3) {
-                                                rcy = 15 - h;
-                                            }
-                                        }
-                                    }
-
-                                    rcy = rcy + rch;
-
-                                    placeCol(xpos + cx, ypos + rcy, -16, 2);
-                                }
-                            } //*/
-                            if (solidity == 3) {
-                                cleanCol(xpos, ypos, 16, 16);
                                 for (byte cx = 0; cx < 16; ++cx) {
                                     int hm = cx;
                                     if (flipX)
@@ -541,234 +513,284 @@ void SceneViewerv5::drawScene()
                                         continue;
 
                                     byte h  = cmask.collision[hm].height;
-                                    byte cy = h, ch = 16 - h;
-                                    if (flipmode) {
-                                        if (flipmode <= 2)
-                                            cy = 0;
-                                        if (flipmode >= 2) {
-                                            ch = h + 1;
-                                            if (flipmode == 3) {
-                                                cy = 15 - h;
+                                    byte cy = h;
+                                    if (solidity != 2) {
+                                        // yellow
+                                        byte ycy = cy;
+
+                                        if (flipmode) {
+                                            if (flipmode <= 2)
+                                                ycy = 0;
+                                            if (flipmode == 3)
+                                                ycy = 15 - h;
+                                        }
+
+                                        placeCol(xpos + cx, ypos + ycy, 16, 1);
+                                    }
+                                    if (solidity != 1) {
+                                        // red
+                                        byte rcy = h, rch = 16 - h;
+                                        if (flipmode) {
+                                            if (flipmode <= 2)
+                                                rcy = 0;
+                                            if (flipmode >= 2) {
+                                                rch = h + 1;
+                                                if (flipmode == 3) {
+                                                    rcy = 15 - h;
+                                                }
                                             }
                                         }
+
+                                        rcy = rcy + rch;
+
+                                        placeCol(xpos + cx, ypos + rcy, -16, 2);
                                     }
-                                    placeCol(xpos + cx, ypos + cy, ch, solidity);
+                                } //*/
+                                if (solidity == 3) {
+                                    cleanCol(xpos, ypos, 16, 16);
+                                    for (byte cx = 0; cx < 16; ++cx) {
+                                        int hm = cx;
+                                        if (flipX)
+                                            hm = 15 - cx;
+
+                                        if (!cmask.collision[hm].solid)
+                                            continue;
+
+                                        byte h  = cmask.collision[hm].height;
+                                        byte cy = h, ch = 16 - h;
+                                        if (flipmode) {
+                                            if (flipmode <= 2)
+                                                cy = 0;
+                                            if (flipmode >= 2) {
+                                                ch = h + 1;
+                                                if (flipmode == 3) {
+                                                    cy = 15 - h;
+                                                }
+                                            }
+                                        }
+                                        placeCol(xpos + cx, ypos + cy, ch, solidity);
+                                    }
                                 }
                             }
                         }
                     }
+
+                    float x = cam.pos.x + camOffset.x;
+                    float y = cam.pos.y + camOffset.y;
+
+                    auto tileGL = createTexture(colTex->copy(x, y, storedW / zoom, storedH / zoom));
+
+                    tileGL->bind();
+
+                    float w = storedW / 16.0f / zoom;
+                    float h = storedH / 16.0f / zoom;
+
+                    vertsPtr[0].setX(0);
+                    vertsPtr[0].setY(0);
+
+                    vertsPtr[1].setX(w);
+                    vertsPtr[1].setY(0);
+
+                    vertsPtr[2].setX(w);
+                    vertsPtr[2].setY(h);
+
+                    vertsPtr[3].setX(w);
+                    vertsPtr[3].setY(h);
+
+                    vertsPtr[4].setX(0);
+                    vertsPtr[4].setY(h);
+
+                    vertsPtr[5].setX(0);
+                    vertsPtr[5].setY(0);
+
+                    tVertsPtr[0].setX(0);
+                    tVertsPtr[0].setY(0);
+
+                    tVertsPtr[1].setX(1);
+                    tVertsPtr[1].setY(0);
+
+                    tVertsPtr[2].setX(1);
+                    tVertsPtr[2].setY(1);
+
+                    tVertsPtr[3].setX(1);
+                    tVertsPtr[3].setY(1);
+
+                    tVertsPtr[4].setX(0);
+                    tVertsPtr[4].setY(1);
+
+                    tVertsPtr[5].setX(0);
+                    tVertsPtr[5].setY(0);
+
+                    for (int i = 0; i < 6; ++i) {
+                        vertsPtr[i].setZ(15.45);
+                    }
+
+                    {
+                        QOpenGLVertexArrayObject vao;
+                        vao.create();
+                        vao.bind();
+
+                        QOpenGLBuffer vVBO2D;
+                        vVBO2D.create();
+                        vVBO2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
+                        vVBO2D.bind();
+                        vVBO2D.allocate(vertsPtr, 6 * sizeof(QVector3D));
+                        spriteShader.enableAttributeArray(0);
+                        spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0); //*/
+
+                        QOpenGLBuffer tVBO2D;
+                        tVBO2D.create();
+                        tVBO2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
+                        tVBO2D.bind();
+                        tVBO2D.allocate(tVertsPtr, 6 * sizeof(QVector2D));
+                        spriteShader.enableAttributeArray(1);
+                        spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0); //*/
+
+                        QMatrix4x4 matModel;
+                        matModel.scale(0x10 * zoom, 0x10 * zoom, 1.0f);
+                        spriteShader.setValue("model", matModel);
+
+                        f->glDrawArrays(GL_TRIANGLES, 0, 6);
+
+                        vao.release();
+                        tVBO2D.release();
+                        vVBO2D.release();
+                    }
+                    tileGL->release();
                 }
-
-                float x = cam.pos.x + camOffset.x;
-                float y = cam.pos.y + camOffset.y;
-
-                auto tileGL = createTexture(colTex->copy(x, y, storedW / zoom, storedH / zoom));
-
-                tileGL->bind();
-
-                float w = storedW / 16.0f / zoom;
-                float h = storedH / 16.0f / zoom;
-
-                vertsPtr[0].setX(0);
-                vertsPtr[0].setY(0);
-
-                vertsPtr[1].setX(w);
-                vertsPtr[1].setY(0);
-
-                vertsPtr[2].setX(w);
-                vertsPtr[2].setY(h);
-
-                vertsPtr[3].setX(w);
-                vertsPtr[3].setY(h);
-
-                vertsPtr[4].setX(0);
-                vertsPtr[4].setY(h);
-
-                vertsPtr[5].setX(0);
-                vertsPtr[5].setY(0);
-
-                tVertsPtr[0].setX(0);
-                tVertsPtr[0].setY(0);
-
-                tVertsPtr[1].setX(1);
-                tVertsPtr[1].setY(0);
-
-                tVertsPtr[2].setX(1);
-                tVertsPtr[2].setY(1);
-
-                tVertsPtr[3].setX(1);
-                tVertsPtr[3].setY(1);
-
-                tVertsPtr[4].setX(0);
-                tVertsPtr[4].setY(1);
-
-                tVertsPtr[5].setX(0);
-                tVertsPtr[5].setY(0);
-
-                for (int i = 0; i < 6; ++i) {
-                    vertsPtr[i].setZ(15.45);
-                }
-
-                {
-                    QOpenGLVertexArrayObject vao;
-                    vao.create();
-                    vao.bind();
-
-                    QOpenGLBuffer vVBO2D;
-                    vVBO2D.create();
-                    vVBO2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
-                    vVBO2D.bind();
-                    vVBO2D.allocate(vertsPtr, 6 * sizeof(QVector3D));
-                    spriteShader.enableAttributeArray(0);
-                    spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0); //*/
-
-                    QOpenGLBuffer tVBO2D;
-                    tVBO2D.create();
-                    tVBO2D.setUsagePattern(QOpenGLBuffer::StaticDraw);
-                    tVBO2D.bind();
-                    tVBO2D.allocate(tVertsPtr, 6 * sizeof(QVector2D));
-                    spriteShader.enableAttributeArray(1);
-                    spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0); //*/
-
-                    QMatrix4x4 matModel;
-                    matModel.scale(0x10 * zoom, 0x10 * zoom, 1.0f);
-                    spriteShader.setValue("model", matModel);
-
-                    f->glDrawArrays(GL_TRIANGLES, 0, 6);
-
-                    vao.release();
-                    tVBO2D.release();
-                    vVBO2D.release();
-                }
-                tileGL->release();
             }
-        }
 
-        spriteShader.setValue("transparentColour", QVector3D(1.0f, 0.0f, 1.0f));
+            spriteShader.setValue("transparentColour", QVector3D(1.0f, 0.0f, 1.0f));
 
-        // PARALLAX
-        if (l == selectedLayer && l >= 0) {
-            if (scene.layers[l].type == 0 || scene.layers[l].type == 1) {
-                primitiveShader.use();
-                primitiveShader.setValue("projection", getProjectionMatrix());
-                primitiveShader.setValue("view", QMatrix4x4());
-                primitiveShader.setValue("useAlpha", false);
-                primitiveShader.setValue("alpha", 1.0f);
-                primitiveShader.setValue("projection", matWorld = getProjectionMatrix());
-                primitiveShader.setValue("view", matView = QMatrix4x4());
-                QMatrix4x4 matModel;
-                primitiveShader.setValue("model", matModel);
+            // PARALLAX
+            if (l == selectedLayer && l >= 0) {
+                if (scene.layers[l].type == 0 || scene.layers[l].type == 1) {
+                    primitiveShader.use();
+                    primitiveShader.setValue("projection", getProjectionMatrix());
+                    primitiveShader.setValue("view", QMatrix4x4());
+                    primitiveShader.setValue("useAlpha", false);
+                    primitiveShader.setValue("alpha", 1.0f);
+                    primitiveShader.setValue("projection", matWorld = getProjectionMatrix());
+                    primitiveShader.setValue("view", matView = QMatrix4x4());
+                    QMatrix4x4 matModel;
+                    primitiveShader.setValue("model", matModel);
 
-                QOpenGLVertexArrayObject colVAO;
-                colVAO.create();
-                colVAO.bind();
+                    QOpenGLVertexArrayObject colVAO;
+                    colVAO.create();
+                    colVAO.bind();
 
-                QList<QVector3D> verts;
-                if (showParallax) {
-                    int id = 0;
-                    for (RSDKv5::Scene::ScrollIndexInfo &info : scene.layers[l].scrollInfos) {
-                        bool isSelected = selectedScrollInfo == id;
+                    QList<QVector3D> verts;
+                    if (showParallax) {
+                        int id = 0;
+                        for (RSDKv5::Scene::ScrollIndexInfo &info : scene.layers[l].scrollInfos) {
+                            bool isSelected = selectedScrollInfo == id;
 
-                        Vector4<float> clr(1.0f, 1.0f, 0.0f, 1.0f);
-                        if (isSelected)
-                            clr = Vector4<float>(0.0f, 0.0f, 1.0f, 1.0f);
-                        float zpos = (isSelected ? 15.55f : 15.5f);
+                            Vector4<float> clr(1.0f, 1.0f, 0.0f, 1.0f);
+                            if (isSelected)
+                                clr = Vector4<float>(0.0f, 0.0f, 1.0f, 1.0f);
+                            float zpos = (isSelected ? 15.55f : 15.5f);
 
-                        if (scene.layers[l].type == 0) {
-                            int w = (width * 0x10) * zoom;
-                            drawLine(0.0f * zoom, (info.startLine - cam.pos.y) * zoom, zpos,
-                                     (w - cam.pos.x) * zoom, (info.startLine - cam.pos.y) * zoom, zpos,
-                                     clr, primitiveShader);
+                            if (scene.layers[l].type == 0) {
+                                int w = (width * 0x10) * zoom;
+                                drawLine(0.0f * zoom, (info.startLine - cam.pos.y) * zoom, zpos,
+                                         (w - cam.pos.x) * zoom, (info.startLine - cam.pos.y) * zoom,
+                                         zpos, clr, primitiveShader);
 
-                            drawLine(0.0f * zoom, ((info.startLine + info.length) - cam.pos.y) * zoom,
-                                     zpos, (w - cam.pos.x) * zoom,
-                                     ((info.startLine + info.length) - cam.pos.y) * zoom, zpos, clr,
-                                     primitiveShader);
+                                drawLine(0.0f * zoom,
+                                         ((info.startLine + info.length) - cam.pos.y) * zoom, zpos,
+                                         (w - cam.pos.x) * zoom,
+                                         ((info.startLine + info.length) - cam.pos.y) * zoom, zpos, clr,
+                                         primitiveShader);
+                            }
+                            else if (scene.layers[l].type == 1) {
+                                int h = (height * 0x10) * zoom;
+                                drawLine((info.startLine - cam.pos.x) * zoom, 0.0f * zoom, zpos,
+                                         (info.startLine - cam.pos.x) * zoom, (h - cam.pos.y) * zoom,
+                                         zpos, clr, primitiveShader);
+
+                                drawLine(((info.startLine + info.length) - cam.pos.x) * zoom,
+                                         0.0f * zoom, zpos,
+                                         ((info.startLine + info.length) - cam.pos.x) * zoom,
+                                         (h - cam.pos.y) * zoom, zpos, clr, primitiveShader);
+                            }
+
+                            ++id;
                         }
-                        else if (scene.layers[l].type == 1) {
-                            int h = (height * 0x10) * zoom;
-                            drawLine((info.startLine - cam.pos.x) * zoom, 0.0f * zoom, zpos,
-                                     (info.startLine - cam.pos.x) * zoom, (h - cam.pos.y) * zoom, zpos,
-                                     clr, primitiveShader);
-
-                            drawLine(((info.startLine + info.length) - cam.pos.x) * zoom, 0.0f * zoom,
-                                     zpos, ((info.startLine + info.length) - cam.pos.x) * zoom,
-                                     (h - cam.pos.y) * zoom, zpos, clr, primitiveShader);
-                        }
-
-                        ++id;
                     }
                 }
             }
         }
-    }
 
-    // ENTITIES
-    prevSprite = -1;
+        // ENTITIES
+        prevSprite = -1;
 
-    primitiveShader.use();
-    primitiveShader.setValue("projection", getProjectionMatrix());
-    primitiveShader.setValue("view", QMatrix4x4());
-    primitiveShader.setValue("useAlpha", false);
-    primitiveShader.setValue("alpha", 1.0f);
+        primitiveShader.use();
+        primitiveShader.setValue("projection", getProjectionMatrix());
+        primitiveShader.setValue("view", QMatrix4x4());
+        primitiveShader.setValue("useAlpha", false);
+        primitiveShader.setValue("alpha", 1.0f);
 
-    spriteShader.use();
-    rectVAO.bind();
-    spriteShader.setValue("flipX", false);
-    spriteShader.setValue("flipY", false);
-    spriteShader.setValue("useAlpha", false);
-    spriteShader.setValue("alpha", 1.0f);
-    for (int o = 0; o < entities.count(); ++o) {
-        validDraw = false;
+        spriteShader.use();
+        rectVAO.bind();
+        spriteShader.setValue("flipX", false);
+        spriteShader.setValue("flipY", false);
+        spriteShader.setValue("useAlpha", false);
+        spriteShader.setValue("alpha", 1.0f);
 
-        int filter = 0xFF;
-        for (int v = 0; v < objects[entities[o].type].variables.count(); ++v) {
-            if (objects[entities[o].type].variables[v].name == "filter") {
-                filter = entities[o].variables[v].value_uint8;
-                break;
-            }
-        }
+        currZ = curTool == TOOL_ENTITY ? 15.51 : p;
+        for (int o = 0; o < drawLayers[p].entries.count(); ++o) {
+            SceneEntity *entity = &entities[drawLayers[p].entries[o]];
+            validDraw           = false;
 
-        if (!(filter & sceneFilter))
-            continue;
-
-        entities[o].gameEntity->position.x = Utils::floatToFixed(entities[o].pos.x);
-        entities[o].gameEntity->position.y = Utils::floatToFixed(entities[o].pos.y);
-
-        callGameEvent(gameLink.GetObjectInfo(objects[entities[o].type].name), EVENT_DRAW, o);
-
-        // Draw Default Object Sprite if invalid
-        // TODO: probably draw text intead
-        if (!validDraw) {
-            spriteShader.use();
-            rectVAO.bind();
-
-            float xpos = entities[o].pos.x - (cam.pos.x);
-            float ypos = entities[o].pos.y - (cam.pos.y);
-            float zpos = 10.0f;
-
-            int w = gfxSurface[0].texturePtr->width(), h = gfxSurface[0].texturePtr->height();
-            if (prevSprite) {
-                gfxSurface[0].texturePtr->bind();
-                prevSprite = 0;
+            int filter = 0xFF;
+            for (int v = 0; v < objects[entity->type].variables.count(); ++v) {
+                if (objects[entity->type].variables[v].name == "filter") {
+                    filter = entity->variables[v].value_uint8;
+                    break;
+                }
             }
 
-            Rect<int> check = Rect<int>();
-            check.x         = (int)(xpos + (float)w) * zoom;
-            check.y         = (int)(ypos + (float)h) * zoom;
-            check.w         = (int)(xpos - (w / 2.0f)) * zoom;
-            check.h         = (int)(ypos - (h / 2.0f)) * zoom;
-            if (check.x < 0 || check.y < 0 || check.w >= storedW || check.h >= storedH) {
+            if (!(filter & sceneFilter))
                 continue;
+
+            entity->gameEntity->position.x = Utils::floatToFixed(entity->pos.x);
+            entity->gameEntity->position.y = Utils::floatToFixed(entity->pos.y);
+
+            callGameEvent(gameLink.GetObjectInfo(objects[entity->type].name), EVENT_DRAW, entity);
+
+            // Draw Default Object Sprite if invalid
+            // TODO: probably draw text intead
+            if (!validDraw) {
+                spriteShader.use();
+                rectVAO.bind();
+
+                float xpos = entity->pos.x - (cam.pos.x);
+                float ypos = entity->pos.y - (cam.pos.y);
+                float zpos = incZ();
+
+                int w = gfxSurface[0].texturePtr->width(), h = gfxSurface[0].texturePtr->height();
+                if (prevSprite) {
+                    gfxSurface[0].texturePtr->bind();
+                    prevSprite = 0;
+                }
+
+                Rect<int> check = Rect<int>();
+                check.x         = (int)(xpos + (float)w) * zoom;
+                check.y         = (int)(ypos + (float)h) * zoom;
+                check.w         = (int)(xpos - (w / 2.0f)) * zoom;
+                check.h         = (int)(ypos - (h / 2.0f)) * zoom;
+                if (check.x < 0 || check.y < 0 || check.w >= storedW || check.h >= storedH) {
+                    continue;
+                }
+
+                QMatrix4x4 matModel;
+                matModel.scale(w * zoom, h * zoom, 1.0f);
+
+                matModel.translate(xpos / (float)w, ypos / (float)h, zpos);
+                spriteShader.setValue("model", matModel);
+
+                f->glDrawArrays(GL_TRIANGLES, 0, 6);
             }
-
-            QMatrix4x4 matModel;
-            matModel.scale(w * zoom, h * zoom, 1.0f);
-
-            matModel.translate(xpos / (float)w, ypos / (float)h, zpos);
-            spriteShader.setValue("model", matModel);
-
-            f->glDrawArrays(GL_TRIANGLES, 0, 6);
         }
     }
 
@@ -822,13 +844,18 @@ void SceneViewerv5::drawScene()
         float cy = cam.pos.y;
 
         validDraw = false;
+        GameEntity gameEntity;
+        gameEntity.position.x = (ex + cx) * 65536.0f;
+        gameEntity.position.y = (ey + cy) * 65536.0f;
+        gameEntity.objectID   = selectedObject;
+
         SceneEntity tempEntity;
-        tempEntity.type   = selectedObject;
-        tempEntity.pos.x  = (ex + cx) * 65536.0f;
-        tempEntity.pos.y  = (ey + cy) * 65536.0f;
-        tempEntity.slotID = 0xFFFF;
-        callGameEvent(gameLink.GetObjectInfo(objects[selectedObject].name), EVENT_DRAW,
-                      v5_ENTITY_COUNT - 1);
+        tempEntity.type       = selectedObject;
+        tempEntity.pos.x      = (ex + cx) * 65536.0f;
+        tempEntity.pos.y      = (ey + cy) * 65536.0f;
+        tempEntity.slotID     = 0xFFFF;
+        tempEntity.gameEntity = &gameEntity;
+        callGameEvent(gameLink.GetObjectInfo(objects[selectedObject].name), EVENT_DRAW, &tempEntity);
 
         if (!validDraw) {
             // Draw Selected Object Preview
@@ -967,6 +994,8 @@ void SceneViewerv5::unloadScene()
     selectedObject     = -1;
     isSelecting        = false;
 
+    memset(gameEntityList, 0, sizeof(gameEntityList));
+
     if (vertsPtr)
         delete[] vertsPtr;
     if (tVertsPtr)
@@ -977,7 +1006,109 @@ void SceneViewerv5::unloadScene()
     sceneHeight = 0;
 }
 
-void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, int id)
+void SceneViewerv5::processObjects()
+{
+    for (int i = 0; i < v5_DRAWLAYER_COUNT; ++i) {
+        drawLayers[i].entries.clear();
+    }
+
+    sceneInfo.entitySlot = 0;
+    int posX             = (int)(cam.pos.x * 65536.0f);
+    int posY             = (int)(cam.pos.y * 65536.0f);
+    int offsetX          = (storedW) << 16;
+    int offsetY          = (storedH) << 16;
+    for (int e = 0; e < entities.count(); ++e) {
+        sceneInfo.entity = entities[e].gameEntity;
+        if (entities[e].type) {
+            switch (sceneInfo.entity->active) {
+                case ACTIVE_NEVER:
+                case ACTIVE_PAUSED: sceneInfo.entity->inBounds = false; break;
+                case ACTIVE_ALWAYS:
+                case ACTIVE_NORMAL: sceneInfo.entity->inBounds = true; break;
+                case ACTIVE_BOUNDS:
+                    sceneInfo.entity->inBounds = false;
+                    {
+                        int sx = abs(sceneInfo.entity->position.x - posX);
+                        int sy = abs(sceneInfo.entity->position.y - posY);
+                        if (sx <= sceneInfo.entity->updateRange.x + offsetX
+                            && sy <= sceneInfo.entity->updateRange.y + offsetY) {
+                            sceneInfo.entity->inBounds = true;
+                            break;
+                        }
+                    }
+                    break;
+                case ACTIVE_XBOUNDS:
+                    sceneInfo.entity->inBounds = false;
+                    {
+                        int sx = abs(sceneInfo.entity->position.x - posX);
+                        if (sx <= sceneInfo.entity->updateRange.x + offsetX) {
+                            sceneInfo.entity->inBounds = true;
+                            break;
+                        }
+                    }
+                    break;
+                case ACTIVE_YBOUNDS:
+                    sceneInfo.entity->inBounds = false;
+                    {
+                        int sy = abs(sceneInfo.entity->position.y - posY);
+                        if (sy <= sceneInfo.entity->updateRange.y + offsetY) {
+                            sceneInfo.entity->inBounds = true;
+                            break;
+                        }
+                    }
+                    break;
+                case ACTIVE_RBOUNDS:
+                    sceneInfo.entity->inBounds = false;
+                    {
+                        int sx = (int)abs(sceneInfo.entity->position.x - posX) >> 0x10;
+                        int sy = (int)abs(sceneInfo.entity->position.y - posY) >> 0x10;
+
+                        if (sx * sx + sy * sy <= sceneInfo.entity->updateRange.x + offsetX) {
+                            sceneInfo.entity->inBounds = true;
+                            break;
+                        }
+                    }
+                    break;
+            }
+
+            if (sceneInfo.entity->inBounds) {
+                // callGameEvent(gameLink.GetObjectInfo(objects[entities[e].type].name), EVENT_UPDATE,
+                //              &entities[e]);
+
+                if (sceneInfo.entity->drawOrder < v5_DRAWLAYER_COUNT)
+                    drawLayers[sceneInfo.entity->drawOrder].entries.append(sceneInfo.entitySlot);
+            }
+        }
+        else {
+            sceneInfo.entity->inBounds = false;
+        }
+        sceneInfo.entitySlot++;
+    }
+
+    for (int i = 0; i < TYPEGROUP_COUNT; ++i) {
+        typeGroups[i].entries.clear();
+    }
+
+    sceneInfo.entitySlot = 0;
+    for (int e = 0; e < entities.count(); ++e) {
+        sceneInfo.entity = entities[e].gameEntity;
+        if (sceneInfo.entity->inBounds && sceneInfo.entity->interaction) {
+            typeGroups[0].entries.append(e);                          // All active objects
+            typeGroups[sceneInfo.entity->objectID].entries.append(e); // type-based slots
+            if (sceneInfo.entity->group >= TYPE_COUNT) {
+                typeGroups[sceneInfo.entity->group].entries.append(e); // extra slots
+            }
+        }
+        sceneInfo.entitySlot++;
+    }
+
+    sceneInfo.entitySlot = 0;
+    for (int e = 0; e < entities.count(); ++e) {
+        entities[e].gameEntity->activeScreens = 0;
+    }
+}
+
+void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, SceneEntity *entity)
 {
     if (!info)
         return;
@@ -989,8 +1120,8 @@ void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, int id)
                 info->editorLoad();
             break;
         case EVENT_CREATE:
-            sceneInfo.entity     = entities[id].gameEntity;
-            sceneInfo.entitySlot = entities[id].slotID;
+            sceneInfo.entity     = entity->gameEntity;
+            sceneInfo.entitySlot = entity->slotID;
             if (info->create)
                 info->create(NULL);
             sceneInfo.entity     = NULL;
@@ -998,20 +1129,18 @@ void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, int id)
             break;
         case EVENT_UPDATE:
             // TODO: that
-            sceneInfo.entity     = entities[id].gameEntity;
-            sceneInfo.entitySlot = entities[id].slotID;
+            sceneInfo.entity     = entity->gameEntity;
+            sceneInfo.entitySlot = entity->slotID;
             if (info->update)
                 info->update();
             sceneInfo.entity     = NULL;
             sceneInfo.entitySlot = 0;
             break;
         case EVENT_DRAW:
-            sceneInfo.entity     = entities[id].gameEntity;
-            sceneInfo.entitySlot = entities[id].slotID;
+            sceneInfo.entity     = entity->gameEntity;
+            sceneInfo.entitySlot = entity->slotID;
             if (info->editorDraw)
                 info->editorDraw();
-            // if (!validDraw && info->draw)
-            //    info->draw();
             sceneInfo.entity     = NULL;
             sceneInfo.entitySlot = 0;
             break;
@@ -1113,6 +1242,8 @@ void SceneViewerv5::paintGL()
 
     f->glClearColor(bgColour.r / 255.0f, bgColour.g / 255.0f, bgColour.b / 255.0f, 1.0f);
     f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    processObjects();
 
     drawScene();
 }
@@ -1234,7 +1365,6 @@ void SceneViewerv5::drawTile(float XPos, float YPos, float ZPos, int tileX, int 
     vao.destroy();
 }
 
-int sprDrawsv5 = 0;
 void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, int width, int height, int sprX, int sprY,
                                       int direction, int inkEffect, int alpha, int sheetID)
 {
@@ -1268,13 +1398,10 @@ void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, int width, int hei
         case INK_UNMASKED: alpha = 0xFF; break;
     }
 
-    if (sheetID != prevSprite)
-        sprDrawsv5 = 0;
-
     // Draw Sprite
     float xpos = XPos;
     float ypos = YPos;
-    float zpos = 10.0f + (sprDrawsv5 * 0.001f);
+    float zpos = incZ();
 
     if (sheetID != prevSprite) {
         gfxSurface[sheetID].texturePtr->bind();
@@ -1366,7 +1493,6 @@ void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, int width, int hei
     spriteShader.setValue("model", matModel);
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
-    sprDrawsv5++;
     validDraw = true;
 }
 
@@ -1405,16 +1531,13 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, int pivotX, int p
         case INK_UNMASKED: alpha = 0xFF; break;
     }
 
-    if (sheetID != prevSprite)
-        sprDrawsv5 = 0;
-
     // XPos += pivotX;
     // YPos += pivotY;
 
     // Draw Sprite
     float xpos = XPos;
     float ypos = YPos;
-    float zpos = 10.0f + (sprDrawsv5 * 0.001f);
+    float zpos = incZ();
 
     if (sheetID != prevSprite) {
         gfxSurface[sheetID].texturePtr->bind();
@@ -1514,7 +1637,6 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, int pivotX, int p
     spriteShader.setValue("model", matModel);
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
-    sprDrawsv5++;
     validDraw = true;
 }
 
@@ -1522,12 +1644,11 @@ void SceneViewerv5::drawLine(float x1, float y1, float z1, float x2, float y2, f
                              Vector4<float> colour, Shader &shader)
 {
     shader.use();
-    float zpos          = 10.0f + (sprDrawsv5 * 0.001f);
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
     shader.setValue("colour", QVector4D(colour.x, colour.y, colour.z, colour.w));
 
-    QVector3D vertsPtr[2] = { QVector3D(x1, y1, zpos), QVector3D(x2, y2, zpos) };
+    QVector3D vertsPtr[2] = { QVector3D(x1, y1, z1), QVector3D(x2, y2, z2) };
 
     QOpenGLVertexArrayObject VAO;
     VAO.create();
@@ -1549,7 +1670,6 @@ void SceneViewerv5::drawLine(float x1, float y1, float z1, float x2, float y2, f
     VAO.destroy();
     VBO.destroy();
 
-    sprDrawsv5++;
     validDraw = true;
 }
 
@@ -1559,16 +1679,15 @@ void SceneViewerv5::drawRect(float x, float y, float z, float w, float h, Vector
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
     shader.use();
-    float zpos = 10.0f + (sprDrawsv5 * 0.001f);
     if (outline) {
         // top
-        drawLine(x, y, zpos, x + w, y, zpos, colour, shader);
+        drawLine(x, y, z, x + w, y, z, colour, shader);
         // bottom
-        drawLine(x, y + h, zpos, x + w, y + h, zpos, colour, shader);
+        drawLine(x, y + h, z, x + w, y + h, z, colour, shader);
         // left
-        drawLine(x, y, zpos, x, y + h, zpos, colour, shader);
+        drawLine(x, y, z, x, y + h, z, colour, shader);
         // right
-        drawLine(x + w, y, zpos, x + w, y + h, zpos, colour, shader);
+        drawLine(x + w, y, z, x + w, y + h, z, colour, shader);
 
         validDraw = true;
     }
@@ -1579,14 +1698,13 @@ void SceneViewerv5::drawRect(float x, float y, float z, float w, float h, Vector
 
         QMatrix4x4 matModel;
         matModel.scale(w, h, 1.0f);
-        matModel.translate(x / w, y / h, zpos);
+        matModel.translate(x / w, y / h, z);
         shader.setValue("model", matModel);
 
         f->glDrawArrays(GL_TRIANGLES, 0, 6);
 
         rectVAO.release();
 
-        sprDrawsv5++;
         validDraw = true;
     }
 }

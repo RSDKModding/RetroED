@@ -4,7 +4,8 @@
 #define v5_SPRFILE_COUNT     (0x400)
 #define v5_FRAMEHITBOX_COUNT (0x8)
 
-#define v5_SURFACE_MAX (0x40)
+#define v5_SURFACE_MAX     (0x40)
+#define v5_DRAWLAYER_COUNT (16)
 
 struct SpriteAnimationEntry {
     uint hash[4];
@@ -30,6 +31,13 @@ struct GFXSurface {
     byte scope;
     QString name;
     QOpenGLTexture *texturePtr;
+};
+
+struct DrawList {
+    QList<ushort> entries;
+    QList<ushort> layerDrawList;
+    void (*callback)(void);
+    bool32 sorted;
 };
 
 extern bool32 validDraw;

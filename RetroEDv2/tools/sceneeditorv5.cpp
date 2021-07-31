@@ -605,7 +605,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
     switch (event->type()) {
         case QEvent::MouseButtonPress: {
             QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
-            viewer->m_reference = mEvent->pos();
+            viewer->reference   = mEvent->pos();
 
             viewer->mousePos.x = viewer->cam.m_lastMousePos.x = mEvent->pos().x();
             viewer->mousePos.y = viewer->cam.m_lastMousePos.y = mEvent->pos().y();
@@ -806,10 +806,10 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                          (viewer->mousePos.y * viewer->invZoom()) + viewer->cam.pos.y);
 
             if (m_mouseDownM || (m_mouseDownL && viewer->curTool == TOOL_MOUSE)) {
-                viewer->cam.pos.x -= (viewer->mousePos.x - viewer->m_reference.x()) * viewer->invZoom();
-                viewer->cam.pos.y -= (viewer->mousePos.y - viewer->m_reference.y()) * viewer->invZoom();
-                viewer->m_reference = mEvent->pos();
-                QPoint lp           = viewer->mapFromGlobal(QCursor::pos());
+                viewer->cam.pos.x -= (viewer->mousePos.x - viewer->reference.x()) * viewer->invZoom();
+                viewer->cam.pos.y -= (viewer->mousePos.y - viewer->reference.y()) * viewer->invZoom();
+                viewer->reference = mEvent->pos();
+                QPoint lp         = viewer->mapFromGlobal(QCursor::pos());
                 if (!viewer->rect().contains(lp)) {
                     if (lp.x() < viewer->x())
                         lp.setX(lp.x() + viewer->width());
@@ -819,7 +819,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                         lp.setY(lp.y() + viewer->height());
                     else if (lp.y() > viewer->y() + viewer->height())
                         lp.setY(lp.y() - viewer->height());
-                    viewer->m_reference = lp;
+                    viewer->reference = lp;
                     QCursor::setPos(viewer->mapToGlobal(lp));
                 }
                 status = true;
@@ -1190,23 +1190,27 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
         if (sceneVer != 1)
             FunctionTable::setEditableVar(VAR_UINT8, "filter", i, offsetof(GameEntity, filter));
         viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[i].name),
-                              SceneViewerv5::EVENT_SERIALIZE, i);
+                              SceneViewerv5::EVENT_SERIALIZE, NULL);
         viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[i].name),
-                              SceneViewerv5::EVENT_LOAD, i);
+                              SceneViewerv5::EVENT_LOAD, NULL);
     }
 
     for (int i = 0; i < viewer->entities.count(); ++i) {
         viewer->entities[i].gameEntity = &viewer->gameEntityList[viewer->entities[i].slotID];
         GameEntity *entityPtr          = viewer->entities[i].gameEntity;
         memset(entityPtr, 0, sizeof(GameEntityBase));
-        entityPtr->position.x  = Utils::floatToFixed(viewer->entities[i].pos.x);
-        entityPtr->position.y  = Utils::floatToFixed(viewer->entities[i].pos.y);
-        entityPtr->interaction = true;
+        entityPtr->position.x    = Utils::floatToFixed(viewer->entities[i].pos.x);
+        entityPtr->position.y    = Utils::floatToFixed(viewer->entities[i].pos.y);
+        entityPtr->interaction   = true;
+        entityPtr->active        = ACTIVE_BOUNDS;
+        entityPtr->updateRange.x = 0x800000;
+        entityPtr->updateRange.y = 0x800000;
+        entityPtr->objectID      = viewer->entities[i].type;
 
         for (int o = 0; o < viewer->entities[i].variables.length(); o++) {
-            auto var         = viewer->objects[viewer->entities[i].type].variables[o];
-            auto val         = viewer->entities[i].variables[o];
-            auto offset      = &((byte *)entityPtr)[var.offset];
+            auto var    = viewer->objects[viewer->entities[i].type].variables[o];
+            auto val    = viewer->entities[i].variables[o];
+            auto offset = &((byte *)entityPtr)[var.offset];
             switch (var.type) {
                 case VAR_UINT8: memcpy(offset, &val.value_uint8, sizeof(byte)); break;
                 case VAR_INT8: memcpy(offset, &val.value_int8, sizeof(sbyte)); break;
@@ -1220,7 +1224,7 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
                                            (char *)val.value_string.toStdString().c_str(), false);
                     break;
                 }
-                // i'm cheating w this 1    
+                // i'm cheating w this 1
                 case VAR_VECTOR2: memcpy(offset, &val.value_vector2.x, sizeof(Vector2<int>)); break;
                 case VAR_UNKNOWN: break; // :urarakaconfuse:
                 case VAR_BOOL: memcpy(offset, &val.value_bool, sizeof(bool32)); break;
@@ -1233,8 +1237,9 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
             }
         }
 
-        viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[viewer->entities[i].type].name),
-                              SceneViewerv5::EVENT_CREATE, i);
+        SceneEntity *entity = &viewer->entities[i];
+        viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[entity->type].name),
+                              SceneViewerv5::EVENT_CREATE, entity);
     }
 
     appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, scnPath, QList<QString>{ gcfPath });

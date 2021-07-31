@@ -33,7 +33,7 @@ void FunctionTable::registerObject(GameObject **structPtr, const char *name, uin
         info->editorDraw   = editorDraw;
         info->editorLoad   = editorLoad;
         info->serialize    = serialize;
-        info->name = name;
+        info->name         = name;
         ++gameObjectCount;
     }
 }
@@ -129,7 +129,7 @@ int FunctionTable::getEntityCount(ushort type, bool32 isActive)
     if (type >= TYPE_COUNT)
         return 0;
     if (isActive)
-        return v5Editor->viewer->typeGroups[type].entryCount;
+        return v5Editor->viewer->typeGroups[type].entries.count();
 
     int cnt = 0;
     for (int i = 0; i < ENTITY_COUNT; ++i) {
@@ -259,7 +259,7 @@ bool32 FunctionTable::getActiveEntities(ushort group, GameEntity **entity)
     auto *stackPtr   = v5Editor->viewer->foreachStackPtr;
 
     for (GameEntity *nextEnt = &entityList[v5Editor->viewer->typeGroups[group].entries[stackPtr->id]];
-         stackPtr->id < typeGroups[group].entryCount;
+         stackPtr->id < typeGroups[group].entries.count();
          ++stackPtr->id, nextEnt = &entityList[typeGroups[group].entries[stackPtr->id]]) {
         if (nextEnt->objectID == group) {
             *entity = nextEnt;

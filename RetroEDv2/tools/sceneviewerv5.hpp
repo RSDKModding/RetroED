@@ -29,6 +29,8 @@ public:
     void drawScene();
     void unloadScene();
 
+    void processObjects();
+
     // viewing properties
     float zoom = 1.0f;
     inline float invZoom() { return 1.0f / zoom; }
@@ -44,7 +46,7 @@ public:
     QList<SceneObject> objects;
     QList<SceneEntity> entities;
 
-    QPoint m_reference;
+    QPoint reference;
 
     // General Editing
     byte curTool            = TOOL_MOUSE;
@@ -104,7 +106,7 @@ public:
     inline float incZ()
     {
         float c = currZ;
-        currZ += 0.01;
+        currZ += 0.0001;
         return c;
     }
     float currZ = 16;
@@ -119,7 +121,9 @@ public:
 
     TypeGroupList typeGroups[TYPEGROUP_COUNT];
 
-    void callGameEvent(GameObjectInfo *info, byte eventID, int id);
+    DrawList drawLayers[v5_DRAWLAYER_COUNT];
+
+    void callGameEvent(GameObjectInfo *info, byte eventID, SceneEntity *entity);
 
     SpriteAnimation spriteAnimationList[v5_SPRFILE_COUNT];
     GFXSurface gfxSurface[v5_SURFACE_MAX];
@@ -225,8 +229,8 @@ public:
 
     void drawTile(float XPos, float YPos, float ZPos, int tileX, int tileY, byte direction);
 
-    void drawSpriteFlipped(float XPos, float YPos, int width, int height, int sprX, int sprY, int direction,
-                           int inkEffect, int alpha, int sheetID);
+    void drawSpriteFlipped(float XPos, float YPos, int width, int height, int sprX, int sprY,
+                           int direction, int inkEffect, int alpha, int sheetID);
     void drawSpriteRotozoom(float x, float y, int pivotX, int pivotY, int width, int height, int sprX,
                             int sprY, int scaleX, int scaleY, int direction, short rotation,
                             int inkEffect, int alpha, int sheetID);

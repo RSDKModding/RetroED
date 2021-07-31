@@ -30,8 +30,7 @@ struct ForeachStackInfo {
 };
 
 struct TypeGroupList {
-    int entryCount;
-    ushort entries[v5_ENTITY_COUNT];
+    QList<ushort> entries;
 };
 
 extern int gameObjectCount;
