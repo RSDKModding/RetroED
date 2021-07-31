@@ -499,7 +499,7 @@ void SceneViewerv5::drawScene()
                                 byte h  = cmask.collision[hm].height;
                                 byte cy = h;
                                 if (solidity != 2) {
-                                    //yellow
+                                    // yellow
                                     byte ycy = cy;
 
                                     if (flipmode) {
@@ -512,7 +512,7 @@ void SceneViewerv5::drawScene()
                                     placeCol(xpos + cx, ypos + ycy, 16, 1);
                                 }
                                 if (solidity != 1) {
-                                    //red
+                                    // red
                                     byte rcy = h, rch = 16 - h;
                                     if (flipmode) {
                                         if (flipmode <= 2)
@@ -529,7 +529,7 @@ void SceneViewerv5::drawScene()
 
                                     placeCol(xpos + cx, ypos + rcy, -16, 2);
                                 }
-                            }//*/
+                            } //*/
                             if (solidity == 3) {
                                 cleanCol(xpos, ypos, 16, 16);
                                 for (byte cx = 0; cx < 16; ++cx) {
@@ -609,7 +609,6 @@ void SceneViewerv5::drawScene()
                     vertsPtr[i].setZ(15.45);
                 }
 
-
                 {
                     QOpenGLVertexArrayObject vao;
                     vao.create();
@@ -644,7 +643,7 @@ void SceneViewerv5::drawScene()
                 tileGL->release();
             }
         }
-        
+
         spriteShader.setValue("transparentColour", QVector3D(1.0f, 0.0f, 1.0f));
 
         // PARALLAX
@@ -1011,7 +1010,7 @@ void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, int id)
             sceneInfo.entitySlot = entities[id].slotID;
             if (info->editorDraw)
                 info->editorDraw();
-            //if (!validDraw && info->draw) 
+            // if (!validDraw && info->draw)
             //    info->draw();
             sceneInfo.entity     = NULL;
             sceneInfo.entitySlot = 0;
@@ -1308,7 +1307,7 @@ void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, int width, int hei
 
     QVector2D *texCoords = nullptr;
     switch (direction) {
-        case 0:
+        case FLIP_NONE:
         default: {
             QVector2D tc[] = {
                 QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
@@ -1317,7 +1316,7 @@ void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, int width, int hei
             texCoords = tc;
             break;
         }
-        case 1: {
+        case FLIP_X: {
             QVector2D tc[] = {
                 QVector2D(tx + tw, ty), QVector2D(tx, ty),           QVector2D(tx, ty + th),
                 QVector2D(tx, ty + th), QVector2D(tx + tw, ty + th), QVector2D(tx + tw, ty),
@@ -1325,7 +1324,7 @@ void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, int width, int hei
             texCoords = tc;
             break;
         }
-        case 2: {
+        case FLIP_Y: {
             QVector2D tc[] = {
                 QVector2D(tx, ty + th), QVector2D(tx + tw, ty + th), QVector2D(tx + tw, ty),
                 QVector2D(tx + tw, ty), QVector2D(tx, ty),           QVector2D(tx, ty + th),
@@ -1333,7 +1332,7 @@ void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, int width, int hei
             texCoords = tc;
             break;
         }
-        case 3: {
+        case FLIP_XY: {
             QVector2D tc[] = {
                 QVector2D(tx + tw, ty + th), QVector2D(tx, ty + th), QVector2D(tx, ty),
                 QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
@@ -1448,7 +1447,7 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, int pivotX, int p
 
     QVector2D *texCoords = nullptr;
     switch (direction) {
-        case 0:
+        case FLIP_NONE:
         default: {
             QVector2D tc[] = {
                 QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
@@ -1457,7 +1456,7 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, int pivotX, int p
             texCoords = tc;
             break;
         }
-        case 1: {
+        case FLIP_X: {
             QVector2D tc[] = {
                 QVector2D(tx + tw, ty), QVector2D(tx, ty),           QVector2D(tx, ty + th),
                 QVector2D(tx, ty + th), QVector2D(tx + tw, ty + th), QVector2D(tx + tw, ty),
@@ -1465,7 +1464,7 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, int pivotX, int p
             texCoords = tc;
             break;
         }
-        case 2: {
+        case FLIP_Y: {
             QVector2D tc[] = {
                 QVector2D(tx, ty + th), QVector2D(tx + tw, ty + th), QVector2D(tx + tw, ty),
                 QVector2D(tx + tw, ty), QVector2D(tx, ty),           QVector2D(tx, ty + th),
@@ -1473,7 +1472,7 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, int pivotX, int p
             texCoords = tc;
             break;
         }
-        case 3: {
+        case FLIP_XY: {
             QVector2D tc[] = {
                 QVector2D(tx + tw, ty + th), QVector2D(tx, ty + th), QVector2D(tx, ty),
                 QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
