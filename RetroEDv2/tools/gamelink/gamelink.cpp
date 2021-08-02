@@ -269,7 +269,7 @@ void GameLink::Setup()
     addToRSDKFunctionTable(FunctionTable_ATan256, tan256);
     addToRSDKFunctionTable(FunctionTable_ASin256, aSin256);
     addToRSDKFunctionTable(FunctionTable_ACos256, aCos256);
-    addToRSDKFunctionTable(FunctionTable_Rand, random);
+    addToRSDKFunctionTable(FunctionTable_Rand, FunctionTable::random);
     addToRSDKFunctionTable(FunctionTable_Random, random2);
     addToRSDKFunctionTable(FunctionTable_SetRandKey, setRandKey);
     addToRSDKFunctionTable(FunctionTable_ATan2, arcTanLookup);
