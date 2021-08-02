@@ -62,7 +62,7 @@
            </item>
            <item>
             <property name="text">
-             <string>Game Options</string>
+             <string>Global Variables</string>
             </property>
            </item>
           </widget>

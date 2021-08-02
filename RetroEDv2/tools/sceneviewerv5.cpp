@@ -622,7 +622,7 @@ void SceneViewerv5::drawScene()
                     tVertsPtr[5].setY(0);
 
                     for (int i = 0; i < 6; ++i) {
-                        vertsPtr[i].setZ(15.45);
+                        vertsPtr[i].setZ(15.51);
                     }
 
                     {

@@ -142,8 +142,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                             break;
                         }
                         case ENGINE_v5: {
-                            GameconfigEditorv5 *tool =
-                                new GameconfigEditorv5(r.path, r.extra[0] == "StageConfig");
+                            GameconfigEditorv5 *tool = new GameconfigEditorv5(
+                                r.path, r.extra[0] == "StageConfig", r.extra[1] == "rev02");
                             ui->toolTabs->setCurrentIndex(
                                 ui->toolTabs->addTab(tool, "Gameconfig Editor"));
                             break;
@@ -227,7 +227,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     });
     gc->addAction("v5 (Sonic Mania)", [this] {
         setStatus("Opening Gameconfig Editor...");
-        GameconfigEditorv5 *tool = new GameconfigEditorv5("", 0);
+        GameconfigEditorv5 *tool = new GameconfigEditorv5("", 0, false);
         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Gameconfig Editor"));
     });
     tools->addMenu(gc);

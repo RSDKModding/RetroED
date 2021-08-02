@@ -18,6 +18,7 @@ void RSDKv5::GameConfig::read(Reader &reader, bool oldVer)
     version      = reader.readString();
 
     // readMode = interpretVersion(m_version);
+    readMode = !oldVer;
 
     startSceneCategoryIndex = reader.read<byte>();
     startSceneIndex         = reader.read<ushort>();

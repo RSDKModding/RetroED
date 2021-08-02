@@ -15,7 +15,7 @@ class GameconfigEditorv5 : public QWidget
     Q_OBJECT
 
 public:
-    GameconfigEditorv5(QString configPath, byte type, QWidget *parent = nullptr);
+    GameconfigEditorv5(QString configPath, byte type, bool oldVer, QWidget *parent = nullptr);
     ~GameconfigEditorv5();
 
     void setupUI();
@@ -24,10 +24,12 @@ protected:
     bool event(QEvent *event);
 
 private:
-    RSDKv5::GameConfig m_gameconfig;
-    RSDKv5::RSDKConfig m_rsdkconfig;
+    RSDKv5::GameConfig gameconfig;
+    RSDKv5::RSDKConfig rsdkconfig;
 
-    RSDKv5::StageConfig m_stageconfig;
+    RSDKv5::StageConfig stageconfig;
+
+    bool oldVer = false;
 
     QStandardItemModel *m_sceneModel = nullptr;
 
