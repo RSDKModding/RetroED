@@ -110,10 +110,10 @@ void SceneViewerv5::loadScene(QString path)
     int type = 0;
     for (RSDKv5::Scene::SceneObject &obj : scene.objects) {
         SceneObject object;
-        object.name = obj.m_name.hashString();
+        object.name = obj.name.hashString();
 
         for (int i = 0; i < objNames.count(); ++i) {
-            if (Utils::getMd5HashByteArray(objNames[i]) == obj.m_name.hash) {
+            if (Utils::getMd5HashByteArray(objNames[i]) == obj.name.hash) {
                 object.name = objNames[i];
                 break;
             }
@@ -122,12 +122,12 @@ void SceneViewerv5::loadScene(QString path)
         for (int v = 0; v < obj.variables.count(); ++v) {
             auto &var = obj.variables[v];
             VariableInfo variable;
-            variable.name = var.m_name.hashString();
-            variable.hash = var.m_name.hash;
+            variable.name = var.name.hashString();
+            variable.hash = var.name.hash;
             variable.type = var.type;
 
             for (int i = 0; i < variableNames.count(); ++i) {
-                if (Utils::getMd5HashByteArray(variableNames[i]) == var.m_name.hash) {
+                if (Utils::getMd5HashByteArray(variableNames[i]) == var.name.hash) {
                     variable.name = variableNames[i];
                     variable.hash = Utils::getMd5HashByteArray(variable.name);
                     break;
@@ -176,11 +176,11 @@ void SceneViewerv5::saveScene(QString path)
     scene.objects.clear();
     for (SceneObject &obj : objects) {
         RSDKv5::Scene::SceneObject object;
-        object.m_name = RSDKv5::Scene::NameIdentifier(obj.name);
+        object.name = RSDKv5::Scene::NameIdentifier(obj.name);
         for (int v = 0; v < obj.variables.count(); ++v) {
             RSDKv5::Scene::VariableInfo variable;
-            variable.m_name = RSDKv5::Scene::NameIdentifier(obj.variables[v].name);
-            variable.type   = (RSDKv5::VariableTypes)obj.variables[v].type;
+            variable.name = RSDKv5::Scene::NameIdentifier(obj.variables[v].name);
+            variable.type = (RSDKv5::VariableTypes)obj.variables[v].type;
             object.variables.append(variable);
         }
         scene.objects.append(object);
@@ -737,7 +737,7 @@ void SceneViewerv5::drawScene()
         spriteShader.setValue("useAlpha", false);
         spriteShader.setValue("alpha", 1.0f);
 
-        currZ = curTool == TOOL_ENTITY ? 15.51 : p;
+        currZ = curTool == TOOL_ENTITY ? 15.6 : p;
         for (int o = 0; o < drawLayers[p].entries.count(); ++o) {
             SceneEntity *entity = &entities[drawLayers[p].entries[o]];
             validDraw           = false;

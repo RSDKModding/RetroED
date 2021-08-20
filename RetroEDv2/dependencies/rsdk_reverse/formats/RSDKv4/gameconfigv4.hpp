@@ -16,23 +16,23 @@ public:
         inline void read(Reader &reader)
         {
             folder      = reader.readString();
-            m_actID       = reader.readString();
+            actID       = reader.readString();
             name        = reader.readString();
-            m_highlighted = reader.read<bool>();
+            highlighted = reader.read<bool>();
         }
 
         inline void write(Writer &writer)
         {
             writer.write(folder);
-            writer.write(m_actID);
+            writer.write(actID);
             writer.write(name);
-            writer.write(m_highlighted);
+            writer.write(highlighted);
         }
 
         QString name     = "Scene";
         QString folder   = "Folder";
-        QString m_actID    = "1";
-        bool m_highlighted = false;
+        QString actID    = "1";
+        bool highlighted = false;
     };
 
     class Category
@@ -72,20 +72,20 @@ public:
         {
             m_name           = reader.readString();
             QByteArray bytes = reader.readByteArray(4);
-            m_value          = ((byte)bytes[3] << 24) + ((byte)bytes[2] << 16) + ((byte)bytes[1] << 8)
+            value          = ((byte)bytes[3] << 24) + ((byte)bytes[2] << 16) + ((byte)bytes[1] << 8)
                       + ((byte)bytes[0] << 0);
         }
         inline void write(Writer &writer)
         {
             writer.write(m_name);
-            writer.write((byte)((m_value >> 0x00) & 0xFF));
-            writer.write((byte)((m_value >> 0x08) & 0xFF));
-            writer.write((byte)((m_value >> 0x10) & 0xFF));
-            writer.write((byte)((m_value >> 0x18) & 0xFF));
+            writer.write((byte)((value >> 0x00) & 0xFF));
+            writer.write((byte)((value >> 0x08) & 0xFF));
+            writer.write((byte)((value >> 0x10) & 0xFF));
+            writer.write((byte)((value >> 0x18) & 0xFF));
         }
 
         QString m_name = "Variable";
-        int m_value    = 0;
+        int value    = 0;
     };
 
     class ObjectInfo
@@ -103,7 +103,7 @@ public:
         SoundInfo() {}
 
         QString m_name = "Sound";
-        QString m_path = "Folder/Sound.wav";
+        QString path = "Folder/Sound.wav";
     };
 
     Gameconfig()
@@ -134,14 +134,14 @@ public:
     }
     void write(Writer &writer);
 
-    QString m_gameWindowText;
-    QString m_gameDescriptionText;
+    QString gameWindowText;
+    QString gameDescriptionText;
 
-    Palette m_masterPalette;
+    Palette palette;
     QList<ObjectInfo> objects;
     QList<SoundInfo> soundFX;
     QList<GlobalVariable> globalVariables;
-    QList<QString> m_players;
+    QList<QString> players;
     QList<Category> categories;
 
     QString m_filename = "";

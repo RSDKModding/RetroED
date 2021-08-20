@@ -808,13 +808,13 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
             if (m_mouseDownM || (m_mouseDownL && viewer->curTool == TOOL_MOUSE)) {
                 viewer->cam.pos.x -= (viewer->mousePos.x - viewer->reference.x()) * viewer->invZoom();
                 viewer->cam.pos.y -= (viewer->mousePos.y - viewer->reference.y()) * viewer->invZoom();
-                QPoint lp           = QCursor::pos();
-                QRect screenRect    = QGuiApplication::screenAt(viewer->pos())
+                QPoint lp        = QCursor::pos();
+                QRect screenRect = QGuiApplication::screenAt(viewer->pos())
                                        ->availableGeometry()
                                        .adjusted(20, 20, -19, -19);
                 viewer->reference = mEvent->pos();
                 if (!screenRect.contains(lp)) {
-                    if (lp.x() < screenRect.x()) 
+                    if (lp.x() < screenRect.x())
                         lp.setX(screenRect.x() + screenRect.width());
                     if (lp.x() > screenRect.x() + screenRect.width())
                         lp.setX(screenRect.x());
@@ -1199,6 +1199,10 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
         viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[i].name),
                               SceneViewerv5::EVENT_LOAD, NULL);
     }
+
+    // TODO: update and adjust entity variables prior to creating em
+    // Any variables with an offset of -1 should be removed
+    //
 
     for (int i = 0; i < viewer->entities.count(); ++i) {
         viewer->entities[i].gameEntity = &viewer->gameEntityList[viewer->entities[i].slotID];

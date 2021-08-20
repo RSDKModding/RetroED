@@ -5,22 +5,22 @@ void RSDKv3::Gameconfig::read(Reader &reader)
     m_filename = reader.filepath;
 
     // Game Text
-    m_gameWindowText      = reader.readString();
-    m_unknown             = reader.readString();
-    m_gameDescriptionText = reader.readString();
+    gameWindowText      = reader.readString();
+    unknown             = reader.readString();
+    gameDescriptionText = reader.readString();
 
     // Objects
     byte objectCount = reader.read<byte>();
-    m_objects.clear();
+    objects.clear();
 
     for (int o = 0; o < objectCount; ++o) {
         ObjectInfo obj;
-        obj.m_name = reader.readString();
-        m_objects.append(obj);
+        obj.name = reader.readString();
+        objects.append(obj);
     }
 
-    for (ObjectInfo &obj : m_objects) {
-        obj.m_script = reader.readString();
+    for (ObjectInfo &obj : objects) {
+        obj.script = reader.readString();
     }
 
     // Global Variables
@@ -33,18 +33,18 @@ void RSDKv3::Gameconfig::read(Reader &reader)
 
     // Global SFX
     byte sfxCount = reader.read<byte>();
-    m_soundFX.clear();
+    soundFX.clear();
 
     for (int s = 0; s < sfxCount; ++s) {
-        m_soundFX.append(reader.readString());
+        soundFX.append(reader.readString());
     }
 
     // Players
     byte plrCount = reader.read<byte>();
-    m_players.clear();
+    players.clear();
 
     for (int p = 0; p < plrCount; ++p) {
-        m_players.append(reader.readString());
+        players.append(reader.readString());
     }
 
     // Categories
@@ -58,18 +58,18 @@ void RSDKv3::Gameconfig::write(Writer &writer)
 {
     m_filename = writer.filePath;
 
-    writer.write(m_gameWindowText);
-    writer.write(m_unknown);
-    writer.write(m_gameDescriptionText);
+    writer.write(gameWindowText);
+    writer.write(unknown);
+    writer.write(gameDescriptionText);
 
     // Objects
-    writer.write((byte)m_objects.count());
-    for (ObjectInfo &obj : m_objects) {
-        writer.write(obj.m_name);
+    writer.write((byte)objects.count());
+    for (ObjectInfo &obj : objects) {
+        writer.write(obj.name);
     }
 
-    for (ObjectInfo &obj : m_objects) {
-        writer.write(obj.m_script);
+    for (ObjectInfo &obj : objects) {
+        writer.write(obj.script);
     }
 
     // Global Variables
@@ -79,14 +79,14 @@ void RSDKv3::Gameconfig::write(Writer &writer)
     }
 
     // Global SFX
-    writer.write((byte)m_soundFX.count());
-    for (QString &sfx : m_soundFX) {
+    writer.write((byte)soundFX.count());
+    for (QString &sfx : soundFX) {
         writer.write(sfx);
     }
 
     // Global Variables
-    writer.write((byte)m_players.count());
-    for (QString &plr : m_players) {
+    writer.write((byte)players.count());
+    for (QString &plr : players) {
         writer.write(plr);
     }
 

@@ -15,24 +15,24 @@ public:
 
         inline void read(Reader &reader)
         {
-            m_folder      = reader.readString();
-            m_actID       = reader.readString();
-            m_name        = reader.readString();
-            m_highlighted = reader.read<bool>();
+            folder      = reader.readString();
+            actID       = reader.readString();
+            name        = reader.readString();
+            highlighted = reader.read<bool>();
         }
 
         inline void write(Writer &writer)
         {
-            writer.write(m_folder);
-            writer.write(m_actID);
-            writer.write(m_name);
-            writer.write(m_highlighted);
+            writer.write(folder);
+            writer.write(actID);
+            writer.write(name);
+            writer.write(highlighted);
         }
 
-        QString m_name     = "Scene";
-        QString m_folder   = "Folder";
-        QString m_actID    = "1";
-        bool m_highlighted = false;
+        QString name     = "Scene";
+        QString folder   = "Folder";
+        QString actID    = "1";
+        bool highlighted = false;
     };
 
     class Category
@@ -45,21 +45,21 @@ public:
         {
             byte sceneCount = reader.read<byte>();
 
-            m_scenes.clear();
+            scenes.clear();
             for (int i = 0; i < sceneCount; ++i) {
-                m_scenes.append(SceneInfo(reader));
+                scenes.append(SceneInfo(reader));
             }
         }
 
         inline void write(Writer &writer)
         {
-            writer.write((byte)m_scenes.count());
-            for (SceneInfo &scn : m_scenes) {
+            writer.write((byte)scenes.count());
+            for (SceneInfo &scn : scenes) {
                 scn.write(writer);
             }
         }
 
-        QList<SceneInfo> m_scenes;
+        QList<SceneInfo> scenes;
     };
 
     class GlobalVariable
@@ -72,20 +72,20 @@ public:
         {
             m_name           = reader.readString();
             QByteArray bytes = reader.readByteArray(4);
-            m_value          = ((byte)bytes[0] << 24) + ((byte)bytes[1] << 16) + ((byte)bytes[2] << 8)
+            value          = ((byte)bytes[0] << 24) + ((byte)bytes[1] << 16) + ((byte)bytes[2] << 8)
                       + ((byte)bytes[3] << 0);
         }
         inline void write(Writer &writer)
         {
             writer.write(m_name);
-            writer.write((byte)((m_value >> 0x18) & 0xFF));
-            writer.write((byte)((m_value >> 0x10) & 0xFF));
-            writer.write((byte)((m_value >> 0x08) & 0xFF));
-            writer.write((byte)((m_value >> 0x00) & 0xFF));
+            writer.write((byte)((value >> 0x18) & 0xFF));
+            writer.write((byte)((value >> 0x10) & 0xFF));
+            writer.write((byte)((value >> 0x08) & 0xFF));
+            writer.write((byte)((value >> 0x00) & 0xFF));
         }
 
         QString m_name = "Variable";
-        int m_value    = 0;
+        int value    = 0;
     };
 
     class PlayerInfo
@@ -114,9 +114,9 @@ public:
 
     Gameconfig()
     {
-        m_categories.clear();
+        categories.clear();
         for (int c = 0; c < 4; ++c) {
-            m_categories.append(Category());
+            categories.append(Category());
         }
     }
     Gameconfig(QString filename) { read(filename); }
@@ -140,15 +140,15 @@ public:
     }
     void write(Writer &writer);
 
-    QString m_gameWindowText;
-    QString m_unknown;
-    QString m_gameDescriptionText;
+    QString gameWindowText;
+    QString unknown;
+    QString gameDescriptionText;
 
-    QList<QString> m_scripts;
-    QList<QString> m_soundFX;
-    QList<GlobalVariable> m_globalVariables;
-    QList<PlayerInfo> m_players;
-    QList<Category> m_categories;
+    QList<QString> scripts;
+    QList<QString> soundFX;
+    QList<GlobalVariable> globalVariables;
+    QList<PlayerInfo> players;
+    QList<Category> categories;
 
     QString m_filename = "";
 };

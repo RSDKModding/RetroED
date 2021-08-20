@@ -5,11 +5,11 @@ void RSDKv4::Gameconfig::read(Reader &reader)
     m_filename = reader.filepath;
 
     // Game Text
-    m_gameWindowText      = reader.readString();
-    m_gameDescriptionText = reader.readString();
+    gameWindowText      = reader.readString();
+    gameDescriptionText = reader.readString();
 
     // Master Palettes
-    m_masterPalette.read(reader, 6 * 16);
+    palette.read(reader, 6 * 16);
 
     // Objects
     byte objectCount = reader.read<byte>();
@@ -44,15 +44,15 @@ void RSDKv4::Gameconfig::read(Reader &reader)
     }
 
     for (SoundInfo &sfx : soundFX) {
-        sfx.m_path = reader.readString();
+        sfx.path = reader.readString();
     }
 
     // Players
     byte plrCount = reader.read<byte>();
-    m_players.clear();
+    players.clear();
 
     for (int p = 0; p < plrCount; ++p) {
-        m_players.append(reader.readString());
+        players.append(reader.readString());
     }
 
     // Categories
@@ -66,11 +66,11 @@ void RSDKv4::Gameconfig::write(Writer &writer)
 {
     m_filename = writer.filePath;
 
-    writer.write(m_gameWindowText);
-    writer.write(m_gameDescriptionText);
+    writer.write(gameWindowText);
+    writer.write(gameDescriptionText);
 
     // Master Palette
-    m_masterPalette.write(writer);
+    palette.write(writer);
 
     // Objects
     writer.write((byte)objects.count());
@@ -95,12 +95,12 @@ void RSDKv4::Gameconfig::write(Writer &writer)
     }
 
     for (SoundInfo &sfx : soundFX) {
-        writer.write(sfx.m_path);
+        writer.write(sfx.path);
     }
 
     // Global Variables
-    writer.write((byte)m_players.count());
-    for (QString &plr : m_players) {
+    writer.write((byte)players.count());
+    for (QString &plr : players) {
         writer.write(plr);
     }
 

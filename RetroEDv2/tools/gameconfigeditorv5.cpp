@@ -61,12 +61,11 @@ GameconfigEditorv5::GameconfigEditorv5(QString configPath, byte type, bool oldVe
 
         if (ui->gcStartingCategory->currentIndex() >= 0) {
             for (int i = 0;
-                 i
-                 < gameconfig.sceneCategories[ui->gcStartingCategory->currentIndex()].m_scenes.count();
+                 i < gameconfig.sceneCategories[ui->gcStartingCategory->currentIndex()].scenes.count();
                  ++i) {
                 ui->gcStartingScene->addItem(
                     gameconfig.sceneCategories[ui->gcStartingCategory->currentIndex()]
-                        .m_scenes[i]
+                        .scenes[i]
                         .m_name);
             }
         }
@@ -90,7 +89,7 @@ GameconfigEditorv5::GameconfigEditorv5(QString configPath, byte type, bool oldVe
         uint c                   = scnSelected ? index.parent().row() + 1 : index.row() + 1;
         gameconfig.sceneCategories.insert(c, RSDKv5::GameConfig::Category());
         auto *catItem = new QStandardItem(gameconfig.sceneCategories[c].m_name);
-        auto *scnItem = new QStandardItem(gameconfig.sceneCategories[c].m_scenes.first().m_name);
+        auto *scnItem = new QStandardItem(gameconfig.sceneCategories[c].scenes.first().m_name);
         catItem->appendRow(scnItem);
         catItem->setFlags(catItem->flags() | Qt::ItemIsEditable);
         m_sceneModel->insertRow(c, catItem);
@@ -110,8 +109,8 @@ GameconfigEditorv5::GameconfigEditorv5(QString configPath, byte type, bool oldVe
         }
         uint cat = scnSelected ? index.parent().row() : index.row();
         uint scn = scnSelected ? index.row() + 1 : 0;
-        gameconfig.sceneCategories[cat].m_scenes.insert(scn, RSDKv5::GameConfig::SceneInfo());
-        auto *scnItem = new QStandardItem(gameconfig.sceneCategories[cat].m_scenes[scn].m_name);
+        gameconfig.sceneCategories[cat].scenes.insert(scn, RSDKv5::GameConfig::SceneInfo());
+        auto *scnItem = new QStandardItem(gameconfig.sceneCategories[cat].scenes[scn].m_name);
         if (scnSelected)
             m_sceneModel->itemFromIndex(index.parent())->insertRow(scn, scnItem);
         else
@@ -125,8 +124,7 @@ GameconfigEditorv5::GameconfigEditorv5(QString configPath, byte type, bool oldVe
     connect(m_sceneModel, &QStandardItemModel::itemChanged, [this](QStandardItem *item) {
         const QModelIndex &index = m_sceneModel->indexFromItem(item);
         if (index.parent().isValid()) { // Scene
-            gameconfig.sceneCategories[index.parent().row()].m_scenes[index.row()].m_name =
-                item->text();
+            gameconfig.sceneCategories[index.parent().row()].scenes[index.row()].m_name = item->text();
             return;
         }
         gameconfig.sceneCategories[index.row()].m_name = item->text();
@@ -138,7 +136,7 @@ GameconfigEditorv5::GameconfigEditorv5(QString configPath, byte type, bool oldVe
         const QModelIndex &index = ui->gcScnTree->currentIndex();
 
         if (index.parent().isValid()) { // Scene
-            gameconfig.sceneCategories[index.parent().row()].m_scenes.removeAt(index.row());
+            gameconfig.sceneCategories[index.parent().row()].scenes.removeAt(index.row());
             m_sceneModel->itemFromIndex(index.parent())->removeRow(index.row());
             setupInitScenes();
             return;
@@ -154,7 +152,7 @@ GameconfigEditorv5::GameconfigEditorv5(QString configPath, byte type, bool oldVe
         int c      = ui->gcScnTree->currentIndex().row();
         QList<QStandardItem *> item;
         if (isScn) {
-            gameconfig.sceneCategories[ui->gcScnTree->currentIndex().parent().row()].m_scenes.move(
+            gameconfig.sceneCategories[ui->gcScnTree->currentIndex().parent().row()].scenes.move(
                 c, c + translation);
             QStandardItem *parentItem =
                 m_sceneModel->itemFromIndex(ui->gcScnTree->currentIndex().parent());
@@ -178,73 +176,73 @@ GameconfigEditorv5::GameconfigEditorv5(QString configPath, byte type, bool oldVe
 
     ui->gcScnTree->setModel(m_sceneModel);
 
-    connect(
-        ui->gcScnTree->selectionModel(), &QItemSelectionModel::currentChanged,
-        [this](const QModelIndex &c) {
-            ui->gcUpScn->setDisabled(!c.isValid());
-            ui->gcDownScn->setDisabled(!c.isValid());
-            ui->gcRmScn->setDisabled(!c.isValid());
+    connect(ui->gcScnTree->selectionModel(), &QItemSelectionModel::currentChanged,
+            [this](const QModelIndex &c) {
+                ui->gcUpScn->setDisabled(!c.isValid());
+                ui->gcDownScn->setDisabled(!c.isValid());
+                ui->gcRmScn->setDisabled(!c.isValid());
 
-            disconnect(ui->gcScnMode, nullptr, nullptr, nullptr);
-            disconnect(ui->gcScnID, nullptr, nullptr, nullptr);
-            disconnect(ui->gcScnFolder, nullptr, nullptr, nullptr);
-            disconnect(ui->gcScnName, nullptr, nullptr, nullptr);
+                disconnect(ui->gcScnMode, nullptr, nullptr, nullptr);
+                disconnect(ui->gcScnID, nullptr, nullptr, nullptr);
+                disconnect(ui->gcScnFolder, nullptr, nullptr, nullptr);
+                disconnect(ui->gcScnName, nullptr, nullptr, nullptr);
 
-            ui->gcScnID->setDisabled(!c.parent().isValid());
-            ui->gcScnFolder->setDisabled(!c.parent().isValid());
-            ui->gcScnName->setDisabled(!c.parent().isValid());
-            ui->gcScnMode->setDisabled(!c.parent().isValid());
+                ui->gcScnID->setDisabled(!c.parent().isValid());
+                ui->gcScnFolder->setDisabled(!c.parent().isValid());
+                ui->gcScnName->setDisabled(!c.parent().isValid());
+                ui->gcScnMode->setDisabled(!c.parent().isValid());
 
-            if (!c.isValid())
-                return;
-
-            if (c.parent().isValid()) {
-                ui->gcScnID->setDisabled(
-                    c.row() >= gameconfig.sceneCategories[c.parent().row()].m_scenes.count());
-                ui->gcScnFolder->setDisabled(
-                    c.row() >= gameconfig.sceneCategories[c.parent().row()].m_scenes.count());
-                ui->gcScnName->setDisabled(
-                    c.row() >= gameconfig.sceneCategories[c.parent().row()].m_scenes.count());
-                ui->gcScnMode->setDisabled(
-                    c.row() >= gameconfig.sceneCategories[c.parent().row()].m_scenes.count());
-
-                if (c.row() >= gameconfig.sceneCategories[c.parent().row()].m_scenes.count())
+                if (!c.isValid())
                     return;
 
-                ui->gcScnID->setText(
-                    gameconfig.sceneCategories[c.parent().row()].m_scenes[c.row()].m_sceneID);
-                ui->gcScnMode->setValue(
-                    gameconfig.sceneCategories[c.parent().row()].m_scenes[c.row()].m_modeFilter);
-                ui->gcScnFolder->setText(
-                    gameconfig.sceneCategories[c.parent().row()].m_scenes[c.row()].m_folder);
-                ui->gcScnName->setText(
-                    gameconfig.sceneCategories[c.parent().row()].m_scenes[c.row()].m_name);
+                if (c.parent().isValid()) {
+                    ui->gcScnID->setDisabled(
+                        c.row() >= gameconfig.sceneCategories[c.parent().row()].scenes.count());
+                    ui->gcScnFolder->setDisabled(
+                        c.row() >= gameconfig.sceneCategories[c.parent().row()].scenes.count());
+                    ui->gcScnName->setDisabled(
+                        c.row() >= gameconfig.sceneCategories[c.parent().row()].scenes.count());
+                    ui->gcScnMode->setDisabled(
+                        c.row() >= gameconfig.sceneCategories[c.parent().row()].scenes.count());
 
-                connect(ui->gcScnName, &QLineEdit::textEdited, [this, c](QString s) {
-                    gameconfig.sceneCategories[c.parent().row()].m_scenes[c.row()].m_name = s;
+                    if (c.row() >= gameconfig.sceneCategories[c.parent().row()].scenes.count())
+                        return;
 
-                    // TODO: edit text
-                });
+                    ui->gcScnID->setText(
+                        gameconfig.sceneCategories[c.parent().row()].scenes[c.row()].sceneID);
+                    ui->gcScnMode->setValue(
+                        gameconfig.sceneCategories[c.parent().row()].scenes[c.row()].modeFilter);
+                    ui->gcScnFolder->setText(
+                        gameconfig.sceneCategories[c.parent().row()].scenes[c.row()].folder);
+                    ui->gcScnName->setText(
+                        gameconfig.sceneCategories[c.parent().row()].scenes[c.row()].m_name);
 
-                connect(ui->gcScnFolder, &QLineEdit::textEdited, [this, c](QString s) {
-                    gameconfig.sceneCategories[c.parent().row()].m_scenes[c.row()].m_folder = s;
-                });
+                    connect(ui->gcScnName, &QLineEdit::textEdited, [this, c](QString s) {
+                        gameconfig.sceneCategories[c.parent().row()].scenes[c.row()].m_name = s;
 
-                connect(ui->gcScnID, &QLineEdit::textEdited, [this, c](QString s) {
-                    gameconfig.sceneCategories[c.parent().row()].m_scenes[c.row()].m_folder = s;
-                });
+                        // TODO: edit text
+                    });
 
-                connect(ui->gcScnMode, QOverload<int>::of(&QSpinBox::valueChanged), [this, c](int v) {
-                    gameconfig.sceneCategories[c.parent().row()].m_scenes[c.row()].m_modeFilter = v;
-                });
-            }
+                    connect(ui->gcScnFolder, &QLineEdit::textEdited, [this, c](QString s) {
+                        gameconfig.sceneCategories[c.parent().row()].scenes[c.row()].folder = s;
+                    });
 
-            ui->gcDownScn->setDisabled(
-                c.parent().isValid()
-                    ? c.row() == gameconfig.sceneCategories[c.parent().row()].m_scenes.count() - 1
-                    : c.row() == gameconfig.sceneCategories.count() - 1);
-            ui->gcUpScn->setDisabled(c.row() == 0);
-        });
+                    connect(ui->gcScnID, &QLineEdit::textEdited, [this, c](QString s) {
+                        gameconfig.sceneCategories[c.parent().row()].scenes[c.row()].folder = s;
+                    });
+
+                    connect(
+                        ui->gcScnMode, QOverload<int>::of(&QSpinBox::valueChanged), [this, c](int v) {
+                            gameconfig.sceneCategories[c.parent().row()].scenes[c.row()].modeFilter = v;
+                        });
+                }
+
+                ui->gcDownScn->setDisabled(
+                    c.parent().isValid()
+                        ? c.row() == gameconfig.sceneCategories[c.parent().row()].scenes.count() - 1
+                        : c.row() == gameconfig.sceneCategories.count() - 1);
+                ui->gcUpScn->setDisabled(c.row() == 0);
+            });
 
     ui->stackedWidget->setCurrentIndex(type);
     this->oldVer = oldVer;
@@ -284,12 +282,11 @@ void GameconfigEditorv5::setupUI()
 
         if (ui->gcStartingCategory->currentIndex() >= 0) {
             for (int i = 0;
-                 i
-                 < gameconfig.sceneCategories[ui->gcStartingCategory->currentIndex()].m_scenes.count();
+                 i < gameconfig.sceneCategories[ui->gcStartingCategory->currentIndex()].scenes.count();
                  ++i) {
                 ui->gcStartingScene->addItem(
                     gameconfig.sceneCategories[ui->gcStartingCategory->currentIndex()]
-                        .m_scenes[i]
+                        .scenes[i]
                         .m_name);
             }
         }
@@ -376,7 +373,7 @@ void GameconfigEditorv5::setupUI()
     ui->gcObjName->setText("");
 
     ui->gcSfxList->clear();
-    for (auto &s : gameconfig.sfx) ui->gcSfxList->addItem(s.m_name);
+    for (auto &s : gameconfig.soundFX) ui->gcSfxList->addItem(s.m_name);
     ui->gcSfxList->setCurrentRow(0x00);
     ui->gcSfxName->setText("");
     ui->gcMaxConcurrentPlays->setValue(0x00);
@@ -385,7 +382,7 @@ void GameconfigEditorv5::setupUI()
     for (int c = 0; c < gameconfig.sceneCategories.count(); ++c) {
         auto *catItem = new QStandardItem(gameconfig.sceneCategories[c].m_name);
 
-        for (auto &scn : gameconfig.sceneCategories[c].m_scenes) {
+        for (auto &scn : gameconfig.sceneCategories[c].scenes) {
             auto *scnItem = new QStandardItem(scn.m_name);
             catItem->appendRow(scnItem);
 
@@ -401,8 +398,8 @@ void GameconfigEditorv5::setupUI()
     ui->gcScnMode->setValue(0x00);
 
     ui->gcVarList->clear();
-    if (rsdkconfig.m_variables.count() > 0 && gameconfig.globalVariables.count() > 0) {
-        for (auto &v : rsdkconfig.m_variables) {
+    if (rsdkconfig.variables.count() > 0 && gameconfig.globalVariables.count() > 0) {
+        for (auto &v : rsdkconfig.variables) {
             ui->gcVarList->addItem(v.m_name);
         }
     }
@@ -531,8 +528,8 @@ void GameconfigEditorv5::setupUI()
         ui->gcSfxName->blockSignals(true);
         ui->gcMaxConcurrentPlays->blockSignals(true);
 
-        ui->gcSfxName->setText(gameconfig.sfx[c].m_name);
-        ui->gcMaxConcurrentPlays->setValue(gameconfig.sfx[c].m_maxConcurrentPlay);
+        ui->gcSfxName->setText(gameconfig.soundFX[c].m_name);
+        ui->gcMaxConcurrentPlays->setValue(gameconfig.soundFX[c].maxConcurrentPlay);
 
         ui->gcSfxName->blockSignals(false);
         ui->gcMaxConcurrentPlays->blockSignals(false);
@@ -545,9 +542,9 @@ void GameconfigEditorv5::setupUI()
 
     connect(ui->gcAddSfx, &QToolButton::clicked, [this] {
         uint c = ui->gcSfxList->currentRow() + 1;
-        gameconfig.sfx.insert(c, RSDKv5::GameConfig::WAVConfiguration());
+        gameconfig.soundFX.insert(c, RSDKv5::GameConfig::SoundInfo());
         auto *item = new QListWidgetItem();
-        item->setText(gameconfig.sfx[c].m_name);
+        item->setText(gameconfig.soundFX[c].m_name);
         ui->gcSfxList->insertItem(c, item);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -557,7 +554,7 @@ void GameconfigEditorv5::setupUI()
     connect(ui->gcUpSfx, &QToolButton::clicked, [this] {
         uint c     = ui->gcSfxList->currentRow();
         auto *item = ui->gcSfxList->takeItem(c);
-        gameconfig.sfx.move(c, c - 1);
+        gameconfig.soundFX.move(c, c - 1);
         ui->gcSfxList->insertItem(c - 1, item);
         ui->gcSfxList->setCurrentRow(c - 1);
     });
@@ -565,7 +562,7 @@ void GameconfigEditorv5::setupUI()
     connect(ui->gcDownSfx, &QToolButton::clicked, [this] {
         uint c     = ui->gcSfxList->currentRow();
         auto *item = ui->gcSfxList->takeItem(c);
-        gameconfig.sfx.move(c, c + 1);
+        gameconfig.soundFX.move(c, c + 1);
         ui->gcSfxList->insertItem(c + 1, item);
         ui->gcSfxList->setCurrentRow(c + 1);
     });
@@ -574,23 +571,23 @@ void GameconfigEditorv5::setupUI()
         int c = ui->gcSfxList->currentRow();
         int n = ui->gcSfxList->currentRow() == ui->gcSfxList->count() - 1 ? c - 1 : c;
         delete ui->gcSfxList->item(c);
-        gameconfig.sfx.removeAt(c);
+        gameconfig.soundFX.removeAt(c);
         ui->gcSfxList->blockSignals(true);
         ui->gcSfxList->setCurrentRow(n);
         ui->gcSfxList->blockSignals(false);
     });
     connect(ui->gcSfxName, &QLineEdit::textChanged, [this](QString s) {
-        gameconfig.sfx[ui->gcSfxList->currentRow()].m_name = s;
+        gameconfig.soundFX[ui->gcSfxList->currentRow()].m_name = s;
 
         ui->gcSfxList->item(ui->gcSfxList->currentRow())
-            ->setText(gameconfig.sfx[ui->gcSfxList->currentRow()].m_name);
+            ->setText(gameconfig.soundFX[ui->gcSfxList->currentRow()].m_name);
     });
     connect(ui->gcMaxConcurrentPlays, QOverload<int>::of(&QSpinBox::valueChanged),
-            [this](int v) { gameconfig.sfx[ui->gcSfxList->currentRow()].m_maxConcurrentPlay = v; });
+            [this](int v) { gameconfig.soundFX[ui->gcSfxList->currentRow()].maxConcurrentPlay = v; });
 
-    // ----------------
-    // GAME OPTIONS
-    // ----------------
+    // ------------------
+    // GLOBAL VARIABLES
+    // ------------------
     connect(ui->gcVarList, &QListWidget::currentRowChanged, [this](int c) {
         ui->gcVarName->setDisabled(c == -1);
         ui->gcVarCount->setDisabled(c == -1);
@@ -605,44 +602,80 @@ void GameconfigEditorv5::setupUI()
         ui->gcVarIndex->blockSignals(true);
         ui->gcVarValue->blockSignals(true);
 
-        if (c < rsdkconfig.m_variables.count())
-            ui->gcVarName->setText(rsdkconfig.m_variables[c].m_name);
+        if (c < rsdkconfig.variables.count())
+            ui->gcVarName->setText(rsdkconfig.variables[c].m_name);
         else
             ui->gcVarName->setText("Unnamed Variable " + QString::number(c));
-        ui->gcVarCount->setValue(gameconfig.globalVariables[c].m_values.count());
+        ui->gcVarCount->setValue(gameconfig.globalVariables[c].values.count());
         ui->gcVarIndex->setValue(0);
-        if (gameconfig.globalVariables[c].m_values.count() > 0)
-            ui->gcVarValue->setValue(gameconfig.globalVariables[c].m_values[0]);
+        if (gameconfig.globalVariables[c].values.count() > 0)
+            ui->gcVarValue->setValue(gameconfig.globalVariables[c].values[0]);
         else
             ui->gcVarValue->setValue(0);
 
         ui->gcVarName->blockSignals(false);
         ui->gcVarCount->blockSignals(false);
-        if (gameconfig.globalVariables[c].m_values.count() > 0)
+        if (gameconfig.globalVariables[c].values.count() > 0)
             ui->gcVarIndex->blockSignals(false);
-        if (gameconfig.globalVariables[c].m_values.count() > 0)
+        if (gameconfig.globalVariables[c].values.count() > 0)
             ui->gcVarValue->blockSignals(false);
     });
     connect(ui->gcVarIndex, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
-        if (gameconfig.globalVariables[ui->gcVarList->currentRow()].m_values.count() == 0)
+        if (gameconfig.globalVariables[ui->gcVarList->currentRow()].values.count() == 0)
             ui->gcVarIndex->setValue(0);
-        else if (v >= gameconfig.globalVariables[ui->gcVarList->currentRow()].m_values.count())
+        else if (v >= gameconfig.globalVariables[ui->gcVarList->currentRow()].values.count())
             ui->gcVarIndex->setValue(
-                gameconfig.globalVariables[ui->gcVarList->currentRow()].m_values.count() - 1);
+                gameconfig.globalVariables[ui->gcVarList->currentRow()].values.count() - 1);
 
-        if (gameconfig.globalVariables[ui->gcVarList->currentRow()].m_values.count() > 0) {
+        if (gameconfig.globalVariables[ui->gcVarList->currentRow()].values.count() > 0) {
             ui->gcVarValue->blockSignals(true);
             ui->gcVarValue->setValue(gameconfig.globalVariables[ui->gcVarList->currentRow()]
-                                         .m_values[ui->gcVarIndex->value()]);
+                                         .values[ui->gcVarIndex->value()]);
             ui->gcVarValue->blockSignals(false);
         }
     });
     connect(ui->gcVarValue, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
-        if (gameconfig.globalVariables[ui->gcVarList->currentRow()].m_values.count() > 0)
-            gameconfig.globalVariables[ui->gcVarList->currentRow()].m_values[ui->gcVarIndex->value()] =
-                v;
+        if (gameconfig.globalVariables[ui->gcVarList->currentRow()].values.count() > 0)
+            gameconfig.globalVariables[ui->gcVarList->currentRow()].values[ui->gcVarIndex->value()] = v;
         else
             ui->gcVarValue->setValue(0);
+    });
+
+    connect(ui->exportGlobals, &QPushButton::pressed, [this] {
+        QFileDialog filedialog(
+            this, tr("Save Globals"), "",
+            tr(QString("RSDKv5 Global Variables (GlobalVars.bin)").toStdString().c_str()));
+        filedialog.setAcceptMode(QFileDialog::AcceptSave);
+        if (filedialog.exec() == QDialog::Accepted) {
+            QString selFile = filedialog.selectedFiles()[0];
+
+            Writer writer(selFile);
+
+            writer.write((byte)gameconfig.globalVariables.count());
+            for (RSDKv5::GameConfig::GlobalVariable &c : gameconfig.globalVariables) c.write(writer);
+
+            writer.flush();
+        }
+    });
+
+    connect(ui->genCStruct, &QPushButton::pressed, [this] {
+        QFileDialog filedialog(this, tr("Save File"), "",
+                               tr(QString("C Headers (*.h)").toStdString().c_str()));
+        filedialog.setAcceptMode(QFileDialog::AcceptSave);
+        if (filedialog.exec() == QDialog::Accepted) {
+            QString selFile = filedialog.selectedFiles()[0];
+
+            Writer writer(selFile);
+            writer.writeLine("typedef struct {");
+
+            for (auto &var : rsdkconfig.variables) {
+                writer.writeLine(QString("\t%1 %2;").arg(var.type).arg(var.m_name));
+            }
+
+            writer.writeLine("} GlobalVariables;");
+
+            writer.flush();
+        }
     });
 
     // ----------------

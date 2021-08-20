@@ -22,11 +22,11 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
         case ENGINE_v2: {
             RSDKv2::Gameconfig gameconfig(reader);
 
-            m_gameWindowText      = gameconfig.m_gameWindowText;
-            m_gameDescriptionText = gameconfig.m_gameDescriptionText;
-            m_unknown             = gameconfig.m_unknown;
+            m_gameWindowText      = gameconfig.gameWindowText;
+            m_gameDescriptionText = gameconfig.gameDescriptionText;
+            m_unknown             = gameconfig.unknown;
 
-            for (QString &obj : gameconfig.m_scripts) {
+            for (QString &obj : gameconfig.scripts) {
                 ObjectInfo o;
                 o.m_name   = QFileInfo(obj).baseName();
                 o.m_script = obj;
@@ -34,7 +34,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
                 objects.append(o);
             }
 
-            for (QString &sfx : gameconfig.m_soundFX) {
+            for (QString &sfx : gameconfig.soundFX) {
                 SoundInfo s;
                 s.m_name = QFileInfo(sfx).baseName();
                 s.m_path = sfx;
@@ -42,15 +42,15 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
                 m_soundFX.append(s);
             }
 
-            for (RSDKv2::Gameconfig::GlobalVariable &var : gameconfig.m_globalVariables) {
+            for (RSDKv2::Gameconfig::GlobalVariable &var : gameconfig.globalVariables) {
                 GlobalVariable v;
                 v.m_name  = var.m_name;
-                v.m_value = var.m_value;
+                v.m_value = var.value;
 
                 m_globalVariables.append(v);
             }
 
-            for (RSDKv2::Gameconfig::PlayerInfo &plr : gameconfig.m_players) {
+            for (RSDKv2::Gameconfig::PlayerInfo &plr : gameconfig.players) {
                 PlayerInfo p;
                 p.m_name   = plr.m_name;
                 p.m_anim   = plr.m_anim;
@@ -60,12 +60,12 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
             }
 
             for (int c = 0; c < 4; ++c) {
-                for (RSDKv2::Gameconfig::SceneInfo &scn : gameconfig.m_categories[c].m_scenes) {
+                for (RSDKv2::Gameconfig::SceneInfo &scn : gameconfig.categories[c].scenes) {
                     SceneInfo s;
-                    s.m_name        = scn.m_name;
-                    s.m_folder      = scn.m_folder;
-                    s.m_actID       = scn.m_actID;
-                    s.m_highlighted = scn.m_highlighted;
+                    s.m_name        = scn.name;
+                    s.m_folder      = scn.folder;
+                    s.m_actID       = scn.actID;
+                    s.m_highlighted = scn.highlighted;
 
                     m_categories[c].m_scenes.append(s);
                 }
@@ -74,19 +74,19 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
         case ENGINE_v3: {
             RSDKv3::Gameconfig gameconfig(reader);
 
-            m_gameWindowText      = gameconfig.m_gameWindowText;
-            m_gameDescriptionText = gameconfig.m_gameDescriptionText;
-            m_unknown             = gameconfig.m_unknown;
+            m_gameWindowText      = gameconfig.gameWindowText;
+            m_gameDescriptionText = gameconfig.gameDescriptionText;
+            m_unknown             = gameconfig.unknown;
 
-            for (RSDKv3::Gameconfig::ObjectInfo &obj : gameconfig.m_objects) {
+            for (RSDKv3::Gameconfig::ObjectInfo &obj : gameconfig.objects) {
                 ObjectInfo o;
-                o.m_name   = obj.m_name;
-                o.m_script = obj.m_script;
+                o.m_name   = obj.name;
+                o.m_script = obj.script;
 
                 objects.append(o);
             }
 
-            for (QString &sfx : gameconfig.m_soundFX) {
+            for (QString &sfx : gameconfig.soundFX) {
                 SoundInfo s;
                 s.m_name = QFileInfo(sfx).baseName();
                 s.m_path = sfx;
@@ -97,12 +97,12 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
             for (RSDKv3::Gameconfig::GlobalVariable &var : gameconfig.globalVariables) {
                 GlobalVariable v;
                 v.m_name  = var.m_name;
-                v.m_value = var.m_value;
+                v.m_value = var.value;
 
                 m_globalVariables.append(v);
             }
 
-            for (QString &plr : gameconfig.m_players) {
+            for (QString &plr : gameconfig.players) {
                 PlayerInfo p;
                 p.m_name   = plr;
                 p.m_anim   = plr + ".ani";
@@ -116,8 +116,8 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
                     SceneInfo s;
                     s.m_name        = scn.name;
                     s.m_folder      = scn.folder;
-                    s.m_actID       = scn.m_actID;
-                    s.m_highlighted = scn.m_highlighted;
+                    s.m_actID       = scn.actID;
+                    s.m_highlighted = scn.highlighted;
 
                     m_categories[c].m_scenes.append(s);
                 }
@@ -126,9 +126,9 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
         case ENGINE_v4: {
             RSDKv4::Gameconfig gameconfig(reader);
 
-            m_gameWindowText      = gameconfig.m_gameWindowText;
-            m_gameDescriptionText = gameconfig.m_gameDescriptionText;
-            m_masterPalette       = gameconfig.m_masterPalette;
+            m_gameWindowText      = gameconfig.gameWindowText;
+            m_gameDescriptionText = gameconfig.gameDescriptionText;
+            m_masterPalette       = gameconfig.palette;
 
             for (RSDKv4::Gameconfig::ObjectInfo &obj : gameconfig.objects) {
                 ObjectInfo o;
@@ -141,7 +141,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
             for (RSDKv4::Gameconfig::SoundInfo &sfx : gameconfig.soundFX) {
                 SoundInfo s;
                 s.m_name = sfx.m_name;
-                s.m_path = sfx.m_path;
+                s.m_path = sfx.path;
 
                 m_soundFX.append(s);
             }
@@ -149,12 +149,12 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
             for (RSDKv4::Gameconfig::GlobalVariable &var : gameconfig.globalVariables) {
                 GlobalVariable v;
                 v.m_name  = var.m_name;
-                v.m_value = var.m_value;
+                v.m_value = var.value;
 
                 m_globalVariables.append(v);
             }
 
-            for (QString &plr : gameconfig.m_players) {
+            for (QString &plr : gameconfig.players) {
                 PlayerInfo p;
                 p.m_name   = plr;
                 p.m_anim   = plr + ".ani";
@@ -168,8 +168,8 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
                     SceneInfo s;
                     s.m_name        = scn.name;
                     s.m_folder      = scn.folder;
-                    s.m_actID       = scn.m_actID;
-                    s.m_highlighted = scn.m_highlighted;
+                    s.m_actID       = scn.actID;
+                    s.m_highlighted = scn.highlighted;
 
                     m_categories[c].m_scenes.append(s);
                 }
@@ -193,20 +193,20 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
         case ENGINE_v2: {
             RSDKv2::Gameconfig gameconfig;
 
-            gameconfig.m_gameWindowText      = m_gameWindowText;
-            gameconfig.m_gameDescriptionText = m_gameDescriptionText;
-            gameconfig.m_unknown             = m_unknown;
+            gameconfig.gameWindowText      = m_gameWindowText;
+            gameconfig.gameDescriptionText = m_gameDescriptionText;
+            gameconfig.unknown             = m_unknown;
 
-            for (ObjectInfo &obj : objects) gameconfig.m_scripts.append(obj.m_script);
+            for (ObjectInfo &obj : objects) gameconfig.scripts.append(obj.m_script);
 
-            for (SoundInfo &sfx : m_soundFX) gameconfig.m_soundFX.append(sfx.m_path);
+            for (SoundInfo &sfx : m_soundFX) gameconfig.soundFX.append(sfx.m_path);
 
             for (GlobalVariable &var : m_globalVariables) {
                 RSDKv2::Gameconfig::GlobalVariable v;
                 v.m_name  = var.m_name;
-                v.m_value = var.m_value;
+                v.value = var.m_value;
 
-                gameconfig.m_globalVariables.append(v);
+                gameconfig.globalVariables.append(v);
             }
 
             for (PlayerInfo &plr : m_players) {
@@ -215,55 +215,55 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
                 p.m_anim   = plr.m_anim;
                 p.m_script = plr.m_script;
 
-                gameconfig.m_players.append(p);
+                gameconfig.players.append(p);
             }
 
             for (int c = 0; c < 4; ++c) {
                 for (SceneInfo &scn : m_categories[c].m_scenes) {
                     RSDKv2::Gameconfig::SceneInfo s;
-                    s.m_name        = scn.m_name;
-                    s.m_folder      = scn.m_folder;
-                    s.m_actID       = scn.m_actID;
-                    s.m_highlighted = scn.m_highlighted;
+                    s.name        = scn.m_name;
+                    s.folder      = scn.m_folder;
+                    s.actID       = scn.m_actID;
+                    s.highlighted = scn.m_highlighted;
 
-                    gameconfig.m_categories[c].m_scenes.append(s);
+                    gameconfig.categories[c].scenes.append(s);
                 }
             }
         } break;
         case ENGINE_v3: {
             RSDKv3::Gameconfig gameconfig;
 
-            gameconfig.m_gameWindowText      = m_gameWindowText;
-            gameconfig.m_gameDescriptionText = m_gameDescriptionText;
-            gameconfig.m_unknown             = m_unknown;
+            gameconfig.gameWindowText      = m_gameWindowText;
+            gameconfig.gameDescriptionText = m_gameDescriptionText;
+            gameconfig.unknown             = m_unknown;
 
             for (ObjectInfo &obj : objects) {
                 RSDKv3::Gameconfig::ObjectInfo o;
-                o.m_name   = obj.m_name;
-                o.m_script = obj.m_script;
+                o.name   = obj.m_name;
+                o.script = obj.m_script;
 
-                gameconfig.m_objects.append(o);
+                gameconfig.objects.append(o);
             }
 
-            for (SoundInfo &sfx : m_soundFX) gameconfig.m_soundFX.append(sfx.m_path);
+            for (SoundInfo &sfx : m_soundFX) gameconfig.soundFX.append(sfx.m_path);
 
             for (GlobalVariable &var : m_globalVariables) {
                 RSDKv3::Gameconfig::GlobalVariable v;
                 v.m_name  = var.m_name;
-                v.m_value = var.m_value;
+                v.value = var.m_value;
 
                 gameconfig.globalVariables.append(v);
             }
 
-            for (PlayerInfo &plr : m_players) gameconfig.m_players.append(plr.m_name);
+            for (PlayerInfo &plr : m_players) gameconfig.players.append(plr.m_name);
 
             for (int c = 0; c < 4; ++c) {
                 for (SceneInfo &scn : m_categories[c].m_scenes) {
                     RSDKv3::Gameconfig::SceneInfo s;
                     s.name        = scn.m_name;
                     s.folder      = scn.m_folder;
-                    s.m_actID       = scn.m_actID;
-                    s.m_highlighted = scn.m_highlighted;
+                    s.actID       = scn.m_actID;
+                    s.highlighted = scn.m_highlighted;
 
                     gameconfig.categories[c].scenes.append(s);
                 }
@@ -272,9 +272,9 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
         case ENGINE_v4: {
             RSDKv4::Gameconfig gameconfig;
 
-            gameconfig.m_gameWindowText      = m_gameWindowText;
-            gameconfig.m_gameDescriptionText = m_gameDescriptionText;
-            gameconfig.m_masterPalette       = m_masterPalette;
+            gameconfig.gameWindowText      = m_gameWindowText;
+            gameconfig.gameDescriptionText = m_gameDescriptionText;
+            gameconfig.palette       = m_masterPalette;
 
             for (ObjectInfo &obj : objects) {
                 RSDKv4::Gameconfig::ObjectInfo o;
@@ -287,7 +287,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
             for (SoundInfo &sfx : m_soundFX) {
                 RSDKv4::Gameconfig::SoundInfo s;
                 s.m_name = sfx.m_name;
-                s.m_path = sfx.m_path;
+                s.path = sfx.m_path;
 
                 gameconfig.soundFX.append(s);
             }
@@ -295,20 +295,20 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
             for (GlobalVariable &var : m_globalVariables) {
                 RSDKv4::Gameconfig::GlobalVariable v;
                 v.m_name  = var.m_name;
-                v.m_value = var.m_value;
+                v.value = var.m_value;
 
                 gameconfig.globalVariables.append(v);
             }
 
-            for (PlayerInfo &plr : m_players) gameconfig.m_players.append(plr.m_name);
+            for (PlayerInfo &plr : m_players) gameconfig.players.append(plr.m_name);
 
             for (int c = 0; c < 4; ++c) {
                 for (SceneInfo &scn : m_categories[c].m_scenes) {
                     RSDKv4::Gameconfig::SceneInfo s;
                     s.name        = scn.m_name;
                     s.folder      = scn.m_folder;
-                    s.m_actID       = scn.m_actID;
-                    s.m_highlighted = scn.m_highlighted;
+                    s.actID       = scn.m_actID;
+                    s.highlighted = scn.m_highlighted;
 
                     gameconfig.categories[c].scenes.append(s);
                 }

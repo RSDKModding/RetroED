@@ -396,10 +396,10 @@ void FormatHelpers::Background::scrollInfoFromIndices()
 
                 info.startLine     = start;
                 info.length        = (h - start);
-                info.m_relativeSpeed = infos[prev].m_relativeSpeed;
-                info.m_constantSpeed = infos[prev].m_constantSpeed;
+                info.parallaxFactor = infos[prev].m_relativeSpeed;
+                info.scrollSpeed = infos[prev].m_constantSpeed;
                 info.m_scrollPos     = 0.0f;
-                info.m_behaviour     = infos[prev].m_behaviour;
+                info.deform     = infos[prev].m_behaviour;
 
                 layer.scrollInfos.append(info);
                 start = h;
@@ -413,10 +413,10 @@ void FormatHelpers::Background::scrollInfoFromIndices()
 
             info.startLine     = start;
             info.length        = (h - start);
-            info.m_relativeSpeed = infos[0].m_relativeSpeed;
-            info.m_constantSpeed = infos[0].m_constantSpeed;
+            info.parallaxFactor = infos[0].m_relativeSpeed;
+            info.scrollSpeed = infos[0].m_constantSpeed;
             info.m_scrollPos     = 0.0f;
-            info.m_behaviour     = infos[0].m_behaviour;
+            info.deform     = infos[0].m_behaviour;
 
             layer.scrollInfos.append(info);
         }
@@ -453,9 +453,9 @@ void FormatHelpers::Background::scrollIndicesFromInfo()
         for (ScrollIndexInfo &info : layer.scrollInfos) {
             int infoID = id;
             ScrollInfo sInfo;
-            sInfo.m_behaviour     = info.m_behaviour;
-            sInfo.m_relativeSpeed = info.m_relativeSpeed;
-            sInfo.m_constantSpeed = info.m_constantSpeed;
+            sInfo.m_behaviour     = info.deform;
+            sInfo.m_relativeSpeed = info.parallaxFactor;
+            sInfo.m_constantSpeed = info.scrollSpeed;
 
             int scrollID = 0;
             if (hScroll) {

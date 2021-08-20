@@ -22,7 +22,7 @@ PaletteEditor::PaletteEditor(QString filepath, byte type, QWidget *parent)
             case 1: { // RSDKv4 GameConfig
                 m_gameconfigv4 = RSDKv4::Gameconfig(filepath);
                 palette.clear();
-                for (auto &c : m_gameconfigv4.m_masterPalette.m_colours) {
+                for (auto &c : m_gameconfigv4.palette.colours) {
                     palette.append(PaletteColour(c.r, c.g, c.b));
                 }
                 break;
@@ -30,7 +30,7 @@ PaletteEditor::PaletteEditor(QString filepath, byte type, QWidget *parent)
             case 2: { // RSDKv4 StageConfig
                 stageConfigv4 = RSDKv4::Stageconfig(filepath);
                 palette.clear();
-                for (auto &c : stageConfigv4.m_stagePalette.m_colours) {
+                for (auto &c : stageConfigv4.m_stagePalette.colours) {
                     palette.append(PaletteColour(c.r, c.g, c.b));
                 }
                 break;
@@ -38,7 +38,7 @@ PaletteEditor::PaletteEditor(QString filepath, byte type, QWidget *parent)
             case 3: { // RSDKv3 StageConfig
                 stageConfigv3 = RSDKv3::Stageconfig(filepath);
                 palette.clear();
-                for (auto &c : stageConfigv3.m_stagePalette.m_colours) {
+                for (auto &c : stageConfigv3.m_stagePalette.colours) {
                     palette.append(PaletteColour(c.r, c.g, c.b));
                 }
                 break;
@@ -46,7 +46,7 @@ PaletteEditor::PaletteEditor(QString filepath, byte type, QWidget *parent)
             case 4: { // RSDKv2 StageConfig
                 stageConfigv2 = RSDKv2::Stageconfig(filepath);
                 palette.clear();
-                for (auto &c : stageConfigv2.m_stagePalette.m_colours) {
+                for (auto &c : stageConfigv2.m_stagePalette.colours) {
                     palette.append(PaletteColour(c.r, c.g, c.b));
                 }
                 break;
@@ -54,7 +54,7 @@ PaletteEditor::PaletteEditor(QString filepath, byte type, QWidget *parent)
             case 5: { // RSDKv1 StageConfig
                 stageConfigv1 = RSDKv1::Stageconfig(filepath);
                 palette.clear();
-                for (auto &c : stageConfigv1.palette.m_colours) {
+                for (auto &c : stageConfigv1.palette.colours) {
                     palette.append(PaletteColour(c.r, c.g, c.b));
                 }
                 break;
@@ -110,7 +110,7 @@ void PaletteEditor::init()
                 case 1: { // RSDKv4 GameConfig
                     RSDKv4::Gameconfig config(fileName);
                     palette.clear();
-                    for (auto &c : config.m_masterPalette.m_colours) {
+                    for (auto &c : config.palette.colours) {
                         palette.append(PaletteColour(c.r, c.g, c.b));
                     }
                     break;
@@ -118,7 +118,7 @@ void PaletteEditor::init()
                 case 2: { // RSDKv4 StageConfig
                     RSDKv4::Stageconfig config(fileName);
                     palette.clear();
-                    for (auto &c : config.m_stagePalette.m_colours) {
+                    for (auto &c : config.m_stagePalette.colours) {
                         palette.append(PaletteColour(c.r, c.g, c.b));
                     }
                     break;
@@ -126,7 +126,7 @@ void PaletteEditor::init()
                 case 3: { // RSDKv3 StageConfig
                     RSDKv3::Stageconfig config(fileName);
                     palette.clear();
-                    for (auto &c : config.m_stagePalette.m_colours) {
+                    for (auto &c : config.m_stagePalette.colours) {
                         palette.append(PaletteColour(c.r, c.g, c.b));
                     }
                     break;
@@ -134,7 +134,7 @@ void PaletteEditor::init()
                 case 4: { // RSDKv2 StageConfig
                     RSDKv2::Stageconfig config(fileName);
                     palette.clear();
-                    for (auto &c : config.m_stagePalette.m_colours) {
+                    for (auto &c : config.m_stagePalette.colours) {
                         palette.append(PaletteColour(c.r, c.g, c.b));
                     }
                     break;
@@ -142,7 +142,7 @@ void PaletteEditor::init()
                 case 5: { // RSDKv1 StageConfig
                     RSDKv1::Stageconfig config(fileName);
                     palette.clear();
-                    for (auto &c : config.palette.m_colours) {
+                    for (auto &c : config.palette.colours) {
                         palette.append(PaletteColour(c.r, c.g, c.b));
                     }
                     break;
@@ -298,7 +298,7 @@ bool PaletteEditor::event(QEvent *event)
                 case 1: { // RSDKv4 GameConfig
                     m_gameconfigv4 = RSDKv4::Gameconfig(filepath);
                     palette.clear();
-                    for (auto &c : m_gameconfigv4.m_masterPalette.m_colours) {
+                    for (auto &c : m_gameconfigv4.palette.colours) {
                         palette.append(PaletteColour(c.r, c.g, c.b));
                     }
                     break;
@@ -306,7 +306,7 @@ bool PaletteEditor::event(QEvent *event)
                 case 2: { // RSDKv4 StageConfig
                     stageConfigv4 = RSDKv4::Stageconfig(filepath);
                     palette.clear();
-                    for (auto &c : stageConfigv4.m_stagePalette.m_colours) {
+                    for (auto &c : stageConfigv4.m_stagePalette.colours) {
                         palette.append(PaletteColour(c.r, c.g, c.b));
                     }
                     break;
@@ -314,7 +314,7 @@ bool PaletteEditor::event(QEvent *event)
                 case 3: { // RSDKv3 StageConfig
                     stageConfigv3 = RSDKv3::Stageconfig(filepath);
                     palette.clear();
-                    for (auto &c : stageConfigv3.m_stagePalette.m_colours) {
+                    for (auto &c : stageConfigv3.m_stagePalette.colours) {
                         palette.append(PaletteColour(c.r, c.g, c.b));
                     }
                     break;
@@ -322,7 +322,7 @@ bool PaletteEditor::event(QEvent *event)
                 case 4: { // RSDKv2 StageConfig
                     stageConfigv2 = RSDKv2::Stageconfig(filepath);
                     palette.clear();
-                    for (auto &c : stageConfigv2.m_stagePalette.m_colours) {
+                    for (auto &c : stageConfigv2.m_stagePalette.colours) {
                         palette.append(PaletteColour(c.r, c.g, c.b));
                     }
                     break;
@@ -330,7 +330,7 @@ bool PaletteEditor::event(QEvent *event)
                 case 5: { // RSDKv1 StageConfig
                     stageConfigv1 = RSDKv1::Stageconfig(filepath);
                     palette.clear();
-                    for (auto &c : stageConfigv1.palette.m_colours) {
+                    for (auto &c : stageConfigv1.palette.colours) {
                         palette.append(PaletteColour(c.r, c.g, c.b));
                     }
                     break;
@@ -367,62 +367,62 @@ bool PaletteEditor::event(QEvent *event)
                         break;
                     }
                     case 1: { // RSDKv4 GameConfig
-                        m_gameconfigv4.m_masterPalette.m_colours.clear();
+                        m_gameconfigv4.palette.colours.clear();
                         for (int c = 0; c < 96; ++c) {
                             if (c < palette.count())
-                                m_gameconfigv4.m_masterPalette.m_colours.append(
+                                m_gameconfigv4.palette.colours.append(
                                     Colour(palette[c].r, palette[c].g, palette[c].b));
                             else
-                                m_gameconfigv4.m_masterPalette.m_colours.append(
+                                m_gameconfigv4.palette.colours.append(
                                     Colour(0xFF, 0x00, 0xFF));
                         }
                         m_gameconfigv4.write(filepath);
                         break;
                     }
                     case 2: { // RSDKv4 StageConfig
-                        stageConfigv4.m_stagePalette.m_colours.clear();
+                        stageConfigv4.m_stagePalette.colours.clear();
                         for (int c = 0; c < 32; ++c) {
                             if (c < palette.count())
-                                stageConfigv4.m_stagePalette.m_colours.append(
+                                stageConfigv4.m_stagePalette.colours.append(
                                     Colour(palette[c].r, palette[c].g, palette[c].b));
                             else
-                                stageConfigv4.m_stagePalette.m_colours.append(Colour(0xFF, 0x00, 0xFF));
+                                stageConfigv4.m_stagePalette.colours.append(Colour(0xFF, 0x00, 0xFF));
                         }
                         stageConfigv4.write(filepath);
                         break;
                     }
                     case 3: { // RSDKv3 StageConfig
-                        stageConfigv3.m_stagePalette.m_colours.clear();
+                        stageConfigv3.m_stagePalette.colours.clear();
                         for (int c = 0; c < 32; ++c) {
                             if (c < palette.count())
-                                stageConfigv3.m_stagePalette.m_colours.append(
+                                stageConfigv3.m_stagePalette.colours.append(
                                     Colour(palette[c].r, palette[c].g, palette[c].b));
                             else
-                                stageConfigv3.m_stagePalette.m_colours.append(Colour(0xFF, 0x00, 0xFF));
+                                stageConfigv3.m_stagePalette.colours.append(Colour(0xFF, 0x00, 0xFF));
                         }
                         stageConfigv3.write(filepath);
                         break;
                     }
                     case 4: { // RSDKv2 StageConfig
-                        stageConfigv2.m_stagePalette.m_colours.clear();
+                        stageConfigv2.m_stagePalette.colours.clear();
                         for (int c = 0; c < 32; ++c) {
                             if (c < palette.count())
-                                stageConfigv2.m_stagePalette.m_colours.append(
+                                stageConfigv2.m_stagePalette.colours.append(
                                     Colour(palette[c].r, palette[c].g, palette[c].b));
                             else
-                                stageConfigv2.m_stagePalette.m_colours.append(Colour(0xFF, 0x00, 0xFF));
+                                stageConfigv2.m_stagePalette.colours.append(Colour(0xFF, 0x00, 0xFF));
                         }
                         stageConfigv2.write(filepath);
                         break;
                     }
                     case 5: { // RSDKv1 StageConfig
-                        stageConfigv1.palette.m_colours.clear();
+                        stageConfigv1.palette.colours.clear();
                         for (int c = 0; c < 32; ++c) {
                             if (c < palette.count())
-                                stageConfigv1.palette.m_colours.append(
+                                stageConfigv1.palette.colours.append(
                                     Colour(palette[c].r, palette[c].g, palette[c].b));
                             else
-                                stageConfigv1.palette.m_colours.append(Colour(0xFF, 0x00, 0xFF));
+                                stageConfigv1.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
                         }
                         stageConfigv1.write(filepath);
                         break;
@@ -447,61 +447,61 @@ bool PaletteEditor::event(QEvent *event)
                     break;
                 }
                 case 1: { // RSDKv4 GameConfig
-                    m_gameconfigv4.m_masterPalette.m_colours.clear();
+                    m_gameconfigv4.palette.colours.clear();
                     for (int c = 0; c < 96; ++c) {
                         if (c < palette.count())
-                            m_gameconfigv4.m_masterPalette.m_colours.append(
+                            m_gameconfigv4.palette.colours.append(
                                 Colour(palette[c].r, palette[c].g, palette[c].b));
                         else
-                            m_gameconfigv4.m_masterPalette.m_colours.append(Colour(0xFF, 0x00, 0xFF));
+                            m_gameconfigv4.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
                     }
                     m_gameconfigv4.write(filepath);
                     break;
                 }
                 case 2: { // RSDKv4 StageConfig
-                    stageConfigv4.m_stagePalette.m_colours.clear();
+                    stageConfigv4.m_stagePalette.colours.clear();
                     for (int c = 0; c < 32; ++c) {
                         if (c < palette.count())
-                            stageConfigv4.m_stagePalette.m_colours.append(
+                            stageConfigv4.m_stagePalette.colours.append(
                                 Colour(palette[c].r, palette[c].g, palette[c].b));
                         else
-                            stageConfigv4.m_stagePalette.m_colours.append(Colour(0xFF, 0x00, 0xFF));
+                            stageConfigv4.m_stagePalette.colours.append(Colour(0xFF, 0x00, 0xFF));
                     }
                     stageConfigv4.write(filepath);
                     break;
                 }
                 case 3: { // RSDKv3 StageConfig
-                    stageConfigv3.m_stagePalette.m_colours.clear();
+                    stageConfigv3.m_stagePalette.colours.clear();
                     for (int c = 0; c < 32; ++c) {
                         if (c < palette.count())
-                            stageConfigv3.m_stagePalette.m_colours.append(
+                            stageConfigv3.m_stagePalette.colours.append(
                                 Colour(palette[c].r, palette[c].g, palette[c].b));
                         else
-                            stageConfigv3.m_stagePalette.m_colours.append(Colour(0xFF, 0x00, 0xFF));
+                            stageConfigv3.m_stagePalette.colours.append(Colour(0xFF, 0x00, 0xFF));
                     }
                     stageConfigv3.write(filepath);
                     break;
                 }
                 case 4: { // RSDKv2 StageConfig
-                    stageConfigv2.m_stagePalette.m_colours.clear();
+                    stageConfigv2.m_stagePalette.colours.clear();
                     for (int c = 0; c < 32; ++c) {
                         if (c < palette.count())
-                            stageConfigv2.m_stagePalette.m_colours.append(
+                            stageConfigv2.m_stagePalette.colours.append(
                                 Colour(palette[c].r, palette[c].g, palette[c].b));
                         else
-                            stageConfigv2.m_stagePalette.m_colours.append(Colour(0xFF, 0x00, 0xFF));
+                            stageConfigv2.m_stagePalette.colours.append(Colour(0xFF, 0x00, 0xFF));
                     }
                     stageConfigv2.write(filepath);
                     break;
                 }
                 case 5: { // RSDKv1 StageConfig
-                    stageConfigv1.palette.m_colours.clear();
+                    stageConfigv1.palette.colours.clear();
                     for (int c = 0; c < 32; ++c) {
                         if (c < palette.count())
-                            stageConfigv1.palette.m_colours.append(
+                            stageConfigv1.palette.colours.append(
                                 Colour(palette[c].r, palette[c].g, palette[c].b));
                         else
-                            stageConfigv1.palette.m_colours.append(Colour(0xFF, 0x00, 0xFF));
+                            stageConfigv1.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
                     }
                     stageConfigv1.write(filepath);
                     break;
@@ -537,61 +537,61 @@ bool PaletteEditor::event(QEvent *event)
                     break;
                 }
                 case 1: { // RSDKv4 GameConfig
-                    m_gameconfigv4.m_masterPalette.m_colours.clear();
+                    m_gameconfigv4.palette.colours.clear();
                     for (int c = 0; c < 96; ++c) {
                         if (c < palette.count())
-                            m_gameconfigv4.m_masterPalette.m_colours.append(
+                            m_gameconfigv4.palette.colours.append(
                                 Colour(palette[c].r, palette[c].g, palette[c].b));
                         else
-                            m_gameconfigv4.m_masterPalette.m_colours.append(Colour(0xFF, 0x00, 0xFF));
+                            m_gameconfigv4.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
                     }
                     m_gameconfigv4.write(filepath);
                     break;
                 }
                 case 2: { // RSDKv4 StageConfig
-                    stageConfigv4.m_stagePalette.m_colours.clear();
+                    stageConfigv4.m_stagePalette.colours.clear();
                     for (int c = 0; c < 32; ++c) {
                         if (c < palette.count())
-                            stageConfigv4.m_stagePalette.m_colours.append(
+                            stageConfigv4.m_stagePalette.colours.append(
                                 Colour(palette[c].r, palette[c].g, palette[c].b));
                         else
-                            stageConfigv4.m_stagePalette.m_colours.append(Colour(0xFF, 0x00, 0xFF));
+                            stageConfigv4.m_stagePalette.colours.append(Colour(0xFF, 0x00, 0xFF));
                     }
                     stageConfigv4.write(filepath);
                     break;
                 }
                 case 3: { // RSDKv3 StageConfig
-                    stageConfigv3.m_stagePalette.m_colours.clear();
+                    stageConfigv3.m_stagePalette.colours.clear();
                     for (int c = 0; c < 32; ++c) {
                         if (c < palette.count())
-                            stageConfigv3.m_stagePalette.m_colours.append(
+                            stageConfigv3.m_stagePalette.colours.append(
                                 Colour(palette[c].r, palette[c].g, palette[c].b));
                         else
-                            stageConfigv3.m_stagePalette.m_colours.append(Colour(0xFF, 0x00, 0xFF));
+                            stageConfigv3.m_stagePalette.colours.append(Colour(0xFF, 0x00, 0xFF));
                     }
                     stageConfigv3.write(filepath);
                     break;
                 }
                 case 4: { // RSDKv2 StageConfig
-                    stageConfigv2.m_stagePalette.m_colours.clear();
+                    stageConfigv2.m_stagePalette.colours.clear();
                     for (int c = 0; c < 32; ++c) {
                         if (c < palette.count())
-                            stageConfigv2.m_stagePalette.m_colours.append(
+                            stageConfigv2.m_stagePalette.colours.append(
                                 Colour(palette[c].r, palette[c].g, palette[c].b));
                         else
-                            stageConfigv2.m_stagePalette.m_colours.append(Colour(0xFF, 0x00, 0xFF));
+                            stageConfigv2.m_stagePalette.colours.append(Colour(0xFF, 0x00, 0xFF));
                     }
                     stageConfigv2.write(filepath);
                     break;
                 }
                 case 5: { // RSDKv1 StageConfig
-                    stageConfigv1.palette.m_colours.clear();
+                    stageConfigv1.palette.colours.clear();
                     for (int c = 0; c < 32; ++c) {
                         if (c < palette.count())
-                            stageConfigv1.palette.m_colours.append(
+                            stageConfigv1.palette.colours.append(
                                 Colour(palette[c].r, palette[c].g, palette[c].b));
                         else
-                            stageConfigv1.palette.m_colours.append(Colour(0xFF, 0x00, 0xFF));
+                            stageConfigv1.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
                     }
                     stageConfigv1.write(filepath);
                     break;

@@ -24,15 +24,15 @@ public:
         int length    = 1;
 
         float m_scrollPos     = 0.0f; // not written, for scene viewer only
-        float m_relativeSpeed = 1.0f;
-        float m_constantSpeed = 0.0f;
-        byte m_behaviour      = 0;
+        float parallaxFactor = 1.0f;
+        float scrollSpeed = 0.0f;
+        byte deform      = 0;
 
         bool operator==(const ScrollIndexInfo &other) const
         {
             return startLine == other.startLine && length == other.length
-                   && m_scrollPos == other.m_scrollPos && m_relativeSpeed == other.m_relativeSpeed
-                   && m_constantSpeed == other.m_constantSpeed && m_behaviour == other.m_behaviour;
+                   && m_scrollPos == other.m_scrollPos && parallaxFactor == other.parallaxFactor
+                   && scrollSpeed == other.scrollSpeed && deform == other.deform;
         }
     };
 

@@ -52,14 +52,14 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     globalInfo.sourceNames.append("Blank Object");
                     globalInfo.typeNames.append("Blank Object");
 
-                    for (auto &s : gcf.m_objects) {
-                        globalInfo.typeNames.append(s.m_name);
-                        globalInfo.sourceNames.append(s.m_script);
+                    for (auto &s : gcf.objects) {
+                        globalInfo.typeNames.append(s.name);
+                        globalInfo.sourceNames.append(s.script);
                     }
-                    globalScriptCount = gcf.m_objects.count() + 1;
+                    globalScriptCount = gcf.objects.count() + 1;
 
-                    for (auto &s : gcf.m_soundFX) globalInfo.sfxNames.append(QFileInfo(s).baseName());
-                    globalSFXCount = gcf.m_soundFX.count();
+                    for (auto &s : gcf.soundFX) globalInfo.sfxNames.append(QFileInfo(s).baseName());
+                    globalSFXCount = gcf.soundFX.count();
 
                     globalInfo.path = globalPath;
                     bytecodeList.append(globalInfo);

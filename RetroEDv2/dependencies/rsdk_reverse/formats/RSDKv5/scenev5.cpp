@@ -158,6 +158,7 @@ void RSDKv5::Scene::SceneLayer::scrollInfoFromIndices()
             info.scrollSpeed    = infos[prev].scrollSpeed / 256.0f;
             info.scrollPos      = 0.0f;
             info.deform         = infos[prev].deform;
+            info.unknown        = infos[prev].unknown;
 
             scrollInfos.append(info);
             start = h;
@@ -175,6 +176,7 @@ void RSDKv5::Scene::SceneLayer::scrollInfoFromIndices()
         info.scrollSpeed    = infos[prev].scrollSpeed / 256.0f;
         info.scrollPos      = 0.0f;
         info.deform         = infos[prev].deform;
+        info.unknown        = infos[prev].unknown;
 
         scrollInfos.append(info);
     }
@@ -204,6 +206,7 @@ void RSDKv5::Scene::SceneLayer::scrollIndicesFromInfo()
     for (ScrollIndexInfo &info : scrollInfos) {
         int infoID = id;
         ScrollInfo sInfo;
+        sInfo.unknown        = info.unknown;
         sInfo.deform         = info.deform;
         sInfo.parallaxFactor = info.parallaxFactor * 256;
         sInfo.scrollSpeed    = info.scrollSpeed * 256;
@@ -245,9 +248,15 @@ void RSDKv5::Scene::SceneEditorMetadata::read(Reader &reader)
     a                = reader.read<byte>();
     backgroundColor2 = QColor(r, g, b, a);
 
-    unknown2  = reader.readByteArray(7);
-    stampName = reader.readString();
+    unknown2  = reader.read<byte>();
     unknown3  = reader.read<byte>();
+    unknown4  = reader.read<byte>();
+    unknown5  = reader.read<byte>();
+    unknown6  = reader.read<byte>();
+    unknown7  = reader.read<byte>();
+    unknown8  = reader.read<byte>();
+    stampName = reader.readString();
+    unknown9  = reader.read<byte>();
 }
 
 void RSDKv5::Scene::SceneEditorMetadata::write(Writer &writer)
@@ -262,6 +271,12 @@ void RSDKv5::Scene::SceneEditorMetadata::write(Writer &writer)
     writer.write((byte)backgroundColor2.red());
     writer.write((byte)backgroundColor2.alpha());
     writer.write(unknown2);
-    writer.write(stampName + '\0');
     writer.write(unknown3);
+    writer.write(unknown4);
+    writer.write(unknown5);
+    writer.write(unknown6);
+    writer.write(unknown7);
+    writer.write(unknown8);
+    writer.write(stampName + '\0');
+    writer.write(unknown9);
 }

@@ -143,7 +143,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                         }
                         case ENGINE_v5: {
                             GameconfigEditorv5 *tool = new GameconfigEditorv5(
-                                r.path, r.extra[0] == "StageConfig", r.extra[1] == "rev02");
+                                r.path, r.extra[0] == "StageConfig", r.extra[1] == "rev01");
                             ui->toolTabs->setCurrentIndex(
                                 ui->toolTabs->addTab(tool, "Gameconfig Editor"));
                             break;

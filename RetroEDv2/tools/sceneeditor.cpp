@@ -1633,16 +1633,16 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
         for (auto s : viewer->stageConfig.m_soundFX)
             stageConfig.soundFX.append(RSDKv5::StageConfig::WAVConfiguration(s.m_path, 1));
 
-        stageConfig.m_palettes[0].m_activeRows[6] = true;
-        stageConfig.m_palettes[0].m_activeRows[7] = true;
+        stageConfig.m_palettes[0].activeRows[6] = true;
+        stageConfig.m_palettes[0].activeRows[7] = true;
 
         for (int c = 0; c < 0x20; ++c) {
-            stageConfig.m_palettes[0].m_colours[(c / 0x10) + 0x60][c % 0x10].setRed(
-                viewer->stageConfig.m_stagePalette.m_colours[c].r);
-            stageConfig.m_palettes[0].m_colours[(c / 0x10) + 0x60][c % 0x10].setGreen(
-                viewer->stageConfig.m_stagePalette.m_colours[c].g);
-            stageConfig.m_palettes[0].m_colours[(c / 0x10) + 0x60][c % 0x10].setBlue(
-                viewer->stageConfig.m_stagePalette.m_colours[c].b);
+            stageConfig.m_palettes[0].colours[(c / 0x10) + 0x60][c % 0x10].setRed(
+                viewer->stageConfig.m_stagePalette.colours[c].r);
+            stageConfig.m_palettes[0].colours[(c / 0x10) + 0x60][c % 0x10].setGreen(
+                viewer->stageConfig.m_stagePalette.colours[c].g);
+            stageConfig.m_palettes[0].colours[(c / 0x10) + 0x60][c % 0x10].setBlue(
+                viewer->stageConfig.m_stagePalette.colours[c].b);
         }
 
         stageConfig.write(dlg->m_outputPath + "/StageConfig.bin");
@@ -1697,6 +1697,7 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
                 RSDKv5::Scene::SceneLayer layer;
                 layer.m_name = layerName + (!p ? "Low" : "High");
                 layer.resize(viewer->layerWidth(l) * 8, viewer->layerHeight(l) * 8);
+                layer.lineIndexes.clear();
                 layer.drawOrder = 16;
 
                 switch (viewer->gameType) {
@@ -1744,6 +1745,41 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
                     layer.scrollSpeed    = viewer->background.layers[l - 1].scrollSpeed * 0x100;
                 }
 
+                layer.scrollInfos.clear();
+                if (l) {
+                    if (viewer->background.layers[l - 1].scrollInfos.count() == 0) {
+                        RSDKv5::Scene::ScrollIndexInfo info;
+                        info.startLine      = 0;
+                        info.length         = layer.height * 16;
+                        info.parallaxFactor = 1.0f;
+                        info.scrollSpeed    = 0.0f;
+                        info.deform         = false;
+                        layer.scrollInfos.append(info);
+                    }
+                    else {
+                        for (int s = 0; s < viewer->background.layers[l - 1].scrollInfos.count(); ++s) {
+                            RSDKv5::Scene::ScrollIndexInfo info;
+                            info.startLine = viewer->background.layers[l - 1].scrollInfos[s].startLine;
+                            info.length    = viewer->background.layers[l - 1].scrollInfos[s].length;
+                            info.parallaxFactor =
+                                viewer->background.layers[l - 1].scrollInfos[s].parallaxFactor;
+                            info.scrollSpeed =
+                                viewer->background.layers[l - 1].scrollInfos[s].scrollSpeed;
+                            info.deform = viewer->background.layers[l - 1].scrollInfos[s].deform;
+                            layer.scrollInfos.append(info);
+                        }
+                    }
+                }
+                else {
+                    RSDKv5::Scene::ScrollIndexInfo info;
+                    info.startLine      = 0;
+                    info.length         = layer.height * 16;
+                    info.parallaxFactor = 1.0f;
+                    info.scrollSpeed    = 0.0f;
+                    info.deform         = false;
+                    layer.scrollInfos.append(info);
+                }
+
                 int cnt = 0;
                 for (int y = 0; y < viewer->layerHeight(l); ++y) {
                     for (int x = 0; x < viewer->layerWidth(l); ++x) {
@@ -1789,17 +1825,17 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
     scene.objects.clear();
     if (dlg->exportObjects) {
         RSDKv5::Scene::SceneObject blank;
-        blank.m_name.m_name = "Blank Object";
+        blank.name = RSDKv5::Scene::NameIdentifier("Blank Object");
 
         blank.variables.clear();
         RSDKv5::Scene::VariableInfo blankFilter;
-        blankFilter.m_name = RSDKv5::Scene::NameIdentifier("filter");
-        blankFilter.type   = RSDKv5::VariableTypes::UINT8;
+        blankFilter.name = RSDKv5::Scene::NameIdentifier("filter");
+        blankFilter.type = VAR_UINT8;
         blank.variables.append(blankFilter);
 
         RSDKv5::Scene::VariableInfo blankPropertyValue;
-        blankPropertyValue.m_name = RSDKv5::Scene::NameIdentifier("propertyValue");
-        blankPropertyValue.type   = RSDKv5::VariableTypes::UINT8;
+        blankPropertyValue.name = RSDKv5::Scene::NameIdentifier("propertyValue");
+        blankPropertyValue.type = VAR_UINT8;
         blank.variables.append(blankPropertyValue);
 
         scene.objects.append(blank);
@@ -1809,16 +1845,16 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
 
             QString objName = viewer->scene.objectTypeNames[o];
             objName.replace(" ", "");
-            obj.m_name = RSDKv5::Scene::NameIdentifier(objName);
+            obj.name = RSDKv5::Scene::NameIdentifier(objName);
             obj.variables.clear();
             RSDKv5::Scene::VariableInfo filter;
-            filter.m_name = RSDKv5::Scene::NameIdentifier("filter");
-            filter.type   = RSDKv5::VariableTypes::UINT8;
+            filter.name = RSDKv5::Scene::NameIdentifier("filter");
+            filter.type = VAR_UINT8;
             obj.variables.append(filter);
 
             RSDKv5::Scene::VariableInfo propertyValue;
-            propertyValue.m_name = RSDKv5::Scene::NameIdentifier("propertyValue");
-            propertyValue.type   = RSDKv5::VariableTypes::UINT8;
+            propertyValue.name = RSDKv5::Scene::NameIdentifier("propertyValue");
+            propertyValue.type = VAR_UINT8;
             obj.variables.append(propertyValue);
 
             scene.objects.append(obj);
@@ -1834,10 +1870,12 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
 
             entity.variables.clear();
             RSDKv5::Scene::VariableValue filter;
+            filter.type        = VAR_UINT8;
             filter.value_uint8 = 0x05;
             entity.variables.append(filter);
 
             RSDKv5::Scene::VariableValue propertyValue;
+            propertyValue.type        = VAR_UINT8;
             propertyValue.value_uint8 = viewer->scene.objects[e].m_propertyValue;
             entity.variables.append(propertyValue);
 

@@ -41,9 +41,9 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
     // ----------------
 
     connect(ui->gameName, &QLineEdit::textEdited,
-            [this](QString s) { m_gameconfig.m_gameWindowText = s; });
+            [this](QString s) { m_gameconfig.gameWindowText = s; });
     connect(ui->gameDescription, &QPlainTextEdit::textChanged,
-            [this] { m_gameconfig.m_gameDescriptionText = ui->gameDescription->toPlainText(); });
+            [this] { m_gameconfig.gameDescriptionText = ui->gameDescription->toPlainText(); });
 
     connect(ui->sectionList, &QListWidget::currentRowChanged, [this](int v) {
         ui->detailsWidget->setCurrentIndex(v);
@@ -68,7 +68,7 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
             return;
 
         ui->objScript->blockSignals(true);
-        ui->objScript->setText(m_gameconfig.m_scripts[c]);
+        ui->objScript->setText(m_gameconfig.scripts[c]);
         ui->objType->setText("Object Type ID: " + QString::number(c + 2));
         ui->objScript->blockSignals(false);
 
@@ -80,9 +80,9 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
 
     connect(ui->addObj, &QToolButton::clicked, [this] {
         uint c = ui->objList->currentRow() + 1;
-        m_gameconfig.m_scripts.insert(c, "Folder/Script.txt");
+        m_gameconfig.scripts.insert(c, "Folder/Script.txt");
         auto *item = new QListWidgetItem();
-        item->setText(m_gameconfig.m_scripts[c]);
+        item->setText(m_gameconfig.scripts[c]);
         ui->objList->insertItem(c, item);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -92,7 +92,7 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
     connect(ui->upObj, &QToolButton::clicked, [this] {
         uint c     = ui->objList->currentRow();
         auto *item = ui->objList->takeItem(c);
-        m_gameconfig.m_scripts.move(c, c - 1);
+        m_gameconfig.scripts.move(c, c - 1);
         ui->objList->insertItem(c - 1, item);
         ui->objList->setCurrentRow(c - 1);
     });
@@ -100,7 +100,7 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
     connect(ui->downObj, &QToolButton::clicked, [this] {
         uint c     = ui->objList->currentRow();
         auto *item = ui->objList->takeItem(c);
-        m_gameconfig.m_scripts.move(c, c + 1);
+        m_gameconfig.scripts.move(c, c + 1);
         ui->objList->insertItem(c + 1, item);
         ui->objList->setCurrentRow(c + 1);
     });
@@ -109,22 +109,22 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
         int c = ui->objList->currentRow();
         int n = ui->objList->currentRow() == ui->objList->count() - 1 ? c - 1 : c;
         delete ui->objList->item(c);
-        m_gameconfig.m_scripts.removeAt(c);
+        m_gameconfig.scripts.removeAt(c);
         ui->objList->blockSignals(true);
         ui->objList->setCurrentRow(n);
         ui->objList->blockSignals(false);
     });
 
     connect(ui->objList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        m_gameconfig.m_scripts[ui->objList->row(item)] = item->text();
+        m_gameconfig.scripts[ui->objList->row(item)] = item->text();
 
         ui->objScript->blockSignals(true);
-        ui->objScript->setText(m_gameconfig.m_scripts[ui->objList->row(item)]);
+        ui->objScript->setText(m_gameconfig.scripts[ui->objList->row(item)]);
         ui->objScript->blockSignals(false);
     });
 
     connect(ui->objScript, &QLineEdit::textEdited,
-            [this](QString s) { m_gameconfig.m_scripts[ui->objList->currentRow()] = s; });
+            [this](QString s) { m_gameconfig.scripts[ui->objList->currentRow()] = s; });
 
     // ----------------
     // SOUNDFX
@@ -143,7 +143,7 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
             return;
 
         ui->sfxName->blockSignals(true);
-        ui->sfxName->setText(m_gameconfig.m_soundFX[c]);
+        ui->sfxName->setText(m_gameconfig.soundFX[c]);
         ui->sfxName->blockSignals(false);
 
         if (ui->downSfx)
@@ -154,9 +154,9 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
 
     connect(ui->addSfx, &QToolButton::clicked, [this] {
         uint c = ui->sfxList->currentRow() + 1;
-        m_gameconfig.m_soundFX.insert(c, "Folder/Sound.wav");
+        m_gameconfig.soundFX.insert(c, "Folder/Sound.wav");
         auto *item = new QListWidgetItem();
-        item->setText(m_gameconfig.m_soundFX[c]);
+        item->setText(m_gameconfig.soundFX[c]);
         ui->sfxList->insertItem(c, item);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -166,7 +166,7 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
     connect(ui->upSfx, &QToolButton::clicked, [this] {
         uint c     = ui->sfxList->currentRow();
         auto *item = ui->sfxList->takeItem(c);
-        m_gameconfig.m_soundFX.move(c, c - 1);
+        m_gameconfig.soundFX.move(c, c - 1);
         ui->sfxList->insertItem(c - 1, item);
         ui->sfxList->setCurrentRow(c - 1);
     });
@@ -174,7 +174,7 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
     connect(ui->downSfx, &QToolButton::clicked, [this] {
         uint c     = ui->sfxList->currentRow();
         auto *item = ui->sfxList->takeItem(c);
-        m_gameconfig.m_soundFX.move(c, c + 1);
+        m_gameconfig.soundFX.move(c, c + 1);
         ui->sfxList->insertItem(c + 1, item);
         ui->sfxList->setCurrentRow(c + 1);
     });
@@ -183,25 +183,25 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
         int c = ui->sfxList->currentRow();
         int n = ui->sfxList->currentRow() == ui->sfxList->count() - 1 ? c - 1 : c;
         delete ui->sfxList->item(c);
-        m_gameconfig.m_soundFX.removeAt(c);
+        m_gameconfig.soundFX.removeAt(c);
         ui->sfxList->blockSignals(true);
         ui->sfxList->setCurrentRow(n);
         ui->sfxList->blockSignals(false);
     });
 
     connect(ui->sfxList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        m_gameconfig.m_soundFX[ui->sfxList->row(item)] = item->text();
+        m_gameconfig.soundFX[ui->sfxList->row(item)] = item->text();
 
         ui->sfxName->blockSignals(true);
-        ui->sfxName->setText(m_gameconfig.m_soundFX[ui->sfxList->row(item)]);
+        ui->sfxName->setText(m_gameconfig.soundFX[ui->sfxList->row(item)]);
         ui->sfxName->blockSignals(false);
     });
 
     connect(ui->sfxName, &QLineEdit::textEdited, [this](QString s) {
-        m_gameconfig.m_soundFX[ui->sfxList->currentRow()] = s;
+        m_gameconfig.soundFX[ui->sfxList->currentRow()] = s;
 
         ui->sfxList->item(ui->sfxList->currentRow())
-            ->setText(m_gameconfig.m_soundFX[ui->sfxList->currentRow()]);
+            ->setText(m_gameconfig.soundFX[ui->sfxList->currentRow()]);
     });
 
     // ----------------
@@ -224,8 +224,8 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
         ui->varName->blockSignals(true);
         ui->varValue->blockSignals(true);
 
-        ui->varName->setText(m_gameconfig.m_globalVariables[c].m_name);
-        ui->varValue->setValue(m_gameconfig.m_globalVariables[c].m_value);
+        ui->varName->setText(m_gameconfig.globalVariables[c].m_name);
+        ui->varValue->setValue(m_gameconfig.globalVariables[c].value);
 
         ui->varName->blockSignals(false);
         ui->varValue->blockSignals(false);
@@ -238,9 +238,9 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
 
     connect(ui->addVar, &QToolButton::clicked, [this] {
         uint c = ui->varList->currentRow() + 1;
-        m_gameconfig.m_globalVariables.insert(c, RSDKv2::Gameconfig::GlobalVariable());
+        m_gameconfig.globalVariables.insert(c, RSDKv2::Gameconfig::GlobalVariable());
         auto *item = new QListWidgetItem();
-        item->setText(m_gameconfig.m_globalVariables[c].m_name);
+        item->setText(m_gameconfig.globalVariables[c].m_name);
         ui->varList->insertItem(c, item);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -250,7 +250,7 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
     connect(ui->upVar, &QToolButton::clicked, [this] {
         uint c     = ui->varList->currentRow();
         auto *item = ui->varList->takeItem(c);
-        m_gameconfig.m_globalVariables.move(c, c - 1);
+        m_gameconfig.globalVariables.move(c, c - 1);
         ui->varList->insertItem(c - 1, item);
         ui->varList->setCurrentRow(c - 1);
     });
@@ -258,7 +258,7 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
     connect(ui->downVar, &QToolButton::clicked, [this] {
         uint c     = ui->varList->currentRow();
         auto *item = ui->varList->takeItem(c);
-        m_gameconfig.m_globalVariables.move(c, c + 1);
+        m_gameconfig.globalVariables.move(c, c + 1);
         ui->varList->insertItem(c + 1, item);
         ui->varList->setCurrentRow(c + 1);
     });
@@ -267,29 +267,29 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
         int c = ui->varList->currentRow();
         int n = ui->varList->currentRow() == ui->varList->count() - 1 ? c - 1 : c;
         delete ui->varList->item(c);
-        m_gameconfig.m_globalVariables.removeAt(c);
+        m_gameconfig.globalVariables.removeAt(c);
         ui->varList->blockSignals(true);
         ui->varList->setCurrentRow(n);
         ui->varList->blockSignals(false);
     });
 
     connect(ui->varList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        m_gameconfig.m_globalVariables[ui->varList->row(item)].m_name = item->text();
+        m_gameconfig.globalVariables[ui->varList->row(item)].m_name = item->text();
 
         ui->varName->blockSignals(true);
-        ui->varName->setText(m_gameconfig.m_globalVariables[ui->varList->row(item)].m_name);
+        ui->varName->setText(m_gameconfig.globalVariables[ui->varList->row(item)].m_name);
         ui->varName->blockSignals(false);
     });
 
     connect(ui->varName, &QLineEdit::textEdited, [this](QString s) {
-        m_gameconfig.m_globalVariables[ui->varList->currentRow()].m_name = s;
+        m_gameconfig.globalVariables[ui->varList->currentRow()].m_name = s;
 
         ui->varList->item(ui->varList->currentRow())
-            ->setText(m_gameconfig.m_globalVariables[ui->varList->currentRow()].m_name);
+            ->setText(m_gameconfig.globalVariables[ui->varList->currentRow()].m_name);
     });
 
     connect(ui->varValue, QOverload<int>::of(&QSpinBox::valueChanged),
-            [this](int v) { m_gameconfig.m_globalVariables[ui->varList->currentRow()].m_value = v; });
+            [this](int v) { m_gameconfig.globalVariables[ui->varList->currentRow()].value = v; });
 
     // ----------------
     // PLAYERS
@@ -308,15 +308,15 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
             return;
 
         ui->plrName->blockSignals(true);
-        ui->plrName->setText(m_gameconfig.m_players[c].m_name);
+        ui->plrName->setText(m_gameconfig.players[c].m_name);
         ui->plrName->blockSignals(false);
 
         ui->plrAnim->blockSignals(true);
-        ui->plrAnim->setText(m_gameconfig.m_players[c].m_anim);
+        ui->plrAnim->setText(m_gameconfig.players[c].m_anim);
         ui->plrAnim->blockSignals(false);
 
         ui->plrScript->blockSignals(true);
-        ui->plrScript->setText(m_gameconfig.m_players[c].m_script);
+        ui->plrScript->setText(m_gameconfig.players[c].m_script);
         ui->plrScript->blockSignals(false);
 
         if (ui->downPlr)
@@ -327,9 +327,9 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
 
     connect(ui->addPlr, &QToolButton::clicked, [this] {
         uint c = ui->plrList->currentRow() + 1;
-        m_gameconfig.m_players.insert(c, RSDKv2::Gameconfig::PlayerInfo());
+        m_gameconfig.players.insert(c, RSDKv2::Gameconfig::PlayerInfo());
         auto *item = new QListWidgetItem();
-        item->setText(m_gameconfig.m_players[c].m_name);
+        item->setText(m_gameconfig.players[c].m_name);
         ui->plrList->insertItem(c, item);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -339,7 +339,7 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
     connect(ui->upPlr, &QToolButton::clicked, [this] {
         uint c     = ui->plrList->currentRow();
         auto *item = ui->plrList->takeItem(c);
-        m_gameconfig.m_players.move(c, c - 1);
+        m_gameconfig.players.move(c, c - 1);
         ui->plrList->insertItem(c - 1, item);
         ui->plrList->setCurrentRow(c - 1);
     });
@@ -347,7 +347,7 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
     connect(ui->downPlr, &QToolButton::clicked, [this] {
         uint c     = ui->plrList->currentRow();
         auto *item = ui->plrList->takeItem(c);
-        m_gameconfig.m_players.move(c, c + 1);
+        m_gameconfig.players.move(c, c + 1);
         ui->plrList->insertItem(c + 1, item);
         ui->plrList->setCurrentRow(c + 1);
     });
@@ -356,32 +356,32 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
         int c = ui->plrList->currentRow();
         int n = ui->plrList->currentRow() == ui->plrList->count() - 1 ? c - 1 : c;
         delete ui->plrList->item(c);
-        m_gameconfig.m_players.removeAt(c);
+        m_gameconfig.players.removeAt(c);
         ui->plrList->blockSignals(true);
         ui->plrList->setCurrentRow(n);
         ui->plrList->blockSignals(false);
     });
 
     connect(ui->plrList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        m_gameconfig.m_players[ui->plrList->row(item)].m_name = item->text().toUpper();
+        m_gameconfig.players[ui->plrList->row(item)].m_name = item->text().toUpper();
 
         ui->plrName->blockSignals(true);
-        ui->plrName->setText(m_gameconfig.m_players[ui->plrList->row(item)].m_name);
+        ui->plrName->setText(m_gameconfig.players[ui->plrList->row(item)].m_name);
         ui->plrName->blockSignals(false);
     });
 
     connect(ui->plrName, &QLineEdit::textEdited, [this](QString s) {
-        m_gameconfig.m_players[ui->plrList->currentRow()].m_name = s.toUpper();
+        m_gameconfig.players[ui->plrList->currentRow()].m_name = s.toUpper();
 
         ui->plrList->item(ui->plrList->currentRow())
-            ->setText(m_gameconfig.m_players[ui->plrList->currentRow()].m_name);
+            ->setText(m_gameconfig.players[ui->plrList->currentRow()].m_name);
     });
 
     connect(ui->plrAnim, &QLineEdit::textEdited,
-            [this](QString s) { m_gameconfig.m_players[ui->plrList->currentRow()].m_anim = s; });
+            [this](QString s) { m_gameconfig.players[ui->plrList->currentRow()].m_anim = s; });
 
     connect(ui->plrScript, &QLineEdit::textEdited,
-            [this](QString s) { m_gameconfig.m_players[ui->plrList->currentRow()].m_script = s; });
+            [this](QString s) { m_gameconfig.players[ui->plrList->currentRow()].m_script = s; });
 
     // ----------------
     // SCENES
@@ -395,7 +395,7 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
     connect(m_sceneModel, &QStandardItemModel::itemChanged, [this](QStandardItem *item) {
         const QModelIndex &index = m_sceneModel->indexFromItem(item);
         if (index.parent().isValid()) { // Scene
-            m_gameconfig.m_categories[index.parent().row()].m_scenes[index.row()].m_name = item->text();
+            m_gameconfig.categories[index.parent().row()].scenes[index.row()].name = item->text();
             return;
         }
         // m_gameconfig.m_categories[index.row()].m_name = item->text();
@@ -409,8 +409,8 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
         }
         uint cat = scnSelected ? index.parent().row() : index.row();
         uint scn = scnSelected ? index.row() + 1 : 0;
-        m_gameconfig.m_categories[cat].m_scenes.insert(scn, RSDKv2::Gameconfig::SceneInfo());
-        auto *scnItem = new QStandardItem(m_gameconfig.m_categories[cat].m_scenes[scn].m_name);
+        m_gameconfig.categories[cat].scenes.insert(scn, RSDKv2::Gameconfig::SceneInfo());
+        auto *scnItem = new QStandardItem(m_gameconfig.categories[cat].scenes[scn].name);
         if (scnSelected)
             m_sceneModel->itemFromIndex(index.parent())->insertRow(scn, scnItem);
         else
@@ -423,7 +423,7 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
         const QModelIndex &index = ui->scnTree->currentIndex();
 
         if (index.parent().isValid()) { // Scene
-            m_gameconfig.m_categories[index.parent().row()].m_scenes.removeAt(index.row());
+            m_gameconfig.categories[index.parent().row()].scenes.removeAt(index.row());
             m_sceneModel->itemFromIndex(index.parent())->removeRow(index.row());
             return;
         }
@@ -435,7 +435,7 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
         int c = ui->scnTree->currentIndex().row();
         QList<QStandardItem *> item;
         if (isScn) {
-            m_gameconfig.m_categories[ui->scnTree->currentIndex().parent().row()].m_scenes.move(
+            m_gameconfig.categories[ui->scnTree->currentIndex().parent().row()].scenes.move(
                 c, c + translation);
             QStandardItem *parentItem =
                 m_sceneModel->itemFromIndex(ui->scnTree->currentIndex().parent());
@@ -479,49 +479,49 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
 
                 if (c.parent().isValid()) {
                     ui->scnID->setDisabled(
-                        c.row() >= m_gameconfig.m_categories[c.parent().row()].m_scenes.count());
+                        c.row() >= m_gameconfig.categories[c.parent().row()].scenes.count());
                     ui->scnFolder->setDisabled(
-                        c.row() >= m_gameconfig.m_categories[c.parent().row()].m_scenes.count());
+                        c.row() >= m_gameconfig.categories[c.parent().row()].scenes.count());
                     ui->scnName->setDisabled(
-                        c.row() >= m_gameconfig.m_categories[c.parent().row()].m_scenes.count());
+                        c.row() >= m_gameconfig.categories[c.parent().row()].scenes.count());
                     ui->scnHighlighted->setDisabled(
-                        c.row() >= m_gameconfig.m_categories[c.parent().row()].m_scenes.count());
+                        c.row() >= m_gameconfig.categories[c.parent().row()].scenes.count());
 
-                    if (c.row() >= m_gameconfig.m_categories[c.parent().row()].m_scenes.count())
+                    if (c.row() >= m_gameconfig.categories[c.parent().row()].scenes.count())
                         return;
 
                     ui->scnID->setText(
-                        m_gameconfig.m_categories[c.parent().row()].m_scenes[c.row()].m_actID);
+                        m_gameconfig.categories[c.parent().row()].scenes[c.row()].actID);
                     ui->scnHighlighted->setChecked(
-                        m_gameconfig.m_categories[c.parent().row()].m_scenes[c.row()].m_highlighted);
+                        m_gameconfig.categories[c.parent().row()].scenes[c.row()].highlighted);
                     ui->scnFolder->setText(
-                        m_gameconfig.m_categories[c.parent().row()].m_scenes[c.row()].m_folder);
+                        m_gameconfig.categories[c.parent().row()].scenes[c.row()].folder);
                     ui->scnName->setText(
-                        m_gameconfig.m_categories[c.parent().row()].m_scenes[c.row()].m_name);
+                        m_gameconfig.categories[c.parent().row()].scenes[c.row()].name);
 
                     connect(ui->scnName, &QLineEdit::textEdited, [this, c](QString s) {
-                        m_gameconfig.m_categories[c.parent().row()].m_scenes[c.row()].m_name = s;
+                        m_gameconfig.categories[c.parent().row()].scenes[c.row()].name = s;
 
                         // TODO: edit text
                     });
 
                     connect(ui->scnFolder, &QLineEdit::textEdited, [this, c](QString s) {
-                        m_gameconfig.m_categories[c.parent().row()].m_scenes[c.row()].m_folder = s;
+                        m_gameconfig.categories[c.parent().row()].scenes[c.row()].folder = s;
                     });
 
                     connect(ui->scnID, &QLineEdit::textEdited, [this, c](QString s) {
-                        m_gameconfig.m_categories[c.parent().row()].m_scenes[c.row()].m_folder = s;
+                        m_gameconfig.categories[c.parent().row()].scenes[c.row()].folder = s;
                     });
 
                     connect(ui->scnHighlighted, &QCheckBox::toggled, [this, c](bool v) {
-                        m_gameconfig.m_categories[c.parent().row()].m_scenes[c.row()].m_highlighted = v;
+                        m_gameconfig.categories[c.parent().row()].scenes[c.row()].highlighted = v;
                     });
                 }
 
                 ui->downScn->setDisabled(
                     c.parent().isValid()
-                        ? c.row() == m_gameconfig.m_categories[c.parent().row()].m_scenes.count() - 1
-                        : c.row() == m_gameconfig.m_categories.count() - 1);
+                        ? c.row() == m_gameconfig.categories[c.parent().row()].scenes.count() - 1
+                        : c.row() == m_gameconfig.categories.count() - 1);
                 ui->upScn->setDisabled(c.row() == 0);
             });
 
@@ -545,8 +545,8 @@ void GameconfigEditorv2::load(QString filename)
         m_gameconfig = RSDKv2::Gameconfig();
     }
 
-    ui->gameName->setText(m_gameconfig.m_gameWindowText);
-    ui->gameDescription->setPlainText(m_gameconfig.m_gameDescriptionText);
+    ui->gameName->setText(m_gameconfig.gameWindowText);
+    ui->gameDescription->setPlainText(m_gameconfig.gameDescriptionText);
 
     ui->objList->setCurrentRow(0);
     ui->objList->setCurrentRow(-1);
@@ -562,7 +562,7 @@ void GameconfigEditorv2::load(QString filename)
 
     ui->objList->clear();
     int id = 0;
-    for (QString &obj : m_gameconfig.m_scripts) {
+    for (QString &obj : m_gameconfig.scripts) {
         ui->objList->addItem(obj);
         ui->objList->item(id)->setFlags(ui->objList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
@@ -570,7 +570,7 @@ void GameconfigEditorv2::load(QString filename)
 
     ui->sfxList->clear();
     id = 0;
-    for (QString &sfx : m_gameconfig.m_soundFX) {
+    for (QString &sfx : m_gameconfig.soundFX) {
         ui->sfxList->addItem(sfx);
         ui->sfxList->item(id)->setFlags(ui->sfxList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
@@ -578,7 +578,7 @@ void GameconfigEditorv2::load(QString filename)
 
     ui->varList->clear();
     id = 0;
-    for (RSDKv2::Gameconfig::GlobalVariable &var : m_gameconfig.m_globalVariables) {
+    for (RSDKv2::Gameconfig::GlobalVariable &var : m_gameconfig.globalVariables) {
         ui->varList->addItem(var.m_name);
         ui->varList->item(id)->setFlags(ui->varList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
@@ -586,7 +586,7 @@ void GameconfigEditorv2::load(QString filename)
 
     ui->plrList->clear();
     id = 0;
-    for (RSDKv2::Gameconfig::PlayerInfo &plr : m_gameconfig.m_players) {
+    for (RSDKv2::Gameconfig::PlayerInfo &plr : m_gameconfig.players) {
         ui->plrList->addItem(plr.m_name.toUpper());
         ui->plrList->item(id)->setFlags(ui->plrList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
@@ -602,8 +602,8 @@ void GameconfigEditorv2::load(QString filename)
     for (int c = 0; c < 4; ++c) {
         auto *catItem = new QStandardItem(names[c]);
 
-        for (auto &scn : m_gameconfig.m_categories[c].m_scenes) {
-            auto *scnItem = new QStandardItem(scn.m_name);
+        for (auto &scn : m_gameconfig.categories[c].scenes) {
+            auto *scnItem = new QStandardItem(scn.name);
             catItem->appendRow(scnItem);
 
             scnItem->setFlags(scnItem->flags() | Qt::ItemIsEditable);

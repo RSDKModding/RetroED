@@ -8,7 +8,7 @@ class VariableInfo
 public:
     QString name = "Variable";
     byte type    = 0;
-    int offset   = 0;
+    int offset   = -1;
     QByteArray hash;
 
     VariableInfo() {}

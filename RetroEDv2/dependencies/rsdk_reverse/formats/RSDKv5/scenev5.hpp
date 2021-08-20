@@ -28,9 +28,15 @@ public:
         byte unknown1           = 3; // usually 2,3 or 4
         QColor backgroundColor1 = QColor(0xFF, 0, 0xFF);
         QColor backgroundColor2 = QColor(0, 0xFF, 0);
-        QByteArray unknown2; // Const: 01010400010400
-        QString stampName = "Stamps.bin";
-        byte unknown3;
+        byte unknown2           = 1;
+        byte unknown3           = 1;
+        byte unknown4           = 4;
+        byte unknown5           = 0;
+        byte unknown6           = 1;
+        byte unknown7           = 4;
+        byte unknown8           = 0;
+        QString stampName       = "Stamps.bin";
+        byte unknown9           = 0;
 
         SceneEditorMetadata() {}
         SceneEditorMetadata(Reader &reader) { read(reader); }
@@ -45,7 +51,7 @@ public:
         short parallaxFactor = 1 << 8;
         short scrollSpeed    = 0;
         byte deform          = 0;
-        byte m_drawOrder     = 0;
+        byte unknown         = 0;
 
         ScrollInfo() {}
         ScrollInfo(Reader &reader) { read(reader); }
@@ -55,8 +61,8 @@ public:
             parallaxFactor = reader.read<short>(); // << 0
             scrollSpeed    = reader.read<short>(); // << 8
 
-            deform      = reader.read<byte>();
-            m_drawOrder = reader.read<byte>();
+            deform  = reader.read<byte>();
+            unknown = reader.read<byte>();
         }
 
         inline void write(Writer &writer)
@@ -65,7 +71,7 @@ public:
             writer.write(scrollSpeed);
 
             writer.write(deform);
-            writer.write(m_drawOrder);
+            writer.write(unknown);
         }
     };
 
@@ -79,12 +85,14 @@ public:
         float parallaxFactor = 1.0f;
         float scrollSpeed    = 0.0f;
         byte deform          = 0;
+        byte unknown         = 0;
 
         bool operator==(const ScrollIndexInfo &other) const
         {
             return startLine == other.startLine && length == other.length
                    && scrollPos == other.scrollPos && parallaxFactor == other.parallaxFactor
-                   && scrollSpeed == other.scrollSpeed && deform == other.deform;
+                   && scrollSpeed == other.scrollSpeed && deform == other.deform
+                   && unknown == other.unknown;
         }
     };
 
@@ -189,21 +197,21 @@ public:
     class VariableInfo
     {
     public:
-        NameIdentifier m_name = NameIdentifier(QString("variable"));
-        byte type             = 0;
+        NameIdentifier name = NameIdentifier(QString("variable"));
+        byte type           = 0;
 
         VariableInfo() {}
         VariableInfo(Reader &reader) { read(reader); }
 
         inline void read(Reader &reader)
         {
-            m_name.read(reader);
+            name.read(reader);
             type = reader.read<byte>();
         }
 
         inline void write(Writer &writer)
         {
-            m_name.write(writer);
+            name.write(writer);
             writer.write(type);
         }
     };
@@ -275,7 +283,7 @@ public:
     class SceneObject
     {
     public:
-        NameIdentifier m_name = NameIdentifier(QString("Object"));
+        NameIdentifier name = NameIdentifier(QString("Object"));
         QList<VariableInfo> variables;
         QList<SceneEntity> entities;
 
@@ -283,14 +291,14 @@ public:
 
         SceneObject(NameIdentifier name, QList<VariableInfo> vars)
         {
-            m_name    = name;
+            name      = name;
             variables = vars;
         }
 
         SceneObject(Reader &reader) { read(reader); }
         inline void read(Reader &reader)
         {
-            m_name.read(reader);
+            name.read(reader);
 
             byte varCount = reader.read<byte>();
             variables.clear();
@@ -303,7 +311,7 @@ public:
 
         inline void write(Writer &writer)
         {
-            m_name.write(writer);
+            name.write(writer);
 
             writer.write((byte)(variables.count() + 1));
             for (VariableInfo &variable : variables) variable.write(writer);

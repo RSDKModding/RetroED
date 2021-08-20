@@ -7,61 +7,61 @@ namespace RSDKv5
 class GameConfig
 {
 public:
-    class WAVConfiguration
+    class SoundInfo
     {
     public:
-        QString m_name           = "SFX.wav";
-        byte m_maxConcurrentPlay = 1;
+        QString m_name         = "SFX.wav";
+        byte maxConcurrentPlay = 1;
 
-        WAVConfiguration() {}
-        WAVConfiguration(QString name, byte maxPlays)
+        SoundInfo() {}
+        SoundInfo(QString name, byte maxPlays)
         {
-            m_name              = name;
-            m_maxConcurrentPlay = maxPlays;
+            m_name            = name;
+            maxConcurrentPlay = maxPlays;
         }
-        WAVConfiguration(Reader &reader) { read(reader); }
+        SoundInfo(Reader &reader) { read(reader); }
 
         inline void read(Reader reader)
         {
-            m_name              = reader.readString();
-            m_maxConcurrentPlay = reader.read<byte>();
+            m_name            = reader.readString();
+            maxConcurrentPlay = reader.read<byte>();
         }
 
         inline void write(Writer &writer)
         {
             writer.write(m_name);
-            writer.write(m_maxConcurrentPlay);
+            writer.write(maxConcurrentPlay);
         }
     };
 
     class SceneInfo
     {
     public:
-        QString m_name    = "Scene";
-        QString m_folder  = "";
-        QString m_sceneID = "";
-        byte m_modeFilter = 0;
+        QString m_name  = "Scene";
+        QString folder  = "";
+        QString sceneID = "";
+        byte modeFilter = 0;
 
         SceneInfo() {}
         SceneInfo(Reader &reader, bool readMode = true) { read(reader, readMode); }
 
         inline void read(Reader &reader, bool readMode = true)
         {
-            m_name    = reader.readString();
-            m_folder  = reader.readString();
-            m_sceneID = reader.readString();
+            m_name  = reader.readString();
+            folder  = reader.readString();
+            sceneID = reader.readString();
             if (readMode)
-                m_modeFilter = reader.read<byte>();
+                modeFilter = reader.read<byte>();
         }
 
         inline void write(Writer &writer, bool readMode = true)
         {
             writer.write(m_name);
-            writer.write(m_folder);
-            writer.write(m_sceneID);
+            writer.write(folder);
+            writer.write(sceneID);
 
             if (readMode)
-                writer.write(m_modeFilter);
+                writer.write(modeFilter);
         }
     };
 
@@ -69,13 +69,13 @@ public:
     {
     public:
         QString m_name = "New Category";
-        QList<SceneInfo> m_scenes;
+        QList<SceneInfo> scenes;
 
         Category()
         {
             m_name = "New Category";
-            m_scenes.clear();
-            m_scenes.append(SceneInfo());
+            scenes.clear();
+            scenes.append(SceneInfo());
         }
         Category(Reader &reader, bool readMode = true) { read(reader, readMode); }
 
@@ -84,41 +84,41 @@ public:
             m_name = reader.readString();
 
             byte sceneCount = reader.read<byte>();
-            m_scenes.clear();
-            for (int i = 0; i < sceneCount; ++i) m_scenes.append(SceneInfo(reader, readMode));
+            scenes.clear();
+            for (int i = 0; i < sceneCount; ++i) scenes.append(SceneInfo(reader, readMode));
         }
 
         inline void write(Writer &writer, bool readMode = true)
         {
             writer.write(m_name);
 
-            writer.write((byte)m_scenes.count());
-            for (SceneInfo &scene : m_scenes) scene.write(writer, readMode);
+            writer.write((byte)scenes.count());
+            for (SceneInfo &scene : scenes) scene.write(writer, readMode);
         }
     };
 
-    class ConfigurableMemoryEntry
+    class GlobalVariable
     {
     public:
-        int m_index;
-        QList<int> m_values;
+        int index;
+        QList<int> values;
 
-        ConfigurableMemoryEntry() {}
-        ConfigurableMemoryEntry(Reader &reader) { read(reader); }
+        GlobalVariable() {}
+        GlobalVariable(Reader &reader) { read(reader); }
 
         void read(Reader &reader)
         {
-            m_index   = reader.read<int>();
+            index     = reader.read<int>();
             int count = reader.read<int>();
-            m_values.clear();
-            for (int i = 0; i < count; ++i) m_values.append(reader.read<int>());
+            values.clear();
+            for (int i = 0; i < count; ++i) values.append(reader.read<int>());
         }
 
         inline void write(Writer &writer)
         {
-            writer.write(m_index);
-            writer.write((int)m_values.count());
-            for (int &val : m_values) writer.write(val);
+            writer.write(index);
+            writer.write((int)values.count());
+            for (int &val : values) writer.write(val);
         }
     };
 
@@ -144,20 +144,20 @@ public:
     }
     void write(Writer &writer);
 
-    byte m_signature[4] = { 'C', 'F', 'G', 0 };
+    byte signature[4] = { 'C', 'F', 'G', 0 };
 
     QString gameTitle            = "RSDKv5 Game";
     QString gameSubtitle         = "Powered By the Retro Engine!";
-    QString version              = "1.06.0";
+    QString version              = "1.00.0";
     byte startSceneCategoryIndex = 0;
     ushort startSceneIndex       = 0;
 
     QList<QString> objects;
     RSDKv5::Palette palettes[8];
-    QList<WAVConfiguration> sfx;
+    QList<SoundInfo> soundFX;
 
     QList<Category> sceneCategories;
-    QList<ConfigurableMemoryEntry> globalVariables;
+    QList<GlobalVariable> globalVariables;
 
     QString m_filename = "";
     bool readMode      = false;

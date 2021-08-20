@@ -20,53 +20,6 @@
       <widget class="QStackedWidget" name="stackedWidget">
        <widget class="QWidget" name="gameconfigPage">
         <layout class="QGridLayout" name="gridLayout_18">
-         <item row="0" column="0" rowspan="2">
-          <widget class="QListWidget" name="gcSectionList">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>150</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>150</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <item>
-            <property name="text">
-             <string>General</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Objects</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>SoundFX</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Categories</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Global Variables</string>
-            </property>
-           </item>
-          </widget>
-         </item>
          <item row="0" column="1">
           <widget class="QLabel" name="gcSectionLabel">
            <property name="text">
@@ -511,14 +464,7 @@
            </widget>
            <widget class="QWidget" name="gcConfigMemPage">
             <layout class="QGridLayout" name="gridLayout_12">
-             <item row="1" column="1">
-              <widget class="QLabel" name="label_14">
-               <property name="text">
-                <string>Count</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0" rowspan="6">
+             <item row="0" column="0" rowspan="8">
               <widget class="QListWidget" name="gcVarList">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -553,13 +499,6 @@
                </property>
               </spacer>
              </item>
-             <item row="0" column="2">
-              <widget class="QLineEdit" name="gcVarName">
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
              <item row="4" column="2">
               <widget class="QSpinBox" name="gcVarValue">
                <property name="minimum">
@@ -567,27 +506,6 @@
                </property>
                <property name="maximum">
                 <number>2147483647</number>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QLabel" name="label_13">
-               <property name="text">
-                <string>Value</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLabel" name="label_12">
-               <property name="text">
-                <string>Name</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QLabel" name="label_19">
-               <property name="text">
-                <string>Index</string>
                </property>
               </widget>
              </item>
@@ -604,6 +522,41 @@
                </property>
               </widget>
              </item>
+             <item row="7" column="1" colspan="2">
+              <widget class="QPushButton" name="genCStruct">
+               <property name="text">
+                <string>Generate C Struct</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLineEdit" name="gcVarName">
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLabel" name="label_19">
+               <property name="text">
+                <string>Index</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLabel" name="label_14">
+               <property name="text">
+                <string>Count</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLabel" name="label_12">
+               <property name="text">
+                <string>Name</string>
+               </property>
+              </widget>
+             </item>
              <item row="2" column="2">
               <widget class="QSpinBox" name="gcVarIndex">
                <property name="maximum">
@@ -614,8 +567,69 @@
                </property>
               </widget>
              </item>
+             <item row="4" column="1">
+              <widget class="QLabel" name="label_13">
+               <property name="text">
+                <string>Value</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="1" colspan="2">
+              <widget class="QPushButton" name="exportGlobals">
+               <property name="text">
+                <string>Export Global Variables</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
+          </widget>
+         </item>
+         <item row="0" column="0" rowspan="2">
+          <widget class="QListWidget" name="gcSectionList">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>150</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>150</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <item>
+            <property name="text">
+             <string>General</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Objects</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>SoundFX</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Categories</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Global Variables</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>

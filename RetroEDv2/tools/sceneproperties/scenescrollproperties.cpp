@@ -17,18 +17,18 @@ void SceneScrollProperties::setupUI(FormatHelpers::Background::ScrollIndexInfo *
 {
     unsetUI();
 
-    ui->relSpeed->setValue(info->m_relativeSpeed);
-    ui->constSpeed->setValue(info->m_constantSpeed);
-    ui->behaviour->setCurrentIndex(info->m_behaviour);
+    ui->relSpeed->setValue(info->parallaxFactor);
+    ui->constSpeed->setValue(info->scrollSpeed);
+    ui->behaviour->setCurrentIndex(info->deform);
 
     connect(ui->relSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [info](double v) {
-        info->m_relativeSpeed = v;
+        info->parallaxFactor = v;
     });
     connect(ui->constSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [info](double v) {
-        info->m_constantSpeed = v;
+        info->scrollSpeed = v;
     });
     connect(ui->behaviour, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [info](int v) { info->m_behaviour = (byte)v; });
+            [info](int v) { info->deform = (byte)v; });
 }
 
 void SceneScrollProperties::unsetUI()

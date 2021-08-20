@@ -24,7 +24,7 @@ protected:
 private:
     Ui::GameconfigEditorv4 *ui;
 
-    RSDKv4::Gameconfig m_gameconfig;
+    RSDKv4::Gameconfig gameConfig;
 
     QStandardItemModel *m_sceneModel = nullptr;
 };

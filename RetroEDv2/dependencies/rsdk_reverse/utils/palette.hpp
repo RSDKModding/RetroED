@@ -10,7 +10,7 @@ public:
     void read(Reader &reader, int clrCnt = -1);
     void write(Writer &writer);
 
-    QList<Colour> m_colours;
+    QList<Colour> colours;
 };
 
 #endif // RSDK_PALETTE_H
