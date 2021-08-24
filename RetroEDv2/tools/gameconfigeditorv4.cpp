@@ -668,7 +668,8 @@ bool GameconfigEditorv4::event(QEvent *event)
             "RSDKv4 GameConfig files (GameConfig*.bin)",
             "RSDKv2 GameConfig files (GameConfig*.bin)",
             "RSDKv3 GameConfig files (GameConfig*.bin)",
-            "RSDKv5 GameConfig files (GameConfig*.bin)",
+            "RSDKv5 rev02 (plus) GameConfig files (GameConfig*.bin)",
+            "RSDKv5 rev01 (pre-plus) GameConfig files (GameConfig*.bin)",
         };
         QFileDialog filedialog(this, tr("Save GameConfig"), "",
                                tr(QString("%1;;%2;;%3;;%4")
@@ -799,7 +800,8 @@ bool GameconfigEditorv4::event(QEvent *event)
                     config.write(filedialog.selectedFiles()[0]);
                     break;
                 }
-                case 3: {
+                case 3:
+                case 4: {
                     setStatus("Saving (v5) GameConfig: " + filedialog.selectedFiles()[0]);
                     RSDKv5::GameConfig config;
                     RSDKv5::RSDKConfig rsdkConfig;
@@ -887,9 +889,10 @@ bool GameconfigEditorv4::event(QEvent *event)
                         ++catID;
                     }
 
-                    appConfig.addRecentFile(ENGINE_v4, TOOL_GAMECONFIGEDITOR,
-                                            filedialog.selectedFiles()[0],
-                                            QList<QString>{ "GameConfig", "rev02" });
+                    config.readMode = filter == 3;
+                    appConfig.addRecentFile(
+                        ENGINE_v5, TOOL_GAMECONFIGEDITOR, filedialog.selectedFiles()[0],
+                        QList<QString>{ "GameConfig", filter == 4 ? "rev01" : "rev02" });
                     config.write(filedialog.selectedFiles()[0]);
                     rsdkConfig.write(
                         filedialog.selectedFiles()[0].toLower().replace("gameconfig", "rsdkconfig"));

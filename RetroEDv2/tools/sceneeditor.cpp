@@ -1740,9 +1740,28 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
                 layer.parallaxFactor = 1.0 * 0x100;
                 layer.scrollSpeed    = 0.0 * 0x100;
 
+                layer.scrollInfos.clear();
                 if (l > 0) {
                     layer.parallaxFactor = viewer->background.layers[l - 1].parallaxFactor * 0x100;
                     layer.scrollSpeed    = viewer->background.layers[l - 1].scrollSpeed * 0x100;
+
+                    for (int s = 0; s < viewer->background.layers[l - 1].scrollInfos.count(); ++s) {
+                        RSDKv5::Scene::ScrollIndexInfo info;
+                        info.parallaxFactor =
+                            viewer->background.layers[l - 1].scrollInfos[s].parallaxFactor;
+                        info.scrollSpeed = viewer->background.layers[l - 1].scrollInfos[s].scrollSpeed;
+                        info.deform      = viewer->background.layers[l - 1].scrollInfos[s].deform;
+                        info.startLine   = viewer->background.layers[l - 1].scrollInfos[s].startLine;
+                        info.length      = viewer->background.layers[l - 1].scrollInfos[s].length;
+                    }
+                }
+                else {
+                    RSDKv5::Scene::ScrollIndexInfo info;
+                    info.parallaxFactor = 1.0f;
+                    info.scrollSpeed    = 0.0f;
+                    info.deform         = false;
+                    info.startLine      = 0;
+                    info.length         = viewer->layerHeight(l) * 128;
                 }
 
                 layer.scrollInfos.clear();
@@ -1780,10 +1799,11 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
                     layer.scrollInfos.append(info);
                 }
 
-                int cnt = 0;
+                int cnt     = 0;
+                auto layout = viewer->layerLayout(l);
                 for (int y = 0; y < viewer->layerHeight(l); ++y) {
                     for (int x = 0; x < viewer->layerWidth(l); ++x) {
-                        int chunkID                         = viewer->layerLayout(l)[y][x];
+                        int chunkID                         = layout[y][x];
                         FormatHelpers::Chunks::Chunk &chunk = viewer->chunkset.chunks[chunkID];
                         for (int ty = 0; ty < 8; ++ty) {
                             for (int tx = 0; tx < 8; ++tx) {

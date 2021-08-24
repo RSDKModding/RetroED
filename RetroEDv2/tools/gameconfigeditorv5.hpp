@@ -24,7 +24,7 @@ protected:
     bool event(QEvent *event);
 
 private:
-    RSDKv5::GameConfig gameconfig;
+    RSDKv5::GameConfig gameConfig;
     RSDKv5::RSDKConfig rsdkconfig;
 
     RSDKv5::StageConfig stageconfig;
