@@ -121,6 +121,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                     break;
                 }
                 case TOOL_GFXTOOL: break;
+                case TOOL_MODELMANAGER: break;
                 case TOOL_GAMECONFIGEDITOR:
                     switch (r.gameVer) {
                         case ENGINE_v2: {
@@ -264,6 +265,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Script Unpacker"));
     });
 #endif
+
+    tools->addAction("Model Manager", [this] {
+        setStatus("Opening Model Manager...");
+        ModelManager *tool = new ModelManager();
+        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Model Manager"));
+    });
 
     tools->addAction("GFX Tool", [this] {
         setStatus("Opening GFX Tool...");

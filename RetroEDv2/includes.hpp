@@ -133,6 +133,7 @@ public:
 #include "tools/gameconfigeditorv3.hpp"
 #include "tools/gameconfigeditorv4.hpp"
 #include "tools/gameconfigeditorv5.hpp"
+#include "tools/modelmanager.hpp"
 #include "tools/gfxtool.hpp"
 #include "tools/staticobjecteditor.hpp"
 #include "tools/savefileeditorv3.hpp"

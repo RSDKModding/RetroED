@@ -11,6 +11,7 @@ enum TooIDs {
     TOOL_RSVUNPACKER,
     TOOL_STATICOBJECTEDITOR,
     TOOL_SAVEEDITOR,
+    TOOL_MODELMANAGER,
 };
 
 class AppConfig
@@ -24,7 +25,7 @@ public:
         void write(Writer &writer);
 
         byte gameVer = 0;
-        byte m_tool    = 0xFF;
+        byte m_tool  = 0xFF;
         QString path = "";
         QList<QString> extra;
     };

@@ -38,6 +38,7 @@ SOURCES += \
     tools/gamelink/gamedraw.cpp \
     tools/gamelink/gamestorage.cpp \
     tools/gamelink/gametext.cpp \
+    tools/modelmanager.cpp \
     tools/paletteeditor/colourdialog.cpp \
     tools/rsvtool.cpp \
     tools/savefileeditorv3.cpp \
@@ -94,6 +95,7 @@ HEADERS += \
     tools/gamelink/gamedraw.hpp \
     tools/gamelink/gamestorage.hpp \
     tools/gamelink/gametext.hpp \
+    tools/modelmanager.hpp \
     tools/paletteeditor/colourdialog.hpp \
     tools/rsvtool.hpp \
     tools/savefileeditorv3.hpp \
@@ -138,6 +140,7 @@ HEADERS += \
 FORMS += \
     mainwindow.ui \
     tools/gameconfigeditorv5.ui \
+    tools/modelmanager.ui \
     tools/paletteeditor/colourdialog.ui \
     tools/rsvtool.ui \
     tools/savefileeditorv3.ui \
