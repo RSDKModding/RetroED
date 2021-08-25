@@ -96,7 +96,7 @@ public:
     }
     void write(Writer &writer);
 
-    void writeAsOBJ(QString filePath);
+    void writeAsOBJ(QString filePath, int exportFrame = -1);
 
     byte signature[4] = { 'R', '3', 'D', 0 };
 

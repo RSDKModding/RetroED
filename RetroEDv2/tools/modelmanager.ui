@@ -15,7 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="1">
-    <widget class="QPushButton" name="ExportFrames">
+    <widget class="QPushButton" name="exportFrames">
      <property name="text">
       <string>Export All Frames</string>
      </property>
@@ -90,7 +90,7 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QPushButton" name="ExportCurFrame">
+    <widget class="QPushButton" name="exportCurFrame">
      <property name="text">
       <string>Export Current Frame</string>
      </property>

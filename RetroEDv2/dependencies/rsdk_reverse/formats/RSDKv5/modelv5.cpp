@@ -96,9 +96,9 @@ void RSDKv5::Model::write(Writer &writer)
     writer.flush();
 }
 
-void RSDKv5::Model::writeAsOBJ(QString filePath)
+void RSDKv5::Model::writeAsOBJ(QString filePath, int exportFrame)
 {
-    for (int f = 0; f < frames.count(); ++f) {
+    for (int f = (exportFrame < 0 ? 0 : exportFrame); f < frames.count(); ++f) {
         QString path    = filePath;
         QString extLess = path.replace("." + QFileInfo(filePath).suffix(), "");
 

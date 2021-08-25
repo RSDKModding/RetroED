@@ -99,7 +99,7 @@ public:
     }
     void write(Writer &writer);
 
-    void writeAsOBJ(QString filePath);
+    void writeAsOBJ(QString filePath, int exportFrame = -1);
     void writeMTL(QString filepath);
 
     byte signature[4] = { 'M', 'D', 'L', 0 };
