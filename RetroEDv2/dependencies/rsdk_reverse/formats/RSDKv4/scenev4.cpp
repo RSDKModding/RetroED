@@ -13,10 +13,10 @@ void RSDKv4::Scene::read(Reader &reader)
 {
     m_filename = reader.filepath;
 
-    m_title = reader.readString();
+    title = reader.readString();
 
-    for (int i = 0; i < 4; ++i) m_activeLayer[i] = reader.read<byte>();
-    m_midpoint = reader.read<byte>();
+    for (int i = 0; i < 4; ++i) activeLayers[i] = reader.read<byte>();
+    midpoint = reader.read<byte>();
 
     // Map width in chunk units
     // In RSDKv4, it's one byte long, no idea why it reads 2 bytes
@@ -47,7 +47,7 @@ void RSDKv4::Scene::read(Reader &reader)
     objCount = reader.read<byte>();
     objCount |= reader.read<byte>() << 8;
 
-    for (int n = 0; n < objCount; ++n) m_objects.append(Object(reader, n));
+    for (int n = 0; n < objCount; ++n) objects.append(Object(reader, n));
 }
 
 void RSDKv4::Scene::write(Writer &writer)
@@ -55,11 +55,11 @@ void RSDKv4::Scene::write(Writer &writer)
     m_filename = writer.filePath;
 
     // Write zone name
-    writer.write(m_title);
+    writer.write(title);
 
     // Write the five display bytes
-    for (int i = 0; i < 4; ++i) writer.write(m_activeLayer[i]);
-    writer.write(m_midpoint);
+    for (int i = 0; i < 4; ++i) writer.write(activeLayers[i]);
+    writer.write(midpoint);
 
     // Write width and height
     writer.write((byte)width);
@@ -77,14 +77,14 @@ void RSDKv4::Scene::write(Writer &writer)
     }
 
     // Write number of objects
-    writer.write((byte)(m_objects.count() & 0xFF));
-    writer.write((byte)(m_objects.count() >> 8));
+    writer.write((byte)(objects.count() & 0xFF));
+    writer.write((byte)(objects.count() >> 8));
 
-    std::sort(m_objects.begin(), m_objects.end(),
-              [](const Object &a, const Object &b) -> bool { return a.m_id < b.m_id; });
+    std::sort(objects.begin(), objects.end(),
+              [](const Object &a, const Object &b) -> bool { return a.slotID < b.slotID; });
 
     // Write object data
-    for (Object &obj : m_objects) {
+    for (Object &obj : objects) {
         obj.write(writer);
     }
     writer.flush();
@@ -99,63 +99,63 @@ void RSDKv4::Scene::Object::read(Reader &reader, int id)
     buf          = reader.readByteArray(2);
     ushort flags = (ushort)((buf[1] << 8) + buf[0]);
     for (int i = 0; i < 0x0F; ++i) {
-        m_attributes[i].m_active = Utils::getBit(flags, i);
+        variables[i].active = Utils::getBit(flags, i);
     }
 
     // Object type, 1 byte, unsigned
-    m_type = reader.read<byte>();
+    type = reader.read<byte>();
     // Object subtype, 1 byte, unsigned
-    m_subtype = reader.read<byte>();
+    propertyValue = reader.read<byte>();
 
     buf    = reader.readByteArray(4);
-    m_xPos = ((byte)buf[3] << 24) | ((byte)buf[2] << 16) | ((byte)buf[1] << 8) | ((byte)buf[0] << 0);
+    posX = ((byte)buf[3] << 24) | ((byte)buf[2] << 16) | ((byte)buf[1] << 8) | ((byte)buf[0] << 0);
 
     buf    = reader.readByteArray(4);
-    m_yPos = ((byte)buf[3] << 24) | ((byte)buf[2] << 16) | ((byte)buf[1] << 8) | ((byte)buf[0] << 0);
+    posY = ((byte)buf[3] << 24) | ((byte)buf[2] << 16) | ((byte)buf[1] << 8) | ((byte)buf[0] << 0);
 
     bool attribInt[] = {
         true, false, true, true, false, false, false, false, true, false, false, true, true, true, true,
     };
 
     for (int i = 0; i < 0x0F; ++i) {
-        if (m_attributes[i].m_active) {
+        if (variables[i].active) {
             if (!attribInt[i]) {
-                m_attributes[i].m_value = reader.read<byte>();
+                variables[i].value = reader.read<byte>();
             }
             else {
                 buf                     = reader.readByteArray(4);
-                m_attributes[i].m_value = ((byte)buf[3] << 24) | ((byte)buf[2] << 16)
+                variables[i].value = ((byte)buf[3] << 24) | ((byte)buf[2] << 16)
                                           | ((byte)buf[1] << 8) | ((byte)buf[0] << 0);
             }
         }
     }
 
-    m_id = id;
+    slotID = id;
 }
 
 void RSDKv4::Scene::Object::write(Writer &writer)
 {
     ushort flags = 0;
     for (int a = 0; a < 0x0F; ++a) {
-        Utils::setBit(flags, m_attributes[a].m_active, a);
+        Utils::setBit(flags, variables[a].active, a);
     }
 
     writer.write((byte)(flags & 0xFF));
     writer.write((byte)(flags >> 8));
     // writer.write((ushort)flags);
 
-    writer.write(m_type);
-    writer.write(m_subtype);
+    writer.write(type);
+    writer.write(propertyValue);
 
-    writer.write((byte)(m_xPos & 0xFF));
-    writer.write((byte)(m_xPos >> 8));
-    writer.write((byte)(m_xPos >> 16));
-    writer.write((byte)(m_xPos >> 24));
+    writer.write((byte)(posX & 0xFF));
+    writer.write((byte)(posX >> 8));
+    writer.write((byte)(posX >> 16));
+    writer.write((byte)(posX >> 24));
 
-    writer.write((byte)(m_yPos & 0xFF));
-    writer.write((byte)(m_yPos >> 8));
-    writer.write((byte)(m_yPos >> 16));
-    writer.write((byte)(m_yPos >> 24));
+    writer.write((byte)(posY & 0xFF));
+    writer.write((byte)(posY >> 8));
+    writer.write((byte)(posY >> 16));
+    writer.write((byte)(posY >> 24));
 
     bool attribInt[] = {
         true, false, true,  true, false, false, false, false,
@@ -163,15 +163,15 @@ void RSDKv4::Scene::Object::write(Writer &writer)
     };
 
     for (int i = 0; i < 0x0F; ++i) {
-        if (m_attributes[i].m_active) {
+        if (variables[i].active) {
             if (!attribInt[i]) {
-                writer.write((byte)m_attributes[i].m_value);
+                writer.write((byte)variables[i].value);
             }
             else {
-                writer.write((byte)(m_attributes[i].m_value & 0xFF));
-                writer.write((byte)(m_attributes[i].m_value >> 8));
-                writer.write((byte)(m_attributes[i].m_value >> 16));
-                writer.write((byte)(m_attributes[i].m_value >> 24));
+                writer.write((byte)(variables[i].value & 0xFF));
+                writer.write((byte)(variables[i].value >> 8));
+                writer.write((byte)(variables[i].value >> 16));
+                writer.write((byte)(variables[i].value >> 24));
             }
         }
     }

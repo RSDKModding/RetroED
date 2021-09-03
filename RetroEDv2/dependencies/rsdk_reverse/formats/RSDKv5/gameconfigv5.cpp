@@ -30,8 +30,8 @@ void RSDKv5::GameConfig::read(Reader &reader, bool oldVer)
     Q_UNUSED(totalScenes);
     byte categoryCount = reader.read<byte>();
 
-    sceneCategories.clear();
-    for (int i = 0; i < categoryCount; ++i) sceneCategories.append(Category(reader, readMode));
+    categories.clear();
+    for (int i = 0; i < categoryCount; ++i) categories.append(Category(reader, readMode));
 
     byte varCount = reader.read<byte>();
     globalVariables.clear();
@@ -59,11 +59,11 @@ void RSDKv5::GameConfig::write(Writer &writer)
     for (int i = 0; i < (byte)soundFX.count(); ++i) soundFX[i].write(writer);
 
     ushort totScn = 0;
-    for (Category &cat : sceneCategories) totScn += cat.scenes.count();
+    for (Category &cat : categories) totScn += cat.scenes.count();
     writer.write(totScn);
 
-    writer.write((byte)sceneCategories.count());
-    for (Category &cat : sceneCategories) cat.write(writer, readMode);
+    writer.write((byte)categories.count());
+    for (Category &cat : categories) cat.write(writer, readMode);
 
     writer.write((byte)globalVariables.count());
     for (GlobalVariable &c : globalVariables) c.write(writer);

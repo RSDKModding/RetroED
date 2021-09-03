@@ -23,7 +23,7 @@ void RSDKv1::Stageconfig::read(Reader &reader)
         objects.append(obj);
     }
 
-    for (ObjectInfo &obj : objects) obj.m_sheetID = reader.read<byte>();
+    for (ObjectInfo &obj : objects) obj.sheetID = reader.read<byte>();
 
     // Stage SoundFX
     byte sfxCount = reader.read<byte>();
@@ -53,7 +53,7 @@ void RSDKv1::Stageconfig::write(Writer &writer)
     writer.write((byte)objects.count());
     for (ObjectInfo &obj : objects) writer.write(obj.script);
 
-    for (ObjectInfo &obj : objects) writer.write(obj.m_sheetID);
+    for (ObjectInfo &obj : objects) writer.write(obj.sheetID);
 
     // Stage SoundFX
     writer.write((byte)soundFX.count());

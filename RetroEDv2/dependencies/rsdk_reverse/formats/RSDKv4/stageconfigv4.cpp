@@ -8,33 +8,33 @@ void RSDKv4::Stageconfig::read(Reader &reader)
     loadGlobalScripts = reader.read<byte>();
 
     // Stage Palette
-    m_stagePalette.read(reader, 2 * 16);
+    palette.read(reader, 2 * 16);
 
     // Stage SoundFX
     byte sfxCount = reader.read<byte>();
-    m_soundFX.clear();
+    soundFX.clear();
 
     for (int s = 0; s < sfxCount; ++s) {
         SoundInfo obj;
-        obj.m_name = reader.readString();
-        m_soundFX.append(obj);
+        obj.name = reader.readString();
+        soundFX.append(obj);
     }
 
-    for (SoundInfo &sfx : m_soundFX) {
-        sfx.m_path = reader.readString();
+    for (SoundInfo &sfx : soundFX) {
+        sfx.path = reader.readString();
     }
 
     // Stage Objects
     byte objectCount = reader.read<byte>();
-    m_objects.clear();
+    objects.clear();
 
     for (int o = 0; o < objectCount; ++o) {
         ObjectInfo obj;
         obj.name = reader.readString();
-        m_objects.append(obj);
+        objects.append(obj);
     }
 
-    for (ObjectInfo &obj : m_objects) {
+    for (ObjectInfo &obj : objects) {
         obj.script = reader.readString();
     }
 }
@@ -47,25 +47,25 @@ void RSDKv4::Stageconfig::write(Writer &writer)
     writer.write(loadGlobalScripts);
 
     // Stage Palette
-    m_stagePalette.write(writer);
+    palette.write(writer);
 
     // Stage SoundFX
-    writer.write((byte)m_soundFX.count());
-    for (SoundInfo &sfx : m_soundFX) {
-        writer.write(sfx.m_name);
+    writer.write((byte)soundFX.count());
+    for (SoundInfo &sfx : soundFX) {
+        writer.write(sfx.name);
     }
 
-    for (SoundInfo &sfx : m_soundFX) {
-        writer.write(sfx.m_path);
+    for (SoundInfo &sfx : soundFX) {
+        writer.write(sfx.path);
     }
 
     // Stage Objects
-    writer.write((byte)m_objects.count());
-    for (ObjectInfo &obj : m_objects) {
+    writer.write((byte)objects.count());
+    for (ObjectInfo &obj : objects) {
         writer.write(obj.name);
     }
 
-    for (ObjectInfo &obj : m_objects) {
+    for (ObjectInfo &obj : objects) {
         writer.write(obj.script);
     }
 

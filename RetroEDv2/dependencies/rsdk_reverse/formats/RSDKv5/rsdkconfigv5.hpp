@@ -10,13 +10,13 @@ public:
     class Variable
     {
     public:
-        QString m_name  = "";
+        QString name  = "";
         QString type  = "";
         QString value = "";
 
         Variable(QString name = "", QString type = "", QString value = "")
         {
-            m_name  = name;
+            name  = name;
             type  = type;
             value = value;
         }
@@ -24,14 +24,14 @@ public:
 
         inline void read(Reader &reader)
         {
-            m_name  = reader.readString();
+            name  = reader.readString();
             type  = reader.readString();
             value = reader.readString();
         }
 
         inline void write(Writer &writer)
         {
-            writer.write(m_name);
+            writer.write(name);
             writer.write(type);
             writer.write(value);
         }

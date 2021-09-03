@@ -21,7 +21,7 @@ public:
 private:
     Ui::StageconfigEditorv5 *ui;
 
-    RSDKv5::StageConfig *m_stageconfig;
+    RSDKv5::StageConfig *stageConfig;
 };
 
 #endif // STAGECONFIGEDITOR_V5_H

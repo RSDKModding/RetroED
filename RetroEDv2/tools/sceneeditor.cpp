@@ -196,7 +196,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         obj.type = viewer->selectedObject;
         if (viewer->selectedObject < 0)
             obj.type = 0; // backup
-        obj.m_id = viewer->scene.objects.count();
+        obj.slotID = viewer->scene.objects.count();
 
         viewer->scene.objects.append(obj);
 
@@ -309,24 +309,27 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         switch (viewer->gameType) {
             case ENGINE_v4: {
                 StageconfigEditorv4 *edit = new StageconfigEditorv4(
-                    &viewer->stageConfig, viewer->gameConfig.objects.count() + 1, this);
+                    &viewer->stageConfig, viewer->gameConfig.objects.count() + 1,
+                    viewer->gameConfig.soundFX.count(), this);
                 edit->exec();
                 break;
             }
             case ENGINE_v3: {
                 StageconfigEditorv3 *edit = new StageconfigEditorv3(
-                    &viewer->stageConfig, viewer->gameConfig.objects.count() + 1, this);
+                    &viewer->stageConfig, viewer->gameConfig.objects.count() + 1,
+                    viewer->gameConfig.soundFX.count(), this);
                 edit->exec();
                 break;
             }
             case ENGINE_v2: {
                 StageconfigEditorv2 *edit = new StageconfigEditorv2(
-                    &viewer->stageConfig, viewer->gameConfig.objects.count() + 2, this);
+                    &viewer->stageConfig, viewer->gameConfig.objects.count() + 2,
+                    viewer->gameConfig.soundFX.count(), this);
                 edit->exec();
                 break;
             }
             case ENGINE_v1: {
-                StageconfigEditorv1 *edit = new StageconfigEditorv1(&viewer->stageConfig, this);
+                StageconfigEditorv1 *edit = new StageconfigEditorv1(&viewer->stageConfig, 0, this);
                 edit->exec();
                 break;
             }
@@ -447,14 +450,14 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         if (viewer->gameType == ENGINE_v1) {
             m_scnProp->m_musBox->blockSignals(true);
             m_scnProp->m_musBox->clear();
-            for (int m = 0; m < viewer->stageConfig.m_music.count(); ++m)
-                m_scnProp->m_musBox->addItem(viewer->stageConfig.m_music[o]);
+            for (int m = 0; m < viewer->stageConfig.music.count(); ++m)
+                m_scnProp->m_musBox->addItem(viewer->stageConfig.music[o]);
             m_scnProp->m_musBox->blockSignals(false);
         }
     });
 
     connect(m_scnProp->m_editPAL, &QPushButton::clicked, [this] {
-        PaletteEditor *edit = new PaletteEditor(viewer->stageConfig.m_filename, viewer->gameType + 2);
+        PaletteEditor *edit = new PaletteEditor(viewer->stageConfig.filePath, viewer->gameType + 2);
         edit->setWindowTitle("Edit StageConfig Palette");
         edit->show();
     });
@@ -531,7 +534,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
                         if (dlg->exportObjInfo) {
                             painter.drawText(obj.getX(), obj.getY() + 8,
-                                             "st: " + QString::number(obj.m_propertyValue));
+                                             "st: " + QString::number(obj.propertyValue));
                             int offset = 16;
 
                             QList<QString> attribNames = { "ste",  "flip", "scl",  "rot",  "lyr",
@@ -539,10 +542,10 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                                                            "ink",  "v0",   "v2",   "v2",   "v3" };
 
                             for (int i = 0; i < 0x0F && viewer->gameType == ENGINE_v4; ++i) {
-                                if (obj.m_attributes[i].m_active) {
+                                if (obj.variables[i].active) {
                                     painter.drawText(obj.getX(), obj.getY() + offset,
                                                      attribNames[i] + ": "
-                                                         + QString::number(obj.m_propertyValue));
+                                                         + QString::number(obj.propertyValue));
                                     offset += 8;
                                 }
                             }
@@ -602,10 +605,10 @@ bool SceneEditor::event(QEvent *event)
                     gcPath = gcdialog.selectedFiles()[0];
                 }
                 else {
-                    if (!QFile::exists(viewer->gameConfig.m_filename)) {
+                    if (!QFile::exists(viewer->gameConfig.filePath)) {
                         return false;
                     }
-                    gcPath = viewer->gameConfig.m_filename;
+                    gcPath = viewer->gameConfig.filePath;
                 }
             }
 
@@ -684,7 +687,7 @@ bool SceneEditor::event(QEvent *event)
 
                 appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR,
                                         filedialog.selectedFiles()[0],
-                                        QList<QString>{ viewer->gameConfig.m_filename });
+                                        QList<QString>{ viewer->gameConfig.filePath });
                 setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));
                 return true;
             }
@@ -734,7 +737,7 @@ bool SceneEditor::event(QEvent *event)
             }
 
             appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR, filedialog.selectedFiles()[0],
-                                    QList<QString>{ viewer->gameConfig.m_filename });
+                                    QList<QString>{ viewer->gameConfig.filePath });
             setStatus("Saved Scene: " + Utils::getFilenameAndFolder(filedialog.selectedFiles()[0]));
             return true;
         }
@@ -1107,14 +1110,14 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                 object.setY(object.getY() - fmodf(object.getY(), m_snapSize.y));
                             }
                             viewer->m_compilerv3.m_objectEntityList[viewer->m_selectedEntity].XPos =
-                                object.m_position.x;
+                                object.pos.x;
                             viewer->m_compilerv3.m_objectEntityList[viewer->m_selectedEntity].YPos =
-                                object.m_position.y;
+                                object.pos.y;
 
                             viewer->m_compilerv4.m_objectEntityList[viewer->m_selectedEntity].XPos =
-                                object.m_position.x;
+                                object.pos.x;
                             viewer->m_compilerv4.m_objectEntityList[viewer->m_selectedEntity].YPos =
-                                object.m_position.y;
+                                object.pos.y;
                         }
                         break;
                     }
@@ -1187,11 +1190,11 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
                             int cnt = viewer->scene.objects.count();
                             viewer->scene.objects.append(object);
-                            viewer->m_compilerv3.m_objectEntityList[cnt].XPos = object.m_position.x;
-                            viewer->m_compilerv3.m_objectEntityList[cnt].YPos = object.m_position.y;
+                            viewer->m_compilerv3.m_objectEntityList[cnt].XPos = object.pos.x;
+                            viewer->m_compilerv3.m_objectEntityList[cnt].YPos = object.pos.y;
 
-                            viewer->m_compilerv4.m_objectEntityList[cnt].XPos = object.m_position.x;
-                            viewer->m_compilerv4.m_objectEntityList[cnt].YPos = object.m_position.y;
+                            viewer->m_compilerv4.m_objectEntityList[cnt].XPos = object.pos.x;
+                            viewer->m_compilerv4.m_objectEntityList[cnt].YPos = object.pos.y;
                         } break;
                     }
                 }
@@ -1302,7 +1305,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
     setStatus("Loading Scene...");
 
-    if (gcfPath != viewer->gameConfig.m_filename)
+    if (gcfPath != viewer->gameConfig.filePath)
         viewer->gameConfig.read(gameType, gcfPath);
     QString dataPath = QFileInfo(gcfPath).absolutePath();
     QDir dir(dataPath);
@@ -1339,8 +1342,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     if (viewer->gameType == ENGINE_v1) {
         m_scnProp->m_musBox->clear();
 
-        for (int m = 0; m < viewer->stageConfig.m_music.count(); ++m)
-            m_scnProp->m_musBox->addItem(viewer->stageConfig.m_music[m]);
+        for (int m = 0; m < viewer->stageConfig.music.count(); ++m)
+            m_scnProp->m_musBox->addItem(viewer->stageConfig.music[m]);
     }
     m_scnProp->setupUI(&viewer->scene, viewer->gameType);
 
@@ -1374,15 +1377,15 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     for (int i = 0; i < viewer->scene.objects.count(); ++i) {
         viewer->m_compilerv3.m_objectEntityList[i].type = viewer->scene.objects[i].type;
         viewer->m_compilerv3.m_objectEntityList[i].propertyValue =
-            viewer->scene.objects[i].m_propertyValue;
-        viewer->m_compilerv3.m_objectEntityList[i].XPos = viewer->scene.objects[i].m_position.x;
-        viewer->m_compilerv3.m_objectEntityList[i].YPos = viewer->scene.objects[i].m_position.y;
+            viewer->scene.objects[i].propertyValue;
+        viewer->m_compilerv3.m_objectEntityList[i].XPos = viewer->scene.objects[i].pos.x;
+        viewer->m_compilerv3.m_objectEntityList[i].YPos = viewer->scene.objects[i].pos.y;
 
         viewer->m_compilerv4.m_objectEntityList[i].type = viewer->scene.objects[i].type;
         viewer->m_compilerv4.m_objectEntityList[i].propertyValue =
-            viewer->scene.objects[i].m_propertyValue;
-        viewer->m_compilerv4.m_objectEntityList[i].XPos = viewer->scene.objects[i].m_position.x;
-        viewer->m_compilerv4.m_objectEntityList[i].YPos = viewer->scene.objects[i].m_position.y;
+            viewer->scene.objects[i].propertyValue;
+        viewer->m_compilerv4.m_objectEntityList[i].XPos = viewer->scene.objects[i].pos.x;
+        viewer->m_compilerv4.m_objectEntityList[i].YPos = viewer->scene.objects[i].pos.y;
 
         for (int v = 0; v < 8; ++v) viewer->m_compilerv3.m_objectEntityList[i].values[v] = 0;
     }
@@ -1421,7 +1424,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
             if (viewer->stageConfig.loadGlobalScripts) {
                 for (int i = 0; i < viewer->gameConfig.objects.count(); ++i) {
                     viewer->m_compilerv3.parseScriptFile(viewer->m_dataPath + "/Scripts/"
-                                                             + viewer->gameConfig.objects[i].m_script,
+                                                             + viewer->gameConfig.objects[i].script,
                                                          scrID++);
 
                     if (viewer->m_compilerv3.m_scriptError) {
@@ -1448,9 +1451,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
             }
 
             for (int i = 0; i < viewer->stageConfig.objects.count(); ++i) {
-                viewer->m_compilerv3.parseScriptFile(viewer->m_dataPath + "/Scripts/"
-                                                         + viewer->stageConfig.objects[i].m_script,
-                                                     scrID++);
+                viewer->m_compilerv3.parseScriptFile(
+                    viewer->m_dataPath + "/Scripts/" + viewer->stageConfig.objects[i].script, scrID++);
 
                 if (viewer->m_compilerv3.m_scriptError) {
                     qDebug() << viewer->m_compilerv3.errorMsg;
@@ -1498,7 +1500,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
             if (viewer->stageConfig.loadGlobalScripts) {
                 for (int i = 0; i < viewer->gameConfig.objects.count(); ++i) {
                     viewer->m_compilerv4.parseScriptFile(viewer->m_dataPath + "/../Scripts/"
-                                                             + viewer->gameConfig.objects[i].m_script,
+                                                             + viewer->gameConfig.objects[i].script,
                                                          scrID++);
 
                     if (viewer->m_compilerv4.m_scriptError) {
@@ -1526,7 +1528,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
             for (int i = 0; i < viewer->stageConfig.objects.count(); ++i) {
                 viewer->m_compilerv4.parseScriptFile(viewer->m_dataPath + "/../Scripts/"
-                                                         + viewer->stageConfig.objects[i].m_script,
+                                                         + viewer->stageConfig.objects[i].script,
                                                      scrID++);
 
                 if (viewer->m_compilerv4.m_scriptError) {
@@ -1581,14 +1583,14 @@ void SceneEditor::createEntityList()
     // C++11 abute poggers
     std::sort(viewer->scene.objects.begin(), viewer->scene.objects.end(),
               [](const FormatHelpers::Scene::Object &a, const FormatHelpers::Scene::Object &b) -> bool {
-                  return a.m_id < b.m_id;
+                  return a.slotID < b.slotID;
               });
     for (int i = 0; i < viewer->scene.objects.count(); ++i) {
         QString name = viewer->scene.objects[i].type >= 1
                            ? viewer->scene.objectTypeNames[viewer->scene.objects[i].type - 1]
                            : "Blank Object";
         //-1 because "blank object" is the internal type 0
-        ui->entityList->addItem(QString::number(viewer->scene.objects[i].m_id) + ": " + name);
+        ui->entityList->addItem(QString::number(viewer->scene.objects[i].slotID) + ": " + name);
     }
     ui->entityList->blockSignals(false);
 }
@@ -1630,19 +1632,19 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
         }
 
         stageConfig.soundFX.clear();
-        for (auto s : viewer->stageConfig.m_soundFX)
-            stageConfig.soundFX.append(RSDKv5::StageConfig::WAVConfiguration(s.m_path, 1));
+        for (auto s : viewer->stageConfig.soundFX)
+            stageConfig.soundFX.append(RSDKv5::StageConfig::WAVConfiguration(s.path, 1));
 
         stageConfig.m_palettes[0].activeRows[6] = true;
         stageConfig.m_palettes[0].activeRows[7] = true;
 
         for (int c = 0; c < 0x20; ++c) {
             stageConfig.m_palettes[0].colours[(c / 0x10) + 0x60][c % 0x10].setRed(
-                viewer->stageConfig.m_stagePalette.colours[c].r);
+                viewer->stageConfig.palette.colours[c].r);
             stageConfig.m_palettes[0].colours[(c / 0x10) + 0x60][c % 0x10].setGreen(
-                viewer->stageConfig.m_stagePalette.colours[c].g);
+                viewer->stageConfig.palette.colours[c].g);
             stageConfig.m_palettes[0].colours[(c / 0x10) + 0x60][c % 0x10].setBlue(
-                viewer->stageConfig.m_stagePalette.colours[c].b);
+                viewer->stageConfig.palette.colours[c].b);
         }
 
         stageConfig.write(dlg->m_outputPath + "/StageConfig.bin");
@@ -1882,8 +1884,8 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
 
         for (int e = 0; e < viewer->scene.objects.count(); ++e) {
             RSDKv5::Scene::SceneEntity entity;
-            entity.position.x = viewer->scene.objects[e].m_position.x;
-            entity.position.y = viewer->scene.objects[e].m_position.y;
+            entity.position.x = viewer->scene.objects[e].pos.x;
+            entity.position.y = viewer->scene.objects[e].pos.y;
 
             entity.parent = &scene.objects[viewer->scene.objects[e].type];
             entity.slotID = e;
@@ -1896,7 +1898,7 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
 
             RSDKv5::Scene::VariableValue propertyValue;
             propertyValue.type        = VAR_UINT8;
-            propertyValue.value_uint8 = viewer->scene.objects[e].m_propertyValue;
+            propertyValue.value_uint8 = viewer->scene.objects[e].propertyValue;
             entity.variables.append(propertyValue);
 
             entity.parent->entities.append(entity);

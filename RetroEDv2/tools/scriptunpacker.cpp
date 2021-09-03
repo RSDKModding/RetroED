@@ -64,7 +64,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     globalInfo.path = globalPath;
                     bytecodeList.append(globalInfo);
 
-                    for (auto &v : gcf.globalVariables) variableNames.append(v.m_name);
+                    for (auto &v : gcf.globalVariables) variableNames.append(v.name);
 
                     qDebug() << "Loading Global Bytecode: " << globalPath;
 
@@ -79,7 +79,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                             scf.read(dirPath + "StageConfig.bin");
                             BytecodeInfo stageInfo;
 
-                            for (auto &s : scf.m_objects) {
+                            for (auto &s : scf.objects) {
                                 stageInfo.typeNames.append(s.name);
                                 stageInfo.sourceNames.append(s.script);
                             }
@@ -144,13 +144,13 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     }
                     globalScriptCount = gcf.objects.count() + 1;
 
-                    for (auto &s : gcf.soundFX) globalInfo.sfxNames.append(s.m_name);
+                    for (auto &s : gcf.soundFX) globalInfo.sfxNames.append(s.name);
                     globalSFXCount = gcf.soundFX.count();
 
                     globalInfo.path = globalPath;
                     bytecodeList.append(globalInfo);
 
-                    for (auto &v : gcf.globalVariables) variableNames.append(v.m_name);
+                    for (auto &v : gcf.globalVariables) variableNames.append(v.name);
 
                     qDebug() << "Loading Global Bytecode: " << globalPath;
 
@@ -164,12 +164,12 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                             scf.read(dirPath + "StageConfig.bin");
                             BytecodeInfo stageInfo;
 
-                            for (auto &s : scf.m_objects) {
+                            for (auto &s : scf.objects) {
                                 stageInfo.typeNames.append(s.name);
                                 stageInfo.sourceNames.append(s.script);
                             }
 
-                            for (auto &s : scf.m_soundFX) stageInfo.sfxNames.append(s.m_name);
+                            for (auto &s : scf.soundFX) stageInfo.sfxNames.append(s.name);
 
                             stageInfo.path        = dataPath + "/../Bytecode/" + s.folder + ".bin";
                             stageInfo.loadGlobals = scf.loadGlobalScripts;

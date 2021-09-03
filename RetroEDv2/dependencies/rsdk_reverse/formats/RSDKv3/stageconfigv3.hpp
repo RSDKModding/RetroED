@@ -38,9 +38,9 @@ public:
     }
     void write(Writer &writer);
 
-    Palette m_stagePalette;
+    Palette palette;
     QList<QString> soundFX;
-    QList<ObjectInfo> m_objects;
+    QList<ObjectInfo> objects;
     bool loadGlobalScripts = true;
 
     QString m_filename = "";

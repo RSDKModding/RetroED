@@ -37,7 +37,7 @@ public:
 
     Chunk chunks[0x200];
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace FormatHelpers

@@ -18,42 +18,42 @@ public:
             QByteArray bytes = reader.readByteArray(3);
             bytes[0]         = (byte)((byte)bytes[0] - ((byte)bytes[0] >> 6 << 6));
 
-            m_visualPlane = (byte)(bytes[0] >> 4);
+            visualPlane = (byte)(bytes[0] >> 4);
             bytes[0]      = (byte)((byte)bytes[0] - ((byte)bytes[0] >> 4 << 4));
 
-            m_direction = (byte)((byte)bytes[0] >> 2);
+            direction = (byte)((byte)bytes[0] >> 2);
             bytes[0]    = (byte)((byte)bytes[0] - ((byte)bytes[0] >> 2 << 2));
 
-            m_tileIndex = (ushort)(((byte)bytes[0] << 8) + (byte)bytes[1]);
+            tileIndex = (ushort)(((byte)bytes[0] << 8) + (byte)bytes[1]);
 
-            m_solidityA = (byte)((byte)bytes[2] >> 4);
-            m_solidityB = (byte)((byte)bytes[2] - ((byte)bytes[2] >> 4 << 4));
+            solidityA = (byte)((byte)bytes[2] >> 4);
+            solidityB = (byte)((byte)bytes[2] - ((byte)bytes[2] >> 4 << 4));
         }
         void write(Writer &writer)
         {
             byte bytes[3];
-            bytes[0] = (byte)(m_tileIndex >> 8); // Put the first bit onto buffer[0]
+            bytes[0] = (byte)(tileIndex >> 8); // Put the first bit onto buffer[0]
             bytes[0] += (bytes[0] >> 2 << 2);
-            bytes[0] |= (m_direction) << 2; // Put the Flip of the tile two bits in
+            bytes[0] |= (direction) << 2; // Put the Flip of the tile two bits in
             bytes[0] += (bytes[0] >> 4 << 4);
-            bytes[0] |= (m_visualPlane) << 4; // Put the Layer of the tile four bits in
+            bytes[0] |= (visualPlane) << 4; // Put the Layer of the tile four bits in
             bytes[0] += (bytes[0] >> 6 << 6);
 
-            bytes[1] = (byte)m_tileIndex; // Put the rest of the Tile16x16 Value into this buffer
+            bytes[1] = (byte)tileIndex; // Put the rest of the Tile16x16 Value into this buffer
 
-            bytes[2] = m_solidityB;       // Colision Flag 1 is all bytes before bit 5
-            bytes[2] |= m_solidityA << 4; // Colision Flag 0 is all bytes after bit 4
+            bytes[2] = solidityB;       // Colision Flag 1 is all bytes before bit 5
+            bytes[2] |= solidityA << 4; // Colision Flag 0 is all bytes after bit 4
 
             writer.write(bytes[0]);
             writer.write(bytes[1]);
             writer.write(bytes[2]);
         }
 
-        byte m_visualPlane = 0;
-        byte m_direction   = 0;
-        ushort m_tileIndex = 0;
-        byte m_solidityA   = 0;
-        byte m_solidityB   = 0;
+        byte visualPlane = 0;
+        byte direction   = 0;
+        ushort tileIndex = 0;
+        byte solidityA   = 0;
+        byte solidityB   = 0;
     };
 
     class Chunk
@@ -66,7 +66,7 @@ public:
         {
             for (int y = 0; y < 8; ++y) {
                 for (int x = 0; x < 8; ++x) {
-                    m_tiles[y][x].read(reader);
+                    tiles[y][x].read(reader);
                 }
             }
         }
@@ -74,12 +74,12 @@ public:
         {
             for (int y = 0; y < 8; ++y) {
                 for (int x = 0; x < 8; ++x) {
-                    m_tiles[y][x].write(writer);
+                    tiles[y][x].write(writer);
                 }
             }
         }
 
-        Tile m_tiles[8][8];
+        Tile tiles[8][8];
     };
 
     Chunks() {}

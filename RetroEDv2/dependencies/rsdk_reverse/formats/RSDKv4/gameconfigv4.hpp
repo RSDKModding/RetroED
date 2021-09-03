@@ -16,7 +16,7 @@ public:
         inline void read(Reader &reader)
         {
             folder      = reader.readString();
-            actID       = reader.readString();
+            id       = reader.readString();
             name        = reader.readString();
             highlighted = reader.read<bool>();
         }
@@ -24,14 +24,14 @@ public:
         inline void write(Writer &writer)
         {
             writer.write(folder);
-            writer.write(actID);
+            writer.write(id);
             writer.write(name);
             writer.write(highlighted);
         }
 
         QString name     = "Scene";
         QString folder   = "Folder";
-        QString actID    = "1";
+        QString id    = "1";
         bool highlighted = false;
     };
 
@@ -70,21 +70,21 @@ public:
 
         inline void read(Reader &reader)
         {
-            m_name           = reader.readString();
+            name           = reader.readString();
             QByteArray bytes = reader.readByteArray(4);
             value          = ((byte)bytes[3] << 24) + ((byte)bytes[2] << 16) + ((byte)bytes[1] << 8)
                       + ((byte)bytes[0] << 0);
         }
         inline void write(Writer &writer)
         {
-            writer.write(m_name);
+            writer.write(name);
             writer.write((byte)((value >> 0x00) & 0xFF));
             writer.write((byte)((value >> 0x08) & 0xFF));
             writer.write((byte)((value >> 0x10) & 0xFF));
             writer.write((byte)((value >> 0x18) & 0xFF));
         }
 
-        QString m_name = "Variable";
+        QString name = "Variable";
         int value    = 0;
     };
 
@@ -102,7 +102,7 @@ public:
     public:
         SoundInfo() {}
 
-        QString m_name = "Sound";
+        QString name = "Sound";
         QString path = "Folder/Sound.wav";
     };
 

@@ -3,7 +3,7 @@
 void FormatHelpers::Chunks::read(byte ver, QString filename)
 {
     Reader reader(filename);
-    m_filename = filename;
+    filePath = filename;
 
     for (int c = 0; c < 0x200; ++c) {
         for (int y = 0; y < 8; ++y) {
@@ -44,15 +44,15 @@ void FormatHelpers::Chunks::read(byte ver, QString filename)
                 for (int y = 0; y < 8; ++y) {
                     for (int x = 0; x < 8; ++x) {
                         chunks[c].tiles[y][x].direction =
-                            engineChunks.chunkList[c].m_tiles[y][x].m_direction;
+                            engineChunks.chunkList[c].tiles[y][x].direction;
                         chunks[c].tiles[y][x].visualPlane =
-                            engineChunks.chunkList[c].m_tiles[y][x].m_visualPlane;
+                            engineChunks.chunkList[c].tiles[y][x].visualPlane;
                         chunks[c].tiles[y][x].tileIndex =
-                            engineChunks.chunkList[c].m_tiles[y][x].m_tileIndex;
+                            engineChunks.chunkList[c].tiles[y][x].tileIndex;
                         chunks[c].tiles[y][x].solidityA =
-                            engineChunks.chunkList[c].m_tiles[y][x].m_solidityA;
+                            engineChunks.chunkList[c].tiles[y][x].solidityA;
                         chunks[c].tiles[y][x].solidityB =
-                            engineChunks.chunkList[c].m_tiles[y][x].m_solidityB;
+                            engineChunks.chunkList[c].tiles[y][x].solidityB;
                     }
                 }
             }
@@ -63,15 +63,15 @@ void FormatHelpers::Chunks::read(byte ver, QString filename)
                 for (int y = 0; y < 8; ++y) {
                     for (int x = 0; x < 8; ++x) {
                         chunks[c].tiles[y][x].direction =
-                            engineChunks.m_chunkList[c].m_tiles[y][x].m_direction;
+                            engineChunks.chunkList[c].tiles[y][x].direction;
                         chunks[c].tiles[y][x].visualPlane =
-                            engineChunks.m_chunkList[c].m_tiles[y][x].m_visualPlane;
+                            engineChunks.chunkList[c].tiles[y][x].visualPlane;
                         chunks[c].tiles[y][x].tileIndex =
-                            engineChunks.m_chunkList[c].m_tiles[y][x].m_tileIndex;
+                            engineChunks.chunkList[c].tiles[y][x].tileIndex;
                         chunks[c].tiles[y][x].solidityA =
-                            engineChunks.m_chunkList[c].m_tiles[y][x].m_solidityA;
+                            engineChunks.chunkList[c].tiles[y][x].solidityA;
                         chunks[c].tiles[y][x].solidityB =
-                            engineChunks.m_chunkList[c].m_tiles[y][x].m_solidityB;
+                            engineChunks.chunkList[c].tiles[y][x].solidityB;
                     }
                 }
             }
@@ -82,15 +82,15 @@ void FormatHelpers::Chunks::read(byte ver, QString filename)
                 for (int y = 0; y < 8; ++y) {
                     for (int x = 0; x < 8; ++x) {
                         chunks[c].tiles[y][x].direction =
-                            engineChunks.m_chunkList[c].m_tiles[y][x].m_direction;
+                            engineChunks.chunkList[c].tiles[y][x].direction;
                         chunks[c].tiles[y][x].visualPlane =
-                            engineChunks.m_chunkList[c].m_tiles[y][x].m_visualPlane;
+                            engineChunks.chunkList[c].tiles[y][x].visualPlane;
                         chunks[c].tiles[y][x].tileIndex =
-                            engineChunks.m_chunkList[c].m_tiles[y][x].m_tileIndex;
+                            engineChunks.chunkList[c].tiles[y][x].tileIndex;
                         chunks[c].tiles[y][x].solidityA =
-                            engineChunks.m_chunkList[c].m_tiles[y][x].m_solidityA;
+                            engineChunks.chunkList[c].tiles[y][x].solidityA;
                         chunks[c].tiles[y][x].solidityB =
-                            engineChunks.m_chunkList[c].m_tiles[y][x].m_solidityB;
+                            engineChunks.chunkList[c].tiles[y][x].solidityB;
                     }
                 }
             }
@@ -101,11 +101,11 @@ void FormatHelpers::Chunks::read(byte ver, QString filename)
 void FormatHelpers::Chunks::write(byte ver, QString filename)
 {
     if (filename == "")
-        filename = m_filename;
+        filename = filePath;
     if (filename == "")
         return;
     Writer writer(filename);
-    m_filename = filename;
+    filePath = filename;
 
     switch (ver) {
         default: break;
@@ -127,8 +127,8 @@ void FormatHelpers::Chunks::write(byte ver, QString filename)
 
                         if (engineChunks.chunkList[c].tiles[y][x].solidityA == 4)
                             engineChunks.chunkList[c].tiles[y][x].solidityA = 1;
-                        if (engineChunks.chunkList[c].tiles[y][x].solidityA == 4)
-                            engineChunks.chunkList[c].tiles[y][x].solidityA = 1;
+                        if (engineChunks.chunkList[c].tiles[y][x].solidityB == 4)
+                            engineChunks.chunkList[c].tiles[y][x].solidityB = 1;
                     }
                 }
             }
@@ -139,21 +139,21 @@ void FormatHelpers::Chunks::write(byte ver, QString filename)
             for (int c = 0; c < 0x200; ++c) {
                 for (int y = 0; y < 8; ++y) {
                     for (int x = 0; x < 8; ++x) {
-                        engineChunks.chunkList[c].m_tiles[y][x].m_direction =
+                        engineChunks.chunkList[c].tiles[y][x].direction =
                             chunks[c].tiles[y][x].direction;
-                        engineChunks.chunkList[c].m_tiles[y][x].m_visualPlane =
+                        engineChunks.chunkList[c].tiles[y][x].visualPlane =
                             chunks[c].tiles[y][x].visualPlane;
-                        engineChunks.chunkList[c].m_tiles[y][x].m_tileIndex =
+                        engineChunks.chunkList[c].tiles[y][x].tileIndex =
                             chunks[c].tiles[y][x].tileIndex;
-                        engineChunks.chunkList[c].m_tiles[y][x].m_solidityA =
+                        engineChunks.chunkList[c].tiles[y][x].solidityA =
                             chunks[c].tiles[y][x].solidityA;
-                        engineChunks.chunkList[c].m_tiles[y][x].m_solidityB =
+                        engineChunks.chunkList[c].tiles[y][x].solidityB =
                             chunks[c].tiles[y][x].solidityB;
 
-                        if (engineChunks.chunkList[c].m_tiles[y][x].m_solidityA == 4)
-                            engineChunks.chunkList[c].m_tiles[y][x].m_solidityA = 1;
-                        if (engineChunks.chunkList[c].m_tiles[y][x].m_solidityA == 4)
-                            engineChunks.chunkList[c].m_tiles[y][x].m_solidityA = 1;
+                        if (engineChunks.chunkList[c].tiles[y][x].solidityA == 4)
+                            engineChunks.chunkList[c].tiles[y][x].solidityA = 1;
+                        if (engineChunks.chunkList[c].tiles[y][x].solidityB == 4)
+                            engineChunks.chunkList[c].tiles[y][x].solidityB = 1;
                     }
                 }
             }
@@ -164,21 +164,21 @@ void FormatHelpers::Chunks::write(byte ver, QString filename)
             for (int c = 0; c < 0x200; ++c) {
                 for (int y = 0; y < 8; ++y) {
                     for (int x = 0; x < 8; ++x) {
-                        engineChunks.m_chunkList[c].m_tiles[y][x].m_direction =
+                        engineChunks.chunkList[c].tiles[y][x].direction =
                             chunks[c].tiles[y][x].direction;
-                        engineChunks.m_chunkList[c].m_tiles[y][x].m_visualPlane =
+                        engineChunks.chunkList[c].tiles[y][x].visualPlane =
                             chunks[c].tiles[y][x].visualPlane;
-                        engineChunks.m_chunkList[c].m_tiles[y][x].m_tileIndex =
+                        engineChunks.chunkList[c].tiles[y][x].tileIndex =
                             chunks[c].tiles[y][x].tileIndex;
-                        engineChunks.m_chunkList[c].m_tiles[y][x].m_solidityA =
+                        engineChunks.chunkList[c].tiles[y][x].solidityA =
                             chunks[c].tiles[y][x].solidityA;
-                        engineChunks.m_chunkList[c].m_tiles[y][x].m_solidityB =
+                        engineChunks.chunkList[c].tiles[y][x].solidityB =
                             chunks[c].tiles[y][x].solidityB;
 
-                        if (engineChunks.m_chunkList[c].m_tiles[y][x].m_solidityA == 4)
-                            engineChunks.m_chunkList[c].m_tiles[y][x].m_solidityA = 1;
-                        if (engineChunks.m_chunkList[c].m_tiles[y][x].m_solidityA == 4)
-                            engineChunks.m_chunkList[c].m_tiles[y][x].m_solidityA = 1;
+                        if (engineChunks.chunkList[c].tiles[y][x].solidityA == 4)
+                            engineChunks.chunkList[c].tiles[y][x].solidityA = 1;
+                        if (engineChunks.chunkList[c].tiles[y][x].solidityB == 4)
+                            engineChunks.chunkList[c].tiles[y][x].solidityB = 1;
                     }
                 }
             }
@@ -189,15 +189,15 @@ void FormatHelpers::Chunks::write(byte ver, QString filename)
             for (int c = 0; c < 0x200; ++c) {
                 for (int y = 0; y < 8; ++y) {
                     for (int x = 0; x < 8; ++x) {
-                        engineChunks.m_chunkList[c].m_tiles[y][x].m_direction =
+                        engineChunks.chunkList[c].tiles[y][x].direction =
                             chunks[c].tiles[y][x].direction;
-                        engineChunks.m_chunkList[c].m_tiles[y][x].m_visualPlane =
+                        engineChunks.chunkList[c].tiles[y][x].visualPlane =
                             chunks[c].tiles[y][x].visualPlane;
-                        engineChunks.m_chunkList[c].m_tiles[y][x].m_tileIndex =
+                        engineChunks.chunkList[c].tiles[y][x].tileIndex =
                             chunks[c].tiles[y][x].tileIndex;
-                        engineChunks.m_chunkList[c].m_tiles[y][x].m_solidityA =
+                        engineChunks.chunkList[c].tiles[y][x].solidityA =
                             chunks[c].tiles[y][x].solidityA;
-                        engineChunks.m_chunkList[c].m_tiles[y][x].m_solidityB =
+                        engineChunks.chunkList[c].tiles[y][x].solidityB =
                             chunks[c].tiles[y][x].solidityB;
                     }
                 }

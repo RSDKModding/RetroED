@@ -151,16 +151,20 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         ui->sfxName->setDisabled(c == -1);
         ui->sfxPath->setDisabled(c == -1);
 
+        ui->sfxID->setText("SoundFX ID: ");
+
         if (c == -1)
             return;
 
         ui->sfxName->blockSignals(true);
-        ui->sfxName->setText(gameConfig.soundFX[c].m_name);
+        ui->sfxName->setText(gameConfig.soundFX[c].name);
         ui->sfxName->blockSignals(false);
 
         ui->sfxPath->blockSignals(true);
         ui->sfxPath->setText(gameConfig.soundFX[c].path);
         ui->sfxPath->blockSignals(false);
+
+        ui->sfxID->setText("SoundFX ID: " + QString::number(c));
 
         if (ui->downSfx)
             ui->downSfx->setDisabled(c == ui->sfxList->count() - 1);
@@ -173,7 +177,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         RSDKv4::Gameconfig::SoundInfo sfx;
         gameConfig.soundFX.insert(c, sfx);
         auto *item = new QListWidgetItem();
-        item->setText(gameConfig.soundFX[c].m_name);
+        item->setText(gameConfig.soundFX[c].name);
         ui->sfxList->insertItem(c, item);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -207,18 +211,18 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
     });
 
     connect(ui->sfxList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        gameConfig.soundFX[ui->sfxList->row(item)].m_name = item->text();
+        gameConfig.soundFX[ui->sfxList->row(item)].name = item->text();
 
         ui->sfxName->blockSignals(true);
-        ui->sfxName->setText(gameConfig.soundFX[ui->sfxList->row(item)].m_name);
+        ui->sfxName->setText(gameConfig.soundFX[ui->sfxList->row(item)].name);
         ui->sfxName->blockSignals(false);
     });
 
     connect(ui->sfxName, &QLineEdit::textEdited, [this](QString s) {
-        gameConfig.soundFX[ui->sfxList->currentRow()].m_name = s;
+        gameConfig.soundFX[ui->sfxList->currentRow()].name = s;
 
         ui->sfxList->item(ui->sfxList->currentRow())
-            ->setText(gameConfig.soundFX[ui->sfxList->currentRow()].m_name);
+            ->setText(gameConfig.soundFX[ui->sfxList->currentRow()].name);
     });
 
     connect(ui->sfxPath, &QLineEdit::textEdited,
@@ -244,7 +248,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         ui->varName->blockSignals(true);
         ui->varValue->blockSignals(true);
 
-        ui->varName->setText(gameConfig.globalVariables[c].m_name);
+        ui->varName->setText(gameConfig.globalVariables[c].name);
         ui->varValue->setValue(gameConfig.globalVariables[c].value);
 
         ui->varName->blockSignals(false);
@@ -260,7 +264,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         uint c = ui->varList->currentRow() + 1;
         gameConfig.globalVariables.insert(c, RSDKv4::Gameconfig::GlobalVariable());
         auto *item = new QListWidgetItem();
-        item->setText(gameConfig.globalVariables[c].m_name);
+        item->setText(gameConfig.globalVariables[c].name);
         ui->varList->insertItem(c, item);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -294,18 +298,18 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
     });
 
     connect(ui->varList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        gameConfig.globalVariables[ui->varList->row(item)].m_name = item->text();
+        gameConfig.globalVariables[ui->varList->row(item)].name = item->text();
 
         ui->varName->blockSignals(true);
-        ui->varName->setText(gameConfig.globalVariables[ui->varList->row(item)].m_name);
+        ui->varName->setText(gameConfig.globalVariables[ui->varList->row(item)].name);
         ui->varName->blockSignals(false);
     });
 
     connect(ui->varName, &QLineEdit::textEdited, [this](QString s) {
-        gameConfig.globalVariables[ui->varList->currentRow()].m_name = s;
+        gameConfig.globalVariables[ui->varList->currentRow()].name = s;
 
         ui->varList->item(ui->varList->currentRow())
-            ->setText(gameConfig.globalVariables[ui->varList->currentRow()].m_name);
+            ->setText(gameConfig.globalVariables[ui->varList->currentRow()].name);
     });
 
     connect(ui->varValue, QOverload<int>::of(&QSpinBox::valueChanged),
@@ -496,7 +500,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
                 if (c.row() >= gameConfig.categories[c.parent().row()].scenes.count())
                     return;
 
-                ui->scnID->setText(gameConfig.categories[c.parent().row()].scenes[c.row()].actID);
+                ui->scnID->setText(gameConfig.categories[c.parent().row()].scenes[c.row()].id);
                 ui->scnHighlighted->setChecked(
                     gameConfig.categories[c.parent().row()].scenes[c.row()].highlighted);
                 ui->scnFolder->setText(gameConfig.categories[c.parent().row()].scenes[c.row()].folder);
@@ -574,7 +578,7 @@ void GameconfigEditorv4::load(QString filename)
     ui->sfxList->clear();
     id = 0;
     for (RSDKv4::Gameconfig::SoundInfo &sfx : gameConfig.soundFX) {
-        ui->sfxList->addItem(sfx.m_name);
+        ui->sfxList->addItem(sfx.name);
         ui->sfxList->item(id)->setFlags(ui->sfxList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
     }
@@ -582,7 +586,7 @@ void GameconfigEditorv4::load(QString filename)
     ui->varList->clear();
     id = 0;
     for (RSDKv4::Gameconfig::GlobalVariable &var : gameConfig.globalVariables) {
-        ui->varList->addItem(var.m_name);
+        ui->varList->addItem(var.name);
         ui->varList->item(id)->setFlags(ui->varList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
     }
@@ -670,13 +674,16 @@ bool GameconfigEditorv4::event(QEvent *event)
             "RSDKv3 GameConfig files (GameConfig*.bin)",
             "RSDKv5 rev02 (plus) GameConfig files (GameConfig*.bin)",
             "RSDKv5 rev01 (pre-plus) GameConfig files (GameConfig*.bin)",
+            "RSDK Game XMLs (Game*.xml)",
         };
         QFileDialog filedialog(this, tr("Save GameConfig"), "",
-                               tr(QString("%1;;%2;;%3;;%4")
+                               tr(QString("%1;;%2;;%3;;%4;;%5;;%6")
                                       .arg(types[0])
                                       .arg(types[1])
                                       .arg(types[2])
                                       .arg(types[3])
+                                      .arg(types[4])
+                                      .arg(types[5])
                                       .toStdString()
                                       .c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
@@ -703,8 +710,8 @@ bool GameconfigEditorv4::event(QEvent *event)
                     config.globalVariables.clear();
                     for (auto &var : gameConfig.globalVariables) {
                         RSDKv2::Gameconfig::GlobalVariable variable;
-                        variable.m_name = var.m_name;
-                        variable.value  = var.value;
+                        variable.name  = var.name;
+                        variable.value = var.value;
                         config.globalVariables.append(variable);
                     }
 
@@ -715,13 +722,13 @@ bool GameconfigEditorv4::event(QEvent *event)
 
                     config.soundFX.clear();
                     for (auto &sfx : gameConfig.soundFX) {
-                        config.soundFX.append(sfx.m_name);
+                        config.soundFX.append(sfx.name);
                     }
 
                     config.players.clear();
                     for (auto &plr : gameConfig.players) {
                         RSDKv2::Gameconfig::PlayerInfo player;
-                        player.m_name = plr;
+                        player.name = plr;
                         config.players.append(player);
                     }
 
@@ -734,7 +741,7 @@ bool GameconfigEditorv4::event(QEvent *event)
                             RSDKv2::Gameconfig::SceneInfo scene;
                             scene.name        = scn.name;
                             scene.folder      = scn.folder;
-                            scene.actID       = scn.actID;
+                            scene.id          = scn.id;
                             scene.highlighted = scn.highlighted;
                             category.scenes.append(scene);
                         }
@@ -756,8 +763,8 @@ bool GameconfigEditorv4::event(QEvent *event)
                     config.globalVariables.clear();
                     for (auto &var : gameConfig.globalVariables) {
                         RSDKv3::Gameconfig::GlobalVariable variable;
-                        variable.m_name = var.m_name;
-                        variable.value  = var.value;
+                        variable.name  = var.name;
+                        variable.value = var.value;
                         config.globalVariables.append(variable);
                     }
 
@@ -771,7 +778,7 @@ bool GameconfigEditorv4::event(QEvent *event)
 
                     config.soundFX.clear();
                     for (auto &sfx : gameConfig.soundFX) {
-                        config.soundFX.append(sfx.m_name);
+                        config.soundFX.append(sfx.name);
                     }
 
                     config.players.clear();
@@ -788,7 +795,7 @@ bool GameconfigEditorv4::event(QEvent *event)
                             RSDKv3::Gameconfig::SceneInfo scene;
                             scene.name        = scn.name;
                             scene.folder      = scn.folder;
-                            scene.actID       = scn.actID;
+                            scene.id          = scn.id;
                             scene.highlighted = scn.highlighted;
                             category.scenes.append(scene);
                         }
@@ -816,8 +823,8 @@ bool GameconfigEditorv4::event(QEvent *event)
                         RSDKv5::GameConfig::GlobalVariable variable;
                         RSDKv5::RSDKConfig::Variable rsdkVar;
 
-                        rsdkVar.m_name = var.m_name;
-                        rsdkVar.m_name.replace(".", "_");
+                        rsdkVar.name = var.name;
+                        rsdkVar.name.replace(".", "_");
                         rsdkVar.type   = "int";
                         rsdkVar.value  = "-";
                         variable.index = varID;
@@ -839,7 +846,7 @@ bool GameconfigEditorv4::event(QEvent *event)
                     config.soundFX.clear();
                     for (auto &sfx : gameConfig.soundFX) {
                         RSDKv5::GameConfig::SoundInfo soundFX;
-                        soundFX.m_name            = sfx.path;
+                        soundFX.path              = sfx.path;
                         soundFX.maxConcurrentPlay = 1;
                         config.soundFX.append(soundFX);
                     }
@@ -868,24 +875,24 @@ bool GameconfigEditorv4::event(QEvent *event)
                         for (int r = 0; r < 16; ++r) config.palettes[i].activeRows[r] = false;
                     }
 
-                    config.sceneCategories.clear();
+                    config.categories.clear();
                     QList<QString> catNames = { "Presentation", "Regular Stages", "Bonus Stages",
                                                 "Special Stages" };
                     int catID               = 0;
                     for (auto &cat : gameConfig.categories) {
                         RSDKv5::GameConfig::Category category;
-                        category.m_name = catNames[catID];
+                        category.name = catNames[catID];
                         category.scenes.clear();
 
                         for (auto &scn : cat.scenes) {
                             RSDKv5::GameConfig::SceneInfo scene;
-                            scene.m_name     = scn.name;
-                            scene.folder     = scn.folder;
-                            scene.sceneID    = scn.actID;
-                            scene.modeFilter = 0;
+                            scene.name   = scn.name;
+                            scene.folder = scn.folder;
+                            scene.id     = scn.id;
+                            scene.filter = 0;
                             category.scenes.append(scene);
                         }
-                        config.sceneCategories.append(category);
+                        config.categories.append(category);
                         ++catID;
                     }
 
@@ -896,6 +903,77 @@ bool GameconfigEditorv4::event(QEvent *event)
                     config.write(filedialog.selectedFiles()[0]);
                     rsdkConfig.write(
                         filedialog.selectedFiles()[0].toLower().replace("gameconfig", "rsdkconfig"));
+                    break;
+                }
+                case 5: {
+                    setStatus("Saving Game.xml: " + filedialog.selectedFiles()[0]);
+                    Writer writer(filedialog.selectedFiles()[0]);
+
+                    writer.writeLine("<?xml version=\"1.0\"?>");
+
+                    if (gameConfig.globalVariables.count()) {
+                        writer.writeLine();
+                        writer.writeLine("<variables>");
+                        for (auto &var : gameConfig.globalVariables) {
+                            writer.writeLine(
+                                QString("\t<variable name=\"%1\" value=\"%2\"> </variable>")
+                                    .arg(var.name)
+                                    .arg(var.value));
+                        }
+                        writer.writeLine("</variables>");
+                    }
+
+                    if (gameConfig.objects.count()) {
+                        writer.writeLine();
+                        writer.writeLine("<objects>");
+                        for (auto &obj : gameConfig.objects) {
+                            writer.writeLine(QString("\t<object name=\"%1\" script=\"%2\" "
+                                                     "forceLoad=\"false\"> </object>")
+                                                 .arg(obj.name)
+                                                 .arg(obj.script));
+                        }
+                        writer.writeLine("</objects>");
+                    }
+
+                    if (gameConfig.soundFX.count()) {
+                        writer.writeLine();
+                        writer.writeLine("<sounds>");
+                        for (auto &sfx : gameConfig.soundFX) {
+                            writer.writeLine(QString("\t<soundfx name=\"%1\" path=\"%2\"> </soundfx>")
+                                                 .arg(sfx.name)
+                                                 .arg(sfx.path));
+                        }
+                        writer.writeLine("</sounds>");
+                    }
+
+                    if (gameConfig.players.count()) {
+                        writer.writeLine();
+                        writer.writeLine("<players>");
+                        for (auto &plr : gameConfig.players) {
+                            writer.writeLine(QString("\t<player name=\"%1\"> </player>").arg(plr));
+                        }
+                        writer.writeLine("</players>");
+                    }
+
+                    QString elementNames[] = { "presentationStages", "regularStages", "specialStages",
+                                               "bonusStages" };
+                    for (int i = 0; i < 4; ++i) {
+                        if (gameConfig.categories[i].scenes.count()) {
+                            writer.writeLine();
+                            writer.writeLine(QString("<%1>").arg(elementNames[i]));
+                            for (auto &stg : gameConfig.categories[i].scenes) {
+                                writer.writeLine(QString("\t<stage name=\"%1\" folder=\"%2\" "
+                                                         "id=\"%3\" highlight=\"%4\"> </stage>")
+                                                     .arg(stg.name)
+                                                     .arg(stg.folder)
+                                                     .arg(stg.id)
+                                                     .arg(stg.highlighted ? "true" : "false"));
+                            }
+                            writer.writeLine(QString("</%1>").arg(elementNames[i]));
+                        }
+                    }
+
+                    writer.flush();
                     break;
                 }
             }

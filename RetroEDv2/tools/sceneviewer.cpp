@@ -730,8 +730,8 @@ void SceneViewer::drawScene()
 
     // Draw Retro-Sonic Player spawn point
     if (gameType == ENGINE_v1) {
-        float px = scene.m_playerXPos;
-        float py = scene.m_playerYPos;
+        float px = scene.playerX;
+        float py = scene.playerY;
 
         px *= invZoom();
         py *= invZoom();

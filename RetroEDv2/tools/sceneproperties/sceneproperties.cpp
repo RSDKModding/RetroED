@@ -23,9 +23,9 @@ void SceneProperties::setupUI(FormatHelpers::Scene *scn, byte ver)
     if (!scn)
         return;
 
-    ui->title->setText(scn->m_title);
+    ui->title->setText(scn->title);
 
-    connect(ui->title, &QLineEdit::textEdited, [scn](QString s) { scn->m_title = s; });
+    connect(ui->title, &QLineEdit::textEdited, [scn](QString s) { scn->title = s; });
 
     if (ver != ENGINE_v1) {
         ui->background->setDisabled(true);
@@ -68,19 +68,19 @@ void SceneProperties::setupUI(FormatHelpers::Scene *scn, byte ver)
         ui->activeLayer3->setDisabled(true);
         ui->layerMidpoint->setDisabled(true);
 
-        ui->background->setCurrentIndex(scn->m_background - 1);
-        ui->music->setCurrentIndex(scn->m_music);
-        ui->plrX->setValue(scn->m_playerXPos);
-        ui->plrY->setValue(scn->m_playerYPos);
+        ui->background->setCurrentIndex(scn->backgroundID - 1);
+        ui->music->setCurrentIndex(scn->musicID);
+        ui->plrX->setValue(scn->playerX);
+        ui->plrY->setValue(scn->playerY);
 
         connect(ui->background, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                [scn](int v) { scn->m_background = (byte)(v + 1); });
+                [scn](int v) { scn->backgroundID = (byte)(v + 1); });
         connect(ui->music, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                [scn](int v) { scn->m_music = (byte)v; });
+                [scn](int v) { scn->musicID = (byte)v; });
         connect(ui->plrX, QOverload<int>::of(&QSpinBox::valueChanged),
-                [scn](int v) { scn->m_playerXPos = (short)v; });
+                [scn](int v) { scn->playerX = (short)v; });
         connect(ui->plrY, QOverload<int>::of(&QSpinBox::valueChanged),
-                [scn](int v) { scn->m_playerYPos = (short)v; });
+                [scn](int v) { scn->playerY = (short)v; });
     }
 }
 

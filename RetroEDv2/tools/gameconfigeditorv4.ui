@@ -77,16 +77,6 @@
     <widget class="QStackedWidget" name="detailsWidget">
      <widget class="QWidget" name="generalPage">
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="2">
-        <widget class="QLineEdit" name="gameName"/>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Game Name</string>
-         </property>
-        </widget>
-       </item>
        <item row="4" column="0" colspan="3">
         <widget class="QPushButton" name="editPalette">
          <property name="text">
@@ -104,10 +94,20 @@
          </property>
         </widget>
        </item>
+       <item row="0" column="2">
+        <widget class="QLineEdit" name="gameName"/>
+       </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_3">
          <property name="text">
           <string>Game Description</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Game Name</string>
          </property>
         </widget>
        </item>
@@ -252,7 +252,10 @@
      </widget>
      <widget class="QWidget" name="sfxPage">
       <layout class="QGridLayout" name="gridLayout_6">
-       <item row="0" column="0" rowspan="3">
+       <item row="0" column="2">
+        <widget class="QLineEdit" name="sfxName"/>
+       </item>
+       <item row="0" column="0" rowspan="4">
         <widget class="QListWidget" name="sfxList">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -281,23 +284,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="2">
-        <widget class="QLineEdit" name="sfxName"/>
-       </item>
-       <item row="2" column="2">
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>311</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="3" column="0">
+       <item row="4" column="0">
         <layout class="QGridLayout" name="gridLayout_5">
          <item row="0" column="0">
           <widget class="QToolButton" name="addSfx">
@@ -355,6 +342,19 @@
          </item>
         </layout>
        </item>
+       <item row="3" column="2">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>311</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
        <item row="1" column="1">
         <widget class="QLabel" name="label">
          <property name="text">
@@ -364,6 +364,13 @@
        </item>
        <item row="1" column="2">
         <widget class="QLineEdit" name="sfxPath"/>
+       </item>
+       <item row="2" column="1" colspan="2">
+        <widget class="QLabel" name="sfxID">
+         <property name="text">
+          <string>SoundFX ID: 0</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -481,6 +488,9 @@
        </item>
        <item row="1" column="2">
         <widget class="QSpinBox" name="varValue">
+         <property name="minimum">
+          <number>-999999999</number>
+         </property>
          <property name="maximum">
           <number>999999999</number>
          </property>

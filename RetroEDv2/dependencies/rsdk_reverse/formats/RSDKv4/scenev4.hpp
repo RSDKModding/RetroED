@@ -16,8 +16,8 @@ public:
         struct AttributeInfo {
             AttributeInfo() {}
 
-            int m_value   = 0;
-            bool m_active = false;
+            int value   = 0;
+            bool active = false;
         };
 
         enum AttributesIDs {
@@ -44,19 +44,19 @@ public:
         void read(Reader &reader, int id = 0);
         void write(Writer &writer);
 
-        inline float getX() { return m_xPos / 65536.0f; }
-        inline float getY() { return m_yPos / 65536.0f; }
+        inline float getX() { return posX / 65536.0f; }
+        inline float getY() { return posY / 65536.0f; }
 
-        inline void setX(float x) { m_xPos = x * (1 << 0x10); }
-        inline void setY(float y) { m_yPos = y * (1 << 0x10); }
+        inline void setX(float x) { posX = x * (1 << 0x10); }
+        inline void setY(float y) { posY = y * (1 << 0x10); }
 
-        byte m_type    = 0;
-        byte m_subtype = 0;
-        int m_xPos     = 0 << 0x10;
-        int m_yPos     = 0 << 0x10;
-        AttributeInfo m_attributes[0x0F];
+        byte type    = 0;
+        byte propertyValue = 0;
+        int posX     = 0 << 0x10;
+        int posY     = 0 << 0x10;
+        AttributeInfo variables[0x0F];
 
-        short m_id = 0;
+        short slotID = 0;
     };
 
     Scene() {}
@@ -81,14 +81,14 @@ public:
     }
     void write(Writer &writer);
 
-    QString m_title = "Stage";
+    QString title = "Stage";
 
     QList<QList<ushort>> layout;
 
-    byte m_activeLayer[4];
-    byte m_midpoint = 3;
+    byte activeLayers[4];
+    byte midpoint = 3;
 
-    QList<Object> m_objects;
+    QList<Object> objects;
 
     byte width;
     byte height;

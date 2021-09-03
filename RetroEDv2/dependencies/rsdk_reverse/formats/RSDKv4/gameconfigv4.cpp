@@ -39,7 +39,7 @@ void RSDKv4::Gameconfig::read(Reader &reader)
 
     for (int s = 0; s < sfxCount; ++s) {
         SoundInfo sfx;
-        sfx.m_name = reader.readString();
+        sfx.name = reader.readString();
         soundFX.append(sfx);
     }
 
@@ -91,7 +91,7 @@ void RSDKv4::Gameconfig::write(Writer &writer)
     // Global SFX
     writer.write((byte)soundFX.count());
     for (SoundInfo &sfx : soundFX) {
-        writer.write(sfx.m_name);
+        writer.write(sfx.name);
     }
 
     for (SoundInfo &sfx : soundFX) {

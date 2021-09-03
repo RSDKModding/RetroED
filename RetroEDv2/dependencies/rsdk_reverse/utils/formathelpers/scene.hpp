@@ -15,24 +15,24 @@ public:
         public:
             AttributeInfo() {}
 
-            int m_value   = 0;
-            bool m_active = false;
+            int value   = 0;
+            bool active = false;
         };
 
         Object() {}
 
-        inline float getX() { return m_position.x / 65536.0f; }
-        inline float getY() { return m_position.y / 65536.0f; }
+        inline float getX() { return pos.x / 65536.0f; }
+        inline float getY() { return pos.y / 65536.0f; }
 
-        inline void setX(float x) { m_position.x = x * (1 << 0x10); }
-        inline void setY(float y) { m_position.y = y * (1 << 0x10); }
+        inline void setX(float x) { pos.x = x * (1 << 0x10); }
+        inline void setY(float y) { pos.y = y * (1 << 0x10); }
 
         byte type             = 0;
-        byte m_propertyValue    = 0;
-        Vector2<int> m_position = Vector2<int>(0 << 0x10, 0 << 0x10);
-        AttributeInfo m_attributes[0x0F];
+        byte propertyValue    = 0;
+        Vector2<int> pos = Vector2<int>(0 << 0x10, 0 << 0x10);
+        AttributeInfo variables[0x0F];
 
-        short m_id = 0;
+        short slotID = 0;
     };
 
     Scene() {}
@@ -41,16 +41,16 @@ public:
     void read(byte ver, QString filename);
     void write(byte ver, QString filename);
 
-    QString m_title = "ACT";
+    QString title = "ACT";
 
     byte activeLayer[4];
     byte midpoint = 3;
 
-    byte m_music      = 0;
-    byte m_background = 0;
+    byte musicID      = 0;
+    byte backgroundID = 0;
 
-    short m_playerXPos = 0;
-    short m_playerYPos = 0;
+    short playerX = 0;
+    short playerY = 0;
 
     QList<QList<ushort>> layout;
 

@@ -5,7 +5,7 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
     Reader reader(filename);
     filepath = filename;
 
-    m_title = "Stage";
+    title = "Stage";
 
     activeLayer[0] = 9;
     activeLayer[1] = 9;
@@ -13,11 +13,11 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
     activeLayer[3] = 9;
     midpoint       = 3;
 
-    m_music      = 0;
-    m_background = 0;
+    musicID      = 0;
+    backgroundID = 0;
 
-    m_playerXPos = 0;
-    m_playerYPos = 0;
+    playerX = 0;
+    playerY = 0;
 
     layout.clear();
 
@@ -32,13 +32,13 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
         case ENGINE_v1: {
             RSDKv1::Scene scn(reader);
 
-            m_title = scn.title;
+            title = scn.title;
 
-            m_music      = scn.musicID;
-            m_background = scn.backgroundID;
+            musicID      = scn.musicID;
+            backgroundID = scn.backgroundID;
 
-            m_playerXPos = scn.playerXPos;
-            m_playerYPos = scn.playerYPos;
+            playerX = scn.playerXPos;
+            playerY = scn.playerYPos;
 
             width  = scn.width;
             height = scn.height;
@@ -54,11 +54,11 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
                 Object obj;
 
                 obj.type          = object.type;
-                obj.m_propertyValue = object.propertyValue;
-                obj.m_position.x    = object.XPos << 0x10;
-                obj.m_position.y    = object.YPos << 0x10;
+                obj.propertyValue = object.propertyValue;
+                obj.pos.x         = object.posX << 0x10;
+                obj.pos.y         = object.posY << 0x10;
 
-                obj.m_id = object.slotID;
+                obj.slotID = object.slotID;
                 objects.append(obj);
             }
             break;
@@ -66,76 +66,10 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
         case ENGINE_v2: {
             RSDKv2::Scene scn(reader);
 
-            m_title = scn.m_title;
+            title = scn.title;
 
-            for (int i = 0; i < 4; ++i) activeLayer[i] = scn.m_activeLayer[i];
-            midpoint = scn.m_midpoint;
-
-            width  = scn.m_width;
-            height = scn.m_height;
-
-            for (int y = 0; y < height; ++y) {
-                layout.append(QList<ushort>());
-                for (int x = 0; x < width; ++x) {
-                    layout[y].append(scn.m_layout[y][x]);
-                }
-            }
-
-            for (QString name : scn.m_objectTypeNames) objectTypeNames.append(name);
-
-            for (RSDKv2::Scene::Object &object : scn.m_objects) {
-                Object obj;
-
-                obj.type          = object.m_type;
-                obj.m_propertyValue = object.m_propertyValue;
-                obj.m_position.x    = object.m_xPos << 0x10;
-                obj.m_position.y    = object.m_yPos << 0x10;
-
-                obj.m_id = object.m_id;
-                objects.append(obj);
-            }
-            break;
-        }
-        case ENGINE_v3: {
-            RSDKv3::Scene scn(reader);
-
-            m_title = scn.m_title;
-
-            for (int i = 0; i < 4; ++i) activeLayer[i] = scn.m_activeLayer[i];
-            midpoint = scn.m_midpoint;
-
-            width  = scn.m_width;
-            height = scn.m_height;
-
-            for (int y = 0; y < height; ++y) {
-                layout.append(QList<ushort>());
-                for (int x = 0; x < width; ++x) {
-                    layout[y].append(scn.m_layout[y][x]);
-                }
-            }
-
-            for (QString name : scn.m_objectTypeNames) objectTypeNames.append(name);
-
-            for (RSDKv3::Scene::Object &object : scn.m_objects) {
-                Object obj;
-
-                obj.type          = object.m_type;
-                obj.m_propertyValue = object.m_propertyValue;
-                obj.m_position.x    = object.m_xPos << 0x10;
-                obj.m_position.y    = object.m_yPos << 0x10;
-
-                obj.m_id = object.m_id;
-                objects.append(obj);
-            }
-            break;
-        }
-        case ENGINE_v4: {
-            RSDKv4::Scene scn(reader);
-
-            m_title = scn.m_title;
-
-            for (int i = 0; i < 4; ++i) activeLayer[i] = scn.m_activeLayer[i];
-            midpoint = scn.m_midpoint;
+            for (int i = 0; i < 4; ++i) activeLayer[i] = scn.activeLayer[i];
+            midpoint = scn.midpoint;
 
             width  = scn.width;
             height = scn.height;
@@ -147,19 +81,85 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
                 }
             }
 
-            for (RSDKv4::Scene::Object &object : scn.m_objects) {
+            for (QString name : scn.typeNames) objectTypeNames.append(name);
+
+            for (RSDKv2::Scene::Object &object : scn.objects) {
                 Object obj;
 
-                obj.type          = object.m_type;
-                obj.m_propertyValue = object.m_subtype;
-                obj.m_position.x    = object.m_xPos;
-                obj.m_position.y    = object.m_yPos;
+                obj.type          = object.type;
+                obj.propertyValue = object.propertyValue;
+                obj.pos.x         = object.posX << 0x10;
+                obj.pos.y         = object.posY << 0x10;
 
-                obj.m_id = object.m_id;
+                obj.slotID = object.slotID;
+                objects.append(obj);
+            }
+            break;
+        }
+        case ENGINE_v3: {
+            RSDKv3::Scene scn(reader);
+
+            title = scn.title;
+
+            for (int i = 0; i < 4; ++i) activeLayer[i] = scn.activeLayer[i];
+            midpoint = scn.midpoint;
+
+            width  = scn.width;
+            height = scn.height;
+
+            for (int y = 0; y < height; ++y) {
+                layout.append(QList<ushort>());
+                for (int x = 0; x < width; ++x) {
+                    layout[y].append(scn.layout[y][x]);
+                }
+            }
+
+            for (QString name : scn.typeNames) objectTypeNames.append(name);
+
+            for (RSDKv3::Scene::Object &object : scn.objects) {
+                Object obj;
+
+                obj.type          = object.type;
+                obj.propertyValue = object.propertyValue;
+                obj.pos.x         = object.posX << 0x10;
+                obj.pos.y         = object.posY << 0x10;
+
+                obj.slotID = object.slotID;
+                objects.append(obj);
+            }
+            break;
+        }
+        case ENGINE_v4: {
+            RSDKv4::Scene scn(reader);
+
+            title = scn.title;
+
+            for (int i = 0; i < 4; ++i) activeLayer[i] = scn.activeLayers[i];
+            midpoint = scn.midpoint;
+
+            width  = scn.width;
+            height = scn.height;
+
+            for (int y = 0; y < height; ++y) {
+                layout.append(QList<ushort>());
+                for (int x = 0; x < width; ++x) {
+                    layout[y].append(scn.layout[y][x]);
+                }
+            }
+
+            for (RSDKv4::Scene::Object &object : scn.objects) {
+                Object obj;
+
+                obj.type          = object.type;
+                obj.propertyValue = object.propertyValue;
+                obj.pos.x         = object.posX;
+                obj.pos.y         = object.posY;
+
+                obj.slotID = object.slotID;
 
                 for (int a = 0; a < 0x0F; ++a) {
-                    obj.m_attributes[a].m_value  = object.m_attributes[a].m_value;
-                    obj.m_attributes[a].m_active = object.m_attributes[a].m_active;
+                    obj.variables[a].value  = object.variables[a].value;
+                    obj.variables[a].active = object.variables[a].active;
                 }
 
                 objects.append(obj);
@@ -183,13 +183,13 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
         case ENGINE_v1: {
             RSDKv1::Scene scn;
 
-            scn.title = m_title;
+            scn.title = title;
 
-            scn.musicID      = m_music;
-            scn.backgroundID = m_background;
+            scn.musicID      = musicID;
+            scn.backgroundID = backgroundID;
 
-            scn.playerXPos = m_playerXPos;
-            scn.playerYPos = m_playerYPos;
+            scn.playerXPos = playerX;
+            scn.playerYPos = playerY;
 
             scn.width  = width;
             scn.height = height;
@@ -209,11 +209,11 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
                 RSDKv1::Scene::Object obj;
 
                 obj.type          = object.type;
-                obj.propertyValue = object.m_propertyValue;
-                obj.XPos          = object.m_position.x >> 0x10;
-                obj.YPos          = object.m_position.y >> 0x10;
+                obj.propertyValue = object.propertyValue;
+                obj.posX          = object.pos.x >> 0x10;
+                obj.posY          = object.pos.y >> 0x10;
 
-                obj.slotID = object.m_id;
+                obj.slotID = object.slotID;
                 scn.objects.append(obj);
             }
 
@@ -223,34 +223,34 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
         case ENGINE_v2: {
             RSDKv2::Scene scn;
 
-            scn.m_title = m_title;
+            scn.title = title;
 
-            for (int i = 0; i < 4; ++i) scn.m_activeLayer[i] = activeLayer[i];
-            scn.m_midpoint = midpoint;
+            for (int i = 0; i < 4; ++i) scn.activeLayer[i] = activeLayer[i];
+            scn.midpoint = midpoint;
 
-            scn.m_width  = width;
-            scn.m_height = height;
+            scn.width  = width;
+            scn.height = height;
 
-            scn.m_layout.clear();
-            for (int y = 0; y < scn.m_height; ++y) {
-                scn.m_layout.append(QList<ushort>());
-                for (int x = 0; x < scn.m_width; ++x) {
-                    scn.m_layout[y].append(layout[y][x]);
+            scn.layout.clear();
+            for (int y = 0; y < scn.height; ++y) {
+                scn.layout.append(QList<ushort>());
+                for (int x = 0; x < scn.width; ++x) {
+                    scn.layout[y].append(layout[y][x]);
                 }
             }
 
-            for (QString name : objectTypeNames) scn.m_objectTypeNames.append(name);
+            for (QString name : objectTypeNames) scn.typeNames.append(name);
 
             for (Object &object : objects) {
                 RSDKv2::Scene::Object obj;
 
-                obj.m_type          = object.type;
-                obj.m_propertyValue = object.m_propertyValue;
-                obj.m_xPos          = object.m_position.x >> 0x10;
-                obj.m_yPos          = object.m_position.y >> 0x10;
+                obj.type          = object.type;
+                obj.propertyValue = object.propertyValue;
+                obj.posX          = object.pos.x >> 0x10;
+                obj.posY          = object.pos.y >> 0x10;
 
-                obj.m_id = object.m_id;
-                scn.m_objects.append(obj);
+                obj.slotID = object.slotID;
+                scn.objects.append(obj);
             }
 
             scn.write(writer);
@@ -259,33 +259,33 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
         case ENGINE_v3: {
             RSDKv3::Scene scn;
 
-            scn.m_title = m_title;
+            scn.title = title;
 
-            for (int i = 0; i < 4; ++i) scn.m_activeLayer[i] = activeLayer[i];
-            scn.m_midpoint = midpoint;
+            for (int i = 0; i < 4; ++i) scn.activeLayer[i] = activeLayer[i];
+            scn.midpoint = midpoint;
 
-            scn.m_width  = width;
-            scn.m_height = height;
+            scn.width  = width;
+            scn.height = height;
 
-            for (int y = 0; y < scn.m_height; ++y) {
-                scn.m_layout.append(QList<ushort>());
-                for (int x = 0; x < scn.m_width; ++x) {
-                    scn.m_layout[y].append(layout[y][x]);
+            for (int y = 0; y < scn.height; ++y) {
+                scn.layout.append(QList<ushort>());
+                for (int x = 0; x < scn.width; ++x) {
+                    scn.layout[y].append(layout[y][x]);
                 }
             }
 
-            for (QString name : objectTypeNames) scn.m_objectTypeNames.append(name);
+            for (QString name : objectTypeNames) scn.typeNames.append(name);
 
             for (Object &object : objects) {
                 RSDKv3::Scene::Object obj;
 
-                obj.m_type          = object.type;
-                obj.m_propertyValue = object.m_propertyValue;
-                obj.m_xPos          = object.m_position.x >> 0x10;
-                obj.m_yPos          = object.m_position.y >> 0x10;
+                obj.type          = object.type;
+                obj.propertyValue = object.propertyValue;
+                obj.posX          = object.pos.x >> 0x10;
+                obj.posY          = object.pos.y >> 0x10;
 
-                obj.m_id = object.m_id;
-                scn.m_objects.append(obj);
+                obj.slotID = object.slotID;
+                scn.objects.append(obj);
             }
 
             scn.write(writer);
@@ -294,10 +294,10 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
         case ENGINE_v4: {
             RSDKv4::Scene scn;
 
-            scn.m_title = m_title;
+            scn.title = title;
 
-            for (int i = 0; i < 4; ++i) scn.m_activeLayer[i] = activeLayer[i];
-            scn.m_midpoint = midpoint;
+            for (int i = 0; i < 4; ++i) scn.activeLayers[i] = activeLayer[i];
+            scn.midpoint = midpoint;
 
             scn.width  = width;
             scn.height = height;
@@ -312,19 +312,19 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
             for (Object &object : objects) {
                 RSDKv4::Scene::Object obj;
 
-                obj.m_type    = object.type;
-                obj.m_subtype = object.m_propertyValue;
-                obj.m_xPos    = object.m_position.x;
-                obj.m_yPos    = object.m_position.x;
+                obj.type          = object.type;
+                obj.propertyValue = object.propertyValue;
+                obj.posX          = object.pos.x;
+                obj.posY          = object.pos.x;
 
-                obj.m_id = object.m_id;
+                obj.slotID = object.slotID;
 
                 for (int a = 0; a < 0x0F; ++a) {
-                    obj.m_attributes[a].m_value  = object.m_attributes[a].m_value;
-                    obj.m_attributes[a].m_active = object.m_attributes[a].m_active;
+                    obj.variables[a].value  = object.variables[a].value;
+                    obj.variables[a].active = object.variables[a].active;
                 }
 
-                scn.m_objects.append(obj);
+                scn.objects.append(obj);
             }
 
             scn.write(writer);

@@ -21,12 +21,12 @@ public:
             propertyValue = reader.read<byte>();
 
             // X Position, 2 bytes, big-endian, signed
-            XPos = (short)(reader.read<char>() << 8);
-            XPos |= (short)reader.read<byte>();
+            posX = (short)(reader.read<char>() << 8);
+            posX |= (short)reader.read<byte>();
 
             // Y Position, 2 bytes, big-endian, signed
-            YPos = (short)(reader.read<char>() << 8);
-            YPos |= (short)reader.read<byte>();
+            posY = (short)(reader.read<char>() << 8);
+            posY |= (short)reader.read<byte>();
 
             slotID = id;
         }
@@ -36,17 +36,17 @@ public:
             writer.write(type);
             writer.write(propertyValue);
 
-            writer.write((byte)(XPos >> 8));
-            writer.write((byte)(XPos & 0xFF));
+            writer.write((byte)(posX >> 8));
+            writer.write((byte)(posX & 0xFF));
 
-            writer.write((byte)(YPos >> 8));
-            writer.write((byte)(YPos & 0xFF));
+            writer.write((byte)(posY >> 8));
+            writer.write((byte)(posY & 0xFF));
         }
 
         byte type          = 0;
         byte propertyValue = 0;
-        short XPos         = 0;
-        short YPos         = 0;
+        short posX         = 0;
+        short posY         = 0;
 
         short slotID = 0;
     };

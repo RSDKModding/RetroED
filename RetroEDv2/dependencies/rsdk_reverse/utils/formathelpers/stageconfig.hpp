@@ -13,8 +13,8 @@ public:
         ObjectInfo() {}
 
         QString m_name   = "Object";
-        QString m_script = "Folder/Script.txt";
-        byte m_sheetID   = 0;
+        QString script = "Folder/Script.txt";
+        byte sheetID   = 0;
     };
 
     class SoundInfo
@@ -23,7 +23,7 @@ public:
         SoundInfo() {}
 
         QString m_name = "Sound";
-        QString m_path = "Folder/Sound.wav";
+        QString path = "Folder/Sound.wav";
     };
 
     Stageconfig() {}
@@ -32,14 +32,14 @@ public:
     void read(byte ver, QString filename);
     void write(byte ver, QString filename);
 
-    Palette m_stagePalette;
-    QList<SoundInfo> m_soundFX;
+    Palette palette;
+    QList<SoundInfo> soundFX;
     QList<ObjectInfo> objects;
     bool loadGlobalScripts = true;
-    QList<QString> m_objectSpritesheets;
-    QList<QString> m_music;
+    QList<QString> spriteSheets;
+    QList<QString> music;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace FormatHelpers

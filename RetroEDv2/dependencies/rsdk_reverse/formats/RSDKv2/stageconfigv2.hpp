@@ -29,10 +29,10 @@ public:
     }
     void write(Writer &writer);
 
-    Palette m_stagePalette;
-    QList<QString> m_soundFX;
-    QList<QString> m_scripts;
-    bool m_loadGlobalScripts = true;
+    Palette palette;
+    QList<QString> soundFX;
+    QList<QString> scripts;
+    bool loadGlobalScripts = true;
 
     QString m_filename = "";
 };

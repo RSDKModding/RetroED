@@ -5,25 +5,25 @@ void RSDKv2::Stageconfig::read(Reader &reader)
     m_filename = reader.filepath;
 
     // Global Objects Flag
-    m_loadGlobalScripts = reader.read<byte>();
+    loadGlobalScripts = reader.read<byte>();
 
     // Stage Palette
-    m_stagePalette.read(reader, 2 * 16);
+    palette.read(reader, 2 * 16);
 
     // Stage Scripts
     byte scrCount = reader.read<byte>();
-    m_scripts.clear();
+    scripts.clear();
 
     for (int s = 0; s < scrCount; ++s) {
-        m_scripts.append(reader.readString());
+        scripts.append(reader.readString());
     }
 
     // Stage SoundFX
     byte sfxCount = reader.read<byte>();
-    m_soundFX.clear();
+    soundFX.clear();
 
     for (int s = 0; s < sfxCount; ++s) {
-        m_soundFX.append(reader.readString());
+        soundFX.append(reader.readString());
     }
 }
 
@@ -32,20 +32,20 @@ void RSDKv2::Stageconfig::write(Writer &writer)
     m_filename = writer.filePath;
 
     // Global Objects Flag
-    writer.write(m_loadGlobalScripts);
+    writer.write(loadGlobalScripts);
 
     // Stage Palette
-    m_stagePalette.write(writer);
+    palette.write(writer);
 
     // Stage Scripts
-    writer.write((byte)m_scripts.count());
-    for (QString &scr : m_scripts) {
+    writer.write((byte)scripts.count());
+    for (QString &scr : scripts) {
         writer.write(scr);
     }
 
     // Stage SoundFX
-    writer.write((byte)m_soundFX.count());
-    for (QString &sfx : m_soundFX) {
+    writer.write((byte)soundFX.count());
+    for (QString &sfx : soundFX) {
         writer.write(sfx);
     }
 

@@ -14,7 +14,7 @@ class StageconfigEditorv4 : public QDialog
 
 public:
     explicit StageconfigEditorv4(FormatHelpers::Stageconfig *scf, int globalObjCount,
-                                 QWidget *parent = nullptr);
+                                 int globalSfxCount, QWidget *parent = nullptr);
     ~StageconfigEditorv4();
 
     void setupUI();
@@ -22,9 +22,12 @@ public:
 private:
     Ui::StageconfigEditorv4 *ui;
 
-    FormatHelpers::Stageconfig *m_stageconfig;
+    FormatHelpers::Stageconfig *stageConfig;
 
     QStandardItemModel *m_sceneModel = nullptr;
+
+    int globalObjectCount = 0;
+    int globalSFXCount    = 0;
 };
 
 #endif // STAGECONFIGEDITOR_V4_H

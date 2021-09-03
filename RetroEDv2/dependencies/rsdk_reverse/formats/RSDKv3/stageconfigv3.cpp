@@ -8,19 +8,19 @@ void RSDKv3::Stageconfig::read(Reader &reader)
     loadGlobalScripts = reader.read<byte>();
 
     // Stage Palette
-    m_stagePalette.read(reader, 2 * 16);
+    palette.read(reader, 2 * 16);
 
     // Stage Objects
     byte objectCount = reader.read<byte>();
-    m_objects.clear();
+    objects.clear();
 
     for (int o = 0; o < objectCount; ++o) {
         ObjectInfo obj;
         obj.name = reader.readString();
-        m_objects.append(obj);
+        objects.append(obj);
     }
 
-    for (ObjectInfo &obj : m_objects) {
+    for (ObjectInfo &obj : objects) {
         obj.script = reader.readString();
     }
 
@@ -41,15 +41,15 @@ void RSDKv3::Stageconfig::write(Writer &writer)
     writer.write(loadGlobalScripts);
 
     // Stage Palette
-    m_stagePalette.write(writer);
+    palette.write(writer);
 
     // Stage Objects
-    writer.write((byte)m_objects.count());
-    for (ObjectInfo &obj : m_objects) {
+    writer.write((byte)objects.count());
+    for (ObjectInfo &obj : objects) {
         writer.write(obj.name);
     }
 
-    for (ObjectInfo &obj : m_objects) {
+    for (ObjectInfo &obj : objects) {
         writer.write(obj.script);
     }
 

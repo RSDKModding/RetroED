@@ -1,15 +1,16 @@
 #include "includes.hpp"
 #include "ui_stageconfigeditorv1.h"
 
-StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidget *parent)
-    : m_stageconfig(scf), QDialog(parent), ui(new Ui::StageconfigEditorv1)
+StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, int globalSfxCount,
+                                         QWidget *parent)
+    : stageConfig(scf), QDialog(parent), ui(new Ui::StageconfigEditorv1)
 {
     ui->setupUi(this);
+    globalSFXCount = globalSfxCount;
 
     this->setWindowTitle("Stageconfig Editor");
 
     ui->objName->setDisabled(true);
-    ui->sfxName->setDisabled(true);
 
     setupUI();
 
@@ -53,7 +54,7 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
         ui->objSheet->addItem("[Unknown]");
         ui->objSheet->addItem("Data/Objects/General.gfx");
         ui->objSheet->addItem("Data/Objects/General2.gfx");
-        for (QString &sheet : m_stageconfig->m_objectSpritesheets) {
+        for (QString &sheet : stageConfig->spriteSheets) {
             ui->objSheet->addItem("Data/Objects/Gfx/" + sheet);
         }
         ui->objSheet->blockSignals(false);
@@ -79,15 +80,15 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
             return;
 
         ui->objName->blockSignals(true);
-        ui->objName->setText(m_stageconfig->objects[c].m_name);
+        ui->objName->setText(stageConfig->objects[c].m_name);
         ui->objName->blockSignals(false);
 
         ui->objScript->blockSignals(true);
-        ui->objScript->setText(m_stageconfig->objects[c].m_script);
+        ui->objScript->setText(stageConfig->objects[c].script);
         ui->objScript->blockSignals(false);
 
         ui->objSheet->blockSignals(true);
-        ui->objSheet->setCurrentIndex(m_stageconfig->objects[c].m_sheetID);
+        ui->objSheet->setCurrentIndex(stageConfig->objects[c].sheetID);
         ui->objSheet->blockSignals(false);
 
         ui->objType->setText("Object Type ID: " + QString::number(c + 31));
@@ -101,9 +102,9 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
     connect(ui->addObj, &QToolButton::clicked, [this] {
         ui->objList->blockSignals(true);
         uint c = ui->objList->currentRow() + 1;
-        m_stageconfig->objects.insert(c, FormatHelpers::Stageconfig::ObjectInfo());
+        stageConfig->objects.insert(c, FormatHelpers::Stageconfig::ObjectInfo());
         auto *item = new QListWidgetItem();
-        item->setText(m_stageconfig->objects[c].m_name);
+        item->setText(stageConfig->objects[c].m_name);
         ui->objList->insertItem(c, item);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -114,7 +115,7 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
     connect(ui->upObj, &QToolButton::clicked, [this] {
         uint c     = ui->objList->currentRow();
         auto *item = ui->objList->takeItem(c);
-        m_stageconfig->objects.move(c, c - 1);
+        stageConfig->objects.move(c, c - 1);
         ui->objList->insertItem(c - 1, item);
         ui->objList->setCurrentRow(c - 1);
     });
@@ -122,7 +123,7 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
     connect(ui->downObj, &QToolButton::clicked, [this] {
         uint c     = ui->objList->currentRow();
         auto *item = ui->objList->takeItem(c);
-        m_stageconfig->objects.move(c, c + 1);
+        stageConfig->objects.move(c, c + 1);
         ui->objList->insertItem(c + 1, item);
         ui->objList->setCurrentRow(c + 1);
     });
@@ -131,29 +132,29 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
         int c = ui->objList->currentRow();
         int n = ui->objList->currentRow() == ui->objList->count() - 1 ? c - 1 : c;
         delete ui->objList->item(c);
-        m_stageconfig->objects.removeAt(c);
+        stageConfig->objects.removeAt(c);
         ui->objList->blockSignals(true);
         ui->objList->setCurrentRow(n);
         ui->objList->blockSignals(false);
     });
 
     connect(ui->objList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        m_stageconfig->objects[ui->objList->row(item)].m_script = item->text();
-        m_stageconfig->objects[ui->objList->row(item)].m_name   = QFileInfo(item->text()).baseName();
+        stageConfig->objects[ui->objList->row(item)].script = item->text();
+        stageConfig->objects[ui->objList->row(item)].m_name = QFileInfo(item->text()).baseName();
 
         ui->objName->blockSignals(true);
-        ui->objName->setText(m_stageconfig->objects[ui->objList->row(item)].m_name);
+        ui->objName->setText(stageConfig->objects[ui->objList->row(item)].m_name);
         ui->objName->blockSignals(false);
 
         ui->objScript->blockSignals(true);
-        ui->objScript->setText(m_stageconfig->objects[ui->objList->currentRow()].m_script);
+        ui->objScript->setText(stageConfig->objects[ui->objList->currentRow()].script);
         ui->objScript->blockSignals(false);
     });
 
     connect(ui->objScript, &QLineEdit::textEdited,
-            [this](QString s) { m_stageconfig->objects[ui->objList->currentRow()].m_script = s; });
+            [this](QString s) { stageConfig->objects[ui->objList->currentRow()].script = s; });
     connect(ui->objSheet, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [this](int v) { m_stageconfig->objects[ui->objList->currentRow()].m_sheetID = (byte)v; });
+            [this](int v) { stageConfig->objects[ui->objList->currentRow()].sheetID = (byte)v; });
 
     // ----------------
     // SOUNDFX
@@ -166,19 +167,18 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
         if (ui->rmSfx)
             ui->rmSfx->setDisabled(c == -1);
 
-        // ui->sfxName->setDisabled(c == -1);
         ui->sfxPath->setDisabled(c == -1);
+
+        ui->sfxID->setText("SoundFX ID: ");
 
         if (c == -1)
             return;
 
-        ui->sfxName->blockSignals(true);
-        ui->sfxName->setText(m_stageconfig->m_soundFX[c].m_name);
-        ui->sfxName->blockSignals(false);
-
         ui->sfxPath->blockSignals(true);
-        ui->sfxPath->setText(m_stageconfig->m_soundFX[c].m_path);
+        ui->sfxPath->setText(stageConfig->soundFX[c].path);
         ui->sfxPath->blockSignals(false);
+
+        ui->sfxID->setText("SoundFX ID: " + QString::number(globalSFXCount + c));
 
         if (ui->downSfx)
             ui->downSfx->setDisabled(c == ui->sfxList->count() - 1);
@@ -189,9 +189,9 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
     connect(ui->addSfx, &QToolButton::clicked, [this] {
         ui->sfxList->blockSignals(true);
         uint c = ui->sfxList->currentRow() + 1;
-        m_stageconfig->m_soundFX.insert(c, FormatHelpers::Stageconfig::SoundInfo());
+        stageConfig->soundFX.insert(c, FormatHelpers::Stageconfig::SoundInfo());
         auto *item = new QListWidgetItem();
-        item->setText(m_stageconfig->m_soundFX[c].m_path);
+        item->setText(stageConfig->soundFX[c].path);
         ui->sfxList->insertItem(c, item);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -202,7 +202,7 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
     connect(ui->upSfx, &QToolButton::clicked, [this] {
         uint c     = ui->sfxList->currentRow();
         auto *item = ui->sfxList->takeItem(c);
-        m_stageconfig->m_soundFX.move(c, c - 1);
+        stageConfig->soundFX.move(c, c - 1);
         ui->sfxList->insertItem(c - 1, item);
         ui->sfxList->setCurrentRow(c - 1);
     });
@@ -210,7 +210,7 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
     connect(ui->downSfx, &QToolButton::clicked, [this] {
         uint c     = ui->sfxList->currentRow();
         auto *item = ui->sfxList->takeItem(c);
-        m_stageconfig->m_soundFX.move(c, c + 1);
+        stageConfig->soundFX.move(c, c + 1);
         ui->sfxList->insertItem(c + 1, item);
         ui->sfxList->setCurrentRow(c + 1);
     });
@@ -219,35 +219,27 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
         int c = ui->sfxList->currentRow();
         int n = ui->sfxList->currentRow() == ui->sfxList->count() - 1 ? c - 1 : c;
         delete ui->sfxList->item(c);
-        m_stageconfig->m_soundFX.removeAt(c);
+        stageConfig->soundFX.removeAt(c);
         ui->sfxList->blockSignals(true);
         ui->sfxList->setCurrentRow(n);
         ui->sfxList->blockSignals(false);
     });
 
     connect(ui->sfxList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        m_stageconfig->m_soundFX[ui->sfxList->row(item)].m_path = item->text();
-        m_stageconfig->m_soundFX[ui->sfxList->row(item)].m_name = QFileInfo(item->text()).baseName();
+        stageConfig->soundFX[ui->sfxList->row(item)].path   = item->text();
+        stageConfig->soundFX[ui->sfxList->row(item)].m_name = QFileInfo(item->text()).baseName();
 
         ui->sfxPath->blockSignals(true);
-        ui->sfxPath->setText(m_stageconfig->m_soundFX[ui->sfxList->row(item)].m_path);
+        ui->sfxPath->setText(stageConfig->soundFX[ui->sfxList->row(item)].path);
         ui->sfxPath->blockSignals(false);
-
-        ui->sfxName->blockSignals(true);
-        ui->sfxName->setText(m_stageconfig->m_soundFX[ui->sfxList->currentRow()].m_name);
-        ui->sfxName->blockSignals(false);
     });
 
     connect(ui->sfxPath, &QLineEdit::textEdited, [this](QString s) {
-        m_stageconfig->m_soundFX[ui->sfxList->currentRow()].m_path = s;
-        m_stageconfig->m_soundFX[ui->sfxList->currentRow()].m_name = QFileInfo(s).baseName();
+        stageConfig->soundFX[ui->sfxList->currentRow()].path   = s;
+        stageConfig->soundFX[ui->sfxList->currentRow()].m_name = QFileInfo(s).baseName();
 
         ui->sfxList->item(ui->sfxList->currentRow())
-            ->setText(m_stageconfig->m_soundFX[ui->sfxList->currentRow()].m_path);
-
-        ui->sfxName->blockSignals(true);
-        ui->sfxName->setText(m_stageconfig->m_soundFX[ui->sfxList->currentRow()].m_name);
-        ui->sfxName->blockSignals(false);
+            ->setText(stageConfig->soundFX[ui->sfxList->currentRow()].path);
     });
 
     // ----------------
@@ -267,7 +259,7 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
             return;
 
         ui->musPath->blockSignals(true);
-        ui->musPath->setText(m_stageconfig->m_music[c]);
+        ui->musPath->setText(stageConfig->music[c]);
         ui->musPath->blockSignals(false);
 
         if (ui->downMus)
@@ -279,9 +271,9 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
     connect(ui->addMus, &QToolButton::clicked, [this] {
         ui->musList->blockSignals(true);
         uint c = ui->musList->currentRow() + 1;
-        m_stageconfig->m_music.insert(c, "Music.ogg");
+        stageConfig->music.insert(c, "Music.ogg");
         auto *item = new QListWidgetItem();
-        item->setText(m_stageconfig->m_music[c]);
+        item->setText(stageConfig->music[c]);
         ui->musList->insertItem(c, item);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -292,7 +284,7 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
     connect(ui->upMus, &QToolButton::clicked, [this] {
         uint c     = ui->musList->currentRow();
         auto *item = ui->musList->takeItem(c);
-        m_stageconfig->m_music.move(c, c - 1);
+        stageConfig->music.move(c, c - 1);
         ui->musList->insertItem(c - 1, item);
         ui->musList->setCurrentRow(c - 1);
     });
@@ -300,7 +292,7 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
     connect(ui->downMus, &QToolButton::clicked, [this] {
         uint c     = ui->musList->currentRow();
         auto *item = ui->musList->takeItem(c);
-        m_stageconfig->m_music.move(c, c + 1);
+        stageConfig->music.move(c, c + 1);
         ui->musList->insertItem(c + 1, item);
         ui->musList->setCurrentRow(c + 1);
     });
@@ -309,25 +301,25 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
         int c = ui->musList->currentRow();
         int n = ui->musList->currentRow() == ui->musList->count() - 1 ? c - 1 : c;
         delete ui->musList->item(c);
-        m_stageconfig->m_music.removeAt(c);
+        stageConfig->music.removeAt(c);
         ui->musList->blockSignals(true);
         ui->musList->setCurrentRow(n);
         ui->musList->blockSignals(false);
     });
 
     connect(ui->musList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        m_stageconfig->m_music[ui->musList->row(item)] = item->text();
+        stageConfig->music[ui->musList->row(item)] = item->text();
 
         ui->musPath->blockSignals(true);
-        ui->musPath->setText(m_stageconfig->m_music[ui->musList->row(item)]);
+        ui->musPath->setText(stageConfig->music[ui->musList->row(item)]);
         ui->musPath->blockSignals(false);
     });
 
     connect(ui->musPath, &QLineEdit::textEdited, [this](QString s) {
-        m_stageconfig->m_soundFX[ui->musList->currentRow()].m_path = s;
+        stageConfig->soundFX[ui->musList->currentRow()].path = s;
 
         ui->musList->item(ui->musList->currentRow())
-            ->setText(m_stageconfig->m_music[ui->musList->currentRow()]);
+            ->setText(stageConfig->music[ui->musList->currentRow()]);
     });
 
     // ----------------
@@ -347,7 +339,7 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
             return;
 
         ui->shtPath->blockSignals(true);
-        ui->shtPath->setText(m_stageconfig->m_objectSpritesheets[c]);
+        ui->shtPath->setText(stageConfig->spriteSheets[c]);
         ui->shtPath->blockSignals(false);
 
         if (ui->downSht)
@@ -359,17 +351,17 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
     connect(ui->addSht, &QToolButton::clicked, [this, createSheetList] {
         ui->shtList->blockSignals(true);
         uint c = ui->shtList->currentRow() + 1;
-        m_stageconfig->m_objectSpritesheets.insert(c, "Sheet.bmp");
+        stageConfig->spriteSheets.insert(c, "Sheet.bmp");
         auto *item = new QListWidgetItem();
-        item->setText(m_stageconfig->m_objectSpritesheets[c]);
+        item->setText(stageConfig->spriteSheets[c]);
         ui->shtList->insertItem(c, item);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->shtList->setCurrentItem(item);
 
-        for (FormatHelpers::Stageconfig::ObjectInfo &obj : m_stageconfig->objects) {
-            if (obj.m_sheetID >= (c + 6))
-                ++obj.m_sheetID;
+        for (FormatHelpers::Stageconfig::ObjectInfo &obj : stageConfig->objects) {
+            if (obj.sheetID >= (c + 6))
+                ++obj.sheetID;
         }
         createSheetList();
         ui->shtList->blockSignals(false);
@@ -378,15 +370,15 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
     connect(ui->upSht, &QToolButton::clicked, [this, createSheetList] {
         uint c     = ui->shtList->currentRow();
         auto *item = ui->shtList->takeItem(c);
-        m_stageconfig->m_objectSpritesheets.move(c, c - 1);
+        stageConfig->spriteSheets.move(c, c - 1);
         ui->shtList->insertItem(c - 1, item);
         ui->shtList->setCurrentRow(c - 1);
 
-        for (FormatHelpers::Stageconfig::ObjectInfo &obj : m_stageconfig->objects) {
-            if (obj.m_sheetID == (c + 6))
-                obj.m_sheetID = (c + 6) - 1;
-            else if (obj.m_sheetID == (c + 6) - 1)
-                obj.m_sheetID = (c + 6);
+        for (FormatHelpers::Stageconfig::ObjectInfo &obj : stageConfig->objects) {
+            if (obj.sheetID == (c + 6))
+                obj.sheetID = (c + 6) - 1;
+            else if (obj.sheetID == (c + 6) - 1)
+                obj.sheetID = (c + 6);
         }
         createSheetList();
     });
@@ -394,15 +386,15 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
     connect(ui->downSht, &QToolButton::clicked, [this, createSheetList] {
         uint c     = ui->shtList->currentRow();
         auto *item = ui->shtList->takeItem(c);
-        m_stageconfig->m_objectSpritesheets.move(c, c + 1);
+        stageConfig->spriteSheets.move(c, c + 1);
         ui->shtList->insertItem(c + 1, item);
         ui->shtList->setCurrentRow(c + 1);
 
-        for (FormatHelpers::Stageconfig::ObjectInfo &obj : m_stageconfig->objects) {
-            if (obj.m_sheetID == (c + 6))
-                obj.m_sheetID = (c + 6) + 1;
-            else if (obj.m_sheetID == (c + 6) + 1)
-                obj.m_sheetID = (c + 6);
+        for (FormatHelpers::Stageconfig::ObjectInfo &obj : stageConfig->objects) {
+            if (obj.sheetID == (c + 6))
+                obj.sheetID = (c + 6) + 1;
+            else if (obj.sheetID == (c + 6) + 1)
+                obj.sheetID = (c + 6);
         }
         createSheetList();
     });
@@ -411,33 +403,33 @@ StageconfigEditorv1::StageconfigEditorv1(FormatHelpers::Stageconfig *scf, QWidge
         int c = ui->shtList->currentRow();
         int n = ui->shtList->currentRow() == ui->shtList->count() - 1 ? c - 1 : c;
         delete ui->shtList->item(c);
-        m_stageconfig->m_objectSpritesheets.removeAt(c);
+        stageConfig->spriteSheets.removeAt(c);
         ui->shtList->blockSignals(true);
         ui->shtList->setCurrentRow(n);
         ui->shtList->blockSignals(false);
 
-        for (FormatHelpers::Stageconfig::ObjectInfo &obj : m_stageconfig->objects) {
-            if (obj.m_sheetID > (c + 6))
-                --obj.m_sheetID;
-            else if (obj.m_sheetID == (c + 6))
-                obj.m_sheetID = 4; // general.gfx
+        for (FormatHelpers::Stageconfig::ObjectInfo &obj : stageConfig->objects) {
+            if (obj.sheetID > (c + 6))
+                --obj.sheetID;
+            else if (obj.sheetID == (c + 6))
+                obj.sheetID = 4; // general.gfx
         }
         createSheetList();
     });
 
     connect(ui->shtList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        m_stageconfig->m_objectSpritesheets[ui->shtList->row(item)] = item->text();
+        stageConfig->spriteSheets[ui->shtList->row(item)] = item->text();
 
         ui->shtPath->blockSignals(true);
-        ui->shtPath->setText(m_stageconfig->m_objectSpritesheets[ui->shtList->row(item)]);
+        ui->shtPath->setText(stageConfig->spriteSheets[ui->shtList->row(item)]);
         ui->shtPath->blockSignals(false);
     });
 
     connect(ui->shtPath, &QLineEdit::textEdited, [this](QString s) {
-        m_stageconfig->m_objectSpritesheets[ui->shtList->currentRow()] = s;
+        stageConfig->spriteSheets[ui->shtList->currentRow()] = s;
 
         ui->shtList->item(ui->shtList->currentRow())
-            ->setText(m_stageconfig->m_objectSpritesheets[ui->shtList->currentRow()]);
+            ->setText(stageConfig->spriteSheets[ui->shtList->currentRow()]);
     });
 }
 
@@ -464,23 +456,23 @@ void StageconfigEditorv1::setupUI()
 
     ui->objList->clear();
     int id = 0;
-    for (FormatHelpers::Stageconfig::ObjectInfo &obj : m_stageconfig->objects) {
-        ui->objList->addItem(obj.m_script);
+    for (FormatHelpers::Stageconfig::ObjectInfo &obj : stageConfig->objects) {
+        ui->objList->addItem(obj.script);
         ui->objList->item(id)->setFlags(ui->objList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
     }
 
     ui->sfxList->clear();
     id = 0;
-    for (FormatHelpers::Stageconfig::SoundInfo &sfx : m_stageconfig->m_soundFX) {
-        ui->sfxList->addItem(sfx.m_path);
+    for (FormatHelpers::Stageconfig::SoundInfo &sfx : stageConfig->soundFX) {
+        ui->sfxList->addItem(sfx.path);
         ui->sfxList->item(id)->setFlags(ui->sfxList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
     }
 
     ui->musList->clear();
     id = 0;
-    for (QString &mus : m_stageconfig->m_music) {
+    for (QString &mus : stageConfig->music) {
         ui->musList->addItem(mus);
         ui->musList->item(id)->setFlags(ui->musList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
@@ -488,7 +480,7 @@ void StageconfigEditorv1::setupUI()
 
     ui->shtList->clear();
     id = 0;
-    for (QString &sheet : m_stageconfig->m_objectSpritesheets) {
+    for (QString &sheet : stageConfig->spriteSheets) {
         ui->shtList->addItem(sheet);
         ui->shtList->item(id)->setFlags(ui->shtList->item(id)->flags() | Qt::ItemIsEditable);
         id++;

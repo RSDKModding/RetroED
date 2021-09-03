@@ -10,26 +10,26 @@ public:
     class SoundInfo
     {
     public:
-        QString m_name         = "SFX.wav";
+        QString path         = "SFX.wav";
         byte maxConcurrentPlay = 1;
 
         SoundInfo() {}
         SoundInfo(QString name, byte maxPlays)
         {
-            m_name            = name;
+            path            = name;
             maxConcurrentPlay = maxPlays;
         }
         SoundInfo(Reader &reader) { read(reader); }
 
         inline void read(Reader reader)
         {
-            m_name            = reader.readString();
+            path            = reader.readString();
             maxConcurrentPlay = reader.read<byte>();
         }
 
         inline void write(Writer &writer)
         {
-            writer.write(m_name);
+            writer.write(path);
             writer.write(maxConcurrentPlay);
         }
     };
@@ -37,43 +37,43 @@ public:
     class SceneInfo
     {
     public:
-        QString m_name  = "Scene";
+        QString name  = "Scene";
         QString folder  = "";
-        QString sceneID = "";
-        byte modeFilter = 0;
+        QString id = "";
+        byte filter = 0;
 
         SceneInfo() {}
         SceneInfo(Reader &reader, bool readMode = true) { read(reader, readMode); }
 
         inline void read(Reader &reader, bool readMode = true)
         {
-            m_name  = reader.readString();
+            name  = reader.readString();
             folder  = reader.readString();
-            sceneID = reader.readString();
+            id = reader.readString();
             if (readMode)
-                modeFilter = reader.read<byte>();
+                filter = reader.read<byte>();
         }
 
         inline void write(Writer &writer, bool readMode = true)
         {
-            writer.write(m_name);
+            writer.write(name);
             writer.write(folder);
-            writer.write(sceneID);
+            writer.write(id);
 
             if (readMode)
-                writer.write(modeFilter);
+                writer.write(filter);
         }
     };
 
     class Category
     {
     public:
-        QString m_name = "New Category";
+        QString name = "New Category";
         QList<SceneInfo> scenes;
 
         Category()
         {
-            m_name = "New Category";
+            name = "New Category";
             scenes.clear();
             scenes.append(SceneInfo());
         }
@@ -81,7 +81,7 @@ public:
 
         inline void read(Reader &reader, bool readMode = true)
         {
-            m_name = reader.readString();
+            name = reader.readString();
 
             byte sceneCount = reader.read<byte>();
             scenes.clear();
@@ -90,7 +90,7 @@ public:
 
         inline void write(Writer &writer, bool readMode = true)
         {
-            writer.write(m_name);
+            writer.write(name);
 
             writer.write((byte)scenes.count());
             for (SceneInfo &scene : scenes) scene.write(writer, readMode);
@@ -156,7 +156,7 @@ public:
     RSDKv5::Palette palettes[8];
     QList<SoundInfo> soundFX;
 
-    QList<Category> sceneCategories;
+    QList<Category> categories;
     QList<GlobalVariable> globalVariables;
 
     QString m_filename = "";

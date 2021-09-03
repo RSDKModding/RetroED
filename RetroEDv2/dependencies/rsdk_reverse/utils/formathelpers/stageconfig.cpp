@@ -3,75 +3,77 @@
 void FormatHelpers::Stageconfig::read(byte ver, QString filename)
 {
     Reader reader(filename);
-    m_filename = filename;
+    filePath = filename;
 
     objects.clear();
-    m_soundFX.clear();
-    m_music.clear();
-    m_objectSpritesheets.clear();
+    soundFX.clear();
+    music.clear();
+    spriteSheets.clear();
     loadGlobalScripts = false;
-    m_stagePalette      = Palette();
+    palette           = Palette();
 
     switch (ver) {
         default: break;
         case ENGINE_v1: {
             RSDKv1::Stageconfig stageconfig(reader);
 
-            m_stagePalette = stageconfig.palette;
+            palette = stageconfig.palette;
 
             for (RSDKv1::Stageconfig::ObjectInfo &obj : stageconfig.objects) {
                 ObjectInfo o;
-                o.m_name    = QFileInfo(obj.script).baseName();
-                o.m_script  = obj.script;
-                o.m_sheetID = obj.m_sheetID;
+                o.m_name  = QFileInfo(obj.script).baseName();
+                o.script  = obj.script;
+                o.sheetID = obj.sheetID;
 
                 objects.append(o);
             }
 
-            for (QString &sht : stageconfig.spriteSheets) m_objectSpritesheets.append(sht);
+            for (QString &sht : stageconfig.spriteSheets) spriteSheets.append(sht);
 
             for (QString &sfx : stageconfig.soundFX) {
                 SoundInfo s;
                 s.m_name = QFileInfo(sfx).baseName();
-                s.m_path = sfx;
+                s.path   = sfx;
 
-                m_soundFX.append(s);
+                soundFX.append(s);
             }
 
-            for (QString &mus : stageconfig.music) m_music.append(mus);
-        } break;
+            for (QString &mus : stageconfig.music) music.append(mus);
+            break;
+        }
         case ENGINE_v2: {
             RSDKv2::Stageconfig stageconfig(reader);
 
-            loadGlobalScripts = stageconfig.m_loadGlobalScripts;
-            m_stagePalette      = stageconfig.m_stagePalette;
+            loadGlobalScripts = stageconfig.loadGlobalScripts;
+            palette           = stageconfig.palette;
 
-            for (QString &obj : stageconfig.m_scripts) {
+            for (QString &obj : stageconfig.scripts) {
                 ObjectInfo o;
-                o.m_name   = QFileInfo(obj).baseName();
-                o.m_script = obj;
+                o.m_name = QFileInfo(obj).baseName();
+                o.script = obj;
 
                 objects.append(o);
             }
 
-            for (QString &sfx : stageconfig.m_soundFX) {
+            for (QString &sfx : stageconfig.soundFX) {
                 SoundInfo s;
                 s.m_name = QFileInfo(sfx).baseName();
-                s.m_path = sfx;
+                s.path   = sfx;
 
-                m_soundFX.append(s);
+                soundFX.append(s);
             }
-        } break;
+            break;
+        }
         case ENGINE_v3: {
             RSDKv3::Stageconfig stageconfig(reader);
 
             loadGlobalScripts = stageconfig.loadGlobalScripts;
-            m_stagePalette      = stageconfig.m_stagePalette;
+            palette           = stageconfig.palette;
 
-            for (RSDKv3::Stageconfig::ObjectInfo &obj : stageconfig.m_objects) {
+            for (RSDKv3::Stageconfig::ObjectInfo &obj : stageconfig.objects) {
                 ObjectInfo o;
-                o.m_name   = obj.name;
-                o.m_script = obj.script;
+                o.m_name = obj.name;
+                o.script = obj.script;
 
                 objects.append(o);
             }
@@ -79,77 +81,79 @@ void FormatHelpers::Stageconfig::read(byte ver, QString filename)
             for (QString &sfx : stageconfig.soundFX) {
                 SoundInfo s;
                 s.m_name = QFileInfo(sfx).baseName();
-                s.m_path = sfx;
+                s.path   = sfx;
 
-                m_soundFX.append(s);
+                soundFX.append(s);
             }
-        } break;
+            break;
+        }
         case ENGINE_v4: {
             RSDKv4::Stageconfig stageconfig(reader);
 
             loadGlobalScripts = stageconfig.loadGlobalScripts;
-            m_stagePalette      = stageconfig.m_stagePalette;
+            palette           = stageconfig.palette;
 
-            for (RSDKv4::Stageconfig::ObjectInfo &obj : stageconfig.m_objects) {
+            for (RSDKv4::Stageconfig::ObjectInfo &obj : stageconfig.objects) {
                 ObjectInfo o;
-                o.m_name   = obj.name;
-                o.m_script = obj.script;
+                o.m_name = obj.name;
+                o.script = obj.script;
 
                 objects.append(o);
             }
 
-            for (RSDKv4::Stageconfig::SoundInfo &sfx : stageconfig.m_soundFX) {
+            for (RSDKv4::Stageconfig::SoundInfo &sfx : stageconfig.soundFX) {
                 SoundInfo s;
-                s.m_name = sfx.m_name;
-                s.m_path = sfx.m_path;
+                s.m_name = sfx.name;
+                s.path   = sfx.path;
 
-                m_soundFX.append(s);
+                soundFX.append(s);
             }
-        } break;
+            break;
+        }
     }
 }
 
 void FormatHelpers::Stageconfig::write(byte ver, QString filename)
 {
     if (filename == "")
-        filename = m_filename;
+        filename = filePath;
     if (filename == "")
         return;
     Writer writer(filename);
-    m_filename = filename;
+    filePath = filename;
 
     switch (ver) {
         default: break;
         case ENGINE_v1: {
             RSDKv1::Stageconfig stageconfig;
 
-            stageconfig.palette = m_stagePalette;
+            stageconfig.palette = palette;
 
             for (ObjectInfo &obj : objects) {
                 RSDKv1::Stageconfig::ObjectInfo o;
-                o.m_sheetID = obj.m_sheetID;
-                o.script  = obj.m_script;
+                o.sheetID = obj.sheetID;
+                o.script  = obj.script;
 
                 stageconfig.objects.append(o);
             }
 
-            for (QString &sht : m_objectSpritesheets) stageconfig.spriteSheets.append(sht);
+            for (QString &sheet : spriteSheets) stageconfig.spriteSheets.append(sheet);
 
-            for (SoundInfo &sfx : m_soundFX) stageconfig.soundFX.append(sfx.m_path);
+            for (SoundInfo &sfx : soundFX) stageconfig.soundFX.append(sfx.path);
 
-            for (QString &mus : m_music) stageconfig.music.append(mus);
+            for (QString &mus : music) stageconfig.music.append(mus);
 
             stageconfig.write(writer);
         } break;
         case ENGINE_v2: {
             RSDKv2::Stageconfig stageconfig;
 
-            stageconfig.m_loadGlobalScripts = loadGlobalScripts;
-            stageconfig.m_stagePalette      = m_stagePalette;
+            stageconfig.loadGlobalScripts = loadGlobalScripts;
+            stageconfig.palette           = palette;
 
-            for (ObjectInfo &obj : objects) stageconfig.m_scripts.append(obj.m_script);
+            for (ObjectInfo &obj : objects) stageconfig.scripts.append(obj.script);
 
-            for (SoundInfo &sfx : m_soundFX) stageconfig.m_soundFX.append(sfx.m_path);
+            for (SoundInfo &sfx : soundFX) stageconfig.soundFX.append(sfx.path);
 
             stageconfig.write(writer);
         } break;
@@ -157,18 +161,18 @@ void FormatHelpers::Stageconfig::write(byte ver, QString filename)
             RSDKv3::Stageconfig stageconfig;
 
             stageconfig.loadGlobalScripts = loadGlobalScripts;
-            stageconfig.m_stagePalette      = m_stagePalette;
+            stageconfig.palette           = palette;
 
             for (ObjectInfo &obj : objects) {
                 RSDKv3::Stageconfig::ObjectInfo o;
                 o.name   = obj.m_name;
-                o.script = obj.m_script;
+                o.script = obj.script;
 
-                stageconfig.m_objects.append(o);
+                stageconfig.objects.append(o);
             }
 
-            for (SoundInfo &sfx : m_soundFX) {
-                stageconfig.soundFX.append(sfx.m_path);
+            for (SoundInfo &sfx : soundFX) {
+                stageconfig.soundFX.append(sfx.path);
             }
 
             stageconfig.write(writer);
@@ -177,22 +181,22 @@ void FormatHelpers::Stageconfig::write(byte ver, QString filename)
             RSDKv4::Stageconfig stageconfig;
 
             stageconfig.loadGlobalScripts = loadGlobalScripts;
-            stageconfig.m_stagePalette      = m_stagePalette;
+            stageconfig.palette           = palette;
 
             for (ObjectInfo &obj : objects) {
                 RSDKv4::Stageconfig::ObjectInfo o;
                 o.name   = obj.m_name;
-                o.script = obj.m_script;
+                o.script = obj.script;
 
-                stageconfig.m_objects.append(o);
+                stageconfig.objects.append(o);
             }
 
-            for (SoundInfo &sfx : m_soundFX) {
+            for (SoundInfo &sfx : soundFX) {
                 RSDKv4::Stageconfig::SoundInfo s;
-                s.m_name = sfx.m_name;
-                s.m_path = sfx.m_path;
+                s.name = sfx.m_name;
+                s.path = sfx.path;
 
-                stageconfig.m_soundFX.append(s);
+                stageconfig.soundFX.append(s);
             }
 
             stageconfig.write(writer);

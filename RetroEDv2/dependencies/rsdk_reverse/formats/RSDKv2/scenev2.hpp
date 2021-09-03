@@ -16,39 +16,39 @@ public:
         inline void read(Reader &reader, int id = 0)
         {
             // Object type, 1 byte, unsigned
-            m_type = reader.read<byte>();
+            type = reader.read<byte>();
             // Object subtype, 1 byte, unsigned
-            m_propertyValue = reader.read<byte>();
+            propertyValue = reader.read<byte>();
 
             // X Position, 2 bytes, big-endian, signed
-            m_xPos = (short)(reader.read<char>() << 8);
-            m_xPos |= (short)reader.read<byte>();
+            posX = (short)(reader.read<char>() << 8);
+            posX |= (short)reader.read<byte>();
 
             // Y Position, 2 bytes, big-endian, signed
-            m_yPos = (short)(reader.read<char>() << 8);
-            m_yPos |= (short)reader.read<byte>();
+            posY = (short)(reader.read<char>() << 8);
+            posY |= (short)reader.read<byte>();
 
-            m_id = id;
+            slotID = id;
         }
 
         inline void write(Writer &writer)
         {
-            writer.write(m_type);
-            writer.write(m_propertyValue);
+            writer.write(type);
+            writer.write(propertyValue);
 
-            writer.write((byte)(m_xPos >> 8));
-            writer.write((byte)(m_xPos & 0xFF));
+            writer.write((byte)(posX >> 8));
+            writer.write((byte)(posX & 0xFF));
 
-            writer.write((byte)(m_yPos >> 8));
-            writer.write((byte)(m_yPos & 0xFF));
+            writer.write((byte)(posY >> 8));
+            writer.write((byte)(posY & 0xFF));
         }
 
-        byte m_type    = 0;
-        byte m_propertyValue = 0;
-        short m_xPos   = 0;
-        short m_yPos   = 0;
+        byte type    = 0;
+        byte propertyValue = 0;
+        short posX   = 0;
+        short posY   = 0;
 
-        short m_id = 0;
+        short slotID = 0;
     };
 
     Scene() {}
@@ -73,18 +73,18 @@ public:
     }
     void write(Writer &writer);
 
-    QString m_title = "ACT";
+    QString title = "ACT";
 
-    QList<QList<ushort>> m_layout;
+    QList<QList<ushort>> layout;
 
-    byte m_activeLayer[4];
-    byte m_midpoint = 3;
+    byte activeLayer[4];
+    byte midpoint = 3;
 
-    QList<Object> m_objects;
-    QList<QString> m_objectTypeNames;
+    QList<Object> objects;
+    QList<QString> typeNames;
 
-    byte m_width  = 0;
-    byte m_height = 0;
+    byte width  = 0;
+    byte height = 0;
 
     QString m_filename = "";
 };

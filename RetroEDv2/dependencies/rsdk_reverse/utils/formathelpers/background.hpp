@@ -12,9 +12,9 @@ public:
     public:
         ScrollInfo() {}
 
-        float m_relativeSpeed = 1.0f;
-        float m_constantSpeed = 0.0f;
-        byte m_behaviour      = 0;
+        float parallaxFactor = 1.0f;
+        float scrollSpeed = 0.0f;
+        byte deform      = 0;
     };
 
     class ScrollIndexInfo
@@ -48,7 +48,7 @@ public:
         byte type      = 0;
         float parallaxFactor = 1.0f;
         float scrollSpeed = 0.0f;
-        QByteArray m_lineIndexes;
+        QByteArray lineIndexes;
 
         QList<ScrollIndexInfo> scrollInfos;
     };
@@ -63,10 +63,10 @@ public:
     void scrollIndicesFromInfo();
 
     QList<Layer> layers;
-    QList<ScrollInfo> m_hScroll;
-    QList<ScrollInfo> m_vScroll;
+    QList<ScrollInfo> hScroll;
+    QList<ScrollInfo> vScroll;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace FormatHelpers

@@ -15,20 +15,20 @@ public:
 
         void read(Reader &reader)
         {
-            relativeSpeed = reader.read<byte>();
-            constantSpeed = reader.read<byte>();
-            behaviour     = reader.read<byte>();
+            parallaxFactor = reader.read<byte>();
+            scrollSpeed = reader.read<byte>();
+            deform     = reader.read<byte>();
         }
         void write(Writer &writer)
         {
-            writer.write(relativeSpeed);
-            writer.write(constantSpeed);
-            writer.write(behaviour);
+            writer.write(parallaxFactor);
+            writer.write(scrollSpeed);
+            writer.write(deform);
         }
 
-        byte relativeSpeed = 0;
-        byte constantSpeed = 0;
-        byte behaviour     = 0;
+        byte parallaxFactor = 0;
+        byte scrollSpeed = 0;
+        byte deform     = 0;
     };
 
     class Layer

@@ -21,8 +21,8 @@ public:
     public:
         SoundInfo() {}
 
-        QString m_name = "Sound";
-        QString m_path = "Folder/Sound.wav";
+        QString name = "Sound";
+        QString path = "Folder/Sound.wav";
     };
 
     Stageconfig() {}
@@ -47,9 +47,9 @@ public:
     }
     void write(Writer &writer);
 
-    Palette m_stagePalette;
-    QList<SoundInfo> m_soundFX;
-    QList<ObjectInfo> m_objects;
+    Palette palette;
+    QList<SoundInfo> soundFX;
+    QList<ObjectInfo> objects;
     bool loadGlobalScripts = true;
 
     QString m_filename = "";

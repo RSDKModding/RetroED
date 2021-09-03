@@ -15,22 +15,22 @@ public:
 
         void read(Reader &reader)
         {
-            m_relativeSpeed = (short)(reader.read<byte>() << 8);
-            m_relativeSpeed |= (short)reader.read<byte>();
-            m_constantSpeed = reader.read<byte>();
-            m_behaviour     = reader.read<byte>();
+            parallaxFactor = (short)(reader.read<byte>() << 8);
+            parallaxFactor |= (short)reader.read<byte>();
+            scrollSpeed = reader.read<byte>();
+            deform     = reader.read<byte>();
         }
         void write(Writer &writer)
         {
-            writer.write((byte)(m_relativeSpeed >> 8));
-            writer.write((byte)(m_relativeSpeed & 0xFF));
-            writer.write(m_constantSpeed);
-            writer.write(m_behaviour);
+            writer.write((byte)(parallaxFactor >> 8));
+            writer.write((byte)(parallaxFactor & 0xFF));
+            writer.write(scrollSpeed);
+            writer.write(deform);
         }
 
-        short m_relativeSpeed = 1 << 8;
-        byte m_constantSpeed  = 0 << 8;
-        byte m_behaviour      = 0;
+        short parallaxFactor = 1 << 8;
+        byte scrollSpeed  = 0 << 8;
+        byte deform      = 0;
     };
 
     class Layer
@@ -42,14 +42,14 @@ public:
         void read(Reader &reader);
         void write(Writer &writer);
 
-        QList<QList<ushort>> m_layout;
+        QList<QList<ushort>> layout;
 
-        byte m_width          = 0;
-        byte m_height         = 0;
-        byte m_behaviour      = 0;
-        short m_relativeSpeed = 1 << 8;
-        byte m_constantSpeed  = 0 << 0;
-        QByteArray m_lineIndexes;
+        byte width          = 0;
+        byte height         = 0;
+        byte behaviour      = 0;
+        short parallaxFactor = 1 << 8;
+        byte scrollSpeed  = 0 << 0;
+        QByteArray lineIndexes;
     };
 
     Background() {}
@@ -74,9 +74,9 @@ public:
     }
     void write(Writer &writer);
 
-    QList<Layer> m_layers;
-    QList<ScrollInfo> m_hScroll;
-    QList<ScrollInfo> m_vScroll;
+    QList<Layer> layers;
+    QList<ScrollInfo> hScroll;
+    QList<ScrollInfo> vScroll;
 
     QString m_filename = "";
 };

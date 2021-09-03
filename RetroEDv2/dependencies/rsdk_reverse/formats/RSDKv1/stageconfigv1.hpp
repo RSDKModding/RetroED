@@ -12,7 +12,7 @@ public:
     public:
         ObjectInfo() {}
 
-        byte m_sheetID   = 0;
+        byte sheetID   = 0;
         QString script = "Folder/Script.txt";
     };
 

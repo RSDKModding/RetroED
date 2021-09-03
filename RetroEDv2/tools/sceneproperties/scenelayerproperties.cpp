@@ -77,7 +77,7 @@ void SceneLayerProperties::setupUI(FormatHelpers::Scene *scn, FormatHelpers::Bac
             }
 
             if (bg->layers[lID - 1].type == 2)
-                bg->layers[lID - 1].m_lineIndexes.resize(v * 0x80);
+                bg->layers[lID - 1].lineIndexes.resize(v * 0x80);
 
             bg->layers[lID - 1].width = (short)v;
         });
@@ -93,7 +93,7 @@ void SceneLayerProperties::setupUI(FormatHelpers::Scene *scn, FormatHelpers::Bac
             }
 
             if (bg->layers[lID - 1].type == 1)
-                bg->layers[lID - 1].m_lineIndexes.resize(v * 0x80);
+                bg->layers[lID - 1].lineIndexes.resize(v * 0x80);
 
             bg->layers[lID - 1].height = (short)v;
         });
