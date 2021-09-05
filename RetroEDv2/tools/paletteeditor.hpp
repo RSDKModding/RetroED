@@ -6,6 +6,18 @@ namespace Ui
 class PaletteEditor;
 }
 
+enum PaletteFormatTypes {
+    PALTYPE_ACT,
+    PALTYPE_GAMECONFIGv5,
+    PALTYPE_GAMECONFIGv5_rev01,
+    PALTYPE_STAGECONFIGv5,
+    PALTYPE_GAMECONFIGv4,
+    PALTYPE_STAGECONFIGv4,
+    PALTYPE_STAGECONFIGv3,
+    PALTYPE_STAGECONFIGv2,
+    PALTYPE_STAGECONFIGv1,
+};
+
 struct PaletteColour {
     PaletteColour() {}
     PaletteColour(byte r, byte g, byte b)
@@ -54,11 +66,11 @@ protected:
 
 private:
     short highlight = -1;
-    short m_selection = -1;
+    short selection = -1;
 
     // bool m_dragging = false;
-    bool m_enabling;
-    bool m_pressed = false;
+    bool enabling;
+    bool pressed = false;
 };
 
 class PaletteEditor : public QWidget
@@ -83,16 +95,18 @@ private:
 
     QList<PaletteColour> palette;
 
-    RSDKv4::Gameconfig m_gameconfigv4;
-    RSDKv4::Stageconfig stageConfigv4;
-    RSDKv3::Stageconfig stageConfigv3;
-    RSDKv2::Stageconfig stageConfigv2;
-    RSDKv1::Stageconfig stageConfigv1;
+    RSDKv5::GameConfig gameConfigv5;
+    RSDKv5::StageConfig stageConfigv5;
+    RSDKv4::GameConfig gameConfigv4;
+    RSDKv4::StageConfig stageConfigv4;
+    RSDKv3::StageConfig stageConfigv3;
+    RSDKv2::StageConfig stageConfigv2;
+    RSDKv1::StageConfig stageConfigv1;
 
-    QString m_filename = "";
+    QString filePath = "";
 
     bool firstInit = true;
-    byte m_palType   = 0;
+    byte palType   = 0;
 };
 
 #endif // PALETTEEDITOR_H

@@ -4,7 +4,7 @@
 namespace RSDKv3
 {
 
-class Stageconfig
+class StageConfig
 {
 public:
     class ObjectInfo
@@ -16,9 +16,9 @@ public:
         QString script = "Folder/Script.txt";
     };
 
-    Stageconfig() {}
-    Stageconfig(QString filename) { read(filename); }
-    Stageconfig(Reader &reader) { read(reader); }
+    StageConfig() {}
+    StageConfig(QString filename) { read(filename); }
+    StageConfig(Reader &reader) { read(reader); }
 
     inline void read(QString filename)
     {

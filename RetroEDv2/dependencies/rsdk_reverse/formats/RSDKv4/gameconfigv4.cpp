@@ -1,6 +1,6 @@
 #include "include.hpp"
 
-void RSDKv4::Gameconfig::read(Reader &reader)
+void RSDKv4::GameConfig::read(Reader &reader)
 {
     m_filename = reader.filepath;
 
@@ -62,7 +62,7 @@ void RSDKv4::Gameconfig::read(Reader &reader)
     }
 }
 
-void RSDKv4::Gameconfig::write(Writer &writer)
+void RSDKv4::GameConfig::write(Writer &writer)
 {
     m_filename = writer.filePath;
 

@@ -4,7 +4,7 @@
 namespace RSDKv4
 {
 
-class Stageconfig
+class StageConfig
 {
 public:
     class ObjectInfo
@@ -25,9 +25,9 @@ public:
         QString path = "Folder/Sound.wav";
     };
 
-    Stageconfig() {}
-    Stageconfig(QString filename) { read(filename); }
-    Stageconfig(Reader &reader) { read(reader); }
+    StageConfig() {}
+    StageConfig(QString filename) { read(filename); }
+    StageConfig(Reader &reader) { read(reader); }
 
     inline void read(QString filename)
     {

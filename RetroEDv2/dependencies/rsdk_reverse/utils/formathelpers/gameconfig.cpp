@@ -124,13 +124,13 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
             }
         } break;
         case ENGINE_v4: {
-            RSDKv4::Gameconfig gameconfig(reader);
+            RSDKv4::GameConfig gameconfig(reader);
 
             gameWindowText      = gameconfig.gameWindowText;
             gameDescriptionText = gameconfig.gameDescriptionText;
             palette             = gameconfig.palette;
 
-            for (RSDKv4::Gameconfig::ObjectInfo &obj : gameconfig.objects) {
+            for (RSDKv4::GameConfig::ObjectInfo &obj : gameconfig.objects) {
                 ObjectInfo o;
                 o.m_name = obj.name;
                 o.script = obj.script;
@@ -138,7 +138,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
                 objects.append(o);
             }
 
-            for (RSDKv4::Gameconfig::SoundInfo &sfx : gameconfig.soundFX) {
+            for (RSDKv4::GameConfig::SoundInfo &sfx : gameconfig.soundFX) {
                 SoundInfo s;
                 s.m_name = sfx.name;
                 s.path   = sfx.path;
@@ -146,7 +146,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
                 soundFX.append(s);
             }
 
-            for (RSDKv4::Gameconfig::GlobalVariable &var : gameconfig.globalVariables) {
+            for (RSDKv4::GameConfig::GlobalVariable &var : gameconfig.globalVariables) {
                 GlobalVariable v;
                 v.m_name = var.name;
                 v.value  = var.value;
@@ -164,7 +164,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
             }
 
             for (int c = 0; c < 4; ++c) {
-                for (RSDKv4::Gameconfig::SceneInfo &scn : gameconfig.categories[c].scenes) {
+                for (RSDKv4::GameConfig::SceneInfo &scn : gameconfig.categories[c].scenes) {
                     SceneInfo s;
                     s.m_name      = scn.name;
                     s.folder      = scn.folder;
@@ -270,14 +270,14 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
             }
         } break;
         case ENGINE_v4: {
-            RSDKv4::Gameconfig gameconfig;
+            RSDKv4::GameConfig gameconfig;
 
             gameconfig.gameWindowText      = gameWindowText;
             gameconfig.gameDescriptionText = gameDescriptionText;
             gameconfig.palette             = palette;
 
             for (ObjectInfo &obj : objects) {
-                RSDKv4::Gameconfig::ObjectInfo o;
+                RSDKv4::GameConfig::ObjectInfo o;
                 o.name   = obj.m_name;
                 o.script = obj.script;
 
@@ -285,7 +285,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
             }
 
             for (SoundInfo &sfx : soundFX) {
-                RSDKv4::Gameconfig::SoundInfo s;
+                RSDKv4::GameConfig::SoundInfo s;
                 s.name = sfx.m_name;
                 s.path = sfx.path;
 
@@ -293,7 +293,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
             }
 
             for (GlobalVariable &var : globalVariables) {
-                RSDKv4::Gameconfig::GlobalVariable v;
+                RSDKv4::GameConfig::GlobalVariable v;
                 v.name  = var.m_name;
                 v.value = var.value;
 
@@ -304,7 +304,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
 
             for (int c = 0; c < 4; ++c) {
                 for (SceneInfo &scn : stageLists[c].scenes) {
-                    RSDKv4::Gameconfig::SceneInfo s;
+                    RSDKv4::GameConfig::SceneInfo s;
                     s.name        = scn.m_name;
                     s.folder      = scn.folder;
                     s.id          = scn.id;

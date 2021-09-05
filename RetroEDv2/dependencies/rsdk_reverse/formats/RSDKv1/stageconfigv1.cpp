@@ -1,6 +1,6 @@
 #include "include.hpp"
 
-void RSDKv1::Stageconfig::read(Reader &reader)
+void RSDKv1::StageConfig::read(Reader &reader)
 {
     filepath = reader.filepath;
 
@@ -38,7 +38,7 @@ void RSDKv1::Stageconfig::read(Reader &reader)
     for (int m = 0; m < musCount; ++m) music.append(reader.readString());
 }
 
-void RSDKv1::Stageconfig::write(Writer &writer)
+void RSDKv1::StageConfig::write(Writer &writer)
 {
     filepath = writer.filePath;
 

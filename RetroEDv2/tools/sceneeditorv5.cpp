@@ -352,7 +352,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     });
 
     connect(scnProp->m_editPAL, &QPushButton::clicked, [this] {
-        PaletteEditor *edit = new PaletteEditor(viewer->stageConfig.m_filename, 1);
+        PaletteEditor *edit = new PaletteEditor(viewer->stageConfig.m_filename, PALTYPE_GAMECONFIGv4);
         edit->setWindowTitle("Edit StageConfig Palette");
         edit->show();
     });

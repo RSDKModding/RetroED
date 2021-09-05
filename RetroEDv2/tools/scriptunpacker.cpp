@@ -75,7 +75,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                             auto &s = c.scenes[scn];
 
                             QString dirPath = dataPath + "/Stages/" + s.folder + "/";
-                            RSDKv3::Stageconfig scf;
+                            RSDKv3::StageConfig scf;
                             scf.read(dirPath + "StageConfig.bin");
                             BytecodeInfo stageInfo;
 
@@ -126,7 +126,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     return;
                 }
                 else {
-                    RSDKv4::Gameconfig gcf;
+                    RSDKv4::GameConfig gcf;
                     gcf.read(dataPath + "/Game/GameConfig.bin");
 
                     BytecodeInfo globalInfo;
@@ -160,7 +160,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                             auto &s = c.scenes[scn];
 
                             QString dirPath = dataPath + "/Stages/" + s.folder + "/";
-                            RSDKv4::Stageconfig scf;
+                            RSDKv4::StageConfig scf;
                             scf.read(dirPath + "StageConfig.bin");
                             BytecodeInfo stageInfo;
 

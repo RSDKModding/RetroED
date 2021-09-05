@@ -85,7 +85,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
 
     connect(ui->addObj, &QToolButton::clicked, [this] {
         uint c = ui->objList->currentRow() + 1;
-        gameConfig.objects.insert(c, RSDKv4::Gameconfig::ObjectInfo());
+        gameConfig.objects.insert(c, RSDKv4::GameConfig::ObjectInfo());
         auto *item = new QListWidgetItem();
         item->setText(gameConfig.objects[c].name);
         ui->objList->insertItem(c, item);
@@ -174,7 +174,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
 
     connect(ui->addSfx, &QToolButton::clicked, [this] {
         uint c = ui->sfxList->currentRow() + 1;
-        RSDKv4::Gameconfig::SoundInfo sfx;
+        RSDKv4::GameConfig::SoundInfo sfx;
         gameConfig.soundFX.insert(c, sfx);
         auto *item = new QListWidgetItem();
         item->setText(gameConfig.soundFX[c].name);
@@ -262,7 +262,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
 
     connect(ui->addVar, &QToolButton::clicked, [this] {
         uint c = ui->varList->currentRow() + 1;
-        gameConfig.globalVariables.insert(c, RSDKv4::Gameconfig::GlobalVariable());
+        gameConfig.globalVariables.insert(c, RSDKv4::GameConfig::GlobalVariable());
         auto *item = new QListWidgetItem();
         item->setText(gameConfig.globalVariables[c].name);
         ui->varList->insertItem(c, item);
@@ -419,7 +419,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         }
         uint cat = scnSelected ? index.parent().row() : index.row();
         uint scn = scnSelected ? index.row() + 1 : 0;
-        gameConfig.categories[cat].scenes.insert(scn, RSDKv4::Gameconfig::SceneInfo());
+        gameConfig.categories[cat].scenes.insert(scn, RSDKv4::GameConfig::SceneInfo());
         auto *scnItem = new QStandardItem(gameConfig.categories[cat].scenes[scn].name);
         if (scnSelected)
             m_sceneModel->itemFromIndex(index.parent())->insertRow(scn, scnItem);
@@ -549,7 +549,7 @@ void GameconfigEditorv4::load(QString filename)
         gameConfig.read(reader);
     }
     else {
-        gameConfig = RSDKv4::Gameconfig();
+        gameConfig = RSDKv4::GameConfig();
     }
 
     ui->gameName->setText(gameConfig.gameWindowText);
@@ -569,7 +569,7 @@ void GameconfigEditorv4::load(QString filename)
 
     ui->objList->clear();
     int id = 0;
-    for (RSDKv4::Gameconfig::ObjectInfo &obj : gameConfig.objects) {
+    for (RSDKv4::GameConfig::ObjectInfo &obj : gameConfig.objects) {
         ui->objList->addItem(obj.name);
         ui->objList->item(id)->setFlags(ui->objList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
@@ -577,7 +577,7 @@ void GameconfigEditorv4::load(QString filename)
 
     ui->sfxList->clear();
     id = 0;
-    for (RSDKv4::Gameconfig::SoundInfo &sfx : gameConfig.soundFX) {
+    for (RSDKv4::GameConfig::SoundInfo &sfx : gameConfig.soundFX) {
         ui->sfxList->addItem(sfx.name);
         ui->sfxList->item(id)->setFlags(ui->sfxList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
@@ -585,7 +585,7 @@ void GameconfigEditorv4::load(QString filename)
 
     ui->varList->clear();
     id = 0;
-    for (RSDKv4::Gameconfig::GlobalVariable &var : gameConfig.globalVariables) {
+    for (RSDKv4::GameConfig::GlobalVariable &var : gameConfig.globalVariables) {
         ui->varList->addItem(var.name);
         ui->varList->item(id)->setFlags(ui->varList->item(id)->flags() | Qt::ItemIsEditable);
         id++;

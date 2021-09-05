@@ -60,7 +60,7 @@ public:
 
     bool loadGlobalObjects = true;
     QList<QString> objects;
-    RSDKv5::Palette m_palettes[8];
+    RSDKv5::Palette palettes[8];
     QList<WAVConfiguration> soundFX;
 
     QString m_filename = "";

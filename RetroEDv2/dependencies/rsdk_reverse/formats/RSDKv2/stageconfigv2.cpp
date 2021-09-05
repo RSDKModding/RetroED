@@ -1,6 +1,6 @@
 #include "include.hpp"
 
-void RSDKv2::Stageconfig::read(Reader &reader)
+void RSDKv2::StageConfig::read(Reader &reader)
 {
     m_filename = reader.filepath;
 
@@ -27,7 +27,7 @@ void RSDKv2::Stageconfig::read(Reader &reader)
     }
 }
 
-void RSDKv2::Stageconfig::write(Writer &writer)
+void RSDKv2::StageConfig::write(Writer &writer)
 {
     m_filename = writer.filePath;
 

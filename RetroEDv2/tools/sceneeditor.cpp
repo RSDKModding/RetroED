@@ -457,7 +457,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     });
 
     connect(m_scnProp->m_editPAL, &QPushButton::clicked, [this] {
-        PaletteEditor *edit = new PaletteEditor(viewer->stageConfig.filePath, viewer->gameType + 2);
+        PaletteEditor *edit =
+            new PaletteEditor(viewer->stageConfig.filePath, viewer->gameType + PALTYPE_STAGECONFIGv4);
         edit->setWindowTitle("Edit StageConfig Palette");
         edit->show();
     });
@@ -1635,15 +1636,15 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
         for (auto s : viewer->stageConfig.soundFX)
             stageConfig.soundFX.append(RSDKv5::StageConfig::WAVConfiguration(s.path, 1));
 
-        stageConfig.m_palettes[0].activeRows[6] = true;
-        stageConfig.m_palettes[0].activeRows[7] = true;
+        stageConfig.palettes[0].activeRows[6] = true;
+        stageConfig.palettes[0].activeRows[7] = true;
 
         for (int c = 0; c < 0x20; ++c) {
-            stageConfig.m_palettes[0].colours[(c / 0x10) + 0x60][c % 0x10].setRed(
+            stageConfig.palettes[0].colours[(c / 0x10) + 0x60][c % 0x10].setRed(
                 viewer->stageConfig.palette.colours[c].r);
-            stageConfig.m_palettes[0].colours[(c / 0x10) + 0x60][c % 0x10].setGreen(
+            stageConfig.palettes[0].colours[(c / 0x10) + 0x60][c % 0x10].setGreen(
                 viewer->stageConfig.palette.colours[c].g);
-            stageConfig.m_palettes[0].colours[(c / 0x10) + 0x60][c % 0x10].setBlue(
+            stageConfig.palettes[0].colours[(c / 0x10) + 0x60][c % 0x10].setBlue(
                 viewer->stageConfig.palette.colours[c].b);
         }
 

@@ -13,7 +13,7 @@ void RSDKv5::StageConfig::read(Reader &reader)
     objects.clear();
     for (int i = 0; i < objCnt; ++i) objects.append(reader.readString());
 
-    for (int i = 0; i < 8; ++i) m_palettes[i].read(reader);
+    for (int i = 0; i < 8; ++i) palettes[i].read(reader);
 
     byte sfxCnt = reader.read<byte>();
     soundFX.clear();
@@ -30,7 +30,7 @@ void RSDKv5::StageConfig::write(Writer &writer)
     writer.write((byte)objects.count());
     for (int i = 0; i < (byte)objects.count(); ++i) writer.write(objects[i]);
 
-    for (int i = 0; i < 8; ++i) m_palettes[i].write(writer, true);
+    for (int i = 0; i < 8; ++i) palettes[i].write(writer, true);
 
     writer.write((byte)soundFX.count());
     for (int i = 0; i < (byte)soundFX.count(); ++i) soundFX[i].write(writer);

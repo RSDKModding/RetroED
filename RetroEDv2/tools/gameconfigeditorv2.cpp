@@ -750,14 +750,14 @@ bool GameconfigEditorv2::event(QEvent *event)
                 }
                 case 2: {
                     setStatus("Saving (v4) GameConfig: " + filedialog.selectedFiles()[0]);
-                    RSDKv4::Gameconfig config;
+                    RSDKv4::GameConfig config;
 
                     config.gameWindowText      = gameConfig.gameWindowText;
                     config.gameDescriptionText = gameConfig.gameDescriptionText;
 
                     config.globalVariables.clear();
                     for (auto &var : gameConfig.globalVariables) {
-                        RSDKv4::Gameconfig::GlobalVariable variable;
+                        RSDKv4::GameConfig::GlobalVariable variable;
                         variable.name  = var.name;
                         variable.value = var.value;
                         config.globalVariables.append(variable);
@@ -765,7 +765,7 @@ bool GameconfigEditorv2::event(QEvent *event)
 
                     config.objects.clear();
                     for (auto &scr : gameConfig.scripts) {
-                        RSDKv4::Gameconfig::ObjectInfo object;
+                        RSDKv4::GameConfig::ObjectInfo object;
                         object.name   = QFileInfo(scr).baseName();
                         object.script = scr;
                         config.objects.append(object);
@@ -773,7 +773,7 @@ bool GameconfigEditorv2::event(QEvent *event)
 
                     config.soundFX.clear();
                     for (auto &sfx : gameConfig.soundFX) {
-                        RSDKv4::Gameconfig::SoundInfo soundFX;
+                        RSDKv4::GameConfig::SoundInfo soundFX;
                         soundFX.name = QFileInfo(sfx).baseName();
                         soundFX.path = sfx;
                         config.soundFX.append(soundFX);
@@ -791,11 +791,11 @@ bool GameconfigEditorv2::event(QEvent *event)
 
                     config.categories.clear();
                     for (auto &cat : gameConfig.categories) {
-                        RSDKv4::Gameconfig::Category category;
+                        RSDKv4::GameConfig::Category category;
                         category.scenes.clear();
 
                         for (auto &scn : cat.scenes) {
-                            RSDKv4::Gameconfig::SceneInfo scene;
+                            RSDKv4::GameConfig::SceneInfo scene;
                             scene.name        = scn.name;
                             scene.folder      = scn.folder;
                             scene.id          = scn.id;
