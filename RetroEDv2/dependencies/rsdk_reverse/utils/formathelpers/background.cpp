@@ -159,7 +159,7 @@ void FormatHelpers::Background::read(byte ver, QString filename)
                 Layer layer;
                 layer.width          = lyr.width;
                 layer.height         = lyr.height;
-                layer.type           = lyr.behaviour;
+                layer.type           = lyr.type;
                 layer.parallaxFactor = lyr.parallaxFactor / 256.0f;
                 layer.scrollSpeed    = (lyr.scrollSpeed << 10) / 65536.0f;
                 layer.lineIndexes    = lyr.lineIndexes;
@@ -353,7 +353,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
                 RSDKv4::Background::Layer layer;
                 layer.width          = lyr.width;
                 layer.height         = lyr.height;
-                layer.behaviour      = lyr.type;
+                layer.type      = lyr.type;
                 layer.parallaxFactor = lyr.parallaxFactor * 256;
                 layer.scrollSpeed    = (int)(lyr.scrollSpeed * 65536) >> 10;
                 layer.lineIndexes    = lyr.lineIndexes;

@@ -46,7 +46,7 @@ public:
 
         byte width          = 0;
         byte height         = 0;
-        byte behaviour      = 0;
+        byte type      = 0;
         short parallaxFactor = 1 << 8;
         byte scrollSpeed  = 0 << 0;
         QByteArray lineIndexes;

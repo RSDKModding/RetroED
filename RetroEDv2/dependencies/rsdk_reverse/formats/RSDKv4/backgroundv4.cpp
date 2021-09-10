@@ -53,7 +53,7 @@ void RSDKv4::Background::Layer::read(Reader &reader)
     width |= (short)(reader.read<byte>() << 8);
     height = (short)(reader.read<byte>() & 0xFF);
     height |= (short)(reader.read<byte>() << 8);
-    behaviour     = reader.read<byte>();
+    type           = reader.read<byte>();
     parallaxFactor = (short)(reader.read<byte>() & 0xFF);
     parallaxFactor |= (short)(reader.read<byte>() << 8);
     scrollSpeed = reader.read<byte>();
@@ -117,7 +117,7 @@ void RSDKv4::Background::Layer::write(Writer &writer)
     writer.write((byte)(width >> 8));
     writer.write((byte)(height & 0xFF));
     writer.write((byte)(height >> 8));
-    writer.write(behaviour);
+    writer.write(type);
     writer.write((byte)(parallaxFactor & 0xFF));
     writer.write((byte)(parallaxFactor >> 8));
     writer.write(scrollSpeed);
