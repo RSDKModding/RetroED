@@ -58,6 +58,8 @@ private:
 
     void exportRSDKv5(ExportRSDKv5Scene *dlg);
 
+    void parseGameXML(byte gameType, QString path);
+
     Ui::SceneEditor *ui;
 };
 

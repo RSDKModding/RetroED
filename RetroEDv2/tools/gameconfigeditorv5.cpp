@@ -1154,9 +1154,11 @@ bool GameconfigEditorv5::event(QEvent *event)
 
                         writer.writeLine("<?xml version=\"1.0\"?>");
 
+                        writer.writeLine();
+                        writer.writeLine("<game>");
                         if (gameConfig.globalVariables.count()) {
                             /*writer.writeLine();
-                            writer.writeLine("<variables>");
+                            writer.writeLine("\t<variables>");
 
                             int varID = 0;
                             for (auto &var : gameConfig.globalVariables) {
@@ -1168,47 +1170,48 @@ bool GameconfigEditorv5::event(QEvent *event)
                                 writer.writeLine("> </variable>");
                             }
 
-                            writer.writeLine("</variables>");*/
+                            writer.writeLine("\t</variables>");*/
                         }
 
                         if (gameConfig.objects.count()) {
                             writer.writeLine();
-                            writer.writeLine("<objects>");
+                            writer.writeLine("\t\t<objects>");
                             for (auto &obj : gameConfig.objects) {
-                                writer.writeLine(QString("\t<object name=\"%1\"> </object>").arg(obj));
+                                writer.writeLine(
+                                    QString("\t\t<object name=\"%1\"> </object>").arg(obj));
                             }
                             writer.writeLine("</objects>");
                         }
 
                         if (gameConfig.soundFX.count()) {
                             writer.writeLine();
-                            writer.writeLine("<sounds>");
+                            writer.writeLine("\t<sounds>");
                             for (auto &sfx : gameConfig.soundFX) {
-                                writer.writeLine(
-                                    QString(
-                                        "\t<soundfx path=\"%1\" maxConcurrentPlays=\"%2\"> </soundfx>")
-                                        .arg(sfx.path)
-                                        .arg(sfx.maxConcurrentPlay));
+                                writer.writeLine(QString("\t\t<soundfx path=\"%1\" "
+                                                         "maxConcurrentPlays=\"%2\"> </soundfx>")
+                                                     .arg(sfx.path)
+                                                     .arg(sfx.maxConcurrentPlay));
                             }
-                            writer.writeLine("</sounds>");
+                            writer.writeLine("\t</sounds>");
                         }
 
                         for (int i = 0; i < gameConfig.categories.count(); ++i) {
                             if (gameConfig.categories[i].scenes.count()) {
                                 writer.writeLine();
-                                writer.writeLine(QString("<category name=\"%1\">")
+                                writer.writeLine(QString("\t<category name=\"%1\">")
                                                      .arg(gameConfig.categories[i].name));
                                 for (auto &stg : gameConfig.categories[i].scenes) {
-                                    writer.writeLine(QString("\t<stage name=\"%1\" folder=\"%2\" "
+                                    writer.writeLine(QString("\t\t<stage name=\"%1\" folder=\"%2\" "
                                                              "id=\"%3\" filter=\"%4\"> </stage>")
                                                          .arg(stg.name)
                                                          .arg(stg.folder)
                                                          .arg(stg.id)
                                                          .arg(stg.filter));
                                 }
-                                writer.writeLine("</category>");
+                                writer.writeLine("\t</category>");
                             }
                         }
+                        writer.write("</game>");
 
                         writer.flush();
                         break;

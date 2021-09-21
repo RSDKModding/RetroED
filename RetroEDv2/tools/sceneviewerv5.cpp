@@ -284,17 +284,17 @@ void SceneViewerv5::drawScene()
     f->glBlendEquation(GL_FUNC_ADD);
 
     // pre-render
-    if ((cam.pos.x * zoom) + storedW > (sceneWidth * 0x10) * zoom)
-        cam.pos.x = ((sceneWidth * 0x10) - (storedW * invZoom()));
-
-    if ((cam.pos.y * zoom) + storedH > (sceneHeight * 0x10) * zoom)
-        cam.pos.y = ((sceneHeight * 0x10) - (storedH * invZoom()));
-
     if ((cam.pos.x * zoom) < 0)
         cam.pos.x = 0;
 
     if ((cam.pos.y * zoom) < 0)
         cam.pos.y = 0;
+
+    if ((cam.pos.x * zoom) + storedW > (sceneWidth * 0x10) * zoom)
+        cam.pos.x = ((sceneWidth * 0x10) - (storedW * invZoom()));
+
+    if ((cam.pos.y * zoom) + storedH > (sceneHeight * 0x10) * zoom)
+        cam.pos.y = ((sceneHeight * 0x10) - (storedH * invZoom()));
 
     // draw bg colours
     primitiveShader.use();
@@ -388,8 +388,8 @@ void SceneViewerv5::drawScene()
             int camX = (cam.pos.x + camOffset.x);
             int camY = (cam.pos.y + camOffset.y);
 
-            int basedX = camX / 0x10;
-            int basedY = camY / 0x10;
+            int basedX = qMax(camX / 0x10, 0);
+            int basedY = qMax(camY / 0x10, 0);
 
             int countX = width * 0x10 > storedW ? (storedW / 0x10) : width;
             int countY = height * 0x10 > storedH ? (storedH / 0x10) : height;

@@ -12,9 +12,9 @@ public:
     public:
         SceneInfo() {}
 
-        QString m_name     = "Scene";
+        QString m_name   = "Scene";
         QString folder   = "Folder";
-        QString id    = "1";
+        QString id       = "1";
         bool highlighted = false;
     };
 
@@ -32,7 +32,7 @@ public:
         GlobalVariable() {}
 
         QString m_name = "Variable";
-        int value    = 0;
+        int value      = 0;
     };
 
     class ObjectInfo
@@ -40,7 +40,7 @@ public:
     public:
         ObjectInfo() {}
 
-        QString m_name   = "Object";
+        QString m_name = "Object";
         QString script = "Folder/Script.txt";
     };
 
@@ -50,7 +50,7 @@ public:
         SoundInfo() {}
 
         QString m_name = "Sound";
-        QString path = "Folder/Sound.wav";
+        QString path   = "Folder/Sound.wav";
     };
 
     class PlayerInfo
@@ -58,12 +58,16 @@ public:
     public:
         PlayerInfo() {}
 
-        QString m_name   = "PLAYER";
+        QString m_name = "PLAYER";
         QString anim   = "player.ani";
         QString script = "Player/Player.txt";
     };
 
-    Gameconfig() {}
+    Gameconfig()
+    {
+        stageLists.clear();
+        for (int i = 0; i < 4; ++i) stageLists.append(Category());
+    }
     Gameconfig(byte ver, QString filepath) { read(ver, filepath); }
 
     void read(byte ver, QString filename);

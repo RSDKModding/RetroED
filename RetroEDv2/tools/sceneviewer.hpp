@@ -78,7 +78,7 @@ public:
 
     // Entity Editing
     int selectedObject   = -1; // placing
-    int m_selectedEntity = -1; // viewing
+    int selectedEntity = -1; // viewing
 
     // Parallax Editing
     bool showParallax      = false;

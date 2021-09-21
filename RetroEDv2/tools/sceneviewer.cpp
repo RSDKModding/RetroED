@@ -222,21 +222,17 @@ void SceneViewer::drawScene()
     f->glBlendEquation(GL_FUNC_ADD);
 
     // pre-render
-    if (sceneWidth * zoom > storedW) {
-        if ((cam.pos.x * zoom) < 0 * zoom)
-            cam.pos.x = (0 * zoom);
+    if ((cam.pos.x * zoom) < 0)
+        cam.pos.x = 0;
 
-        if ((cam.pos.x * zoom) + storedW > (scene.width * 0x80) * zoom)
-            cam.pos.x = ((scene.width * 0x80) - (storedW * invZoom()));
-    }
+    if ((cam.pos.y * zoom) < 0)
+        cam.pos.y = 0;
 
-    if (sceneHeight * zoom > storedH) {
-        if ((cam.pos.y * zoom) < 0 * zoom)
-            cam.pos.y = (0 * zoom);
+    if ((cam.pos.x * zoom) + storedW > (sceneWidth * 0x80) * zoom)
+        cam.pos.x = ((sceneWidth * 0x80) - (storedW * invZoom()));
 
-        if ((cam.pos.y * zoom) + storedH > (scene.height * 0x80) * zoom)
-            cam.pos.y = ((scene.height * 0x80) - (storedH * invZoom()));
-    }
+    if ((cam.pos.y * zoom) + storedH > (sceneHeight * 0x80) * zoom)
+        cam.pos.y = ((sceneHeight * 0x80) - (storedH * invZoom()));
 
     // draw bg colours
     primitiveShader.use();
@@ -328,9 +324,11 @@ void SceneViewer::drawScene()
 
         int camX = (cam.pos.x + camOffset.x);
         int camY = (cam.pos.y + camOffset.y);
+        camX     = qMax(camX, 0);
+        camY     = qMax(camY, 0);
 
-        int basedX = camX / 0x80;
-        int basedY = camY / 0x80;
+        int basedX = qMax(camX / 0x80, 0);
+        int basedY = qMax(camY / 0x80, 0);
 
         int countX = width * 0x80 > storedW ? (storedW / 0x80) : width;
         int countY = height * 0x80 > storedH ? (storedH / 0x80) : height;
@@ -340,10 +338,6 @@ void SceneViewer::drawScene()
 
         countX = qMin(basedX + countX + 2, width);
         countY = qMin(basedY + countY + 2, height);
-        if (basedX < 0)
-            basedX = 0;
-        if (basedY < 0)
-            basedY = 0;
 
         for (int y = basedY; y < countY; ++y) {
             for (int x = basedX; x < countX; ++x) {
@@ -773,8 +767,8 @@ void SceneViewer::drawScene()
     primitiveShader.setValue("alpha", 1.0f);
     QMatrix4x4 matModel;
     primitiveShader.setValue("model", matModel);
-    if (m_selectedEntity >= 0) {
-        FormatHelpers::Scene::Object &object = scene.objects[m_selectedEntity];
+    if (selectedEntity >= 0) {
+        FormatHelpers::Scene::Object &object = scene.objects[selectedEntity];
         int w = objectSprites[0].texturePtr->width(), h = objectSprites[0].texturePtr->height();
         objectSprites[0].texturePtr->bind();
 
@@ -903,7 +897,7 @@ void SceneViewer::unloadScene()
 
     cam                = SceneCamera();
     selectedChunk      = -1;
-    m_selectedEntity   = -1;
+    selectedEntity     = -1;
     selectedLayer      = -1;
     selectedScrollInfo = -1;
     selectedObject     = -1;

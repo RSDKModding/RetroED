@@ -911,48 +911,50 @@ bool GameconfigEditorv4::event(QEvent *event)
 
                     writer.writeLine("<?xml version=\"1.0\"?>");
 
+                    writer.writeLine();
+                    writer.writeLine("<game>");
                     if (gameConfig.globalVariables.count()) {
                         writer.writeLine();
-                        writer.writeLine("<variables>");
+                        writer.writeLine("\t<variables>");
                         for (auto &var : gameConfig.globalVariables) {
                             writer.writeLine(
-                                QString("\t<variable name=\"%1\" value=\"%2\"> </variable>")
+                                QString("\t\t<variable name=\"%1\" value=\"%2\"> </variable>")
                                     .arg(var.name)
                                     .arg(var.value));
                         }
-                        writer.writeLine("</variables>");
+                        writer.writeLine("\t</variables>");
                     }
 
                     if (gameConfig.objects.count()) {
                         writer.writeLine();
-                        writer.writeLine("<objects>");
+                        writer.writeLine("\t<objects>");
                         for (auto &obj : gameConfig.objects) {
-                            writer.writeLine(QString("\t<object name=\"%1\" script=\"%2\" "
+                            writer.writeLine(QString("\t\t<object name=\"%1\" script=\"%2\" "
                                                      "forceLoad=\"false\"> </object>")
                                                  .arg(obj.name)
                                                  .arg(obj.script));
                         }
-                        writer.writeLine("</objects>");
+                        writer.writeLine("\t</objects>");
                     }
 
                     if (gameConfig.soundFX.count()) {
                         writer.writeLine();
-                        writer.writeLine("<sounds>");
+                        writer.writeLine("\t<sounds>");
                         for (auto &sfx : gameConfig.soundFX) {
-                            writer.writeLine(QString("\t<soundfx name=\"%1\" path=\"%2\"> </soundfx>")
+                            writer.writeLine(QString("\t\t<soundfx name=\"%1\" path=\"%2\"> </soundfx>")
                                                  .arg(sfx.name)
                                                  .arg(sfx.path));
                         }
-                        writer.writeLine("</sounds>");
+                        writer.writeLine("\t</sounds>");
                     }
 
                     if (gameConfig.players.count()) {
                         writer.writeLine();
-                        writer.writeLine("<players>");
+                        writer.writeLine("\t<players>");
                         for (auto &plr : gameConfig.players) {
-                            writer.writeLine(QString("\t<player name=\"%1\"> </player>").arg(plr));
+                            writer.writeLine(QString("\t\t<player name=\"%1\"> </player>").arg(plr));
                         }
-                        writer.writeLine("</players>");
+                        writer.writeLine("\t</players>");
                     }
 
                     QString elementNames[] = { "presentationStages", "regularStages", "specialStages",
@@ -960,18 +962,19 @@ bool GameconfigEditorv4::event(QEvent *event)
                     for (int i = 0; i < 4; ++i) {
                         if (gameConfig.categories[i].scenes.count()) {
                             writer.writeLine();
-                            writer.writeLine(QString("<%1>").arg(elementNames[i]));
+                            writer.writeLine(QString("\t<%1>").arg(elementNames[i]));
                             for (auto &stg : gameConfig.categories[i].scenes) {
-                                writer.writeLine(QString("\t<stage name=\"%1\" folder=\"%2\" "
+                                writer.writeLine(QString("\t\t<stage name=\"%1\" folder=\"%2\" "
                                                          "id=\"%3\" highlight=\"%4\"> </stage>")
                                                      .arg(stg.name)
                                                      .arg(stg.folder)
                                                      .arg(stg.id)
                                                      .arg(stg.highlighted ? "true" : "false"));
                             }
-                            writer.writeLine(QString("</%1>").arg(elementNames[i]));
+                            writer.writeLine(QString("\t</%1>").arg(elementNames[i]));
                         }
                     }
+                    writer.writeLine("</game>");
 
                     writer.flush();
                     break;
