@@ -79,6 +79,8 @@ void SceneViewerv5::loadScene(QString path)
     QString pth      = path;
     QString basePath = pth.replace(QFileInfo(pth).fileName(), "");
 
+    currentFolder = QDir(basePath).dirName();
+
     scene.read(path);
 
     tileconfig.read(basePath + "TileConfig.bin");

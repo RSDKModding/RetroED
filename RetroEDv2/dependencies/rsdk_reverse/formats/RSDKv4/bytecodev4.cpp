@@ -4,14 +4,14 @@ void RSDKv4::Bytecode::read(Reader &reader, int scriptCount, bool clear)
 {
     m_filename = reader.filepath;
     if (clear) {
-        m_scriptData.clear();
-        m_jumpTableData.clear();
-        m_scriptList.clear();
-        m_functionList.clear();
+        scriptData.clear();
+        jumpTableData.clear();
+        scriptList.clear();
+        functionList.clear();
     }
     else {
-        m_globalScriptDataCount = m_scriptData.count();
-        m_globalJumpTableCount  = m_jumpTableData.count();
+        m_globalScriptDataCount = scriptData.count();
+        m_globalJumpTableCount  = jumpTableData.count();
     }
 
     for (int opcount = reader.read<int>(); opcount > 0;) {
@@ -19,11 +19,11 @@ void RSDKv4::Bytecode::read(Reader &reader, int scriptCount, bool clear)
         int blocksCount = (data & 0x7F);
 
         if ((data & 0x80) == 0) {
-            for (int i = 0; i < blocksCount; ++i) m_scriptData.append(reader.read<byte>());
+            for (int i = 0; i < blocksCount; ++i) scriptData.append(reader.read<byte>());
             opcount -= blocksCount;
         }
         else {
-            for (int i = 0; i < blocksCount; ++i) m_scriptData.append(reader.read<int>());
+            for (int i = 0; i < blocksCount; ++i) scriptData.append(reader.read<int>());
             opcount -= blocksCount;
         }
     }
@@ -32,51 +32,51 @@ void RSDKv4::Bytecode::read(Reader &reader, int scriptCount, bool clear)
         byte data       = reader.read<byte>();
         int blocksCount = (data & 0x7F);
         if ((data & 0x80) == 0) {
-            for (int i = 0; i < blocksCount; ++i) m_jumpTableData.append(reader.read<byte>());
+            for (int i = 0; i < blocksCount; ++i) jumpTableData.append(reader.read<byte>());
             opcount -= blocksCount;
         }
         else {
-            for (int i = 0; i < blocksCount; ++i) m_jumpTableData.append(reader.read<int>());
+            for (int i = 0; i < blocksCount; ++i) jumpTableData.append(reader.read<int>());
             opcount -= blocksCount;
         }
     }
 
     if (!clear) {
-        m_globalScriptCount = scriptCount;
+        globalScriptCount = scriptCount;
     }
 
     int scriptCnt = reader.read<ushort>(); // File count
 
     // Fill in "blanks"
     for (int i = 0; i < scriptCount && clear; ++i) {
-        m_scriptList.append(ObjectScript());
-        m_scriptList[i].m_mainScript    = 0x3FFFF;
-        m_scriptList[i].m_drawScript    = 0x3FFFF;
-        m_scriptList[i].m_startupScript = 0x3FFFF;
+        scriptList.append(ObjectScript());
+        scriptList[i].mainScript    = 0x3FFFF;
+        scriptList[i].m_drawScript    = 0x3FFFF;
+        scriptList[i].startupScript = 0x3FFFF;
     }
 
     for (int i = 0; i < scriptCnt; ++i) {
-        m_scriptList.append(ObjectScript());
-        m_scriptList[scriptCount + i].m_mainScript    = reader.read<int>();
-        m_scriptList[scriptCount + i].m_drawScript    = reader.read<int>();
-        m_scriptList[scriptCount + i].m_startupScript = reader.read<int>();
+        scriptList.append(ObjectScript());
+        scriptList[scriptCount + i].mainScript    = reader.read<int>();
+        scriptList[scriptCount + i].m_drawScript    = reader.read<int>();
+        scriptList[scriptCount + i].startupScript = reader.read<int>();
     }
     for (int i = 0; i < scriptCnt; ++i) {
-        m_scriptList[scriptCount + i].m_mainJumpTable    = reader.read<int>();
-        m_scriptList[scriptCount + i].m_drawJumpTable    = reader.read<int>();
-        m_scriptList[scriptCount + i].m_startupJumpTable = reader.read<int>();
+        scriptList[scriptCount + i].mainJumpTable    = reader.read<int>();
+        scriptList[scriptCount + i].m_drawJumpTable    = reader.read<int>();
+        scriptList[scriptCount + i].startupJumpTable = reader.read<int>();
     }
 
     int functionCount = reader.read<ushort>();
-    m_functionList.clear();
-    m_functionList.reserve(functionCount);
+    functionList.clear();
+    functionList.reserve(functionCount);
 
     for (int i = 0; i < functionCount; ++i) {
-        m_functionList.append(FunctionScript());
-        m_functionList[i].m_mainScript = reader.read<int>();
+        functionList.append(FunctionScript());
+        functionList[i].mainScript = reader.read<int>();
     }
 
-    for (int i = 0; i < functionCount; ++i) m_functionList[i].m_mainJumpTable = reader.read<int>();
+    for (int i = 0; i < functionCount; ++i) functionList[i].mainJumpTable = reader.read<int>();
 }
 
 struct DataInfo {
@@ -92,24 +92,24 @@ void RSDKv4::Bytecode::write(Writer &writer)
 
     // Script Data
     dataInfo.clear();
-    for (int dataPos = m_globalScriptDataCount; dataPos < m_scriptData.count();) {
+    for (int dataPos = m_globalScriptDataCount; dataPos < scriptData.count();) {
         DataInfo info;
         info.m_data.clear();
-        info.m_readInt = m_scriptData[dataPos] < 0 || m_scriptData[dataPos] >= 0x100;
+        info.m_readInt = scriptData[dataPos] < 0 || scriptData[dataPos] >= 0x100;
         if (!info.m_readInt) {
-            for (int i = 0; (m_scriptData[dataPos] >= 0 && m_scriptData[dataPos] < 0x100) && i < 0x7F;
+            for (int i = 0; (scriptData[dataPos] >= 0 && scriptData[dataPos] < 0x100) && i < 0x7F;
                  ++i) {
-                info.m_data.append(m_scriptData[dataPos++]);
-                if (dataPos >= m_scriptData.count())
+                info.m_data.append(scriptData[dataPos++]);
+                if (dataPos >= scriptData.count())
                     break;
             }
             dataInfo.append(info);
         }
         else {
-            for (int i = 0; (m_scriptData[dataPos] < 0 || m_scriptData[dataPos] >= 0x100) && i < 0x7F;
+            for (int i = 0; (scriptData[dataPos] < 0 || scriptData[dataPos] >= 0x100) && i < 0x7F;
                  ++i) {
-                info.m_data.append(m_scriptData[dataPos++]);
-                if (dataPos >= m_scriptData.count())
+                info.m_data.append(scriptData[dataPos++]);
+                if (dataPos >= scriptData.count())
                     break;
             }
             dataInfo.append(info);
@@ -133,24 +133,24 @@ void RSDKv4::Bytecode::write(Writer &writer)
 
     // Jump Table
     dataInfo.clear();
-    for (int dataPos = m_globalJumpTableCount; dataPos < m_jumpTableData.count();) {
+    for (int dataPos = m_globalJumpTableCount; dataPos < jumpTableData.count();) {
         DataInfo info;
         info.m_data.clear();
-        info.m_readInt = m_jumpTableData[dataPos] < 0 || m_jumpTableData[dataPos] >= 0x100;
+        info.m_readInt = jumpTableData[dataPos] < 0 || jumpTableData[dataPos] >= 0x100;
         if (!info.m_readInt) {
             for (int i = 0;
-                 (m_jumpTableData[dataPos] >= 0 && m_jumpTableData[dataPos] < 0x100) && i < 0x7F; ++i) {
-                info.m_data.append(m_jumpTableData[dataPos++]);
-                if (dataPos >= m_jumpTableData.count())
+                 (jumpTableData[dataPos] >= 0 && jumpTableData[dataPos] < 0x100) && i < 0x7F; ++i) {
+                info.m_data.append(jumpTableData[dataPos++]);
+                if (dataPos >= jumpTableData.count())
                     break;
             }
             dataInfo.append(info);
         }
         else {
             for (int i = 0;
-                 (m_jumpTableData[dataPos] < 0 || m_jumpTableData[dataPos] >= 0x100) && i < 0x7F; ++i) {
-                info.m_data.append(m_jumpTableData[dataPos++]);
-                if (dataPos >= m_jumpTableData.count())
+                 (jumpTableData[dataPos] < 0 || jumpTableData[dataPos] >= 0x100) && i < 0x7F; ++i) {
+                info.m_data.append(jumpTableData[dataPos++]);
+                if (dataPos >= jumpTableData.count())
                     break;
             }
             dataInfo.append(info);
@@ -173,25 +173,25 @@ void RSDKv4::Bytecode::write(Writer &writer)
     }
 
     // Script list
-    writer.write((ushort)(m_scriptList.count() - m_globalScriptCount));
-    int cnt = (ushort)(m_scriptList.count() - m_globalScriptCount);
+    writer.write((ushort)(scriptList.count() - globalScriptCount));
+    int cnt = (ushort)(scriptList.count() - globalScriptCount);
 
     for (int i = 0; i < cnt; ++i) {
-        writer.write(m_scriptList[m_globalScriptCount + i].m_mainScript);
-        writer.write(m_scriptList[m_globalScriptCount + i].m_drawScript);
-        writer.write(m_scriptList[m_globalScriptCount + i].m_startupScript);
+        writer.write(scriptList[globalScriptCount + i].mainScript);
+        writer.write(scriptList[globalScriptCount + i].m_drawScript);
+        writer.write(scriptList[globalScriptCount + i].startupScript);
     }
     for (int i = 0; i < cnt; ++i) {
-        writer.write(m_scriptList[m_globalScriptCount + i].m_mainJumpTable);
-        writer.write(m_scriptList[m_globalScriptCount + i].m_drawJumpTable);
-        writer.write(m_scriptList[m_globalScriptCount + i].m_startupJumpTable);
+        writer.write(scriptList[globalScriptCount + i].mainJumpTable);
+        writer.write(scriptList[globalScriptCount + i].m_drawJumpTable);
+        writer.write(scriptList[globalScriptCount + i].startupJumpTable);
     }
 
     // Function list
-    writer.write((ushort)m_functionList.count());
+    writer.write((ushort)functionList.count());
 
-    for (int i = 0; i < m_functionList.count(); ++i) writer.write(m_functionList[i].m_mainScript);
-    for (int i = 0; i < m_functionList.count(); ++i) writer.write(m_functionList[i].m_mainJumpTable);
+    for (int i = 0; i < functionList.count(); ++i) writer.write(functionList[i].mainScript);
+    for (int i = 0; i < functionList.count(); ++i) writer.write(functionList[i].mainJumpTable);
 
     writer.flush();
 }

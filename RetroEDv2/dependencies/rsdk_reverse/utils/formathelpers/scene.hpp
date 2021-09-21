@@ -10,10 +10,10 @@ public:
     class Object
     {
     public:
-        class AttributeInfo
+        class VariableInfo
         {
         public:
-            AttributeInfo() {}
+            VariableInfo() {}
 
             int value   = 0;
             bool active = false;
@@ -27,10 +27,10 @@ public:
         inline void setX(float x) { pos.x = x * (1 << 0x10); }
         inline void setY(float y) { pos.y = y * (1 << 0x10); }
 
-        byte type             = 0;
-        byte propertyValue    = 0;
-        Vector2<int> pos = Vector2<int>(0 << 0x10, 0 << 0x10);
-        AttributeInfo variables[0x0F];
+        byte type          = 0;
+        byte propertyValue = 0;
+        Vector2<int> pos   = Vector2<int>(0 << 0x10, 0 << 0x10);
+        VariableInfo variables[0x0F];
 
         short slotID = 0;
     };

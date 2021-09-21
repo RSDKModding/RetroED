@@ -25,6 +25,7 @@ INCLUDEPATH += \
 SOURCES += \
     includes.cpp \
     mainwindow.cpp \
+    tools/compiler/compilerv2.cpp \
     tools/compiler/compilerv3.cpp \
     tools/compiler/compilerv4.cpp \
     tools/decompiler/decompilerv3.cpp \
@@ -82,6 +83,7 @@ SOURCES += \
 
 HEADERS += \
     mainwindow.hpp \
+    tools/compiler/compilerv2.hpp \
     tools/compiler/compilerv3.hpp \
     tools/compiler/compilerv4.hpp \
     tools/decompiler/decompilerv3.hpp \

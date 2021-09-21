@@ -46,6 +46,8 @@ public:
     QList<SceneObject> objects;
     QList<SceneEntity> entities;
 
+    QString currentFolder = "Blank";
+
     QPoint reference;
 
     // General Editing

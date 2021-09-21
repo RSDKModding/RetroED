@@ -1,7 +1,7 @@
-#ifndef BYTECODE_V3_H
-#define BYTECODE_V3_H
+#ifndef BYTECODE_V2_H
+#define BYTECODE_V2_H
 
-namespace RSDKv3
+namespace RSDKv2
 {
 
 class Bytecode
@@ -11,22 +11,30 @@ public:
     public:
         FunctionScript() {}
 
-        int mainScript    = 0;
-        int mainJumpTable = 0;
+        int mainScript    = 0x3FFFF;
+        int mainJumpTable = 0x3FFFF;
+    };
+    struct PlayerScript {
+    public:
+        PlayerScript() {}
+
+        int scriptCodePtr_PlayerMain = 0x3FFFF;
+        int jumpTablePtr_PlayerMain  = 0x3FFFF;
+        QList<FunctionScript> playerStates;
     };
 
     struct ObjectScript {
     public:
         ObjectScript() {}
 
-        int mainScript       = 0;
-        int playerScript     = 0;
-        int m_drawScript       = 0;
-        int m_startupScript    = 0;
-        int mainJumpTable    = 0;
-        int playerJumpTable  = 0;
-        int m_drawJumpTable    = 0;
-        int m_startupJumpTable = 0;
+        int mainScript       = 0x3FFFF;
+        int playerScript     = 0x3FFFF;
+        int drawScript       = 0x3FFFF;
+        int startupScript    = 0x3FFFF;
+        int mainJumpTable    = 0x3FFFF;
+        int playerJumpTable  = 0x3FFFF;
+        int drawJumpTable    = 0x3FFFF;
+        int startupJumpTable = 0x3FFFF;
     };
 
     Bytecode() {}
@@ -49,7 +57,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -60,15 +68,15 @@ public:
     QList<int> scriptData;
     QList<int> jumpTableData;
     QList<ObjectScript> scriptList;
-    QList<FunctionScript> functionList;
+    PlayerScript playerScript;
 
-    int m_globalScriptDataCount = 0;
-    int m_globalJumpTableCount  = 0;
+    int globalScriptDataCount = 0;
+    int globalJumpTableCount  = 0;
     int globalScriptCount     = 0;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
-} // namespace RSDKv3
+} // namespace RSDKv2
 
-#endif // BYTECODE_V3_H
+#endif // BYTECODE_V2_H

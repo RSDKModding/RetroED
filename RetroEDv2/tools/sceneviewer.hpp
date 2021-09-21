@@ -11,7 +11,7 @@ public:
 
     Vector2<float> m_lastMousePos = Vector2<float>(0.0f, 0.0f);
 
-    float m_aspectRatio = 0.0f;
+    float aspectRatio = 0.0f;
 };
 
 enum SceneManagerTool {
@@ -48,7 +48,7 @@ public:
 
     byte gameType = ENGINE_NONE;
 
-    QString m_dataPath = "";
+    QString dataPath = "";
     FormatHelpers::Gameconfig gameConfig;
 
     FormatHelpers::Scene scene;
@@ -57,27 +57,29 @@ public:
     FormatHelpers::Stageconfig stageConfig;
 
     RSDKv4::Tileconfig tileconfig;
-    RSDKv1::Tileconfig m_tileconfigRS;
+    RSDKv1::Tileconfig tileconfigRS;
 
-    QPoint m_reference;
+    QString currentFolder = "Blank";
+
+    QPoint reference;
 
     // General Editing
-    byte curTool              = TOOL_MOUSE;
-    bool m_selecting          = false;
-    Vector2<float> m_mousePos = Vector2<float>(0.0f, 0.0f);
+    byte curTool            = TOOL_MOUSE;
+    bool selecting          = false;
+    Vector2<float> mousePos = Vector2<float>(0.0f, 0.0f);
 
     // Layer Editing
-    Vector2<float> m_tilePos = Vector2<float>(0.0f, 0.0f);
+    Vector2<float> tilePos = Vector2<float>(0.0f, 0.0f);
     Vector2<bool> tileFlip = Vector2<bool>(false, false);
-    int selectedChunk        = -1;
-    int selectedLayer        = -1;
+    int selectedChunk      = -1;
+    int selectedLayer      = -1;
 
     // Collision
     bool showPlaneA = false;
     bool showPlaneB = false;
 
     // Entity Editing
-    int selectedObject   = -1; // placing
+    int selectedObject = -1; // placing
     int selectedEntity = -1; // viewing
 
     // Parallax Editing
@@ -95,16 +97,17 @@ public:
     bool showChunkGrid = false;
     bool showTileGrid  = false;
 
-    Compilerv3 m_compilerv3;
-    Compilerv4 m_compilerv4;
+    Compilerv2 compilerv2;
+    Compilerv3 compilerv3;
+    Compilerv4 compilerv4;
 
     // passed from main
-    QLabel *statusLabel        = nullptr;
-    QScrollBar *m_sbHorizontal = nullptr;
-    QScrollBar *m_sbVertical   = nullptr;
+    QLabel *statusLabel      = nullptr;
+    QScrollBar *sbHorizontal = nullptr;
+    QScrollBar *sbVertical   = nullptr;
 
-    Colour m_bgColour    = Colour(0x20, 0x20, 0x20);
-    Colour m_altBGColour = Colour(0x30, 0x30, 0x30);
+    Colour bgColour    = Colour(0x20, 0x20, 0x20);
+    Colour altBGColour = Colour(0x30, 0x30, 0x30);
 
     inline int layerWidth(byte layer)
     {
@@ -142,14 +145,14 @@ public:
     QVector3D *vertsPtr  = nullptr;
     QVector2D *tVertsPtr = nullptr;
 
-    int m_prevSprite = -1;
+    int prevSprite = -1;
 
-    int addGraphicsFile(char *sheetPath);
-    void removeGraphicsFile(char *sheetPath, int slot);
+    int addGraphicsFile(QString sheetPath);
+    void removeGraphicsFile(QString sheetPath, int slot);
 
     inline void getTileVerts(QVector2D *arr, int index, int tileIndex, byte direction)
     {
-        float w = m_tilesetTexture->width(), h = m_tilesetTexture->height();
+        float w = tilesetTexture->width(), h = tilesetTexture->height();
 
         float tx = 0.0f;
         float ty = tileIndex / h;
@@ -243,13 +246,25 @@ public:
 
     void drawTile(float XPos, float YPos, float ZPos, int tileX, int tileY, byte direction);
 
+    void drawRectangle(int x, int y, int width, int height, byte r, byte g, byte b, int a);
+
     void drawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID);
     void drawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction,
                            int sheetID);
+    void drawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX,
+                          int scaleY, int width, int height, int sprX, int sprY, int sheetID);
+    void drawSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX,
+                           int sprY, int width, int height, int rotation, int sheetID);
+    void drawSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX,
+                            int sprY, int width, int height, int rotation, int scale, int sheetID);
 
     void drawBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID);
     void drawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY,
                                 int alpha, int sheetID);
+    void drawAdditiveBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY,
+                                   int alpha, int sheetID);
+    void drawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY,
+                                      int alpha, int sheetID);
 
 protected:
     void initializeGL();
@@ -260,13 +275,14 @@ protected:
 
 private:
     QOpenGLVertexArrayObject screenVAO, rectVAO;
-    QOpenGLTexture *m_tilesetTexture = nullptr;
+    QOpenGLTexture *tilesetTexture = nullptr;
     QList<TextureInfo> objectSprites;
 
-    QOpenGLTexture *m_rsPlayerSprite = nullptr;
+    QOpenGLTexture *rsPlayerSprite = nullptr;
 
-    QMatrix4x4 m_matView;
+    QMatrix4x4 matView;
 
+    int shaderID = -1;
     Shader primitiveShader;
     Shader spriteShader;
 
@@ -289,19 +305,9 @@ private:
     inline QMatrix4x4 getProjectionMatrix()
     {
         QMatrix4x4 matWorld;
-        cam.m_aspectRatio = storedW / (float)storedH;
+        cam.aspectRatio = storedW / (float)storedH;
         matWorld.ortho(0.0f, (float)storedW, (float)storedH, 0.0f, -16.0f, 16.0f);
         return matWorld;
-    }
-
-    inline void drawPoint(float x, float y, float z, Vector4<float> colour, Shader &shader)
-    {
-        Q_UNUSED(x)
-        Q_UNUSED(y)
-        Q_UNUSED(z)
-        Q_UNUSED(colour)
-        Q_UNUSED(shader)
-        // QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     }
 
     inline void drawLine(float x1, float y1, float z1, float x2, float y2, float z2,
@@ -364,24 +370,6 @@ private:
             f->glDrawArrays(GL_TRIANGLES, 0, 6);
 
             rectVAO.release();
-        }
-    }
-
-    inline void drawCircle(float x, float y, float z, float r, Vector4<float> colour, Shader &shader,
-                           bool outline = false)
-    {
-        Q_UNUSED(x)
-        Q_UNUSED(y)
-        Q_UNUSED(z)
-        Q_UNUSED(r)
-        Q_UNUSED(colour)
-        Q_UNUSED(shader)
-
-        // QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-
-        if (outline) {
-        }
-        else {
         }
     }
 };

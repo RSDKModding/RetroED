@@ -1,13 +1,13 @@
 #include "include.hpp"
 
-QList<QString> RSDKv4::objectAttributeNames = { "State",          "Direction", "Scale",     "Rotation",
-                                                "DrawOrder",      "Priority",  "Alpha",     "Animation",
-                                                "AnimationSpeed", "Frame",     "InkEffect", "Value0",
-                                                "Value1",         "Value2",    "Value3" };
+QList<QString> RSDKv4::objectVariableNames = { "State",          "Direction", "Scale",     "Rotation",
+                                               "DrawOrder",      "Priority",  "Alpha",     "Animation",
+                                               "AnimationSpeed", "Frame",     "InkEffect", "Value0",
+                                               "Value1",         "Value2",    "Value3" };
 
-QList<QString> RSDKv4::objectAttributeTypes = { "int",   "uint8", "int",   "int", "uint8",
-                                                "uint8", "uint8", "uint8", "int", "uint8",
-                                                "uint8", "int",   "int",   "int", "int" };
+QList<QString> RSDKv4::objectVariableTypes = { "int",   "uint8", "int",   "int", "uint8",
+                                               "uint8", "uint8", "uint8", "int", "uint8",
+                                               "uint8", "int",   "int",   "int", "int" };
 
 void RSDKv4::Scene::read(Reader &reader)
 {
@@ -107,10 +107,10 @@ void RSDKv4::Scene::Object::read(Reader &reader, int id)
     // Object subtype, 1 byte, unsigned
     propertyValue = reader.read<byte>();
 
-    buf    = reader.readByteArray(4);
+    buf  = reader.readByteArray(4);
     posX = ((byte)buf[3] << 24) | ((byte)buf[2] << 16) | ((byte)buf[1] << 8) | ((byte)buf[0] << 0);
 
-    buf    = reader.readByteArray(4);
+    buf  = reader.readByteArray(4);
     posY = ((byte)buf[3] << 24) | ((byte)buf[2] << 16) | ((byte)buf[1] << 8) | ((byte)buf[0] << 0);
 
     bool attribInt[] = {
@@ -123,9 +123,9 @@ void RSDKv4::Scene::Object::read(Reader &reader, int id)
                 variables[i].value = reader.read<byte>();
             }
             else {
-                buf                     = reader.readByteArray(4);
-                variables[i].value = ((byte)buf[3] << 24) | ((byte)buf[2] << 16)
-                                          | ((byte)buf[1] << 8) | ((byte)buf[0] << 0);
+                buf                = reader.readByteArray(4);
+                variables[i].value = ((byte)buf[3] << 24) | ((byte)buf[2] << 16) | ((byte)buf[1] << 8)
+                                     | ((byte)buf[0] << 0);
             }
         }
     }

@@ -11,7 +11,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
     objects.clear();
     soundFX.clear();
     globalVariables.clear();
-    player.clear();
+    players.clear();
     palette = Palette();
     stageLists.clear();
     for (int i = 0; i < 4; ++i) stageLists.append(Category());
@@ -56,7 +56,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
                 p.anim   = plr.anim;
                 p.script = plr.script;
 
-                player.append(p);
+                players.append(p);
             }
 
             for (int c = 0; c < 4; ++c) {
@@ -108,7 +108,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
                 p.anim   = plr + ".ani";
                 p.script = "Players/" + plr + ".txt";
 
-                player.append(p);
+                players.append(p);
             }
 
             for (int c = 0; c < 4; ++c) {
@@ -160,7 +160,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
                 p.anim   = plr + ".ani";
                 p.script = "Players/" + plr + ".txt";
 
-                player.append(p);
+                players.append(p);
             }
 
             for (int c = 0; c < 4; ++c) {
@@ -209,7 +209,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
                 gameconfig.globalVariables.append(v);
             }
 
-            for (PlayerInfo &plr : player) {
+            for (PlayerInfo &plr : players) {
                 RSDKv2::Gameconfig::PlayerInfo p;
                 p.name   = plr.m_name;
                 p.anim   = plr.anim;
@@ -255,7 +255,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
                 gameconfig.globalVariables.append(v);
             }
 
-            for (PlayerInfo &plr : player) gameconfig.players.append(plr.m_name);
+            for (PlayerInfo &plr : players) gameconfig.players.append(plr.m_name);
 
             for (int c = 0; c < 4; ++c) {
                 for (SceneInfo &scn : stageLists[c].scenes) {
@@ -300,7 +300,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
                 gameconfig.globalVariables.append(v);
             }
 
-            for (PlayerInfo &plr : player) gameconfig.players.append(plr.m_name);
+            for (PlayerInfo &plr : players) gameconfig.players.append(plr.m_name);
 
             for (int c = 0; c < 4; ++c) {
                 for (SceneInfo &scn : stageLists[c].scenes) {

@@ -1151,8 +1151,8 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
 
     funcIDv3 = globalFunctionCount; // what function to use
     for (int i = globalScriptCount; i < sourceNames.count(); ++i) {
-        RSDKv3::Bytecode::ObjectScript &objectScript = bytecode.m_scriptList[i];
-        int scriptCodePtrs[4]    = { objectScript.m_mainScript, objectScript.m_playerScript,
+        RSDKv3::Bytecode::ObjectScript &objectScript = bytecode.scriptList[i];
+        int scriptCodePtrs[4]    = { objectScript.mainScript, objectScript.playerScript,
                                   objectScript.m_drawScript, objectScript.m_startupScript };
         int lowestScriptCodePtr  = 0x3FFFF;
         int highestScriptCodePtr = 0;
@@ -1169,7 +1169,7 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
 
         for (int f = funcIDv3; f < bytecode.functionList.count(); ++f) {
             auto &func = bytecode.functionList[f];
-            if (func.m_mainScript < lowestScriptCodePtr && lowestScriptCodePtr < 0x3FFFF) {
+            if (func.mainScript < lowestScriptCodePtr && lowestScriptCodePtr < 0x3FFFF) {
                 QString tn = typeNames[i];
                 functionNames.append(tn.replace(" ", "") + "_Function" + QString::number(f));
                 funcIDv3++;
@@ -1205,9 +1205,9 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
             QFile::remove(path);
         Writer writer(path);
 
-        RSDKv3::Bytecode::ObjectScript &objectScript = bytecode.m_scriptList[i];
+        RSDKv3::Bytecode::ObjectScript &objectScript = bytecode.scriptList[i];
 
-        int scriptCodePtrs[4]    = { objectScript.m_mainScript, objectScript.m_playerScript,
+        int scriptCodePtrs[4]    = { objectScript.mainScript, objectScript.playerScript,
                                   objectScript.m_drawScript, objectScript.m_startupScript };
         int lowestScriptCodePtr  = 0x3FFFF;
         int highestScriptCodePtr = 0;
@@ -1239,13 +1239,13 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
 
         QList<ScriptPtr> scriptPtrs;
 
-        if (objectScript.m_mainScript < 0x3FFFF)
-            scriptPtrs.append(ScriptPtr("ObjectMain", objectScript.m_mainScript,
-                                        objectScript.m_mainJumpTable, false));
+        if (objectScript.mainScript < 0x3FFFF)
+            scriptPtrs.append(ScriptPtr("ObjectMain", objectScript.mainScript,
+                                        objectScript.mainJumpTable, false));
 
-        if (objectScript.m_playerScript < 0x3FFFF)
-            scriptPtrs.append(ScriptPtr("ObjectPlayerInteraction", objectScript.m_playerScript,
-                                        objectScript.m_playerJumpTable, false));
+        if (objectScript.playerScript < 0x3FFFF)
+            scriptPtrs.append(ScriptPtr("ObjectPlayerInteraction", objectScript.playerScript,
+                                        objectScript.playerJumpTable, false));
 
         if (objectScript.m_drawScript < 0x3FFFF)
             scriptPtrs.append(ScriptPtr("ObjectDraw", objectScript.m_drawScript,
@@ -1263,10 +1263,10 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
 
         bool flag = false;
         for (int f = funcIDv3; f < bytecode.functionList.count(); ++f) {
-            int fs = bytecode.functionList[f].m_mainScript;
+            int fs = bytecode.functionList[f].mainScript;
             if (fs < lastPtr) {
-                scriptPtrs.append(ScriptPtr(functionNames[f], bytecode.functionList[f].m_mainScript,
-                                            bytecode.functionList[f].m_mainJumpTable, true));
+                scriptPtrs.append(ScriptPtr(functionNames[f], bytecode.functionList[f].mainScript,
+                                            bytecode.functionList[f].mainJumpTable, true));
             }
             else if (!flag) {
                 flag     = true;
@@ -1277,13 +1277,13 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
             funcIDv3 = bytecode.functionList.count();
         }
 
-        if (objectScript.m_mainScript < 0x3FFFF)
-            scriptPtrs.append(ScriptPtr("ObjectMain", objectScript.m_mainScript,
-                                        objectScript.m_mainJumpTable, false));
+        if (objectScript.mainScript < 0x3FFFF)
+            scriptPtrs.append(ScriptPtr("ObjectMain", objectScript.mainScript,
+                                        objectScript.mainJumpTable, false));
 
-        if (objectScript.m_playerScript < 0x3FFFF)
-            scriptPtrs.append(ScriptPtr("ObjectPlayerInteraction", objectScript.m_playerScript,
-                                        objectScript.m_playerJumpTable, false));
+        if (objectScript.playerScript < 0x3FFFF)
+            scriptPtrs.append(ScriptPtr("ObjectPlayerInteraction", objectScript.playerScript,
+                                        objectScript.playerJumpTable, false));
 
         if (objectScript.m_drawScript < 0x3FFFF)
             scriptPtrs.append(ScriptPtr("ObjectDraw", objectScript.m_drawScript,
@@ -1385,7 +1385,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
             }
         }
 
-        int opcode      = bc.m_scriptData[state.m_scriptCodePtr++];
+        int opcode      = bc.scriptData[state.m_scriptCodePtr++];
         int paramsCount = scriptOpcodeSizes[opcode];
 
         QList<QString> variableName;
@@ -1393,72 +1393,72 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
         for (int i = 0; i < 0x10; ++i) variableName.append("UNKNOWN VARIABLE");
 
         for (int i = 0; i < paramsCount; ++i) {
-            int paramId = bc.m_scriptData[state.m_scriptCodePtr++];
+            int paramId = bc.scriptData[state.m_scriptCodePtr++];
             switch (paramId) {
                 case 0: // Unused
                     break;
                 case 1: // Read value from RSDK
-                    switch (bc.m_scriptData[state.m_scriptCodePtr++]) {
+                    switch (bc.scriptData[state.m_scriptCodePtr++]) {
                         case 0: // Read Const Variable
-                            variableName[i] = variableNames[bc.m_scriptData[state.m_scriptCodePtr++]];
+                            variableName[i] = variableNames[bc.scriptData[state.m_scriptCodePtr++]];
                             break;
                         case 1:                                                // ARRAY
-                            if (bc.m_scriptData[state.m_scriptCodePtr++] == 1) // Variable
+                            if (bc.scriptData[state.m_scriptCodePtr++] == 1) // Variable
                             {
-                                QString value = arrayPosition[bc.m_scriptData[state.m_scriptCodePtr++]];
+                                QString value = arrayPosition[bc.scriptData[state.m_scriptCodePtr++]];
                                 variableName[i] = setArrayValue(
-                                    variableNames[bc.m_scriptData[state.m_scriptCodePtr++]], value);
+                                    variableNames[bc.scriptData[state.m_scriptCodePtr++]], value);
                             }
                             else // Value
                             {
                                 QString value =
-                                    QString::number(bc.m_scriptData[state.m_scriptCodePtr++]);
+                                    QString::number(bc.scriptData[state.m_scriptCodePtr++]);
                                 variableName[i] = setArrayValue(
-                                    variableNames[bc.m_scriptData[state.m_scriptCodePtr++]], value);
+                                    variableNames[bc.scriptData[state.m_scriptCodePtr++]], value);
                             }
                             break;
                         case 2:
                             // ObjectLoop +
-                            if (bc.m_scriptData[state.m_scriptCodePtr++] == 1) {
+                            if (bc.scriptData[state.m_scriptCodePtr++] == 1) {
                                 QString value =
-                                    "+" + arrayPosition[bc.m_scriptData[state.m_scriptCodePtr++]];
+                                    "+" + arrayPosition[bc.scriptData[state.m_scriptCodePtr++]];
                                 variableName[i] = setArrayValue(
-                                    variableNames[bc.m_scriptData[state.m_scriptCodePtr++]], value);
+                                    variableNames[bc.scriptData[state.m_scriptCodePtr++]], value);
                             }
                             else {
                                 QString value =
-                                    "+" + QString::number(bc.m_scriptData[state.m_scriptCodePtr++]);
+                                    "+" + QString::number(bc.scriptData[state.m_scriptCodePtr++]);
                                 variableName[i] = setArrayValue(
-                                    variableNames[bc.m_scriptData[state.m_scriptCodePtr++]], value);
+                                    variableNames[bc.scriptData[state.m_scriptCodePtr++]], value);
                             }
                             break;
                         case 3:
                             // ObjectLoop -
-                            if (bc.m_scriptData[state.m_scriptCodePtr++] == 1) {
+                            if (bc.scriptData[state.m_scriptCodePtr++] == 1) {
                                 QString value =
-                                    "-" + arrayPosition[bc.m_scriptData[state.m_scriptCodePtr++]];
+                                    "-" + arrayPosition[bc.scriptData[state.m_scriptCodePtr++]];
                                 variableName[i] = setArrayValue(
-                                    variableNames[bc.m_scriptData[state.m_scriptCodePtr++]], value);
+                                    variableNames[bc.scriptData[state.m_scriptCodePtr++]], value);
                             }
                             else {
                                 QString value =
-                                    "-" + QString::number(bc.m_scriptData[state.m_scriptCodePtr++]);
+                                    "-" + QString::number(bc.scriptData[state.m_scriptCodePtr++]);
                                 variableName[i] = setArrayValue(
-                                    variableNames[bc.m_scriptData[state.m_scriptCodePtr++]], value);
+                                    variableNames[bc.scriptData[state.m_scriptCodePtr++]], value);
                             }
                             break;
                     }
                     break;
                 case 2: // Read constant value from bytecode
-                    variableName[i] = QString::number(bc.m_scriptData[state.m_scriptCodePtr++]);
+                    variableName[i] = QString::number(bc.scriptData[state.m_scriptCodePtr++]);
                     break;
                 case 3: // Read string
                     QString tmp = "";
-                    int strLen  = bc.m_scriptData[state.m_scriptCodePtr];
+                    int strLen  = bc.scriptData[state.m_scriptCodePtr];
                     for (int j = 0; j < strLen;) {
                         state.m_scriptCodePtr++;
                         if (j < strLen) {
-                            int val = bc.m_scriptData[state.m_scriptCodePtr] >> 24;
+                            int val = bc.scriptData[state.m_scriptCodePtr] >> 24;
                             if (val < 0)
                                 val = 0;
                             tmp = tmp + (char)val;
@@ -1466,7 +1466,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         j++;
 
                         if (j < strLen) {
-                            int val = (bc.m_scriptData[state.m_scriptCodePtr] & 0x00FFFFFF) >> 16;
+                            int val = (bc.scriptData[state.m_scriptCodePtr] & 0x00FFFFFF) >> 16;
                             if (val < 0)
                                 val = 0;
                             tmp = tmp + (char)val;
@@ -1474,7 +1474,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         j++;
 
                         if (j < strLen) {
-                            int val = (bc.m_scriptData[state.m_scriptCodePtr] & 0x0000FFFF) >> 8;
+                            int val = (bc.scriptData[state.m_scriptCodePtr] & 0x0000FFFF) >> 8;
                             if (val < 0)
                                 val = 0;
                             tmp = tmp + (char)val;
@@ -1482,7 +1482,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         j++;
 
                         if (j < strLen) {
-                            int val = bc.m_scriptData[state.m_scriptCodePtr] & 0x000000FF;
+                            int val = bc.scriptData[state.m_scriptCodePtr] & 0x000000FF;
                             if (val < 0)
                                 val = 0;
                             tmp = tmp + (char)val;
@@ -2223,10 +2223,10 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
 
                     sw.m_jumpTableOffset = jmpOffset;
 
-                    int lowCase  = bc.m_jumpTableData[jmpOffset + 0];
-                    int highCase = bc.m_jumpTableData[jmpOffset + 1];
-                    int defJump  = bc.m_jumpTableData[jmpOffset + 2];
-                    int endJmp   = bc.m_jumpTableData[jmpOffset + 3];
+                    int lowCase  = bc.jumpTableData[jmpOffset + 0];
+                    int highCase = bc.jumpTableData[jmpOffset + 1];
+                    int defJump  = bc.jumpTableData[jmpOffset + 2];
+                    int endJmp   = bc.jumpTableData[jmpOffset + 3];
 
                     sw.m_lowCase    = lowCase;
                     sw.m_highCase   = highCase;
@@ -2265,7 +2265,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         }
                         else {
                             int jumpTblPtr = jmpOffset + (c - lowCase) + 4;
-                            int jumpPtr    = state.m_scriptCodeOffset + bc.m_jumpTableData[jumpTblPtr];
+                            int jumpPtr    = state.m_scriptCodeOffset + bc.jumpTableData[jumpTblPtr];
                             int match      = -1;
 
                             for (int i = 0; i < sw.m_jumpPtr.count(); ++i) {

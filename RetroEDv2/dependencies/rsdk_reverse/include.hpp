@@ -53,6 +53,7 @@ enum EngineVersion { ENGINE_v5, ENGINE_v4, ENGINE_v3, ENGINE_v2, ENGINE_v1, ENGI
 // RSDKv2
 #include "formats/RSDKv2/animationv2.hpp"
 #include "formats/RSDKv2/backgroundv2.hpp"
+#include "formats/RSDKv2/bytecodev2.hpp"
 #include "formats/RSDKv2/chunksv2.hpp"
 #include "formats/RSDKv2/datafilev2.hpp"
 #include "formats/RSDKv2/gameconfigv2.hpp"

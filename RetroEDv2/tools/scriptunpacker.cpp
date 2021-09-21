@@ -342,7 +342,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     decompilerv4.decompile(bc, outputPath);
 
                     if (!b) {
-                        globalFunctionCount   = bc.m_functionList.count();
+                        globalFunctionCount   = bc.functionList.count();
                         m_globalConstantCount = decompilerv4.m_staticVars.count();
                         m_globalArrayCount    = decompilerv4.m_tables.count();
                         m_globalOffset        = decompilerv4.m_lastOffset;

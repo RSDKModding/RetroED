@@ -81,7 +81,7 @@ public:
     QList<ObjectInfo> objects;
     QList<SoundInfo> soundFX;
     QList<GlobalVariable> globalVariables;
-    QList<PlayerInfo> player;
+    QList<PlayerInfo> players;
     QList<Category> stageLists;
 
     QString filePath = "";

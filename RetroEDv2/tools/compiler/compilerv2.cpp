@@ -1,15 +1,15 @@
 #include "includes.hpp"
 
 #define ALIAS_COUNT       (0x80)
-#define COMMONALIAS_COUNT (0x20)
+#define COMMONALIAS_COUNT (25)
 
-struct AliasInfo {
-    AliasInfo()
+struct AliasInfov2 {
+    AliasInfov2()
     {
         name  = "";
         value = "";
     }
-    AliasInfo(QString aliasName, QString aliasVal)
+    AliasInfov2(QString aliasName, QString aliasVal)
     {
         name  = aliasName;
         value = aliasVal;
@@ -19,13 +19,13 @@ struct AliasInfo {
     QString value = "";
 };
 
-struct FunctionInfo {
-    FunctionInfo()
+struct FunctionInfov2 {
+    FunctionInfov2()
     {
         name       = "";
         opcodeSize = 0;
     }
-    FunctionInfo(QString functionName, int opSize)
+    FunctionInfov2(QString functionName, int opSize)
     {
         name       = functionName;
         opcodeSize = opSize;
@@ -36,19 +36,6 @@ struct FunctionInfo {
 };
 
 const QString variableNames[] = {
-    "TempValue0",
-    "TempValue1",
-    "TempValue2",
-    "TempValue3",
-    "TempValue4",
-    "TempValue5",
-    "TempValue6",
-    "TempValue7",
-    "CheckResult",
-    "ArrayPos0",
-    "ArrayPos1",
-    "Global",
-    "Object.EntityNo",
     "Object.Type",
     "Object.PropertyValue",
     "Object.XPos",
@@ -62,12 +49,7 @@ const QString variableNames[] = {
     "Object.DrawOrder",
     "Object.Direction",
     "Object.InkEffect",
-    "Object.Alpha",
     "Object.Frame",
-    "Object.Animation",
-    "Object.PrevAnimation",
-    "Object.AnimationSpeed",
-    "Object.AnimationTimer",
     "Object.Value0",
     "Object.Value1",
     "Object.Value2",
@@ -76,129 +58,17 @@ const QString variableNames[] = {
     "Object.Value5",
     "Object.Value6",
     "Object.Value7",
-    "Object.OutOfBounds",
-    "Player.State",
-    "Player.ControlMode",
-    "Player.ControlLock",
-    "Player.CollisionMode",
-    "Player.CollisionPlane",
-    "Player.XPos",
-    "Player.YPos",
-    "Player.iXPos",
-    "Player.iYPos",
-    "Player.ScreenXPos",
-    "Player.ScreenYPos",
-    "Player.Speed",
-    "Player.XVelocity",
-    "Player.YVelocity",
-    "Player.Gravity",
-    "Player.Angle",
-    "Player.Skidding",
-    "Player.Pushing",
-    "Player.TrackScroll",
-    "Player.Up",
-    "Player.Down",
-    "Player.Left",
-    "Player.Right",
-    "Player.JumpPress",
-    "Player.JumpHold",
-    "Player.FollowPlayer1",
-    "Player.LookPos",
-    "Player.Water",
-    "Player.TopSpeed",
-    "Player.Acceleration",
-    "Player.Deceleration",
-    "Player.AirAcceleration",
-    "Player.AirDeceleration",
-    "Player.GravityStrength",
-    "Player.JumpStrength",
-    "Player.JumpCap",
-    "Player.RollingAcceleration",
-    "Player.RollingDeceleration",
-    "Player.EntityNo",
-    "Player.CollisionLeft",
-    "Player.CollisionTop",
-    "Player.CollisionRight",
-    "Player.CollisionBottom",
-    "Player.Flailing",
-    "Player.Timer",
-    "Player.TileCollisions",
-    "Player.ObjectInteraction",
-    "Player.Visible",
-    "Player.Rotation",
-    "Player.Scale",
-    "Player.Priority",
-    "Player.DrawOrder",
-    "Player.Direction",
-    "Player.InkEffect",
-    "Player.Alpha",
-    "Player.Frame",
-    "Player.Animation",
-    "Player.PrevAnimation",
-    "Player.AnimationSpeed",
-    "Player.AnimationTimer",
-    "Player.Value0",
-    "Player.Value1",
-    "Player.Value2",
-    "Player.Value3",
-    "Player.Value4",
-    "Player.Value5",
-    "Player.Value6",
-    "Player.Value7",
-    "Player.Value8",
-    "Player.Value9",
-    "Player.Value10",
-    "Player.Value11",
-    "Player.Value12",
-    "Player.Value13",
-    "Player.Value14",
-    "Player.Value15",
-    "Player.OutOfBounds",
-    "Stage.State",
-    "Stage.ActiveList",
-    "Stage.ListPos",
-    "Stage.TimeEnabled",
-    "Stage.MilliSeconds",
-    "Stage.Seconds",
-    "Stage.Minutes",
-    "Stage.ActNo",
-    "Stage.PauseEnabled",
-    "Stage.ListSize",
-    "Stage.NewXBoundary1",
-    "Stage.NewXBoundary2",
-    "Stage.NewYBoundary1",
-    "Stage.NewYBoundary2",
-    "Stage.XBoundary1",
-    "Stage.XBoundary2",
-    "Stage.YBoundary1",
-    "Stage.YBoundary2",
-    "Stage.DeformationData0",
-    "Stage.DeformationData1",
-    "Stage.DeformationData2",
-    "Stage.DeformationData3",
-    "Stage.WaterLevel",
-    "Stage.ActiveLayer",
-    "Stage.MidPoint",
-    "Stage.PlayerListPos",
-    "Stage.ActivePlayer",
-    "Screen.CameraEnabled",
-    "Screen.CameraTarget",
-    "Screen.CameraStyle",
-    "Screen.DrawListSize",
-    "Screen.CenterX",
-    "Screen.CenterY",
-    "Screen.XSize",
-    "Screen.YSize",
-    "Screen.XOffset",
-    "Screen.YOffset",
-    "Screen.ShakeX",
-    "Screen.ShakeY",
-    "Screen.AdjustCameraY",
-    "TouchScreen.Down",
-    "TouchScreen.XPos",
-    "TouchScreen.YPos",
-    "Music.Volume",
-    "Music.CurrentTrack",
+    "TempValue0",
+    "TempValue1",
+    "TempValue2",
+    "TempValue3",
+    "TempValue4",
+    "TempValue5",
+    "TempValue6",
+    "TempValue7",
+    "CheckResult",
+    "ArrayPos0",
+    "ArrayPos1",
     "KeyDown.Up",
     "KeyDown.Down",
     "KeyDown.Left",
@@ -217,224 +87,198 @@ const QString variableNames[] = {
     "KeyPress.Start",
     "Menu1.Selection",
     "Menu2.Selection",
-    "TileLayer.XSize",
-    "TileLayer.YSize",
-    "TileLayer.Type",
-    "TileLayer.Angle",
-    "TileLayer.XPos",
-    "TileLayer.YPos",
-    "TileLayer.ZPos",
-    "TileLayer.ParallaxFactor",
-    "TileLayer.ScrollSpeed",
-    "TileLayer.ScrollPos",
-    "TileLayer.DeformationOffset",
-    "TileLayer.DeformationOffsetW",
-    "HParallax.ParallaxFactor",
-    "HParallax.ScrollSpeed",
-    "HParallax.ScrollPos",
-    "VParallax.ParallaxFactor",
-    "VParallax.ScrollSpeed",
-    "VParallax.ScrollPos",
-    "3DScene.NoVertices",
-    "3DScene.NoFaces",
-    "VertexBuffer.x",
-    "VertexBuffer.y",
-    "VertexBuffer.z",
-    "VertexBuffer.u",
-    "VertexBuffer.v",
-    "FaceBuffer.a",
-    "FaceBuffer.b",
-    "FaceBuffer.c",
-    "FaceBuffer.d",
-    "FaceBuffer.Flag",
-    "FaceBuffer.Color",
-    "3DScene.ProjectionX",
-    "3DScene.ProjectionY",
-    "Engine.State",
-    "Stage.DebugMode",
-    "Engine.Message",
-    "SaveRAM",
-    "Engine.Language",
-    "Object.SpriteSheet",
-    "Engine.OnlineActive",
-    "Engine.FrameSkipTimer",
-    "Engine.FrameSkipSetting",
-    "Engine.SFXVolume",
-    "Engine.BGMVolume",
-    "Engine.PlatformID",
-    "Engine.TrialMode",
-    "KeyPress.AnyStart",
-    "Engine.HapticsEnabled",
+    "Stage.ActiveList",
+    "Stage.ListPos",
+    "XScrollOffset",
+    "YScrollOffset",
+    "Global",
+    "Stage.TimeEnabled",
+    "Stage.MilliSeconds",
+    "Stage.Seconds",
+    "Stage.Minutes",
+    "Stage.ActNo",
+    "Object.EntityNo",
+    "Player.Type",
+    "Player.State",
+    "Player.ControlMode",
+    "Player.CollisionMode",
+    "Player.CollisionPlane",
+    "Player.XPos",
+    "Player.YPos",
+    "Player.ScreenXPos",
+    "Player.ScreenYPos",
+    "Player.Speed",
+    "Player.XVelocity",
+    "Player.YVelocity",
+    "Player.Gravity",
+    "Player.Angle",
+    "Player.Rotation",
+    "Player.Direction",
+    "Player.Animation",
+    "Player.Frame",
+    "Player.Skidding",
+    "Player.Pushing",
+    "Player.FrictionLoss",
+    "Player.WalkingSpeed",
+    "Player.RunningSpeed",
+    "Player.JumpingSpeed",
+    "Player.TrackScroll",
+    "Player.Up",
+    "Player.Down",
+    "Player.Left",
+    "Player.Right",
+    "Player.JumpPress",
+    "Player.JumpHold",
+    "Player.FollowPlayer1",
+    "Player.LookPos",
+    "Player.Water",
+    "Player.TopSpeed",
+    "Player.Acceleration",
+    "Player.Deceleration",
+    "Player.AirAcceleration",
+    "Player.AirDeceleration",
+    "Player.GravityStrength",
+    "Player.JumpStrength",
+    "Player.RollingAcceleration",
+    "Player.RollingDeceleration",
+    "Player.EntityNo",
+    "Player.CollisionLeft",
+    "Player.CollisionTop",
+    "Player.CollisionRight",
+    "Player.CollisionBottom",
+    "Player.Flailing",
+    "Stage.PauseEnabled",
+    "Stage.ListSize",
+    "Player.Timer",
+    "Player.AnimationSpeed",
+    "Player.TileCollisions",
+    "Player.ObjectInteraction",
+    "Stage.CameraEnabled",
+    "Stage.CameraStyle",
+    "Music.Volume",
+    "Music.CurrentTrack",
+    "Player.Visible",
+    "Stage.NewXBoundary1",
+    "Stage.NewXBoundary2",
+    "Stage.NewYBoundary1",
+    "Stage.NewYBoundary2",
+    "Stage.XBoundary1",
+    "Stage.XBoundary2",
+    "Stage.YBoundary1",
+    "Stage.YBoundary2",
+    "Object.OutOfBounds",
 };
 
-const FunctionInfo functions[] = { FunctionInfo("End", 0),
-                                   FunctionInfo("Equal", 2),
-                                   FunctionInfo("Add", 2),
-                                   FunctionInfo("Sub", 2),
-                                   FunctionInfo("Inc", 1),
-                                   FunctionInfo("Dec", 1),
-                                   FunctionInfo("Mul", 2),
-                                   FunctionInfo("Div", 2),
-                                   FunctionInfo("ShR", 2),
-                                   FunctionInfo("ShL", 2),
-                                   FunctionInfo("And", 2),
-                                   FunctionInfo("Or", 2),
-                                   FunctionInfo("Xor", 2),
-                                   FunctionInfo("Mod", 2),
-                                   FunctionInfo("FlipSign", 1),
-                                   FunctionInfo("CheckEqual", 2),
-                                   FunctionInfo("CheckGreater", 2),
-                                   FunctionInfo("CheckLower", 2),
-                                   FunctionInfo("CheckNotEqual", 2),
-                                   FunctionInfo("IfEqual", 3),
-                                   FunctionInfo("IfGreater", 3),
-                                   FunctionInfo("IfGreaterOrEqual", 3),
-                                   FunctionInfo("IfLower", 3),
-                                   FunctionInfo("IfLowerOrEqual", 3),
-                                   FunctionInfo("IfNotEqual", 3),
-                                   FunctionInfo("else", 0),
-                                   FunctionInfo("endif", 0),
-                                   FunctionInfo("WEqual", 3),
-                                   FunctionInfo("WGreater", 3),
-                                   FunctionInfo("WGreaterOrEqual", 3),
-                                   FunctionInfo("WLower", 3),
-                                   FunctionInfo("WLowerOrEqual", 3),
-                                   FunctionInfo("WNotEqual", 3),
-                                   FunctionInfo("loop", 0),
-                                   FunctionInfo("switch", 2),
-                                   FunctionInfo("break", 0),
-                                   FunctionInfo("endswitch", 0),
-                                   FunctionInfo("Rand", 2),
-                                   FunctionInfo("Sin", 2),
-                                   FunctionInfo("Cos", 2),
-                                   FunctionInfo("Sin256", 2),
-                                   FunctionInfo("Cos256", 2),
-                                   FunctionInfo("SinChange", 5),
-                                   FunctionInfo("CosChange", 5),
-                                   FunctionInfo("ATan2", 3),
-                                   FunctionInfo("Interpolate", 4),
-                                   FunctionInfo("InterpolateXY", 7),
-                                   FunctionInfo("LoadSpriteSheet", 1),
-                                   FunctionInfo("RemoveSpriteSheet", 1),
-                                   FunctionInfo("DrawSprite", 1),
-                                   FunctionInfo("DrawSpriteXY", 3),
-                                   FunctionInfo("DrawSpriteScreenXY", 3),
-                                   FunctionInfo("DrawTintRect", 4),
-                                   FunctionInfo("DrawNumbers", 7),
-                                   FunctionInfo("DrawActName", 7),
-                                   FunctionInfo("DrawMenu", 3),
-                                   FunctionInfo("SpriteFrame", 6),
-                                   FunctionInfo("EditFrame", 7),
-                                   FunctionInfo("LoadPalette", 5),
-                                   FunctionInfo("RotatePalette", 3),
-                                   FunctionInfo("SetScreenFade", 4),
-                                   FunctionInfo("SetActivePalette", 3),
-                                   FunctionInfo("SetPaletteFade", 7),
-                                   FunctionInfo("CopyPalette", 2),
-                                   FunctionInfo("ClearScreen", 1),
-                                   FunctionInfo("DrawSpriteFX", 4),
-                                   FunctionInfo("DrawSpriteScreenFX", 4),
-                                   FunctionInfo("LoadAnimation", 1),
-                                   FunctionInfo("SetupMenu", 4),
-                                   FunctionInfo("AddMenuEntry", 3),
-                                   FunctionInfo("EditMenuEntry", 4),
-                                   FunctionInfo("LoadStage", 0),
-                                   FunctionInfo("DrawRect", 8),
-                                   FunctionInfo("ResetObjectEntity", 5),
-                                   FunctionInfo("PlayerObjectCollision", 5),
-                                   FunctionInfo("CreateTempObject", 4),
-                                   FunctionInfo("BindPlayerToObject", 2),
-                                   FunctionInfo("PlayerTileCollision", 0),
-                                   FunctionInfo("ProcessPlayerControl", 0),
-                                   FunctionInfo("ProcessAnimation", 0),
-                                   FunctionInfo("DrawObjectAnimation", 0),
-                                   FunctionInfo("DrawPlayerAnimation", 0),
-                                   FunctionInfo("SetMusicTrack", 3),
-                                   FunctionInfo("PlayMusic", 1),
-                                   FunctionInfo("StopMusic", 0),
-                                   FunctionInfo("PlaySfx", 2),
-                                   FunctionInfo("StopSfx", 1),
-                                   FunctionInfo("SetSfxAttributes", 3),
-                                   FunctionInfo("ObjectTileCollision", 4),
-                                   FunctionInfo("ObjectTileGrip", 4),
-                                   FunctionInfo("LoadVideo", 1),
-                                   FunctionInfo("NextVideoFrame", 0),
-                                   FunctionInfo("PlayStageSfx", 2),
-                                   FunctionInfo("StopStageSfx", 1),
-                                   FunctionInfo("Not", 1),
-                                   FunctionInfo("Draw3DScene", 0),
-                                   FunctionInfo("SetIdentityMatrix", 1),
-                                   FunctionInfo("MatrixMultiply", 2),
-                                   FunctionInfo("MatrixTranslateXYZ", 4),
-                                   FunctionInfo("MatrixScaleXYZ", 4),
-                                   FunctionInfo("MatrixRotateX", 2),
-                                   FunctionInfo("MatrixRotateY", 2),
-                                   FunctionInfo("MatrixRotateZ", 2),
-                                   FunctionInfo("MatrixRotateXYZ", 4),
-                                   FunctionInfo("TransformVertices", 3),
-                                   FunctionInfo("CallFunction", 1),
-                                   FunctionInfo("EndFunction", 0),
-                                   FunctionInfo("SetLayerDeformation", 6),
-                                   FunctionInfo("CheckTouchRect", 4),
-                                   FunctionInfo("GetTileLayerEntry", 4),
-                                   FunctionInfo("SetTileLayerEntry", 4),
-                                   FunctionInfo("GetBit", 3),
-                                   FunctionInfo("SetBit", 3),
-                                   FunctionInfo("PauseMusic", 0),
-                                   FunctionInfo("ResumeMusic", 0),
-                                   FunctionInfo("ClearDrawList", 1),
-                                   FunctionInfo("AddDrawListEntityRef", 2),
-                                   FunctionInfo("GetDrawListEntityRef", 3),
-                                   FunctionInfo("SetDrawListEntityRef", 3),
-                                   FunctionInfo("Get16x16TileInfo", 4),
-                                   FunctionInfo("Copy16x16Tile", 2),
-                                   FunctionInfo("Set16x16TileInfo", 4),
-                                   FunctionInfo("GetAnimationByName", 2),
-                                   FunctionInfo("ReadSaveRAM", 0),
-                                   FunctionInfo("WriteSaveRAM", 0),
-                                   FunctionInfo("LoadTextFont", 1),
-                                   FunctionInfo("LoadTextFile", 3),
-                                   FunctionInfo("DrawText", 7),
-                                   FunctionInfo("GetTextInfo", 5),
-                                   FunctionInfo("GetVersionNumber", 2),
-                                   FunctionInfo("SetAchievement", 2),
-                                   FunctionInfo("SetLeaderboard", 2),
-                                   FunctionInfo("LoadOnlineMenu", 1),
-                                   FunctionInfo("EngineCallback", 1),
-                                   FunctionInfo("HapticEffect", 4) };
+const FunctionInfov2 functions[] = { FunctionInfov2("End", 0),
+                                     FunctionInfov2("Equal", 2),
+                                     FunctionInfov2("Add", 2),
+                                     FunctionInfov2("Sub", 2),
+                                     FunctionInfov2("Inc", 1),
+                                     FunctionInfov2("Dec", 1),
+                                     FunctionInfov2("Mul", 2),
+                                     FunctionInfov2("Div", 2),
+                                     FunctionInfov2("ShR", 2),
+                                     FunctionInfov2("ShL", 2),
+                                     FunctionInfov2("And", 2),
+                                     FunctionInfov2("Or", 2),
+                                     FunctionInfov2("Xor", 2),
+                                     FunctionInfov2("Not", 1),
+                                     FunctionInfov2("FlipSign", 1),
+                                     FunctionInfov2("CheckEqual", 2),
+                                     FunctionInfov2("CheckGreater", 2),
+                                     FunctionInfov2("CheckLower", 2),
+                                     FunctionInfov2("CheckNotEqual", 2),
+                                     FunctionInfov2("IfEqual", 3),
+                                     FunctionInfov2("IfGreater", 3),
+                                     FunctionInfov2("IfGreaterOrEqual", 3),
+                                     FunctionInfov2("IfLower", 3),
+                                     FunctionInfov2("IfLowerOrEqual", 3),
+                                     FunctionInfov2("IfNotEqual", 3),
+                                     FunctionInfov2("else", 0),
+                                     FunctionInfov2("endif", 0),
+                                     FunctionInfov2("WEqual", 3),
+                                     FunctionInfov2("WGreater", 3),
+                                     FunctionInfov2("WGreaterOrEqual", 3),
+                                     FunctionInfov2("WLower", 3),
+                                     FunctionInfov2("WLowerOrEqual", 3),
+                                     FunctionInfov2("WNotEqual", 3),
+                                     FunctionInfov2("loop", 0),
+                                     FunctionInfov2("switch", 2),
+                                     FunctionInfov2("break", 0),
+                                     FunctionInfov2("endswitch", 0),
+                                     FunctionInfov2("Rand", 2),
+                                     FunctionInfov2("Sin", 2),
+                                     FunctionInfov2("Cos", 2),
+                                     FunctionInfov2("Sin256", 2),
+                                     FunctionInfov2("Cos256", 2),
+                                     FunctionInfov2("SinChange", 5),
+                                     FunctionInfov2("CosChange", 5),
+                                     FunctionInfov2("ATan2", 3),
+                                     FunctionInfov2("Interpolate", 4),
+                                     FunctionInfov2("InterpolateXY", 7),
+                                     FunctionInfov2("LoadSpriteSheet", 1),
+                                     FunctionInfov2("RemoveSpriteSheet", 1),
+                                     FunctionInfov2("DrawSprite", 1),
+                                     FunctionInfov2("DrawSpriteXY", 3),
+                                     FunctionInfov2("DrawSpriteScreenXY", 3),
+                                     FunctionInfov2("DrawSprite3D", 1),
+                                     FunctionInfov2("DrawNumbers", 7),
+                                     FunctionInfov2("DrawActName", 7),
+                                     FunctionInfov2("DrawMenu", 3),
+                                     FunctionInfov2("SpriteFrame", 6),
+                                     FunctionInfov2("SetDebugIcon", 6),
+                                     FunctionInfov2("LoadPalette", 3),
+                                     FunctionInfov2("RotatePalette", 3),
+                                     FunctionInfov2("SetFade", 6),
+                                     FunctionInfov2("SetWaterColor", 4),
+                                     FunctionInfov2("SetBlendTable", 4),
+                                     FunctionInfov2("SetTintTable", 6),
+                                     FunctionInfov2("ClearScreen", 1),
+                                     FunctionInfov2("DrawSpriteFX", 4),
+                                     FunctionInfov2("DrawSpriteScreenFX", 4),
+                                     FunctionInfov2("DrawLifeIcon", 2),
+                                     FunctionInfov2("SetupMenu", 4),
+                                     FunctionInfov2("AddMenuEntry", 3),
+                                     FunctionInfov2("EditMenuEntry", 4),
+                                     FunctionInfov2("LoadStage", 0),
+                                     FunctionInfov2("DrawTintRect", 5),
+                                     FunctionInfov2("ResetObjectEntity", 5),
+                                     FunctionInfov2("PlayerObjectCollision", 5),
+                                     FunctionInfov2("CreateTempObject", 4),
+                                     FunctionInfov2("DefaultGroundMovement", 0),
+                                     FunctionInfov2("DefaultAirMovement", 0),
+                                     FunctionInfov2("DefaultRollingMovement", 0),
+                                     FunctionInfov2("DefaultGravityTrue", 0),
+                                     FunctionInfov2("DefaultGravityFalse", 0),
+                                     FunctionInfov2("DefaultJumpAction", 0),
+                                     FunctionInfov2("SetMusicTrack", 3),
+                                     FunctionInfov2("PlayMusic", 1),
+                                     FunctionInfov2("StopMusic", 0),
+                                     FunctionInfov2("PlaySfx", 2),
+                                     FunctionInfov2("StopSfx", 1),
+                                     FunctionInfov2("SetSfxAttributes", 3),
+                                     FunctionInfov2("ObjectTileCollision", 4),
+                                     FunctionInfov2("ObjectTileGrip", 4),
+                                     FunctionInfov2("LoadVideo", 1),
+                                     FunctionInfov2("NextVideoFrame", 0),
+                                     FunctionInfov2("PlayStageSfx", 2),
+                                     FunctionInfov2("StopStageSfx", 1) };
 
-AliasInfo aliases[0x80] = { AliasInfo("true", "1"),
-                            AliasInfo("false", "0"),
-                            AliasInfo("FX_SCALE", "0"),
-                            AliasInfo("FX_ROTATE", "1"),
-                            AliasInfo("FX_ROTOZOOM", "2"),
-                            AliasInfo("FX_INK", "3"),
-                            AliasInfo("PRESENTATION_STAGE", "0"),
-                            AliasInfo("REGULAR_STAGE", "1"),
-                            AliasInfo("BONUS_STAGE", "2"),
-                            AliasInfo("SPECIAL_STAGE", "3"),
-                            AliasInfo("MENU_1", "0"),
-                            AliasInfo("MENU_2", "1"),
-                            AliasInfo("C_TOUCH", "0"),
-                            AliasInfo("C_BOX", "1"),
-                            AliasInfo("C_BOX2", "2"),
-                            AliasInfo("C_PLATFORM", "3"),
-                            AliasInfo("MAT_WORLD", "0"),
-                            AliasInfo("MAT_VIEW", "1"),
-                            AliasInfo("MAT_TEMP", "2"),
-                            AliasInfo("FX_FLIP", "5"),
-                            AliasInfo("FACING_LEFT", "1"),
-                            AliasInfo("FACING_RIGHT", "0"),
-                            AliasInfo("STAGE_PAUSED", "2"),
-                            AliasInfo("STAGE_RUNNING", "1"),
-                            AliasInfo("RESET_GAME", "2"),
-                            AliasInfo("RETRO_WIN", "0"),
-                            AliasInfo("RETRO_OSX", "1"),
-                            AliasInfo("RETRO_XBOX_360", "2"),
-                            AliasInfo("RETRO_PS3", "3"),
-                            AliasInfo("RETRO_iOS", "4"),
-                            AliasInfo("RETRO_ANDROID", "5"),
-                            AliasInfo("RETRO_WP7", "6") };
+AliasInfov2 aliases[0x80] = {
+    AliasInfov2("true", "1"),          AliasInfov2("false", "0"),
+    AliasInfov2("FX_SCALE", "0"),      AliasInfov2("FX_ROTATE", "1"),
+    AliasInfov2("FX_INK", "2"),        AliasInfov2("PRESENTATION_STAGE", "0"),
+    AliasInfov2("REGULAR_STAGE", "1"), AliasInfov2("BONUS_STAGE", "2"),
+    AliasInfov2("SPECIAL_STAGE", "3"), AliasInfov2("MENU_1", "0"),
+    AliasInfov2("MENU_2", "1"),        AliasInfov2("C_TOUCH", "0"),
+    AliasInfov2("C_BOX", "1"),         AliasInfov2("C_PLATFORM", "2"),
+    AliasInfov2("INK_NONE", "0"),      AliasInfov2("INK_BLEND", "1"),
+    AliasInfov2("INK_TINT", "2"),      AliasInfov2("FX_SCALE", "0"),
+    AliasInfov2("FX_ROTATE", "1"),     AliasInfov2("FX_INK", "2"),
+    AliasInfov2("FX_TINT", "3"),       AliasInfov2("FLIP_NONE", "0"),
+    AliasInfov2("FLIP_X", "1"),        AliasInfov2("FLIP_Y", "2"),
+    AliasInfov2("FLIP_XY", "3"),
+};
 
 const QString scriptEvaluationTokens[] = { "=",  "+=", "-=", "++", "--", "*=", "/=", ">>=", "<<=", "&=",
                                            "|=", "^=", "%=", "==", ">",  ">=", "<",  "<=",  "!=" };
@@ -447,11 +291,10 @@ enum ScriptReadModes {
     READMODE_EOF         = 4
 };
 enum ScriptParseModes {
-    PARSEMODE_SCOPELESS    = 0,
-    PARSEMODE_PLATFORMSKIP = 1,
-    PARSEMODE_FUNCTION     = 2,
-    PARSEMODE_SWITCHREAD   = 3,
-    PARSEMODE_ERROR        = 0xFF
+    PARSEMODE_SCOPELESS  = 0,
+    PARSEMODE_FUNCTION   = 1,
+    PARSEMODE_SWITCHREAD = 2,
+    PARSEMODE_ERROR      = 0xFF
 };
 
 enum ScriptVarTypes { SCRIPTVAR_VAR = 1, SCRIPTVAR_INTCONST = 2, SCRIPTVAR_STRCONST = 3 };
@@ -463,19 +306,6 @@ enum ScriptVarArrTypes {
 };
 
 enum ScrVariable {
-    VAR_TEMPVALUE0,
-    VAR_TEMPVALUE1,
-    VAR_TEMPVALUE2,
-    VAR_TEMPVALUE3,
-    VAR_TEMPVALUE4,
-    VAR_TEMPVALUE5,
-    VAR_TEMPVALUE6,
-    VAR_TEMPVALUE7,
-    VAR_CHECKRESULT,
-    VAR_ARRAYPOS0,
-    VAR_ARRAYPOS1,
-    VAR_GLOBAL,
-    VAR_OBJECTENTITYNO,
     VAR_OBJECTTYPE,
     VAR_OBJECTPROPERTYVALUE,
     VAR_OBJECTXPOS,
@@ -489,12 +319,7 @@ enum ScrVariable {
     VAR_OBJECTDRAWORDER,
     VAR_OBJECTDIRECTION,
     VAR_OBJECTINKEFFECT,
-    VAR_OBJECTALPHA,
     VAR_OBJECTFRAME,
-    VAR_OBJECTANIMATION,
-    VAR_OBJECTPREVANIMATION,
-    VAR_OBJECTANIMATIONSPEED,
-    VAR_OBJECTANIMATIONTIMER,
     VAR_OBJECTVALUE0,
     VAR_OBJECTVALUE1,
     VAR_OBJECTVALUE2,
@@ -503,129 +328,17 @@ enum ScrVariable {
     VAR_OBJECTVALUE5,
     VAR_OBJECTVALUE6,
     VAR_OBJECTVALUE7,
-    VAR_OBJECTOUTOFBOUNDS,
-    VAR_PLAYERSTATE,
-    VAR_PLAYERCONTROLMODE,
-    VAR_PLAYERCONTROLLOCK,
-    VAR_PLAYERCOLLISIONMODE,
-    VAR_PLAYERCOLLISIONPLANE,
-    VAR_PLAYERXPOS,
-    VAR_PLAYERYPOS,
-    VAR_PLAYERIXPOS,
-    VAR_PLAYERIYPOS,
-    VAR_PLAYERSCREENXPOS,
-    VAR_PLAYERSCREENYPOS,
-    VAR_PLAYERSPEED,
-    VAR_PLAYERXVELOCITY,
-    VAR_PLAYERYVELOCITY,
-    VAR_PLAYERGRAVITY,
-    VAR_PLAYERANGLE,
-    VAR_PLAYERSKIDDING,
-    VAR_PLAYERPUSHING,
-    VAR_PLAYERTRACKSCROLL,
-    VAR_PLAYERUP,
-    VAR_PLAYERDOWN,
-    VAR_PLAYERLEFT,
-    VAR_PLAYERRIGHT,
-    VAR_PLAYERJUMPPRESS,
-    VAR_PLAYERJUMPHOLD,
-    VAR_PLAYERFOLLOWPLAYER1,
-    VAR_PLAYERLOOKPOS,
-    VAR_PLAYERWATER,
-    VAR_PLAYERTOPSPEED,
-    VAR_PLAYERACCELERATION,
-    VAR_PLAYERDECELERATION,
-    VAR_PLAYERAIRACCELERATION,
-    VAR_PLAYERAIRDECELERATION,
-    VAR_PLAYERGRAVITYSTRENGTH,
-    VAR_PLAYERJUMPSTRENGTH,
-    VAR_PLAYERJUMPCAP,
-    VAR_PLAYERROLLINGACCELERATION,
-    VAR_PLAYERROLLINGDECELERATION,
-    VAR_PLAYERENTITYNO,
-    VAR_PLAYERCOLLISIONLEFT,
-    VAR_PLAYERCOLLISIONTOP,
-    VAR_PLAYERCOLLISIONRIGHT,
-    VAR_PLAYERCOLLISIONBOTTOM,
-    VAR_PLAYERFLAILING,
-    VAR_PLAYERTIMER,
-    VAR_PLAYERTILECOLLISIONS,
-    VAR_PLAYEROBJECTINTERACTION,
-    VAR_PLAYERVISIBLE,
-    VAR_PLAYERROTATION,
-    VAR_PLAYERSCALE,
-    VAR_PLAYERPRIORITY,
-    VAR_PLAYERDRAWORDER,
-    VAR_PLAYERDIRECTION,
-    VAR_PLAYERINKEFFECT,
-    VAR_PLAYERALPHA,
-    VAR_PLAYERFRAME,
-    VAR_PLAYERANIMATION,
-    VAR_PLAYERPREVANIMATION,
-    VAR_PLAYERANIMATIONSPEED,
-    VAR_PLAYERANIMATIONTIMER,
-    VAR_PLAYERVALUE0,
-    VAR_PLAYERVALUE1,
-    VAR_PLAYERVALUE2,
-    VAR_PLAYERVALUE3,
-    VAR_PLAYERVALUE4,
-    VAR_PLAYERVALUE5,
-    VAR_PLAYERVALUE6,
-    VAR_PLAYERVALUE7,
-    VAR_PLAYERVALUE8,
-    VAR_PLAYERVALUE9,
-    VAR_PLAYERVALUE10,
-    VAR_PLAYERVALUE11,
-    VAR_PLAYERVALUE12,
-    VAR_PLAYERVALUE13,
-    VAR_PLAYERVALUE14,
-    VAR_PLAYERVALUE15,
-    VAR_PLAYEROUTOFBOUNDS,
-    VAR_STAGESTATE,
-    VAR_STAGEACTIVELIST,
-    VAR_STAGELISTPOS,
-    VAR_STAGETIMEENABLED,
-    VAR_STAGEMILLISECONDS,
-    VAR_STAGESECONDS,
-    VAR_STAGEMINUTES,
-    VAR_STAGEACTNO,
-    VAR_STAGEPAUSEENABLED,
-    VAR_STAGELISTSIZE,
-    VAR_STAGENEWXBOUNDARY1,
-    VAR_STAGENEWXBOUNDARY2,
-    VAR_STAGENEWYBOUNDARY1,
-    VAR_STAGENEWYBOUNDARY2,
-    VAR_STAGEXBOUNDARY1,
-    VAR_STAGEXBOUNDARY2,
-    VAR_STAGEYBOUNDARY1,
-    VAR_STAGEYBOUNDARY2,
-    VAR_STAGEDEFORMATIONDATA0,
-    VAR_STAGEDEFORMATIONDATA1,
-    VAR_STAGEDEFORMATIONDATA2,
-    VAR_STAGEDEFORMATIONDATA3,
-    VAR_STAGEWATERLEVEL,
-    VAR_STAGEACTIVELAYER,
-    VAR_STAGEMIDPOINT,
-    VAR_STAGEPLAYERLISTPOS,
-    VAR_STAGEACTIVEPLAYER,
-    VAR_SCREENCAMERAENABLED,
-    VAR_SCREENCAMERATARGET,
-    VAR_SCREENCAMERASTYLE,
-    VAR_SCREENDRAWLISTSIZE,
-    VAR_SCREENCENTERX,
-    VAR_SCREENCENTERY,
-    VAR_SCREENXSIZE,
-    VAR_SCREENYSIZE,
-    VAR_SCREENXOFFSET,
-    VAR_SCREENYOFFSET,
-    VAR_SCREENSHAKEX,
-    VAR_SCREENSHAKEY,
-    VAR_SCREENADJUSTCAMERAY,
-    VAR_TOUCHSCREENDOWN,
-    VAR_TOUCHSCREENXPOS,
-    VAR_TOUCHSCREENYPOS,
-    VAR_MUSICVOLUME,
-    VAR_MUSICCURRENTTRACK,
+    VAR_TEMPVALUE0,
+    VAR_TEMPVALUE1,
+    VAR_TEMPVALUE2,
+    VAR_TEMPVALUE3,
+    VAR_TEMPVALUE4,
+    VAR_TEMPVALUE5,
+    VAR_TEMPVALUE6,
+    VAR_TEMPVALUE7,
+    VAR_CHECKRESULT,
+    VAR_ARRAYPOS0,
+    VAR_ARRAYPOS1,
     VAR_KEYDOWNUP,
     VAR_KEYDOWNDOWN,
     VAR_KEYDOWNLEFT,
@@ -644,55 +357,87 @@ enum ScrVariable {
     VAR_KEYPRESSSTART,
     VAR_MENU1SELECTION,
     VAR_MENU2SELECTION,
-    VAR_TILELAYERXSIZE,
-    VAR_TILELAYERYSIZE,
-    VAR_TILELAYERTYPE,
-    VAR_TILELAYERANGLE,
-    VAR_TILELAYERXPOS,
-    VAR_TILELAYERYPOS,
-    VAR_TILELAYERZPOS,
-    VAR_TILELAYERPARALLAXFACTOR,
-    VAR_TILELAYERSCROLLSPEED,
-    VAR_TILELAYERSCROLLPOS,
-    VAR_TILELAYERDEFORMATIONOFFSET,
-    VAR_TILELAYERDEFORMATIONOFFSETW,
-    VAR_HPARALLAXPARALLAXFACTOR,
-    VAR_HPARALLAXSCROLLSPEED,
-    VAR_HPARALLAXSCROLLPOS,
-    VAR_VPARALLAXPARALLAXFACTOR,
-    VAR_VPARALLAXSCROLLSPEED,
-    VAR_VPARALLAXSCROLLPOS,
-    VAR_3DSCENENOVERTICES,
-    VAR_3DSCENENOFACES,
-    VAR_VERTEXBUFFERX,
-    VAR_VERTEXBUFFERY,
-    VAR_VERTEXBUFFERZ,
-    VAR_VERTEXBUFFERU,
-    VAR_VERTEXBUFFERV,
-    VAR_FACEBUFFERA,
-    VAR_FACEBUFFERB,
-    VAR_FACEBUFFERC,
-    VAR_FACEBUFFERD,
-    VAR_FACEBUFFERFLAG,
-    VAR_FACEBUFFERCOLOR,
-    VAR_3DSCENEPROJECTIONX,
-    VAR_3DSCENEPROJECTIONY,
-    VAR_ENGINESTATE,
-    VAR_STAGEDEBUGMODE,
-    VAR_ENGINEMESSAGE,
-    VAR_SAVERAM,
-    VAR_ENGINELANGUAGE,
-    VAR_OBJECTSPRITESHEET,
-    VAR_ENGINEONLINEACTIVE,
-    VAR_ENGINEFRAMESKIPTIMER,
-    VAR_ENGINEFRAMESKIPSETTING,
-    VAR_ENGINESFXVOLUME,
-    VAR_ENGINEBGMVOLUME,
-    VAR_ENGINEPLATFORMID,
-    VAR_ENGINETRIALMODE,
-    VAR_KEYPRESSANYSTART,
-    VAR_ENGINEHAPTICSENABLED,
-    VAR_MAX_CNT
+    VAR_STAGEACTIVELIST,
+    VAR_STAGELISTPOS,
+    VAR_XSCROLLOFFSET,
+    VAR_YSCROLLOFFSET,
+    VAR_GLOBAL,
+    VAR_STAGETIMEENABLED,
+    VAR_STAGEMILLISECONDS,
+    VAR_STAGESECONDS,
+    VAR_STAGEMINUTES,
+    VAR_STAGEACTNO,
+    VAR_OBJECTENTITYNO,
+    VAR_PLAYERTYPE,
+    VAR_PLAYERSTATE,
+    VAR_PLAYERCONTROLMODE,
+    VAR_PLAYERCOLLISIONMODE,
+    VAR_PLAYERCOLLISIONPLANE,
+    VAR_PLAYERXPOS,
+    VAR_PLAYERYPOS,
+    VAR_PLAYERSCREENXPOS,
+    VAR_PLAYERSCREENYPOS,
+    VAR_PLAYERSPEED,
+    VAR_PLAYERXVELOCITY,
+    VAR_PLAYERYVELOCITY,
+    VAR_PLAYERGRAVITY,
+    VAR_PLAYERANGLE,
+    VAR_PLAYERROTATION,
+    VAR_PLAYERDIRECTION,
+    VAR_PLAYERANIMATION,
+    VAR_PLAYERFRAME,
+    VAR_PLAYERSKIDDING,
+    VAR_PLAYERPUSHING,
+    VAR_PLAYERFRICTIONLOSS,
+    VAR_PLAYERWALKINGSPEED,
+    VAR_PLAYERRUNNINGSPEED,
+    VAR_PLAYERJUMPINGSPEED,
+    VAR_PLAYERTRACKSCROLL,
+    VAR_PLAYERUP,
+    VAR_PLAYERDOWN,
+    VAR_PLAYERLEFT,
+    VAR_PLAYERRIGHT,
+    VAR_PLAYERJUMPPRESS,
+    VAR_PLAYERJUMPHOLD,
+    VAR_PLAYERFOLLOWPLAYER1,
+    VAR_PLAYERLOOKPOS,
+    VAR_PLAYERWATER,
+    VAR_PLAYERTOPSPEED,
+    VAR_PLAYERACCELERATION,
+    VAR_PLAYERDECELERATION,
+    VAR_PLAYERAIRACCELERATION,
+    VAR_PLAYERAIRDECELERATION,
+    VAR_PLAYERGRAVITYSTRENGTH,
+    VAR_PLAYERJUMPSTRENGTH,
+    VAR_PLAYERROLLINGACCELERATION,
+    VAR_PLAYERROLLINGDECELERATION,
+    VAR_PLAYERENTITYNO,
+    VAR_PLAYERCOLLISIONLEFT,
+    VAR_PLAYERCOLLISIONTOP,
+    VAR_PLAYERCOLLISIONRIGHT,
+    VAR_PLAYERCOLLISIONBOTTOM,
+    VAR_PLAYERFLAILING,
+    VAR_STAGEPAUSEENABLED,
+    VAR_STAGELISTSIZE,
+    VAR_PLAYERTIMER,
+    VAR_PLAYERANIMATIONSPEED,
+    VAR_PLAYERTILECOLLISIONS,
+    VAR_PLAYEROBJECTINTERACTION,
+    VAR_SCREENCAMERAENABLED,
+    VAR_SCREENCAMERASTYLE,
+    VAR_MUSICVOLUME,
+    VAR_MUSICCURRENTTRACK,
+    VAR_PLAYERVISIBLE,
+    VAR_STAGENEWXBOUNDARY1,
+    VAR_STAGENEWXBOUNDARY2,
+    VAR_STAGENEWYBOUNDARY1,
+    VAR_STAGENEWYBOUNDARY2,
+    VAR_STAGEXBOUNDARY1,
+    VAR_STAGEXBOUNDARY2,
+    VAR_STAGEYBOUNDARY1,
+    VAR_STAGEYBOUNDARY2,
+    VAR_OBJECTOUTOFBOUNDS,
+    VAR_MAX_CNT,
 };
 
 enum ScrFunction {
@@ -709,7 +454,7 @@ enum ScrFunction {
     FUNC_AND,
     FUNC_OR,
     FUNC_XOR,
-    FUNC_MOD,
+    FUNC_NOT,
     FUNC_FLIPSIGN,
     FUNC_CHECKEQUAL,
     FUNC_CHECKGREATER,
@@ -748,36 +493,36 @@ enum ScrFunction {
     FUNC_DRAWSPRITE,
     FUNC_DRAWSPRITEXY,
     FUNC_DRAWSPRITESCREENXY,
-    FUNC_DRAWTINTRECT,
+    FUNC_DRAWSPRITE3D,
     FUNC_DRAWNUMBERS,
     FUNC_DRAWACTNAME,
     FUNC_DRAWMENU,
     FUNC_SPRITEFRAME,
-    FUNC_EDITFRAME,
+    FUNC_SETDEBUGICON,
     FUNC_LOADPALETTE,
     FUNC_ROTATEPALETTE,
-    FUNC_SETSCREENFADE,
-    FUNC_SETACTIVEPALETTE,
-    FUNC_SETPALETTEFADE,
-    FUNC_COPYPALETTE,
+    FUNC_SETFADE,
+    FUNC_SETWATERCOLOR,
+    FUNC_SETBLENDTABLE,
+    FUNC_SETTINTTABLE,
     FUNC_CLEARSCREEN,
     FUNC_DRAWSPRITEFX,
     FUNC_DRAWSPRITESCREENFX,
-    FUNC_LOADANIMATION,
+    FUNC_DRAWLIFEICON,
     FUNC_SETUPMENU,
     FUNC_ADDMENUENTRY,
     FUNC_EDITMENUENTRY,
     FUNC_LOADSTAGE,
-    FUNC_DRAWRECT,
+    FUNC_DRAWTINTRECT,
     FUNC_RESETOBJECTENTITY,
     FUNC_PLAYEROBJECTCOLLISION,
     FUNC_CREATETEMPOBJECT,
-    FUNC_BINDPLAYERTOOBJECT,
-    FUNC_PLAYERTILECOLLISION,
-    FUNC_PROCESSPLAYERCONTROL,
-    FUNC_PROCESSANIMATION,
-    FUNC_DRAWOBJECTANIMATION,
-    FUNC_DRAWPLAYERANIMATION,
+    FUNC_DEFAULTGROUNDMOVEMENT,
+    FUNC_DEFAULTAIRMOVEMENT,
+    FUNC_DEFAULTROLLINGMOVEMENT,
+    FUNC_DEFAULTGRAVITYTRUE,
+    FUNC_DEFAULTGRAVITYFALSE,
+    FUNC_DEFAULTJUMPACTION,
     FUNC_SETMUSICTRACK,
     FUNC_PLAYMUSIC,
     FUNC_STOPMUSIC,
@@ -790,51 +535,10 @@ enum ScrFunction {
     FUNC_NEXTVIDEOFRAME,
     FUNC_PLAYSTAGESFX,
     FUNC_STOPSTAGESFX,
-    FUNC_NOT,
-    FUNC_DRAW3DSCENE,
-    FUNC_SETIDENTITYMATRIX,
-    FUNC_MATRIXMULTIPLY,
-    FUNC_MATRIXTRANSLATEXYZ,
-    FUNC_MATRIXSCALEXYZ,
-    FUNC_MATRIXROTATEX,
-    FUNC_MATRIXROTATEY,
-    FUNC_MATRIXROTATEZ,
-    FUNC_MATRIXROTATEXYZ,
-    FUNC_TRANSFORMVERTICES,
-    FUNC_CALLFUNCTION,
-    FUNC_ENDFUNCTION,
-    FUNC_SETLAYERDEFORMATION,
-    FUNC_CHECKTOUCHRECT,
-    FUNC_GETTILELAYERENTRY,
-    FUNC_SETTILELAYERENTRY,
-    FUNC_GETBIT,
-    FUNC_SETBIT,
-    FUNC_PAUSEMUSIC,
-    FUNC_RESUMEMUSIC,
-    FUNC_CLEARDRAWLIST,
-    FUNC_ADDDRAWLISTENTITYREF,
-    FUNC_GETDRAWLISTENTITYREF,
-    FUNC_SETDRAWLISTENTITYREF,
-    FUNC_GET16X16TILEINFO,
-    FUNC_COPY16X16TILE,
-    FUNC_SET16X16TILEINFO,
-    FUNC_GETANIMATIONBYNAME,
-    FUNC_READSAVERAM,
-    FUNC_WRITESAVERAM,
-    FUNC_LOADTEXTFONT,
-    FUNC_LOADTEXTFILE,
-    FUNC_DRAWTEXT,
-    FUNC_GETTEXTINFO,
-    FUNC_GETVERSIONNUMBER,
-    FUNC_SETACHIEVEMENT,
-    FUNC_SETLEADERBOARD,
-    FUNC_LOADONLINEMENU,
-    FUNC_ENGINECALLBACK,
-    FUNC_HAPTICEFFECT,
     FUNC_MAX_CNT
 };
 
-Compilerv3::Compilerv3()
+Compilerv2::Compilerv2()
 {
     for (int i = 0; i < 0x200; ++i) {
         float Val    = sinf(((float)i / 256) * M_PI);
@@ -867,7 +571,7 @@ Compilerv3::Compilerv3()
     }
 }
 
-int Compilerv3::findStringToken(QString &string, QString token, char stopID)
+int Compilerv2::findStringToken(QString &string, QString token, char stopID)
 {
     int tokenCharID  = 0;
     bool tokenMatch  = true;
@@ -894,7 +598,7 @@ int Compilerv3::findStringToken(QString &string, QString token, char stopID)
     return -1;
 }
 
-void Compilerv3::checkAliasText(QString &text)
+void Compilerv2::checkAliasText(QString &text)
 {
     if (findStringToken(text, "#alias", 1))
         return;
@@ -918,14 +622,14 @@ void Compilerv3::checkAliasText(QString &text)
     }
     ++aliasCount;
 }
-void Compilerv3::convertArithmaticSyntax(QString &text)
+void Compilerv2::convertArithmaticSyntax(QString &text)
 {
     int token    = 0;
     int offset   = 0;
     int findID   = 0;
     QString dest = "";
 
-    for (int i = FUNC_EQUAL; i <= FUNC_MOD; ++i) {
+    for (int i = FUNC_EQUAL; i < FUNC_NOT; ++i) {
         findID = findStringToken(text, scriptEvaluationTokens[i - 1], 1);
         if (findID > -1) {
             offset = findID;
@@ -947,7 +651,7 @@ void Compilerv3::convertArithmaticSyntax(QString &text)
         text = dest;
     }
 }
-void Compilerv3::convertIfWhileStatement(QString &text)
+void Compilerv2::convertIfWhileStatement(QString &text)
 {
     QString dest  = "";
     int compareOp = -1;
@@ -955,7 +659,7 @@ void Compilerv3::convertIfWhileStatement(QString &text)
     if (findStringToken(text, "if", 1)) {
         if (!findStringToken(text, "while", 1)) {
             for (int i = 0; i < 6; ++i) {
-                int tPos = findStringToken(text, scriptEvaluationTokens[i + FUNC_MOD], 1);
+                int tPos = findStringToken(text, scriptEvaluationTokens[i + (FUNC_NOT - 1)], 1);
                 if (tPos > -1) {
                     strPos    = tPos;
                     compareOp = i;
@@ -980,7 +684,7 @@ void Compilerv3::convertIfWhileStatement(QString &text)
     }
     else {
         for (int i = 0; i < 6; ++i) {
-            int tPos = findStringToken(text, scriptEvaluationTokens[i + FUNC_MOD], 1);
+            int tPos = findStringToken(text, scriptEvaluationTokens[i + (FUNC_NOT - 1)], 1);
             if (tPos > -1) {
                 strPos    = tPos;
                 compareOp = i;
@@ -1003,7 +707,7 @@ void Compilerv3::convertIfWhileStatement(QString &text)
         }
     }
 }
-bool Compilerv3::convertSwitchStatement(QString &text)
+bool Compilerv2::convertSwitchStatement(QString &text)
 {
     if (findStringToken(text, "switch", 1))
         return false;
@@ -1024,7 +728,7 @@ bool Compilerv3::convertSwitchStatement(QString &text)
     jumpTableData[jumpTableDataPos++]   = 0;
     return true;
 }
-void Compilerv3::convertFunctionText(QString &text)
+void Compilerv2::convertFunctionText(QString &text)
 {
     QString strBuffer = "";
     QString funcName  = "";
@@ -1128,24 +832,7 @@ void Compilerv3::convertFunctionText(QString &text)
                     appendIntegerToSting(strBuffer, v);
                 }
             }
-            // Eg: TempValue0 = Function1
-            for (int f = 0; f < functionCount; ++f) {
-                if (funcName == functionNames[f]) {
-                    funcName = "";
-                    appendIntegerToSting(funcName, f);
-                }
-            }
-            // Eg: TempValue0 = TypeName[PlayerObject]
-            if (funcName == "TypeName") {
-                funcName = "";
-                appendIntegerToSting(funcName, 0);
-                for (int o = 0; o < OBJECT_COUNT; ++o) {
-                    if (strBuffer == typeNames[o]) {
-                        funcName = "";
-                        appendIntegerToSting(funcName, o);
-                    }
-                }
-            }
+
             if (convertStringToInteger(funcName, &value)) {
                 scriptData[scriptDataPos++] = SCRIPTVAR_INTCONST;
                 scriptData[scriptDataPos++] = value;
@@ -1233,43 +920,48 @@ void Compilerv3::convertFunctionText(QString &text)
         }
     }
 }
-void Compilerv3::checkCaseNumber(QString &text)
+void Compilerv2::checkCaseNumber(QString &text)
 {
     if (findStringToken(text, "case", 1))
         return;
 
-    QString dest = "";
-    if (text.length() > 4) {
-        int textPos = 4;
+    QString caseString;
+    int caseStrPos = 0;
+    char caseChar  = text[4].toLatin1();
+    if (text.length() >= 4) {
+        int textPos = 5;
         do {
-            if (text[textPos] != ':')
-                dest += text[textPos];
-        } while (++textPos < text.length());
+            if (caseChar != ':')
+                caseString += caseChar;
+            caseChar = text[textPos++].toLatin1();
+        } while (caseChar);
+    }
+    else {
+        caseStrPos = 0;
     }
 
-    int aliasVarID = 0;
-    if (aliasCount) {
-        aliasVarID = 0;
-        do {
-            while (dest != aliases[aliasVarID].name) {
-                if (aliasCount <= ++aliasVarID)
-                    goto CONV_VAL;
-            }
-            dest = aliases[aliasVarID++].value;
-        } while (aliasCount > aliasVarID);
+    for (int a = 0; a < aliasCount; ++a) {
+        if (caseString == aliases[a].name) {
+            caseString = aliases[a].value;
+            break;
+        }
     }
 
-CONV_VAL:
-    if (!convertStringToInteger(dest, &aliasVarID))
-        return;
-    int stackValue = jumpTableStack[jumpTableStackPos];
-    if (aliasVarID < jumpTableData[stackValue])
-        jumpTableData[stackValue] = aliasVarID;
-    stackValue++;
-    if (aliasVarID > jumpTableData[stackValue])
-        jumpTableData[stackValue] = aliasVarID;
+    int caseID = 0;
+    if (convertStringToInteger(caseString, &caseID)) {
+        int stackValue = jumpTableStack[jumpTableStackPos];
+        if (caseID < jumpTableData[stackValue])
+            jumpTableData[stackValue] = caseID;
+        stackValue++;
+        if (caseID > jumpTableData[stackValue])
+            jumpTableData[stackValue] = caseID;
+    }
+    else {
+        // printLog("WARNING: unable to convert case string \"%s\" to int, on line %d", caseString,
+        //          lineID);
+    }
 }
-bool Compilerv3::readSwitchCase(QString &text)
+bool Compilerv2::readSwitchCase(QString &text)
 {
     QString caseText = "";
     if (findStringToken(text, "case", 1)) {
@@ -1312,8 +1004,8 @@ bool Compilerv3::readSwitchCase(QString &text)
     }
     return false;
 }
-void Compilerv3::appendIntegerToSting(QString &text, int value) { text += QString::number(value); }
-bool Compilerv3::convertStringToInteger(QString &text, int *value)
+void Compilerv2::appendIntegerToSting(QString &text, int value) { text += QString::number(value); }
+bool Compilerv2::convertStringToInteger(QString &text, int *value)
 {
     *value  = 0;
     bool ok = false;
@@ -1333,7 +1025,7 @@ bool Compilerv3::convertStringToInteger(QString &text, int *value)
 
     return ok;
 }
-void Compilerv3::copyAliasStr(QString &dest, QString text, bool arrayIndex)
+void Compilerv2::copyAliasStr(QString &dest, QString text, bool arrayIndex)
 {
     int textPos     = 0;
     bool arrayValue = false;
@@ -1372,7 +1064,7 @@ void Compilerv3::copyAliasStr(QString &dest, QString text, bool arrayIndex)
     }
 }
 
-void Compilerv3::parseScriptFile(QString scriptName, int scriptID)
+void Compilerv2::parseScriptFile(QString scriptName, int scriptID)
 {
     jumpTableStackPos = 0;
     lineID            = 0;
@@ -1449,25 +1141,13 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID)
                 case PARSEMODE_SCOPELESS:
                     ++lineID;
                     checkAliasText(scriptText);
-                    if (scriptText == "subRSDKDraw") {
-                        parseMode                                            = PARSEMODE_FUNCTION;
-                        objectScriptList[scriptID].subRSDKDraw.scriptCodePtr = scriptDataPos;
-                        objectScriptList[scriptID].subRSDKDraw.jumpTablePtr  = jumpTableDataPos;
-                        scriptDataOffset                                     = scriptDataPos;
-                        jumpTableDataOffset                                  = jumpTableDataPos;
+                    if (scriptText == "subRSDK") {
+                        parseMode                                        = PARSEMODE_FUNCTION;
+                        objectScriptList[scriptID].subRSDK.scriptCodePtr = scriptDataPos;
+                        objectScriptList[scriptID].subRSDK.jumpTablePtr  = jumpTableDataPos;
+                        scriptDataOffset                                 = scriptDataPos;
+                        jumpTableDataOffset                              = jumpTableDataPos;
                     }
-                    if (scriptText == "subRSDKLoad") {
-                        parseMode                                            = PARSEMODE_FUNCTION;
-                        objectScriptList[scriptID].subRSDKLoad.scriptCodePtr = scriptDataPos;
-                        objectScriptList[scriptID].subRSDKLoad.jumpTablePtr  = jumpTableDataPos;
-                        scriptDataOffset                                     = scriptDataPos;
-                        jumpTableDataOffset                                  = jumpTableDataPos;
-                    }
-                    break;
-                case PARSEMODE_PLATFORMSKIP:
-                    ++lineID;
-                    if (!findStringToken(scriptText, "#endplatform", 1))
-                        parseMode = PARSEMODE_FUNCTION;
                     break;
                 case PARSEMODE_FUNCTION:
                     ++lineID;
@@ -1476,36 +1156,19 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID)
                             scriptData[scriptDataPos++] = FUNC_END;
                             parseMode                   = PARSEMODE_SCOPELESS;
                         }
-                        else if (scriptText == "endfunction") {
-                            scriptData[scriptDataPos++] = FUNC_ENDFUNCTION;
-                            parseMode                   = PARSEMODE_SCOPELESS;
+                        convertIfWhileStatement(scriptText);
+                        if (convertSwitchStatement(scriptText)) {
+                            parseMode  = PARSEMODE_SWITCHREAD;
+                            storePos   = (int)reader.tell();
+                            switchDeep = 0;
                         }
-                        else if (findStringToken(scriptText, "#platform:", 1)) {
-                            // layed out like ass, but this means "if we did not find "#platform:"
-                            if (findStringToken(scriptText, "#endplatform", 1) == -1) {
-                                // if we did NOT find "#endplatform"
-                                convertIfWhileStatement(scriptText);
-                                if (convertSwitchStatement(scriptText)) {
-                                    parseMode  = PARSEMODE_SWITCHREAD;
-                                    storePos   = (int)reader.tell();
-                                    switchDeep = 0;
-                                }
-                                convertArithmaticSyntax(scriptText);
-                                if (!readSwitchCase(scriptText)) {
-                                    convertFunctionText(scriptText);
-                                    if (scriptError) {
-                                        errorScr  = scriptName;
-                                        parseMode = PARSEMODE_ERROR;
-                                    }
-                                }
+                        convertArithmaticSyntax(scriptText);
+                        if (!readSwitchCase(scriptText)) {
+                            convertFunctionText(scriptText);
+                            if (scriptError) {
+                                errorScr  = scriptName;
+                                parseMode = PARSEMODE_ERROR;
                             }
-                        }
-                        else if (findStringToken(scriptText, gamePlatform, 1) == -1
-                                 && findStringToken(scriptText, gameRenderType, 1) == -1
-                                 && findStringToken(scriptText, gameHapticSetting, 1) == -1) {
-                            // if NONE of these checks succeeded, then we skip everything until "end
-                            // platform"
-                            parseMode = PARSEMODE_PLATFORMSKIP;
                         }
                     }
                     break;
@@ -1536,7 +1199,7 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID)
     }
 }
 
-void Compilerv3::clearScriptData()
+void Compilerv2::clearScriptData()
 {
     memset(scriptData, 0, SCRIPTDATA_COUNT * sizeof(int));
     memset(jumpTableData, 0, JUMPTABLE_COUNT * sizeof(int));
@@ -1551,25 +1214,15 @@ void Compilerv3::clearScriptData()
     functionCount = 0;
 
     for (int o = 0; o < OBJECT_COUNT; ++o) {
-        ObjectScript *scriptInfo              = &objectScriptList[o];
-        scriptInfo->subRSDKDraw.scriptCodePtr = SCRIPTDATA_COUNT - 1;
-        scriptInfo->subRSDKDraw.jumpTablePtr  = JUMPTABLE_COUNT - 1;
-        scriptInfo->subRSDKLoad.scriptCodePtr = SCRIPTDATA_COUNT - 1;
-        scriptInfo->subRSDKLoad.jumpTablePtr  = JUMPTABLE_COUNT - 1;
-        typeNames[o]                          = "";
+        ObjectScript *scriptInfo          = &objectScriptList[o];
+        scriptInfo->subRSDK.scriptCodePtr = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subRSDK.jumpTablePtr  = JUMPTABLE_COUNT - 1;
     }
-
-    for (int f = 0; f < FUNCTION_COUNT; ++f) {
-        functionList[f].scriptCodePtr = SCRIPTDATA_COUNT - 1;
-        functionList[f].jumpTablePtr  = JUMPTABLE_COUNT - 1;
-    }
-
-    typeNames[0] = "Blank Object";
 }
 
-void Compilerv3::writeBytecode(QString path)
+void Compilerv2::writeBytecode(QString path)
 {
-    bytecode = RSDKv3::Bytecode();
+    bytecode = RSDKv2::Bytecode();
 
     bytecode.scriptData.clear();
     for (int i = globalScriptDataCount; i < scriptDataPos; ++i) {
@@ -1584,28 +1237,17 @@ void Compilerv3::writeBytecode(QString path)
     bytecode.globalScriptCount = 0;
     bytecode.scriptList.clear();
     for (int i = globalScriptCount; i < scriptCount; ++i) {
-        RSDKv3::Bytecode::ObjectScript scr;
-        scr.mainScript    = objectScriptList[i].subRSDKDraw.scriptCodePtr;
-        scr.mainJumpTable = objectScriptList[i].subRSDKDraw.jumpTablePtr;
-
-        scr.playerScript    = objectScriptList[i].subRSDKLoad.scriptCodePtr;
-        scr.playerJumpTable = objectScriptList[i].subRSDKLoad.jumpTablePtr;
+        RSDKv2::Bytecode::ObjectScript scr;
+        scr.mainScript    = objectScriptList[i].subRSDK.scriptCodePtr;
+        scr.mainJumpTable = objectScriptList[i].subRSDK.jumpTablePtr;
 
         bytecode.scriptList.append(scr);
-    }
-
-    bytecode.functionList.clear();
-    for (int f = 0; f < functionCount; ++f) {
-        RSDKv3::Bytecode::FunctionScript func;
-        func.mainScript    = functionList[f].scriptCodePtr;
-        func.mainJumpTable = functionList[f].jumpTablePtr;
-        bytecode.functionList.append(func);
     }
 
     bytecode.write(path);
 }
 
-void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
+void Compilerv2::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
 {
     bool running        = true;
     int scriptDataPtr   = scriptCodePtr;
@@ -1716,28 +1358,8 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                         scriptEng.operands[i] = objectEntityList[arrayVal].inkEffect;
                         break;
                     }
-                    case VAR_OBJECTALPHA: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].alpha;
-                        break;
-                    }
                     case VAR_OBJECTFRAME: {
                         scriptEng.operands[i] = objectEntityList[arrayVal].frame;
-                        break;
-                    }
-                    case VAR_OBJECTANIMATION: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].animation;
-                        break;
-                    }
-                    case VAR_OBJECTPREVANIMATION: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].prevAnimation;
-                        break;
-                    }
-                    case VAR_OBJECTANIMATIONSPEED: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].animationSpeed;
-                        break;
-                    }
-                    case VAR_OBJECTANIMATIONTIMER: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].animationTimer;
                         break;
                     }
                     case VAR_OBJECTVALUE0: {
@@ -1790,9 +1412,6 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     case VAR_PLAYERCONTROLMODE: {
                         break;
                     }
-                    case VAR_PLAYERCONTROLLOCK: {
-                        break;
-                    }
                     case VAR_PLAYERCOLLISIONMODE: {
                         break;
                     }
@@ -1803,12 +1422,6 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                         break;
                     }
                     case VAR_PLAYERYPOS: {
-                        break;
-                    }
-                    case VAR_PLAYERIXPOS: {
-                        break;
-                    }
-                    case VAR_PLAYERIYPOS: {
                         break;
                     }
                     case VAR_PLAYERSCREENXPOS: {
@@ -1889,9 +1502,6 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     case VAR_PLAYERJUMPSTRENGTH: {
                         break;
                     }
-                    case VAR_PLAYERJUMPCAP: {
-                        break;
-                    }
                     case VAR_PLAYERROLLINGACCELERATION: {
                         break;
                     }
@@ -1931,91 +1541,15 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     case VAR_PLAYERROTATION: {
                         break;
                     }
-                    case VAR_PLAYERSCALE: {
-                        break;
-                    }
-                    case VAR_PLAYERPRIORITY: {
-                        break;
-                    }
-                    case VAR_PLAYERDRAWORDER: {
-                        break;
-                    }
-                    case VAR_PLAYERDIRECTION: {
-                        break;
-                    }
-                    case VAR_PLAYERINKEFFECT: {
-                        break;
-                    }
-                    case VAR_PLAYERALPHA: {
-                        break;
-                    }
                     case VAR_PLAYERFRAME: {
                         break;
                     }
                     case VAR_PLAYERANIMATION: {
                         break;
                     }
-                    case VAR_PLAYERPREVANIMATION: {
-                        break;
-                    }
                     case VAR_PLAYERANIMATIONSPEED: {
                         break;
                     }
-                    case VAR_PLAYERANIMATIONTIMER: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE0: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE1: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE2: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE3: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE4: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE5: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE6: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE7: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE8: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE9: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE10: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE11: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE12: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE13: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE14: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE15: {
-                        break;
-                    }
-                    case VAR_PLAYEROUTOFBOUNDS: {
-                        break;
-                    }
-                    case VAR_STAGESTATE: break;
                     case VAR_STAGEACTIVELIST: break;
                     case VAR_STAGELISTPOS: break;
                     case VAR_STAGETIMEENABLED: break;
@@ -2033,31 +1567,8 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     case VAR_STAGEXBOUNDARY2: break;
                     case VAR_STAGEYBOUNDARY1: break;
                     case VAR_STAGEYBOUNDARY2: break;
-                    case VAR_STAGEDEFORMATIONDATA0: break;
-                    case VAR_STAGEDEFORMATIONDATA1: break;
-                    case VAR_STAGEDEFORMATIONDATA2: break;
-                    case VAR_STAGEDEFORMATIONDATA3: break;
-                    case VAR_STAGEWATERLEVEL: break;
-                    case VAR_STAGEACTIVELAYER: break;
-                    case VAR_STAGEMIDPOINT: break;
-                    case VAR_STAGEPLAYERLISTPOS: break;
-                    case VAR_STAGEACTIVEPLAYER: break;
                     case VAR_SCREENCAMERAENABLED: break;
-                    case VAR_SCREENCAMERATARGET: break;
                     case VAR_SCREENCAMERASTYLE: break;
-                    case VAR_SCREENDRAWLISTSIZE: break;
-                    case VAR_SCREENCENTERX: break;
-                    case VAR_SCREENCENTERY: break;
-                    case VAR_SCREENXSIZE: break;
-                    case VAR_SCREENYSIZE: break;
-                    case VAR_SCREENXOFFSET: break;
-                    case VAR_SCREENYOFFSET: break;
-                    case VAR_SCREENSHAKEX: break;
-                    case VAR_SCREENSHAKEY: break;
-                    case VAR_SCREENADJUSTCAMERAY: break;
-                    case VAR_TOUCHSCREENDOWN: break;
-                    case VAR_TOUCHSCREENXPOS: break;
-                    case VAR_TOUCHSCREENYPOS: break;
                     case VAR_MUSICVOLUME: break;
                     case VAR_MUSICCURRENTTRACK: break;
                     case VAR_KEYDOWNUP: break;
@@ -2078,57 +1589,6 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     case VAR_KEYPRESSSTART: break;
                     case VAR_MENU1SELECTION: break;
                     case VAR_MENU2SELECTION: break;
-                    case VAR_TILELAYERXSIZE: break;
-                    case VAR_TILELAYERYSIZE: break;
-                    case VAR_TILELAYERTYPE: break;
-                    case VAR_TILELAYERANGLE: break;
-                    case VAR_TILELAYERXPOS: break;
-                    case VAR_TILELAYERYPOS: break;
-                    case VAR_TILELAYERZPOS: break;
-                    case VAR_TILELAYERPARALLAXFACTOR: break;
-                    case VAR_TILELAYERSCROLLSPEED: break;
-                    case VAR_TILELAYERSCROLLPOS: break;
-                    case VAR_TILELAYERDEFORMATIONOFFSET: break;
-                    case VAR_TILELAYERDEFORMATIONOFFSETW: break;
-                    case VAR_HPARALLAXPARALLAXFACTOR: break;
-                    case VAR_HPARALLAXSCROLLSPEED: break;
-                    case VAR_HPARALLAXSCROLLPOS: break;
-                    case VAR_VPARALLAXPARALLAXFACTOR: break;
-                    case VAR_VPARALLAXSCROLLSPEED: break;
-                    case VAR_VPARALLAXSCROLLPOS: break;
-                    case VAR_3DSCENENOVERTICES: break;
-                    case VAR_3DSCENENOFACES: break;
-                    case VAR_VERTEXBUFFERX: break;
-                    case VAR_VERTEXBUFFERY: break;
-                    case VAR_VERTEXBUFFERZ: break;
-                    case VAR_VERTEXBUFFERU: break;
-                    case VAR_VERTEXBUFFERV: break;
-                    case VAR_FACEBUFFERA: break;
-                    case VAR_FACEBUFFERB: break;
-                    case VAR_FACEBUFFERC: break;
-                    case VAR_FACEBUFFERD: break;
-                    case VAR_FACEBUFFERFLAG: break;
-                    case VAR_FACEBUFFERCOLOR: break;
-                    case VAR_3DSCENEPROJECTIONX: break;
-                    case VAR_3DSCENEPROJECTIONY: break;
-                    case VAR_ENGINESTATE: break;
-                    case VAR_STAGEDEBUGMODE: break;
-                    case VAR_ENGINEMESSAGE: break;
-                    case VAR_SAVERAM: break;
-                    case VAR_ENGINELANGUAGE: break;
-                    case VAR_OBJECTSPRITESHEET: {
-                        scriptEng.operands[i] =
-                            objectScriptList[objectEntityList[arrayVal].type].spriteSheetID;
-                        break;
-                    }
-                    case VAR_ENGINEONLINEACTIVE: break;
-                    case VAR_ENGINEFRAMESKIPTIMER: break;
-                    case VAR_ENGINEFRAMESKIPSETTING: break;
-                    case VAR_ENGINESFXVOLUME: break;
-                    case VAR_ENGINEBGMVOLUME: break;
-                    case VAR_ENGINEPLATFORMID: break;
-                    case VAR_ENGINETRIALMODE: break;
-                    case VAR_KEYPRESSANYSTART: break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant
@@ -2182,7 +1642,6 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
             case FUNC_AND: scriptEng.operands[0] &= scriptEng.operands[1]; break;
             case FUNC_OR: scriptEng.operands[0] |= scriptEng.operands[1]; break;
             case FUNC_XOR: scriptEng.operands[0] ^= scriptEng.operands[1]; break;
-            case FUNC_MOD: scriptEng.operands[0] %= scriptEng.operands[1]; break;
             case FUNC_FLIPSIGN: scriptEng.operands[0] = -scriptEng.operands[0]; break;
             case FUNC_CHECKEQUAL:
                 scriptEng.checkResult = scriptEng.operands[0] == scriptEng.operands[1];
@@ -2442,7 +1901,7 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
             case FUNC_DRAWMENU: opcodeSize = 0; break;
             case FUNC_SPRITEFRAME:
                 opcodeSize = 0;
-                if (scriptSub == SUB_RSDKLOAD && scriptFrameCount < SPRITEFRAME_COUNT) {
+                if (scriptFrameCount < SPRITEFRAME_COUNT) {
                     scriptFrames[scriptFrameCount].pivotX = scriptEng.operands[0];
                     scriptFrames[scriptFrameCount].pivotY = scriptEng.operands[1];
                     scriptFrames[scriptFrameCount].width  = scriptEng.operands[2];
@@ -2452,24 +1911,8 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     ++scriptFrameCount;
                 }
                 break;
-            case FUNC_EDITFRAME: {
-                opcodeSize  = 0;
-                spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
-
-                spriteFrame->pivotX = scriptEng.operands[1];
-                spriteFrame->pivotY = scriptEng.operands[2];
-                spriteFrame->width  = scriptEng.operands[3];
-                spriteFrame->height = scriptEng.operands[4];
-                spriteFrame->sprX   = scriptEng.operands[5];
-                spriteFrame->sprY   = scriptEng.operands[6];
-                break;
-            }
             case FUNC_LOADPALETTE: opcodeSize = 0; break;
             case FUNC_ROTATEPALETTE: opcodeSize = 0; break;
-            case FUNC_SETSCREENFADE: opcodeSize = 0; break;
-            case FUNC_SETACTIVEPALETTE: opcodeSize = 0; break;
-            case FUNC_SETPALETTEFADE: opcodeSize = 0; break;
-            case FUNC_COPYPALETTE: opcodeSize = 0; break;
             case FUNC_CLEARSCREEN: opcodeSize = 0; break;
             case FUNC_DRAWSPRITEFX:
                 opcodeSize  = 0;
@@ -2490,13 +1933,6 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                             spriteFrame->sprY, spriteFrame->width, spriteFrame->height,
                             entity->rotation, scriptInfo->spriteSheetID);
                         break;
-                    case FX_ROTOZOOM:
-                        viewer->drawSpriteRotozoom(
-                            entity->direction, scriptEng.operands[2] >> 16, scriptEng.operands[3] >> 16,
-                            -spriteFrame->pivotX, -spriteFrame->pivotY, spriteFrame->sprX,
-                            spriteFrame->sprY, spriteFrame->width, spriteFrame->height,
-                            entity->rotation, entity->scale, scriptInfo->spriteSheetID);
-                        break;
                     case FX_INK:
                         switch (entity->inkEffect) {
                             case INK_NONE:
@@ -2513,67 +1949,9 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
                                     spriteFrame->sprY, scriptInfo->spriteSheetID);
                                 break;
-                            case INK_ALPHA:
-                                viewer->drawAlphaBlendedSprite(
-                                    (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
-                                    (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
-                                    spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
-                                    spriteFrame->sprY, entity->alpha, scriptInfo->spriteSheetID);
-                                break;
-                            case INK_ADD:
-                                viewer->drawAdditiveBlendedSprite(
-                                    (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
-                                    (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
-                                    spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
-                                    spriteFrame->sprY, entity->alpha, scriptInfo->spriteSheetID);
-                                break;
-                            case INK_SUB:
-                                viewer->drawSubtractiveBlendedSprite(
-                                    (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
-                                    (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
-                                    spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
-                                    spriteFrame->sprY, entity->alpha, scriptInfo->spriteSheetID);
-                                break;
                         }
                         break;
                     case FX_TINT: break;
-                    case FX_FLIP:
-                        switch (entity->direction) {
-                            default:
-                            case FLIP_NONE:
-                                viewer->drawSpriteFlipped(
-                                    (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
-                                    (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
-                                    spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
-                                    spriteFrame->sprY, FLIP_NONE, scriptInfo->spriteSheetID);
-                                break;
-                            case FLIP_X:
-                                viewer->drawSpriteFlipped(
-                                    (scriptEng.operands[2] >> 16) - spriteFrame->width
-                                        - spriteFrame->pivotX,
-                                    (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
-                                    spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
-                                    spriteFrame->sprY, FLIP_X, scriptInfo->spriteSheetID);
-                                break;
-                            case FLIP_Y:
-                                viewer->drawSpriteFlipped(
-                                    (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
-                                    (scriptEng.operands[3] >> 16) - spriteFrame->height
-                                        - spriteFrame->pivotY,
-                                    spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
-                                    spriteFrame->sprY, FLIP_Y, scriptInfo->spriteSheetID);
-                                break;
-                            case FLIP_XY:
-                                viewer->drawSpriteFlipped(
-                                    (scriptEng.operands[2] >> 16) - spriteFrame->width
-                                        - spriteFrame->pivotX,
-                                    (scriptEng.operands[3] >> 16) - spriteFrame->height
-                                        - spriteFrame->pivotY,
-                                    spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
-                                    spriteFrame->sprY, FLIP_XY, scriptInfo->spriteSheetID);
-                                break;
-                        }
-                        break;
                 }
                 break;
             case FUNC_DRAWSPRITESCREENFX: {
@@ -2595,13 +1973,6 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                             spriteFrame->sprY, spriteFrame->width, spriteFrame->height,
                             entity->rotation, scriptInfo->spriteSheetID);
                         break;
-                    case FX_ROTOZOOM:
-                        viewer->drawSpriteRotozoom(
-                            entity->direction, scriptEng.operands[2], scriptEng.operands[3],
-                            -spriteFrame->pivotX, -spriteFrame->pivotY, spriteFrame->sprX,
-                            spriteFrame->sprY, spriteFrame->width, spriteFrame->height,
-                            entity->rotation, entity->scale, scriptInfo->spriteSheetID);
-                        break;
                     case FX_INK:
                         switch (entity->inkEffect) {
                             case INK_NONE:
@@ -2618,67 +1989,12 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                                                           spriteFrame->sprX, spriteFrame->sprY,
                                                           scriptInfo->spriteSheetID);
                                 break;
-                            case INK_ALPHA:
-                                viewer->drawAlphaBlendedSprite(
-                                    scriptEng.operands[2] + spriteFrame->pivotX,
-                                    scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
-                                    spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
-                                    entity->alpha, scriptInfo->spriteSheetID);
-                                break;
-                            case INK_ADD:
-                                viewer->drawAdditiveBlendedSprite(
-                                    scriptEng.operands[2] + spriteFrame->pivotX,
-                                    scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
-                                    spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
-                                    entity->alpha, scriptInfo->spriteSheetID);
-                                break;
-                            case INK_SUB:
-                                viewer->drawSubtractiveBlendedSprite(
-                                    scriptEng.operands[2] + spriteFrame->pivotX,
-                                    scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
-                                    spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
-                                    entity->alpha, scriptInfo->spriteSheetID);
-                                break;
                         }
                         break;
                     case FX_TINT: break;
-                    case FX_FLIP:
-                        switch (entity->direction) {
-                            default:
-                            case FLIP_NONE:
-                                viewer->drawSpriteFlipped(scriptEng.operands[2] + spriteFrame->pivotX,
-                                                          scriptEng.operands[3] + spriteFrame->pivotY,
-                                                          spriteFrame->width, spriteFrame->height,
-                                                          spriteFrame->sprX, spriteFrame->sprY,
-                                                          FLIP_NONE, scriptInfo->spriteSheetID);
-                                break;
-                            case FLIP_X:
-                                viewer->drawSpriteFlipped(
-                                    scriptEng.operands[2] - spriteFrame->width - spriteFrame->pivotX,
-                                    scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
-                                    spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_X,
-                                    scriptInfo->spriteSheetID);
-                                break;
-                            case FLIP_Y:
-                                viewer->drawSpriteFlipped(
-                                    scriptEng.operands[2] + spriteFrame->pivotX,
-                                    scriptEng.operands[3] - spriteFrame->height - spriteFrame->pivotY,
-                                    spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
-                                    spriteFrame->sprY, FLIP_Y, scriptInfo->spriteSheetID);
-                                break;
-                            case FLIP_XY:
-                                viewer->drawSpriteFlipped(
-                                    scriptEng.operands[2] - spriteFrame->width - spriteFrame->pivotX,
-                                    scriptEng.operands[3] - spriteFrame->height - spriteFrame->pivotY,
-                                    spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
-                                    spriteFrame->sprY, FLIP_XY, scriptInfo->spriteSheetID);
-                                break;
-                        }
-                        break;
                 }
                 break;
             }
-            case FUNC_LOADANIMATION: opcodeSize = 0; break;
             case FUNC_SETUPMENU: {
                 opcodeSize = 0;
                 break;
@@ -2692,13 +2008,6 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                 break;
             }
             case FUNC_LOADSTAGE: opcodeSize = 0; break;
-            case FUNC_DRAWRECT:
-                opcodeSize = 0;
-                viewer->drawRectangle(scriptEng.operands[0], scriptEng.operands[1],
-                                      scriptEng.operands[2], scriptEng.operands[3],
-                                      scriptEng.operands[4], scriptEng.operands[5],
-                                      scriptEng.operands[6], scriptEng.operands[7]);
-                break;
             case FUNC_RESETOBJECTENTITY: {
                 opcodeSize = 0;
                 break;
@@ -2708,15 +2017,6 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                 opcodeSize = 0;
                 break;
             }
-            case FUNC_BINDPLAYERTOOBJECT: {
-                opcodeSize = 0;
-                break;
-            }
-            case FUNC_PLAYERTILECOLLISION: opcodeSize = 0; break;
-            case FUNC_PROCESSPLAYERCONTROL: opcodeSize = 0; break;
-            case FUNC_PROCESSANIMATION: opcodeSize = 0; break;
-            case FUNC_DRAWOBJECTANIMATION: opcodeSize = 0; break;
-            case FUNC_DRAWPLAYERANIMATION: opcodeSize = 0; break;
             case FUNC_SETMUSICTRACK: opcodeSize = 0; break;
             case FUNC_PLAYMUSIC: opcodeSize = 0; break;
             case FUNC_STOPMUSIC: opcodeSize = 0; break;
@@ -2730,77 +2030,6 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
             case FUNC_PLAYSTAGESFX: opcodeSize = 0; break;
             case FUNC_STOPSTAGESFX: opcodeSize = 0; break;
             case FUNC_NOT: scriptEng.operands[0] = ~scriptEng.operands[0]; break;
-            case FUNC_DRAW3DSCENE: opcodeSize = 0; break;
-            case FUNC_SETIDENTITYMATRIX: opcodeSize = 0; break;
-            case FUNC_MATRIXMULTIPLY: opcodeSize = 0; break;
-            case FUNC_MATRIXTRANSLATEXYZ: opcodeSize = 0; break;
-            case FUNC_MATRIXSCALEXYZ: opcodeSize = 0; break;
-            case FUNC_MATRIXROTATEX: opcodeSize = 0; break;
-            case FUNC_MATRIXROTATEY: opcodeSize = 0; break;
-            case FUNC_MATRIXROTATEZ: opcodeSize = 0; break;
-            case FUNC_MATRIXROTATEXYZ: opcodeSize = 0; break;
-            case FUNC_TRANSFORMVERTICES: opcodeSize = 0; break;
-            case FUNC_CALLFUNCTION: opcodeSize = 0; break;
-            case FUNC_ENDFUNCTION: opcodeSize = 0; break;
-            case FUNC_SETLAYERDEFORMATION: opcodeSize = 0; break;
-            case FUNC_CHECKTOUCHRECT: opcodeSize = 0; break;
-            case FUNC_GETTILELAYERENTRY: opcodeSize = 0; break;
-            case FUNC_SETTILELAYERENTRY: opcodeSize = 0; break;
-            case FUNC_GETBIT:
-                scriptEng.operands[0] =
-                    (scriptEng.operands[1] & (1 << scriptEng.operands[2])) >> scriptEng.operands[2];
-                break;
-            case FUNC_SETBIT:
-                if (scriptEng.operands[2] <= 0)
-                    scriptEng.operands[0] &= ~(1 << scriptEng.operands[1]);
-                else
-                    scriptEng.operands[0] |= 1 << scriptEng.operands[1];
-                break;
-            case FUNC_PAUSEMUSIC: opcodeSize = 0; break;
-            case FUNC_RESUMEMUSIC: opcodeSize = 0; break;
-            case FUNC_CLEARDRAWLIST: opcodeSize = 0; break;
-            case FUNC_ADDDRAWLISTENTITYREF: {
-                opcodeSize = 0;
-                break;
-            }
-            case FUNC_GETDRAWLISTENTITYREF: opcodeSize = 0; break;
-            case FUNC_SETDRAWLISTENTITYREF: opcodeSize = 0; break;
-            case FUNC_GET16X16TILEINFO: {
-                opcodeSize = 0;
-                break;
-            }
-            case FUNC_COPY16X16TILE: {
-                opcodeSize = 0;
-                break;
-            }
-            case FUNC_GETANIMATIONBYNAME: {
-                opcodeSize = 0;
-                break;
-            }
-            case FUNC_READSAVERAM: opcodeSize = 0; break;
-            case FUNC_WRITESAVERAM: opcodeSize = 0; break;
-            case FUNC_LOADTEXTFONT: opcodeSize = 0; break;
-            case FUNC_LOADTEXTFILE: {
-                opcodeSize = 0;
-                break;
-            }
-            case FUNC_DRAWTEXT: {
-                opcodeSize = 0;
-                break;
-            }
-            case FUNC_GETTEXTINFO: {
-                opcodeSize = 0;
-                break;
-            }
-            case FUNC_GETVERSIONNUMBER: {
-                opcodeSize = 0;
-                break;
-            }
-            case FUNC_SETACHIEVEMENT: opcodeSize = 0; break;
-            case FUNC_SETLEADERBOARD: opcodeSize = 0; break;
-            case FUNC_LOADONLINEMENU: opcodeSize = 0; break;
-            case FUNC_ENGINECALLBACK: opcodeSize = 0; break;
-            case FUNC_HAPTICEFFECT: opcodeSize = 0; break;
         }
 
         // Set Values
@@ -2903,28 +2132,8 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                         objectEntityList[arrayVal].inkEffect = scriptEng.operands[i];
                         break;
                     }
-                    case VAR_OBJECTALPHA: {
-                        objectEntityList[arrayVal].alpha = scriptEng.operands[i];
-                        break;
-                    }
                     case VAR_OBJECTFRAME: {
                         objectEntityList[arrayVal].frame = scriptEng.operands[i];
-                        break;
-                    }
-                    case VAR_OBJECTANIMATION: {
-                        objectEntityList[arrayVal].animation = scriptEng.operands[i];
-                        break;
-                    }
-                    case VAR_OBJECTPREVANIMATION: {
-                        objectEntityList[arrayVal].prevAnimation = scriptEng.operands[i];
-                        break;
-                    }
-                    case VAR_OBJECTANIMATIONSPEED: {
-                        objectEntityList[arrayVal].animationSpeed = scriptEng.operands[i];
-                        break;
-                    }
-                    case VAR_OBJECTANIMATIONTIMER: {
-                        objectEntityList[arrayVal].animationTimer = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE0: {
@@ -2966,9 +2175,6 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     case VAR_PLAYERCONTROLMODE: {
                         break;
                     }
-                    case VAR_PLAYERCONTROLLOCK: {
-                        break;
-                    }
                     case VAR_PLAYERCOLLISIONMODE: {
                         break;
                     }
@@ -2979,12 +2185,6 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                         break;
                     }
                     case VAR_PLAYERYPOS: {
-                        break;
-                    }
-                    case VAR_PLAYERIXPOS: {
-                        break;
-                    }
-                    case VAR_PLAYERIYPOS: {
                         break;
                     }
                     case VAR_PLAYERSCREENXPOS: {
@@ -3065,9 +2265,6 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     case VAR_PLAYERJUMPSTRENGTH: {
                         break;
                     }
-                    case VAR_PLAYERJUMPCAP: {
-                        break;
-                    }
                     case VAR_PLAYERROLLINGACCELERATION: {
                         break;
                     }
@@ -3097,89 +2294,14 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     case VAR_PLAYERROTATION: {
                         break;
                     }
-                    case VAR_PLAYERSCALE: {
-                        break;
-                    }
-                    case VAR_PLAYERPRIORITY: {
-                        break;
-                    }
-                    case VAR_PLAYERDRAWORDER: {
-                        break;
-                    }
-                    case VAR_PLAYERDIRECTION: {
-                        break;
-                    }
-                    case VAR_PLAYERINKEFFECT: {
-                        break;
-                    }
-                    case VAR_PLAYERALPHA: {
-                        break;
-                    }
+
                     case VAR_PLAYERFRAME: {
                         break;
                     }
                     case VAR_PLAYERANIMATION: {
                         break;
                     }
-                    case VAR_PLAYERPREVANIMATION: {
-                        break;
-                    }
-                    case VAR_PLAYERANIMATIONSPEED: {
-                        break;
-                    }
-                    case VAR_PLAYERANIMATIONTIMER: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE0: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE1: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE2: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE3: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE4: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE5: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE6: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE7: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE8: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE9: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE10: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE11: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE12: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE13: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE14: {
-                        break;
-                    }
-                    case VAR_PLAYERVALUE15: {
-                        break;
-                    }
-                    case VAR_PLAYEROUTOFBOUNDS: break;
-                    case VAR_STAGESTATE: break;
+
                     case VAR_STAGEACTIVELIST: break;
                     case VAR_STAGELISTPOS: break;
                     case VAR_STAGETIMEENABLED: break;
@@ -3197,31 +2319,8 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     case VAR_STAGEXBOUNDARY2: break;
                     case VAR_STAGEYBOUNDARY1: break;
                     case VAR_STAGEYBOUNDARY2: break;
-                    case VAR_STAGEDEFORMATIONDATA0: break;
-                    case VAR_STAGEDEFORMATIONDATA1: break;
-                    case VAR_STAGEDEFORMATIONDATA2: break;
-                    case VAR_STAGEDEFORMATIONDATA3: break;
-                    case VAR_STAGEWATERLEVEL: break;
-                    case VAR_STAGEACTIVELAYER: break;
-                    case VAR_STAGEMIDPOINT: break;
-                    case VAR_STAGEPLAYERLISTPOS: break;
-                    case VAR_STAGEACTIVEPLAYER: break;
                     case VAR_SCREENCAMERAENABLED: break;
-                    case VAR_SCREENCAMERATARGET: break;
                     case VAR_SCREENCAMERASTYLE: break;
-                    case VAR_SCREENDRAWLISTSIZE: break;
-                    case VAR_SCREENCENTERX: break;
-                    case VAR_SCREENCENTERY: break;
-                    case VAR_SCREENXSIZE: break;
-                    case VAR_SCREENYSIZE: break;
-                    case VAR_SCREENXOFFSET: break;
-                    case VAR_SCREENYOFFSET: break;
-                    case VAR_SCREENSHAKEX: break;
-                    case VAR_SCREENSHAKEY: break;
-                    case VAR_SCREENADJUSTCAMERAY: break;
-                    case VAR_TOUCHSCREENDOWN: break;
-                    case VAR_TOUCHSCREENXPOS: break;
-                    case VAR_TOUCHSCREENYPOS: break;
                     case VAR_MUSICVOLUME: break;
                     case VAR_MUSICCURRENTTRACK: break;
                     case VAR_KEYDOWNUP: break;
@@ -3242,58 +2341,6 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     case VAR_KEYPRESSSTART: break;
                     case VAR_MENU1SELECTION: break;
                     case VAR_MENU2SELECTION: break;
-                    case VAR_TILELAYERXSIZE: break;
-                    case VAR_TILELAYERYSIZE: break;
-                    case VAR_TILELAYERTYPE: break;
-                    case VAR_TILELAYERANGLE: break;
-                    case VAR_TILELAYERXPOS: break;
-                    case VAR_TILELAYERYPOS: break;
-                    case VAR_TILELAYERZPOS: break;
-                    case VAR_TILELAYERPARALLAXFACTOR: break;
-                    case VAR_TILELAYERSCROLLSPEED: break;
-                    case VAR_TILELAYERSCROLLPOS: break;
-                    case VAR_TILELAYERDEFORMATIONOFFSET: break;
-                    case VAR_TILELAYERDEFORMATIONOFFSETW: break;
-                    case VAR_HPARALLAXPARALLAXFACTOR: break;
-                    case VAR_HPARALLAXSCROLLSPEED: break;
-                    case VAR_HPARALLAXSCROLLPOS: break;
-                    case VAR_VPARALLAXPARALLAXFACTOR: break;
-                    case VAR_VPARALLAXSCROLLSPEED: break;
-                    case VAR_VPARALLAXSCROLLPOS: break;
-                    case VAR_3DSCENENOVERTICES: break;
-                    case VAR_3DSCENENOFACES: break;
-                    case VAR_VERTEXBUFFERX: break;
-                    case VAR_VERTEXBUFFERY: break;
-                    case VAR_VERTEXBUFFERZ: break;
-                    case VAR_VERTEXBUFFERU: break;
-                    case VAR_VERTEXBUFFERV: break;
-                    case VAR_FACEBUFFERA: break;
-                    case VAR_FACEBUFFERB: break;
-                    case VAR_FACEBUFFERC: break;
-                    case VAR_FACEBUFFERD: break;
-                    case VAR_FACEBUFFERFLAG: break;
-                    case VAR_FACEBUFFERCOLOR: break;
-                    case VAR_3DSCENEPROJECTIONX: break;
-                    case VAR_3DSCENEPROJECTIONY: break;
-                    case VAR_ENGINESTATE: break;
-                    case VAR_STAGEDEBUGMODE: break;
-                    case VAR_ENGINEMESSAGE: break;
-                    case VAR_SAVERAM: break;
-                    case VAR_ENGINELANGUAGE: break;
-                    case VAR_OBJECTSPRITESHEET: {
-                        objectScriptList[objectEntityList[arrayVal].type].spriteSheetID =
-                            scriptEng.operands[i];
-                        break;
-                    }
-                    case VAR_ENGINEONLINEACTIVE: break;
-                    case VAR_ENGINEFRAMESKIPTIMER: break;
-                    case VAR_ENGINEFRAMESKIPSETTING: break;
-                    case VAR_ENGINESFXVOLUME: break;
-                    case VAR_ENGINEBGMVOLUME: break;
-                    case VAR_ENGINEPLATFORMID: break;
-                    case VAR_ENGINETRIALMODE: break;
-                    case VAR_KEYPRESSANYSTART: break;
-                    case VAR_ENGINEHAPTICSENABLED: break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant
@@ -3316,7 +2363,7 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
     }
 }
 
-byte Compilerv3::ArcTanLookup(int X, int Y)
+byte Compilerv2::ArcTanLookup(int X, int Y)
 {
     int XVal;
     byte result = 0;

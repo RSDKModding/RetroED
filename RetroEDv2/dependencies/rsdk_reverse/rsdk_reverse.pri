@@ -18,6 +18,7 @@ HEADERS +=    \
     $$PWD/formats/RSDKv1/zonelistv1.hpp \
     $$PWD/formats/RSDKv2/animationv2.hpp \
     $$PWD/formats/RSDKv2/backgroundv2.hpp \
+    $$PWD/formats/RSDKv2/bytecodev2.hpp \
     $$PWD/formats/RSDKv2/chunksv2.hpp \
     $$PWD/formats/RSDKv2/datafilev2.hpp \
     $$PWD/formats/RSDKv2/gameconfigv2.hpp \
@@ -94,6 +95,7 @@ SOURCES +=  \
     $$PWD/formats/RSDKv1/zonelistv1.cpp \
     $$PWD/formats/RSDKv2/animationv2.cpp \
     $$PWD/formats/RSDKv2/backgroundv2.cpp \
+    $$PWD/formats/RSDKv2/bytecodev2.cpp \
     $$PWD/formats/RSDKv2/chunksv2.cpp \
     $$PWD/formats/RSDKv2/datafilev2.cpp \
     $$PWD/formats/RSDKv2/gameconfigv2.cpp \

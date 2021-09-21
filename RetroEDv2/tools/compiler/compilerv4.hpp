@@ -20,8 +20,8 @@ public:
 
 public:
     struct ScriptPtr {
-        int m_scriptCodePtr;
-        int m_jumpTablePtr;
+        int scriptCodePtr;
+        int jumpTablePtr;
     };
 
     struct ObjectScript {
@@ -37,6 +37,11 @@ public:
         int tempValue[8];
         int arrayPosition[9];
         int checkResult;
+    };
+
+    struct TypeGroupList {
+        int entityRefs[ENTITY_COUNT];
+        int listSize = 0;
     };
 
     struct Entity {
@@ -58,8 +63,8 @@ public:
         int alpha               = 0;
         int animationTimer      = 0;
         int animationSpeed      = 0;
-        int camOffsetX          = 0;
-        int lookPos             = 0;
+        int lookPosX            = 0;
+        int lookPosY            = 0;
         ushort typeGroup        = 0;
         byte type               = 0;
         byte propertyValue      = 0;
@@ -75,9 +80,9 @@ public:
         signed char controlMode = 0;
         byte controlLock        = 0;
         byte pushing            = 0;
-        byte visible            = 1;
-        byte tileCollisions     = 1;
-        byte objectInteractions = 1;
+        byte visible            = true;
+        byte tileCollisions     = true;
+        byte objectInteractions = true;
         byte gravity            = 0;
         byte left               = 0;
         byte right              = 0;
@@ -105,59 +110,62 @@ public:
 
     enum ScriptEvents { EVENT_RSDKDRAW = 0, EVENT_RSDKLOAD = 1 };
 
-    ObjectScript m_objectScriptList[OBJECT_COUNT];
-    ScriptPtr m_functionList[FUNCTION_COUNT_v4];
+    ObjectScript objectScriptList[OBJECT_COUNT];
+    ScriptPtr functionList[FUNCTION_COUNT_v4];
 
-    int m_scriptData[SCRIPTDATA_COUNT_v4];
-    int m_jumpTableData[JUMPTABLE_COUNT_v4];
+    int scriptData[SCRIPTDATA_COUNT_v4];
+    int jumpTableData[JUMPTABLE_COUNT_v4];
 
-    int m_jumpTableStack[JUMPSTACK_COUNT_v4];
-    int m_jumpTableStackPos = 0;
+    int jumpTableStack[JUMPSTACK_COUNT_v4];
+    int jumpTableStackPos = 0;
 
-    int m_foreachStack[FORSTACK_COUNT_v4];
-    int m_foreachStackPos;
+    int foreachStack[FORSTACK_COUNT_v4];
+    int foreachStackPos;
 
-    QString m_scriptText = "";
+    TypeGroupList objectTypeGroupList[TYPEGROUP_COUNT];
 
-    int m_scriptDataPos       = 0;
-    int m_scriptDataOffset    = 0;
-    int m_jumpTableDataPos    = 0;
-    int m_jumpTableDataOffset = 0;
-    int m_functionStackPos    = 0;
+    QString scriptText = "";
 
-    int m_functionCount = 0;
-    QString m_functionNames[FUNCTION_COUNT_v4];
+    int scriptDataPos       = 0;
+    int scriptDataOffset    = 0;
+    int jumpTableDataPos    = 0;
+    int jumpTableDataOffset = 0;
+    int functionStackPos    = 0;
 
-    int m_publicAliasCount  = 0;
-    int m_privateAliasCount = 0;
+    int functionCount = 0;
+    QString functionNames[FUNCTION_COUNT_v4];
 
-    int m_publicStaticVarCount  = 0;
-    int m_privateStaticVarCount = 0;
+    int publicAliasCount  = 0;
+    int privateAliasCount = 0;
 
-    int m_publicTableCount  = 0;
-    int m_privateTableCount = 0;
+    int publicStaticVarCount  = 0;
+    int privateStaticVarCount = 0;
 
-    int m_lineID = 0;
+    int publicTableCount  = 0;
+    int privateTableCount = 0;
 
-    int m_scriptCount = 0;
+    int lineID = 0;
 
-    int m_globalScriptCount     = 0;
-    int m_globalScriptDataCount = 0;
-    int m_globalJumpTableCount  = 0;
+    int scriptCount = 0;
 
-    bool m_scriptError = false;
-    QString errorMsg   = "";
-    QString errorPos   = "";
-    QString m_errorScr = "";
-    int m_errorLine    = 0;
+    int globalScriptCount     = 0;
+    int globalScriptDataCount = 0;
+    int globalJumpTableCount  = 0;
 
-    QString m_gamePlatform      = "STANDARD";
-    QString m_gameRenderType    = "SW_RENDERING";
-    QString m_gameHapticSetting = "USE_F_FEEDBACK";
+    bool scriptError = false;
+    QString errorMsg = "";
+    QString errorPos = "";
+    QString errorScr = "";
+    int errorLine    = 0;
 
-    QList<QString> m_globalVariables;
+    QString gamePlatform      = "EDITOR";
+    QString gameRenderType    = "SW_RENDERING";
+    QString gameHapticSetting = "USE_F_FEEDBACK";
 
-    QString m_typeNames[OBJECT_COUNT];
+    QList<QString> globalVariables;
+
+    QString typeNames[OBJECT_COUNT];
+    QString sfxNames[SFX_COUNT];
 
     int findStringToken(QString &string, QString token, char stopID);
 
@@ -172,7 +180,7 @@ public:
     void checkCaseNumber(QString &text);
     bool readSwitchCase(QString &text);
     void readTableValues(QString &text);
-    void appendIntegerToSting(QString &text, int value);
+    void appendIntegerToString(QString &text, int value);
     bool convertStringToInteger(QString &text, int *value);
     void copyAliasStr(QString &dest, QString text, bool arrayIndex);
 
@@ -182,23 +190,21 @@ public:
 
     void writeBytecode(QString path);
 
-    int m_objectEntityPos = 0;
+    int objectEntityPos = 0;
 
-    ScriptEngine m_scriptEng;
-    Entity m_objectEntityList[ENTITY_COUNT];
-    char scriptText[0x100];
-
+    ScriptEngine scriptEng;
+    Entity objectEntityList[ENTITY_COUNT];
     SpriteFrame scriptFrames[SPRITEFRAME_COUNT_v4];
     int scriptFrameCount = 0;
 
     int xScrollOffset = 0;
     int yScrollOffset = 0;
 
-    void *m_viewer = nullptr;
+    void *viewer = nullptr;
 
     void processScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent);
 
-    RSDKv4::Bytecode m_bytecode;
+    RSDKv4::Bytecode bytecode;
 
 private:
     int sinVal512[0x200];
@@ -213,7 +219,7 @@ private:
     {
         if (angle < 0)
             angle = 0x200 - angle;
-        angle &= 0x1FFu;
+        angle &= 0x1FF;
         return sinVal512[angle];
     }
 
@@ -221,7 +227,7 @@ private:
     {
         if (angle < 0)
             angle = 0x200 - angle;
-        angle &= 0x1FFu;
+        angle &= 0x1FF;
         return cosVal512[angle];
     }
 
@@ -229,7 +235,7 @@ private:
     {
         if (angle < 0)
             angle = 0x100 - angle;
-        angle &= 0xFFu;
+        angle &= 0xFF;
         return sinVal256[angle];
     }
 
@@ -237,7 +243,7 @@ private:
     {
         if (angle < 0)
             angle = 0x100 - angle;
-        angle &= 0xFFu;
+        angle &= 0xFF;
         return cosVal256[angle];
     }
 

@@ -16,8 +16,8 @@ public:
     explicit SceneObjectProperties(QWidget *parent = nullptr);
     ~SceneObjectProperties();
 
-    void setupUI(FormatHelpers::Scene::Object *obj, Compilerv3::Entity *entityv3,
-                 Compilerv4::Entity *entityv4, byte ver);
+    void setupUI(FormatHelpers::Scene::Object *obj, Compilerv2::Entity *entityv2,
+                 Compilerv3::Entity *entityv3, Compilerv4::Entity *entityv4, byte ver);
     void unsetUI();
 
     void updateUI();

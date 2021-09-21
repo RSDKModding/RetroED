@@ -1,24 +1,10 @@
-#ifndef COMPILERV3_H
-#define COMPILERV3_H
+#ifndef COMPILERV2_H
+#define COMPILERV2_H
 
-#define OBJECT_COUNT     (0x100)
-#define SFX_COUNT        (0x100)
-#define ENTITY_COUNT     (0x4A0)
-#define TEMPENTITY_START (ENTITY_COUNT - 0x80)
-
-#define SCRIPTDATA_COUNT (0x40000)
-#define JUMPTABLE_COUNT  (0x4000)
-#define FUNCTION_COUNT   (0x200)
-
-#define JUMPSTACK_COUNT (0x400)
-#define FUNCSTACK_COUNT (0x400)
-
-#define SPRITEFRAME_COUNT (0x1000)
-
-class Compilerv3
+class Compilerv2
 {
 public:
-    Compilerv3();
+    Compilerv2();
 
 public:
     struct ScriptPtr {
@@ -27,8 +13,7 @@ public:
     };
 
     struct ObjectScript {
-        ScriptPtr subRSDKDraw;
-        ScriptPtr subRSDKLoad;
+        ScriptPtr subRSDK;
         byte spriteSheetID;
         int frameListOffset;
         byte spriteFrameCount;
@@ -42,24 +27,19 @@ public:
     };
 
     struct Entity {
-        int XPos = 0;
-        int YPos = 0;
+        int XPos;
+        int YPos;
         int values[8];
-        int scale          = 0x200;
-        int rotation       = 0;
-        int animationTimer = 0;
-        int animationSpeed = 0;
-        byte type          = 0;
-        byte propertyValue = 0;
-        byte state         = 0;
-        byte priority      = 1;
-        byte drawOrder     = 3;
-        byte direction     = 0;
-        byte inkEffect     = 0;
-        byte alpha         = 0xFF;
-        byte animation     = 0;
-        byte prevAnimation = 0;
-        byte frame         = 0;
+        int scale;
+        int rotation;
+        byte type;
+        byte propertyValue;
+        byte state;
+        byte priority;
+        byte drawOrder;
+        byte direction;
+        byte inkEffect;
+        byte frame;
     };
 
     struct SpriteFrame {
@@ -73,13 +53,12 @@ public:
         byte hitboxID;
     };
     enum FlipFlags { FLIP_NONE, FLIP_X, FLIP_Y, FLIP_XY };
-    enum InkFlags { INK_NONE, INK_BLEND, INK_ALPHA, INK_ADD, INK_SUB };
-    enum DrawFXFlags { FX_SCALE, FX_ROTATE, FX_ROTOZOOM, FX_INK, FX_TINT, FX_FLIP };
+    enum InkFlags { INK_NONE, INK_BLEND };
+    enum DrawFXFlags { FX_SCALE, FX_ROTATE, FX_INK, FX_TINT };
 
-    enum ScriptSubs { SUB_RSDKDRAW = 0, SUB_RSDKLOAD = 1 };
+    enum ScriptSubs { SUB_RSDK };
 
     ObjectScript objectScriptList[OBJECT_COUNT];
-    ScriptPtr functionList[FUNCTION_COUNT];
 
     int scriptData[SCRIPTDATA_COUNT];
     int jumpTableData[JUMPTABLE_COUNT];
@@ -114,13 +93,7 @@ public:
     QString errorScr = "";
     int errorLine    = 0;
 
-    QString gamePlatform      = "Editor";
-    QString gameRenderType    = "SW_Rendering";
-    QString gameHapticSetting = "No_Haptics";
-
     QList<QString> globalVariables;
-
-    QString typeNames[OBJECT_COUNT];
 
     int findStringToken(QString &string, QString token, char stopID);
 
@@ -155,7 +128,7 @@ public:
 
     void processScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub);
 
-    RSDKv3::Bytecode bytecode;
+    RSDKv2::Bytecode bytecode;
 
 private:
     int sinVal512[0x200];
@@ -202,4 +175,4 @@ private:
     byte ArcTanLookup(int X, int Y);
 };
 
-#endif // COMPILERV3_H
+#endif // COMPILERV2_H

@@ -28,12 +28,12 @@ public:
     Vector2<int> m_snapSize;
 
     SceneViewer *viewer;
-    SceneProperties *m_scnProp       = nullptr;
-    SceneLayerProperties *m_lyrProp  = nullptr;
-    SceneTileProperties *m_tileProp  = nullptr;
-    SceneObjectProperties *m_objProp = nullptr;
-    SceneScrollProperties *m_scrProp = nullptr;
-    ChunkSelector *m_chkProp         = nullptr;
+    SceneProperties *scnProp       = nullptr;
+    SceneLayerProperties *lyrProp  = nullptr;
+    SceneTileProperties *tileProp  = nullptr;
+    SceneObjectProperties *objProp = nullptr;
+    SceneScrollProperties *scrProp = nullptr;
+    ChunkSelector *chkProp         = nullptr;
 
     void loadScene(QString scnPath, QString gcfPath, byte gameType);
 

@@ -11,20 +11,20 @@ public:
     public:
         FunctionScript() {}
 
-        int m_mainScript    = 0;
-        int m_mainJumpTable = 0;
+        int mainScript    = 0;
+        int mainJumpTable = 0;
     };
 
     struct ObjectScript {
     public:
         ObjectScript() {}
 
-        int m_mainScript       = 0;
+        int mainScript       = 0;
         int m_drawScript       = 0;
-        int m_startupScript    = 0;
-        int m_mainJumpTable    = 0;
+        int startupScript    = 0;
+        int mainJumpTable    = 0;
         int m_drawJumpTable    = 0;
-        int m_startupJumpTable = 0;
+        int startupJumpTable = 0;
     };
 
     Bytecode() {}
@@ -55,14 +55,14 @@ public:
     }
     void write(Writer &writer);
 
-    QList<int> m_scriptData;
-    QList<int> m_jumpTableData;
-    QList<ObjectScript> m_scriptList;
-    QList<FunctionScript> m_functionList;
+    QList<int> scriptData;
+    QList<int> jumpTableData;
+    QList<ObjectScript> scriptList;
+    QList<FunctionScript> functionList;
 
     int m_globalScriptDataCount = 0;
     int m_globalJumpTableCount  = 0;
-    int m_globalScriptCount     = 0;
+    int globalScriptCount     = 0;
 
     QString m_filename = "";
 };

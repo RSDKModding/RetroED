@@ -4,8 +4,8 @@
 namespace RSDKv4
 {
 
-extern QList<QString> objectAttributeNames;
-extern QList<QString> objectAttributeTypes;
+extern QList<QString> objectVariableNames;
+extern QList<QString> objectVariableTypes;
 
 class Scene
 {
@@ -13,29 +13,29 @@ public:
     class Object
     {
     public:
-        struct AttributeInfo {
-            AttributeInfo() {}
+        struct VariableInfo {
+            VariableInfo() {}
 
             int value   = 0;
             bool active = false;
         };
 
-        enum AttributesIDs {
-            ATTRIBUTE_STATE,
-            ATTRIBUTE_DIRECTION,
-            ATTRIBUTE_SCALE,
-            ATTRIBUTE_ROTATION,
-            ATTRIBUTE_DRAWORDER,
-            ATTRIBUTE_PRIORITY,
-            ATTRIBUTE_ALPHA,
-            ATTRIBUTE_ANIMATION,
-            ATTRIBUTE_ANIMATIONSPEED,
-            ATTRIBUTE_FRAME,
-            ATTRIBUTE_INKEFFECT,
-            ATTRIBUTE_VALUE0,
-            ATTRIBUTE_VALUE1,
-            ATTRIBUTE_VALUE2,
-            ATTRIBUTE_VALUE3,
+        enum VariableIDs {
+            VAR_STATE,
+            VAR_DIRECTION,
+            VAR_SCALE,
+            VAR_ROTATION,
+            VAR_DRAWORDER,
+            VAR_PRIORITY,
+            VAR_ALPHA,
+            VAR_ANIMATION,
+            VAR_ANIMATIONSPEED,
+            VAR_FRAME,
+            VAR_INKEFFECT,
+            VAR_VALUE0,
+            VAR_VALUE1,
+            VAR_VALUE2,
+            VAR_VALUE3,
         };
 
         Object() {}
@@ -50,11 +50,11 @@ public:
         inline void setX(float x) { posX = x * (1 << 0x10); }
         inline void setY(float y) { posY = y * (1 << 0x10); }
 
-        byte type    = 0;
+        byte type          = 0;
         byte propertyValue = 0;
-        int posX     = 0 << 0x10;
-        int posY     = 0 << 0x10;
-        AttributeInfo variables[0x0F];
+        int posX           = 0 << 0x10;
+        int posY           = 0 << 0x10;
+        VariableInfo variables[0x0F];
 
         short slotID = 0;
     };
