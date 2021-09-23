@@ -21,6 +21,9 @@ public:
 
 private:
     Ui::SceneLayerPropertiesv5 *ui;
+
+    RSDKv5::Scene *scene = nullptr;
+    int layerID          = 0;
 };
 
 #endif // SCENELAYERPROPERTIES_V5_H

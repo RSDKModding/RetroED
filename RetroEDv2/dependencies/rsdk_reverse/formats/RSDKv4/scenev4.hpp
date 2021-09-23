@@ -73,7 +73,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -93,7 +93,7 @@ public:
     byte width;
     byte height;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv4

@@ -21,11 +21,16 @@ public:
         RecentFileInfo() {}
         RecentFileInfo(Reader &reader) { read(reader); }
 
+        friend bool operator==(const RecentFileInfo &a, const RecentFileInfo &b)
+        {
+            return a.gameVer == b.gameVer && a.path == b.path && a.tool == b.tool;
+        }
+
         void read(Reader &reader);
         void write(Writer &writer);
 
         byte gameVer = 0;
-        byte m_tool  = 0xFF;
+        byte tool    = 0xFF;
         QString path = "";
         QList<QString> extra;
     };

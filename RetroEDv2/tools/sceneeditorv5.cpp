@@ -1172,7 +1172,7 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     ui->propertiesBox->setCurrentIndex(0);
 
     scnProp->setupUI(&viewer->scene, &viewer->stageConfig);
-    lyrProp->unsetUI();
+    lyrProp->setupUI(&viewer->scene, 0);
     tileProp->unsetUI();
     objProp->unsetUI();
     scrProp->unsetUI();

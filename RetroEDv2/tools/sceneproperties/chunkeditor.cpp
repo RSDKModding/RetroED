@@ -12,6 +12,8 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
     if (!chk)
         return;
 
+    tileList = tiles;
+
     viewer = new ChunkViewer(&selectedChunk, &selectedTile, chunks, tiles);
     viewer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->viewerFrame->layout()->addWidget(viewer);
@@ -76,11 +78,11 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
     chunkRowChanged(0);
     connect(ui->chunkList, &QListWidget::currentRowChanged, chunkRowChanged);
 
-    auto tileRowChanged = [this, tiles](int c) { m_selectedDrawTile = c; };
+    auto tileRowChanged = [this, tiles](int c) { selectedDrawTile = c; };
     tileRowChanged(-1);
     connect(ui->tileList, &QListWidget::currentRowChanged, tileRowChanged);
 
-    connect(viewer, &ChunkViewer::tileChanged, [this] {
+    auto tileChangedCB = [this] {
         if (selectedChunk < 0 || selectedTile.x == -1 || selectedTile.y == -1)
             return;
 
@@ -113,13 +115,11 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         ui->tileIndex->blockSignals(false);
         ui->solidityA->blockSignals(false);
         ui->solidityB->blockSignals(false);
-    });
+    };
 
-    connect(viewer, &ChunkViewer::tileDrawn, [this, tiles](float mx, float my) {
-        if (selectedChunk < 0 || selectedTile.x == -1 || selectedTile.y == -1
-            || m_selectedDrawTile == -1)
-            return;
+    connect(viewer, &ChunkViewer::tileChanged, tileChangedCB);
 
+    connect(viewer, &ChunkViewer::tileDrawn, [this, tiles, tileChangedCB](float mx, float my) {
         selectedTile.x = mx / 16;
         selectedTile.y = my / 16;
 
@@ -129,12 +129,36 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         if (selectedTile.y > 0x80)
             selectedTile.y = -1;
 
+        if (selectedChunk < 0 || selectedTile.x == -1 || selectedTile.y == -1 || selectedDrawTile == -1)
+            return;
+
         chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].tileIndex =
-            (ushort)m_selectedDrawTile;
+            (ushort)selectedDrawTile;
         viewer->repaint();
 
         ui->chunkList->item(selectedChunk)
             ->setIcon(QPixmap::fromImage(chunks->chunks[selectedChunk].getImage(tiles)));
+
+        tileChangedCB();
+    });
+
+    connect(viewer, &ChunkViewer::tileCopy, [this, tiles](float mx, float my) {
+        selectedTile.x = mx / 16;
+        selectedTile.y = my / 16;
+
+        if (selectedTile.x > 0x80)
+            selectedTile.x = -1;
+
+        if (selectedTile.y > 0x80)
+            selectedTile.y = -1;
+
+        if (selectedChunk < 0 || selectedTile.x == -1 || selectedTile.y == -1)
+            return;
+
+        selectedDrawTile =
+            chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].tileIndex;
+
+        ui->tileList->setCurrentRow(selectedDrawTile);
     });
 
     connect(ui->flipX, &QCheckBox::toggled, [this, tiles](bool v) {
@@ -193,13 +217,21 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].solidityB = (byte)v;
         viewer->repaint();
     });
-
     for (QWidget *w : findChildren<QWidget *>()) {
         w->installEventFilter(this);
     }
 }
 
 ChunkEditor::~ChunkEditor() { delete ui; }
+
+bool ChunkEditor::event(QEvent *e)
+{
+    switch (e->type()) {
+        default: break;
+        case QEvent::KeyPress: keyPressEvent((QKeyEvent *)e); break;
+    }
+    return QWidget::event(e);
+}
 
 bool ChunkViewer::event(QEvent *e)
 {
@@ -218,9 +250,12 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
     float mousePosY = event->pos().y();
 
     bool mouseDownL = false;
+    bool mouseDownM = false;
     bool mouseDownR = false;
     if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
         mouseDownL = true;
+    if ((event->button() & Qt::MidButton) == Qt::MidButton)
+        mouseDownM = true;
     if ((event->button() & Qt::RightButton) == Qt::RightButton)
         mouseDownR = true;
 
@@ -237,6 +272,10 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
         emit tileChanged();
 
         repaint();
+    }
+
+    if (mouseDownM) {
+        emit tileCopy(mousePosX * zoom, mousePosY * zoom);
     }
 
     if (mouseDownL) {
@@ -250,9 +289,12 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
     float mousePosY = event->pos().y();
 
     bool mouseDownL = false;
+    bool mouseDownM = false;
     bool mouseDownR = false;
     if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
         mouseDownL = true;
+    if ((event->button() & Qt::MidButton) == Qt::MidButton)
+        mouseDownM = true;
     if ((event->button() & Qt::RightButton) == Qt::RightButton)
         mouseDownR = true;
 
@@ -269,6 +311,10 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
         emit tileChanged();
 
         repaint();
+    }
+
+    if (mouseDownM) {
+        emit tileCopy(mousePosX * zoom, mousePosY * zoom);
     }
 
     if (mouseDownL) {
@@ -285,11 +331,11 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
     const QBrush brush = p.brush();
     for (int y = 0; y < 8; ++y) {
         for (int x = 0; x < 8; ++x) {
-            auto &tile = m_chunks->chunks[*m_cSel].tiles[y][x];
+            auto &tile = chunks->chunks[*cSel].tiles[y][x];
 
             bool fx = (tile.direction & 1) == 1;
             bool fy = (tile.direction & 2) == 2;
-            p.drawImage(x * 0x10, y * 0x10, m_tiles[tile.tileIndex].mirrored(fx, fy));
+            p.drawImage(x * 0x10, y * 0x10, tiles[tile.tileIndex].mirrored(fx, fy));
 
             if (y == selection->y && x == selection->x) {
                 p.setBrush(qApp->palette().highlight());
@@ -307,6 +353,48 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
 
     for (int x = 0; x < 8; ++x) {
         p.drawLine(x * 0x10, 0, x * 0x10, 8 * 0x10);
+    }
+}
+
+void ChunkEditor::keyPressEvent(QKeyEvent *event)
+{
+    bool ctrlDownL  = false;
+    bool altDownL   = false;
+    bool shiftDownL = false;
+    if (event->key() == Qt::Key_Control)
+        ctrlDownL = true;
+    if (event->key() == Qt::Key_Alt)
+        altDownL = true;
+    if (event->key() == Qt::Key_Shift)
+        shiftDownL = true;
+
+    if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
+        && event->key() == Qt::Key_C) {
+        copiedChunk = selectedChunk;
+        setStatus("copied chunk: " + QString::number(copiedChunk));
+    }
+
+    if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
+        && event->key() == Qt::Key_V) {
+        if (copiedChunk < 0 || selectedChunk < 0)
+            return;
+
+        FormatHelpers::Chunks::Chunk &src = chunks->chunks[copiedChunk];
+        FormatHelpers::Chunks::Chunk &dst = chunks->chunks[selectedChunk];
+        for (int y = 0; y < 8; ++y) {
+            for (int x = 0; x < 8; ++x) {
+                dst.tiles[y][x].tileIndex   = src.tiles[y][x].tileIndex;
+                dst.tiles[y][x].visualPlane = src.tiles[y][x].visualPlane;
+                dst.tiles[y][x].direction   = src.tiles[y][x].direction;
+                dst.tiles[y][x].solidityA   = src.tiles[y][x].solidityA;
+                dst.tiles[y][x].solidityB   = src.tiles[y][x].solidityB;
+            }
+        }
+
+        viewer->repaint();
+
+        ui->chunkList->item(selectedChunk)
+            ->setIcon(QPixmap::fromImage(chunks->chunks[selectedChunk].getImage(tileList)));
     }
 }
 

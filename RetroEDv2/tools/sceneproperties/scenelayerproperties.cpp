@@ -14,41 +14,48 @@ void SceneLayerProperties::setupUI(FormatHelpers::Scene *scn, FormatHelpers::Bac
 {
     unsetUI();
 
+    scene      = scn;
+    background = bg;
+    layerID    = lID;
+
     if (lID == 0) {
         ui->behaviour->setDisabled(true);
         ui->relSpeed->setDisabled(true);
         ui->constSpeed->setDisabled(true);
 
-        ui->width->setValue(scn->width);
-        ui->height->setValue(scn->height);
+        ui->width->setValue(scene->width);
+        ui->height->setValue(scene->height);
         ui->behaviour->setCurrentIndex(1);
         ui->relSpeed->setValue(1.0f);
         ui->constSpeed->setValue(0.0f);
 
-        connect(ui->width, QOverload<int>::of(&QSpinBox::valueChanged), [scn](int v) {
-            if (v > scn->width) {
-                for (int h = 0; h < scn->height; ++h) {
-                    for (int l = scn->width - 1; l < v; ++l) scn->layout[h].append(QList<ushort>());
+        connect(ui->width, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
+            if (v > scene->width) {
+                for (int h = 0; h < scene->height; ++h) {
+                    for (int w = scene->width; w < v; ++w) scene->layout[h].append(0);
                 }
             }
-            else if (v < scn->width) {
-                for (int h = 0; h < scn->height; ++h) {
-                    for (int l = scn->width - 1; l >= v; --l) scn->layout[h].removeAt(l);
+            else if (v < scene->width) {
+                for (int h = 0; h < scene->height; ++h) {
+                    for (int w = scene->width - 1; w >= v; --w) scene->layout[h].removeAt(w);
                 }
             }
 
-            scn->width = (short)v;
+            scene->width = (short)v;
         });
 
-        connect(ui->height, QOverload<int>::of(&QSpinBox::valueChanged), [scn](int v) {
-            if (v > scn->height) {
-                for (int l = scn->height - 1; l < v; ++l) scn->layout.append(QList<ushort>());
+        connect(ui->height, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
+            if (v > scene->height) {
+                for (int h = scene->height; h < v; ++h) {
+                    scene->layout.append(QList<ushort>());
+                    for (int w = 0; w < scene->width; ++w) scene->layout[h].append(0);
+                }
             }
-            else if (v < scn->height) {
-                for (int l = scn->height - 1; l >= v; --l) scn->layout.removeAt(l);
+            else if (v < scene->height) {
+                for (int h = scene->height - 1; h >= v; --h) scene->layout.removeAt(h);
             }
 
-            scn->height = (short)v;
+            scene->height = (short)v;
         });
     }
     else {
@@ -56,56 +63,59 @@ void SceneLayerProperties::setupUI(FormatHelpers::Scene *scn, FormatHelpers::Bac
         ui->relSpeed->setDisabled(false);
         ui->constSpeed->setDisabled(false);
 
-        ui->width->setValue(bg->layers[lID - 1].width);
-        ui->height->setValue(bg->layers[lID - 1].height);
-        ui->behaviour->setCurrentIndex(bg->layers[lID - 1].type);
-        ui->relSpeed->setValue(bg->layers[lID - 1].parallaxFactor);
-        ui->constSpeed->setValue(bg->layers[lID - 1].scrollSpeed);
+        ui->width->setValue(background->layers[lID - 1].width);
+        ui->height->setValue(background->layers[lID - 1].height);
+        ui->behaviour->setCurrentIndex(background->layers[lID - 1].type);
+        ui->relSpeed->setValue(background->layers[lID - 1].parallaxFactor);
+        ui->constSpeed->setValue(background->layers[lID - 1].scrollSpeed);
 
-        connect(ui->width, QOverload<int>::of(&QSpinBox::valueChanged), [bg, lID](int v) {
-            if (v > bg->layers[lID - 1].width) {
-                for (int h = 0; h < bg->layers[lID - 1].height; ++h) {
-                    for (int l = bg->layers[lID - 1].width - 1; l < v; ++l)
-                        bg->layers[lID - 1].layout[h].append(QList<ushort>());
+        connect(ui->width, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
+            if (v > background->layers[layerID - 1].width) {
+                for (int h = 0; h < background->layers[layerID - 1].height; ++h) {
+                    for (int w = background->layers[layerID - 1].width; w < v; ++w)
+                        background->layers[layerID - 1].layout[h].append(0);
                 }
             }
-            else if (v < bg->layers[lID - 1].width) {
-                for (int h = 0; h < bg->layers[lID - 1].height; ++h) {
-                    for (int l = bg->layers[lID - 1].width - 1; l >= v; --l)
-                        bg->layers[lID - 1].layout[h].removeAt(l);
+            else if (v < background->layers[layerID - 1].width) {
+                for (int h = 0; h < background->layers[layerID - 1].height; ++h) {
+                    for (int w = background->layers[layerID - 1].width - 1; w >= v; --w)
+                        background->layers[layerID - 1].layout[h].removeAt(w);
                 }
             }
 
-            if (bg->layers[lID - 1].type == 2)
-                bg->layers[lID - 1].lineIndexes.resize(v * 0x80);
+            if (background->layers[layerID - 1].type == 2)
+                background->layers[layerID - 1].lineIndexes.resize(v * 0x80);
 
-            bg->layers[lID - 1].width = (short)v;
+            background->layers[layerID - 1].width = (short)v;
         });
 
-        connect(ui->height, QOverload<int>::of(&QSpinBox::valueChanged), [bg, lID](int v) {
-            if (v > bg->layers[lID - 1].height) {
-                for (int l = bg->layers[lID - 1].height - 1; l < v; ++l)
-                    bg->layers[lID - 1].layout.append(QList<ushort>());
+        connect(ui->height, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
+            if (v > background->layers[layerID - 1].height) {
+                for (int h = background->layers[layerID - 1].height; h < v; ++h) {
+                    background->layers[layerID - 1].layout.append(QList<ushort>());
+                    for (int w = 0; w < background->layers[layerID - 1].width; ++w)
+                        background->layers[layerID - 1].layout[h].append(0);
+                }
             }
-            else if (v < bg->layers[lID - 1].height) {
-                for (int l = bg->layers[lID - 1].height - 1; l >= v; --l)
-                    bg->layers[lID - 1].layout.removeAt(l);
+            else if (v < background->layers[layerID - 1].height) {
+                for (int h = background->layers[layerID - 1].height - 1; h >= v; --h)
+                    background->layers[layerID - 1].layout.removeAt(h);
             }
 
-            if (bg->layers[lID - 1].type == 1)
-                bg->layers[lID - 1].lineIndexes.resize(v * 0x80);
+            if (background->layers[layerID - 1].type == 1)
+                background->layers[layerID - 1].lineIndexes.resize(v * 0x80);
 
-            bg->layers[lID - 1].height = (short)v;
+            background->layers[layerID - 1].height = (short)v;
         });
 
         connect(ui->behaviour, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                [bg, lID](int v) { bg->layers[lID - 1].type = (byte)v; });
+                [this](int v) { background->layers[layerID - 1].type = (byte)v; });
 
         connect(ui->relSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-                [bg, lID](double v) { bg->layers[lID - 1].parallaxFactor = v; });
+                [this](double v) { background->layers[layerID - 1].parallaxFactor = v; });
 
         connect(ui->constSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-                [bg, lID](double v) { bg->layers[lID - 1].scrollSpeed = v; });
+                [this](double v) { background->layers[layerID - 1].scrollSpeed = v; });
     }
 }
 

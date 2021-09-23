@@ -165,6 +165,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     connect(ui->rmObj, &QToolButton::clicked, [this] {
         int c = ui->objectList->currentRow();
+        if (c == -1)
+            return;
         int n = ui->objectList->currentRow() == ui->objectList->count() - 1 ? c - 1 : c;
         delete ui->objectList->item(c);
         int globalCount = 1;
@@ -227,6 +229,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     connect(ui->rmEnt, &QToolButton::clicked, [this] {
         int c = ui->entityList->currentRow();
+        if (c == -1)
+            return;
         int n = ui->entityList->currentRow() == ui->entityList->count() - 1 ? c - 1 : c;
         delete ui->entityList->item(c);
         viewer->scene.objects.removeAt(c);
@@ -353,13 +357,13 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     connect(ui->showParallax, &QPushButton::clicked, [this] { viewer->showParallax ^= 1; });
 
-    connect(scnProp->m_editTIL, &QPushButton::clicked, [this] {
+    connect(scnProp->editTIL, &QPushButton::clicked, [this] {
         ChunkEditor *edit = new ChunkEditor(&viewer->chunkset, viewer->chunks, viewer->tiles,
                                             viewer->gameType == ENGINE_v1, this);
-        edit->exec();
+        edit->show();
     });
 
-    connect(scnProp->m_editSCF, &QPushButton::clicked, [this] {
+    connect(scnProp->editSCF, &QPushButton::clicked, [this] {
         QList<int> newTypes;
 
         switch (viewer->gameType) {
@@ -882,20 +886,20 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
             viewer->reference   = mEvent->pos();
 
-            viewer->mousePos.x = viewer->cam.m_lastMousePos.x = mEvent->pos().x();
-            viewer->mousePos.y = viewer->cam.m_lastMousePos.y = mEvent->pos().y();
+            viewer->mousePos.x = viewer->cam.lastMousePos.x = mEvent->pos().x();
+            viewer->mousePos.y = viewer->cam.lastMousePos.y = mEvent->pos().y();
 
             if ((mEvent->button() & Qt::LeftButton) == Qt::LeftButton)
-                m_mouseDownL = true;
+                mouseDownL = true;
             if ((mEvent->button() & Qt::MiddleButton) == Qt::MiddleButton)
-                m_mouseDownM = true;
+                mouseDownM = true;
             if ((mEvent->button() & Qt::RightButton) == Qt::RightButton)
                 m_mouseDownR = true;
 
-            if (m_mouseDownM || (m_mouseDownL && viewer->curTool == TOOL_MOUSE))
+            if (mouseDownM || (mouseDownL && viewer->curTool == TOOL_MOUSE))
                 setCursor(Qt::ClosedHandCursor);
 
-            if (m_mouseDownL) {
+            if (mouseDownL) {
                 switch (viewer->curTool) {
                     case TOOL_MOUSE: break;
                     case TOOL_SELECT: break;
@@ -1091,13 +1095,13 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             bool status         = false;
             QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
 
-            viewer->mousePos.x = viewer->cam.m_lastMousePos.x = mEvent->pos().x();
-            viewer->mousePos.y = viewer->cam.m_lastMousePos.y = mEvent->pos().y();
+            viewer->mousePos.x = viewer->cam.lastMousePos.x = mEvent->pos().x();
+            viewer->mousePos.y = viewer->cam.lastMousePos.y = mEvent->pos().y();
 
-            Vector2<int> m_sceneMousePos((viewer->mousePos.x * viewer->invZoom()) + viewer->cam.pos.x,
-                                         (viewer->mousePos.y * viewer->invZoom()) + viewer->cam.pos.y);
+            Vector2<int> sceneMousePos((viewer->mousePos.x * viewer->invZoom()) + viewer->cam.pos.x,
+                                       (viewer->mousePos.y * viewer->invZoom()) + viewer->cam.pos.y);
 
-            if (m_mouseDownM || (m_mouseDownL && viewer->curTool == TOOL_MOUSE)) {
+            if (mouseDownM || (mouseDownL && viewer->curTool == TOOL_MOUSE)) {
                 viewer->cam.pos.x -= (viewer->mousePos.x - viewer->reference.x()) * viewer->invZoom();
                 viewer->cam.pos.y -= (viewer->mousePos.y - viewer->reference.y()) * viewer->invZoom();
                 viewer->reference = mEvent->pos();
@@ -1118,7 +1122,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 viewer->tilePos.x = viewer->mousePos.x;
                 viewer->tilePos.y = viewer->mousePos.y;
 
-                if (m_ctrlDownL) {
+                if (ctrlDownL) {
                     viewer->tilePos.x -= fmodf(viewer->tilePos.x + (0x80 / 2), 0x80);
                     viewer->tilePos.y -= fmodf(viewer->tilePos.y + (0x80 / 2), 0x80);
 
@@ -1137,7 +1141,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 case TOOL_PARALLAX: break;
             }
 
-            if (m_mouseDownL) {
+            if (mouseDownL) {
                 switch (viewer->curTool) {
                     default: break;
                     case TOOL_MOUSE: break;
@@ -1163,7 +1167,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                             object.setX((viewer->mousePos.x * viewer->invZoom()) + viewer->cam.pos.x);
                             object.setY((viewer->mousePos.y * viewer->invZoom()) + viewer->cam.pos.y);
 
-                            if (m_ctrlDownL) {
+                            if (ctrlDownL) {
                                 object.setX(object.getX() - fmodf(object.getX(), m_snapSize.x));
                                 object.setY(object.getY() - fmodf(object.getY(), m_snapSize.y));
                             }
@@ -1200,9 +1204,9 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             viewer->mousePos.y  = mEvent->pos().y();
 
             if ((mEvent->button() & Qt::LeftButton) == Qt::LeftButton)
-                m_mouseDownL = false;
+                mouseDownL = false;
             if ((mEvent->button() & Qt::MiddleButton) == Qt::MiddleButton)
-                m_mouseDownM = false;
+                mouseDownM = false;
             if ((mEvent->button() & Qt::RightButton) == Qt::RightButton)
                 m_mouseDownR = false;
 
@@ -1233,11 +1237,11 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                          (viewer->mousePos.y * viewer->invZoom()) + viewer->cam.pos.y);
 
             if (kEvent->key() == Qt::Key_Control)
-                m_ctrlDownL = true;
+                ctrlDownL = true;
             if (kEvent->key() == Qt::Key_Alt)
-                m_altDownL = true;
+                altDownL = true;
             if (kEvent->key() == Qt::Key_Shift)
-                m_shiftDownL = true;
+                shiftDownL = true;
 
             if ((kEvent->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
                 && kEvent->key() == Qt::Key_V) {
@@ -1351,11 +1355,11 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             QKeyEvent *kEvent = static_cast<QKeyEvent *>(event);
 
             if (kEvent->key() == Qt::Key_Control)
-                m_ctrlDownL = false;
+                ctrlDownL = false;
             if (kEvent->key() == Qt::Key_Alt)
-                m_altDownL = false;
+                altDownL = false;
             if (kEvent->key() == Qt::Key_Shift)
-                m_shiftDownL = false;
+                shiftDownL = false;
             break;
         }
 
@@ -1438,7 +1442,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     ui->propertiesBox->setCurrentIndex(0);
 
     scnProp->setupUI(&viewer->scene, viewer->gameType);
-    lyrProp->unsetUI();
+    lyrProp->setupUI(&viewer->scene, &viewer->background, 0, viewer->gameType);
     tileProp->unsetUI();
     objProp->unsetUI();
     scrProp->unsetUI();

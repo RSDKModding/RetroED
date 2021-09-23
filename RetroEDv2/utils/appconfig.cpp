@@ -32,7 +32,7 @@ void AppConfig::addRecentFile(byte gameVer, byte tool, QString path, QList<QStri
 {
     RecentFileInfo rf;
     rf.gameVer = gameVer;
-    rf.m_tool  = tool;
+    rf.tool  = tool;
     rf.path    = path;
     rf.extra   = extra;
 
@@ -54,7 +54,7 @@ void AppConfig::addRecentFile(byte gameVer, byte tool, QString path, QList<QStri
 void AppConfig::RecentFileInfo::read(Reader &reader)
 {
     gameVer = reader.read<byte>();
-    m_tool  = reader.read<byte>();
+    tool  = reader.read<byte>();
     path    = reader.readString();
 
     byte extraCount = reader.read<byte>();
@@ -65,7 +65,7 @@ void AppConfig::RecentFileInfo::read(Reader &reader)
 void AppConfig::RecentFileInfo::write(Writer &writer)
 {
     writer.write(gameVer);
-    writer.write(m_tool);
+    writer.write(tool);
     writer.write(path);
 
     writer.write((byte)extra.count());

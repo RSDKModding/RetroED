@@ -18,12 +18,12 @@ public:
     explicit SceneEditor(QWidget *parent = nullptr);
     ~SceneEditor();
 
-    bool m_mouseDownL = false;
-    bool m_mouseDownM = false;
+    bool mouseDownL = false;
+    bool mouseDownM = false;
     bool m_mouseDownR = false;
-    bool m_ctrlDownL  = false;
-    bool m_altDownL   = false;
-    bool m_shiftDownL = false;
+    bool ctrlDownL  = false;
+    bool altDownL   = false;
+    bool shiftDownL = false;
 
     Vector2<int> m_snapSize;
 

@@ -267,6 +267,7 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
             scn.width  = width;
             scn.height = height;
 
+            scn.layout.clear();
             for (int y = 0; y < scn.height; ++y) {
                 scn.layout.append(QList<ushort>());
                 for (int x = 0; x < scn.width; ++x) {
@@ -302,6 +303,7 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
             scn.width  = width;
             scn.height = height;
 
+            scn.layout.clear();
             for (int y = 0; y < scn.height; ++y) {
                 scn.layout.append(QList<ushort>());
                 for (int x = 0; x < scn.width; ++x) {
@@ -315,7 +317,7 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
                 obj.type          = object.type;
                 obj.propertyValue = object.propertyValue;
                 obj.posX          = object.pos.x;
-                obj.posY          = object.pos.x;
+                obj.posY          = object.pos.y;
 
                 obj.slotID = object.slotID;
 

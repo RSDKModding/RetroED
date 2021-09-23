@@ -298,6 +298,29 @@ void SceneViewerv5::drawScene()
     if ((cam.pos.y * zoom) + storedH > (sceneHeight * 0x10) * zoom)
         cam.pos.y = ((sceneHeight * 0x10) - (storedH * invZoom()));
 
+    int sceneW = 0;
+    int sceneH = 0;
+
+    for (int i = 0; i < scene.layers.count(); ++i) {
+        if (scene.layers[i].width > sceneW)
+            sceneW = scene.layers[i].width;
+        if (scene.layers[i].height > sceneH)
+            sceneH = scene.layers[i].height;
+    }
+
+    if (sceneW != sceneWidth || sceneH != sceneHeight) {
+        sceneWidth  = sceneW;
+        sceneHeight = sceneH;
+
+        if (vertsPtr)
+            delete[] vertsPtr;
+        if (tVertsPtr)
+            delete[] tVertsPtr;
+
+        vertsPtr  = new QVector3D[sceneHeight * sceneWidth * 0x10 * 6];
+        tVertsPtr = new QVector2D[sceneHeight * sceneWidth * 0x10 * 6];
+    }
+
     // draw bg colours
     primitiveShader.use();
     primitiveShader.setValue("colour", QVector4D(altBGColour.r / 255.0f, altBGColour.g / 255.0f,

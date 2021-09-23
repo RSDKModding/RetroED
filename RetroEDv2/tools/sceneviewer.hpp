@@ -9,7 +9,7 @@ public:
 
     Vector3<float> pos = Vector3<float>(0.0f, 0.0f, 0.0f);
 
-    Vector2<float> m_lastMousePos = Vector2<float>(0.0f, 0.0f);
+    Vector2<float> lastMousePos = Vector2<float>(0.0f, 0.0f);
 
     float aspectRatio = 0.0f;
 };

@@ -3553,10 +3553,19 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
             case FUNC_CLEARDRAWLIST: opcodeSize = 0; break;
             case FUNC_ADDDRAWLISTENTITYREF: {
                 opcodeSize = 0;
+                // drawListEntries[scriptEng.operands[0]].entityRefs[drawListEntries[scriptEng.operands[0]].listSize++]
+                // = scriptEng.operands[1];
                 break;
             }
-            case FUNC_GETDRAWLISTENTITYREF: opcodeSize = 0; break;
-            case FUNC_SETDRAWLISTENTITYREF: opcodeSize = 0; break;
+            case FUNC_GETDRAWLISTENTITYREF:
+                // scriptEng.operands[0] =
+                // drawListEntries[scriptEng.operands[1]].entityRefs[scriptEng.operands[2]];
+                break;
+            case FUNC_SETDRAWLISTENTITYREF:
+                opcodeSize = 0;
+                // drawListEntries[scriptEng.operands[1]].entityRefs[scriptEng.operands[2]] =
+                // scriptEng.operands[0];
+                break;
             case FUNC_GET16X16TILEINFO: {
                 opcodeSize = 0;
                 break;

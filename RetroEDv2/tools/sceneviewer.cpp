@@ -287,18 +287,41 @@ void SceneViewer::drawScene()
         }
     }
 
+    int sceneW = scene.width;
+    int sceneH = scene.height;
+
+    for (int i = 0; i < background.layers.count(); ++i) {
+        if (background.layers[i].width > sceneW)
+            sceneW = background.layers[i].width;
+        if (background.layers[i].height > sceneH)
+            sceneH = background.layers[i].height;
+    }
+
+    if (sceneW != sceneWidth || sceneH != sceneHeight) {
+        sceneWidth  = sceneW;
+        sceneHeight = sceneH;
+
+        if (vertsPtr)
+            delete[] vertsPtr;
+        if (tVertsPtr)
+            delete[] tVertsPtr;
+
+        vertsPtr  = new QVector3D[sceneHeight * sceneWidth * 0x80 * 6];
+        tVertsPtr = new QVector2D[sceneHeight * sceneWidth * 0x80 * 6];
+    }
+
     // pre-render
-    if ((cam.pos.x * zoom) < 0)
-        cam.pos.x = 0;
-
-    if ((cam.pos.y * zoom) < 0)
-        cam.pos.y = 0;
-
     if ((cam.pos.x * zoom) + storedW > (sceneWidth * 0x80) * zoom)
         cam.pos.x = ((sceneWidth * 0x80) - (storedW * invZoom()));
 
     if ((cam.pos.y * zoom) + storedH > (sceneHeight * 0x80) * zoom)
         cam.pos.y = ((sceneHeight * 0x80) - (storedH * invZoom()));
+
+    if ((cam.pos.x * zoom) < 0)
+        cam.pos.x = 0;
+
+    if ((cam.pos.y * zoom) < 0)
+        cam.pos.y = 0;
 
     // draw bg colours
     primitiveShader.use();

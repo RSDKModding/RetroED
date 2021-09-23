@@ -11,7 +11,7 @@ QList<QString> RSDKv4::objectVariableTypes = { "int",   "uint8", "int",   "int",
 
 void RSDKv4::Scene::read(Reader &reader)
 {
-    m_filename = reader.filepath;
+    filePath = reader.filepath;
 
     title = reader.readString();
 
@@ -52,7 +52,7 @@ void RSDKv4::Scene::read(Reader &reader)
 
 void RSDKv4::Scene::write(Writer &writer)
 {
-    m_filename = writer.filePath;
+    filePath = writer.filePath;
 
     // Write zone name
     writer.write(title);
@@ -84,9 +84,7 @@ void RSDKv4::Scene::write(Writer &writer)
               [](const Object &a, const Object &b) -> bool { return a.slotID < b.slotID; });
 
     // Write object data
-    for (Object &obj : objects) {
-        obj.write(writer);
-    }
+    for (Object &obj : objects) obj.write(writer);
     writer.flush();
 }
 
@@ -97,14 +95,12 @@ void RSDKv4::Scene::Object::read(Reader &reader, int id)
 
     // Attribute bits, 2 bytes, unsigned
     buf          = reader.readByteArray(2);
-    ushort flags = (ushort)((buf[1] << 8) + buf[0]);
-    for (int i = 0; i < 0x0F; ++i) {
-        variables[i].active = Utils::getBit(flags, i);
-    }
+    ushort flags = (ushort)((byte)buf[1] << 8) | ((byte)buf[0] << 0);
+    for (int i = 0; i < 0x0F; ++i) variables[i].active = Utils::getBit(flags, i);
 
     // Object type, 1 byte, unsigned
     type = reader.read<byte>();
-    // Object subtype, 1 byte, unsigned
+    // Object propertyValue, 1 byte, unsigned
     propertyValue = reader.read<byte>();
 
     buf  = reader.readByteArray(4);
@@ -113,13 +109,13 @@ void RSDKv4::Scene::Object::read(Reader &reader, int id)
     buf  = reader.readByteArray(4);
     posY = ((byte)buf[3] << 24) | ((byte)buf[2] << 16) | ((byte)buf[1] << 8) | ((byte)buf[0] << 0);
 
-    bool attribInt[] = {
+    bool varInt[] = {
         true, false, true, true, false, false, false, false, true, false, false, true, true, true, true,
     };
 
     for (int i = 0; i < 0x0F; ++i) {
         if (variables[i].active) {
-            if (!attribInt[i]) {
+            if (!varInt[i]) {
                 variables[i].value = reader.read<byte>();
             }
             else {
@@ -157,14 +153,13 @@ void RSDKv4::Scene::Object::write(Writer &writer)
     writer.write((byte)(posY >> 16));
     writer.write((byte)(posY >> 24));
 
-    bool attribInt[] = {
-        true, false, true,  true, false, false, false, false,
-        true, false, false, true, true,  true,  true,  true,
+    bool varInt[] = {
+        true, false, true, true, false, false, false, false, true, false, false, true, true, true, true,
     };
 
     for (int i = 0; i < 0x0F; ++i) {
         if (variables[i].active) {
-            if (!attribInt[i]) {
+            if (!varInt[i]) {
                 writer.write((byte)variables[i].value);
             }
             else {

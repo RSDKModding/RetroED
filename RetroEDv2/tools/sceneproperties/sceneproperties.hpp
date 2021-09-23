@@ -23,8 +23,8 @@ public:
 
     QCheckBox *loadGlobalCB = nullptr;
 
-    QPushButton *m_editTIL = nullptr;
-    QPushButton *m_editSCF = nullptr;
+    QPushButton *editTIL = nullptr;
+    QPushButton *editSCF = nullptr;
     QPushButton *m_editPAL = nullptr;
 
 private:

@@ -14,12 +14,13 @@ class ChunkViewer : public QLabel
 public:
     ChunkViewer(int *cSel, Vector2<int> *sel, FormatHelpers::Chunks *chk, QList<QImage> tiles,
                 QWidget *parent = nullptr)
-        : QLabel(parent), m_cSel(cSel), selection(sel), m_chunks(chk), m_tiles(tiles)
+        : QLabel(parent), cSel(cSel), selection(sel), chunks(chk), tiles(tiles)
     {
     }
 
 signals:
     void tileDrawn(float mx, float my);
+    void tileCopy(float mx, float my);
     void tileChanged();
 
 protected:
@@ -29,14 +30,14 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
-    int *m_cSel         = nullptr;
+    int *cSel               = nullptr;
     Vector2<int> *selection = nullptr;
-    int m_index;
+    int index;
 
     float zoom = 1.0f;
 
-    QList<QImage> m_tiles;
-    FormatHelpers::Chunks *m_chunks = nullptr;
+    QList<QImage> tiles;
+    FormatHelpers::Chunks *chunks = nullptr;
 };
 
 class ChunkEditor : public QDialog
@@ -49,16 +50,24 @@ public:
     ~ChunkEditor();
 
     int selectedChunk         = -1;
+    int copiedChunk           = -1;
     Vector2<int> selectedTile = Vector2<int>(0, 0);
-    int m_selectedDrawTile      = -1;
+    int selectedDrawTile      = -1;
 
     void setupUI();
+
+protected:
+    bool event(QEvent *e) override;
+
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     Ui::ChunkEditor *ui;
 
     ChunkViewer *viewer           = nullptr;
     FormatHelpers::Chunks *chunks = nullptr;
+
+    QList<QImage> tileList;
 };
 
 #endif // CHUNKEDITOR_H

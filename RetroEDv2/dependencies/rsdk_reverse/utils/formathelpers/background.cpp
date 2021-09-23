@@ -238,7 +238,8 @@ void FormatHelpers::Background::write(byte ver, QString filename)
             }
 
             bg.write(writer);
-        } break;
+            break;
+        }
         case ENGINE_v2: {
             RSDKv2::Background bg;
 
@@ -284,7 +285,8 @@ void FormatHelpers::Background::write(byte ver, QString filename)
             }
 
             bg.write(writer);
-        } break;
+            break;
+        }
         case ENGINE_v3: {
             RSDKv3::Background bg;
 
@@ -327,7 +329,8 @@ void FormatHelpers::Background::write(byte ver, QString filename)
             }
 
             bg.write(writer);
-        } break;
+            break;
+        }
         case ENGINE_v4: {
             RSDKv4::Background bg;
 
@@ -353,7 +356,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
                 RSDKv4::Background::Layer layer;
                 layer.width          = lyr.width;
                 layer.height         = lyr.height;
-                layer.type      = lyr.type;
+                layer.type           = lyr.type;
                 layer.parallaxFactor = lyr.parallaxFactor * 256;
                 layer.scrollSpeed    = (int)(lyr.scrollSpeed * 65536) >> 10;
                 layer.lineIndexes    = lyr.lineIndexes;
@@ -370,7 +373,8 @@ void FormatHelpers::Background::write(byte ver, QString filename)
             }
 
             bg.write(writer);
-        } break;
+            break;
+        }
     }
 }
 
@@ -461,7 +465,7 @@ void FormatHelpers::Background::scrollIndicesFromInfo()
                 for (ScrollInfo &info : hScroll) {
                     if (info.parallaxFactor == sInfo.parallaxFactor
                         && info.scrollSpeed == sInfo.scrollSpeed && info.deform == sInfo.deform) {
-                        infoID = scrollID;
+                        // infoID = scrollID;
                         break;
                     }
                     ++scrollID;
@@ -471,7 +475,7 @@ void FormatHelpers::Background::scrollIndicesFromInfo()
                 for (ScrollInfo &info : vScroll) {
                     if (info.parallaxFactor == sInfo.parallaxFactor
                         && info.scrollSpeed == sInfo.scrollSpeed && info.deform == sInfo.deform) {
-                        infoID = scrollID;
+                        // infoID = scrollID;
                         break;
                     }
                     ++scrollID;

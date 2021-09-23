@@ -13,63 +13,70 @@ void SceneLayerPropertiesv5::setupUI(RSDKv5::Scene *scn, byte lID)
 {
     unsetUI();
 
+    scene   = scn;
+    layerID = lID;
+
     ui->type->setDisabled(false);
     ui->relSpeed->setDisabled(false);
     ui->constSpeed->setDisabled(false);
 
-    ui->width->setValue(scn->layers[lID].width);
-    ui->height->setValue(scn->layers[lID].height);
-    ui->type->setCurrentIndex(scn->layers[lID].type);
-    ui->drawOrder->setValue(scn->layers[lID].drawOrder);
-    ui->relSpeed->setValue(scn->layers[lID].parallaxFactor / 256.0f);
-    ui->constSpeed->setValue(scn->layers[lID].scrollSpeed / 256.0f);
+    ui->width->setValue(scene->layers[lID].width);
+    ui->height->setValue(scene->layers[lID].height);
+    ui->type->setCurrentIndex(scene->layers[lID].type);
+    ui->drawOrder->setValue(scene->layers[lID].drawOrder);
+    ui->relSpeed->setValue(scene->layers[lID].parallaxFactor / 256.0f);
+    ui->constSpeed->setValue(scene->layers[lID].scrollSpeed / 256.0f);
 
-    connect(ui->width, QOverload<int>::of(&QSpinBox::valueChanged), [scn, lID](int v) {
-        if (v > scn->layers[lID].width) {
-            for (int h = 0; h < scn->layers[lID].height; ++h) {
-                for (int l = scn->layers[lID].width - 1; l < v; ++l)
-                    scn->layers[lID].layout[h].append(QVector<ushort>());
+    connect(ui->width, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
+        if (v > scene->layers[layerID].width) {
+            for (int h = 0; h < scene->layers[layerID].height; ++h) {
+                for (int w = scene->layers[layerID].width; w < v; ++w)
+                    scene->layers[layerID].layout[h].append(0);
             }
         }
-        else if (v < scn->layers[lID].width) {
-            for (int h = 0; h < scn->layers[lID].height; ++h) {
-                for (int l = scn->layers[lID].width - 1; l >= v; --l)
-                    scn->layers[lID].layout[h].removeAt(l);
+        else if (v < scene->layers[layerID].width) {
+            for (int h = 0; h < scene->layers[layerID].height; ++h) {
+                for (int w = scene->layers[layerID].width - 1; w >= v; --w)
+                    scene->layers[layerID].layout[h].removeAt(w);
             }
         }
 
-        if (scn->layers[lID].type == 1)
-            scn->layers[lID].lineIndexes.resize(v * 0x10);
+        if (scene->layers[layerID].type == 1)
+            scene->layers[layerID].lineIndexes.resize(v * 0x10);
 
-        scn->layers[lID].width = (short)v;
+        scene->layers[layerID].width = (short)v;
     });
 
-    connect(ui->height, QOverload<int>::of(&QSpinBox::valueChanged), [scn, lID](int v) {
-        if (v > scn->layers[lID].height) {
-            for (int l = scn->layers[lID].height - 1; l < v; ++l)
-                scn->layers[lID].layout.append(QVector<ushort>());
+    connect(ui->height, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
+        if (v > scene->layers[layerID].height) {
+            for (int h = scene->layers[layerID].height; h < v; ++h) {
+                scene->layers[layerID].layout.append(QVector<ushort>());
+                for (int w = 0; w < scene->layers[layerID].width; ++w)
+                    scene->layers[layerID].layout[h].append(0);
+            }
         }
-        else if (v < scn->layers[lID].height) {
-            for (int l = scn->layers[lID].height - 1; l >= v; --l) scn->layers[lID].layout.removeAt(l);
+        else if (v < scene->layers[layerID].height) {
+            for (int h = scene->layers[layerID].height - 1; h >= v; --h)
+                scene->layers[layerID].layout.removeAt(h);
         }
 
-        if (scn->layers[lID].type == 0)
-            scn->layers[lID].lineIndexes.resize(v * 0x10);
+        if (scene->layers[layerID].type == 0)
+            scene->layers[layerID].lineIndexes.resize(v * 0x10);
 
-        scn->layers[lID].height = (short)v;
+        scene->layers[layerID].height = (short)v;
     });
 
     connect(ui->type, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [scn, lID](int v) { scn->layers[lID].type = (byte)v; });
+            [this](int v) { scene->layers[layerID].type = (byte)v; });
 
     connect(ui->drawOrder, QOverload<int>::of(&QSpinBox::valueChanged),
-            [scn, lID](int v) { scn->layers[lID].drawOrder = (byte)v; });
+            [this](int v) { scene->layers[layerID].drawOrder = (byte)v; });
 
     connect(ui->relSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            [scn, lID](double v) { scn->layers[lID].parallaxFactor = v * 256; });
+            [this](double v) { scene->layers[layerID].parallaxFactor = v * 256; });
 
     connect(ui->constSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            [scn, lID](double v) { scn->layers[lID].scrollSpeed = v * 256; });
+            [this](double v) { scene->layers[layerID].scrollSpeed = v * 256; });
 }
 
 void SceneLayerPropertiesv5::unsetUI()

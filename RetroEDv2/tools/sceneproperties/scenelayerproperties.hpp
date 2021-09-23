@@ -21,6 +21,10 @@ public:
 
 private:
     Ui::SceneLayerProperties *ui;
+
+    FormatHelpers::Scene *scene           = nullptr;
+    FormatHelpers::Background *background = nullptr;
+    int layerID                           = -1;
 };
 
 #endif // SCENELAYERPROPERTIES_H
