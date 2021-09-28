@@ -226,7 +226,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     });
 
     connect(ui->addEnt, &QToolButton::clicked, [this] {
-        // uint c = m_objectList->currentRow() + 1;
+        // uint c = objectList->currentRow() + 1;
         FormatHelpers::Scene::Object obj;
         obj.type = viewer->selectedObject;
         if (viewer->selectedObject < 0)
@@ -964,6 +964,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         if (!viewer->selecting || viewer->selectedObject < 0) {
                             Rect<float> box;
 
+                            viewer->selectedEntity = -1;
                             for (int o = 0; o < viewer->scene.objects.count(); ++o) {
                                 box = Rect<float>((viewer->scene.objects[o].getX() - 0x10),
                                                   (viewer->scene.objects[o].getY() - 0x10), 0x20, 0x20);
@@ -997,7 +998,9 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                 obj.setX((mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x);
                                 obj.setY((mEvent->pos().y() * viewer->invZoom()) + viewer->cam.pos.y);
 
-                                int cnt = viewer->scene.objects.count();
+                                int cnt    = viewer->scene.objects.count();
+                                obj.slotID = cnt;
+
                                 viewer->scene.objects.append(obj);
                                 viewer->compilerv2.objectEntityList[cnt].type = viewer->selectedObject;
                                 viewer->compilerv2.objectEntityList[cnt].propertyValue = 0;
@@ -1013,6 +1016,16 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                 viewer->compilerv4.objectEntityList[cnt].propertyValue = 0;
                                 viewer->compilerv4.objectEntityList[cnt].XPos          = xpos;
                                 viewer->compilerv4.objectEntityList[cnt].YPos          = ypos;
+                                viewer->selectedEntity                                 = cnt;
+
+                                objProp->setupUI(
+                                    &viewer->scene.objects[viewer->selectedEntity],
+                                    &viewer->compilerv2.objectEntityList[viewer->selectedEntity],
+                                    &viewer->compilerv3.objectEntityList[viewer->selectedEntity],
+                                    &viewer->compilerv4.objectEntityList[viewer->selectedEntity],
+                                    viewer->gameType);
+                                ui->propertiesBox->setCurrentWidget(ui->objPropPage);
+                                createEntityList();
                             }
                         }
 
@@ -1191,6 +1204,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                 object.setX(object.getX() - fmodf(object.getX(), m_snapSize.x));
                                 object.setY(object.getY() - fmodf(object.getY(), m_snapSize.y));
                             }
+
                             viewer->compilerv2.objectEntityList[viewer->selectedEntity].XPos =
                                 object.pos.x;
                             viewer->compilerv2.objectEntityList[viewer->selectedEntity].YPos =
@@ -1253,8 +1267,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
         case QEvent::KeyPress: {
             QKeyEvent *kEvent = static_cast<QKeyEvent *>(event);
 
-            Vector2<int> m_sceneMousePos((viewer->mousePos.x * viewer->invZoom()) + viewer->cam.pos.x,
-                                         (viewer->mousePos.y * viewer->invZoom()) + viewer->cam.pos.y);
+            Vector2<int> sceneMousePos((viewer->mousePos.x * viewer->invZoom()) + viewer->cam.pos.x,
+                                       (viewer->mousePos.y * viewer->invZoom()) + viewer->cam.pos.y);
 
             if (kEvent->key() == Qt::Key_Control)
                 ctrlDownL = true;
@@ -1265,14 +1279,14 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
             if ((kEvent->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
                 && kEvent->key() == Qt::Key_V) {
-                if (m_clipboard) {
-                    switch (m_clipboardType) {
+                if (clipboard) {
+                    switch (clipboardType) {
                         default: break;
                         case COPY_ENTITY: {
                             FormatHelpers::Scene::Object object =
-                                *(FormatHelpers::Scene::Object *)m_clipboard;
-                            object.setX(m_sceneMousePos.x);
-                            object.setY(m_sceneMousePos.y);
+                                *(FormatHelpers::Scene::Object *)clipboard;
+                            object.setX(sceneMousePos.x);
+                            object.setY(sceneMousePos.y);
 
                             int cnt = viewer->scene.objects.count();
                             viewer->scene.objects.append(object);
@@ -1360,8 +1374,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     if ((kEvent->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
                         && kEvent->key() == Qt::Key_C) {
                         if (viewer->selectedEntity >= 0) {
-                            m_clipboard     = &viewer->scene.objects[viewer->selectedEntity];
-                            m_clipboardType = COPY_ENTITY;
+                            clipboard       = &viewer->scene.objects[viewer->selectedEntity];
+                            clipboardType   = COPY_ENTITY;
                             m_clipboardInfo = viewer->selectedEntity;
                         }
                     }
@@ -1787,6 +1801,76 @@ void SceneEditor::createEntityList()
         ui->entityList->addItem(QString::number(viewer->scene.objects[i].slotID) + ": " + name);
     }
     ui->entityList->blockSignals(false);
+
+    for (int i = 0; i < ENTITY_COUNT; ++i) {
+        memset(&viewer->compilerv2.objectEntityList[i], 0,
+               sizeof(viewer->compilerv2.objectEntityList[i]));
+        memset(&viewer->compilerv3.objectEntityList[i], 0,
+               sizeof(viewer->compilerv3.objectEntityList[i]));
+        memset(&viewer->compilerv4.objectEntityList[i], 0,
+               sizeof(viewer->compilerv4.objectEntityList[i]));
+
+        if (i < viewer->scene.objects.count()) {
+            viewer->compilerv2.objectEntityList[i].type = viewer->scene.objects[i].type;
+            viewer->compilerv2.objectEntityList[i].propertyValue =
+                viewer->scene.objects[i].propertyValue;
+            viewer->compilerv2.objectEntityList[i].XPos = viewer->scene.objects[i].pos.x;
+            viewer->compilerv2.objectEntityList[i].YPos = viewer->scene.objects[i].pos.y;
+
+            viewer->compilerv3.objectEntityList[i].type = viewer->scene.objects[i].type;
+            viewer->compilerv3.objectEntityList[i].propertyValue =
+                viewer->scene.objects[i].propertyValue;
+            viewer->compilerv3.objectEntityList[i].XPos = viewer->scene.objects[i].pos.x;
+            viewer->compilerv3.objectEntityList[i].YPos = viewer->scene.objects[i].pos.y;
+
+            viewer->compilerv4.objectEntityList[i].type = viewer->scene.objects[i].type;
+            viewer->compilerv4.objectEntityList[i].propertyValue =
+                viewer->scene.objects[i].propertyValue;
+            viewer->compilerv4.objectEntityList[i].XPos = viewer->scene.objects[i].pos.x;
+            viewer->compilerv4.objectEntityList[i].YPos = viewer->scene.objects[i].pos.y;
+
+            int *values[] = { &viewer->compilerv4.objectEntityList[i].state,
+                              NULL,
+                              &viewer->compilerv4.objectEntityList[i].scale,
+                              &viewer->compilerv4.objectEntityList[i].rotation,
+                              NULL,
+                              NULL,
+                              &viewer->compilerv4.objectEntityList[i].alpha,
+                              NULL,
+                              &viewer->compilerv4.objectEntityList[i].animationSpeed,
+                              NULL,
+                              NULL,
+                              &viewer->compilerv4.objectEntityList[i].values[0],
+                              &viewer->compilerv4.objectEntityList[i].values[1],
+                              &viewer->compilerv4.objectEntityList[i].values[2],
+                              &viewer->compilerv4.objectEntityList[i].values[3] };
+
+            byte *valuesB[] = { NULL,
+                                &viewer->compilerv4.objectEntityList[i].direction,
+                                NULL,
+                                NULL,
+                                (byte *)&viewer->compilerv4.objectEntityList[i].drawOrder,
+                                &viewer->compilerv4.objectEntityList[i].priority,
+                                NULL,
+                                &viewer->compilerv4.objectEntityList[i].animation,
+                                NULL,
+                                &viewer->compilerv4.objectEntityList[i].frame,
+                                &viewer->compilerv4.objectEntityList[i].inkEffect,
+                                NULL,
+                                NULL,
+                                NULL,
+                                NULL };
+
+            for (int v = 0; v < 0x0F; ++v) {
+                if (viewer->scene.objects[i].variables[v].active) {
+                    if (values[v])
+                        *values[v] = viewer->scene.objects[i].variables[v].value;
+                    else
+                        *valuesB[v] = viewer->scene.objects[i].variables[v].value;
+                }
+            }
+        }
+    }
 }
 
 void SceneEditor::createScrollList()

@@ -49,8 +49,8 @@ private:
         COPY_ENTITY,
         COPY_SCROLLINFO,
     };
-    void *m_clipboard    = nullptr;
-    byte m_clipboardType = COPY_NONE;
+    void *clipboard    = nullptr;
+    byte clipboardType = COPY_NONE;
     int m_clipboardInfo  = 0;
 
     void createEntityList();

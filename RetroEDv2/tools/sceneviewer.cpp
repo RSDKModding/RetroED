@@ -1594,6 +1594,8 @@ void SceneViewer::drawSpriteRotated(int direction, int XPos, int YPos, int pivot
         sprDraws = 0;
 
     // Draw Sprite
+    XPos += pivotX;
+    YPos += pivotY;
     float xpos = XPos - cam.pos.x;
     float ypos = YPos - cam.pos.y;
     float zpos = 10.0f + (sprDraws * 0.001f);
@@ -1710,6 +1712,8 @@ void SceneViewer::drawSpriteRotozoom(int direction, int XPos, int YPos, int pivo
         sprDraws = 0;
 
     // Draw Sprite
+    XPos += pivotX;
+    YPos += pivotY;
     float xpos = XPos - cam.pos.x;
     float ypos = YPos - cam.pos.y;
     float zpos = 10.0f + (sprDraws * 0.001f);
