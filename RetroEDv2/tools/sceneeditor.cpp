@@ -12,7 +12,7 @@
 
 enum PropertiesTabIDs { PROP_SCN, PROP_LAYER, PROP_TILE, PROP_ENTITY, PROP_SCROLL };
 
-ChunkSelector::ChunkSelector(QWidget *parent) : QWidget(parent), m_parent((SceneEditor *)parent)
+ChunkSelector::ChunkSelector(QWidget *parent) : QWidget(parent), parentWidget((SceneEditor *)parent)
 {
     QScrollArea *scrollArea = new QScrollArea(this);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
@@ -25,13 +25,14 @@ ChunkSelector::ChunkSelector(QWidget *parent) : QWidget(parent), m_parent((Scene
     layout->setSpacing(0);
 
     int i = 0;
-    for (auto &&im : m_parent->viewer->chunks) {
-        auto *chunk = new ChunkLabel(&m_parent->viewer->selectedChunk, i, chunkArea);
+    for (auto &&im : parentWidget->viewer->chunks) {
+        auto *chunk = new ChunkLabel(&parentWidget->viewer->selectedChunk, i, chunkArea);
         chunk->setPixmap(QPixmap::fromImage(im).scaled(im.width(), im.height()));
         chunk->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         chunk->resize(im.width(), im.height());
-        layout->addWidget(chunk, i, 1);
         chunk->setFixedSize(im.width(), im.height() * 1.1f);
+        layout->addWidget(chunk, i, 1);
+        labels.append(chunk);
         i++;
         connect(chunk, &ChunkLabel::requestRepaint, chunkArea, QOverload<>::of(&QWidget::update));
     }
@@ -41,6 +42,18 @@ ChunkSelector::ChunkSelector(QWidget *parent) : QWidget(parent), m_parent((Scene
     QVBoxLayout *l = new QVBoxLayout(this);
     l->addWidget(scrollArea);
     setLayout(l);
+}
+
+void ChunkSelector::refreshList()
+{
+    int i = 0;
+    for (auto &&im : parentWidget->viewer->chunks) {
+        auto *chunk = labels[i];
+        chunk->setPixmap(QPixmap::fromImage(im).scaled(im.width(), im.height()));
+        chunk->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        chunk->resize(im.width(), im.height());
+        i++;
+    }
 }
 
 SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEditor)
@@ -358,9 +371,16 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(ui->showParallax, &QPushButton::clicked, [this] { viewer->showParallax ^= 1; });
 
     connect(scnProp->editTIL, &QPushButton::clicked, [this] {
-        ChunkEditor *edit = new ChunkEditor(&viewer->chunkset, viewer->chunks, viewer->tiles,
-                                            viewer->gameType == ENGINE_v1, this);
-        edit->show();
+        if (chunkEdit == nullptr) {
+            chunkEdit = new ChunkEditor(&viewer->chunkset, viewer->chunks, viewer->tiles,
+                                        viewer->gameType == ENGINE_v1, this);
+            chunkEdit->show();
+        }
+
+        connect(chunkEdit, &QDialog::finished, [this] {
+            chkProp->refreshList();
+            chunkEdit = nullptr;
+        });
     });
 
     connect(scnProp->editSCF, &QPushButton::clicked, [this] {

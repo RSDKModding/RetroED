@@ -264,7 +264,7 @@ const FunctionInfov2 functions[] = { FunctionInfov2("End", 0),
                                      FunctionInfov2("PlayStageSfx", 2),
                                      FunctionInfov2("StopStageSfx", 1) };
 
-AliasInfov2 aliases[0x80] = {
+AliasInfov2 aliasesv2[0x80] = {
     AliasInfov2("true", "1"),          AliasInfov2("false", "0"),
     AliasInfov2("FX_SCALE", "0"),      AliasInfov2("FX_ROTATE", "1"),
     AliasInfov2("FX_INK", "2"),        AliasInfov2("PRESENTATION_STAGE", "0"),
@@ -607,7 +607,7 @@ void Compilerv2::checkAliasText(QString &text)
     while (aliasMatch < 2) {
         if (aliasMatch) {
             if (aliasMatch == 1) {
-                aliases[aliasCount].name += text[textPos];
+                aliasesv2[aliasCount].name += text[textPos];
                 if (textPos + 1 >= text.length())
                     ++aliasMatch;
             }
@@ -616,7 +616,7 @@ void Compilerv2::checkAliasText(QString &text)
             aliasMatch = 1;
         }
         else {
-            aliases[aliasCount].value += text[textPos];
+            aliasesv2[aliasCount].value += text[textPos];
         }
         ++textPos;
     }
@@ -818,10 +818,10 @@ void Compilerv2::convertFunctionText(QString &text)
 
             // Eg: TempValue0 = FX_SCALE
             for (int a = 0; a < aliasCount; ++a) {
-                if (funcName == aliases[a].name) {
-                    copyAliasStr(funcName, aliases[a].value, 0);
-                    if (findStringToken(aliases[a].value, "[", 1) > -1)
-                        copyAliasStr(strBuffer, aliases[a].value, 1);
+                if (funcName == aliasesv2[a].name) {
+                    copyAliasStr(funcName, aliasesv2[a].value, 0);
+                    if (findStringToken(aliasesv2[a].value, "[", 1) > -1)
+                        copyAliasStr(strBuffer, aliasesv2[a].value, 1);
                 }
             }
             // Eg: TempValue0 = Game.Variable
@@ -941,8 +941,8 @@ void Compilerv2::checkCaseNumber(QString &text)
     }
 
     for (int a = 0; a < aliasCount; ++a) {
-        if (caseString == aliases[a].name) {
-            caseString = aliases[a].value;
+        if (caseString == aliasesv2[a].name) {
+            caseString = aliasesv2[a].value;
             break;
         }
     }
@@ -990,8 +990,8 @@ bool Compilerv2::readSwitchCase(QString &text)
         }
 
         for (int a = 0; a < aliasCount; ++a) {
-            if (caseText == aliases[a].name)
-                caseText = aliases[a].value;
+            if (caseText == aliasesv2[a].name)
+                caseText = aliasesv2[a].value;
         }
 
         int val = 0;
@@ -1070,8 +1070,8 @@ void Compilerv2::parseScriptFile(QString scriptName, int scriptID)
     lineID            = 0;
     aliasCount        = COMMONALIAS_COUNT;
     for (int i = COMMONALIAS_COUNT; i < ALIAS_COUNT; ++i) {
-        aliases[i].name  = "";
-        aliases[i].value = "";
+        aliasesv2[i].name  = "";
+        aliasesv2[i].value = "";
     }
 
     scriptError = false;

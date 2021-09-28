@@ -3,16 +3,16 @@
 
 ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, QList<QImage> &tiles,
                          bool v1, QWidget *parent)
-    : chunks(chk), QDialog(parent), ui(new Ui::ChunkEditor)
+    : chunks(chk), tileList(tiles), chunkImgList(chunkList), QDialog(parent), ui(new Ui::ChunkEditor)
 {
+    setWindowFlag(Qt::WindowStaysOnTopHint);
+
     ui->setupUi(this);
 
     this->setWindowTitle("Chunk Editor");
 
     if (!chk)
         return;
-
-    tileList = tiles;
 
     viewer = new ChunkViewer(&selectedChunk, &selectedTile, chunks, tiles);
     viewer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -28,6 +28,10 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
     for (int t = 0; t < tiles.count(); ++t) {
         auto *item = new QListWidgetItem(QString::number(t), ui->tileList);
         item->setIcon(QPixmap::fromImage(tiles[t]));
+    }
+
+    for (int c = 0; c < (v1 ? 0x100 : 0x200); ++c) {
+        changedChunks.append(false);
     }
 
     auto chunkRowChanged = [this](int c) {
@@ -115,6 +119,8 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         ui->tileIndex->blockSignals(false);
         ui->solidityA->blockSignals(false);
         ui->solidityB->blockSignals(false);
+
+        changedChunks[selectedChunk] = true;
     };
 
     connect(viewer, &ChunkViewer::tileChanged, tileChangedCB);
@@ -136,8 +142,8 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
             (ushort)selectedDrawTile;
         viewer->repaint();
 
-        ui->chunkList->item(selectedChunk)
-            ->setIcon(QPixmap::fromImage(chunks->chunks[selectedChunk].getImage(tiles)));
+        chunkImgList[selectedChunk] = chunks->chunks[selectedChunk].getImage(tiles);
+        ui->chunkList->item(selectedChunk)->setIcon(QPixmap::fromImage(chunkImgList[selectedChunk]));
 
         tileChangedCB();
     });
@@ -169,8 +175,10 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
                       0);
         viewer->repaint();
 
-        ui->chunkList->item(selectedChunk)
-            ->setIcon(QPixmap::fromImage(chunks->chunks[selectedChunk].getImage(tiles)));
+        chunkImgList[selectedChunk] = chunks->chunks[selectedChunk].getImage(tiles);
+        ui->chunkList->item(selectedChunk)->setIcon(QPixmap::fromImage(chunkImgList[selectedChunk]));
+
+        changedChunks[selectedChunk] = true;
     });
     connect(ui->flipY, &QCheckBox::toggled, [this, tiles](bool v) {
         if (selectedChunk < 0 || selectedTile.x == -1 || selectedTile.y == -1)
@@ -180,8 +188,10 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
                       1);
         viewer->repaint();
 
-        ui->chunkList->item(selectedChunk)
-            ->setIcon(QPixmap::fromImage(chunks->chunks[selectedChunk].getImage(tiles)));
+        chunkImgList[selectedChunk] = chunks->chunks[selectedChunk].getImage(tiles);
+        ui->chunkList->item(selectedChunk)->setIcon(QPixmap::fromImage(chunkImgList[selectedChunk]));
+
+        changedChunks[selectedChunk] = true;
     });
 
     connect(ui->visualPlane, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int v) {
@@ -198,8 +208,10 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].tileIndex = (ushort)v;
         viewer->repaint();
 
-        ui->chunkList->item(selectedChunk)
-            ->setIcon(QPixmap::fromImage(chunks->chunks[selectedChunk].getImage(tiles)));
+        chunkImgList[selectedChunk] = chunks->chunks[selectedChunk].getImage(tiles);
+        ui->chunkList->item(selectedChunk)->setIcon(QPixmap::fromImage(chunkImgList[selectedChunk]));
+
+        changedChunks[selectedChunk] = true;
     });
 
     connect(ui->solidityA, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int v) {
@@ -217,6 +229,20 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].solidityB = (byte)v;
         viewer->repaint();
     });
+
+    connect(ui->exportImg, &QPushButton::clicked, [this] {
+        QFileDialog filedialog(this, tr("Select folder to place images"), "", "");
+        filedialog.setFileMode(QFileDialog::Directory);
+        if (filedialog.exec() == QDialog::Accepted) {
+            QString path = filedialog.selectedFiles()[0];
+            int id       = 0;
+            setStatus("Exporting Chunks As Images...");
+            for (int c = 0; c < 0x200; ++c)
+                chunks->chunks[c].getImage(tileList).save(QString(path + "/Chunk %1.png").arg(id++));
+            setStatus(QString("Exported Chunks to: %2/").arg(path));
+        }
+    });
+
     for (QWidget *w : findChildren<QWidget *>()) {
         w->installEventFilter(this);
     }

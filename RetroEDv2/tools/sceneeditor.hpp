@@ -18,12 +18,12 @@ public:
     explicit SceneEditor(QWidget *parent = nullptr);
     ~SceneEditor();
 
-    bool mouseDownL = false;
-    bool mouseDownM = false;
+    bool mouseDownL   = false;
+    bool mouseDownM   = false;
     bool m_mouseDownR = false;
-    bool ctrlDownL  = false;
-    bool altDownL   = false;
-    bool shiftDownL = false;
+    bool ctrlDownL    = false;
+    bool altDownL     = false;
+    bool shiftDownL   = false;
 
     Vector2<int> m_snapSize;
 
@@ -61,6 +61,8 @@ private:
     void parseGameXML(byte gameType, QString path);
 
     Ui::SceneEditor *ui;
+
+    ChunkEditor *chunkEdit = nullptr;
 };
 
 class ChunkLabel : public QLabel
@@ -101,7 +103,12 @@ class ChunkSelector : public QWidget
 public:
     ChunkSelector(QWidget *parent = nullptr);
 
-    SceneEditor *m_parent = nullptr;
+    void refreshList();
+
+    SceneEditor *parentWidget = nullptr;
+
+private:
+    QList<ChunkLabel *> labels;
 };
 
 #endif // SCENEEDITOR_H

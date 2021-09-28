@@ -54,6 +54,8 @@ public:
     Vector2<int> selectedTile = Vector2<int>(0, 0);
     int selectedDrawTile      = -1;
 
+    QList<bool> changedChunks;
+
     void setupUI();
 
 protected:
@@ -67,7 +69,8 @@ private:
     ChunkViewer *viewer           = nullptr;
     FormatHelpers::Chunks *chunks = nullptr;
 
-    QList<QImage> tileList;
+    QList<QImage> &tileList;
+    QList<QImage> &chunkImgList;
 };
 
 #endif // CHUNKEDITOR_H
