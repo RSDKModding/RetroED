@@ -9,7 +9,8 @@ SceneScrollPropertiesv5::SceneScrollPropertiesv5(QWidget *parent)
 
 SceneScrollPropertiesv5::~SceneScrollPropertiesv5() { delete ui; }
 
-void SceneScrollPropertiesv5::setupUI(RSDKv5::Scene::ScrollIndexInfo *info)
+void SceneScrollPropertiesv5::setupUI(RSDKv5::Scene::ScrollIndexInfo *info,
+                                      QList<RSDKv5::Scene::ScrollIndexInfo> &infos)
 {
     unsetUI();
 
@@ -19,10 +20,20 @@ void SceneScrollPropertiesv5::setupUI(RSDKv5::Scene::ScrollIndexInfo *info)
     ui->constSpeed->setValue(info->scrollSpeed);
     ui->behaviour->setCurrentIndex(info->deform);
 
-    connect(ui->startLine, QOverload<int>::of(&QSpinBox::valueChanged),
-            [info](int v) { info->startLine = v; });
-    connect(ui->length, QOverload<int>::of(&QSpinBox::valueChanged),
-            [info](int v) { info->length = v; });
+    connect(ui->startLine, QOverload<int>::of(&QSpinBox::valueChanged), [info, &infos](int v) {
+        int move        = info->startLine + info->length;
+        info->startLine = v;
+        move            = (info->startLine + info->length) - move;
+        int index       = infos.indexOf(*info);
+        for (int i = index + 1; i < infos.count(); ++i) infos[i].startLine += move;
+    });
+    connect(ui->length, QOverload<int>::of(&QSpinBox::valueChanged), [info, &infos](int v) {
+        int move     = info->startLine + info->length;
+        info->length = v;
+        move         = (info->startLine + info->length) - move;
+        int index    = infos.indexOf(*info);
+        for (int i = index + 1; i < infos.count(); ++i) infos[i].startLine += move;
+    });
     connect(ui->relSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             [info](double v) { info->parallaxFactor = v; });
     connect(ui->constSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),

@@ -285,19 +285,6 @@ void SceneViewerv5::drawScene()
     f->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     f->glBlendEquation(GL_FUNC_ADD);
 
-    // pre-render
-    if ((cam.pos.x * zoom) < 0)
-        cam.pos.x = 0;
-
-    if ((cam.pos.y * zoom) < 0)
-        cam.pos.y = 0;
-
-    if ((cam.pos.x * zoom) + storedW > (sceneWidth * 0x10) * zoom)
-        cam.pos.x = ((sceneWidth * 0x10) - (storedW * invZoom()));
-
-    if ((cam.pos.y * zoom) + storedH > (sceneHeight * 0x10) * zoom)
-        cam.pos.y = ((sceneHeight * 0x10) - (storedH * invZoom()));
-
     int sceneW = 0;
     int sceneH = 0;
 
@@ -320,6 +307,19 @@ void SceneViewerv5::drawScene()
         vertsPtr  = new QVector3D[sceneHeight * sceneWidth * 0x10 * 6];
         tVertsPtr = new QVector2D[sceneHeight * sceneWidth * 0x10 * 6];
     }
+
+    // pre-render
+    if ((cam.pos.x * zoom) + storedW > (sceneWidth * 0x10) * zoom)
+        cam.pos.x = ((sceneWidth * 0x10) - (storedW * invZoom()));
+
+    if ((cam.pos.y * zoom) + storedH > (sceneHeight * 0x10) * zoom)
+        cam.pos.y = ((sceneHeight * 0x10) - (storedH * invZoom()));
+
+    if ((cam.pos.x * zoom) < 0)
+        cam.pos.x = 0;
+
+    if ((cam.pos.y * zoom) < 0)
+        cam.pos.y = 0;
 
     // draw bg colours
     primitiveShader.use();
@@ -412,18 +412,20 @@ void SceneViewerv5::drawScene()
 
             int camX = (cam.pos.x + camOffset.x);
             int camY = (cam.pos.y + camOffset.y);
+            camX     = qMax(camX, 0);
+            camY     = qMax(camY, 0);
 
             int basedX = qMax(camX / 0x10, 0);
             int basedY = qMax(camY / 0x10, 0);
 
-            int countX = width * 0x10 > storedW ? (storedW / 0x10) : width;
-            int countY = height * 0x10 > storedH ? (storedH / 0x10) : height;
+            int sw = (storedW * invZoom());
+            int sh = (storedH * invZoom());
 
-            countX = ceil(countX / zoom);
-            countY = ceil(countY / zoom);
+            int countX = width * 0x10 > sw ? (sw / 0x10) : width;
+            int countY = height * 0x10 > sh ? (sh / 0x10) : height;
 
-            countX = qMin(basedX + countX + 3, width);
-            countY = qMin(basedY + countY + 3, height);
+            countX = qMin(basedX + countX + 2, width);
+            countY = qMin(basedY + countY + 2, height);
 
             for (int y = basedY; y < countY; ++y) {
                 for (int x = basedX; x < countX; ++x) {
@@ -431,29 +433,31 @@ void SceneViewerv5::drawScene()
                     if (tile != 0xFFFF) {
                         float xpos = (x * 0x10) - (cam.pos.x + camOffset.x);
                         float ypos = (y * 0x10) - (cam.pos.y + camOffset.y);
-                        float zpos = selectedLayer == l ? 15.5 : (15 - l);
+                        float zpos = selectedLayer == l ? 15.2 : (15 - l);
 
                         vertsPtr[vertCnt + 0].setX(0.0f + (xpos / 0x10));
                         vertsPtr[vertCnt + 0].setY(0.0f + (ypos / 0x10));
+                        vertsPtr[vertCnt + 0].setZ(zpos);
 
                         vertsPtr[vertCnt + 1].setX(1.0f + (xpos / 0x10));
                         vertsPtr[vertCnt + 1].setY(0.0f + (ypos / 0x10));
+                        vertsPtr[vertCnt + 1].setZ(zpos);
 
                         vertsPtr[vertCnt + 2].setX(1.0f + (xpos / 0x10));
                         vertsPtr[vertCnt + 2].setY(1.0f + (ypos / 0x10));
+                        vertsPtr[vertCnt + 2].setZ(zpos);
 
                         vertsPtr[vertCnt + 3].setX(1.0f + (xpos / 0x10));
                         vertsPtr[vertCnt + 3].setY(1.0f + (ypos / 0x10));
+                        vertsPtr[vertCnt + 3].setZ(zpos);
 
                         vertsPtr[vertCnt + 4].setX(0.0f + (xpos / 0x10));
                         vertsPtr[vertCnt + 4].setY(1.0f + (ypos / 0x10));
+                        vertsPtr[vertCnt + 4].setZ(zpos);
 
                         vertsPtr[vertCnt + 5].setX(0.0f + (xpos / 0x10));
                         vertsPtr[vertCnt + 5].setY(0.0f + (ypos / 0x10));
-
-                        for (int i = 0; i < 6; ++i) {
-                            vertsPtr[vertCnt + i].setZ(zpos);
-                        }
+                        vertsPtr[vertCnt + 56].setZ(zpos);
 
                         byte direction = Utils::getBit(tile, 10) | (Utils::getBit(tile, 11) << 1);
                         getTileVerts(tVertsPtr, vertCnt, (tile & 0x3FF) * 0x10, direction);
@@ -716,7 +720,7 @@ void SceneViewerv5::drawScene()
                             float zpos = (isSelected ? 15.55f : 15.5f);
 
                             if (scene.layers[l].type == 0) {
-                                int w = (width * 0x10) * zoom;
+                                int w = (width * 0x10);
                                 drawLine(0.0f * zoom, (info.startLine - cam.pos.y) * zoom, zpos,
                                          (w - cam.pos.x) * zoom, (info.startLine - cam.pos.y) * zoom,
                                          zpos, clr, primitiveShader);
@@ -728,7 +732,7 @@ void SceneViewerv5::drawScene()
                                          primitiveShader);
                             }
                             else if (scene.layers[l].type == 1) {
-                                int h = (height * 0x10) * zoom;
+                                int h = (height * 0x10);
                                 drawLine((info.startLine - cam.pos.x) * zoom, 0.0f * zoom, zpos,
                                          (info.startLine - cam.pos.x) * zoom, (h - cam.pos.y) * zoom,
                                          zpos, clr, primitiveShader);
@@ -762,7 +766,7 @@ void SceneViewerv5::drawScene()
         spriteShader.setValue("useAlpha", false);
         spriteShader.setValue("alpha", 1.0f);
 
-        currZ = curTool == TOOL_ENTITY ? 15.6 : p;
+        currZ = curTool == TOOL_ENTITY ? 15.75 : p;
         for (int o = 0; o < drawLayers[p].entries.count(); ++o) {
             SceneEntity *entity = &entities[drawLayers[p].entries[o]];
             validDraw           = false;
@@ -781,7 +785,8 @@ void SceneViewerv5::drawScene()
             entity->gameEntity->position.x = Utils::floatToFixed(entity->pos.x);
             entity->gameEntity->position.y = Utils::floatToFixed(entity->pos.y);
 
-            callGameEvent(gameLink.GetObjectInfo(objects[entity->type].name), EVENT_DRAW, entity);
+            if (entity->type != 0)
+                callGameEvent(gameLink.GetObjectInfo(objects[entity->type].name), EVENT_DRAW, entity);
 
             // Draw Default Object Sprite if invalid
             // TODO: probably draw text intead
@@ -880,7 +885,9 @@ void SceneViewerv5::drawScene()
         tempEntity.pos.y      = (ey + cy) * 65536.0f;
         tempEntity.slotID     = 0xFFFF;
         tempEntity.gameEntity = &gameEntity;
-        callGameEvent(gameLink.GetObjectInfo(objects[selectedObject].name), EVENT_DRAW, &tempEntity);
+        if (selectedObject != 0)
+            callGameEvent(gameLink.GetObjectInfo(objects[selectedObject].name), EVENT_DRAW,
+                          &tempEntity);
 
         if (!validDraw) {
             // Draw Selected Object Preview

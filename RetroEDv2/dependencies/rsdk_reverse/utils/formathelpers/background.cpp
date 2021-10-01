@@ -402,7 +402,7 @@ void FormatHelpers::Background::scrollInfoFromIndices()
                 info.length         = (h - start);
                 info.parallaxFactor = infos[prev].parallaxFactor;
                 info.scrollSpeed    = infos[prev].scrollSpeed;
-                info.m_scrollPos    = 0.0f;
+                info.scrollPos      = 0.0f;
                 info.deform         = infos[prev].deform;
 
                 layer.scrollInfos.append(info);
@@ -419,7 +419,7 @@ void FormatHelpers::Background::scrollInfoFromIndices()
             info.length         = (h - start);
             info.parallaxFactor = infos[0].parallaxFactor;
             info.scrollSpeed    = infos[0].scrollSpeed;
-            info.m_scrollPos    = 0.0f;
+            info.scrollPos      = 0.0f;
             info.deform         = infos[0].deform;
 
             layer.scrollInfos.append(info);

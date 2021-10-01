@@ -361,7 +361,6 @@ void SceneViewer::drawScene()
 
     rectVAO.bind();
 
-    int prevChunk = -1;
     Vector3<float> camOffset(0.0f, 0.0f, 0.0f);
 
     QVector4D pixelSolidityClrs[5] = { QVector4D(1.0f, 1.0f, 1.0f, 1.0f),
@@ -419,14 +418,13 @@ void SceneViewer::drawScene()
         int basedX = qMax(camX / 0x80, 0);
         int basedY = qMax(camY / 0x80, 0);
 
-        int countX = width * 0x80 > storedW ? (storedW / 0x80) : width;
-        int countY = height * 0x80 > storedH ? (storedH / 0x80) : height;
+        int sw = (storedW * invZoom());
+        int sh = (storedH * invZoom());
 
-        countX = ceil(countX / zoom);
-        countY = ceil(countY / zoom);
-
-        countX = qMin(basedX + countX + 2, width);
-        countY = qMin(basedY + countY + 2, height);
+        int countX = width * 0x80 > sw ? (sw / 0x80) : width;
+        int countY = height * 0x80 > sh ? (sh / 0x80) : height;
+        countX     = qMin(basedX + countX + 2, width);
+        countY     = qMin(basedY + countY + 2, height);
 
         for (int y = basedY; y < countY; ++y) {
             for (int x = basedX; x < countX; ++x) {
@@ -613,7 +611,7 @@ void SceneViewer::drawScene()
                         float zpos = (isSelected ? 15.55f : 15.5f);
 
                         if (background.layers[l - 1].type == 1) {
-                            int w = (width * 0x80) * zoom;
+                            int w = (width * 0x80);
                             drawLine(0.0f * zoom, (info.startLine - cam.pos.y) * zoom, zpos,
                                      (w - cam.pos.x) * zoom, (info.startLine - cam.pos.y) * zoom, zpos,
                                      clr, primitiveShader);
@@ -650,73 +648,82 @@ void SceneViewer::drawScene()
     spriteShader.setValue("useAlpha", false);
     spriteShader.setValue("alpha", 1.0f);
     for (int o = 0; o < scene.objects.count(); ++o) {
+        bool validDraw = false;
         switch (gameType) {
             case ENGINE_v1: break;
             case ENGINE_v2: {
                 auto &curObj = compilerv2.objectScriptList[scene.objects[o].type];
 
-                if (curObj.subRSDK.scriptCodePtr != SCRIPTDATA_COUNT - 1) {
+                if (curObj.subRSDK.scriptCodePtr != SCRIPTDATA_COUNT - 1
+                    && scene.objects[o].type != 0) {
                     compilerv2.objectLoop = o;
                     compilerv2.processScript(curObj.subRSDK.scriptCodePtr, curObj.subRSDK.jumpTablePtr,
                                              Compilerv2::SUB_RSDK);
-                    continue;
+                    validDraw = true;
                 }
                 break;
             }
             case ENGINE_v3: {
                 auto &curObj = compilerv3.objectScriptList[scene.objects[o].type];
 
-                if (curObj.subRSDKDraw.scriptCodePtr != SCRIPTDATA_COUNT - 1) {
+                if (curObj.subRSDKDraw.scriptCodePtr != SCRIPTDATA_COUNT - 1
+                    && scene.objects[o].type != 0) {
                     compilerv3.objectLoop = o;
                     compilerv3.processScript(curObj.subRSDKDraw.scriptCodePtr,
                                              curObj.subRSDKDraw.jumpTablePtr, Compilerv3::SUB_RSDKDRAW);
-                    continue;
+                    validDraw = true;
                 }
                 break;
             }
             case ENGINE_v4: {
                 auto &curObj = compilerv4.objectScriptList[scene.objects[o].type];
 
-                if (curObj.eventRSDKDraw.scriptCodePtr != SCRIPTDATA_COUNT - 1) {
+                if (curObj.eventRSDKDraw.scriptCodePtr != SCRIPTDATA_COUNT - 1
+                    && scene.objects[o].type != 0) {
                     compilerv4.objectEntityPos = o;
                     compilerv4.processScript(curObj.eventRSDKDraw.scriptCodePtr,
                                              curObj.eventRSDKDraw.jumpTablePtr,
                                              Compilerv4::EVENT_RSDKDRAW);
-                    continue;
+                    validDraw = true;
                 }
                 break;
             }
         }
 
-        spriteShader.use();
-        rectVAO.bind();
-        // Draw Object
-        float xpos = scene.objects[o].getX() - (cam.pos.x);
-        float ypos = scene.objects[o].getY() - (cam.pos.y);
-        float zpos = 10.0f;
+        if (!validDraw) {
+            spriteShader.use();
+            rectVAO.bind();
+            // Draw Object
+            float xpos = scene.objects[o].getX() - cam.pos.x;
+            float ypos = scene.objects[o].getY() - cam.pos.y;
+            float zpos = 10.0f;
 
-        int w = objectSprites[0].texturePtr->width(), h = objectSprites[0].texturePtr->height();
-        if (prevSprite) {
-            objectSprites[0].texturePtr->bind();
-            prevSprite = 0;
+            int w = objectSprites[0].texturePtr->width(), h = objectSprites[0].texturePtr->height();
+            if (prevSprite) {
+                objectSprites[0].texturePtr->bind();
+                prevSprite = 0;
+            }
+
+            Rect<int> check = Rect<int>();
+            check.x         = (int)(xpos + (float)w) * zoom;
+            check.y         = (int)(ypos + (float)h) * zoom;
+            check.w         = (int)(xpos - (w / 2.0f)) * zoom;
+            check.h         = (int)(ypos - (h / 2.0f)) * zoom;
+            if (check.x < 0 || check.y < 0 || check.w >= storedW || check.h >= storedH) {
+                continue;
+            }
+
+            QMatrix4x4 matModel;
+            matModel.scale(w * zoom, h * zoom, 1.0f);
+
+            matModel.translate(xpos / (float)w, ypos / (float)h, zpos);
+            spriteShader.setValue("model", matModel);
+
+            f->glDrawArrays(GL_TRIANGLES, 0, 6);
         }
-
-        Rect<int> check = Rect<int>();
-        check.x         = (int)(xpos + (float)w) * zoom;
-        check.y         = (int)(ypos + (float)h) * zoom;
-        check.w         = (int)(xpos - (w / 2.0f)) * zoom;
-        check.h         = (int)(ypos - (h / 2.0f)) * zoom;
-        if (check.x < 0 || check.y < 0 || check.w >= storedW || check.h >= storedH) {
-            continue;
-        }
-
-        QMatrix4x4 matModel;
-        matModel.scale(w * zoom, h * zoom, 1.0f);
-
-        matModel.translate(xpos / (float)w, ypos / (float)h, zpos);
-        spriteShader.setValue("model", matModel);
-
-        f->glDrawArrays(GL_TRIANGLES, 0, 6);
+        //"Selection" Rect
+        // drawRectangle(scene.objects[o].getX() - 8, scene.objects[o].getY() - 8, 16, 16, 0x00, 0x00,
+        //              0xFF, 0x80);
     }
 
     // CHUNK PREVIEW
@@ -777,7 +784,7 @@ void SceneViewer::drawScene()
             case ENGINE_v2: {
                 auto &curObj = compilerv2.objectScriptList[selectedObject];
 
-                if (curObj.subRSDK.scriptCodePtr != SCRIPTDATA_COUNT - 1) {
+                if (curObj.subRSDK.scriptCodePtr != SCRIPTDATA_COUNT - 1 && selectedObject != 0) {
                     compilerv2.objectLoop                              = ENTITY_COUNT - 1;
                     compilerv2.objectEntityList[ENTITY_COUNT - 1].XPos = (ex + cx) * 65536.0f;
                     compilerv2.objectEntityList[ENTITY_COUNT - 1].YPos = (ey + cy) * 65536.0f;
@@ -790,7 +797,7 @@ void SceneViewer::drawScene()
             case ENGINE_v3: {
                 auto &curObj = compilerv3.objectScriptList[selectedObject];
 
-                if (curObj.subRSDKDraw.scriptCodePtr != SCRIPTDATA_COUNT - 1) {
+                if (curObj.subRSDKDraw.scriptCodePtr != SCRIPTDATA_COUNT - 1 && selectedObject != 0) {
                     compilerv3.objectLoop                              = ENTITY_COUNT - 1;
                     compilerv3.objectEntityList[ENTITY_COUNT - 1].XPos = (ex + cx) * 65536.0f;
                     compilerv3.objectEntityList[ENTITY_COUNT - 1].YPos = (ey + cy) * 65536.0f;
@@ -803,7 +810,7 @@ void SceneViewer::drawScene()
             case ENGINE_v4: {
                 auto &curObj = compilerv4.objectScriptList[selectedObject];
 
-                if (curObj.eventRSDKDraw.scriptCodePtr != ENTITY_COUNT - 1) {
+                if (curObj.eventRSDKDraw.scriptCodePtr != ENTITY_COUNT - 1 && selectedObject != 0) {
                     compilerv4.objectEntityList[ENTITY_COUNT - 1].type = selectedObject;
                     compilerv4.objectEntityList[ENTITY_COUNT - 1].XPos = (ex + cx) * 65536.0f;
                     compilerv4.objectEntityList[ENTITY_COUNT - 1].YPos = (ey + cy) * 65536.0f;
@@ -1268,7 +1275,8 @@ void SceneViewer::drawRectangle(int x, int y, int w, int h, byte r, byte g, byte
     float xpos = x - cam.pos.x;
     float ypos = y - cam.pos.y;
     float zpos = 10.0f + (sprDraws * 0.001f);
-    primitiveShader.setValue("colour", QVector4D(r, g, b, qMin(a, 0xFF)));
+    primitiveShader.setValue(
+        "colour", QVector4D(r / 255.0f, g / 255.0f, b / 255.0f, (a > 0xFF ? 0xFF : a) / 255.0f));
 
     rectVAO.bind();
 
@@ -1482,6 +1490,8 @@ void SceneViewer::drawSpriteScaled(int direction, int XPos, int YPos, int pivotX
         sprDraws = 0;
 
     // Draw Sprite
+    XPos += pivotX;
+    YPos += pivotY;
     float xpos = XPos - cam.pos.x;
     float ypos = YPos - cam.pos.y;
     float zpos = 10.0f + (sprDraws * 0.001f);

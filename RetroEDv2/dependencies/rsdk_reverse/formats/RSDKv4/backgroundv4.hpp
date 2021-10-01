@@ -15,22 +15,22 @@ public:
 
         void read(Reader &reader)
         {
-            parallaxFactor = (short)(reader.read<byte>() << 8);
             parallaxFactor |= (short)reader.read<byte>();
-            scrollSpeed = reader.read<byte>();
-            deform     = reader.read<byte>();
+            parallaxFactor = (short)(reader.read<byte>() << 8);
+            scrollSpeed    = reader.read<byte>();
+            deform         = reader.read<byte>();
         }
         void write(Writer &writer)
         {
-            writer.write((byte)(parallaxFactor >> 8));
             writer.write((byte)(parallaxFactor & 0xFF));
+            writer.write((byte)(parallaxFactor >> 8));
             writer.write(scrollSpeed);
             writer.write(deform);
         }
 
         short parallaxFactor = 1 << 8;
-        byte scrollSpeed  = 0 << 8;
-        byte deform      = 0;
+        byte scrollSpeed     = 0 << 8;
+        byte deform          = 0;
     };
 
     class Layer
@@ -44,11 +44,11 @@ public:
 
         QList<QList<ushort>> layout;
 
-        byte width          = 0;
-        byte height         = 0;
-        byte type      = 0;
+        byte width           = 0;
+        byte height          = 0;
+        byte type            = 0;
         short parallaxFactor = 1 << 8;
-        byte scrollSpeed  = 0 << 0;
+        byte scrollSpeed     = 0 << 0;
         QByteArray lineIndexes;
     };
 

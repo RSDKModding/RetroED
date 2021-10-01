@@ -126,20 +126,33 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         createScrollList();
         ui->addScr->setDisabled(c == -1);
         ui->rmScr->setDisabled(c == -1);
+        ui->impScr->setDisabled(c == -1);
+        ui->expScr->setDisabled(c == -1);
     });
 
     connect(ui->objectList, &QListWidget::currentRowChanged, [this](int c) {
         // m_uo->setDisabled(c == -1);
         // m_do->setDisabled(c == -1);
-        ui->rmObj->setDisabled(c == -1);
+        ui->rmObj->setDisabled(c == -1 || c >= viewer->objects.count());
 
-        if (c == -1)
+        if (c == -1 || c >= viewer->objects.count())
             return;
+
+        bool global = c == 0;
+        if (viewer->stageConfig.loadGlobalObjects) {
+            for (auto &obj : viewer->gameConfig.objects) {
+                if (viewer->objects[c].name == obj) {
+                    global = true;
+                    break;
+                }
+            }
+        }
 
         // m_do->setDisabled(c == m_objectList->count() - 1);
         // m_uo->setDisabled(c == 0);
 
         viewer->selectedObject = c;
+        ui->rmObj->setDisabled(c == -1 || global);
     });
 
     connect(ui->addObj, &QToolButton::clicked, [this] {
@@ -162,6 +175,11 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         int n = ui->objectList->currentRow() == ui->objectList->count() - 1 ? c - 1 : c;
         delete ui->objectList->item(c);
         viewer->objects.removeAt(c);
+        int globalCount = 1;
+        if (viewer->stageConfig.loadGlobalObjects)
+            globalCount = viewer->gameConfig.objects.count() + 1;
+        viewer->objects.removeAt(c);
+        viewer->stageConfig.objects.removeAt(c - globalCount);
         ui->objectList->blockSignals(true);
         ui->objectList->setCurrentRow(n);
         ui->objectList->blockSignals(false);
@@ -169,26 +187,28 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         for (int o = viewer->entities.count() - 1; o >= 0; --o) {
             if (viewer->entities[o].type > c)
                 viewer->entities[o].type--;
-            else
+            else if (viewer->entities[o].type == c)
                 viewer->entities.removeAt(o);
         }
+
+        createEntityList();
     });
 
     connect(ui->entityList, &QListWidget::currentRowChanged, [this](int c) {
-        // m_uo->setDisabled(c == -1);
-        // m_do->setDisabled(c == -1);
+        // uo->setDisabled(c == -1);
+        // do->setDisabled(c == -1);
         ui->rmEnt->setDisabled(c == -1);
 
         if (c == -1)
             return;
 
-        // m_do->setDisabled(c == m_objectList->count() - 1);
-        // m_uo->setDisabled(c == 0);
+        // do->setDisabled(c == objectList->count() - 1);
+        // uo->setDisabled(c == 0);
 
         viewer->selectedEntity = c;
 
-        viewer->cam.pos.x = viewer->entities[c].pos.x - (viewer->storedW / 2);
-        viewer->cam.pos.y = viewer->entities[c].pos.y - (viewer->storedH / 2);
+        viewer->cam.pos.x = viewer->entities[c].pos.x - ((viewer->storedW / 2) * viewer->invZoom());
+        viewer->cam.pos.y = viewer->entities[c].pos.y - ((viewer->storedH / 2) * viewer->invZoom());
 
         objProp->setupUI(&viewer->objects, &viewer->entities[viewer->selectedEntity]);
         ui->propertiesBox->setCurrentWidget(ui->objPropPage);
@@ -218,6 +238,13 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->entityList->setCurrentRow(n);
         ui->entityList->blockSignals(false);
 
+        createEntityList();
+
+        if (viewer->objects.count() <= 0)
+            viewer->selectedEntity = -1;
+
+        ui->rmEnt->setDisabled(viewer->objects.count() <= 0);
+
         ui->addEnt->setDisabled(viewer->entities.count() >= 0x800);
     });
 
@@ -229,13 +256,20 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         viewer->selectedScrollInfo = c;
 
-        scrProp->setupUI(&viewer->scene.layers[viewer->selectedLayer].scrollInfos[c]);
+        scrProp->setupUI(&viewer->scene.layers[viewer->selectedLayer].scrollInfos[c],
+                         viewer->scene.layers[viewer->selectedLayer].scrollInfos);
         ui->propertiesBox->setCurrentWidget(ui->scrollPropPage);
     });
 
     connect(ui->addScr, &QToolButton::clicked, [this] {
-        RSDKv5::Scene::ScrollIndexInfo scr;
-        viewer->scene.layers[viewer->selectedLayer].scrollInfos.append(scr);
+        auto &layer = viewer->scene.layers[viewer->selectedLayer];
+
+        auto &last = layer.scrollInfos.last();
+
+        RSDKv5::Scene::ScrollIndexInfo scr = last;
+        scr.startLine                      = last.startLine + last.length;
+        scr.length                         = 1;
+        layer.scrollInfos.append(scr);
 
         createScrollList();
     });
@@ -248,6 +282,51 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->scrollList->blockSignals(true);
         ui->scrollList->setCurrentRow(n);
         ui->scrollList->blockSignals(false);
+    });
+
+    connect(ui->impScr, &QToolButton::clicked, [this] {
+        QFileDialog filedialog(this, tr("Import RSDK Scroll File"), "",
+                               tr("RSDK Scroll Files (*.bin)"));
+        filedialog.setAcceptMode(QFileDialog::AcceptOpen);
+        if (filedialog.exec() == QDialog::Accepted) {
+            Reader reader(filedialog.selectedFiles()[0]);
+            RSDKv5::Scene::SceneLayer &layer = viewer->scene.layers[ui->layerList->currentRow()];
+            layer.scrollInfos.clear();
+            ushort count = reader.read<ushort>();
+            for (int i = 0; i < count; ++i) {
+                RSDKv5::Scene::ScrollIndexInfo info;
+                info.startLine      = reader.read<int>();
+                info.length         = reader.read<int>();
+                info.parallaxFactor = reader.read<float>();
+                info.scrollSpeed    = reader.read<float>();
+                info.deform         = reader.read<byte>();
+                info.unknown        = reader.read<byte>();
+                layer.scrollInfos.append(info);
+            }
+            createScrollList();
+        }
+    });
+
+    connect(ui->expScr, &QToolButton::clicked, [this] {
+        QFileDialog filedialog(this, tr("Export RSDK Scroll File"), "",
+                               tr("RSDK Scroll Files (*.bin)"));
+        filedialog.setAcceptMode(QFileDialog::AcceptSave);
+        if (filedialog.exec() == QDialog::Accepted) {
+            Writer writer(filedialog.selectedFiles()[0]);
+            RSDKv5::Scene::SceneLayer &layer = viewer->scene.layers[ui->layerList->currentRow()];
+
+            writer.write<ushort>(layer.scrollInfos.count());
+            for (int i = 0; i < layer.scrollInfos.count(); ++i) {
+                RSDKv5::Scene::ScrollIndexInfo &info = layer.scrollInfos[i];
+                writer.write<int>(info.startLine);
+                writer.write<int>(info.length);
+                writer.write<float>(info.parallaxFactor);
+                writer.write<float>(info.scrollSpeed);
+                writer.write<byte>(info.deform);
+                writer.write<byte>(info.unknown);
+            }
+            writer.flush();
+        }
     });
 
     auto resetTools = [this](byte tool) {
@@ -607,20 +686,20 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
             QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
             viewer->reference   = mEvent->pos();
 
-            viewer->mousePos.x = viewer->cam.m_lastMousePos.x = mEvent->pos().x();
-            viewer->mousePos.y = viewer->cam.m_lastMousePos.y = mEvent->pos().y();
+            viewer->mousePos.x = viewer->cam.lastMousePos.x = mEvent->pos().x();
+            viewer->mousePos.y = viewer->cam.lastMousePos.y = mEvent->pos().y();
 
             if ((mEvent->button() & Qt::LeftButton) == Qt::LeftButton)
-                m_mouseDownL = true;
+                mouseDownL = true;
             if ((mEvent->button() & Qt::MiddleButton) == Qt::MiddleButton)
-                m_mouseDownM = true;
+                mouseDownM = true;
             if ((mEvent->button() & Qt::RightButton) == Qt::RightButton)
-                m_mouseDownR = true;
+                mouseDownR = true;
 
-            if (m_mouseDownM || (m_mouseDownL && viewer->curTool == TOOL_MOUSE))
+            if (mouseDownM || (mouseDownL && viewer->curTool == TOOL_MOUSE))
                 setCursor(Qt::ClosedHandCursor);
 
-            if (m_mouseDownL) {
+            if (mouseDownL) {
                 switch (viewer->curTool) {
                     case TOOL_MOUSE: break;
                     case TOOL_SELECT: break;
@@ -668,6 +747,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                         if (!viewer->isSelecting || viewer->selectedObject < 0) {
                             Rect<float> box;
 
+                            viewer->selectedEntity = -1;
                             for (int o = 0; o < viewer->entities.count(); ++o) {
                                 box = Rect<float>(viewer->entities[o].pos.x - 0x10,
                                                   viewer->entities[o].pos.y - 0x10, 0x20, 0x20);
@@ -699,19 +779,21 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 entity.pos.y =
                                     ((mEvent->pos().y() * viewer->invZoom()) + viewer->cam.pos.y);
 
-                                int cnt = viewer->entities.count();
+                                int cnt       = viewer->entities.count();
+                                entity.slotID = cnt;
                                 viewer->entities.append(entity);
-                                // viewer->m_compilerv3.m_objectEntityList[cnt].type =
-                                //    viewer->selectedObject;
-                                // viewer->m_compilerv3.m_objectEntityList[cnt].propertyValue = 0;
-                                // viewer->m_compilerv3.m_objectEntityList[cnt].XPos          = xpos;
-                                // viewer->m_compilerv3.m_objectEntityList[cnt].YPos          = ypos;
-                                //
                                 // viewer->m_compilerv4.m_objectEntityList[cnt].type =
                                 //    viewer->selectedObject;
                                 // viewer->m_compilerv4.m_objectEntityList[cnt].propertyValue = 0;
                                 // viewer->m_compilerv4.m_objectEntityList[cnt].XPos          = xpos;
                                 // viewer->m_compilerv4.m_objectEntityList[cnt].YPos          = ypos;
+
+                                viewer->selectedEntity = cnt;
+
+                                objProp->setupUI(&viewer->objects,
+                                                 &viewer->entities[viewer->selectedEntity]);
+                                ui->propertiesBox->setCurrentWidget(ui->objPropPage);
+                                createEntityList();
                             }
                         }
 
@@ -722,7 +804,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                 break;
             }
 
-            if (m_mouseDownR) {
+            if (mouseDownR) {
                 switch (viewer->curTool) {
                     case TOOL_PENCIL:
                         if (viewer->selectedLayer >= 0) {
@@ -799,13 +881,13 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
             bool status         = false;
             QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
 
-            viewer->mousePos.x = viewer->cam.m_lastMousePos.x = mEvent->pos().x();
-            viewer->mousePos.y = viewer->cam.m_lastMousePos.y = mEvent->pos().y();
+            viewer->mousePos.x = viewer->cam.lastMousePos.x = mEvent->pos().x();
+            viewer->mousePos.y = viewer->cam.lastMousePos.y = mEvent->pos().y();
 
             Vector2<int> m_sceneMousePos((viewer->mousePos.x * viewer->invZoom()) + viewer->cam.pos.x,
                                          (viewer->mousePos.y * viewer->invZoom()) + viewer->cam.pos.y);
 
-            if (m_mouseDownM || (m_mouseDownL && viewer->curTool == TOOL_MOUSE)) {
+            if (mouseDownM || (mouseDownL && viewer->curTool == TOOL_MOUSE)) {
                 viewer->cam.pos.x -= (viewer->mousePos.x - viewer->reference.x()) * viewer->invZoom();
                 viewer->cam.pos.y -= (viewer->mousePos.y - viewer->reference.y()) * viewer->invZoom();
                 QPoint lp        = QCursor::pos();
@@ -861,7 +943,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                 case TOOL_PARALLAX: break;
             }
 
-            if (m_mouseDownL) {
+            if (mouseDownL) {
                 switch (viewer->curTool) {
                     default: break;
                     case TOOL_MOUSE: break;
@@ -892,11 +974,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 entity.pos.x = entity.pos.x - fmodf(entity.pos.x, snapSize.x);
                                 entity.pos.y = entity.pos.y - fmodf(entity.pos.y, snapSize.y);
                             }
-                            // viewer->m_compilerv3.m_objectEntityList[viewer->selectedEntity].XPos =
-                            //    object.m_position.x;
-                            // viewer->m_compilerv3.m_objectEntityList[viewer->selectedEntity].YPos =
-                            //    object.m_position.y;
-                            //
+
                             // viewer->m_compilerv4.m_objectEntityList[viewer->selectedEntity].XPos =
                             //    object.m_position.x;
                             // viewer->m_compilerv4.m_objectEntityList[viewer->selectedEntity].YPos =
@@ -920,11 +998,11 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
             viewer->mousePos.y  = mEvent->pos().y();
 
             if ((mEvent->button() & Qt::LeftButton) == Qt::LeftButton)
-                m_mouseDownL = false;
+                mouseDownL = false;
             if ((mEvent->button() & Qt::MiddleButton) == Qt::MiddleButton)
-                m_mouseDownM = false;
+                mouseDownM = false;
             if ((mEvent->button() & Qt::RightButton) == Qt::RightButton)
-                m_mouseDownR = false;
+                mouseDownR = false;
 
             unsetCursor();
             break;
@@ -961,6 +1039,18 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
             }
             viewer->cam.pos.y -= wEvent->angleDelta().y() / 8;
             viewer->cam.pos.x -= wEvent->angleDelta().x() / 8;
+
+            ui->horizontalScrollBar->blockSignals(true);
+            ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x10)
+                                                - (viewer->storedW * viewer->invZoom()));
+            ui->horizontalScrollBar->setValue(viewer->cam.pos.x);
+            ui->horizontalScrollBar->blockSignals(false);
+
+            ui->verticalScrollBar->blockSignals(true);
+            ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x10)
+                                              - (viewer->storedH * viewer->invZoom()));
+            ui->verticalScrollBar->setValue(viewer->cam.pos.y);
+            ui->verticalScrollBar->blockSignals(false);
 
             break;
         }

@@ -16,7 +16,8 @@ public:
     explicit SceneScrollProperties(QWidget *parent = nullptr);
     ~SceneScrollProperties();
 
-    void setupUI(FormatHelpers::Background::ScrollIndexInfo *info);
+    void setupUI(FormatHelpers::Background::ScrollIndexInfo *info,
+                 QList<FormatHelpers::Background::ScrollIndexInfo> &infos);
     void unsetUI();
 
 private:

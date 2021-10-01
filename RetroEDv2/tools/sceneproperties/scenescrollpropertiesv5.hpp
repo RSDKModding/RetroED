@@ -16,7 +16,7 @@ public:
     explicit SceneScrollPropertiesv5(QWidget *parent = nullptr);
     ~SceneScrollPropertiesv5();
 
-    void setupUI(RSDKv5::Scene::ScrollIndexInfo *info);
+    void setupUI(RSDKv5::Scene::ScrollIndexInfo *info, QList<RSDKv5::Scene::ScrollIndexInfo> &infos);
     void unsetUI();
 
 private:

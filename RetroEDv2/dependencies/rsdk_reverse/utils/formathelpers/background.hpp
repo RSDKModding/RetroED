@@ -23,7 +23,7 @@ public:
         int startLine = 0;
         int length    = 1;
 
-        float m_scrollPos     = 0.0f; // not written, for scene viewer only
+        float scrollPos     = 0.0f; // not written, for scene viewer only
         float parallaxFactor = 1.0f;
         float scrollSpeed = 0.0f;
         byte deform      = 0;
@@ -31,7 +31,7 @@ public:
         bool operator==(const ScrollIndexInfo &other) const
         {
             return startLine == other.startLine && length == other.length
-                   && m_scrollPos == other.m_scrollPos && parallaxFactor == other.parallaxFactor
+                   && scrollPos == other.scrollPos && parallaxFactor == other.parallaxFactor
                    && scrollSpeed == other.scrollSpeed && deform == other.deform;
         }
     };

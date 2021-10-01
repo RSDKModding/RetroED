@@ -18,9 +18,9 @@ public:
     explicit SceneEditorv5(QWidget *parent = nullptr);
     ~SceneEditorv5();
 
-    bool m_mouseDownL = false;
-    bool m_mouseDownM = false;
-    bool m_mouseDownR = false;
+    bool mouseDownL = false;
+    bool mouseDownM = false;
+    bool mouseDownR = false;
     bool ctrlDownL    = false;
     bool altDownL     = false;
     bool shiftDownL   = false;

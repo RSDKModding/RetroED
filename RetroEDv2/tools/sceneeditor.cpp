@@ -134,6 +134,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         createScrollList();
         ui->addScr->setDisabled(c < 1);
         ui->rmScr->setDisabled(c < 1);
+        ui->impScr->setDisabled(c < 1);
+        ui->expScr->setDisabled(c < 1);
     });
 
     connect(ui->objectList, &QListWidget::currentRowChanged, [this](int c) {
@@ -214,8 +216,10 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         viewer->selectedEntity = c;
 
-        viewer->cam.pos.x = viewer->scene.objects[c].getX() - (viewer->storedW / 2);
-        viewer->cam.pos.y = viewer->scene.objects[c].getY() - (viewer->storedH / 2);
+        viewer->cam.pos.x =
+            viewer->scene.objects[c].getX() - ((viewer->storedW / 2) * viewer->invZoom());
+        viewer->cam.pos.y =
+            viewer->scene.objects[c].getY() - ((viewer->storedH / 2) * viewer->invZoom());
 
         objProp->setupUI(&viewer->scene.objects[viewer->selectedEntity],
                          &viewer->compilerv2.objectEntityList[viewer->selectedEntity],
@@ -262,19 +266,28 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     connect(ui->scrollList, &QListWidget::currentRowChanged, [this](int c) {
         ui->rmScr->setDisabled(c == -1);
+        ui->impScr->setDisabled(c == -1);
+        ui->expScr->setDisabled(c == -1);
 
         if (c == -1)
             return;
 
         viewer->selectedScrollInfo = c;
 
-        scrProp->setupUI(&viewer->background.layers[viewer->selectedLayer - 1].scrollInfos[c]);
+        scrProp->setupUI(&viewer->background.layers[viewer->selectedLayer - 1].scrollInfos[c],
+                         viewer->background.layers[viewer->selectedLayer - 1].scrollInfos);
         ui->propertiesBox->setCurrentWidget(ui->scrollPropPage);
     });
 
     connect(ui->addScr, &QToolButton::clicked, [this] {
-        FormatHelpers::Background::ScrollIndexInfo scr;
-        viewer->background.layers[viewer->selectedLayer - 1].scrollInfos.append(scr);
+        auto &layer = viewer->background.layers[viewer->selectedLayer - 1];
+
+        auto &last = layer.scrollInfos.last();
+
+        FormatHelpers::Background::ScrollIndexInfo scr = last;
+        scr.startLine                                  = last.startLine + last.length;
+        scr.length                                     = 1;
+        layer.scrollInfos.append(scr);
 
         createScrollList();
     });
@@ -287,6 +300,53 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         ui->scrollList->blockSignals(true);
         ui->scrollList->setCurrentRow(n);
         ui->scrollList->blockSignals(false);
+    });
+
+    connect(ui->impScr, &QToolButton::clicked, [this] {
+        QFileDialog filedialog(this, tr("Import RSDK Scroll File"), "",
+                               tr("RSDK Scroll Files (*.bin)"));
+        filedialog.setAcceptMode(QFileDialog::AcceptOpen);
+        if (filedialog.exec() == QDialog::Accepted) {
+            Reader reader(filedialog.selectedFiles()[0]);
+            FormatHelpers::Background::Layer &layer =
+                viewer->background.layers[ui->layerList->currentRow() - 1];
+            layer.scrollInfos.clear();
+            ushort count = reader.read<ushort>();
+            for (int i = 0; i < count; ++i) {
+                FormatHelpers::Background::ScrollIndexInfo info;
+                info.startLine      = reader.read<int>();
+                info.length         = reader.read<int>();
+                info.parallaxFactor = reader.read<float>();
+                info.scrollSpeed    = reader.read<float>();
+                info.deform         = reader.read<byte>();
+                reader.read<byte>();
+                layer.scrollInfos.append(info);
+            }
+            createScrollList();
+        }
+    });
+
+    connect(ui->expScr, &QToolButton::clicked, [this] {
+        QFileDialog filedialog(this, tr("Export RSDK Scroll File"), "",
+                               tr("RSDK Scroll Files (*.bin)"));
+        filedialog.setAcceptMode(QFileDialog::AcceptSave);
+        if (filedialog.exec() == QDialog::Accepted) {
+            Writer writer(filedialog.selectedFiles()[0]);
+            FormatHelpers::Background::Layer &layer =
+                viewer->background.layers[ui->layerList->currentRow() - 1];
+
+            writer.write<ushort>(layer.scrollInfos.count());
+            for (int i = 0; i < layer.scrollInfos.count(); ++i) {
+                FormatHelpers::Background::ScrollIndexInfo &info = layer.scrollInfos[i];
+                writer.write<int>(info.startLine);
+                writer.write<int>(info.length);
+                writer.write<float>(info.parallaxFactor);
+                writer.write<float>(info.scrollSpeed);
+                writer.write<byte>(info.deform);
+                writer.write<byte>(0);
+            }
+            writer.flush();
+        }
     });
 
     auto resetTools = [this](byte tool) {
@@ -1260,6 +1320,16 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             }
             viewer->cam.pos.y -= wEvent->angleDelta().y() / 8;
             viewer->cam.pos.x -= wEvent->angleDelta().x() / 8;
+
+            ui->horizontalScrollBar->blockSignals(true);
+            ui->horizontalScrollBar->setMaximum((viewer->scene.width * 0x80) - viewer->storedW);
+            ui->horizontalScrollBar->setValue(viewer->cam.pos.x);
+            ui->horizontalScrollBar->blockSignals(false);
+
+            ui->verticalScrollBar->blockSignals(true);
+            ui->verticalScrollBar->setMaximum((viewer->scene.height * 0x80) - viewer->storedH);
+            ui->verticalScrollBar->setValue(viewer->cam.pos.y);
+            ui->verticalScrollBar->blockSignals(false);
 
             break;
         }
