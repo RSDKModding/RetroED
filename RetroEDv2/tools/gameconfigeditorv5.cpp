@@ -890,7 +890,7 @@ bool GameconfigEditorv5::event(QEvent *event)
 
     if (event->type() == (QEvent::Type)RE_EVENT_SAVE) {
         if (!ui->stackedWidget->currentIndex()) {
-            if (gameConfig.m_filename != "") {
+            if (gameConfig.filePath != "") {
                 gameConfig.write("");
                 return true;
             }
@@ -912,7 +912,7 @@ bool GameconfigEditorv5::event(QEvent *event)
             }
         }
         else {
-            if (stageconfig.m_filename != "") {
+            if (stageconfig.filePath != "") {
                 stageconfig.write("");
                 return true;
             }

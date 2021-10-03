@@ -45,6 +45,8 @@ enum Event {
     RE_EVENT_OPEN,
     RE_EVENT_NEW,
     RE_EVENT_SAVE_AS,
+    RE_EVENT_UNDO,
+    RE_EVENT_REDO,
 };
 
 class RESaveEvent : public QEvent
@@ -52,7 +54,7 @@ class RESaveEvent : public QEvent
 public:
     RESaveEvent() : QEvent(static_cast<QEvent::Type>(RE_EVENT_SAVE)) {}
 
-    static const QEvent::Type m_type = static_cast<QEvent::Type>(RE_EVENT_SAVE);
+    static const QEvent::Type type = static_cast<QEvent::Type>(RE_EVENT_SAVE);
 };
 
 class REOpenEvent : public QEvent
@@ -60,7 +62,7 @@ class REOpenEvent : public QEvent
 public:
     REOpenEvent() : QEvent(static_cast<QEvent::Type>(RE_EVENT_OPEN)) {}
 
-    static const QEvent::Type m_type = static_cast<QEvent::Type>(RE_EVENT_OPEN);
+    static const QEvent::Type type = static_cast<QEvent::Type>(RE_EVENT_OPEN);
 };
 
 class RESaveAsEvent : public QEvent
@@ -68,7 +70,7 @@ class RESaveAsEvent : public QEvent
 public:
     RESaveAsEvent() : QEvent(static_cast<QEvent::Type>(RE_EVENT_SAVE_AS)) {}
 
-    static const QEvent::Type m_type = static_cast<QEvent::Type>(RE_EVENT_SAVE_AS);
+    static const QEvent::Type type = static_cast<QEvent::Type>(RE_EVENT_SAVE_AS);
 };
 
 class RENewEvent : public QEvent
@@ -76,7 +78,23 @@ class RENewEvent : public QEvent
 public:
     RENewEvent() : QEvent(static_cast<QEvent::Type>(RE_EVENT_NEW)) {}
 
-    static const QEvent::Type m_type = static_cast<QEvent::Type>(RE_EVENT_NEW);
+    static const QEvent::Type type = static_cast<QEvent::Type>(RE_EVENT_NEW);
+};
+
+class REUndoEvent : public QEvent
+{
+public:
+    REUndoEvent() : QEvent(static_cast<QEvent::Type>(RE_EVENT_UNDO)) {}
+
+    static const QEvent::Type type = static_cast<QEvent::Type>(RE_EVENT_UNDO);
+};
+
+class RERedoEvent : public QEvent
+{
+public:
+    RERedoEvent() : QEvent(static_cast<QEvent::Type>(RE_EVENT_REDO)) {}
+
+    static const QEvent::Type type = static_cast<QEvent::Type>(RE_EVENT_REDO);
 };
 
 // RSDK
@@ -127,6 +145,7 @@ public:
 #include "tools/sceneproperties/stageconfigeditorv4.hpp"
 #include "tools/sceneproperties/stageconfigeditorv5.hpp"
 #include "tools/sceneproperties/chunkeditor.hpp"
+#include "tools/sceneproperties/tileseteditor.hpp"
 #include "tools/exportrsdkv5scene.hpp"
 
 // Forms

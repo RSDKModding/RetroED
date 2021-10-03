@@ -136,7 +136,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -159,7 +159,7 @@ public:
     QList<Category> categories;
     QList<GlobalVariable> globalVariables;
 
-    QString m_filename = "";
+    QString filePath = "";
     bool readMode      = false;
 };
 

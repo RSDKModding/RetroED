@@ -1,5 +1,6 @@
 #include "includes.hpp"
 #include <cmath>
+#include "qgifimage.h"
 
 static QVector3D rectVerticesv5[] = {
     QVector3D(-0.5f, -0.5f, -0.5f), QVector3D(0.5f, -0.5f, -0.5f), QVector3D(0.5f, 0.5f, -0.5f),
@@ -157,14 +158,21 @@ void SceneViewerv5::loadScene(QString path)
 
     if (QFile::exists(basePath + "16x16Tiles.gif")) {
         // setup tileset texture from png
-        QImage tileset(basePath + "16x16Tiles.gif");
-        m_tilesetTexture = createTexture(tileset);
+        QGifImage tilesetGif(basePath + "16x16Tiles.gif");
+        QImage tileset = tilesetGif.frame(0);
+        tilesetTexture = createTexture(tileset);
         for (int i = 0; i < 0x400; ++i) {
             int tx         = ((i % (tileset.width() / 0x10)) * 0x10);
             int ty         = ((i / (tileset.width() / 0x10)) * 0x10);
             QImage tileTex = tileset.copy(tx, ty, 0x10, 0x10);
 
             tiles.append(tileTex);
+        }
+
+        auto pal = tileset.colorTable();
+        tilePalette.clear();
+        for (QRgb &col : pal) {
+            tilePalette.append(QColor(col));
         }
     }
 }
@@ -278,7 +286,7 @@ void SceneViewerv5::placeCol(int x, int y, sbyte h, int sol, int w)
 
 void SceneViewerv5::drawScene()
 {
-    if (!m_tilesetTexture)
+    if (!tilesetTexture)
         return;
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
@@ -404,7 +412,7 @@ void SceneViewerv5::drawScene()
             }
 
             // draw
-            m_tilesetTexture->bind();
+            tilesetTexture->bind();
             spriteShader.setValue("flipX", false);
             spriteShader.setValue("flipY", false);
 
@@ -830,7 +838,7 @@ void SceneViewerv5::drawScene()
     spriteShader.setValue("useAlpha", true);
     spriteShader.setValue("alpha", 0.75f);
     if (selectedTile >= 0 && selectedLayer >= 0 && isSelecting && curTool == TOOL_PENCIL) {
-        m_tilesetTexture->bind();
+        tilesetTexture->bind();
         float tx = tilePos.x;
         float ty = tilePos.y;
 
@@ -1002,11 +1010,11 @@ void SceneViewerv5::drawScene()
 void SceneViewerv5::unloadScene()
 {
     // QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-    if (m_tilesetTexture) {
-        m_tilesetTexture->destroy();
-        delete m_tilesetTexture;
+    if (tilesetTexture) {
+        tilesetTexture->destroy();
+        delete tilesetTexture;
     }
-    m_tilesetTexture = nullptr;
+    tilesetTexture = nullptr;
     tiles.clear();
 
     for (int o = 0; o < v5_SURFACE_MAX; ++o) {
@@ -1318,7 +1326,7 @@ void SceneViewerv5::drawTile(float XPos, float YPos, float ZPos, int tileX, int 
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
     // Draw Sprite
-    float w = m_tilesetTexture->width(), h = m_tilesetTexture->height();
+    float w = tilesetTexture->width(), h = tilesetTexture->height();
 
     spriteShader.use();
     QOpenGLVertexArrayObject vao;

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>253</width>
-    <height>527</height>
+    <height>572</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -30,11 +30,53 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>219</width>
-        <height>525</height>
+        <width>233</width>
+        <height>552</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0" colspan="2">
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string>Scene Properties</string>
+         </property>
+        </widget>
+       </item>
+       <item row="20" column="0" colspan="2">
+        <widget class="Line" name="line_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Layer 3</string>
+         </property>
+        </widget>
+       </item>
+       <item row="21" column="0" colspan="2">
+        <widget class="QPushButton" name="editChunks">
+         <property name="text">
+          <string>Edit Chunks</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Layer Midpoint</string>
+         </property>
+        </widget>
+       </item>
+       <item row="23" column="0" colspan="2">
+        <widget class="QPushButton" name="editCollision">
+         <property name="text">
+          <string>Edit Tile Collisions</string>
+         </property>
+        </widget>
+       </item>
        <item row="22" column="0" colspan="2">
         <widget class="QPushButton" name="editStageconfig">
          <property name="text">
@@ -42,16 +84,69 @@
          </property>
         </widget>
        </item>
-       <item row="19" column="1">
-        <widget class="QSpinBox" name="plrY">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Player spawn YPos&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <item row="8" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Layer 2</string>
          </property>
-         <property name="minimum">
-          <number>-32767</number>
+        </widget>
+       </item>
+       <item row="11" column="0" colspan="2">
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
-         <property name="maximum">
-          <number>32767</number>
+        </widget>
+       </item>
+       <item row="13" column="0">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="19" column="0">
+        <widget class="QLabel" name="label_9">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>y</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="18" column="0">
+        <widget class="QLabel" name="label_10">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>x</string>
          </property>
         </widget>
        </item>
@@ -102,246 +197,10 @@
          </item>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QCheckBox" name="loadGlobals">
-         <property name="layoutDirection">
-          <enum>Qt::RightToLeft</enum>
-         </property>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_11">
          <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Layer 1</string>
-         </property>
-        </widget>
-       </item>
-       <item row="20" column="0" colspan="2">
-        <widget class="Line" name="line_4">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Layer 2</string>
-         </property>
-        </widget>
-       </item>
-       <item row="18" column="0">
-        <widget class="QLabel" name="label_10">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>x</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0" colspan="2">
-        <widget class="QLabel" name="label_14">
-         <property name="text">
-          <string>Scene Properties</string>
-         </property>
-        </widget>
-       </item>
-       <item row="15" column="0">
-        <widget class="QLabel" name="label_8">
-         <property name="text">
-          <string>Music</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="title"/>
-       </item>
-       <item row="23" column="0" colspan="2">
-        <widget class="QPushButton" name="editCollision">
-         <property name="text">
-          <string>Edit Tile Collisions</string>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="0" colspan="2">
-        <widget class="QLabel" name="label_13">
-         <property name="text">
-          <string>Retro-Sonic Exclusive Properties</string>
-         </property>
-        </widget>
-       </item>
-       <item row="18" column="1">
-        <widget class="QSpinBox" name="plrX">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Player spawn XPos&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="minimum">
-          <number>-32767</number>
-         </property>
-         <property name="maximum">
-          <number>32767</number>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="0">
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>Layer 3</string>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="0" colspan="2">
-        <widget class="Line" name="line_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="14" column="0">
-        <widget class="QLabel" name="label_7">
-         <property name="text">
-          <string>Background</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="1">
-        <widget class="QComboBox" name="activeLayer2">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1st Active Layer (Draws on Layer 3)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <item>
-          <property name="text">
-           <string>Foreground</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 1</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 2</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 3</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 4</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 5</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 6</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 7</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 8</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>None</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="7" column="1">
-        <widget class="QComboBox" name="activeLayer1">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1st Active Layer (Draws on Layer 2)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <item>
-          <property name="text">
-           <string>Foreground</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 1</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 2</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 3</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 4</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 5</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 6</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 7</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Background 8</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>None</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="5" column="0" colspan="2">
-        <widget class="Line" name="line">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <string>Load Global Objects</string>
          </property>
         </widget>
        </item>
@@ -409,35 +268,98 @@
          </property>
         </widget>
        </item>
-       <item row="19" column="0">
-        <widget class="QLabel" name="label_9">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="title"/>
+       </item>
+       <item row="7" column="1">
+        <widget class="QComboBox" name="activeLayer1">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1st Active Layer (Draws on Layer 2)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
-         <property name="text">
-          <string>y</string>
+         <item>
+          <property name="text">
+           <string>Foreground</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 1</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 2</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 3</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 4</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 5</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 6</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 7</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 8</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>None</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="18" column="1">
+        <widget class="QSpinBox" name="plrX">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Player spawn XPos&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="minimum">
+          <number>-32767</number>
+         </property>
+         <property name="maximum">
+          <number>32767</number>
          </property>
         </widget>
        </item>
-       <item row="17" column="0" colspan="2">
-        <widget class="QLabel" name="label_12">
+       <item row="3" column="1">
+        <widget class="QCheckBox" name="loadGlobals">
+         <property name="layoutDirection">
+          <enum>Qt::RightToLeft</enum>
+         </property>
          <property name="text">
-          <string>Player Spawn Position</string>
+          <string/>
          </property>
         </widget>
        </item>
-       <item row="21" column="0" colspan="2">
-        <widget class="QPushButton" name="editChunks">
-         <property name="text">
-          <string>Edit Chunks</string>
+       <item row="15" column="1">
+        <widget class="QComboBox" name="music">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The music that will be played when the stage starts&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="13" column="0">
-        <spacer name="verticalSpacer_2">
+       <item row="16" column="0">
+        <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -449,10 +371,44 @@
          </property>
         </spacer>
        </item>
-       <item row="15" column="1">
-        <widget class="QComboBox" name="music">
+       <item row="17" column="0" colspan="2">
+        <widget class="QLabel" name="label_12">
+         <property name="text">
+          <string>Player Spawn Position</string>
+         </property>
+        </widget>
+       </item>
+       <item row="15" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Music</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="0" colspan="2">
+        <widget class="QLabel" name="label_13">
+         <property name="text">
+          <string>Retro-Sonic Exclusive Properties</string>
+         </property>
+        </widget>
+       </item>
+       <item row="19" column="1">
+        <widget class="QSpinBox" name="plrY">
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The music that will be played when the stage starts&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Player spawn YPos&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="minimum">
+          <number>-32767</number>
+         </property>
+         <property name="maximum">
+          <number>32767</number>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Layer 1</string>
          </property>
         </widget>
        </item>
@@ -513,6 +469,91 @@
          </item>
         </widget>
        </item>
+       <item row="8" column="1">
+        <widget class="QComboBox" name="activeLayer2">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1st Active Layer (Draws on Layer 3)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>Foreground</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 1</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 2</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 3</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 4</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 5</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 6</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 7</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Background 8</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>None</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="25" column="0" colspan="2">
+        <widget class="QPushButton" name="editPalette">
+         <property name="text">
+          <string>Edit Palette</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Layer 0</string>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Background</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="2">
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
        <item row="10" column="1">
         <widget class="QComboBox" name="layerMidpoint">
          <property name="toolTip">
@@ -540,46 +581,12 @@
          </item>
         </widget>
        </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Layer 0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="0">
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>Layer Midpoint</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_11">
-         <property name="text">
-          <string>Load Global Objects</string>
-         </property>
-        </widget>
-       </item>
        <item row="24" column="0" colspan="2">
-        <widget class="QPushButton" name="editPalette">
+        <widget class="QPushButton" name="editTSet">
          <property name="text">
-          <string>Edit Palette</string>
+          <string>Edit Tileset</string>
          </property>
         </widget>
-       </item>
-       <item row="16" column="0">
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>

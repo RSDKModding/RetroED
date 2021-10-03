@@ -1,4 +1,5 @@
 #include "includes.hpp"
+#include "qgifimage.h"
 
 static QVector3D rectVertices[] = {
     QVector3D(-0.5f, -0.5f, -0.5f), QVector3D(0.5f, -0.5f, -0.5f), QVector3D(0.5f, 0.5f, -0.5f),
@@ -149,15 +150,18 @@ void SceneViewer::loadScene(QString path, byte ver)
             }
 
             for (FormatHelpers::Chunks::Chunk &c : chunkset.chunks) {
-                QImage img = c.getImage(tiles);
-                chunks.append(img);
+                chunks.append(c.getImage(tiles));
             }
+
+            tilePalette.clear();
+            for (Colour &col : gfx.palette) tilePalette.append(QColor(col.r, col.g, col.b));
         }
     }
     else {
         if (QFile::exists(basePath + "16x16Tiles.gif")) {
             // setup tileset texture from png
-            QImage tileset(basePath + "16x16Tiles.gif");
+            QGifImage tilesetGif(basePath + "16x16Tiles.gif");
+            QImage tileset = tilesetGif.frame(0);
             tilesetTexture = createTexture(tileset);
             for (int i = 0; i < 0x400; ++i) {
                 int tx         = ((i % (tileset.width() / 0x10)) * 0x10);
@@ -168,9 +172,12 @@ void SceneViewer::loadScene(QString path, byte ver)
             }
 
             for (FormatHelpers::Chunks::Chunk &c : chunkset.chunks) {
-                QImage img = c.getImage(tiles);
-                chunks.append(img);
+                chunks.append(c.getImage(tiles));
             }
+
+            auto pal = tileset.colorTable();
+            tilePalette.clear();
+            for (QRgb &col : pal) tilePalette.append(QColor(col));
         }
     }
 

@@ -2,7 +2,7 @@
 
 void RSDKv5::GameConfig::read(Reader &reader, bool oldVer)
 {
-    m_filename = reader.filepath;
+    filePath = reader.filepath;
 
     if (!reader.matchesSignature(signature, 4))
         return;
@@ -40,7 +40,7 @@ void RSDKv5::GameConfig::read(Reader &reader, bool oldVer)
 
 void RSDKv5::GameConfig::write(Writer &writer)
 {
-    m_filename = writer.filePath;
+    filePath = writer.filePath;
     writer.write(signature, 4);
 
     writer.write(gameTitle);

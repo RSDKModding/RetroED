@@ -7,9 +7,10 @@ ScenePropertiesv5::ScenePropertiesv5(QWidget *parent) : QWidget(parent), ui(new 
 
     loadGlobalCB = ui->loadGlobals;
 
-    m_editTIL = ui->editChunks;
-    m_editSCF = ui->editStageconfig;
-    m_editPAL = ui->editPalette;
+    editTIL  = ui->editChunks;
+    editSCF  = ui->editStageconfig;
+    editPAL  = ui->editPalette;
+    editTSet = ui->editTSet;
 }
 
 ScenePropertiesv5::~ScenePropertiesv5() { delete ui; }

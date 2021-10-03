@@ -15,15 +15,57 @@ class SceneEditorv5 : public QWidget
     Q_OBJECT
 
 public:
+    class ActionState
+    {
+    public:
+        QList<QColor> tilePalette;
+        QList<QImage> tiles;
+
+        RSDKv5::GameConfig gameConfig;
+
+        RSDKv5::Scene scene;
+        RSDKv5::StageConfig stageConfig;
+
+        RSDKv5::TileConfig tileconfig;
+
+        // General Editing
+        byte curTool            = TOOL_MOUSE;
+        bool selecting          = false;
+        Vector2<float> mousePos = Vector2<float>(0.0f, 0.0f);
+
+        // Layer Editing
+        Vector2<float> tilePos = Vector2<float>(0.0f, 0.0f);
+        Vector2<bool> tileFlip = Vector2<bool>(false, false);
+        int selectedLayer      = -1;
+
+        // Collision
+        bool showPlaneA = false;
+        bool showPlaneB = false;
+
+        // Entity Editing
+        int selectedObject = -1; // placing
+        int selectedEntity = -1; // viewing
+
+        // Parallax Editing
+        bool showParallax      = false;
+        int selectedScrollInfo = -1;
+
+        // Camera
+        Vector2<float> camPos = Vector2<float>(0.0f, 0.0f);
+
+        bool showPixelGrid = false;
+        bool showTileGrid  = false;
+    };
+
     explicit SceneEditorv5(QWidget *parent = nullptr);
     ~SceneEditorv5();
 
     bool mouseDownL = false;
     bool mouseDownM = false;
     bool mouseDownR = false;
-    bool ctrlDownL    = false;
-    bool altDownL     = false;
-    bool shiftDownL   = false;
+    bool ctrlDownL  = false;
+    bool altDownL   = false;
+    bool shiftDownL = false;
 
     Vector2<int> snapSize;
 
@@ -34,6 +76,7 @@ public:
     SceneObjectPropertiesv5 *objProp = nullptr;
     SceneScrollPropertiesv5 *scrProp = nullptr;
     TileSelector *tileSel            = nullptr;
+    TilesetEditor *tsetEdit          = nullptr;
 
     void loadScene(QString scnPath, QString gcfPath, byte gameType);
 
@@ -61,7 +104,16 @@ private:
     void createEntityList();
     void createScrollList();
 
-    void exportRSDKv5(ExportRSDKv5Scene *dlg);
+    void parseGameXML(QString path);
+
+    void undoAction();
+    void redoAction();
+    void resetAction();
+    void doAction();
+    void clearActions();
+
+    QList<ActionState> actions;
+    int actionIndex = 0;
 
     Ui::SceneEditorv5 *ui;
 };

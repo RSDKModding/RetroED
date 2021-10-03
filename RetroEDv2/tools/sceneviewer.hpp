@@ -89,6 +89,7 @@ public:
     // Camera
     SceneCamera cam;
 
+    QList<QColor> tilePalette;
     QList<QImage> tiles;
     QList<QImage> chunks;
     QImage missingObj;
@@ -244,6 +245,22 @@ public:
         }
     }
 
+    inline QOpenGLTexture *createTexture(QImage src)
+    {
+        QOpenGLTexture *tex = new QOpenGLTexture(QOpenGLTexture::Target::Target2D);
+        tex->create();
+        tex->bind();
+        tex->setWrapMode(QOpenGLTexture::DirectionS, QOpenGLTexture::WrapMode::Repeat);
+        tex->setWrapMode(QOpenGLTexture::DirectionT, QOpenGLTexture::WrapMode::Repeat);
+        tex->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
+        tex->setFormat(QOpenGLTexture::RGBA8_UNorm);
+        tex->setSize(src.width(), src.height());
+        tex->setData(src, QOpenGLTexture::MipMapGeneration::GenerateMipMaps);
+        return tex;
+    }
+
+    QOpenGLTexture *tilesetTexture = nullptr;
+
     void drawTile(float XPos, float YPos, float ZPos, int tileX, int tileY, byte direction);
 
     void drawRectangle(int x, int y, int width, int height, byte r, byte g, byte b, int a);
@@ -275,7 +292,6 @@ protected:
 
 private:
     QOpenGLVertexArrayObject screenVAO, rectVAO;
-    QOpenGLTexture *tilesetTexture = nullptr;
     QList<TextureInfo> objectSprites;
 
     QOpenGLTexture *rsPlayerSprite = nullptr;
@@ -285,20 +301,6 @@ private:
     int shaderID = -1;
     Shader primitiveShader;
     Shader spriteShader;
-
-    inline QOpenGLTexture *createTexture(QImage src)
-    {
-        QOpenGLTexture *tex = new QOpenGLTexture(QOpenGLTexture::Target::Target2D);
-        tex->create();
-        tex->bind();
-        tex->setWrapMode(QOpenGLTexture::DirectionS, QOpenGLTexture::WrapMode::Repeat);
-        tex->setWrapMode(QOpenGLTexture::DirectionT, QOpenGLTexture::WrapMode::Repeat);
-        tex->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
-        tex->setFormat(QOpenGLTexture::RGBA8_UNorm);
-        tex->setSize(src.width(), src.height());
-        tex->setData(src, QOpenGLTexture::MipMapGeneration::GenerateMipMaps);
-        return tex;
-    }
 
     // void processParallax(Scene::SceneLayer &layer);
 

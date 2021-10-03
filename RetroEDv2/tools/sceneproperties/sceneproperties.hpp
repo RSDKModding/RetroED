@@ -19,13 +19,14 @@ public:
     void setupUI(FormatHelpers::Scene *scn, byte ver);
     void unsetUI();
 
-    QComboBox *m_musBox = nullptr;
+    QComboBox *musBox = nullptr;
 
     QCheckBox *loadGlobalCB = nullptr;
 
-    QPushButton *editTIL = nullptr;
-    QPushButton *editSCF = nullptr;
-    QPushButton *m_editPAL = nullptr;
+    QPushButton *editTIL  = nullptr;
+    QPushButton *editSCF  = nullptr;
+    QPushButton *editPAL  = nullptr;
+    QPushButton *editTSet = nullptr;
 
 private:
     Ui::SceneProperties *ui;

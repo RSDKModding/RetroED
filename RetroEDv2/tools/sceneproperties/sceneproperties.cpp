@@ -5,13 +5,14 @@ SceneProperties::SceneProperties(QWidget *parent) : QWidget(parent), ui(new Ui::
 {
     ui->setupUi(this);
 
-    m_musBox = ui->music;
+    musBox = ui->music;
 
     loadGlobalCB = ui->loadGlobals;
 
-    editTIL = ui->editChunks;
-    editSCF = ui->editStageconfig;
-    m_editPAL = ui->editPalette;
+    editTIL  = ui->editChunks;
+    editSCF  = ui->editStageconfig;
+    editPAL  = ui->editPalette;
+    editTSet = ui->editTSet;
 }
 
 SceneProperties::~SceneProperties() { delete ui; }

@@ -68,19 +68,48 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     };
     file->addAction("Save As", saveAsAction);
 
+    auto undoAction = [this] {
+        if (!ui->toolTabs->currentWidget())
+            return;
+
+        REUndoEvent e = REUndoEvent();
+        QApplication::sendEvent(ui->toolTabs->currentWidget(), &e);
+    };
+    // file->addAction("Undo", undoAction);
+
+    auto redoAction = [this] {
+        if (!ui->toolTabs->currentWidget())
+            return;
+
+        RERedoEvent e = RERedoEvent();
+        QApplication::sendEvent(ui->toolTabs->currentWidget(), &e);
+    };
+    // file->addAction("Redo", redoAction);
+
     // SHORTCUTS
     QShortcut *shortcut_new = new QShortcut(this);
     shortcut_new->setKey(Qt::CTRL + Qt::Key_N);
     connect(shortcut_new, &QShortcut::activated, [newAction] { newAction(); });
+
     QShortcut *shortcut_open = new QShortcut(this);
     shortcut_open->setKey(Qt::CTRL + Qt::Key_O);
     connect(shortcut_open, &QShortcut::activated, [openAction] { openAction(); });
+
     QShortcut *shortcut_save = new QShortcut(this);
     shortcut_save->setKey(Qt::CTRL + Qt::Key_S);
     connect(shortcut_save, &QShortcut::activated, [saveAction] { saveAction(); });
+
     QShortcut *shortcut_saveAs = new QShortcut(this);
     shortcut_saveAs->setKey(Qt::CTRL + Qt::ALT + Qt::Key_S);
     connect(shortcut_saveAs, &QShortcut::activated, [saveAsAction] { saveAsAction(); });
+
+    QShortcut *shortcut_undo = new QShortcut(this);
+    shortcut_undo->setKey(Qt::CTRL + Qt::Key_Z);
+    connect(shortcut_undo, &QShortcut::activated, [undoAction] { undoAction(); });
+
+    QShortcut *shortcut_redo = new QShortcut(this);
+    shortcut_redo->setKey(Qt::CTRL + Qt::Key_Y);
+    connect(shortcut_redo, &QShortcut::activated, [redoAction] { redoAction(); });
 
     file->addSeparator();
 

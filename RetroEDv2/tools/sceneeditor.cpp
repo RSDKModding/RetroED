@@ -1,8 +1,6 @@
 #include "includes.hpp"
 #include "ui_sceneeditor.h"
 
-#include <QXmlStreamReader>
-
 // RSDKv4 SOLIDITY TYPES
 // 0 - ALL SOLID
 // 1 - TOP SOLID (can be gripped onto)
@@ -99,7 +97,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     viewer->sbVertical   = ui->verticalScrollBar;
     viewer->statusLabel  = ui->statusLabel;
 
-    m_snapSize = Vector2<int>(0x10, 0x10);
+    snapSize = Vector2<int>(0x10, 0x10);
 
     ui->showParallax->setIcon(Utils::getColouredIcon(":/icons/ic_horizontal_split_48px.svg"));
     ui->showChunkGrid->setIcon(Utils::getColouredIcon(":/icons/ic_grid_48px.svg"));
@@ -176,6 +174,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->objectList->setCurrentItem(item);
+        doAction();
     });
 
     connect(ui->rmObj, &QToolButton::clicked, [this] {
@@ -201,6 +200,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         }
 
         createEntityList();
+        doAction();
     });
 
     connect(ui->entityList, &QListWidget::currentRowChanged, [this](int c) {
@@ -242,6 +242,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         createEntityList();
 
         ui->addEnt->setDisabled(viewer->scene.objects.count() >= FormatHelpers::Scene::maxObjectCount);
+        doAction();
     });
 
     connect(ui->rmEnt, &QToolButton::clicked, [this] {
@@ -262,6 +263,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         ui->rmEnt->setDisabled(viewer->scene.objects.count() <= 0);
         ui->addEnt->setDisabled(viewer->scene.objects.count() >= FormatHelpers::Scene::maxObjectCount);
+        doAction();
     });
 
     connect(ui->scrollList, &QListWidget::currentRowChanged, [this](int c) {
@@ -290,6 +292,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         layer.scrollInfos.append(scr);
 
         createScrollList();
+        doAction();
     });
 
     connect(ui->rmScr, &QToolButton::clicked, [this] {
@@ -300,6 +303,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         ui->scrollList->blockSignals(true);
         ui->scrollList->setCurrentRow(n);
         ui->scrollList->blockSignals(false);
+        doAction();
     });
 
     connect(ui->impScr, &QToolButton::clicked, [this] {
@@ -323,6 +327,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 layer.scrollInfos.append(info);
             }
             createScrollList();
+            doAction();
         }
     });
 
@@ -375,13 +380,17 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     };
 
     connect(ui->selToolBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [resetTools](int v) { resetTools(v); });
+            [resetTools, this](int v) {
+                resetTools(v);
+                doAction();
+            });
 
     connect(ui->showCollisionA, &QPushButton::clicked, [this] {
         viewer->showPlaneA ^= 1;
         viewer->showPlaneB = false;
         ui->showCollisionA->setChecked(viewer->showPlaneA);
         ui->showCollisionB->setChecked(viewer->showPlaneB);
+        doAction();
     });
 
     connect(ui->showCollisionB, &QPushButton::clicked, [this] {
@@ -389,11 +398,21 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         viewer->showPlaneB ^= 1;
         ui->showCollisionA->setChecked(viewer->showPlaneA);
         ui->showCollisionB->setChecked(viewer->showPlaneB);
+        doAction();
     });
 
-    connect(ui->showChunkGrid, &QPushButton::clicked, [this] { viewer->showChunkGrid ^= 1; });
-    connect(ui->showTileGrid, &QPushButton::clicked, [this] { viewer->showTileGrid ^= 1; });
-    connect(ui->showPixelGrid, &QPushButton::clicked, [this] { viewer->showPixelGrid ^= 1; });
+    connect(ui->showChunkGrid, &QPushButton::clicked, [this] {
+        viewer->showChunkGrid ^= 1;
+        doAction();
+    });
+    connect(ui->showTileGrid, &QPushButton::clicked, [this] {
+        viewer->showTileGrid ^= 1;
+        doAction();
+    });
+    connect(ui->showPixelGrid, &QPushButton::clicked, [this] {
+        viewer->showPixelGrid ^= 1;
+        doAction();
+    });
 
     connect(scnProp->loadGlobalCB, &QCheckBox::toggled, [this](bool b) {
         viewer->stageConfig.loadGlobalScripts = b;
@@ -426,9 +445,13 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             ui->objectList->addItem(viewer->scene.objectTypeNames[o]);
 
         createEntityList();
+        doAction();
     });
 
-    connect(ui->showParallax, &QPushButton::clicked, [this] { viewer->showParallax ^= 1; });
+    connect(ui->showParallax, &QPushButton::clicked, [this] {
+        viewer->showParallax ^= 1;
+        doAction();
+    });
 
     connect(scnProp->editTIL, &QPushButton::clicked, [this] {
         if (chunkEdit == nullptr) {
@@ -439,6 +462,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         connect(chunkEdit, &QDialog::finished, [this] {
             chkProp->refreshList();
+            doAction();
             chunkEdit = nullptr;
         });
     });
@@ -588,19 +612,63 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         createEntityList();
 
         if (viewer->gameType == ENGINE_v1) {
-            scnProp->m_musBox->blockSignals(true);
-            scnProp->m_musBox->clear();
+            scnProp->musBox->blockSignals(true);
+            scnProp->musBox->clear();
             for (int m = 0; m < viewer->stageConfig.music.count(); ++m)
-                scnProp->m_musBox->addItem(viewer->stageConfig.music[o]);
-            scnProp->m_musBox->blockSignals(false);
+                scnProp->musBox->addItem(viewer->stageConfig.music[o]);
+            scnProp->musBox->blockSignals(false);
         }
+        doAction();
     });
 
-    connect(scnProp->m_editPAL, &QPushButton::clicked, [this] {
+    connect(scnProp->editTSet, &QPushButton::clicked, [this] {
+        TilesetEditor *edit = new TilesetEditor(&viewer->tiles, &viewer->tilePalette);
+        edit->setWindowTitle("Edit Tileset");
+        edit->exec();
+
+        setStatus("Rebuilding tiles...");
+        viewer->tilesetTexture = nullptr;
+        QImage tileset(0x10, 0x400, QImage::Format_Indexed8);
+
+        QVector<QRgb> pal;
+        for (QColor &col : viewer->tilePalette) {
+            pal.append(col.rgb());
+        }
+        tileset.setColorTable(pal);
+
+        for (int i = 0; i < 0x400; ++i) {
+            for (int y = 0; y < 16; ++y) {
+                for (int x = 0; x < 16; ++x) {
+                    tileset.setPixel(x, y * 0x10, viewer->tiles[i].pixel(x, y));
+                }
+            }
+        }
+        viewer->tilesetTexture = viewer->createTexture(tileset);
+
+        for (int i = 0; i < 0x200; ++i) {
+            for (int y = 0; y < 8; ++y) {
+                for (int x = 0; x < 8; ++x) {
+                    ushort tile = viewer->chunkset.chunks[i].tiles[y][x].tileIndex;
+                    viewer->chunkset.chunks[i].tiles[y][x].tileIndex = edit->tileIDs[tile];
+                }
+            }
+        }
+
+        viewer->chunks.clear();
+        for (FormatHelpers::Chunks::Chunk &c : viewer->chunkset.chunks) {
+            viewer->chunks.append(c.getImage(viewer->tiles));
+        }
+
+        doAction();
+        setStatus("Finished rebuilding tiles!");
+    });
+
+    connect(scnProp->editPAL, &QPushButton::clicked, [this] {
         PaletteEditor *edit =
             new PaletteEditor(viewer->stageConfig.filePath, viewer->gameType + PALTYPE_STAGECONFIGv4);
         edit->setWindowTitle("Edit StageConfig Palette");
         edit->show();
+        doAction();
     });
 
     connect(ui->exportRSDKv5, &QPushButton::clicked, [this] {
@@ -700,6 +768,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         }
     });
 
+    clearActions();
     for (QWidget *w : findChildren<QWidget *>()) {
         w->installEventFilter(this);
     }
@@ -710,6 +779,7 @@ SceneEditor::~SceneEditor() { delete ui; }
 bool SceneEditor::event(QEvent *event)
 {
     if (event->type() == (QEvent::Type)RE_EVENT_NEW) {
+        clearActions();
     }
     if (event->type() == (QEvent::Type)RE_EVENT_OPEN) {
         QList<QString> types = {
@@ -885,6 +955,15 @@ bool SceneEditor::event(QEvent *event)
         }
     }
 
+    if (event->type() == (QEvent::Type)RE_EVENT_UNDO) {
+        undoAction();
+        return true;
+    }
+    if (event->type() == (QEvent::Type)RE_EVENT_REDO) {
+        redoAction();
+        return true;
+    }
+
     return QWidget::event(event);
 }
 
@@ -974,7 +1053,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             if ((mEvent->button() & Qt::MiddleButton) == Qt::MiddleButton)
                 mouseDownM = true;
             if ((mEvent->button() & Qt::RightButton) == Qt::RightButton)
-                m_mouseDownR = true;
+                mouseDownR = true;
 
             if (mouseDownM || (mouseDownL && viewer->curTool == TOOL_MOUSE))
                 setCursor(Qt::ClosedHandCursor);
@@ -986,6 +1065,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     case TOOL_PENCIL: {
                         if (viewer->selectedChunk >= 0 && viewer->selecting) {
                             setTile(mEvent->pos().x(), mEvent->pos().y());
+                            doAction();
                         }
                         else {
                             // click tile to move it or change properties
@@ -1017,6 +1097,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         if (viewer->selecting) {
                             viewer->selectedChunk = 0x00;
                             setTile(mEvent->pos().x(), mEvent->pos().y());
+                            doAction();
                         }
                         break;
                     }
@@ -1042,6 +1123,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                         &viewer->compilerv4.objectEntityList[viewer->selectedEntity],
                                         viewer->gameType);
                                     ui->propertiesBox->setCurrentWidget(ui->objPropPage);
+                                    doAction();
                                     break;
                                 }
                             }
@@ -1086,6 +1168,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                     viewer->gameType);
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                 createEntityList();
+                                doAction();
                             }
                         }
 
@@ -1096,7 +1179,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 break;
             }
 
-            if (m_mouseDownR) {
+            if (mouseDownR) {
                 switch (viewer->curTool) {
                     case TOOL_PENCIL:
                         if (viewer->selectedLayer >= 0) {
@@ -1161,6 +1244,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                     &viewer->compilerv4.objectEntityList[viewer->selectedEntity],
                                     viewer->gameType);
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
+                                doAction();
                                 break;
                             }
                         }
@@ -1242,6 +1326,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     case TOOL_PENCIL: {
                         if (viewer->selectedChunk >= 0 && viewer->selecting) {
                             setTile(viewer->mousePos.x, viewer->mousePos.y);
+                            doAction();
                         }
                         break;
                     }
@@ -1249,6 +1334,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         if (viewer->selecting) {
                             viewer->selectedChunk = 0x0;
                             setTile(viewer->mousePos.x, viewer->mousePos.y);
+                            doAction();
                         }
                         break;
                     }
@@ -1261,8 +1347,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                             object.setY((viewer->mousePos.y * viewer->invZoom()) + viewer->cam.pos.y);
 
                             if (ctrlDownL) {
-                                object.setX(object.getX() - fmodf(object.getX(), m_snapSize.x));
-                                object.setY(object.getY() - fmodf(object.getY(), m_snapSize.y));
+                                object.setX(object.getX() - fmodf(object.getX(), snapSize.x));
+                                object.setY(object.getY() - fmodf(object.getY(), snapSize.y));
                             }
 
                             viewer->compilerv2.objectEntityList[viewer->selectedEntity].XPos =
@@ -1279,6 +1365,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                 object.pos.x;
                             viewer->compilerv4.objectEntityList[viewer->selectedEntity].YPos =
                                 object.pos.y;
+                            doAction();
                         }
                         break;
                     }
@@ -1302,7 +1389,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             if ((mEvent->button() & Qt::MiddleButton) == Qt::MiddleButton)
                 mouseDownM = false;
             if ((mEvent->button() & Qt::RightButton) == Qt::RightButton)
-                m_mouseDownR = false;
+                mouseDownR = false;
 
             unsetCursor();
             break;
@@ -1420,6 +1507,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                         else {
                                             viewer->scene.layout[y][x] = 0;
                                         }
+                                        doAction();
 
                                         // reset context
                                         break;
@@ -1438,15 +1526,16 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
                             objProp->unsetUI();
                             createEntityList();
+                            doAction();
                         }
                     }
 
                     if ((kEvent->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
                         && kEvent->key() == Qt::Key_C) {
                         if (viewer->selectedEntity >= 0) {
-                            clipboard       = &viewer->scene.objects[viewer->selectedEntity];
-                            clipboardType   = COPY_ENTITY;
-                            m_clipboardInfo = viewer->selectedEntity;
+                            clipboard     = &viewer->scene.objects[viewer->selectedEntity];
+                            clipboardType = COPY_ENTITY;
+                            clipboardInfo = viewer->selectedEntity;
                         }
                     }
                     break;
@@ -1517,10 +1606,10 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
         objProp->typeBox->addItem(viewer->scene.objectTypeNames[o]);
 
     if (viewer->gameType == ENGINE_v1) {
-        scnProp->m_musBox->clear();
+        scnProp->musBox->clear();
 
         for (int m = 0; m < viewer->stageConfig.music.count(); ++m)
-            scnProp->m_musBox->addItem(viewer->stageConfig.music[m]);
+            scnProp->musBox->addItem(viewer->stageConfig.music[m]);
     }
     scnProp->setupUI(&viewer->scene, viewer->gameType);
 
@@ -1850,6 +1939,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
         }
     }
 
+    clearActions();
     appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR, scnPath, QList<QString>{ gcfPath });
     setStatus("Loaded Scene: " + QFileInfo(scnPath).fileName());
 }
@@ -1858,7 +1948,7 @@ void SceneEditor::createEntityList()
     ui->entityList->blockSignals(true);
     ui->entityList->clear();
 
-    // C++11 abute poggers
+    // C++11 absolute poggers
     std::sort(viewer->scene.objects.begin(), viewer->scene.objects.end(),
               [](const FormatHelpers::Scene::Object &a, const FormatHelpers::Scene::Object &b) -> bool {
                   return a.slotID < b.slotID;
@@ -2347,6 +2437,167 @@ void SceneEditor::parseGameXML(byte gameType, QString path)
 
     // close reader and flush file
     xmlReader.clear();
+}
+
+void SceneEditor::undoAction()
+{
+    if (actionIndex > 0) {
+        actionIndex--;
+        resetAction();
+    }
+}
+void SceneEditor::redoAction()
+{
+    if (actionIndex + 1 < actions.count()) {
+        actionIndex++;
+        resetAction();
+    }
+}
+
+void SceneEditor::resetAction()
+{
+    viewer->tilePalette = actions[actionIndex].tilePalette;
+    viewer->tiles       = actions[actionIndex].tiles;
+    viewer->chunks      = actions[actionIndex].chunks;
+
+    viewer->gameConfig = actions[actionIndex].gameConfig;
+
+    viewer->scene       = actions[actionIndex].scene;
+    viewer->background  = actions[actionIndex].background;
+    viewer->chunkset    = actions[actionIndex].chunkset;
+    viewer->stageConfig = actions[actionIndex].stageConfig;
+
+    viewer->tileconfig   = actions[actionIndex].tileconfig;
+    viewer->tileconfigRS = actions[actionIndex].tileconfigRS;
+
+    // General Editing
+    viewer->curTool   = actions[actionIndex].curTool;
+    viewer->selecting = actions[actionIndex].selecting;
+    viewer->mousePos  = actions[actionIndex].mousePos;
+
+    // Layer Editing
+    viewer->tilePos       = actions[actionIndex].tilePos;
+    viewer->tileFlip      = actions[actionIndex].tileFlip;
+    viewer->selectedChunk = actions[actionIndex].selectedChunk;
+    viewer->selectedLayer = actions[actionIndex].selectedLayer;
+
+    // Collision
+    viewer->showPlaneA = actions[actionIndex].showPlaneA;
+    viewer->showPlaneB = actions[actionIndex].showPlaneB;
+
+    // Entity Editing
+    viewer->selectedObject = actions[actionIndex].selectedObject; // placing
+    viewer->selectedEntity = actions[actionIndex].selectedEntity; // viewing
+
+    // Parallax Editing
+    viewer->showParallax       = actions[actionIndex].showParallax;
+    viewer->selectedScrollInfo = actions[actionIndex].selectedScrollInfo;
+
+    // Camera
+    viewer->cam.pos = actions[actionIndex].camPos;
+
+    viewer->showPixelGrid = actions[actionIndex].showPixelGrid;
+    viewer->showChunkGrid = actions[actionIndex].showChunkGrid;
+    viewer->showTileGrid  = actions[actionIndex].showTileGrid;
+
+    // viewer->compilerv2 = actions[actionIndex].compilerv2;
+    // viewer->compilerv3 = actions[actionIndex].compilerv3;
+    // viewer->compilerv4 = actions[actionIndex].compilerv4;
+
+    // updating UI
+    ui->showChunkGrid->blockSignals(true);
+    ui->showChunkGrid->setDown(viewer->showChunkGrid);
+    ui->showChunkGrid->blockSignals(false);
+
+    ui->showTileGrid->blockSignals(true);
+    ui->showTileGrid->setDown(viewer->showTileGrid);
+    ui->showTileGrid->blockSignals(false);
+
+    ui->showPixelGrid->blockSignals(true);
+    ui->showPixelGrid->setDown(viewer->showPixelGrid);
+    ui->showPixelGrid->blockSignals(false);
+
+    ui->showCollisionA->blockSignals(true);
+    ui->showCollisionA->setDown(viewer->showPlaneA);
+    ui->showCollisionA->blockSignals(false);
+
+    ui->showCollisionB->blockSignals(true);
+    ui->showCollisionB->setDown(viewer->showPlaneB);
+    ui->showCollisionB->blockSignals(false);
+
+    ui->showParallax->blockSignals(true);
+    ui->showParallax->setDown(viewer->showParallax);
+    ui->showParallax->blockSignals(false);
+
+    ui->selToolBox->blockSignals(true);
+    ui->selToolBox->setCurrentIndex(viewer->curTool);
+    ui->selToolBox->blockSignals(false);
+}
+
+void SceneEditor::doAction()
+{
+    ActionState action;
+
+    action.tilePalette = viewer->tilePalette;
+    action.tiles       = viewer->tiles;
+    action.chunks      = viewer->chunks;
+
+    action.gameConfig = viewer->gameConfig;
+
+    action.scene       = viewer->scene;
+    action.background  = viewer->background;
+    action.chunkset    = viewer->chunkset;
+    action.stageConfig = viewer->stageConfig;
+
+    action.tileconfig   = viewer->tileconfig;
+    action.tileconfigRS = viewer->tileconfigRS;
+
+    // General Editing
+    action.curTool   = viewer->curTool;
+    action.selecting = viewer->selecting;
+    action.mousePos  = viewer->mousePos;
+
+    // Layer Editing
+    action.tilePos       = viewer->tilePos;
+    action.tileFlip      = viewer->tileFlip;
+    action.selectedChunk = viewer->selectedChunk;
+    action.selectedLayer = viewer->selectedLayer;
+
+    // Collision
+    action.showPlaneA = viewer->showPlaneA;
+    action.showPlaneB = viewer->showPlaneB;
+
+    // Entity Editing
+    action.selectedObject = viewer->selectedObject; // placing
+    action.selectedEntity = viewer->selectedEntity; // viewing
+
+    // Parallax Editing
+    action.showParallax       = viewer->showParallax;
+    action.selectedScrollInfo = viewer->selectedScrollInfo;
+
+    // Camera
+    action.camPos = viewer->cam.pos;
+
+    action.showPixelGrid = viewer->showPixelGrid;
+    action.showChunkGrid = viewer->showChunkGrid;
+    action.showTileGrid  = viewer->showTileGrid;
+
+    // action.compilerv2 = viewer->compilerv2;
+    // action.compilerv3 = viewer->compilerv3;
+    // action.compilerv4 = viewer->compilerv4;
+
+    for (int i = actions.count() - 1; i > actionIndex; --i) {
+        actions.removeAt(i);
+    }
+
+    actions.append(action);
+    actionIndex = actions.count() - 1;
+}
+void SceneEditor::clearActions()
+{
+    actions.clear();
+    actionIndex = 0;
+    doAction(); // first action, cant be undone
 }
 
 #include "moc_sceneeditor.cpp"
