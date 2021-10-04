@@ -961,14 +961,6 @@ bool GameconfigEditorv2::event(QEvent *event)
                     break;
                 }
             }
-
-            setStatus("Saving GameConfig: " + filedialog.selectedFiles()[0]);
-
-            appConfig.addRecentFile(ENGINE_v2, TOOL_GAMECONFIGEDITOR, filedialog.selectedFiles()[0],
-                                    QList<QString>{ /**/ });
-            Writer writer(filedialog.selectedFiles()[0]);
-            gameConfig.write(writer);
-
             return true;
         }
     }
