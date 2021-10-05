@@ -22,9 +22,11 @@ void ScenePropertiesv5::setupUI(RSDKv5::Scene *scn, RSDKv5::StageConfig *config)
     if (!scn || !config)
         return;
 
+    ui->loadGlobals->blockSignals(true);
     ui->loadGlobals->setChecked(config->loadGlobalObjects);
+    ui->loadGlobals->blockSignals(false);
 }
 
-void ScenePropertiesv5::unsetUI() { disconnect(ui->loadGlobals, nullptr, nullptr, nullptr); }
+void ScenePropertiesv5::unsetUI() {}
 
 #include "moc_scenepropertiesv5.cpp"

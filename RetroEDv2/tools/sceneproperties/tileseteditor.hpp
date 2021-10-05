@@ -13,7 +13,8 @@ class TilesetEditor : public QDialog
     Q_OBJECT
 
 public:
-    explicit TilesetEditor(QList<QImage> *tileList, QList<QColor> *pal, QWidget *parent = nullptr);
+    explicit TilesetEditor(QList<QImage> *tileList, QList<PaletteColour> *pal,
+                           QWidget *parent = nullptr);
     ~TilesetEditor();
 
     QList<ushort> tileIDs;
@@ -21,7 +22,7 @@ public:
 private:
     Ui::TilesetEditor *ui;
 
-    QList<QColor> *palette;
+    QList<PaletteColour> *palette;
     QList<QImage> *tiles;
 };
 

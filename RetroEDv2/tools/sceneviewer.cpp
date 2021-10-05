@@ -154,7 +154,13 @@ void SceneViewer::loadScene(QString path, byte ver)
             }
 
             tilePalette.clear();
-            for (Colour &col : gfx.palette) tilePalette.append(QColor(col.r, col.g, col.b));
+            for (Colour &col : gfx.palette) {
+                PaletteColour clr;
+                clr.r = col.r;
+                clr.g = col.g;
+                clr.b = col.b;
+                tilePalette.append(clr);
+            }
         }
     }
     else {
@@ -177,7 +183,9 @@ void SceneViewer::loadScene(QString path, byte ver)
 
             auto pal = tileset.colorTable();
             tilePalette.clear();
-            for (QRgb &col : pal) tilePalette.append(QColor(col));
+            for (QRgb &col : pal) {
+                tilePalette.append(PaletteColour(col));
+            }
         }
     }
 

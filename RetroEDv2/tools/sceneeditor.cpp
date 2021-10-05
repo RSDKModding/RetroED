@@ -360,8 +360,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         viewer->curTool = tool;
 
         // Reset
-        // m_mainView->m_selectedTile = -1;
-        // m_mainView->m_selectedStamp = -1;
+        // mainView->selectedTile = -1;
+        // mainView->selectedStamp = -1;
         viewer->selectedEntity = -1;
         objProp->unsetUI();
         viewer->selecting = false;
@@ -628,13 +628,26 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         setStatus("Rebuilding tiles...");
         viewer->tilesetTexture = nullptr;
-        QImage tileset(0x10, 0x400, QImage::Format_Indexed8);
+
+        QImage tileset(0x10, 0x400 * 0x10, QImage::Format_Indexed8);
 
         QVector<QRgb> pal;
-        for (QColor &col : viewer->tilePalette) {
-            pal.append(col.rgb());
+        for (PaletteColour &col : viewer->tilePalette) {
+            pal.append(col.toQColor().rgb());
         }
         tileset.setColorTable(pal);
+
+        uchar *pixels = tileset.bits();
+        for (int i = 0; i < 0x400; ++i) {
+            uchar *src = viewer->tiles[i].bits();
+            for (int y = 0; y < 16; ++y) {
+                for (int x = 0; x < 16; ++x) {
+                    *pixels++ = *src++;
+                }
+            }
+        }
+
+        viewer->tilesetTexture = viewer->createTexture(tileset);
 
         for (int i = 0; i < 0x400; ++i) {
             for (int y = 0; y < 16; ++y) {
@@ -836,12 +849,31 @@ bool SceneEditor::event(QEvent *event)
             setStatus("Saving Scene...");
             QString basePath = path.replace(QFileInfo(path).fileName(), "");
 
+            QImage tileset(0x10, 0x400 * 0x10, QImage::Format_Indexed8);
+
+            QVector<QRgb> pal;
+            for (PaletteColour &col : viewer->tilePalette) {
+                pal.append(col.toQColor().rgb());
+            }
+            tileset.setColorTable(pal);
+
+            uchar *pixels = tileset.bits();
+            for (int i = 0; i < 0x400; ++i) {
+                uchar *src = viewer->tiles[i].bits();
+                for (int y = 0; y < 16; ++y) {
+                    for (int x = 0; x < 16; ++x) {
+                        *pixels++ = *src++;
+                    }
+                }
+            }
+
             if (viewer->gameType != ENGINE_v1) {
                 viewer->scene.write(viewer->gameType, viewer->scene.filepath);
                 viewer->background.write(viewer->gameType, basePath + "Backgrounds.bin");
                 viewer->chunkset.write(viewer->gameType, basePath + "128x128Tiles.bin");
                 viewer->tileconfig.write(basePath + "CollisionMasks.bin");
                 viewer->stageConfig.write(viewer->gameType, basePath + "StageConfig.bin");
+                tileset.save(basePath + "16x16Tiles.gif");
             }
             else {
                 viewer->scene.write(viewer->gameType, viewer->scene.filepath);
@@ -849,6 +881,9 @@ bool SceneEditor::event(QEvent *event)
                 viewer->chunkset.write(viewer->gameType, basePath + "Zone.til");
                 viewer->tileconfigRS.write(basePath + "Zone.tcf");
                 viewer->stageConfig.write(viewer->gameType, basePath + "Zone.zcf");
+                RSDKv1::GFX gfx;
+                gfx.importImage(tileset);
+                gfx.write(basePath + "16x16Tiles.gfx");
             }
 
             setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));

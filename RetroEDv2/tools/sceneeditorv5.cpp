@@ -394,7 +394,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     connect(scnProp->loadGlobalCB, &QCheckBox::toggled, [this](bool b) {
         viewer->stageConfig.loadGlobalObjects = b;
         if (viewer->stageConfig.loadGlobalObjects) { // assume we had no globals & are now adding em
-            for (int o = viewer->scene.objects.count() - 1; o >= 0; --o) {
+            for (int o = viewer->entities.count() - 1; o >= 0; --o) {
                 if (viewer->entities[o].type >= 1)
                     viewer->entities[o].type += viewer->gameConfig.objects.count();
             }
@@ -403,11 +403,11 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 SceneObject obj;
                 obj.name = viewer->gameConfig.objects[t];
                 // TODO: vars
-                viewer->objects.insert(0, obj);
+                viewer->objects.insert(1, obj);
             }
         }
         else { // assume we had globals & are now removing em
-            for (int o = viewer->scene.objects.count() - 1; o >= 0; --o) {
+            for (int o = viewer->entities.count() - 1; o >= 0; --o) {
                 if (viewer->entities[o].type > viewer->gameConfig.objects.count())
                     viewer->entities[o].type -= viewer->gameConfig.objects.count();
                 else if (viewer->entities[o].type >= 1)
@@ -415,12 +415,11 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             }
 
             for (int t = viewer->gameConfig.objects.count() - 1; t >= 0; --t) {
-                viewer->objects.removeAt(t);
+                viewer->objects.removeAt(t + 1);
             }
         }
 
         ui->objectList->clear();
-        ui->objectList->addItem("Blank Object");
         for (int o = 0; o < viewer->objects.count(); ++o)
             ui->objectList->addItem(viewer->objects[o].name);
 
@@ -493,7 +492,15 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         setStatus("Rebuilding tiles...");
         viewer->tilesetTexture = nullptr;
 
-        byte *pixels = new byte[0x100 * 0x400];
+        QImage tileset(0x10, 0x400 * 0x10, QImage::Format_Indexed8);
+
+        QVector<QRgb> pal;
+        for (PaletteColour &col : viewer->tilePalette) {
+            pal.append(col.toQColor().rgb());
+        }
+        tileset.setColorTable(pal);
+
+        uchar *pixels = tileset.bits();
         for (int i = 0; i < 0x400; ++i) {
             uchar *src = viewer->tiles[i].bits();
             for (int y = 0; y < 16; ++y) {
@@ -502,13 +509,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 }
             }
         }
-        QImage tileset(pixels, 0x10, 0x400, QImage::Format_Indexed8);
-
-        QVector<QRgb> pal;
-        for (QColor &col : viewer->tilePalette) {
-            pal.append(col.rgb());
-        }
-        tileset.setColorTable(pal);
 
         viewer->tilesetTexture = viewer->createTexture(tileset);
 

@@ -16,36 +16,7 @@ enum PaletteFormatTypes {
     PALTYPE_STAGECONFIGv3,
     PALTYPE_STAGECONFIGv2,
     PALTYPE_STAGECONFIGv1,
-};
-
-struct PaletteColour {
-    PaletteColour() {}
-    PaletteColour(byte r, byte g, byte b)
-    {
-        this->r = r;
-        this->g = g;
-        this->b = b;
-    }
-
-    void read(Reader &reader)
-    {
-        r = reader.read<byte>();
-        g = reader.read<byte>();
-        b = reader.read<byte>();
-    }
-
-    void write(Writer &writer)
-    {
-        writer.write(r);
-        writer.write(g);
-        writer.write(b);
-    }
-
-    const inline QColor toQColor() { return QColor(r, g, b); }
-
-    byte r = 0xFF;
-    byte g = 0x00;
-    byte b = 0xFF;
+    PALTYPE_COLOURLIST,
 };
 
 class PaletteWidget : public QWidget

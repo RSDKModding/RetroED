@@ -18,7 +18,7 @@ public:
     class ActionState
     {
     public:
-        QList<QColor> tilePalette;
+        QList<PaletteColour> tilePalette;
         QList<QImage> tiles;
 
         RSDKv5::GameConfig gameConfig;

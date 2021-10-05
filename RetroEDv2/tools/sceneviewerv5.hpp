@@ -80,7 +80,7 @@ public:
     // Camera
     SceneCamerav5 cam;
 
-    QList<QColor> tilePalette;
+    QList<PaletteColour> tilePalette;
     QList<QImage> tiles;
     QImage missingObj;
 

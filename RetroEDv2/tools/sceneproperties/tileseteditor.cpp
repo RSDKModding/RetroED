@@ -1,7 +1,7 @@
 #include "includes.hpp"
 #include "ui_tileseteditor.h"
 
-TilesetEditor::TilesetEditor(QList<QImage> *tileList, QList<QColor> *pal, QWidget *parent)
+TilesetEditor::TilesetEditor(QList<QImage> *tileList, QList<PaletteColour> *pal, QWidget *parent)
     : QDialog(parent), ui(new Ui::TilesetEditor)
 {
     ui->setupUi(this);
@@ -65,6 +65,12 @@ TilesetEditor::TilesetEditor(QList<QImage> *tileList, QList<QColor> *pal, QWidge
         ui->tileList->insertItem(c + 1, item);
         ui->tileList->setCurrentRow(c + 1);
     });
+
+    connect(ui->editPal, &QToolButton::clicked, [this] {
+
+    });
 }
 
 TilesetEditor::~TilesetEditor() { delete ui; }
+
+#include "moc_tileseteditor.cpp"

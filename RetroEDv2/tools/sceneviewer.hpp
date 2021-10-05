@@ -89,7 +89,7 @@ public:
     // Camera
     SceneCamera cam;
 
-    QList<QColor> tilePalette;
+    QList<PaletteColour> tilePalette;
     QList<QImage> tiles;
     QList<QImage> chunks;
     QImage missingObj;

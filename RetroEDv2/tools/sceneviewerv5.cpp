@@ -156,6 +156,24 @@ void SceneViewerv5::loadScene(QString path)
         ++type;
     }
 
+    bool blankFlag = false;
+    for (SceneObject &obj : objects) {
+        if (obj.name == "Blank Object") {
+            blankFlag = true;
+            break;
+        }
+    }
+
+    // obj type 0 is always blank obj
+    if (!blankFlag) {
+        SceneObject blankObj;
+        blankObj.name = "Blank Object";
+        objects.insert(0, blankObj);
+        for (SceneEntity &ent : entities) {
+            ent.type++;
+        }
+    }
+
     if (QFile::exists(basePath + "16x16Tiles.gif")) {
         // setup tileset texture from png
         QGifImage tilesetGif(basePath + "16x16Tiles.gif");
@@ -172,7 +190,7 @@ void SceneViewerv5::loadScene(QString path)
         auto pal = tileset.colorTable();
         tilePalette.clear();
         for (QRgb &col : pal) {
-            tilePalette.append(QColor(col));
+            tilePalette.append(PaletteColour(col));
         }
     }
 }
@@ -217,10 +235,29 @@ void SceneViewerv5::saveScene(QString path)
         }
     }
 
+    QImage tileset(0x10, 0x400 * 0x10, QImage::Format_Indexed8);
+
+    QVector<QRgb> pal;
+    for (PaletteColour &col : tilePalette) {
+        pal.append(col.toQColor().rgb());
+    }
+    tileset.setColorTable(pal);
+
+    uchar *pixels = tileset.bits();
+    for (int i = 0; i < 0x400; ++i) {
+        uchar *src = tiles[i].bits();
+        for (int y = 0; y < 16; ++y) {
+            for (int x = 0; x < 16; ++x) {
+                *pixels++ = *src++;
+            }
+        }
+    }
+
     scene.write(path);
 
     tileconfig.write(basePath + "TileConfig.bin");
     stageConfig.write(basePath + "StageConfig.bin");
+    tileset.save(basePath + "16x16Tiles.gif");
 }
 
 void SceneViewerv5::updateScene()
