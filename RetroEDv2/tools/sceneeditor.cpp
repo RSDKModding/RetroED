@@ -649,15 +649,6 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         viewer->tilesetTexture = viewer->createTexture(tileset);
 
-        for (int i = 0; i < 0x400; ++i) {
-            for (int y = 0; y < 16; ++y) {
-                for (int x = 0; x < 16; ++x) {
-                    tileset.setPixel(x, y * 0x10, viewer->tiles[i].pixel(x, y));
-                }
-            }
-        }
-        viewer->tilesetTexture = viewer->createTexture(tileset);
-
         for (int i = 0; i < 0x200; ++i) {
             for (int y = 0; y < 8; ++y) {
                 for (int x = 0; x < 8; ++x) {
