@@ -2431,7 +2431,7 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
             for (int i = 0; i < entity.parent->variables.count(); ++i) {
                 RSDKv5::Scene::VariableValue variable;
                 variable.type        = VAR_UINT8;
-                variable.value_uint8 = 0;
+                variable.value_uint8 = viewer->entities[e].customVars[i].value_uint8;
                 entity.variables.append(variable);
             }
 
