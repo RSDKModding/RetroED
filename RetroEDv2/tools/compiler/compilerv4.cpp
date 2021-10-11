@@ -307,6 +307,7 @@ const char variableNamesv4[][0x20] = {
     // EDITOR-ONLY
     "editor.variableID",
     "editor.variableValue",
+    "editor.returnVariable",
 };
 
 const FunctionInfov4 functionsv4[] = {
@@ -903,6 +904,7 @@ enum ScrVar {
     // EDITOR-ONLY
     VAR_EDITORVARIABLEID,
     VAR_EDITORVARIABLEVAL,
+    VAR_EDITORRETURNVAR,
     VAR_MAX_CNT
 };
 
@@ -2901,6 +2903,9 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                     case VAR_EDITORVARIABLEVAL:
                         scriptEng.operands[i] = scnEditor->viewer->variableValue;
                         break;
+                    case VAR_EDITORRETURNVAR:
+                        scriptEng.operands[i] = scnEditor->viewer->returnVariable;
+                        break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant
@@ -3718,18 +3723,21 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                 break;
             }
             case FUNC_ADDEDITORVAR: {
+                opcodeSize = 0;
                 if (scriptEvent == EVENT_RSDKLOAD) {
                     viewer->addEditorVariable(scriptText);
                 }
                 break;
             }
             case FUNC_SETACTIVEVAR: {
+                opcodeSize = 0;
                 if (scriptEvent == EVENT_RSDKLOAD) {
                     viewer->setActiveVariable(scriptText);
                 }
                 break;
             }
             case FUNC_ADDENUMVAR: {
+                opcodeSize = 0;
                 if (scriptEvent == EVENT_RSDKLOAD) {
                     viewer->addEnumVariable(scriptText, scriptEng.operands[1]);
                 }
@@ -4320,6 +4328,7 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                         // EDITOR-ONLY
                     case VAR_EDITORVARIABLEID: break;
                     case VAR_EDITORVARIABLEVAL: break;
+                    case VAR_EDITORRETURNVAR: break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant

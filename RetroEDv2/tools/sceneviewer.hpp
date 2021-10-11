@@ -335,11 +335,12 @@ public:
 
     void callGameEvent(byte eventID, int entityID);
 
-    bool objectsLoaded = false;
-    int activeVar      = -1;
-    int activeVarObj   = -1;
-    int variableID     = -1;
-    int variableValue  = -1;
+    bool objectsLoaded  = false;
+    int activeVar       = -1;
+    int activeVarObj    = -1;
+    int variableID      = -1;
+    int variableValue   = -1;
+    bool returnVariable = false;
 
     void addEditorVariable(QString name);
     void setActiveVariable(QString name);

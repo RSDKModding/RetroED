@@ -223,25 +223,28 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
         }
 
         scnEditor->viewer->variableID                       = v; // var
-        scnEditor->viewer->variableValue                    = -1;
+        scnEditor->viewer->variableValue                    = 0;
+        scnEditor->viewer->returnVariable                   = true;
         scnEditor->viewer->compilerv4.scriptEng.checkResult = -1;
         scnEditor->viewer->callGameEvent(EVENT_RSDKEDIT, entityID);
-        var.value_uint8 = scnEditor->viewer->compilerv4.scriptEng.checkResult;
+        var.value_int32                   = scnEditor->viewer->compilerv4.scriptEng.checkResult;
+        scnEditor->viewer->returnVariable = false;
 
         if (aliases.count()) {
-            valGroup.append(new Property("enum", aliases, &var.value_uint8, Property::BYTE_MANAGER));
+            valGroup.append(new Property("enum", aliases, &var.value_int32, Property::INT_MANAGER));
         }
         else {
-            valGroup.append(new Property("uint8", &var.value_uint8));
+            valGroup.append(new Property("int32", &var.value_int32));
         }
 
         Property *prop = valGroup.last();
         disconnect(prop, nullptr, nullptr, nullptr);
         connect(prop, &Property::changed,
                 [prop, &var, entityID, v, infoGroup, entity, entityv2, entityv3, entityv4, ver] {
-                    var.value_uint8                  = *(byte *)prop->valuePtr;
-                    scnEditor->viewer->variableID    = v; // prop val
-                    scnEditor->viewer->variableValue = var.value_uint8;
+                    var.value_int32                   = *(byte *)prop->valuePtr;
+                    scnEditor->viewer->variableID     = v;
+                    scnEditor->viewer->variableValue  = var.value_int32;
+                    scnEditor->viewer->returnVariable = false;
 
                     if (entityv2)
                         entityv2->propertyValue = entity->propertyValue;

@@ -2402,7 +2402,7 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
             for (SceneViewer::VariableInfo var : viewer->objects[o].variables) {
                 RSDKv5::Scene::VariableInfo variable;
                 variable.name = RSDKv5::Scene::NameIdentifier(var.name);
-                variable.type = VAR_UINT8;
+                variable.type = VAR_INT32;
                 obj.variables.append(variable);
             }
 
@@ -2430,8 +2430,8 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
 
             for (int i = 0; i < entity.parent->variables.count(); ++i) {
                 RSDKv5::Scene::VariableValue variable;
-                variable.type        = VAR_UINT8;
-                variable.value_uint8 = viewer->entities[e].customVars[i].value_uint8;
+                variable.type        = VAR_INT32;
+                variable.value_uint8 = viewer->entities[e].customVars[i].value_int32;
                 entity.variables.append(variable);
             }
 
