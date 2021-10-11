@@ -51,19 +51,19 @@ void RSDKv4::Bytecode::read(Reader &reader, int scriptCount, bool clear)
     for (int i = 0; i < scriptCount && clear; ++i) {
         scriptList.append(ObjectScript());
         scriptList[i].mainScript    = 0x3FFFF;
-        scriptList[i].m_drawScript    = 0x3FFFF;
+        scriptList[i].drawScript    = 0x3FFFF;
         scriptList[i].startupScript = 0x3FFFF;
     }
 
     for (int i = 0; i < scriptCnt; ++i) {
         scriptList.append(ObjectScript());
         scriptList[scriptCount + i].mainScript    = reader.read<int>();
-        scriptList[scriptCount + i].m_drawScript    = reader.read<int>();
+        scriptList[scriptCount + i].drawScript    = reader.read<int>();
         scriptList[scriptCount + i].startupScript = reader.read<int>();
     }
     for (int i = 0; i < scriptCnt; ++i) {
         scriptList[scriptCount + i].mainJumpTable    = reader.read<int>();
-        scriptList[scriptCount + i].m_drawJumpTable    = reader.read<int>();
+        scriptList[scriptCount + i].drawJumpTable    = reader.read<int>();
         scriptList[scriptCount + i].startupJumpTable = reader.read<int>();
     }
 
@@ -178,12 +178,12 @@ void RSDKv4::Bytecode::write(Writer &writer)
 
     for (int i = 0; i < cnt; ++i) {
         writer.write(scriptList[globalScriptCount + i].mainScript);
-        writer.write(scriptList[globalScriptCount + i].m_drawScript);
+        writer.write(scriptList[globalScriptCount + i].drawScript);
         writer.write(scriptList[globalScriptCount + i].startupScript);
     }
     for (int i = 0; i < cnt; ++i) {
         writer.write(scriptList[globalScriptCount + i].mainJumpTable);
-        writer.write(scriptList[globalScriptCount + i].m_drawJumpTable);
+        writer.write(scriptList[globalScriptCount + i].drawJumpTable);
         writer.write(scriptList[globalScriptCount + i].startupJumpTable);
     }
 

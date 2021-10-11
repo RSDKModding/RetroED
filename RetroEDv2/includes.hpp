@@ -179,6 +179,7 @@ extern QIcon icon_rm;
 
 extern QLabel *statusLabel;
 
+extern SceneEditor *scnEditor;
 extern SceneEditorv5 *v5Editor;
 
 void setStatus(QString status);

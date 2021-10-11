@@ -405,9 +405,7 @@ void GameLink::Setup()
 
 void GameLink::LinkGameObjects(QString gameName)
 {
-    gameObjectCount = 0;
-
-    memset(&gameObjectList, 0, v5_OBJECT_COUNT * sizeof(GameObjectInfo));
+    gameObjectList.clear();
     sceneInfo.classCount     = 0;
     sceneInfo.activeCategory = 0;
     sceneInfo.listPos        = 0;
@@ -432,6 +430,7 @@ void GameLink::LinkGameObjects(QString gameName)
     info.touchMouse   = &touchMouse;
     info.unknown      = &unknownInfo;
     info.screenInfo   = screens;
+    info.modPtrs      = NULL;
 
     QLibrary logicLib;
 
@@ -456,13 +455,13 @@ void GameLink::LinkGameObjects(QString gameName)
 
         linkGameLogic(&info);
         printf("sucessfully linked game logic!\n");
-        printf("linked %d objects!\n", gameObjectCount);
+        printf("linked %d objects!\n", gameObjectList.count());
     }
     else {
         printf("failed to link game logic...\n");
     }
 
-    for (int i = 0; i < gameObjectCount; ++i) {
+    for (int i = 0; i < gameObjectList.count(); ++i) {
         if (gameObjectList[i].type)
             *gameObjectList[i].type = NULL;
     }
@@ -477,7 +476,7 @@ GameObjectInfo *GameLink::GetObjectInfo(QString name)
     uint hash[4];
     memcpy(hash, data, 0x10 * sizeof(byte));
 
-    for (int i = 0; i < gameObjectCount; ++i) {
+    for (int i = 0; i < gameObjectList.count(); ++i) {
         if (memcmp(hash, gameObjectList[i].hash, 0x10 * sizeof(byte)) == 0) {
             return &gameObjectList[i];
         }
@@ -487,8 +486,7 @@ GameObjectInfo *GameLink::GetObjectInfo(QString name)
 
 GameObjectInfo *GameLink::GetObjectInfo(int type)
 {
-
-    for (int i = 0; i < gameObjectCount; ++i) {
+    for (int i = 0; i < gameObjectList.count(); ++i) {
         if (gameObjectList[i].type && *gameObjectList[i].type) {
             if ((*gameObjectList[i].type)->objectID == type)
                 return &gameObjectList[i];

@@ -27,6 +27,7 @@ public:
     struct ObjectScript {
         ScriptPtr eventRSDKDraw;
         ScriptPtr eventRSDKLoad;
+        ScriptPtr eventRSDKEdit;
         byte spriteSheetID;
         int frameListOffset;
         byte spriteFrameCount;
@@ -108,7 +109,7 @@ public:
     enum InkFlags { INK_NONE, INK_BLEND, INK_ALPHA, INK_ADD, INK_SUB };
     enum DrawFXFlags { FX_SCALE, FX_ROTATE, FX_ROTOZOOM, FX_INK, FX_TINT, FX_FLIP };
 
-    enum ScriptEvents { EVENT_RSDKDRAW = 0, EVENT_RSDKLOAD = 1 };
+    enum ScriptEvents { EVENT_RSDKDRAW = 0, EVENT_RSDKLOAD = 1, EVENT_RSDKEDIT = 0 };
 
     ObjectScript objectScriptList[OBJECT_COUNT];
     ScriptPtr functionList[FUNCTION_COUNT_v4];

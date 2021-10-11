@@ -20,10 +20,10 @@ public:
         ObjectScript() {}
 
         int mainScript       = 0;
-        int m_drawScript       = 0;
+        int drawScript       = 0;
         int startupScript    = 0;
         int mainJumpTable    = 0;
-        int m_drawJumpTable    = 0;
+        int drawJumpTable    = 0;
         int startupJumpTable = 0;
     };
 

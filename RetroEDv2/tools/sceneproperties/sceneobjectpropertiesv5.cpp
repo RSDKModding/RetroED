@@ -16,14 +16,14 @@ SceneObjectPropertiesv5::SceneObjectPropertiesv5(QWidget *parent)
 
 SceneObjectPropertiesv5::~SceneObjectPropertiesv5() { delete ui; }
 
-void SceneObjectPropertiesv5::setupUI(QList<SceneObject> *objects, SceneEntity *entity)
+void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
 {
     unsetUI();
 
     QList<PropertyValue> objNames;
-    for (int o = 0; o < (*objects).count(); ++o) {
+    for (int o = 0; o < v5Editor->viewer->objects.count(); ++o) {
         PropertyValue value;
-        value.name  = (*objects)[o].name;
+        value.name  = v5Editor->viewer->objects[o].name;
         value.value = o;
         objNames.append(value);
     }
@@ -38,9 +38,9 @@ void SceneObjectPropertiesv5::setupUI(QList<SceneObject> *objects, SceneEntity *
         new Property("slot", &entity->slotID),
     };
 
-    connect(infoGroup[0], &Property::changed, [] {
-        // entity type was changed
-        // TODO: clear & reset variables
+    connect(infoGroup[0], &Property::changed, [this, infoGroup, entity] {
+        byte type = *(byte *)infoGroup[0]->valuePtr;
+        emit typeChanged(entity, type);
     });
     connect(infoGroup[1], &Property::changed, [] {
         // entity slot was changed
@@ -69,17 +69,26 @@ void SceneObjectPropertiesv5::setupUI(QList<SceneObject> *objects, SceneEntity *
     for (int v = 0; v < entity->variables.count(); ++v) {
         auto &var = entity->variables[v];
 
-        SceneObject *object = &(*objects)[entity->type];
-        QString varName     = (*objects)[entity->type].variables[v].name;
+        SceneObject *object = &v5Editor->viewer->objects[entity->type];
+        QString varName     = v5Editor->viewer->objects[entity->type].variables[v].name;
         Property *group     = new Property(varName);
         QList<Property *> valGroup;
 
         QList<PropertyValue> aliases;
-
-        if (aliases.count()) {
-            // TODO
+        if (object) {
+            for (int i = 0; i < object->variables.count(); ++i) {
+                if (object->variables[i].name == varName) {
+                    for (auto &value : object->variables[i].values) {
+                        PropertyValue val;
+                        val.name  = value.name;
+                        val.value = value.value;
+                        aliases.append(val);
+                    }
+                }
+            }
         }
-        else {
+
+        {
             switch ((int)var.type) {
                 default: break;
                 case VAR_UINT8: {
@@ -155,7 +164,13 @@ void SceneObjectPropertiesv5::setupUI(QList<SceneObject> *objects, SceneEntity *
                     break;
                 }
                 case VAR_ENUM: {
-                    valGroup.append(new Property("enum", &entity->variables[v].value_enum));
+                    if (aliases.count()) {
+                        valGroup.append(new Property("enum", aliases, &entity->variables[v].value_enum,
+                                                     Property::INT_MANAGER));
+                    }
+                    else {
+                        valGroup.append(new Property("enum", &entity->variables[v].value_enum));
+                    }
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
                     connect(prop, &Property::changed, [prop, v, entity, object] {

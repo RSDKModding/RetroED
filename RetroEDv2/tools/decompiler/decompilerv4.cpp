@@ -1279,7 +1279,7 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
     funcIDv4 = m_globalFunctionCount; // what function to use
     for (int i = m_globalScriptCount; i < m_sourceNames.count(); ++i) {
         RSDKv4::Bytecode::ObjectScript &objectScript = bytecode.scriptList[i];
-        int scriptCodePtrs[3]    = { objectScript.mainScript, objectScript.m_drawScript,
+        int scriptCodePtrs[3]    = { objectScript.mainScript, objectScript.drawScript,
                                   objectScript.startupScript };
         int lowestScriptCodePtr  = 0x3FFFF;
         int highestScriptCodePtr = 0;
@@ -1336,7 +1336,7 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
 
         RSDKv4::Bytecode::ObjectScript &objectScript = bytecode.scriptList[i];
 
-        int scriptCodePtrs[3]    = { objectScript.mainScript, objectScript.m_drawScript,
+        int scriptCodePtrs[3]    = { objectScript.mainScript, objectScript.drawScript,
                                   objectScript.startupScript };
         int lowestScriptCodePtr  = 0x3FFFF;
         int highestScriptCodePtr = 0;
@@ -1360,9 +1360,9 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
             scriptPtrs.append(ScriptPtrv4("ObjectMain", objectScript.mainScript,
                                           objectScript.mainJumpTable, false));
 
-        if (objectScript.m_drawScript < 0x3FFFF)
-            scriptPtrs.append(ScriptPtrv4("ObjectDraw", objectScript.m_drawScript,
-                                          objectScript.m_drawJumpTable, false));
+        if (objectScript.drawScript < 0x3FFFF)
+            scriptPtrs.append(ScriptPtrv4("ObjectDraw", objectScript.drawScript,
+                                          objectScript.drawJumpTable, false));
 
         if (objectScript.startupScript < 0x3FFFF)
             scriptPtrs.append(ScriptPtrv4("ObjectStartup", objectScript.startupScript,
@@ -1396,9 +1396,9 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
             scriptPtrs.append(ScriptPtrv4("ObjectMain", objectScript.mainScript,
                                           objectScript.mainJumpTable, false));
 
-        if (objectScript.m_drawScript < 0x3FFFF)
-            scriptPtrs.append(ScriptPtrv4("ObjectDraw", objectScript.m_drawScript,
-                                          objectScript.m_drawJumpTable, false));
+        if (objectScript.drawScript < 0x3FFFF)
+            scriptPtrs.append(ScriptPtrv4("ObjectDraw", objectScript.drawScript,
+                                          objectScript.drawJumpTable, false));
 
         if (objectScript.startupScript < 0x3FFFF)
             scriptPtrs.append(ScriptPtrv4("ObjectStartup", objectScript.startupScript,

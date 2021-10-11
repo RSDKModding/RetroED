@@ -3,6 +3,15 @@
 
 #include <QWidget>
 
+class VariableValue
+{
+public:
+    QString name = "Variable";
+    int value    = 0;
+
+    VariableValue() {}
+};
+
 class VariableInfo
 {
 public:
@@ -10,11 +19,17 @@ public:
     byte type    = 0;
     int offset   = -1;
     QByteArray hash;
+    QList<VariableValue> values;
 
-    VariableInfo() {}
+    VariableInfo()
+    {
+        hash = Utils::getMd5HashByteArray(name);
+        values.clear();
+    }
     VariableInfo(QString n, byte t, int o) : name(n), type(t), offset(o)
     {
         hash = Utils::getMd5HashByteArray(name);
+        values.clear();
     }
 };
 
@@ -59,13 +74,15 @@ public:
     explicit SceneObjectPropertiesv5(QWidget *parent = nullptr);
     ~SceneObjectPropertiesv5();
 
-    void setupUI(QList<SceneObject> *objects, SceneEntity *entity);
+    void setupUI(SceneEntity *entity);
     void unsetUI();
 
     void updateUI();
 
-    QComboBox *typeBox          = nullptr;
     PropertyBrowser *properties = nullptr;
+
+signals:
+    void typeChanged(SceneEntity *entity, byte type);
 
 private:
     Ui::SceneObjectPropertiesv5 *ui;

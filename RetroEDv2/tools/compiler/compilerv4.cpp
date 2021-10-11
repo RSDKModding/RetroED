@@ -303,6 +303,10 @@ const char variableNamesv4[][0x20] = {
     "engine.bgmVolume",
     "engine.trialMode",
     "engine.deviceType",
+
+    // EDITOR-ONLY
+    "editor.variableID",
+    "editor.variableValue",
 };
 
 const FunctionInfov4 functionsv4[] = {
@@ -479,6 +483,11 @@ const FunctionInfov4 functionsv4[] = {
     FunctionInfov4("SetObjectValue", 3),
     FunctionInfov4("CopyObject", 3),
     FunctionInfov4("Print", 3),
+
+    // EDITOR-ONLY
+    FunctionInfov4("AddEditorVariable", 1),
+    FunctionInfov4("SetActiveVariable", 1),
+    FunctionInfov4("AddEnumVariable", 2),
 };
 
 AliasInfov4 publicAliases[ALIAS_COUNT_v4] = { AliasInfov4("true", "1"),
@@ -891,6 +900,9 @@ enum ScrVar {
     VAR_ENGINEBGMVOLUME,
     VAR_ENGINETRIALMODE,
     VAR_ENGINEDEVICETYPE,
+    // EDITOR-ONLY
+    VAR_EDITORVARIABLEID,
+    VAR_EDITORVARIABLEVAL,
     VAR_MAX_CNT
 };
 
@@ -1034,6 +1046,10 @@ enum ScrFunc {
     FUNC_SETOBJECTVALUE,
     FUNC_COPYOBJECT,
     FUNC_PRINT,
+    // EDITOR-ONLY
+    FUNC_ADDEDITORVAR,
+    FUNC_SETACTIVEVAR,
+    FUNC_ADDENUMVAR,
     FUNC_MAX_CNT
 };
 
@@ -1457,30 +1473,48 @@ void Compilerv4::convertFunctionText(QString &text)
 
         for (int i = 0; i < opcodeSize; ++i) {
             ++textPos;
-            int value            = 0;
-            int scriptTextByteID = 0;
-            funcName             = "";
-            arrayStr             = "";
-            while (textPos < text.length()) {
-                if (text[textPos] == ',' || text[textPos] == ')')
-                    break;
-
-                if (value) {
-                    if (text[textPos] == ']')
-                        value = 0;
-                    else
-                        arrayStr += text[textPos];
-                    ++textPos;
-                }
-                else {
-                    if (text[textPos] == '[')
-                        value = 1;
-                    else
-                        funcName += text[textPos];
-                    ++textPos;
+            int mode     = 0;
+            int prevMode = 0;
+            funcName     = "";
+            while (((text[textPos] != ',' && text[textPos] != ')') || mode == 2)
+                   && textPos < text.length()) {
+                switch (mode) {
+                    case 0: // normal
+                        if (text[textPos] == '[')
+                            mode = 1;
+                        else if (text[textPos] == '"') {
+                            prevMode = mode;
+                            mode     = 2;
+                            funcName += '"';
+                        }
+                        else
+                            funcName += text[textPos];
+                        ++textPos;
+                        break;
+                    case 1: // array val
+                        if (text[textPos] == ']')
+                            mode = 0;
+                        else if (text[textPos] == '"') {
+                            prevMode = mode;
+                            mode     = 2;
+                        }
+                        else
+                            arrayStr += text[textPos];
+                        ++textPos;
+                        break;
+                    case 2: // string
+                        if (text[textPos] == '"') {
+                            mode = prevMode;
+                            funcName += '"';
+                        }
+                        else
+                            funcName += text[textPos];
+                        ++textPos;
+                        break;
                 }
             }
 
+            int value = 0;
             // Eg: TempValue0 = FX_SCALE
             // Private (this script only)
             for (int a = 0; a < privateAliasCount; ++a) {
@@ -1640,7 +1674,7 @@ void Compilerv4::convertFunctionText(QString &text)
                 scriptData[scriptDataPos++] = SCRIPTVAR_STRCONST;
                 scriptData[scriptDataPos++] = funcName.length() - 2;
                 int scriptTextPos           = 1;
-                scriptTextByteID            = 0;
+                int scriptTextByteID        = 0;
                 while (scriptTextPos > -1) {
                     switch (scriptTextByteID) {
                         case 0:
@@ -2066,6 +2100,13 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID)
                         scriptDataOffset                                       = scriptDataPos;
                         jumpTableDataOffset                                    = jumpTableDataPos;
                     }
+                    if (scriptText == "eventRSDKEdit") {
+                        parseMode                                              = PARSEMODE_FUNCTION;
+                        objectScriptList[scriptID].eventRSDKEdit.scriptCodePtr = scriptDataPos;
+                        objectScriptList[scriptID].eventRSDKEdit.jumpTablePtr  = jumpTableDataPos;
+                        scriptDataOffset                                       = scriptDataPos;
+                        jumpTableDataOffset                                    = jumpTableDataPos;
+                    }
                     break;
                 case PARSEMODE_PLATFORMSKIP:
                     ++lineID;
@@ -2206,6 +2247,8 @@ void Compilerv4::clearScriptData()
         scriptInfo->eventRSDKDraw.jumpTablePtr  = JUMPTABLE_COUNT_v4 - 1;
         scriptInfo->eventRSDKLoad.scriptCodePtr = SCRIPTDATA_COUNT_v4 - 1;
         scriptInfo->eventRSDKLoad.jumpTablePtr  = JUMPTABLE_COUNT_v4 - 1;
+        scriptInfo->eventRSDKEdit.scriptCodePtr = SCRIPTDATA_COUNT_v4 - 1;
+        scriptInfo->eventRSDKEdit.jumpTablePtr  = JUMPTABLE_COUNT_v4 - 1;
         typeNames[o]                            = "";
     }
 
@@ -2235,11 +2278,14 @@ void Compilerv4::writeBytecode(QString path)
     bytecode.scriptList.clear();
     for (int i = globalScriptCount; i < scriptCount; ++i) {
         RSDKv4::Bytecode::ObjectScript scr;
-        scr.mainScript    = objectScriptList[i].eventRSDKDraw.scriptCodePtr;
-        scr.mainJumpTable = objectScriptList[i].eventRSDKDraw.jumpTablePtr;
+        scr.drawScript    = objectScriptList[i].eventRSDKDraw.scriptCodePtr;
+        scr.drawJumpTable = objectScriptList[i].eventRSDKDraw.jumpTablePtr;
 
         scr.startupScript    = objectScriptList[i].eventRSDKLoad.scriptCodePtr;
         scr.startupJumpTable = objectScriptList[i].eventRSDKLoad.jumpTablePtr;
+
+        scr.mainScript    = objectScriptList[i].eventRSDKEdit.scriptCodePtr;
+        scr.mainJumpTable = objectScriptList[i].eventRSDKEdit.jumpTablePtr;
 
         bytecode.scriptList.append(scr);
     }
@@ -2846,7 +2892,15 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                     case VAR_ENGINESFXVOLUME: break;
                     case VAR_ENGINEBGMVOLUME: break;
                     case VAR_ENGINETRIALMODE: break;
-                    case VAR_ENGINEDEVICETYPE: break;
+                    case VAR_ENGINEDEVICETYPE:
+                        break;
+                        // EDITOR-ONLY
+                    case VAR_EDITORVARIABLEID:
+                        scriptEng.operands[i] = scnEditor->viewer->variableID;
+                        break;
+                    case VAR_EDITORVARIABLEVAL:
+                        scriptEng.operands[i] = scnEditor->viewer->variableValue;
+                        break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant
@@ -3663,6 +3717,24 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                     qDebug() << "\n";
                 break;
             }
+            case FUNC_ADDEDITORVAR: {
+                if (scriptEvent == EVENT_RSDKLOAD) {
+                    viewer->addEditorVariable(scriptText);
+                }
+                break;
+            }
+            case FUNC_SETACTIVEVAR: {
+                if (scriptEvent == EVENT_RSDKLOAD) {
+                    viewer->setActiveVariable(scriptText);
+                }
+                break;
+            }
+            case FUNC_ADDENUMVAR: {
+                if (scriptEvent == EVENT_RSDKLOAD) {
+                    viewer->addEnumVariable(scriptText, scriptEng.operands[1]);
+                }
+                break;
+            }
         }
 
         // Set Values
@@ -4243,7 +4315,11 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                     case VAR_ENGINESFXVOLUME: break;
                     case VAR_ENGINEBGMVOLUME: break;
                     case VAR_ENGINETRIALMODE:; break;
-                    case VAR_ENGINEDEVICETYPE: break;
+                    case VAR_ENGINEDEVICETYPE:
+                        break;
+                        // EDITOR-ONLY
+                    case VAR_EDITORVARIABLEID: break;
+                    case VAR_EDITORVARIABLEVAL: break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant

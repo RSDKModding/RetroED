@@ -71,6 +71,10 @@ public:
     int selectedObject = -1; // placing
     int selectedEntity = -1; // viewing
 
+    // For Variable Aliases
+    int activeVar    = -1;
+    int activeVarObj = -1;
+
     int sceneFilter = 0xFF;
 
     // Parallax Editing

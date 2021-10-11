@@ -214,7 +214,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         viewer->cam.pos.x = viewer->entities[c].pos.x - ((viewer->storedW / 2) * viewer->invZoom());
         viewer->cam.pos.y = viewer->entities[c].pos.y - ((viewer->storedH / 2) * viewer->invZoom());
 
-        objProp->setupUI(&viewer->objects, &viewer->entities[viewer->selectedEntity]);
+        objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
         ui->propertiesBox->setCurrentWidget(ui->objPropPage);
     });
 
@@ -868,8 +868,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 if (box.contains(pos)) {
                                     viewer->selectedEntity = o;
 
-                                    objProp->setupUI(&viewer->objects,
-                                                     &viewer->entities[viewer->selectedEntity]);
+                                    objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
                                     ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                     doAction();
                                     break;
@@ -901,8 +900,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
 
                                 viewer->selectedEntity = cnt;
 
-                                objProp->setupUI(&viewer->objects,
-                                                 &viewer->entities[viewer->selectedEntity]);
+                                objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                 createEntityList();
                                 doAction();
@@ -964,8 +962,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 viewer->selectedEntity = o;
                                 found                  = true;
 
-                                objProp->setupUI(&viewer->objects,
-                                                 &viewer->entities[viewer->selectedEntity]);
+                                objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                 break;
                             }
@@ -1387,7 +1384,8 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     objProp->unsetUI();
     scrProp->unsetUI();
 
-    gameLink.LinkGameObjects();
+    QString gameName = dataPath + "/../Game";
+    gameLink.LinkGameObjects(gameName);
 
     for (int i = 0; i < viewer->objects.count(); ++i) {
         GameObjectInfo *info = gameLink.GetObjectInfo(viewer->objects[i].name);

@@ -33,8 +33,7 @@ struct TypeGroupList {
     QList<ushort> entries;
 };
 
-extern int gameObjectCount;
-extern GameObjectInfo gameObjectList[v5_OBJECT_COUNT];
+extern QList<GameObjectInfo> gameObjectList;
 
 extern GameObject *blankObject;
 

@@ -200,6 +200,36 @@ void SceneViewer::loadScene(QString path, byte ver)
     }
 
     rsPlayerSprite = createTexture(QImage(":/icons/player_v1.png"));
+
+    objects.clear();
+    entities.clear();
+
+    ObjectInfo blankInfo;
+    blankInfo.name = "Blank Object";
+    objects.append(blankInfo);
+    for (int i = 0; i < scene.objectTypeNames.count(); ++i) {
+        ObjectInfo info;
+        info.name = scene.objectTypeNames[i];
+        info.variables.clear();
+        objects.append(info);
+    }
+
+    for (int i = 0; i < scene.objects.count(); ++i) {
+        EntityInfo info;
+        info.slotID        = scene.objects[i].slotID;
+        info.type          = scene.objects[i].type;
+        info.propertyValue = scene.objects[i].propertyValue;
+        info.pos.x         = scene.objects[i].getX();
+        info.pos.y         = scene.objects[i].getY();
+
+        if (gameType == ENGINE_v4) {
+            for (int v = 0; v < 0xF; ++v) {
+                info.variables[v] = scene.objects[i].variables[v];
+            }
+        }
+
+        entities.append(info);
+    }
 }
 
 void SceneViewer::updateScene()
@@ -223,8 +253,8 @@ void SceneViewer::updateScene()
                                                    ? "Foreground"
                                                    : "Background " + QString::number(selectedLayer)
                                              : "")
-                .arg(selectedObject >= 0 && selectedObject < scene.objects.count()
-                         ? scene.objectTypeNames[selectedObject]
+                .arg(selectedObject >= 0 && selectedObject < entities.count()
+                         ? objects[selectedObject].name
                          : ""));
     }
 }
@@ -243,21 +273,21 @@ void SceneViewer::drawScene()
         memset(&compilerv3.objectEntityList[i], 0, sizeof(compilerv3.objectEntityList[i]));
         memset(&compilerv4.objectEntityList[i], 0, sizeof(compilerv4.objectEntityList[i]));
 
-        if (i < scene.objects.count()) {
-            compilerv2.objectEntityList[i].type          = scene.objects[i].type;
-            compilerv2.objectEntityList[i].propertyValue = scene.objects[i].propertyValue;
-            compilerv2.objectEntityList[i].XPos          = scene.objects[i].pos.x;
-            compilerv2.objectEntityList[i].YPos          = scene.objects[i].pos.y;
+        if (i < entities.count()) {
+            compilerv2.objectEntityList[i].type          = entities[i].type;
+            compilerv2.objectEntityList[i].propertyValue = entities[i].propertyValue;
+            compilerv2.objectEntityList[i].XPos          = entities[i].pos.x * 65536;
+            compilerv2.objectEntityList[i].YPos          = entities[i].pos.y * 65536;
 
-            compilerv3.objectEntityList[i].type          = scene.objects[i].type;
-            compilerv3.objectEntityList[i].propertyValue = scene.objects[i].propertyValue;
-            compilerv3.objectEntityList[i].XPos          = scene.objects[i].pos.x;
-            compilerv3.objectEntityList[i].YPos          = scene.objects[i].pos.y;
+            compilerv3.objectEntityList[i].type          = entities[i].type;
+            compilerv3.objectEntityList[i].propertyValue = entities[i].propertyValue;
+            compilerv3.objectEntityList[i].XPos          = entities[i].pos.x * 65536;
+            compilerv3.objectEntityList[i].YPos          = entities[i].pos.y * 65536;
 
-            compilerv4.objectEntityList[i].type          = scene.objects[i].type;
-            compilerv4.objectEntityList[i].propertyValue = scene.objects[i].propertyValue;
-            compilerv4.objectEntityList[i].XPos          = scene.objects[i].pos.x;
-            compilerv4.objectEntityList[i].YPos          = scene.objects[i].pos.y;
+            compilerv4.objectEntityList[i].type          = entities[i].type;
+            compilerv4.objectEntityList[i].propertyValue = entities[i].propertyValue;
+            compilerv4.objectEntityList[i].XPos          = entities[i].pos.x * 65536;
+            compilerv4.objectEntityList[i].YPos          = entities[i].pos.y * 65536;
 
             int *values[] = { &compilerv4.objectEntityList[i].state,
                               NULL,
@@ -292,11 +322,11 @@ void SceneViewer::drawScene()
                                 NULL };
 
             for (int v = 0; v < 0x0F; ++v) {
-                if (scene.objects[i].variables[v].active) {
+                if (entities[i].variables[v].active) {
                     if (values[v])
-                        *values[v] = scene.objects[i].variables[v].value;
+                        *values[v] = entities[i].variables[v].value;
                     else
-                        *valuesB[v] = scene.objects[i].variables[v].value;
+                        *valuesB[v] = entities[i].variables[v].value;
                 }
             }
         }
@@ -662,55 +692,17 @@ void SceneViewer::drawScene()
     spriteShader.setValue("flipY", false);
     spriteShader.setValue("useAlpha", false);
     spriteShader.setValue("alpha", 1.0f);
-    for (int o = 0; o < scene.objects.count(); ++o) {
-        bool validDraw = false;
-        switch (gameType) {
-            case ENGINE_v1: break;
-            case ENGINE_v2: {
-                auto &curObj = compilerv2.objectScriptList[scene.objects[o].type];
-
-                if (curObj.subRSDK.scriptCodePtr != SCRIPTDATA_COUNT - 1
-                    && scene.objects[o].type != 0) {
-                    compilerv2.objectLoop = o;
-                    compilerv2.processScript(curObj.subRSDK.scriptCodePtr, curObj.subRSDK.jumpTablePtr,
-                                             Compilerv2::SUB_RSDK);
-                    validDraw = true;
-                }
-                break;
-            }
-            case ENGINE_v3: {
-                auto &curObj = compilerv3.objectScriptList[scene.objects[o].type];
-
-                if (curObj.subRSDKDraw.scriptCodePtr != SCRIPTDATA_COUNT - 1
-                    && scene.objects[o].type != 0) {
-                    compilerv3.objectLoop = o;
-                    compilerv3.processScript(curObj.subRSDKDraw.scriptCodePtr,
-                                             curObj.subRSDKDraw.jumpTablePtr, Compilerv3::SUB_RSDKDRAW);
-                    validDraw = true;
-                }
-                break;
-            }
-            case ENGINE_v4: {
-                auto &curObj = compilerv4.objectScriptList[scene.objects[o].type];
-
-                if (curObj.eventRSDKDraw.scriptCodePtr != SCRIPTDATA_COUNT - 1
-                    && scene.objects[o].type != 0) {
-                    compilerv4.objectEntityPos = o;
-                    compilerv4.processScript(curObj.eventRSDKDraw.scriptCodePtr,
-                                             curObj.eventRSDKDraw.jumpTablePtr,
-                                             Compilerv4::EVENT_RSDKDRAW);
-                    validDraw = true;
-                }
-                break;
-            }
-        }
+    for (int o = 0; o < entities.count(); ++o) {
+        validDraw = false;
+        if (objectsLoaded)
+            callGameEvent(EVENT_RSDKDRAW, o);
 
         if (!validDraw) {
             spriteShader.use();
             rectVAO.bind();
             // Draw Object
-            float xpos = scene.objects[o].getX() - cam.pos.x;
-            float ypos = scene.objects[o].getY() - cam.pos.y;
+            float xpos = entities[o].pos.x - cam.pos.x;
+            float ypos = entities[o].pos.y - cam.pos.y;
             float zpos = 10.0f;
 
             int w = objectSprites[0].texturePtr->width(), h = objectSprites[0].texturePtr->height();
@@ -737,8 +729,7 @@ void SceneViewer::drawScene()
             f->glDrawArrays(GL_TRIANGLES, 0, 6);
         }
         //"Selection" Rect
-        // drawRectangle(scene.objects[o].getX() - 8, scene.objects[o].getY() - 8, 16, 16, 0x00, 0x00,
-        //              0xFF, 0x80);
+        // drawRectangle(entities[o].pos.x - 8, entities[o].pos.y - 8, 16, 16, 0x00, 0x00, 0xFF, 0x80);
     }
 
     // CHUNK PREVIEW
@@ -899,12 +890,12 @@ void SceneViewer::drawScene()
     QMatrix4x4 matModel;
     primitiveShader.setValue("model", matModel);
     if (selectedEntity >= 0) {
-        FormatHelpers::Scene::Object &object = scene.objects[selectedEntity];
+        EntityInfo &entity = entities[selectedEntity];
         int w = objectSprites[0].texturePtr->width(), h = objectSprites[0].texturePtr->height();
         objectSprites[0].texturePtr->bind();
 
-        drawRect(((object.getX() - cam.pos.x) - (w / 2)) * zoom,
-                 ((object.getY() - cam.pos.y) - (h / 2)) * zoom, 15.7f, w * zoom, h * zoom,
+        drawRect(((entity.pos.x - cam.pos.x) - (w / 2)) * zoom,
+                 ((entity.pos.y - cam.pos.y) - (h / 2)) * zoom, 15.7f, w * zoom, h * zoom,
                  Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader, true);
     }
 
@@ -1383,6 +1374,8 @@ void SceneViewer::drawSprite(int XPos, int YPos, int width, int height, int sprX
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
     sprDraws++;
+
+    validDraw = true;
 }
 
 void SceneViewer::drawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY,
@@ -1493,6 +1486,8 @@ void SceneViewer::drawSpriteFlipped(int XPos, int YPos, int width, int height, i
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
     sprDraws++;
+
+    validDraw = true;
 }
 
 void SceneViewer::drawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY,
@@ -1726,6 +1721,8 @@ void SceneViewer::drawSpriteRotated(int direction, int XPos, int YPos, int pivot
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
     sprDraws++;
+
+    validDraw = true;
 }
 void SceneViewer::drawSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivotY,
                                      int sprX, int sprY, int width, int height, int rotation, int scale,
@@ -1846,6 +1843,8 @@ void SceneViewer::drawSpriteRotozoom(int direction, int XPos, int YPos, int pivo
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
     sprDraws++;
+
+    validDraw = true;
 }
 
 void SceneViewer::drawBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY,
@@ -1930,6 +1929,8 @@ void SceneViewer::drawAlphaBlendedSprite(int XPos, int YPos, int width, int heig
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
     sprDraws++;
+
+    validDraw = true;
 }
 
 // TODO: make these 2 not just "alpha"
@@ -2009,6 +2010,8 @@ void SceneViewer::drawAdditiveBlendedSprite(int XPos, int YPos, int width, int h
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
     sprDraws++;
+
+    validDraw = true;
 }
 void SceneViewer::drawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int sprX,
                                                int sprY, int alpha, int sheetID)
@@ -2086,4 +2089,130 @@ void SceneViewer::drawSubtractiveBlendedSprite(int XPos, int YPos, int width, in
 
     f->glDrawArrays(GL_TRIANGLES, 0, 6);
     sprDraws++;
+
+    validDraw = true;
+}
+
+void SceneViewer::callGameEvent(byte eventID, int id)
+{
+    switch (gameType) {
+        case ENGINE_v3:
+            switch (eventID) {
+                case EVENT_RSDKLOAD: {
+                    auto &curObj           = compilerv3.objectScriptList[id];
+                    curObj.frameListOffset = compilerv3.scriptFrameCount;
+                    curObj.spriteSheetID   = 0;
+                    compilerv3.objectEntityList[ENTITY_COUNT - 1].type = id;
+
+                    auto &curSub = curObj.subRSDKLoad;
+                    if (curSub.scriptCodePtr != SCRIPTDATA_COUNT - 1) {
+                        compilerv3.processScript(curSub.scriptCodePtr, curSub.jumpTablePtr,
+                                                 Compilerv3::SUB_RSDKLOAD);
+                    }
+                    curObj.spriteFrameCount = compilerv3.scriptFrameCount - curObj.frameListOffset;
+                    break;
+                }
+                case EVENT_RSDKDRAW: {
+                    auto &curObj = compilerv3.objectScriptList[entities[id].type];
+
+                    if (curObj.subRSDKDraw.scriptCodePtr != SCRIPTDATA_COUNT - 1
+                        && entities[id].type != 0) {
+                        compilerv3.objectLoop = id;
+                        compilerv3.processScript(curObj.subRSDKDraw.scriptCodePtr,
+                                                 curObj.subRSDKDraw.jumpTablePtr,
+                                                 Compilerv3::SUB_RSDKDRAW);
+                    }
+                    break;
+                }
+                case EVENT_RSDKEDIT: {
+                    auto &curObj = compilerv3.objectScriptList[entities[id].type];
+
+                    if (curObj.subRSDKEdit.scriptCodePtr != SCRIPTDATA_COUNT - 1
+                        && entities[id].type != 0) {
+                        compilerv3.objectLoop = id;
+                        activeVarObj          = entities[id].type;
+
+                        compilerv3.processScript(curObj.subRSDKEdit.scriptCodePtr,
+                                                 curObj.subRSDKEdit.jumpTablePtr,
+                                                 Compilerv3::SUB_RSDKEDIT);
+                    }
+                    break;
+                }
+            }
+            break;
+        case ENGINE_v4:
+            switch (eventID) {
+                case EVENT_RSDKLOAD: {
+                    auto &curObj           = compilerv4.objectScriptList[id];
+                    curObj.frameListOffset = compilerv4.scriptFrameCount;
+                    curObj.spriteSheetID   = 0;
+                    compilerv4.objectEntityList[ENTITY_COUNT - 1].type = id;
+
+                    auto &curSub = curObj.eventRSDKLoad;
+                    if (curSub.scriptCodePtr != SCRIPTDATA_COUNT - 1) {
+                        compilerv4.processScript(curSub.scriptCodePtr, curSub.jumpTablePtr,
+                                                 Compilerv4::EVENT_RSDKLOAD);
+                    }
+                    curObj.spriteFrameCount = compilerv4.scriptFrameCount - curObj.frameListOffset;
+                    break;
+                }
+                case EVENT_RSDKDRAW: {
+                    auto &curObj = compilerv4.objectScriptList[entities[id].type];
+
+                    if (curObj.eventRSDKDraw.scriptCodePtr != SCRIPTDATA_COUNT - 1
+                        && entities[id].type != 0) {
+                        compilerv4.objectEntityPos = id;
+                        compilerv4.processScript(curObj.eventRSDKDraw.scriptCodePtr,
+                                                 curObj.eventRSDKDraw.jumpTablePtr,
+                                                 Compilerv4::EVENT_RSDKDRAW);
+                    }
+                    break;
+                }
+                case EVENT_RSDKEDIT: {
+                    auto &curObj = compilerv4.objectScriptList[entities[id].type];
+
+                    if (curObj.eventRSDKEdit.scriptCodePtr != SCRIPTDATA_COUNT - 1
+                        && entities[id].type != 0) {
+                        compilerv4.objectEntityPos = id;
+                        activeVarObj               = entities[id].type;
+
+                        compilerv4.processScript(curObj.eventRSDKEdit.scriptCodePtr,
+                                                 curObj.eventRSDKEdit.jumpTablePtr,
+                                                 Compilerv4::EVENT_RSDKEDIT);
+                    }
+                    break;
+                }
+            }
+            break;
+    }
+}
+
+void SceneViewer::addEditorVariable(QString name)
+{
+    VariableInfo var;
+    var.name = name;
+    objects[activeVarObj].variables.append(var);
+}
+void SceneViewer::setActiveVariable(QString name)
+{
+    activeVar = -1;
+
+    int v = 0;
+    for (auto &var : objects[activeVarObj].variables) {
+        if (var.name == name) {
+            activeVar = v;
+            break;
+        }
+        ++v;
+    }
+}
+void SceneViewer::addEnumVariable(QString name, int value)
+{
+    if (activeVarObj >= 0) {
+        VariableValue var;
+        var.name  = name;
+        var.value = value;
+
+        objects[activeVarObj].variables[activeVar].values.append(var);
+    }
 }

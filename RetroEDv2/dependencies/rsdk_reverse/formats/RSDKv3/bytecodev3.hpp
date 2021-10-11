@@ -21,11 +21,11 @@ public:
 
         int mainScript       = 0;
         int playerScript     = 0;
-        int m_drawScript       = 0;
+        int drawScript       = 0;
         int m_startupScript    = 0;
         int mainJumpTable    = 0;
         int playerJumpTable  = 0;
-        int m_drawJumpTable    = 0;
+        int drawJumpTable    = 0;
         int m_startupJumpTable = 0;
     };
 

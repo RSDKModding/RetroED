@@ -1,6 +1,7 @@
 #include "includes.hpp"
 #include "ui_mainwindow.h"
 
+SceneEditor *scnEditor  = nullptr;
 SceneEditorv5 *v5Editor = nullptr;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -14,8 +15,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     icon_add  = QIcon(Utils::getColouredIcon(":/icons/ic_add_circle_48px.svg"));
     icon_rm   = QIcon(Utils::getColouredIcon(":/icons/ic_cancel_48px.svg"));
 
-    connect(ui->toolTabs, &QTabWidget::currentChanged,
-            [this](int) { v5Editor = qobject_cast<SceneEditorv5 *>(ui->toolTabs->currentWidget()); });
+    connect(ui->toolTabs, &QTabWidget::currentChanged, [this](int) {
+        scnEditor = qobject_cast<SceneEditor *>(ui->toolTabs->currentWidget());
+        v5Editor  = qobject_cast<SceneEditorv5 *>(ui->toolTabs->currentWidget());
+    });
 
     QShortcut *closeTab = new QShortcut(ui->toolTabs);
     closeTab->setKey(Qt::CTRL + Qt::Key_W);
@@ -323,6 +326,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     });
 
     ui->menubar->addMenu(tools);
+
+    QMenu *options = new QMenu("Options");
+    options->addAction("Set Base Data Folder", [this] {
+        QFileDialog filedialog(this, tr("Open Directory"), "", "");
+        filedialog.setFileMode(QFileDialog::FileMode::Directory);
+        filedialog.setAcceptMode(QFileDialog::AcceptOpen);
+        if (filedialog.exec() == QDialog::Accepted) {
+            // baseDir = filedialog.selectedFiles()[0];
+        }
+    });
+
+    ui->menubar->addMenu(options);
 
 #ifndef Q_NO_PROCESS
     QMenu *gameManager = new QMenu("Game Manager");

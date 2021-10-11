@@ -16,18 +16,18 @@ public:
     explicit SceneObjectProperties(QWidget *parent = nullptr);
     ~SceneObjectProperties();
 
-    void setupUI(FormatHelpers::Scene::Object *obj, Compilerv2::Entity *entityv2,
+    void setupUI(SceneViewer::EntityInfo *entity, int entityID, Compilerv2::Entity *entityv2,
                  Compilerv3::Entity *entityv3, Compilerv4::Entity *entityv4, byte ver);
     void unsetUI();
 
     void updateUI();
 
-    QComboBox *typeBox = nullptr;
+    PropertyBrowser *properties = nullptr;
 
 private:
     Ui::SceneObjectProperties *ui;
 
-    FormatHelpers::Scene::Object *m_obj = nullptr;
+    SceneViewer::EntityInfo *entityPtr = nullptr;
 };
 
 #endif // SCENEOBJECTPROPERTIES_H

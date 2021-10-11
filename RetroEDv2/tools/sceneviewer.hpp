@@ -23,9 +23,56 @@ enum SceneManagerTool {
     TOOL_PARALLAX,
 };
 
+enum ScriptEvents {
+    EVENT_RSDKDRAW,
+    EVENT_RSDKLOAD,
+    EVENT_RSDKEDIT,
+};
+
 class SceneViewer : public QOpenGLWidget
 {
 public:
+    class VariableValue
+    {
+    public:
+        QString name = "";
+        int value    = 0;
+
+        VariableValue() {}
+    };
+
+    class VariableInfo
+    {
+    public:
+        QString name = "";
+        QList<VariableValue> values;
+
+        VariableInfo() {}
+    };
+
+    class ObjectInfo
+    {
+    public:
+        QString name = "";
+        QList<VariableInfo> variables;
+
+        ObjectInfo() {}
+    };
+
+    class EntityInfo
+    {
+    public:
+        ushort slotID      = 0;
+        byte type          = 0;
+        byte propertyValue = 0;
+        Vector2<float> pos = Vector2<float>(0, 0);
+
+        FormatHelpers::Scene::Object::VariableInfo variables[0x0F];
+        QList<RSDKv5::Scene::VariableValue> customVars;
+
+        EntityInfo() {}
+    };
+
     SceneViewer(QWidget *parent);
     ~SceneViewer();
 
@@ -50,6 +97,9 @@ public:
 
     QString dataPath = "";
     FormatHelpers::Gameconfig gameConfig;
+
+    QList<ObjectInfo> objects;
+    QList<EntityInfo> entities;
 
     FormatHelpers::Scene scene;
     FormatHelpers::Background background;
@@ -282,6 +332,18 @@ public:
                                    int alpha, int sheetID);
     void drawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY,
                                       int alpha, int sheetID);
+
+    void callGameEvent(byte eventID, int entityID);
+
+    bool objectsLoaded = false;
+    int activeVar      = -1;
+    int activeVarObj   = -1;
+    int variableID     = -1;
+    int variableValue  = -1;
+
+    void addEditorVariable(QString name);
+    void setActiveVariable(QString name);
+    void addEnumVariable(QString name, int value);
 
 protected:
     void initializeGL();

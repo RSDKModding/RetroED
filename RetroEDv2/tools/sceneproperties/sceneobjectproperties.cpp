@@ -10,326 +10,278 @@ SceneObjectProperties::SceneObjectProperties(QWidget *parent)
     connect(timer, &QTimer::timeout, this, QOverload<>::of(&SceneObjectProperties::updateUI));
     timer->start(1000.0f / 60.0f);
 
-    typeBox = ui->type;
+    properties = new PropertyBrowser;
+    ui->gridLayout->addWidget(properties);
 }
 
 SceneObjectProperties::~SceneObjectProperties() { delete ui; }
 
-void SceneObjectProperties::setupUI(FormatHelpers::Scene::Object *obj, Compilerv2::Entity *entityv2,
-                                    Compilerv3::Entity *entityv3, Compilerv4::Entity *entityv4,
-                                    byte ver)
+void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityID,
+                                    Compilerv2::Entity *entityv2, Compilerv3::Entity *entityv3,
+                                    Compilerv4::Entity *entityv4, byte ver)
 {
     unsetUI();
 
-    ui->type->setCurrentIndex(obj->type);
-    ui->subtype->setValue(obj->propertyValue);
+    QList<PropertyValue> objNames;
+    for (int o = 0; o < scnEditor->viewer->objects.count(); ++o) {
+        PropertyValue value;
+        value.name  = scnEditor->viewer->objects[o].name;
+        value.value = o;
+        objNames.append(value);
+    }
 
-    ui->posX->setValue(obj->getX());
-    ui->posY->setValue(obj->getY());
+    QList<Property *> entityGroup = {
+        new Property("Object"),
+        new Property("Position"),
+    };
 
-    connect(ui->type, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [obj, entityv2, entityv3, entityv4](int v) {
-                obj->type      = (byte)v;
-                entityv2->type = (byte)v;
-                entityv3->type = (byte)v;
-                entityv4->type = (byte)v;
-            });
-    connect(ui->subtype, QOverload<int>::of(&QSpinBox::valueChanged),
-            [obj, entityv2, entityv3, entityv4](int v) {
-                obj->propertyValue      = (byte)v;
-                entityv2->propertyValue = (byte)v;
-                entityv3->propertyValue = (byte)v;
-                entityv4->propertyValue = (byte)v;
+    QList<Property *> infoGroup = {
+        new Property("Type", objNames, &entity->type, Property::BYTE_MANAGER),
+        new Property("Slot", &entity->slotID),
+        new Property("PropertyValue", &entity->propertyValue),
+    };
+
+    connect(infoGroup[0], &Property::changed, [infoGroup, entity, entityv2, entityv3, entityv4] {
+        byte type    = *(byte *)infoGroup[0]->valuePtr;
+        entity->type = type;
+        if (entityv2)
+            entityv2->type = type;
+        if (entityv3)
+            entityv3->type = type;
+        if (entityv4)
+            entityv4->type = type;
+    });
+    connect(infoGroup[1], &Property::changed, [] {
+        // entity slot was changed
+        // TODO:
+        // check if slot avaliable
+        // if not, dont change slot
+        // if it is, reset the linked entity slot and the new entity slot
+        // and init the new entity slot's data to suit the type
+    });
+    connect(infoGroup[2], &Property::changed,
+            [infoGroup, entity, entityv2, entityv3, entityv4, entityID] {
+                byte propVal          = *(byte *)infoGroup[2]->valuePtr;
+                entity->propertyValue = propVal;
+                if (entityv2)
+                    entityv2->propertyValue = propVal;
+                if (entityv3)
+                    entityv3->propertyValue = propVal;
+                if (entityv4)
+                    entityv4->propertyValue = propVal;
+
+                scnEditor->viewer->variableID    = -1;      // prop val
+                scnEditor->viewer->variableValue = propVal; // prop val
+                scnEditor->viewer->callGameEvent(EVENT_RSDKEDIT, entityID);
             });
 
-    connect(ui->posX, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            [obj, entityv2, entityv3, entityv4](double v) {
-                obj->setX(v);
-                entityv2->XPos = (int)v * 65536.0f;
-                entityv3->XPos = (int)v * 65536.0f;
-                entityv4->XPos = (int)v * 65536.0f;
-            });
-    connect(ui->posY, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            [obj, entityv2, entityv3, entityv4](double v) {
-                obj->setY(v);
-                entityv2->YPos = (int)v * 65536.0f;
-                entityv3->YPos = (int)v * 65536.0f;
-                entityv4->YPos = (int)v * 65536.0f;
-            });
+    QList<Property *> posGroup = { new Property("x", &entity->pos.x),
+                                   new Property("y", &entity->pos.y) };
+
+    connect(posGroup[0], &Property::changed, [entity, entityv2, entityv3, entityv4] {
+        if (entityv2)
+            entityv2->XPos = entity->pos.x * 65536.0f;
+        if (entityv3)
+            entityv3->XPos = entity->pos.x * 65536.0f;
+        if (entityv4)
+            entityv4->XPos = entity->pos.x * 65536.0f;
+    });
+
+    connect(posGroup[1], &Property::changed, [entity, entityv2, entityv3, entityv4] {
+        if (entityv2)
+            entityv2->YPos = entity->pos.y * 65536.0f;
+        if (entityv3)
+            entityv3->YPos = entity->pos.y * 65536.0f;
+        if (entityv4)
+            entityv4->YPos = entity->pos.y * 65536.0f;
+    });
 
     if (ver == ENGINE_v4) {
-        ui->attribBox->setDisabled(false);
+        QList<PropertyValue> flipFlags     = { PropertyValue("No Flip", 0), PropertyValue("Flip X", 1),
+                                           PropertyValue("Flip Y", 2), PropertyValue("Flip XY", 3) };
+        QList<PropertyValue> inkEffects    = { PropertyValue("No Ink", 0), PropertyValue("Blended", 1),
+                                            PropertyValue("Alpha", 2), PropertyValue("Additive", 3),
+                                            PropertyValue("Subtractive", 4) };
+        QList<PropertyValue> priorityFlags = { PropertyValue("Bounds", 0),
+                                               PropertyValue("Active", 1),
+                                               PropertyValue("Active (Paused)", 2),
+                                               PropertyValue("X Bounds", 3),
+                                               PropertyValue("X Bounds (Remove)", 4),
+                                               PropertyValue("Inactive", 5),
+                                               PropertyValue("Bounds (Small)", 6),
+                                               PropertyValue("Unknown", 7) };
 
-        ui->stateActive->setChecked(obj->variables[0].active);
-        ui->flipActive->setChecked(obj->variables[1].active);
-        ui->scaleActive->setChecked(obj->variables[2].active);
-        ui->rotationActive->setChecked(obj->variables[3].active);
-        ui->drawOrderActive->setChecked(obj->variables[4].active);
-        ui->priorityActive->setChecked(obj->variables[5].active);
-        ui->alphaActive->setChecked(obj->variables[6].active);
-        ui->animActive->setChecked(obj->variables[7].active);
-        ui->animSpeedActive->setChecked(obj->variables[8].active);
-        ui->frameActive->setChecked(obj->variables[9].active);
-        ui->inkEffectActive->setChecked(obj->variables[10].active);
-        ui->val1Active->setChecked(obj->variables[11].active);
-        ui->val2Active->setChecked(obj->variables[12].active);
-        ui->val3Active->setChecked(obj->variables[13].active);
-        ui->val4Active->setChecked(obj->variables[14].active);
+        QList<Property *> varGroup = {};
 
-        ui->state->setValue(obj->variables[0].value);
-        ui->flip->setCurrentIndex(obj->variables[1].value);
-        ui->scale->setValue(obj->variables[2].value / 512.0f);
-        ui->rotation->setValue(obj->variables[3].value);
-        ui->drawOrder->setValue(obj->variables[4].value);
-        ui->priority->setCurrentIndex(obj->variables[5].value);
-        ui->alpha->setValue(obj->variables[6].value);
-        ui->animation->setValue(obj->variables[7].value);
-        ui->animSpeed->setValue(obj->variables[8].value);
-        ui->frame->setValue(obj->variables[9].value);
-        ui->inkEffect->setCurrentIndex(obj->variables[10].value);
-        ui->value1->setValue(obj->variables[11].value);
-        ui->value2->setValue(obj->variables[12].value);
-        ui->value3->setValue(obj->variables[13].value);
-        ui->value4->setValue(obj->variables[14].value);
+        int *values[] = { &entityv4->state,
+                          NULL,
+                          &entityv4->scale,
+                          &entityv4->rotation,
+                          NULL,
+                          NULL,
+                          &entityv4->alpha,
+                          NULL,
+                          &entityv4->animationSpeed,
+                          NULL,
+                          NULL,
+                          &entityv4->values[0],
+                          &entityv4->values[1],
+                          &entityv4->values[2],
+                          &entityv4->values[3] };
 
-        connect(ui->stateActive, &QCheckBox::toggled, [obj](bool v) { obj->variables[0].active = v; });
-        connect(ui->flipActive, &QCheckBox::toggled, [obj](bool v) { obj->variables[1].active = v; });
-        connect(ui->scaleActive, &QCheckBox::toggled, [obj](bool v) { obj->variables[2].active = v; });
-        connect(ui->rotationActive, &QCheckBox::toggled,
-                [obj](bool v) { obj->variables[3].active = v; });
-        connect(ui->drawOrderActive, &QCheckBox::toggled,
-                [obj](bool v) { obj->variables[4].active = v; });
-        connect(ui->priorityActive, &QCheckBox::toggled,
-                [obj](bool v) { obj->variables[5].active = v; });
-        connect(ui->alphaActive, &QCheckBox::toggled, [obj](bool v) { obj->variables[6].active = v; });
-        connect(ui->animActive, &QCheckBox::toggled, [obj](bool v) { obj->variables[7].active = v; });
-        connect(ui->animSpeedActive, &QCheckBox::toggled,
-                [obj](bool v) { obj->variables[8].active = v; });
-        connect(ui->frameActive, &QCheckBox::toggled, [obj](bool v) { obj->variables[9].active = v; });
-        connect(ui->inkEffectActive, &QCheckBox::toggled,
-                [obj](bool v) { obj->variables[10].active = v; });
-        connect(ui->val1Active, &QCheckBox::toggled, [obj](bool v) { obj->variables[11].active = v; });
-        connect(ui->val2Active, &QCheckBox::toggled, [obj](bool v) { obj->variables[12].active = v; });
-        connect(ui->val3Active, &QCheckBox::toggled, [obj](bool v) { obj->variables[13].active = v; });
-        connect(ui->val4Active, &QCheckBox::toggled, [obj](bool v) { obj->variables[14].active = v; });
+        byte *valuesB[] = { NULL,
+                            &entityv4->direction,
+                            NULL,
+                            NULL,
+                            (byte *)&entityv4->drawOrder,
+                            &entityv4->priority,
+                            NULL,
+                            &entityv4->animation,
+                            NULL,
+                            &entityv4->frame,
+                            &entityv4->inkEffect,
+                            NULL,
+                            NULL,
+                            NULL,
+                            NULL };
 
-        connect(ui->state, QOverload<int>::of(&QSpinBox::valueChanged),
-                [obj, entityv2, entityv3, entityv4](int v) {
-                    obj->variables[0].value = v;
-                    entityv2->state         = v;
-                    entityv3->state         = v;
-                    entityv4->state         = v;
-                });
+        // Variables
+        for (int v = 0; v < 0xF; ++v) {
+            Property *group = new Property(RSDKv4::objectVariableNames[v]);
 
-        connect(ui->flip, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                [obj, entityv2, entityv3, entityv4](int v) {
-                    obj->variables[1].value = (byte)v;
-                    entityv2->direction     = (byte)v;
-                    entityv3->direction     = (byte)v;
-                    entityv4->direction     = (byte)v;
-                });
+            Property *variable = NULL;
 
-        connect(ui->scale, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-                [obj, entityv2, entityv3, entityv4](double v) {
-                    obj->variables[2].value = v * 0x200;
-                    entityv2->scale         = v * 0x20;
-                    entityv3->scale         = v * 0x20;
-                    entityv4->scale         = v * 0x20;
-                });
+            switch (v) {
+                default:
+                    variable =
+                        new Property(RSDKv4::objectVariableTypes[v], &entity->variables[v].value);
+                    break;
+                case 1:
+                    variable = new Property(RSDKv4::objectVariableTypes[v], flipFlags,
+                                            &entity->variables[v].value, Property::BYTE_MANAGER);
+                    break;
+                case 5:
+                    variable = new Property(RSDKv4::objectVariableTypes[v], priorityFlags,
+                                            &entity->variables[v].value, Property::BYTE_MANAGER);
+                    break;
+                case 10:
+                    variable = new Property(RSDKv4::objectVariableTypes[v], inkEffects,
+                                            &entity->variables[v].value, Property::BYTE_MANAGER);
+                    break;
+            }
 
-        connect(ui->rotation, QOverload<int>::of(&QSpinBox::valueChanged),
-                [obj, entityv2, entityv3, entityv4](int v) {
-                    obj->variables[3].value = (byte)v;
-                    entityv2->rotation      = (byte)v;
-                    entityv3->rotation      = (byte)v;
-                    entityv4->rotation      = (byte)v;
-                });
+            Property *active           = new Property("Active", &entity->variables[v].active);
+            QList<Property *> valGroup = { variable, active };
 
-        connect(ui->drawOrder, QOverload<int>::of(&QSpinBox::valueChanged),
-                [obj, entityv2, entityv3, entityv4](int v) {
-                    obj->variables[4].value = (byte)v;
-                    entityv2->drawOrder     = (byte)v;
-                    entityv3->drawOrder     = (byte)v;
-                    entityv4->drawOrder     = (byte)v;
-                });
+            disconnect(variable, nullptr, nullptr, nullptr);
+            connect(variable, &Property::changed, [=] {
+                entity->variables[v].value = *(int *)variable->valuePtr;
+                if (entity->variables[v].active) {
+                    if (values[v])
+                        *values[v] = entity->variables[v].value;
+                    else
+                        *valuesB[v] = entity->variables[v].value;
+                }
+            });
 
-        connect(ui->priority, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                [obj, entityv2, entityv3, entityv4](int v) {
-                    obj->variables[5].value = (byte)v;
-                    entityv2->priority      = (byte)v;
-                    entityv3->priority      = (byte)v;
-                    entityv4->priority      = (byte)v;
-                });
+            disconnect(active, nullptr, nullptr, nullptr);
+            connect(active, &Property::changed, [=] {
+                entity->variables[v].active = *(bool *)active->valuePtr;
+                if (entity->variables[v].active) {
+                    if (values[v])
+                        *values[v] = entity->variables[v].value;
+                    else
+                        *valuesB[v] = entity->variables[v].value;
+                }
+            });
 
-        connect(ui->alpha, QOverload<int>::of(&QSpinBox::valueChanged),
-                [obj, entityv3, entityv4](int v) {
-                    obj->variables[6].value = (byte)v;
-                    // v2 doesn't have alpha
-                    entityv3->alpha = (byte)v;
-                    entityv4->alpha = (byte)v;
-                });
+            group->setSubProperties(valGroup);
+            varGroup.append(group);
+        }
 
-        connect(ui->animation, QOverload<int>::of(&QSpinBox::valueChanged),
-                [obj, entityv3, entityv4](int v) {
-                    obj->variables[7].value = (byte)v;
-                    // v2 doesn't have animation
-                    entityv3->animation = (byte)v;
-                    entityv4->animation = (byte)v;
-                });
-
-        connect(ui->animSpeed, QOverload<int>::of(&QSpinBox::valueChanged),
-                [obj, entityv3, entityv4](int v) {
-                    obj->variables[8].value = (byte)v;
-                    // v2 doesn't have anim speed
-                    entityv3->animationSpeed = (byte)v;
-                    entityv4->animationSpeed = (byte)v;
-                });
-
-        connect(ui->frame, QOverload<int>::of(&QSpinBox::valueChanged),
-                [obj, entityv2, entityv3, entityv4](int v) {
-                    obj->variables[9].value = (byte)v;
-                    entityv2->frame         = (byte)v;
-                    entityv3->frame         = (byte)v;
-                    entityv4->frame         = (byte)v;
-                });
-
-        connect(ui->inkEffect, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                [obj, entityv2, entityv3, entityv4](int v) {
-                    obj->variables[10].value = (byte)v;
-                    entityv2->inkEffect      = (byte)v;
-                    entityv3->inkEffect      = (byte)v;
-                    entityv4->inkEffect      = (byte)v;
-                });
-
-        connect(ui->value1, QOverload<int>::of(&QSpinBox::valueChanged),
-                [obj, entityv2, entityv3, entityv4](int v) {
-                    obj->variables[11].value = v;
-                    entityv2->values[0]      = v;
-                    entityv2->values[0]      = v;
-                    entityv3->values[0]      = v;
-                    entityv4->values[0]      = v;
-                });
-
-        connect(ui->value2, QOverload<int>::of(&QSpinBox::valueChanged),
-                [obj, entityv2, entityv3, entityv4](int v) {
-                    obj->variables[12].value = v;
-                    entityv2->values[1]      = v;
-                    entityv3->values[1]      = v;
-                    entityv4->values[1]      = v;
-                });
-
-        connect(ui->value3, QOverload<int>::of(&QSpinBox::valueChanged),
-                [obj, entityv2, entityv3, entityv4](int v) {
-                    obj->variables[13].value = v;
-                    entityv2->values[2]      = v;
-                    entityv3->values[2]      = v;
-                    entityv4->values[2]      = v;
-                });
-
-        connect(ui->value4, QOverload<int>::of(&QSpinBox::valueChanged),
-                [obj, entityv2, entityv3, entityv4](int v) {
-                    obj->variables[14].value = v;
-                    entityv2->values[3]      = v;
-                    entityv3->values[3]      = v;
-                    entityv4->values[3]      = v;
-                });
-    }
-    else {
-        ui->attribBox->setDisabled(true);
+        Property *vars = new Property("Variables");
+        vars->setSubProperties(varGroup);
+        entityGroup.append(vars);
     }
 
-    m_obj = obj;
+    for (int v = 0; v < entity->customVars.count(); ++v) {
+        auto &var = entity->customVars[v];
+
+        SceneViewer::ObjectInfo *object = &scnEditor->viewer->objects[entity->type];
+        QString varName                 = scnEditor->viewer->objects[entity->type].variables[v].name;
+        Property *group                 = new Property(varName);
+        QList<Property *> valGroup;
+
+        QList<PropertyValue> aliases;
+        if (object) {
+            for (auto &value : object->variables[v].values) {
+                PropertyValue val;
+                val.name  = value.name;
+                val.value = value.value;
+                aliases.append(val);
+            }
+        }
+
+        scnEditor->viewer->variableID                       = v; // var
+        scnEditor->viewer->variableValue                    = -1;
+        scnEditor->viewer->compilerv4.scriptEng.checkResult = -1;
+        scnEditor->viewer->callGameEvent(EVENT_RSDKEDIT, entityID);
+        var.value_uint8 = scnEditor->viewer->compilerv4.scriptEng.checkResult;
+
+        if (aliases.count()) {
+            valGroup.append(new Property("enum", aliases, &var.value_uint8, Property::BYTE_MANAGER));
+        }
+        else {
+            valGroup.append(new Property("uint8", &var.value_uint8));
+        }
+
+        Property *prop = valGroup.last();
+        disconnect(prop, nullptr, nullptr, nullptr);
+        connect(prop, &Property::changed,
+                [prop, &var, entityID, v, infoGroup, entity, entityv2, entityv3, entityv4, ver] {
+                    var.value_uint8                  = *(byte *)prop->valuePtr;
+                    scnEditor->viewer->variableID    = v; // prop val
+                    scnEditor->viewer->variableValue = var.value_uint8;
+
+                    if (entityv2)
+                        entityv2->propertyValue = entity->propertyValue;
+                    if (entityv3)
+                        entityv3->propertyValue = entity->propertyValue;
+                    if (entityv4)
+                        entityv4->propertyValue = entity->propertyValue;
+
+                    scnEditor->viewer->callGameEvent(EVENT_RSDKEDIT, entityID);
+
+                    switch (ver) {
+                        case ENGINE_v2: entity->propertyValue = entityv2->propertyValue; break;
+                        case ENGINE_v3: entity->propertyValue = entityv3->propertyValue; break;
+                        case ENGINE_v4: entity->propertyValue = entityv4->propertyValue; break;
+                    }
+
+                    infoGroup[2]->updateValue();
+                });
+
+        group->setSubProperties(valGroup);
+        entityGroup.append(group);
+    }
+
+    entityGroup[0]->setSubProperties(infoGroup);
+    entityGroup[1]->setSubProperties(posGroup);
+    properties->setPropertySet(entityGroup);
+
+    entityPtr = entity;
 }
 
 void SceneObjectProperties::unsetUI()
 {
-    disconnect(ui->type, nullptr, nullptr, nullptr);
-    disconnect(ui->subtype, nullptr, nullptr, nullptr);
-    disconnect(ui->posX, nullptr, nullptr, nullptr);
-    disconnect(ui->posY, nullptr, nullptr, nullptr);
-
-    disconnect(ui->stateActive, nullptr, nullptr, nullptr);
-    disconnect(ui->flipActive, nullptr, nullptr, nullptr);
-    disconnect(ui->scaleActive, nullptr, nullptr, nullptr);
-    disconnect(ui->rotationActive, nullptr, nullptr, nullptr);
-    disconnect(ui->drawOrderActive, nullptr, nullptr, nullptr);
-    disconnect(ui->priorityActive, nullptr, nullptr, nullptr);
-    disconnect(ui->alphaActive, nullptr, nullptr, nullptr);
-    disconnect(ui->animActive, nullptr, nullptr, nullptr);
-    disconnect(ui->animSpeedActive, nullptr, nullptr, nullptr);
-    disconnect(ui->frameActive, nullptr, nullptr, nullptr);
-    disconnect(ui->inkEffectActive, nullptr, nullptr, nullptr);
-    disconnect(ui->val1Active, nullptr, nullptr, nullptr);
-    disconnect(ui->val2Active, nullptr, nullptr, nullptr);
-    disconnect(ui->val3Active, nullptr, nullptr, nullptr);
-    disconnect(ui->val4Active, nullptr, nullptr, nullptr);
-
-    disconnect(ui->state, nullptr, nullptr, nullptr);
-    disconnect(ui->flip, nullptr, nullptr, nullptr);
-    disconnect(ui->scale, nullptr, nullptr, nullptr);
-    disconnect(ui->rotation, nullptr, nullptr, nullptr);
-    disconnect(ui->drawOrder, nullptr, nullptr, nullptr);
-    disconnect(ui->priority, nullptr, nullptr, nullptr);
-    disconnect(ui->alpha, nullptr, nullptr, nullptr);
-    disconnect(ui->animation, nullptr, nullptr, nullptr);
-    disconnect(ui->animSpeed, nullptr, nullptr, nullptr);
-    disconnect(ui->frame, nullptr, nullptr, nullptr);
-    disconnect(ui->inkEffect, nullptr, nullptr, nullptr);
-    disconnect(ui->value1, nullptr, nullptr, nullptr);
-    disconnect(ui->value2, nullptr, nullptr, nullptr);
-    disconnect(ui->value3, nullptr, nullptr, nullptr);
-    disconnect(ui->value4, nullptr, nullptr, nullptr);
-
-    // m_ver = ver;
-    m_obj = nullptr;
+    properties->clear();
+    entityPtr = nullptr;
 }
 
 void SceneObjectProperties::updateUI()
 {
-    if (!m_obj)
+    if (!entityPtr)
         return;
-
-    ui->type->setCurrentIndex(m_obj->type);
-    ui->subtype->setValue(m_obj->propertyValue);
-
-    ui->posX->setValue(m_obj->getX());
-    ui->posY->setValue(m_obj->getY());
-
-    // if (ver == ENGINE_v4) {
-    // ui->attribBox->setDisabled(false);
-
-    ui->stateActive->setChecked(m_obj->variables[0].active);
-    ui->flipActive->setChecked(m_obj->variables[1].active);
-    ui->scaleActive->setChecked(m_obj->variables[2].active);
-    ui->rotationActive->setChecked(m_obj->variables[3].active);
-    ui->drawOrderActive->setChecked(m_obj->variables[4].active);
-    ui->priorityActive->setChecked(m_obj->variables[5].active);
-    ui->alphaActive->setChecked(m_obj->variables[6].active);
-    ui->animActive->setChecked(m_obj->variables[7].active);
-    ui->animSpeedActive->setChecked(m_obj->variables[8].active);
-    ui->frameActive->setChecked(m_obj->variables[9].active);
-    ui->inkEffectActive->setChecked(m_obj->variables[10].active);
-    ui->val1Active->setChecked(m_obj->variables[11].active);
-    ui->val2Active->setChecked(m_obj->variables[12].active);
-    ui->val3Active->setChecked(m_obj->variables[13].active);
-    ui->val4Active->setChecked(m_obj->variables[14].active);
-
-    ui->state->setValue(m_obj->variables[0].value);
-    ui->flip->setCurrentIndex(m_obj->variables[1].value);
-    ui->scale->setValue(m_obj->variables[2].value / 512.0f);
-    ui->rotation->setValue(m_obj->variables[3].value);
-    ui->drawOrder->setValue(m_obj->variables[4].value);
-    ui->priority->setCurrentIndex(m_obj->variables[5].value);
-    ui->alpha->setValue(m_obj->variables[6].value);
-    ui->animation->setValue(m_obj->variables[7].value);
-    ui->animSpeed->setValue(m_obj->variables[8].value);
-    ui->frame->setValue(m_obj->variables[9].value);
-    ui->inkEffect->setCurrentIndex(m_obj->variables[10].value);
-    ui->value1->setValue(m_obj->variables[11].value);
-    ui->value2->setValue(m_obj->variables[12].value);
-    ui->value3->setValue(m_obj->variables[13].value);
-    ui->value4->setValue(m_obj->variables[14].value);
-    //}
 }
 
 #include "moc_sceneobjectproperties.cpp"

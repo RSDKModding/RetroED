@@ -1,7 +1,6 @@
 #include "includes.hpp"
 
-int gameObjectCount = 0;
-GameObjectInfo gameObjectList[v5_OBJECT_COUNT];
+QList<GameObjectInfo> gameObjectList;
 
 GameObject *blankObject = NULL;
 
@@ -12,30 +11,29 @@ void FunctionTable::registerObject(GameObject **structPtr, const char *name, uin
                                    void (*editorDraw)(void), void (*editorLoad)(void),
                                    void (*serialize)(void))
 {
-    if (gameObjectCount < v5_OBJECT_COUNT) {
-        GameObjectInfo *info = &gameObjectList[gameObjectCount];
-        if (entitySize > sizeof(GameEntityBase))
-            qDebug() << "Class exceeds max entity memory: " + QString(name);
-        QByteArray hashData = Utils::getMd5HashByteArray(QString(name));
-        byte data[0x10];
-        for (int i = 0; i < 0x10; ++i) data[i] = hashData[i];
 
-        memcpy(info->hash, data, 0x10 * sizeof(byte));
-        info->type         = structPtr;
-        info->entitySize   = entitySize;
-        info->objectSize   = objectSize;
-        info->update       = update;
-        info->lateUpdate   = lateUpdate;
-        info->staticUpdate = staticUpdate;
-        info->draw         = draw;
-        info->create       = create;
-        info->stageLoad    = stageLoad;
-        info->editorDraw   = editorDraw;
-        info->editorLoad   = editorLoad;
-        info->serialize    = serialize;
-        info->name         = name;
-        ++gameObjectCount;
-    }
+    GameObjectInfo info;
+    if (entitySize > sizeof(GameEntityBase))
+        qDebug() << "Class exceeds max entity memory: " + QString(name);
+    QByteArray hashData = Utils::getMd5HashByteArray(QString(name));
+    byte data[0x10];
+    for (int i = 0; i < 0x10; ++i) data[i] = hashData[i];
+
+    memcpy(info.hash, data, 0x10 * sizeof(byte));
+    info.type         = structPtr;
+    info.entitySize   = entitySize;
+    info.objectSize   = objectSize;
+    info.update       = update;
+    info.lateUpdate   = lateUpdate;
+    info.staticUpdate = staticUpdate;
+    info.draw         = draw;
+    info.create       = create;
+    info.stageLoad    = stageLoad;
+    info.editorDraw   = editorDraw;
+    info.editorLoad   = editorLoad;
+    info.serialize    = serialize;
+    info.name         = name;
+    gameObjectList.append(info);
 }
 
 void FunctionTable::registerObjectContainer(GameObject **structPtr, const char *name, uint objectSize)
@@ -72,13 +70,34 @@ void FunctionTable::setActiveVariable(int objectID, const char *name)
 {
     if (!v5Editor)
         return;
-    // SetActiveVariable() called
+    v5Editor->viewer->activeVar    = -1;
+    v5Editor->viewer->activeVarObj = -1;
+
+    int v = 0;
+    for (auto &var : v5Editor->viewer->objects[objectID].variables) {
+        if (var.name == name) {
+            v5Editor->viewer->activeVar    = v;
+            v5Editor->viewer->activeVarObj = objectID;
+            break;
+        }
+        ++v;
+    }
 }
 void FunctionTable::addEnumVar(const char *name)
 {
     if (!v5Editor)
         return;
-    // AddEnumVar() called
+
+    if (v5Editor->viewer->activeVarObj >= 0) {
+        int objectID = v5Editor->viewer->activeVarObj;
+        int id       = v5Editor->viewer->activeVar;
+
+        VariableValue value;
+        value.name  = name;
+        value.value = v5Editor->viewer->objects[objectID].variables[id].values.count();
+
+        v5Editor->viewer->objects[objectID].variables[id].values.append(value);
+    }
 }
 
 ushort FunctionTable::getObjectByName(const char *name)

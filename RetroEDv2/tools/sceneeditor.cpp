@@ -139,15 +139,15 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(ui->objectList, &QListWidget::currentRowChanged, [this](int c) {
         // m_uo->setDisabled(c == -1);
         // m_do->setDisabled(c == -1);
-        ui->rmObj->setDisabled(c == -1 || c >= viewer->scene.objectTypeNames.count());
+        ui->rmObj->setDisabled(c == -1 || c >= viewer->objects.count());
 
-        if (c == -1 || c >= viewer->scene.objectTypeNames.count())
+        if (c == -1 || c >= viewer->objects.count())
             return;
 
         bool global = c == 0;
         if (viewer->stageConfig.loadGlobalScripts) {
             for (auto &obj : viewer->gameConfig.objects) {
-                if (viewer->scene.objectTypeNames[c] == obj.m_name) {
+                if (viewer->objects[c].name == obj.m_name) {
                     global = true;
                     break;
                 }
@@ -166,7 +166,9 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         FormatHelpers::Stageconfig::ObjectInfo objInfo;
         objInfo.m_name = "New Object";
         viewer->stageConfig.objects.append(objInfo);
-        viewer->scene.objectTypeNames.append("New Object");
+        SceneViewer::ObjectInfo info;
+        info.name = "New Object";
+        viewer->objects.append(info);
 
         auto *item = new QListWidgetItem();
         item->setText("New Object");
@@ -186,17 +188,17 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         int globalCount = 1;
         if (viewer->stageConfig.loadGlobalScripts)
             globalCount = viewer->gameConfig.objects.count() + 1;
-        viewer->scene.objectTypeNames.removeAt(c);
+        viewer->objects.removeAt(c);
         viewer->stageConfig.objects.removeAt(c - globalCount);
         ui->objectList->blockSignals(true);
         ui->objectList->setCurrentRow(n);
         ui->objectList->blockSignals(false);
 
-        for (int o = viewer->scene.objects.count() - 1; o >= 0; --o) {
-            if (viewer->scene.objects[o].type > c)
-                viewer->scene.objects[o].type--;
-            else if (viewer->scene.objects[o].type == c)
-                viewer->scene.objects.removeAt(o);
+        for (int o = viewer->entities.count() - 1; o >= 0; --o) {
+            if (viewer->entities[o].type > c)
+                viewer->entities[o].type--;
+            else if (viewer->entities[o].type == c)
+                viewer->entities.removeAt(o);
         }
 
         createEntityList();
@@ -216,12 +218,10 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         viewer->selectedEntity = c;
 
-        viewer->cam.pos.x =
-            viewer->scene.objects[c].getX() - ((viewer->storedW / 2) * viewer->invZoom());
-        viewer->cam.pos.y =
-            viewer->scene.objects[c].getY() - ((viewer->storedH / 2) * viewer->invZoom());
+        viewer->cam.pos.x = viewer->entities[c].pos.x - ((viewer->storedW / 2) * viewer->invZoom());
+        viewer->cam.pos.y = viewer->entities[c].pos.y - ((viewer->storedH / 2) * viewer->invZoom());
 
-        objProp->setupUI(&viewer->scene.objects[viewer->selectedEntity],
+        objProp->setupUI(&viewer->entities[viewer->selectedEntity], viewer->selectedEntity,
                          &viewer->compilerv2.objectEntityList[viewer->selectedEntity],
                          &viewer->compilerv3.objectEntityList[viewer->selectedEntity],
                          &viewer->compilerv4.objectEntityList[viewer->selectedEntity],
@@ -231,17 +231,17 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     connect(ui->addEnt, &QToolButton::clicked, [this] {
         // uint c = objectList->currentRow() + 1;
-        FormatHelpers::Scene::Object obj;
+        SceneViewer::EntityInfo obj;
         obj.type = viewer->selectedObject;
         if (viewer->selectedObject < 0)
             obj.type = 0; // backup
-        obj.slotID = viewer->scene.objects.count();
+        obj.slotID = viewer->entities.count();
 
-        viewer->scene.objects.append(obj);
+        viewer->entities.append(obj);
 
         createEntityList();
 
-        ui->addEnt->setDisabled(viewer->scene.objects.count() >= FormatHelpers::Scene::maxObjectCount);
+        ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::maxObjectCount);
         doAction();
     });
 
@@ -251,18 +251,18 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             return;
         int n = ui->entityList->currentRow() == ui->entityList->count() - 1 ? c - 1 : c;
         delete ui->entityList->item(c);
-        viewer->scene.objects.removeAt(c);
+        viewer->entities.removeAt(c);
         ui->entityList->blockSignals(true);
         ui->entityList->setCurrentRow(n);
         ui->entityList->blockSignals(false);
 
         createEntityList();
 
-        if (viewer->scene.objects.count() <= 0)
+        if (viewer->entities.count() <= 0)
             viewer->selectedEntity = -1;
 
-        ui->rmEnt->setDisabled(viewer->scene.objects.count() <= 0);
-        ui->addEnt->setDisabled(viewer->scene.objects.count() >= FormatHelpers::Scene::maxObjectCount);
+        ui->rmEnt->setDisabled(viewer->entities.count() <= 0);
+        ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::maxObjectCount);
         doAction();
     });
 
@@ -417,32 +417,33 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(scnProp->loadGlobalCB, &QCheckBox::toggled, [this](bool b) {
         viewer->stageConfig.loadGlobalScripts = b;
         if (viewer->stageConfig.loadGlobalScripts) { // assume we had no globals & are now adding em
-            for (int o = viewer->scene.objects.count() - 1; o >= 0; --o) {
-                if (viewer->scene.objects[o].type >= 1)
-                    viewer->scene.objects[o].type += viewer->gameConfig.objects.count();
+            for (int o = viewer->entities.count() - 1; o >= 0; --o) {
+                if (viewer->entities[o].type >= 1)
+                    viewer->entities[o].type += viewer->gameConfig.objects.count();
             }
 
             for (int t = viewer->gameConfig.objects.count() - 1; t >= 0; --t) {
-                viewer->scene.objectTypeNames.insert(0, viewer->gameConfig.objects[t].m_name);
+                SceneViewer::ObjectInfo info;
+                info.name = viewer->gameConfig.objects[t].m_name;
+                viewer->objects.insert(0, info);
             }
         }
         else { // assume we had globals & are now removing em
-            for (int o = viewer->scene.objects.count() - 1; o >= 0; --o) {
-                if (viewer->scene.objects[o].type > viewer->gameConfig.objects.count())
-                    viewer->scene.objects[o].type -= viewer->gameConfig.objects.count();
-                else if (viewer->scene.objects[o].type >= 1)
-                    viewer->scene.objects.removeAt(o);
+            for (int o = viewer->entities.count() - 1; o >= 0; --o) {
+                if (viewer->entities[o].type > viewer->gameConfig.objects.count())
+                    viewer->entities[o].type -= viewer->gameConfig.objects.count();
+                else if (viewer->entities[o].type >= 1)
+                    viewer->entities.removeAt(o);
             }
 
             for (int t = viewer->gameConfig.objects.count() - 1; t >= 0; --t) {
-                viewer->scene.objectTypeNames.removeAt(t);
+                viewer->objects.removeAt(t);
             }
         }
 
         ui->objectList->clear();
-        ui->objectList->addItem("Blank Object");
-        for (int o = 0; o < viewer->scene.objectTypeNames.count(); ++o)
-            ui->objectList->addItem(viewer->scene.objectTypeNames[o]);
+        for (int o = 0; o < viewer->objects.count(); ++o)
+            ui->objectList->addItem(viewer->objects[o].name);
 
         createEntityList();
         doAction();
@@ -558,56 +559,63 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         }
 
         int cnt = newTypes.count();
-        for (; o < viewer->scene.objectTypeNames.count(); ++o) {
-            int index = names.indexOf(viewer->scene.objectTypeNames[o]);
+        for (; o < viewer->objects.count(); ++o) {
+            int index = names.indexOf(viewer->objects[o].name);
             if (index >= 0)
                 index += cnt;
             newTypes.append(index);
         }
 
-        for (FormatHelpers::Scene::Object &obj : viewer->scene.objects) {
+        for (SceneViewer::EntityInfo &obj : viewer->entities) {
             if (newTypes[obj.type] >= 0)
                 obj.type = newTypes[obj.type];
             else
                 obj.type = 0;
         }
 
-        viewer->scene.objectTypeNames.clear();
+        viewer->objects.clear();
+        SceneViewer::ObjectInfo blankInfo;
+        blankInfo.name = "Blank Object";
+        viewer->objects.append(blankInfo);
+
         if (viewer->gameType != ENGINE_v1) {
             if (viewer->stageConfig.loadGlobalScripts) {
-                if (viewer->gameType == ENGINE_v2)
-                    viewer->scene.objectTypeNames.append("Player");
+                if (viewer->gameType == ENGINE_v2) {
+                    SceneViewer::ObjectInfo info;
+                    info.name = "Player";
+                    viewer->objects.append(info);
+                }
 
                 for (FormatHelpers::Gameconfig::ObjectInfo &obj : viewer->gameConfig.objects) {
-                    viewer->scene.objectTypeNames.append(obj.m_name);
+                    SceneViewer::ObjectInfo info;
+                    info.name = obj.m_name;
+                    viewer->objects.append(info);
                 }
             }
 
             for (FormatHelpers::Stageconfig::ObjectInfo &obj : viewer->stageConfig.objects) {
-                viewer->scene.objectTypeNames.append(obj.m_name);
+                SceneViewer::ObjectInfo info;
+                info.name = obj.m_name;
+                viewer->objects.append(info);
             }
         }
         else {
             for (QString &obj : globals) {
-                viewer->scene.objectTypeNames.append(obj);
+                SceneViewer::ObjectInfo info;
+                info.name = obj;
+                viewer->objects.append(info);
             }
 
             for (FormatHelpers::Stageconfig::ObjectInfo &obj : viewer->stageConfig.objects) {
-                viewer->scene.objectTypeNames.append(obj.m_name);
+                SceneViewer::ObjectInfo info;
+                info.name = obj.m_name;
+                viewer->objects.append(info);
             }
         }
 
         ui->objectList->clear();
-        ui->objectList->addItem("Blank Object");
-        for (int o = 0; o < viewer->scene.objectTypeNames.count(); ++o)
-            ui->objectList->addItem(viewer->scene.objectTypeNames[o]);
-
-        objProp->typeBox->blockSignals(true);
-        objProp->typeBox->clear();
-        objProp->typeBox->addItem("Blank Object");
-        for (int o = 0; o < viewer->scene.objectTypeNames.count(); ++o)
-            objProp->typeBox->addItem(viewer->scene.objectTypeNames[o]);
-        objProp->typeBox->blockSignals(false);
+        for (int o = 0; o < viewer->objects.count(); ++o)
+            ui->objectList->addItem(viewer->objects[o].name);
 
         createEntityList();
 
@@ -736,17 +744,16 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 }
 
                 if (dlg->exportObjects) {
-                    for (int o = 0; o < viewer->scene.objects.count(); ++o) {
-                        FormatHelpers::Scene::Object &obj = viewer->scene.objects[o];
+                    for (int o = 0; o < viewer->entities.count(); ++o) {
+                        SceneViewer::EntityInfo &obj = viewer->entities[o];
 
-                        QString name = obj.type >= 1 ? viewer->scene.objectTypeNames[obj.type - 1]
-                                                     : "Blank Object";
+                        QString name = viewer->objects[obj.type].name;
 
-                        painter.drawText(obj.getX(), obj.getY(), name);
+                        painter.drawText(obj.pos.x, obj.pos.y, name);
                         // painter.drawImage(obj.getX(), obj.getY(), m_mainView->m_missingObj);
 
                         if (dlg->exportObjInfo) {
-                            painter.drawText(obj.getX(), obj.getY() + 8,
+                            painter.drawText(obj.pos.x, obj.pos.y + 8,
                                              "st: " + QString::number(obj.propertyValue));
                             int offset = 16;
 
@@ -756,7 +763,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
                             for (int i = 0; i < 0x0F && viewer->gameType == ENGINE_v4; ++i) {
                                 if (obj.variables[i].active) {
-                                    painter.drawText(obj.getX(), obj.getY() + offset,
+                                    painter.drawText(obj.pos.x, obj.pos.y + offset,
                                                      attribNames[i] + ": "
                                                          + QString::number(obj.propertyValue));
                                     offset += 8;
@@ -1132,9 +1139,9 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                             Rect<float> box;
 
                             viewer->selectedEntity = -1;
-                            for (int o = 0; o < viewer->scene.objects.count(); ++o) {
-                                box = Rect<float>((viewer->scene.objects[o].getX() - 0x10),
-                                                  (viewer->scene.objects[o].getY() - 0x10), 0x20, 0x20);
+                            for (int o = 0; o < viewer->entities.count(); ++o) {
+                                box = Rect<float>((viewer->entities[o].pos.x - 0x10),
+                                                  (viewer->entities[o].pos.y - 0x10), 0x20, 0x20);
 
                                 Vector2<float> pos = Vector2<float>(
                                     (mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x,
@@ -1143,7 +1150,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                     viewer->selectedEntity = o;
 
                                     objProp->setupUI(
-                                        &viewer->scene.objects[viewer->selectedEntity],
+                                        &viewer->entities[viewer->selectedEntity],
+                                        viewer->selectedEntity,
                                         &viewer->compilerv2.objectEntityList[viewer->selectedEntity],
                                         &viewer->compilerv3.objectEntityList[viewer->selectedEntity],
                                         &viewer->compilerv4.objectEntityList[viewer->selectedEntity],
@@ -1156,20 +1164,22 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         }
                         else {
                             if (viewer->selectedObject >= 0) {
-                                FormatHelpers::Scene::Object obj;
+                                SceneViewer::EntityInfo obj;
                                 obj.type = viewer->selectedObject;
-                                int xpos = (mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x;
-                                xpos <<= 16;
-                                int ypos = (mEvent->pos().y() * viewer->invZoom()) + viewer->cam.pos.y;
-                                ypos <<= 16;
+                                int xpos = ((mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x)
+                                           * 65536;
+                                int ypos = ((mEvent->pos().y() * viewer->invZoom()) + viewer->cam.pos.y)
+                                           * 65536;
 
-                                obj.setX((mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x);
-                                obj.setY((mEvent->pos().y() * viewer->invZoom()) + viewer->cam.pos.y);
+                                obj.pos.x =
+                                    ((mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x);
+                                obj.pos.y =
+                                    ((mEvent->pos().y() * viewer->invZoom()) + viewer->cam.pos.y);
 
-                                int cnt    = viewer->scene.objects.count();
+                                int cnt    = viewer->entities.count();
                                 obj.slotID = cnt;
 
-                                viewer->scene.objects.append(obj);
+                                viewer->entities.append(obj);
                                 viewer->compilerv2.objectEntityList[cnt].type = viewer->selectedObject;
                                 viewer->compilerv2.objectEntityList[cnt].propertyValue = 0;
                                 viewer->compilerv2.objectEntityList[cnt].XPos          = xpos;
@@ -1187,7 +1197,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                 viewer->selectedEntity                                 = cnt;
 
                                 objProp->setupUI(
-                                    &viewer->scene.objects[viewer->selectedEntity],
+                                    &viewer->entities[viewer->selectedEntity], viewer->selectedEntity,
                                     &viewer->compilerv2.objectEntityList[viewer->selectedEntity],
                                     &viewer->compilerv3.objectEntityList[viewer->selectedEntity],
                                     &viewer->compilerv4.objectEntityList[viewer->selectedEntity],
@@ -1252,9 +1262,9 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         Rect<float> box;
                         bool found = false;
 
-                        for (int o = 0; o < viewer->scene.objects.count(); ++o) {
-                            box = Rect<float>((viewer->scene.objects[o].getX() - 0x10),
-                                              (viewer->scene.objects[o].getY() - 0x10), 0x20, 0x20);
+                        for (int o = 0; o < viewer->entities.count(); ++o) {
+                            box = Rect<float>((viewer->entities[o].pos.x - 0x10),
+                                              (viewer->entities[o].pos.y - 0x10), 0x20, 0x20);
 
                             Vector2<float> pos = Vector2<float>(
                                 (mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x,
@@ -1264,7 +1274,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                 found                  = true;
 
                                 objProp->setupUI(
-                                    &viewer->scene.objects[viewer->selectedEntity],
+                                    &viewer->entities[viewer->selectedEntity], viewer->selectedEntity,
                                     &viewer->compilerv2.objectEntityList[viewer->selectedEntity],
                                     &viewer->compilerv3.objectEntityList[viewer->selectedEntity],
                                     &viewer->compilerv4.objectEntityList[viewer->selectedEntity],
@@ -1366,31 +1376,27 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     }
                     case TOOL_ENTITY: {
                         if (viewer->selectedObject < 0 && viewer->selectedEntity >= 0) {
-                            FormatHelpers::Scene::Object &object =
-                                viewer->scene.objects[viewer->selectedEntity];
+                            SceneViewer::EntityInfo &object = viewer->entities[viewer->selectedEntity];
 
-                            object.setX((viewer->mousePos.x * viewer->invZoom()) + viewer->cam.pos.x);
-                            object.setY((viewer->mousePos.y * viewer->invZoom()) + viewer->cam.pos.y);
+                            object.pos.x =
+                                ((viewer->mousePos.x * viewer->invZoom()) + viewer->cam.pos.x);
+                            object.pos.y =
+                                ((viewer->mousePos.y * viewer->invZoom()) + viewer->cam.pos.y);
 
                             if (ctrlDownL) {
-                                object.setX(object.getX() - fmodf(object.getX(), snapSize.x));
-                                object.setY(object.getY() - fmodf(object.getY(), snapSize.y));
+                                object.pos.x = (object.pos.x - fmodf(object.pos.x, snapSize.x));
+                                object.pos.y = (object.pos.y - fmodf(object.pos.y, snapSize.y));
                             }
 
-                            viewer->compilerv2.objectEntityList[viewer->selectedEntity].XPos =
-                                object.pos.x;
-                            viewer->compilerv2.objectEntityList[viewer->selectedEntity].YPos =
-                                object.pos.y;
+                            int id                                       = viewer->selectedEntity;
+                            viewer->compilerv2.objectEntityList[id].XPos = object.pos.x * 65536;
+                            viewer->compilerv2.objectEntityList[id].YPos = object.pos.y * 65536;
 
-                            viewer->compilerv3.objectEntityList[viewer->selectedEntity].XPos =
-                                object.pos.x;
-                            viewer->compilerv3.objectEntityList[viewer->selectedEntity].YPos =
-                                object.pos.y;
+                            viewer->compilerv3.objectEntityList[id].XPos = object.pos.x * 65536;
+                            viewer->compilerv3.objectEntityList[id].YPos = object.pos.y * 65536;
 
-                            viewer->compilerv4.objectEntityList[viewer->selectedEntity].XPos =
-                                object.pos.x;
-                            viewer->compilerv4.objectEntityList[viewer->selectedEntity].YPos =
-                                object.pos.y;
+                            viewer->compilerv4.objectEntityList[id].XPos = object.pos.x * 65536;
+                            viewer->compilerv4.objectEntityList[id].YPos = object.pos.y * 65536;
                             doAction();
                         }
                         break;
@@ -1466,21 +1472,20 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     switch (clipboardType) {
                         default: break;
                         case COPY_ENTITY: {
-                            FormatHelpers::Scene::Object object =
-                                *(FormatHelpers::Scene::Object *)clipboard;
-                            object.setX(sceneMousePos.x);
-                            object.setY(sceneMousePos.y);
+                            SceneViewer::EntityInfo object = *(SceneViewer::EntityInfo *)clipboard;
+                            object.pos.x                   = (sceneMousePos.x);
+                            object.pos.y                   = (sceneMousePos.y);
 
-                            int cnt = viewer->scene.objects.count();
-                            viewer->scene.objects.append(object);
-                            viewer->compilerv2.objectEntityList[cnt].XPos = object.pos.x;
-                            viewer->compilerv2.objectEntityList[cnt].YPos = object.pos.y;
+                            int cnt = viewer->entities.count();
+                            viewer->entities.append(object);
+                            viewer->compilerv2.objectEntityList[cnt].XPos = object.pos.x * 65536;
+                            viewer->compilerv2.objectEntityList[cnt].YPos = object.pos.y * 65536;
 
-                            viewer->compilerv3.objectEntityList[cnt].XPos = object.pos.x;
-                            viewer->compilerv3.objectEntityList[cnt].YPos = object.pos.y;
+                            viewer->compilerv3.objectEntityList[cnt].XPos = object.pos.x * 65536;
+                            viewer->compilerv3.objectEntityList[cnt].YPos = object.pos.y * 65536;
 
-                            viewer->compilerv4.objectEntityList[cnt].XPos = object.pos.x;
-                            viewer->compilerv4.objectEntityList[cnt].YPos = object.pos.y;
+                            viewer->compilerv4.objectEntityList[cnt].XPos = object.pos.x * 65536;
+                            viewer->compilerv4.objectEntityList[cnt].YPos = object.pos.y * 65536;
                         } break;
                     }
                 }
@@ -1547,7 +1552,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 case TOOL_ENTITY:
                     if (kEvent->key() == Qt::Key_Delete || kEvent->key() == Qt::Key_Backspace) {
                         if (viewer->selectedEntity >= 0) {
-                            viewer->scene.objects.removeAt(viewer->selectedEntity);
+                            viewer->entities.removeAt(viewer->selectedEntity);
                             viewer->selectedEntity = -1;
 
                             objProp->unsetUI();
@@ -1559,7 +1564,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     if ((kEvent->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
                         && kEvent->key() == Qt::Key_C) {
                         if (viewer->selectedEntity >= 0) {
-                            clipboard     = &viewer->scene.objects[viewer->selectedEntity];
+                            clipboard     = &viewer->entities[viewer->selectedEntity];
                             clipboardType = COPY_ENTITY;
                             clipboardInfo = viewer->selectedEntity;
                         }
@@ -1593,6 +1598,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
     setStatus("Loading Scene...");
 
+    viewer->objectsLoaded = false;
+
     if (gcfPath != viewer->gameConfig.filePath) {
         if (QFileInfo(gcfPath).suffix().toLower().contains("xml"))
             parseGameXML(gameType, gcfPath);
@@ -1613,9 +1620,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
         ui->layerList->addItem("Background " + QString::number(l + 1));
 
     ui->objectList->clear();
-    ui->objectList->addItem("Blank Object");
-    for (int o = 0; o < viewer->scene.objectTypeNames.count(); ++o)
-        ui->objectList->addItem(viewer->scene.objectTypeNames[o]);
+    for (int o = 0; o < viewer->objects.count(); ++o) ui->objectList->addItem(viewer->objects[o].name);
 
     createEntityList();
 
@@ -1625,11 +1630,6 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     ui->verticalScrollBar->setMaximum((viewer->scene.height * 0x80) - viewer->storedH);
     ui->horizontalScrollBar->setPageStep(0x80);
     ui->verticalScrollBar->setPageStep(0x80);
-
-    objProp->typeBox->clear();
-    objProp->typeBox->addItem("Blank Object");
-    for (int o = 0; o < viewer->scene.objectTypeNames.count(); ++o)
-        objProp->typeBox->addItem(viewer->scene.objectTypeNames[o]);
 
     if (viewer->gameType == ENGINE_v1) {
         scnProp->musBox->clear();
@@ -1674,24 +1674,21 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
         memset(&viewer->compilerv4.objectEntityList[i], 0,
                sizeof(viewer->compilerv4.objectEntityList[i]));
 
-        if (i < viewer->scene.objects.count()) {
-            viewer->compilerv2.objectEntityList[i].type = viewer->scene.objects[i].type;
-            viewer->compilerv2.objectEntityList[i].propertyValue =
-                viewer->scene.objects[i].propertyValue;
-            viewer->compilerv2.objectEntityList[i].XPos = viewer->scene.objects[i].pos.x;
-            viewer->compilerv2.objectEntityList[i].YPos = viewer->scene.objects[i].pos.y;
+        if (i < viewer->entities.count()) {
+            viewer->compilerv2.objectEntityList[i].type          = viewer->entities[i].type;
+            viewer->compilerv2.objectEntityList[i].propertyValue = viewer->entities[i].propertyValue;
+            viewer->compilerv2.objectEntityList[i].XPos          = viewer->entities[i].pos.x * 65536;
+            viewer->compilerv2.objectEntityList[i].YPos          = viewer->entities[i].pos.y * 65536;
 
-            viewer->compilerv3.objectEntityList[i].type = viewer->scene.objects[i].type;
-            viewer->compilerv3.objectEntityList[i].propertyValue =
-                viewer->scene.objects[i].propertyValue;
-            viewer->compilerv3.objectEntityList[i].XPos = viewer->scene.objects[i].pos.x;
-            viewer->compilerv3.objectEntityList[i].YPos = viewer->scene.objects[i].pos.y;
+            viewer->compilerv3.objectEntityList[i].type          = viewer->entities[i].type;
+            viewer->compilerv3.objectEntityList[i].propertyValue = viewer->entities[i].propertyValue;
+            viewer->compilerv3.objectEntityList[i].XPos          = viewer->entities[i].pos.x * 65536;
+            viewer->compilerv3.objectEntityList[i].YPos          = viewer->entities[i].pos.y * 65536;
 
-            viewer->compilerv4.objectEntityList[i].type = viewer->scene.objects[i].type;
-            viewer->compilerv4.objectEntityList[i].propertyValue =
-                viewer->scene.objects[i].propertyValue;
-            viewer->compilerv4.objectEntityList[i].XPos = viewer->scene.objects[i].pos.x;
-            viewer->compilerv4.objectEntityList[i].YPos = viewer->scene.objects[i].pos.y;
+            viewer->compilerv4.objectEntityList[i].type          = viewer->entities[i].type;
+            viewer->compilerv4.objectEntityList[i].propertyValue = viewer->entities[i].propertyValue;
+            viewer->compilerv4.objectEntityList[i].XPos          = viewer->entities[i].pos.x * 65536;
+            viewer->compilerv4.objectEntityList[i].YPos          = viewer->entities[i].pos.y * 65536;
 
             int *values[] = { &viewer->compilerv4.objectEntityList[i].state,
                               NULL,
@@ -1726,11 +1723,11 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                                 NULL };
 
             for (int v = 0; v < 0x0F; ++v) {
-                if (viewer->scene.objects[i].variables[v].active) {
+                if (viewer->entities[i].variables[v].active) {
                     if (values[v])
-                        *values[v] = viewer->scene.objects[i].variables[v].value;
+                        *values[v] = viewer->entities[i].variables[v].value;
                     else
-                        *valuesB[v] = viewer->scene.objects[i].variables[v].value;
+                        *valuesB[v] = viewer->entities[i].variables[v].value;
                 }
             }
         }
@@ -1833,6 +1830,19 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                         dir.cdUp();
                         QString dirFile = dir.relativeFilePath(viewer->compilerv3.errorScr);
 
+                        QMessageBox msgBox(QMessageBox::Information, "RetroED",
+                                           QString(QString("Failed to compile script: %1\n"
+                                                           "Error: %2\n"
+                                                           "\n"
+                                                           "Pos: %3\n"
+                                                           "Line: %4\n")
+                                                       .arg(viewer->gameConfig.objects[i].script)
+                                                       .arg(viewer->compilerv3.errorMsg)
+                                                       .arg(viewer->compilerv3.errorPos)
+                                                       .arg(viewer->compilerv3.errorLine)),
+                                           QMessageBox::Ok);
+                        msgBox.exec();
+
                         setStatus("Failed to compile script: " + dirFile);
                         viewer->compilerv3.objectScriptList[scrID - 1].subRSDKDraw.scriptCodePtr =
                             SCRIPTDATA_COUNT - 1;
@@ -1841,6 +1851,10 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                         viewer->compilerv3.objectScriptList[scrID - 1].subRSDKLoad.scriptCodePtr =
                             SCRIPTDATA_COUNT - 1;
                         viewer->compilerv3.objectScriptList[scrID - 1].subRSDKLoad.jumpTablePtr =
+                            JUMPTABLE_COUNT - 1;
+                        viewer->compilerv3.objectScriptList[scrID - 1].subRSDKEdit.scriptCodePtr =
+                            SCRIPTDATA_COUNT - 1;
+                        viewer->compilerv3.objectScriptList[scrID - 1].subRSDKEdit.jumpTablePtr =
                             JUMPTABLE_COUNT - 1;
                     }
                 }
@@ -1860,6 +1874,19 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                     dir.cdUp();
                     QString dirFile = dir.relativeFilePath(viewer->compilerv3.errorScr);
 
+                    QMessageBox msgBox(QMessageBox::Information, "RetroED",
+                                       QString(QString("Failed to compile script: %1\n"
+                                                       "Error: %2\n"
+                                                       "\n"
+                                                       "Pos: %3\n"
+                                                       "Line: %4\n")
+                                                   .arg(viewer->stageConfig.objects[i].script)
+                                                   .arg(viewer->compilerv3.errorMsg)
+                                                   .arg(viewer->compilerv3.errorPos)
+                                                   .arg(viewer->compilerv3.errorLine)),
+                                       QMessageBox::Ok);
+                    msgBox.exec();
+
                     setStatus("Failed to compile script: " + dirFile);
                     viewer->compilerv3.objectScriptList[scrID - 1].subRSDKDraw.scriptCodePtr =
                         SCRIPTDATA_COUNT - 1;
@@ -1869,23 +1896,19 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                         SCRIPTDATA_COUNT - 1;
                     viewer->compilerv3.objectScriptList[scrID - 1].subRSDKLoad.jumpTablePtr =
                         JUMPTABLE_COUNT - 1;
+                    viewer->compilerv3.objectScriptList[scrID - 1].subRSDKEdit.scriptCodePtr =
+                        SCRIPTDATA_COUNT - 1;
+                    viewer->compilerv3.objectScriptList[scrID - 1].subRSDKEdit.jumpTablePtr =
+                        JUMPTABLE_COUNT - 1;
                 }
             }
 
             viewer->compilerv3.objectLoop = ENTITY_COUNT - 1;
             for (int o = 0; o < OBJECT_COUNT; ++o) {
-                auto &curObj           = viewer->compilerv3.objectScriptList[o];
-                curObj.frameListOffset = viewer->compilerv3.scriptFrameCount;
-                curObj.spriteSheetID   = 0;
-                viewer->compilerv3.objectEntityList[ENTITY_COUNT - 1].type = o;
-
-                auto &curSub = curObj.subRSDKLoad;
-                if (curSub.scriptCodePtr != SCRIPTDATA_COUNT - 1) {
-                    viewer->compilerv3.processScript(curSub.scriptCodePtr, curSub.jumpTablePtr,
-                                                     Compilerv3::SUB_RSDKLOAD);
-                }
-                curObj.spriteFrameCount = viewer->compilerv3.scriptFrameCount - curObj.frameListOffset;
+                viewer->activeVarObj = o;
+                viewer->callGameEvent(EVENT_RSDKLOAD, o);
             }
+            viewer->activeVarObj = -1;
             break;
         }
         case ENGINE_v4: { // compile RSDKDraw & RSDKLoad and draw via those
@@ -1908,6 +1931,19 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                         dir.cdUp();
                         QString dirFile = dir.relativeFilePath(viewer->compilerv4.errorScr);
 
+                        QMessageBox msgBox(QMessageBox::Information, "RetroED",
+                                           QString(QString("Failed to compile script: %1\n"
+                                                           "Error: %2\n"
+                                                           "\n"
+                                                           "Pos: %3\n"
+                                                           "Line: %4\n")
+                                                       .arg(viewer->gameConfig.objects[i].script)
+                                                       .arg(viewer->compilerv4.errorMsg)
+                                                       .arg(viewer->compilerv4.errorPos)
+                                                       .arg(viewer->compilerv4.errorLine)),
+                                           QMessageBox::Ok);
+                        msgBox.exec();
+
                         setStatus("Failed to compile script: " + dirFile);
                         viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKDraw.scriptCodePtr =
                             SCRIPTDATA_COUNT_v4 - 1;
@@ -1916,6 +1952,10 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                         viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKLoad.scriptCodePtr =
                             SCRIPTDATA_COUNT_v4 - 1;
                         viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKLoad.jumpTablePtr =
+                            JUMPTABLE_COUNT_v4 - 1;
+                        viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKEdit.scriptCodePtr =
+                            SCRIPTDATA_COUNT_v4 - 1;
+                        viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKEdit.jumpTablePtr =
                             JUMPTABLE_COUNT_v4 - 1;
                     }
                 }
@@ -1936,6 +1976,20 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                     QString dirFile = dir.relativeFilePath(viewer->compilerv4.errorScr);
 
                     setStatus("Failed to compile script: " + dirFile);
+
+                    QMessageBox msgBox(QMessageBox::Information, "RetroED",
+                                       QString(QString("Failed to compile script: %1\n"
+                                                       "Error: %2\n"
+                                                       "\n"
+                                                       "Pos: %3\n"
+                                                       "Line: %4\n")
+                                                   .arg(viewer->stageConfig.objects[i].script)
+                                                   .arg(viewer->compilerv4.errorMsg)
+                                                   .arg(viewer->compilerv4.errorPos)
+                                                   .arg(viewer->compilerv4.errorLine)),
+                                       QMessageBox::Ok);
+                    msgBox.exec();
+
                     viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKDraw.scriptCodePtr =
                         SCRIPTDATA_COUNT_v4 - 1;
                     viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKDraw.jumpTablePtr =
@@ -1944,27 +1998,34 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                         SCRIPTDATA_COUNT_v4 - 1;
                     viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKLoad.jumpTablePtr =
                         JUMPTABLE_COUNT_v4 - 1;
+                    viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKEdit.scriptCodePtr =
+                        SCRIPTDATA_COUNT_v4 - 1;
+                    viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKEdit.jumpTablePtr =
+                        JUMPTABLE_COUNT_v4 - 1;
                 }
             }
 
             viewer->compilerv4.objectEntityPos = ENTITY_COUNT - 1;
             for (int o = 0; o < OBJECT_COUNT; ++o) {
-                auto &curObj           = viewer->compilerv4.objectScriptList[o];
-                curObj.frameListOffset = viewer->compilerv4.scriptFrameCount;
-                curObj.spriteSheetID   = 0;
-                viewer->compilerv4.objectEntityList[ENTITY_COUNT - 1].type = o;
-
-                auto &curSub = curObj.eventRSDKLoad;
-                if (curSub.scriptCodePtr != SCRIPTDATA_COUNT - 1) {
-                    viewer->compilerv4.processScript(curSub.scriptCodePtr, curSub.jumpTablePtr,
-                                                     Compilerv4::EVENT_RSDKLOAD);
-                }
-                curObj.spriteFrameCount = viewer->compilerv4.scriptFrameCount - curObj.frameListOffset;
+                viewer->activeVarObj = o;
+                viewer->callGameEvent(EVENT_RSDKLOAD, o);
             }
+            viewer->activeVarObj = -1;
             break;
         }
     }
 
+    for (int e = 0; e < viewer->entities.count(); ++e) {
+        viewer->entities[e].customVars.clear();
+        for (auto &var : viewer->objects[viewer->entities[e].type].variables) {
+            RSDKv5::Scene::VariableValue val;
+            val.type        = VAR_UINT8;
+            val.value_uint8 = 0;
+            viewer->entities[e].customVars.append(val);
+        }
+    }
+
+    viewer->objectsLoaded = true;
     clearActions();
     appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR, scnPath, QList<QString>{ gcfPath });
     setStatus("Loaded Scene: " + QFileInfo(scnPath).fileName());
@@ -1975,16 +2036,14 @@ void SceneEditor::createEntityList()
     ui->entityList->clear();
 
     // C++11 absolute poggers
-    std::sort(viewer->scene.objects.begin(), viewer->scene.objects.end(),
-              [](const FormatHelpers::Scene::Object &a, const FormatHelpers::Scene::Object &b) -> bool {
+    std::sort(viewer->entities.begin(), viewer->entities.end(),
+              [](const SceneViewer::EntityInfo &a, const SceneViewer::EntityInfo &b) -> bool {
                   return a.slotID < b.slotID;
               });
-    for (int i = 0; i < viewer->scene.objects.count(); ++i) {
-        QString name = viewer->scene.objects[i].type >= 1
-                           ? viewer->scene.objectTypeNames[viewer->scene.objects[i].type - 1]
-                           : "Blank Object";
+    for (int i = 0; i < viewer->entities.count(); ++i) {
+        QString name = viewer->objects[viewer->entities[i].type].name;
         //-1 because "blank object" is the internal type 0
-        ui->entityList->addItem(QString::number(viewer->scene.objects[i].slotID) + ": " + name);
+        ui->entityList->addItem(QString::number(viewer->entities[i].slotID) + ": " + name);
     }
     ui->entityList->blockSignals(false);
 
@@ -1996,24 +2055,21 @@ void SceneEditor::createEntityList()
         memset(&viewer->compilerv4.objectEntityList[i], 0,
                sizeof(viewer->compilerv4.objectEntityList[i]));
 
-        if (i < viewer->scene.objects.count()) {
-            viewer->compilerv2.objectEntityList[i].type = viewer->scene.objects[i].type;
-            viewer->compilerv2.objectEntityList[i].propertyValue =
-                viewer->scene.objects[i].propertyValue;
-            viewer->compilerv2.objectEntityList[i].XPos = viewer->scene.objects[i].pos.x;
-            viewer->compilerv2.objectEntityList[i].YPos = viewer->scene.objects[i].pos.y;
+        if (i < viewer->entities.count()) {
+            viewer->compilerv2.objectEntityList[i].type          = viewer->entities[i].type;
+            viewer->compilerv2.objectEntityList[i].propertyValue = viewer->entities[i].propertyValue;
+            viewer->compilerv2.objectEntityList[i].XPos          = viewer->entities[i].pos.x * 65536;
+            viewer->compilerv2.objectEntityList[i].YPos          = viewer->entities[i].pos.y * 65536;
 
-            viewer->compilerv3.objectEntityList[i].type = viewer->scene.objects[i].type;
-            viewer->compilerv3.objectEntityList[i].propertyValue =
-                viewer->scene.objects[i].propertyValue;
-            viewer->compilerv3.objectEntityList[i].XPos = viewer->scene.objects[i].pos.x;
-            viewer->compilerv3.objectEntityList[i].YPos = viewer->scene.objects[i].pos.y;
+            viewer->compilerv3.objectEntityList[i].type          = viewer->entities[i].type;
+            viewer->compilerv3.objectEntityList[i].propertyValue = viewer->entities[i].propertyValue;
+            viewer->compilerv3.objectEntityList[i].XPos          = viewer->entities[i].pos.x * 65536;
+            viewer->compilerv3.objectEntityList[i].YPos          = viewer->entities[i].pos.y * 65536;
 
-            viewer->compilerv4.objectEntityList[i].type = viewer->scene.objects[i].type;
-            viewer->compilerv4.objectEntityList[i].propertyValue =
-                viewer->scene.objects[i].propertyValue;
-            viewer->compilerv4.objectEntityList[i].XPos = viewer->scene.objects[i].pos.x;
-            viewer->compilerv4.objectEntityList[i].YPos = viewer->scene.objects[i].pos.y;
+            viewer->compilerv4.objectEntityList[i].type          = viewer->entities[i].type;
+            viewer->compilerv4.objectEntityList[i].propertyValue = viewer->entities[i].propertyValue;
+            viewer->compilerv4.objectEntityList[i].XPos          = viewer->entities[i].pos.x * 65536;
+            viewer->compilerv4.objectEntityList[i].YPos          = viewer->entities[i].pos.y * 65536;
 
             int *values[] = { &viewer->compilerv4.objectEntityList[i].state,
                               NULL,
@@ -2048,11 +2104,11 @@ void SceneEditor::createEntityList()
                                 NULL };
 
             for (int v = 0; v < 0x0F; ++v) {
-                if (viewer->scene.objects[i].variables[v].active) {
+                if (viewer->entities[i].variables[v].active) {
                     if (values[v])
-                        *values[v] = viewer->scene.objects[i].variables[v].value;
+                        *values[v] = viewer->entities[i].variables[v].value;
                     else
-                        *valuesB[v] = viewer->scene.objects[i].variables[v].value;
+                        *valuesB[v] = viewer->entities[i].variables[v].value;
                 }
             }
         }
@@ -2326,10 +2382,10 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
 
         scene.objects.append(blank);
 
-        for (int o = 0; o < viewer->scene.objectTypeNames.count(); ++o) {
+        for (int o = 0; o < viewer->objects.count(); ++o) {
             RSDKv5::Scene::SceneObject obj;
 
-            QString objName = viewer->scene.objectTypeNames[o];
+            QString objName = viewer->objects[o].name;
             objName.replace(" ", "");
             obj.name = RSDKv5::Scene::NameIdentifier(objName);
             obj.variables.clear();
@@ -2343,27 +2399,41 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
             propertyValue.type = VAR_UINT8;
             obj.variables.append(propertyValue);
 
+            for (SceneViewer::VariableInfo var : viewer->objects[o].variables) {
+                RSDKv5::Scene::VariableInfo variable;
+                variable.name = RSDKv5::Scene::NameIdentifier(var.name);
+                variable.type = VAR_UINT8;
+                obj.variables.append(variable);
+            }
+
             scene.objects.append(obj);
         }
 
-        for (int e = 0; e < viewer->scene.objects.count(); ++e) {
+        for (int e = 0; e < viewer->entities.count(); ++e) {
             RSDKv5::Scene::SceneEntity entity;
-            entity.position.x = viewer->scene.objects[e].pos.x;
-            entity.position.y = viewer->scene.objects[e].pos.y;
+            entity.position.x = viewer->entities[e].pos.x;
+            entity.position.y = viewer->entities[e].pos.y;
 
-            entity.parent = &scene.objects[viewer->scene.objects[e].type];
+            entity.parent = &scene.objects[viewer->entities[e].type];
             entity.slotID = e;
 
             entity.variables.clear();
             RSDKv5::Scene::VariableValue filter;
             filter.type        = VAR_UINT8;
-            filter.value_uint8 = 0x05;
+            filter.value_uint8 = 0xFF;
             entity.variables.append(filter);
 
             RSDKv5::Scene::VariableValue propertyValue;
             propertyValue.type        = VAR_UINT8;
-            propertyValue.value_uint8 = viewer->scene.objects[e].propertyValue;
+            propertyValue.value_uint8 = viewer->entities[e].propertyValue;
             entity.variables.append(propertyValue);
+
+            for (int i = 0; i < entity.parent->variables.count(); ++i) {
+                RSDKv5::Scene::VariableValue variable;
+                variable.type        = VAR_UINT8;
+                variable.value_uint8 = 0;
+                entity.variables.append(variable);
+            }
 
             entity.parent->entities.append(entity);
         }

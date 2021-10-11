@@ -10,6 +10,13 @@
 struct PropertyValue {
     QString name;
     QVariant value;
+
+    PropertyValue() {}
+    PropertyValue(QString n, QVariant v)
+    {
+        name  = n;
+        value = v;
+    }
 };
 
 class Property : public QObject
@@ -56,6 +63,8 @@ public:
     void addSubProperty(Property *property);
     void removeSubProperty(Property *property);
     void setSubProperties(QList<Property *> properties);
+
+    void updateValue();
 
 public slots:
     void setValuePtr(void *newPtr);

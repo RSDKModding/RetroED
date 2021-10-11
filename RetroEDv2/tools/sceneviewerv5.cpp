@@ -478,7 +478,7 @@ void SceneViewerv5::drawScene()
                     if (tile != 0xFFFF) {
                         float xpos = (x * 0x10) - (cam.pos.x + camOffset.x);
                         float ypos = (y * 0x10) - (cam.pos.y + camOffset.y);
-                        float zpos = selectedLayer == l ? 15.2 : (15 - l);
+                        float zpos = selectedLayer == l ? 15.2 : (p + (l * 0.01));
 
                         vertsPtr[vertCnt + 0].setX(0.0f + (xpos / 0x10));
                         vertsPtr[vertCnt + 0].setY(0.0f + (ypos / 0x10));

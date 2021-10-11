@@ -305,6 +305,7 @@ struct GameInfo {
     TouchMouseData *touchMouse;
     UnknownInfo *unknown;
     ScreenInfo *screenInfo;
+    void *modPtrs;
 };
 
 extern byte *gameGlobalVariablesPtr;
