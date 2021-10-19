@@ -26,5 +26,6 @@
         <file>fonts/consolaz.ttf</file>
         <file>icons/ic_help_48px.svg</file>
         <file>resources/variableList.txt</file>
+        <file>icons/missingV5.png</file>
     </qresource>
 </RCC>

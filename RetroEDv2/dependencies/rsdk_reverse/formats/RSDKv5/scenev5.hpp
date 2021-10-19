@@ -228,8 +228,9 @@ public:
         int value_enum       = 0;
         bool value_bool      = false;
         QString value_string = "";
-        Position value_vector2;
-        Position value_vector3;
+        Vector2<int> value_vector2;
+        Vector2<float> value_vector2f;
+        int value_unknown = 0;
         QColor value_color;
 
         byte type;

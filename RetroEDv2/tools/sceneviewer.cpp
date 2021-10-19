@@ -659,22 +659,22 @@ void SceneViewer::drawScene()
                             int w = (width * 0x80);
                             drawLine(0.0f * zoom, (info.startLine - cam.pos.y) * zoom, zpos,
                                      (w - cam.pos.x) * zoom, (info.startLine - cam.pos.y) * zoom, zpos,
-                                     clr, primitiveShader);
+                                     1.0f, clr, primitiveShader);
 
                             drawLine(0.0f * zoom, ((info.startLine + info.length) - cam.pos.y) * zoom,
                                      zpos, (w - cam.pos.x) * zoom,
-                                     ((info.startLine + info.length) - cam.pos.y) * zoom, zpos, clr,
-                                     primitiveShader);
+                                     ((info.startLine + info.length) - cam.pos.y) * zoom, zpos, 1.0f,
+                                     clr, primitiveShader);
                         }
                         else if (background.layers[l - 1].type == 2) {
                             int h = (height * 0x80) * zoom;
                             drawLine((info.startLine - cam.pos.x) * zoom, 0.0f * zoom, zpos,
                                      (info.startLine - cam.pos.x) * zoom, (h - cam.pos.y) * zoom, zpos,
-                                     clr, primitiveShader);
+                                     1.0f, clr, primitiveShader);
 
                             drawLine(((info.startLine + info.length) - cam.pos.x) * zoom, 0.0f * zoom,
                                      zpos, ((info.startLine + info.length) - cam.pos.x) * zoom,
-                                     (h - cam.pos.y) * zoom, zpos, clr, primitiveShader);
+                                     (h - cam.pos.y) * zoom, zpos, 1.0f, clr, primitiveShader);
                         }
 
                         ++id;
@@ -908,7 +908,7 @@ void SceneViewer::drawScene()
         for (int y = camY - ((int)camY % 0x80); y < (camY + storedH) * (zoom < 1.0f ? invZoom() : 1.0f);
              y += 0x80) {
             drawLine((camX - camX) * zoom, (y - camY) * zoom, 15.6f,
-                     (((camX + storedW * invZoom())) - camX) * zoom, (y - camY) * zoom, 15.6f,
+                     (((camX + storedW * invZoom())) - camX) * zoom, (y - camY) * zoom, 15.6f, 1.0f,
                      Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
         }
 
@@ -916,7 +916,7 @@ void SceneViewer::drawScene()
              x += 0x80) {
             drawLine((x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom, (camY - camY) * zoom, 15.6f,
                      (x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom,
-                     (((camY + storedH * invZoom())) - camY) * zoom, 15.6f,
+                     (((camY + storedH * invZoom())) - camY) * zoom, 15.6f, 1.0f,
                      Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
         }
     }
@@ -930,7 +930,7 @@ void SceneViewer::drawScene()
         for (int y = camY - ((int)camY % 0x10); y < (camY + storedH) * (zoom < 1.0f ? invZoom() : 1.0f);
              y += 0x10) {
             drawLine((camX - camX) * zoom, (y - camY) * zoom, 15.6f,
-                     (((camX + storedW * invZoom())) - camX) * zoom, (y - camY) * zoom, 15.6f,
+                     (((camX + storedW * invZoom())) - camX) * zoom, (y - camY) * zoom, 15.6f, 1.0f,
                      Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
         }
 
@@ -938,7 +938,7 @@ void SceneViewer::drawScene()
              x += 0x10) {
             drawLine((x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom, (camY - camY) * zoom, 15.6f,
                      (x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom,
-                     (((camY + storedH * invZoom())) - camY) * zoom, 15.6f,
+                     (((camY + storedH * invZoom())) - camY) * zoom, 15.6f, 1.0f,
                      Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
         }
     }
@@ -1128,6 +1128,40 @@ void SceneViewer::paintGL()
     f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     drawScene();
+}
+
+void SceneViewer::drawLine(float x1, float y1, float z1, float x2, float y2, float z2, float scale,
+                           Vector4<float> colour, Shader &shader)
+{
+    shader.use();
+    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+
+    QMatrix4x4 matModel;
+    matModel.scale(scale, scale, 1.0f);
+    shader.setValue("model", matModel);
+    shader.setValue("colour", QVector4D(colour.x, colour.y, colour.z, colour.w));
+
+    QVector3D vertsPtr[2] = { QVector3D(x1, y1, z1), QVector3D(x2, y2, z2) };
+
+    QOpenGLVertexArrayObject VAO;
+    VAO.create();
+    VAO.bind();
+
+    QOpenGLBuffer VBO;
+    VBO.create();
+    VBO.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    VBO.bind();
+    VBO.allocate(vertsPtr, 2 * sizeof(QVector3D));
+    shader.enableAttributeArray(0);
+    shader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+
+    f->glDrawArrays(GL_LINES, 0, 2);
+
+    VAO.release();
+    VBO.release();
+
+    VAO.destroy();
+    VBO.destroy();
 }
 
 int SceneViewer::addGraphicsFile(QString sheetPath)

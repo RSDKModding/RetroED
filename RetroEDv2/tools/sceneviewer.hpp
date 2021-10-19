@@ -375,36 +375,8 @@ private:
         return matWorld;
     }
 
-    inline void drawLine(float x1, float y1, float z1, float x2, float y2, float z2,
-                         Vector4<float> colour, Shader &shader)
-    {
-        shader.use();
-        QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-
-        shader.setValue("colour", QVector4D(colour.x, colour.y, colour.z, colour.w));
-
-        QVector3D vertsPtr[2] = { QVector3D(x1, y1, z1), QVector3D(x2, y2, z2) };
-
-        QOpenGLVertexArrayObject VAO;
-        VAO.create();
-        VAO.bind();
-
-        QOpenGLBuffer VBO;
-        VBO.create();
-        VBO.setUsagePattern(QOpenGLBuffer::DynamicDraw);
-        VBO.bind();
-        VBO.allocate(vertsPtr, 2 * sizeof(QVector3D));
-        shader.enableAttributeArray(0);
-        shader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
-
-        f->glDrawArrays(GL_LINES, 0, 2);
-
-        VAO.release();
-        VBO.release();
-
-        VAO.destroy();
-        VBO.destroy();
-    }
+    inline void drawLine(float x1, float y1, float z1, float x2, float y2, float z2, float scale,
+                         Vector4<float> colour, Shader &shader);
 
     inline void drawRect(float x, float y, float z, float w, float h, Vector4<float> colour,
                          Shader &shader, bool outline = false)
@@ -414,13 +386,13 @@ private:
         shader.use();
         if (outline) {
             // top
-            drawLine(x, y, z, x + w, y, z, colour, shader);
+            drawLine(x, y, z, x + w, y, z, zoom, colour, shader);
             // bottom
-            drawLine(x, y + h, z, x + w, y + h, z, colour, shader);
+            drawLine(x, y + h, z, x + w, y + h, z, zoom, colour, shader);
             // left
-            drawLine(x, y, z, x, y + h, z, colour, shader);
+            drawLine(x, y, z, x, y + h, z, zoom, colour, shader);
             // right
-            drawLine(x + w, y, z, x + w, y + h, z, colour, shader);
+            drawLine(x + w, y, z, x + w, y + h, z, zoom, colour, shader);
         }
         else {
             shader.setValue("colour", QVector4D(colour.x, colour.y, colour.z, colour.w));

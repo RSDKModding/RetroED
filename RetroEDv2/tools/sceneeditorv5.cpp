@@ -1343,8 +1343,7 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
             viewer->sceneHeight = viewer->scene.layers[l].height;
     }
 
-    viewer->vertsPtr  = new QVector3D[viewer->sceneHeight * viewer->sceneWidth * 0x10 * 6 * 2];
-    viewer->tVertsPtr = new QVector2D[viewer->sceneHeight * viewer->sceneWidth * 0x10 * 6];
+    viewer->refreshResize();
 
     viewer->colTex =
         new QImage(viewer->sceneWidth * 0x10, viewer->sceneHeight * 0x10, QImage::Format_Indexed8);
@@ -1402,15 +1401,59 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     for (int i = 0; i < viewer->objects.count(); ++i) {
         if (sceneVer != 1)
             FunctionTable::setEditableVar(VAR_UINT8, "filter", i, offsetof(GameEntity, filter));
+    }
+
+    for (auto &entity : viewer->entities) {
+        auto &obj = viewer->objects[entity.type];
+        if (entity.variables.count() != obj.variables.count()) {
+            // add & update
+            if (entity.variables.count() < obj.variables.count()) {
+                for (int v = 0; v < obj.variables.count(); ++v) {
+                    // if lower, update the type
+                    if (v < entity.variables.count()) {
+                        entity.variables[v].type = obj.variables[v].type;
+                    }
+                    else { // otherwise we'll need to add new vars
+                        RSDKv5::Scene::VariableValue variable;
+                        variable.type = obj.variables[v].type;
+                        if (obj.variables[v].name == "filter")
+                            variable.value_uint8 = 0xFF;
+                        entity.variables.append(variable);
+                    }
+                }
+            }
+            else { // remove & update
+                // remove excess variables
+                for (int v = entity.variables.count(); v >= obj.variables.count(); --v) {
+                    entity.variables.removeAt(v);
+                }
+                // update remaining variables
+                for (int v = 0; v < obj.variables.count(); ++v) {
+                    entity.variables[v].type = obj.variables[v].type;
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < viewer->objects.count(); ++i) {
         viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[i].name),
                               SceneViewerv5::EVENT_SERIALIZE, NULL);
+
+        for (int v = viewer->objects[i].variables.count() - 1; v >= 0; --v) {
+            // check if var no longer exists
+            if (viewer->objects[i].variables[v].offset == -1) {
+                for (auto &entity : viewer->entities) {
+                    if (entity.type == i)
+                        entity.variables.removeAt(v);
+                }
+
+                viewer->objects[i].variables.removeAt(v);
+            }
+        }
+
         viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[i].name),
                               SceneViewerv5::EVENT_LOAD, NULL);
     }
-
-    // TODO: update and adjust entity variables prior to creating em
-    // Any variables with an offset of -1 should be removed
-    //
 
     for (int i = 0; i < viewer->entities.count(); ++i) {
         viewer->entities[i].gameEntity = &viewer->gameEntityList[viewer->entities[i].slotID];
@@ -1443,7 +1486,9 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
                 }
                 // i'm cheating w this 1
                 case VAR_VECTOR2: memcpy(offset, &val.value_vector2.x, sizeof(Vector2<int>)); break;
-                case VAR_UNKNOWN: break; // :urarakaconfuse:
+                case VAR_UNKNOWN: // :urarakaconfuse:
+                    memcpy(offset, &val.value_unknown, sizeof(int));
+                    break;
                 case VAR_BOOL: memcpy(offset, &val.value_bool, sizeof(bool32)); break;
                 case VAR_COLOUR: {
                     auto c   = val.value_color;

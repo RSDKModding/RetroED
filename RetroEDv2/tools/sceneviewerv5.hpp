@@ -258,14 +258,16 @@ public:
                             int sprY, int scaleX, int scaleY, int direction, short rotation,
                             int inkEffect, int alpha, int sheetID);
 
-    void drawLine(float x1, float y1, float z1, float x2, float y2, float z2, Vector4<float> colour,
-                  Shader &shader);
+    void drawLine(float x1, float y1, float z1, float x2, float y2, float z2, float scale,
+                  Vector4<float> colour, Shader &shader);
 
     void drawRect(float x, float y, float z, float w, float h, Vector4<float> colour, Shader &shader,
                   bool outline = false);
 
     void drawCircle(float x, float y, float z, float r, Vector4<float> colour, Shader &shader,
                     bool outline = false);
+
+    void refreshResize();
 
 protected:
     void initializeGL();

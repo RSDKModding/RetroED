@@ -223,30 +223,44 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     break;
                 }
                 case VAR_VECTOR2: {
-                    valGroup.append(new Property("x", &entity->variables[v].value_vector2.x));
+                    valGroup.append(new Property("x", &entity->variables[v].value_vector2f.x));
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
-                    connect(prop, &Property::changed, [prop, v, entity, object] {
+                    connect(prop, &Property::changed, [v, entity, object] {
+                        entity->variables[v].value_vector2.x =
+                            entity->variables[v].value_vector2f.x * 65536.0f;
                         if (object && entity->gameEntity) {
+                            int value     = entity->variables[v].value_vector2.x;
                             byte *dataPtr = &((byte *)entity->gameEntity)[object->variables[v].offset];
-                            memcpy(dataPtr, prop->valuePtr, sizeof(int));
+                            memcpy(dataPtr, &value, sizeof(int));
                         }
                     });
 
-                    valGroup.append(new Property("y", &entity->variables[v].value_vector2.y));
+                    valGroup.append(new Property("y", &entity->variables[v].value_vector2f.y));
                     prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
-                    connect(prop, &Property::changed, [prop, v, entity, object] {
+                    connect(prop, &Property::changed, [v, entity, object] {
+                        entity->variables[v].value_vector2.y =
+                            entity->variables[v].value_vector2f.y * 65536.0f;
                         if (object && entity->gameEntity) {
+                            int value     = entity->variables[v].value_vector2.y;
                             byte *dataPtr = &(
                                 (byte *)entity->gameEntity)[object->variables[v].offset + sizeof(int)];
-                            memcpy(dataPtr, prop->valuePtr, sizeof(int));
+                            memcpy(dataPtr, &value, sizeof(int));
                         }
                     });
                     break;
                 }
                 case VAR_UNKNOWN: {
-                    // no clue
+                    valGroup.append(new Property("unknown", &entity->variables[v].value_unknown));
+                    Property *prop = valGroup.last();
+                    disconnect(prop, nullptr, nullptr, nullptr);
+                    connect(prop, &Property::changed, [prop, v, entity, object] {
+                        if (object && entity->gameEntity) {
+                            byte *dataPtr = &((byte *)entity->gameEntity)[object->variables[v].offset];
+                            memcpy(dataPtr, &prop->valuePtr, sizeof(int));
+                        }
+                    });
                     break;
                 }
             }

@@ -367,7 +367,7 @@ ushort FunctionTable::loadSpriteSheet(const char *filename, int scope)
     sprintf(buffer, "%s/Sprites/%s", v5Editor->dataPath.toStdString().c_str(), filename);
 
     uint hash[4];
-    Utils::getHashInt(filename, hash);
+    Utils::getHashInt(buffer, hash);
 
     for (int i = 0; i < v5_SURFACE_MAX; ++i) {
         if (memcmp(v5Editor->viewer->gfxSurface[i].hash, hash, 0x10 * sizeof(byte)) == 0) {
@@ -387,6 +387,35 @@ ushort FunctionTable::loadSpriteSheet(const char *filename, int scope)
     return v5Editor->viewer->addGraphicsFile(buffer, id, scope);
 }
 
+void FunctionTable::setClipBounds(byte screenID, int x1, int y1, int x2, int y2)
+{
+    ScreenInfo *screen;
+
+    if (screenID < 4) {
+        screen = &screens[screenID];
+
+        if (x1 <= screen->width)
+            screen->clipBound_X1 = x1 >= 0 ? x1 : 0;
+        else
+            screen->clipBound_X1 = screen->width;
+
+        if (y1 <= screen->height)
+            screen->clipBound_Y1 = y1 >= 0 ? y1 : 0;
+        else
+            screen->clipBound_Y1 = screen->height;
+
+        if (x2 >= 0)
+            screen->clipBound_X2 = x2 < screen->width ? x2 : screen->width;
+        else
+            screen->clipBound_X2 = 0;
+
+        if (y2 >= 0)
+            screen->clipBound_Y2 = y2 < screen->height ? y2 : screen->height;
+        else
+            screen->clipBound_Y2 = 0;
+    }
+}
+
 void FunctionTable::drawLine(int x1, int y1, int x2, int y2, uint color, int alpha,
                              InkEffects inkEffect, bool32 screenRelative)
 {
@@ -396,15 +425,15 @@ void FunctionTable::drawLine(int x1, int y1, int x2, int y2, uint color, int alp
     Vector4<float> rcolor = { ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f,
                               (color & 0xFF) / 255.0f, alpha / 255.0f };
 
+    float x1f = x1, y1f = y1, x2f = x2, y2f = y2;
     if (!screenRelative) {
-        x1 = (x1 >> 16) - v5Editor->viewer->cam.pos.x;
-        y1 = (y1 >> 16) - v5Editor->viewer->cam.pos.y;
-        x2 = (x2 >> 16) - v5Editor->viewer->cam.pos.x;
-        y2 = (y2 >> 16) - v5Editor->viewer->cam.pos.y;
+        x1f = (x1 >> 16) - v5Editor->viewer->cam.pos.x;
+        y1f = (y1 >> 16) - v5Editor->viewer->cam.pos.y;
+        x2f = (x2 >> 16) - v5Editor->viewer->cam.pos.x;
+        y2f = (y2 >> 16) - v5Editor->viewer->cam.pos.y;
     }
 
-    float zoom = v5Editor->viewer->zoom;
-    v5Editor->viewer->drawLine(x1 * zoom, y1 * zoom, z, x2 * zoom, y2 * zoom, z, rcolor,
+    v5Editor->viewer->drawLine(x1f, y1f, z, x2f, y2f, z, v5Editor->viewer->zoom, rcolor,
                                v5Editor->viewer->primitiveShader);
 }
 
@@ -416,15 +445,34 @@ void FunctionTable::drawRect(int x, int y, int width, int height, uint color, in
     Vector4<float> rcolor = { ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f,
                               (color & 0xFF) / 255.0f, alpha / 255.0f };
 
+    float xf = x;
+    float yf = y;
     if (!screenRelative) {
-        x = (x >> 16) - v5Editor->viewer->cam.pos.x;
-        y = (y >> 16) - v5Editor->viewer->cam.pos.y;
+        xf = (x >> 16) - v5Editor->viewer->cam.pos.x;
+        yf = (y >> 16) - v5Editor->viewer->cam.pos.y;
         width >>= 16;
         height >>= 16;
     }
 
+    if (width + x > screens->clipBound_X2)
+        width = screens->clipBound_X2 - x;
+    if (x < screens->clipBound_X1) {
+        width += x - screens->clipBound_X1;
+        x = screens->clipBound_X1;
+    }
+
+    if (height + y > screens->clipBound_Y2)
+        height = screens->clipBound_Y2 - y;
+    if (y < screens->clipBound_Y1) {
+        height += y - screens->clipBound_Y1;
+        y = screens->clipBound_Y1;
+    }
+
+    if (width <= 0 || height <= 0)
+        return;
+
     float zoom = v5Editor->viewer->zoom;
-    v5Editor->viewer->drawRect(x * zoom, y * zoom, v5Editor->viewer->incZ(), width * zoom,
+    v5Editor->viewer->drawRect(xf * zoom, yf * zoom, v5Editor->viewer->incZ(), width * zoom,
                                height * zoom, rcolor, v5Editor->viewer->primitiveShader);
 }
 

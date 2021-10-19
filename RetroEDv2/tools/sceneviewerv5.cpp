@@ -70,7 +70,7 @@ void SceneViewerv5::loadScene(QString path)
     // Default Texture
     if (gfxSurface[0].scope == SCOPE_NONE) {
         gfxSurface[0].scope      = SCOPE_GLOBAL;
-        gfxSurface[0].name       = ":/icons/missing.png";
+        gfxSurface[0].name       = ":/icons/missingV5.png";
         missingObj               = QImage(gfxSurface[0].name);
         gfxSurface[0].texturePtr = createTexture(missingObj);
         Utils::getHashInt(gfxSurface[0].name, gfxSurface[0].hash);
@@ -343,14 +343,6 @@ void SceneViewerv5::drawScene()
     if (sceneW != sceneWidth || sceneH != sceneHeight) {
         sceneWidth  = sceneW;
         sceneHeight = sceneH;
-
-        if (vertsPtr)
-            delete[] vertsPtr;
-        if (tVertsPtr)
-            delete[] tVertsPtr;
-
-        vertsPtr  = new QVector3D[sceneHeight * sceneWidth * 0x10 * 6];
-        tVertsPtr = new QVector2D[sceneHeight * sceneWidth * 0x10 * 6];
     }
 
     // pre-render
@@ -768,24 +760,24 @@ void SceneViewerv5::drawScene()
                                 int w = (width * 0x10);
                                 drawLine(0.0f * zoom, (info.startLine - cam.pos.y) * zoom, zpos,
                                          (w - cam.pos.x) * zoom, (info.startLine - cam.pos.y) * zoom,
-                                         zpos, clr, primitiveShader);
+                                         zpos, 1.0f, clr, primitiveShader);
 
                                 drawLine(0.0f * zoom,
                                          ((info.startLine + info.length) - cam.pos.y) * zoom, zpos,
                                          (w - cam.pos.x) * zoom,
-                                         ((info.startLine + info.length) - cam.pos.y) * zoom, zpos, clr,
-                                         primitiveShader);
+                                         ((info.startLine + info.length) - cam.pos.y) * zoom, zpos,
+                                         1.0f, clr, primitiveShader);
                             }
                             else if (scene.layers[l].type == 1) {
                                 int h = (height * 0x10);
                                 drawLine((info.startLine - cam.pos.x) * zoom, 0.0f * zoom, zpos,
                                          (info.startLine - cam.pos.x) * zoom, (h - cam.pos.y) * zoom,
-                                         zpos, clr, primitiveShader);
+                                         zpos, 1.0f, clr, primitiveShader);
 
                                 drawLine(((info.startLine + info.length) - cam.pos.x) * zoom,
                                          0.0f * zoom, zpos,
                                          ((info.startLine + info.length) - cam.pos.x) * zoom,
-                                         (h - cam.pos.y) * zoom, zpos, clr, primitiveShader);
+                                         (h - cam.pos.y) * zoom, zpos, 1.0f, clr, primitiveShader);
                             }
 
                             ++id;
@@ -819,12 +811,13 @@ void SceneViewerv5::drawScene()
             int filter = 0xFF;
             for (int v = 0; v < objects[entity->type].variables.count(); ++v) {
                 if (objects[entity->type].variables[v].name == "filter") {
-                    filter = entity->variables[v].value_uint8;
+                    if (v < entity->variables.count())
+                        filter = entity->variables[v].value_uint8;
                     break;
                 }
             }
 
-            if (!(filter & sceneFilter))
+            if (!(filter & sceneFilter) && filter)
                 continue;
 
             entity->gameEntity->position.x = Utils::floatToFixed(entity->pos.x);
@@ -846,6 +839,7 @@ void SceneViewerv5::drawScene()
                 int w = gfxSurface[0].texturePtr->width(), h = gfxSurface[0].texturePtr->height();
                 if (prevSprite) {
                     gfxSurface[0].texturePtr->bind();
+                    spriteShader.setValue("transparentColour", QVector3D(1.0f, 0.0f, 1.0f));
                     prevSprite = 0;
                 }
 
@@ -970,9 +964,8 @@ void SceneViewerv5::drawScene()
         int w = gfxSurface[0].texturePtr->width(), h = gfxSurface[0].texturePtr->height();
         gfxSurface[0].texturePtr->bind();
 
-        drawRect(((entity.pos.x - cam.pos.x) - (w / 2)) * zoom,
-                 ((entity.pos.y - cam.pos.y) - (h / 2)) * zoom, 15.7f, w * zoom, h * zoom,
-                 Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader, true);
+        drawRect(((entity.pos.x - cam.pos.x) - (w / 2)), ((entity.pos.y - cam.pos.y) - (h / 2)), 15.7f,
+                 w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader, true);
     }
 
     if (showTileGrid) {
@@ -984,7 +977,7 @@ void SceneViewerv5::drawScene()
         for (int y = camY - ((int)camY % 0x10); y < (camY + storedH) * (zoom < 1.0f ? invZoom() : 1.0f);
              y += 0x10) {
             drawLine((camX - camX) * zoom, (y - camY) * zoom, 15.6f,
-                     (((camX + storedW * invZoom())) - camX) * zoom, (y - camY) * zoom, 15.6f,
+                     (((camX + storedW * invZoom())) - camX) * zoom, (y - camY) * zoom, 15.6f, 1.0f,
                      Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
         }
 
@@ -992,7 +985,7 @@ void SceneViewerv5::drawScene()
              x += 0x10) {
             drawLine((x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom, (camY - camY) * zoom, 15.6f,
                      (x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom,
-                     (((camY + storedH * invZoom())) - camY) * zoom, 15.6f,
+                     (((camY + storedH * invZoom())) - camY) * zoom, 15.6f, 1.0f,
                      Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
         }
     }
@@ -1190,6 +1183,7 @@ void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, SceneEntit
     if (!info)
         return;
 
+    foreachStackPtr = foreachStackList;
     switch (eventID) {
         default: break;
         case EVENT_LOAD:
@@ -1214,6 +1208,9 @@ void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, SceneEntit
             sceneInfo.entitySlot = 0;
             break;
         case EVENT_DRAW:
+            sceneInfo.currentScreenID  = 0;
+            sceneInfo.currentDrawGroup = 0; // TODO
+
             sceneInfo.entity     = entity->gameEntity;
             sceneInfo.entitySlot = entity->slotID;
             if (info->editorDraw)
@@ -1303,13 +1300,12 @@ void SceneViewerv5::initializeGL()
 
 void SceneViewerv5::resizeGL(int w, int h)
 {
-    storedW             = w;
-    storedH             = h;
+    storedW = w;
+    storedH = h;
+    refreshResize();
+
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     f->glViewport(0, 0, w, h);
-
-    // m_sbHorizontal->setMaximum((m_scene.m_sceneConfig.m_camBounds.w * 0x10) - m_storedW);
-    // m_sbVertical->setMaximum((m_scene.m_sceneConfig.m_camBounds.h * 0x10) - m_storedH);
 }
 
 void SceneViewerv5::paintGL()
@@ -1322,19 +1318,31 @@ void SceneViewerv5::paintGL()
 
     processObjects();
 
-    drawScene();
+    if (vertsPtr && tVertsPtr)
+        drawScene();
 }
 
 int SceneViewerv5::addGraphicsFile(char *sheetPath, int sheetID, byte scope)
 {
     if (sheetID >= 0 && sheetID < v5_SURFACE_MAX) {
-        QImage sheet(sheetPath);
+        QImage sheet;
+        QColor transClr = QColor(0xFFFF00FF);
+        if (QFileInfo(sheetPath).suffix() == "gif") {
+            QGifImage gif(sheetPath);
+            QVector<QRgb> table = gif.globalColorTable();
+            transClr            = QColor(table[0]);
+            sheet               = gif.frame(0);
+        }
+        else {
+            sheet = QImage(sheet);
+        }
         gfxSurface[sheetID].name = QString(sheetPath);
         Utils::getHashInt(sheetPath, gfxSurface[sheetID].hash);
         gfxSurface[sheetID].texturePtr = createTexture(sheet);
         gfxSurface[sheetID].scope      = scope;
         gfxSurface[sheetID].width      = sheet.width();
         gfxSurface[sheetID].height     = sheet.height();
+        gfxSurface[sheetID].transClr   = transClr;
         return sheetID;
     }
     return -1;
@@ -1475,6 +1483,28 @@ void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, int width, int hei
         case INK_UNMASKED: alpha = 0xFF; break;
     }
 
+    if (width + XPos > screens->clipBound_X2)
+        width = screens->clipBound_X2 - XPos;
+
+    if (XPos < screens->clipBound_X1) {
+        int val = XPos - screens->clipBound_X1;
+        sprX -= val;
+        width += val;
+        XPos = screens->clipBound_X1;
+    }
+
+    if (height + YPos > screens->clipBound_Y2)
+        height = screens->clipBound_Y2 - YPos;
+    if (YPos < screens->clipBound_Y1) {
+        int val = YPos - screens->clipBound_Y1;
+        sprY -= val;
+        height += val;
+        YPos = screens->clipBound_Y1;
+    }
+
+    if (width <= 0 || height <= 0)
+        return;
+
     // Draw Sprite
     float xpos = XPos;
     float ypos = YPos;
@@ -1483,17 +1513,11 @@ void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, int width, int hei
     if (sheetID != prevSprite) {
         gfxSurface[sheetID].texturePtr->bind();
         prevSprite = sheetID;
+        spriteShader.setValue("transparentColour", QVector3D(gfxSurface[sheetID].transClr.redF(),
+                                                             gfxSurface[sheetID].transClr.greenF(),
+                                                             gfxSurface[sheetID].transClr.blueF()));
     }
     float w = gfxSurface[sheetID].texturePtr->width(), h = gfxSurface[sheetID].texturePtr->height();
-
-    Rect<int> check = Rect<int>();
-    check.x         = (int)(xpos + (float)w) * zoom;
-    check.y         = (int)(ypos + (float)h) * zoom;
-    check.w         = (int)(xpos - (w / 2.0f)) * zoom;
-    check.h         = (int)(ypos - (h / 2.0f)) * zoom;
-    if (check.x < 0 || check.y < 0 || check.w >= storedW || check.h >= storedH || !sheetID) {
-        return;
-    }
 
     spriteShader.use();
     spriteShader.setValue("flipX", false);
@@ -1608,121 +1632,209 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, int pivotX, int p
         case INK_UNMASKED: alpha = 0xFF; break;
     }
 
-    // XPos += pivotX;
-    // YPos += pivotY;
+    int angle = 0x200 - (rotation & 0x1FF);
+    if (!(rotation & 0x1FF))
+        angle = rotation & 0x1FF;
 
-    // Draw Sprite
-    float xpos = XPos;
-    float ypos = YPos;
-    float zpos = incZ();
+    int sine        = sinVal512[angle];
+    int cosine      = cosVal512[angle];
+    int fullScaleXS = scaleX * sine >> 9;
+    int fullScaleXC = scaleX * cosine >> 9;
+    int fullScaleYS = scaleY * sine >> 9;
+    int fullScaleYC = scaleY * cosine >> 9;
 
-    if (sheetID != prevSprite) {
-        gfxSurface[sheetID].texturePtr->bind();
-        prevSprite = sheetID;
-    }
-    float w = gfxSurface[sheetID].texturePtr->width(), h = gfxSurface[sheetID].texturePtr->height();
+    int posX[4];
+    int posY[4];
 
-    Rect<int> check = Rect<int>();
-    check.x         = (int)(xpos + (float)w) * zoom;
-    check.y         = (int)(ypos + (float)h) * zoom;
-    check.w         = (int)(xpos - (w / 2.0f)) * zoom;
-    check.h         = (int)(ypos - (h / 2.0f)) * zoom;
-    if (check.x < 0 || check.y < 0 || check.w >= storedW || check.h >= storedH || !sheetID) {
-        return;
-    }
-
-    spriteShader.use();
-    spriteShader.setValue("flipX", false);
-    spriteShader.setValue("flipY", false);
-    spriteShader.setValue("useAlpha", true);
-    spriteShader.setValue("alpha", (alpha > 0xFF ? 0xFF : alpha) / 255.0f);
-    QOpenGLVertexArrayObject vao;
-    vao.create();
-    vao.bind();
-
-    float tx = sprX / w;
-    float ty = sprY / h;
-    float tw = width / w;
-    float th = height / h;
-
-    QVector2D *texCoords = nullptr;
+    int xMax     = 0;
+    int scaledX1 = 0;
+    int scaledX2 = 0;
+    int scaledY1 = 0;
+    int scaledY2 = 0;
     switch (direction) {
-        case FLIP_NONE:
-        default: {
-            QVector2D tc[] = {
-                QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
-                QVector2D(tx + tw, ty + th), QVector2D(tx, ty + th), QVector2D(tx, ty),
-            };
-            texCoords = tc;
+        default:
+        case FLIP_NONE: {
+            scaledX1 = fullScaleXS * (pivotX - 2);
+            scaledX2 = fullScaleXC * (pivotX - 2);
+            scaledY1 = fullScaleYS * (pivotY - 2);
+            scaledY2 = fullScaleYC * (pivotY - 2);
+            xMax     = pivotX + 2 + width;
+            posX[0]  = XPos + ((scaledX2 + scaledY1) >> 9);
+            posY[0]  = YPos + ((fullScaleYC * (pivotY - 2) - scaledX1) >> 9);
             break;
         }
         case FLIP_X: {
-            QVector2D tc[] = {
-                QVector2D(tx + tw, ty), QVector2D(tx, ty),           QVector2D(tx, ty + th),
-                QVector2D(tx, ty + th), QVector2D(tx + tw, ty + th), QVector2D(tx + tw, ty),
-            };
-            texCoords = tc;
+            scaledX1 = fullScaleXS * (2 - pivotX);
+            scaledX2 = fullScaleXC * (2 - pivotX);
+            scaledY1 = fullScaleYS * (pivotY - 2);
+            scaledY2 = fullScaleYC * (pivotY - 2);
+            xMax     = -2 - pivotX - width;
+            posX[0]  = XPos + ((scaledX2 + scaledY1) >> 9);
+            posY[0]  = YPos + ((fullScaleYC * (pivotY - 2) - scaledX1) >> 9);
             break;
         }
-        case FLIP_Y: {
-            QVector2D tc[] = {
-                QVector2D(tx, ty + th), QVector2D(tx + tw, ty + th), QVector2D(tx + tw, ty),
-                QVector2D(tx + tw, ty), QVector2D(tx, ty),           QVector2D(tx, ty + th),
-            };
-            texCoords = tc;
-            break;
-        }
-        case FLIP_XY: {
-            QVector2D tc[] = {
-                QVector2D(tx + tw, ty + th), QVector2D(tx, ty + th), QVector2D(tx, ty),
-                QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
-            };
-            texCoords = tc;
-            break;
-        }
+        case FLIP_Y:
+        case FLIP_XY: break;
     }
 
-    QOpenGLBuffer vVBO2D;
-    vVBO2D.create();
-    vVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
-    vVBO2D.bind();
-    vVBO2D.allocate(rectVerticesv5, 6 * sizeof(QVector3D));
-    spriteShader.enableAttributeArray(0);
-    spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+    int scaledXMaxS = fullScaleXS * xMax;
+    int scaledXMaxC = fullScaleXC * xMax;
+    int scaledYMaxC = fullScaleYC * (pivotY + 2 + height);
+    int scaledYMaxS = fullScaleYS * (pivotY + 2 + height);
+    posX[1]         = XPos + ((scaledXMaxC + scaledY1) >> 9);
+    posY[1]         = YPos + ((scaledY2 - scaledXMaxS) >> 9);
+    posX[2]         = XPos + ((scaledYMaxS + scaledX2) >> 9);
+    posY[2]         = YPos + ((scaledYMaxC - scaledX1) >> 9);
+    posX[3]         = XPos + ((scaledXMaxC + scaledYMaxS) >> 9);
+    posY[3]         = YPos + ((scaledYMaxC - scaledXMaxS) >> 9);
 
-    QOpenGLBuffer tVBO2D;
-    tVBO2D.create();
-    tVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
-    tVBO2D.bind();
-    tVBO2D.allocate(texCoords, 6 * sizeof(QVector2D));
-    spriteShader.enableAttributeArray(1);
-    spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
+    int left = screens->pitch;
+    for (int i = 0; i < 4; ++i) {
+        if (posX[i] < left)
+            left = posX[i];
+    }
+    if (left < screens->clipBound_X1)
+        left = screens->clipBound_X1;
 
-    QMatrix4x4 matModel;
-    float scalefX = (512.0f / scaleX);
-    float scalefY = (512.0f / scaleY);
-    int angle     = 0x200 - (rotation & 0x1FF);
-    if (!(rotation & 0x1FF))
-        angle = rotation & 0x1FF;
-    float rotationf = (angle / 512.0f) * 360.0f;
+    int right = 0;
+    for (int i = 0; i < 4; ++i) {
+        if (posX[i] > right)
+            right = posX[i];
+    }
+    if (right > screens->clipBound_X2)
+        right = screens->clipBound_X2;
 
-    matModel.scale((width * scalefX) * zoom, (height * scalefY) * zoom, 1.0f);
-    matModel.rotate(rotationf, 0.0, 0.0, 1.0);
+    int top = screens->height;
+    for (int i = 0; i < 4; ++i) {
+        if (posY[i] < top)
+            top = posY[i];
+    }
+    if (top < screens->clipBound_Y1)
+        top = screens->clipBound_Y1;
 
-    matModel.translate((xpos + (width / 2)) / (float)width, (ypos + (height / 2)) / (float)height,
-                       zpos);
-    spriteShader.setValue("model", matModel);
+    int bottom = 0;
+    for (int i = 0; i < 4; ++i) {
+        if (posY[i] > bottom)
+            bottom = posY[i];
+    }
+    if (bottom > screens->clipBound_Y2)
+        bottom = screens->clipBound_Y2;
 
-    f->glDrawArrays(GL_TRIANGLES, 0, 6);
-    validDraw = true;
+    int xDif = right - left;
+    int yDif = bottom - top;
+
+    if (xDif >= 1 && yDif >= 1) {
+        validDraw = true;
+
+        // Draw Sprite
+        float xpos = left;
+        float ypos = top;
+        float zpos = incZ();
+
+        if (sheetID != prevSprite) {
+            gfxSurface[sheetID].texturePtr->bind();
+            prevSprite = sheetID;
+            spriteShader.setValue("transparentColour", QVector3D(gfxSurface[sheetID].transClr.redF(),
+                                                                 gfxSurface[sheetID].transClr.greenF(),
+                                                                 gfxSurface[sheetID].transClr.blueF()));
+        }
+        float w = gfxSurface[sheetID].texturePtr->width(), h = gfxSurface[sheetID].texturePtr->height();
+
+        spriteShader.use();
+        spriteShader.setValue("flipX", false);
+        spriteShader.setValue("flipY", false);
+        spriteShader.setValue("useAlpha", true);
+        spriteShader.setValue("alpha", (alpha > 0xFF ? 0xFF : alpha) / 255.0f);
+        QOpenGLVertexArrayObject vao;
+        vao.create();
+        vao.bind();
+
+        float tx = sprX / w;
+        float ty = sprY / h;
+        float tw = width / w;
+        float th = height / h;
+
+        QVector2D *texCoords = nullptr;
+        switch (direction) {
+            case FLIP_NONE:
+            default: {
+                QVector2D tc[] = {
+                    QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
+                    QVector2D(tx + tw, ty + th), QVector2D(tx, ty + th), QVector2D(tx, ty),
+                };
+                texCoords = tc;
+                break;
+            }
+            case FLIP_X: {
+                QVector2D tc[] = {
+                    QVector2D(tx + tw, ty), QVector2D(tx, ty),           QVector2D(tx, ty + th),
+                    QVector2D(tx, ty + th), QVector2D(tx + tw, ty + th), QVector2D(tx + tw, ty),
+                };
+                texCoords = tc;
+                break;
+            }
+            case FLIP_Y: {
+                QVector2D tc[] = {
+                    QVector2D(tx, ty + th), QVector2D(tx + tw, ty + th), QVector2D(tx + tw, ty),
+                    QVector2D(tx + tw, ty), QVector2D(tx, ty),           QVector2D(tx, ty + th),
+                };
+                texCoords = tc;
+                break;
+            }
+            case FLIP_XY: {
+                QVector2D tc[] = {
+                    QVector2D(tx + tw, ty + th), QVector2D(tx, ty + th), QVector2D(tx, ty),
+                    QVector2D(tx, ty),           QVector2D(tx + tw, ty), QVector2D(tx + tw, ty + th),
+                };
+                texCoords = tc;
+                break;
+            }
+        }
+
+        QOpenGLBuffer vVBO2D;
+        vVBO2D.create();
+        vVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+        vVBO2D.bind();
+        vVBO2D.allocate(rectVerticesv5, 6 * sizeof(QVector3D));
+        spriteShader.enableAttributeArray(0);
+        spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
+
+        QOpenGLBuffer tVBO2D;
+        tVBO2D.create();
+        tVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+        tVBO2D.bind();
+        tVBO2D.allocate(texCoords, 6 * sizeof(QVector2D));
+        spriteShader.enableAttributeArray(1);
+        spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
+
+        QMatrix4x4 matModel;
+        float scalefX   = (512.0f / scaleX);
+        float scalefY   = (512.0f / scaleY);
+        float rotationf = (angle / 512.0f) * 360.0f;
+
+        matModel.scale((width * scalefX) * zoom, (height * scalefY) * zoom, 1.0f);
+        matModel.translate((xpos + (width / 2)) / (float)width, (ypos + (height / 2)) / (float)height,
+                           zpos);
+        matModel.rotate(rotationf, 0.0, 0.0, 1.0);
+
+        spriteShader.setValue("model", matModel);
+
+        f->glDrawArrays(GL_TRIANGLES, 0, 6);
+        validDraw = true;
+    }
 }
 
-void SceneViewerv5::drawLine(float x1, float y1, float z1, float x2, float y2, float z2,
+void SceneViewerv5::drawLine(float x1, float y1, float z1, float x2, float y2, float z2, float scale,
                              Vector4<float> colour, Shader &shader)
 {
     shader.use();
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
+    f->glLineWidth(scale);
+
+    QMatrix4x4 matModel;
+    matModel.scale(scale, scale, 1.0f);
+    shader.setValue("model", matModel);
     shader.setValue("colour", QVector4D(colour.x, colour.y, colour.z, colour.w));
 
     QVector3D vertsPtr[2] = { QVector3D(x1, y1, z1), QVector3D(x2, y2, z2) };
@@ -1748,6 +1860,8 @@ void SceneViewerv5::drawLine(float x1, float y1, float z1, float x2, float y2, f
     VBO.destroy();
 
     validDraw = true;
+
+    f->glLineWidth(1.0f);
 }
 
 void SceneViewerv5::drawRect(float x, float y, float z, float w, float h, Vector4<float> colour,
@@ -1758,13 +1872,13 @@ void SceneViewerv5::drawRect(float x, float y, float z, float w, float h, Vector
     shader.use();
     if (outline) {
         // top
-        drawLine(x, y, z, x + w, y, z, colour, shader);
+        drawLine(x, y, z, x + w, y, z, zoom, colour, shader);
         // bottom
-        drawLine(x, y + h, z, x + w, y + h, z, colour, shader);
+        drawLine(x, y + h, z, x + w, y + h, z, zoom, colour, shader);
         // left
-        drawLine(x, y, z, x, y + h, z, colour, shader);
+        drawLine(x, y, z, x, y + h, z, zoom, colour, shader);
         // right
-        drawLine(x + w, y, z, x + w, y + h, z, colour, shader);
+        drawLine(x + w, y, z, x + w, y + h, z, zoom, colour, shader);
 
         validDraw = true;
     }
@@ -1802,4 +1916,26 @@ void SceneViewerv5::drawCircle(float x, float y, float z, float r, Vector4<float
     }
     else {
     }
+}
+
+void SceneViewerv5::refreshResize()
+{
+    screens[0].width        = storedW;
+    screens[0].height       = storedH;
+    screens[0].centerX      = screens[0].width >> 1;
+    screens[0].centerY      = screens[0].height >> 1;
+    screens[0].clipBound_X1 = 0;
+    screens[0].clipBound_Y1 = 0;
+    screens[0].clipBound_X2 = storedW;
+    screens[0].clipBound_Y2 = storedH;
+    screens[0].pitch        = storedW;
+    screens[0].waterDrawPos = storedH;
+
+    if (vertsPtr)
+        delete[] vertsPtr;
+    if (tVertsPtr)
+        delete[] tVertsPtr;
+
+    vertsPtr  = new QVector3D[(storedH * storedW * 6) * 3];
+    tVertsPtr = new QVector2D[(storedH * storedW * 6) * 3];
 }

@@ -48,6 +48,23 @@ void FunctionTable::registerObjectContainer(GameObject **structPtr, const char *
 
     allocateStorage(v5Editor->dataStorage, objectSize, (void **)structPtr, DATASET_STG, true);
     // LoadStaticObject((byte *)*structPtr, hash, 0);
+
+    GameObjectInfo info;
+    memcpy(info.hash, data, 0x10 * sizeof(byte));
+    info.type         = structPtr;
+    info.entitySize   = 0;
+    info.objectSize   = objectSize;
+    info.update       = NULL;
+    info.lateUpdate   = NULL;
+    info.staticUpdate = NULL;
+    info.draw         = NULL;
+    info.create       = NULL;
+    info.stageLoad    = NULL;
+    info.editorDraw   = NULL;
+    info.editorLoad   = NULL;
+    info.serialize    = NULL;
+    info.name         = name;
+    gameObjectList.append(info);
 }
 
 void FunctionTable::setEditableVar(byte type, const char *name, byte object, int offset)
@@ -59,11 +76,35 @@ void FunctionTable::setEditableVar(byte type, const char *name, byte object, int
     for (int i = 0; i < v5Editor->viewer->objects[object].variables.count(); ++i) {
         if (hash == v5Editor->viewer->objects[object].variables[i].hash) {
             v5Editor->viewer->objects[object].variables[i] = VariableInfo(name, type, offset);
+            for (auto entity : v5Editor->viewer->entities) {
+                if (entity.type == object) {
+                    entity.variables[i].type = type;
+                }
+            }
             return;
         }
     }
 
-    v5Editor->viewer->objects[object].variables.append(VariableInfo(name, type, offset));
+    if (QString(name) == "filter") {
+        v5Editor->viewer->objects[object].variables.insert(0, VariableInfo(name, type, offset));
+        for (auto entity : v5Editor->viewer->entities) {
+            if (entity.type == object) {
+                RSDKv5::Scene::VariableValue variable;
+                variable.type = type;
+                entity.variables.insert(0, variable);
+            }
+        }
+    }
+    else {
+        v5Editor->viewer->objects[object].variables.append(VariableInfo(name, type, offset));
+        for (auto entity : v5Editor->viewer->entities) {
+            if (entity.type == object) {
+                RSDKv5::Scene::VariableValue variable;
+                variable.type = type;
+                entity.variables.append(variable);
+            }
+        }
+    }
 }
 
 void FunctionTable::setActiveVariable(int objectID, const char *name)

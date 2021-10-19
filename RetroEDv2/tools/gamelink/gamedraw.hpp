@@ -31,6 +31,7 @@ struct GFXSurface {
     byte scope;
     QString name;
     QOpenGLTexture *texturePtr;
+    QColor transClr;
 };
 
 struct DrawList {
@@ -60,6 +61,8 @@ int getStringWidth(ushort sprIndex, ushort animID, TextInfo *info, int startInde
 void setSpriteString(ushort spriteIndex, ushort animID, TextInfo *info);
 
 ushort loadSpriteSheet(const char *filename, int scope);
+
+void setClipBounds(byte screenID, int x1, int y1, int x2, int y2);
 
 void drawLine(int x1, int y1, int x2, int y2, uint color, int alpha, InkEffects inkEffect,
               bool32 screenRelative);

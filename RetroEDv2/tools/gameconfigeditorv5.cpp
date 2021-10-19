@@ -1175,12 +1175,12 @@ bool GameconfigEditorv5::event(QEvent *event)
 
                         if (gameConfig.objects.count()) {
                             writer.writeLine();
-                            writer.writeLine("\t\t<objects>");
+                            writer.writeLine("\t<objects>");
                             for (auto &obj : gameConfig.objects) {
                                 writer.writeLine(
                                     QString("\t\t<object name=\"%1\"> </object>").arg(obj));
                             }
-                            writer.writeLine("</objects>");
+                            writer.writeLine("\t</objects>");
                         }
 
                         if (gameConfig.soundFX.count()) {
@@ -1211,7 +1211,7 @@ bool GameconfigEditorv5::event(QEvent *event)
                                 writer.writeLine("\t</category>");
                             }
                         }
-                        writer.write("</game>");
+                        writer.writeLine("</game>");
 
                         writer.flush();
                         break;

@@ -12,8 +12,13 @@ void RSDKv5::Scene::VariableValue::read(Reader &reader)
         case VariableTypes::ENUM: value_enum = reader.read<int>(); break;
         case VariableTypes::BOOL: value_bool = reader.read<uint>() != 0; break;
         case VariableTypes::STRING: value_string = reader.readString(1); break;
-        case VariableTypes::VECTOR2: value_vector2 = Position(reader); break;
-        case VariableTypes::UNKNOWN: value_vector3 = Position(reader); break;
+        case VariableTypes::VECTOR2:
+            value_vector2.x  = reader.read<int>();
+            value_vector2.y  = reader.read<int>();
+            value_vector2f.x = Utils::fixedToFloat(value_vector2.x);
+            value_vector2f.y = Utils::fixedToFloat(value_vector2.y);
+            break;
+        case VariableTypes::UNKNOWN: value_unknown = reader.read<int>(); break;
         case VariableTypes::COLOR: {
             byte r      = reader.read<byte>();
             byte g      = reader.read<byte>();
@@ -37,8 +42,11 @@ void RSDKv5::Scene::VariableValue::write(Writer &writer)
         case VariableTypes::ENUM: writer.write(value_enum); break;
         case VariableTypes::BOOL: writer.write((uint)(value_bool ? 1 : 0)); break;
         case VariableTypes::STRING: writer.write(value_string, 1); break;
-        case VariableTypes::VECTOR2: value_vector2.write(writer); break;
-        case VariableTypes::UNKNOWN: value_vector3.write(writer, true); break;
+        case VariableTypes::VECTOR2:
+            writer.write(value_vector2.x);
+            writer.write(value_vector2.y);
+            break;
+        case VariableTypes::UNKNOWN: writer.write(value_int32); break;
         case VariableTypes::COLOR: {
             writer.write((byte)value_color.blue());
             writer.write((byte)value_color.green());
