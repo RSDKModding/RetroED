@@ -31,14 +31,14 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
     }
 
     QList<Property *> entityGroup = {
-        new Property("Object"),
-        new Property("Position"),
+        new Property("object"),
+        new Property("position"),
     };
 
     QList<Property *> infoGroup = {
-        new Property("Type", objNames, &entity->type, Property::BYTE_MANAGER),
-        new Property("Slot", &entity->slotID),
-        new Property("PropertyValue", &entity->propertyValue),
+        new Property("type", objNames, &entity->type, Property::BYTE_MANAGER),
+        new Property("slot", &entity->slotID),
+        new Property("propertyValue", &entity->propertyValue),
     };
 
     connect(infoGroup[0], &Property::changed, [infoGroup, entity, entityv2, entityv3, entityv4] {
@@ -51,13 +51,27 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
         if (entityv4)
             entityv4->type = type;
     });
-    connect(infoGroup[1], &Property::changed, [] {
-        // entity slot was changed
-        // TODO:
-        // check if slot avaliable
-        // if not, dont change slot
-        // if it is, reset the linked entity slot and the new entity slot
-        // and init the new entity slot's data to suit the type
+    connect(infoGroup[1], &Property::changed, [this, entity, infoGroup] {
+        bool flag = false;
+        if (entity->slotID != entity->prevSlotID) {
+            for (auto &entityRef : scnEditor->viewer->entities) {
+                if (entity->slotID == entityRef.slotID) {
+                    msgBox = new QMessageBox(
+                        QMessageBox::Information, "RetroED",
+                        QString("An entity already exists with slotID %1.").arg(entity->slotID),
+                        QMessageBox::NoButton, this);
+                    msgBox->open();
+                    entity->slotID = entity->prevSlotID;
+                    flag           = true;
+
+                    infoGroup[1]->updateValue();
+                    break;
+                }
+            }
+        }
+        if (!flag) {
+            entity->prevSlotID = entity->slotID;
+        }
     });
     connect(infoGroup[2], &Property::changed,
             [infoGroup, entity, entityv2, entityv3, entityv4, entityID] {

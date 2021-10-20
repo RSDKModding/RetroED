@@ -42,13 +42,27 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
         byte type = *(byte *)infoGroup[0]->valuePtr;
         emit typeChanged(entity, type);
     });
-    connect(infoGroup[1], &Property::changed, [] {
-        // entity slot was changed
-        // TODO:
-        // check if slot avaliable
-        // if not, dont change slot
-        // if it is, reset the linked entity slot and the new entity slot
-        // and init the new entity slot's data to suit the type
+    connect(infoGroup[1], &Property::changed, [this, entity, infoGroup] {
+        bool flag = false;
+        if (entity->slotID != entity->prevSlot) {
+            for (auto &entityRef : v5Editor->viewer->entities) {
+                if (entity->slotID == entityRef.slotID) {
+                    msgBox = new QMessageBox(
+                        QMessageBox::Information, "RetroED",
+                        QString("An entity already exists with slotID %1.").arg(entity->slotID),
+                        QMessageBox::NoButton, this);
+                    msgBox->open();
+                    entity->slotID = entity->prevSlot;
+                    flag           = true;
+
+                    infoGroup[1]->updateValue();
+                    break;
+                }
+            }
+        }
+        if (!flag) {
+            entity->prevSlot = entity->slotID;
+        }
     });
 
     QList<Property *> posGroup = { new Property("x", &entity->pos.x),

@@ -224,13 +224,23 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         entity.type = viewer->selectedObject;
         if (viewer->selectedObject < 0)
             entity.type = 0; // backup
-        entity.slotID = viewer->entities.count();
+        entity.slotID   = viewer->entities.count();
+        entity.prevSlot = entity.slotID;
 
+        entity.variables.clear();
+        for (int v = 0; v < viewer->objects[entity.type].variables.length(); ++v) {
+            RSDKv5::Scene::VariableValue var;
+            var.type = viewer->objects[entity.type].variables[v].type;
+            entity.variables.append(var);
+        }
+
+        viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[entity.type].name),
+                              SceneViewerv5::EVENT_CREATE, &entity);
         viewer->entities.append(entity);
 
         createEntityList();
 
-        ui->addEnt->setDisabled(viewer->entities.count() >= 0x800);
+        ui->addEnt->setDisabled(viewer->activeEntityCount() >= 0x800);
         doAction();
     });
 
@@ -250,7 +260,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         ui->rmEnt->setDisabled(viewer->objects.count() <= 0);
 
-        ui->addEnt->setDisabled(viewer->entities.count() >= 0x800);
+        ui->addEnt->setDisabled(viewer->activeEntityCount() >= 0x800);
         doAction();
     });
 
@@ -876,7 +886,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                             }
                         }
                         else {
-                            if (viewer->selectedObject >= 0) {
+                            if (viewer->selectedObject >= 0 && viewer->activeEntityCount() < 0x800) {
                                 SceneEntity entity;
                                 entity.type = viewer->selectedObject;
                                 int xpos = (mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x;
@@ -889,21 +899,37 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 entity.pos.y =
                                     ((mEvent->pos().y() * viewer->invZoom()) + viewer->cam.pos.y);
 
-                                int cnt       = viewer->entities.count();
-                                entity.slotID = cnt;
-                                viewer->entities.append(entity);
-                                // viewer->m_compilerv4.m_objectEntityList[cnt].type =
-                                //    viewer->selectedObject;
-                                // viewer->m_compilerv4.m_objectEntityList[cnt].propertyValue = 0;
-                                // viewer->m_compilerv4.m_objectEntityList[cnt].XPos          = xpos;
-                                // viewer->m_compilerv4.m_objectEntityList[cnt].YPos          = ypos;
+                                entity.variables.clear();
+                                for (int v = 0; v < viewer->objects[entity.type].variables.length();
+                                     ++v) {
+                                    RSDKv5::Scene::VariableValue var;
+                                    var.type = viewer->objects[entity.type].variables[v].type;
+                                    entity.variables.append(var);
+                                }
 
+                                int cnt         = viewer->entities.count();
+                                entity.slotID   = cnt;
+                                entity.prevSlot = entity.slotID;
+
+                                viewer->callGameEvent(
+                                    gameLink.GetObjectInfo(viewer->objects[entity.type].name),
+                                    SceneViewerv5::EVENT_CREATE, &entity);
+
+                                viewer->entities.append(entity);
                                 viewer->selectedEntity = cnt;
 
                                 objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                 createEntityList();
                                 doAction();
+                            }
+                            else if (viewer->activeEntityCount() >= 0x800) {
+                                QMessageBox msgBox =
+                                    QMessageBox(QMessageBox::Information, "RetroED",
+                                                QString("Entity Cap has been reached.\nUnable to add "
+                                                        "new entity.\nPlease remove an entity first."),
+                                                QMessageBox::NoButton, this);
+                                msgBox.exec();
                             }
                         }
 
@@ -1186,16 +1212,27 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                     switch (clipboardType) {
                         default: break;
                         case COPY_ENTITY: {
-                            SceneEntity entity = *(SceneEntity *)clipboard;
-                            entity.pos.x       = m_sceneMousePos.x;
-                            entity.pos.y       = m_sceneMousePos.y;
+                            if (viewer->activeEntityCount() < 0x800) {
+                                SceneEntity entity = *(SceneEntity *)clipboard;
+                                entity.pos.x       = m_sceneMousePos.x;
+                                entity.pos.y       = m_sceneMousePos.y;
 
-                            int cnt = viewer->entities.count();
-                            viewer->entities.append(entity);
-                            doAction();
-                            // viewer->m_compilerv4.m_objectEntityList[cnt].XPos = entity.pos.x;
-                            // viewer->m_compilerv4.m_objectEntityList[cnt].YPos = entity.pos.y;
-                        } break;
+                                viewer->entities.append(entity);
+                                viewer->callGameEvent(
+                                    gameLink.GetObjectInfo(viewer->objects[entity.type].name),
+                                    SceneViewerv5::EVENT_CREATE, &entity);
+                                doAction();
+                            }
+                            else {
+                                QMessageBox msgBox =
+                                    QMessageBox(QMessageBox::Information, "RetroED",
+                                                QString("Entity Cap has been reached.\nUnable to add "
+                                                        "new entity.\nPlease remove an entity first."),
+                                                QMessageBox::NoButton, this);
+                                msgBox.exec();
+                            }
+                            break;
+                        }
                     }
                 }
             }
@@ -1456,53 +1493,12 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     }
 
     for (int i = 0; i < viewer->entities.count(); ++i) {
-        viewer->entities[i].gameEntity = &viewer->gameEntityList[viewer->entities[i].slotID];
-        GameEntity *entityPtr          = viewer->entities[i].gameEntity;
-        memset(entityPtr, 0, sizeof(GameEntityBase));
-        entityPtr->position.x    = Utils::floatToFixed(viewer->entities[i].pos.x);
-        entityPtr->position.y    = Utils::floatToFixed(viewer->entities[i].pos.y);
-        entityPtr->interaction   = true;
-        entityPtr->active        = ACTIVE_BOUNDS;
-        entityPtr->updateRange.x = 0x800000;
-        entityPtr->updateRange.y = 0x800000;
-        entityPtr->objectID      = viewer->entities[i].type;
-
-        for (int o = 0; o < viewer->entities[i].variables.length(); o++) {
-            auto var    = viewer->objects[viewer->entities[i].type].variables[o];
-            auto val    = viewer->entities[i].variables[o];
-            auto offset = &((byte *)entityPtr)[var.offset];
-            switch (var.type) {
-                case VAR_UINT8: memcpy(offset, &val.value_uint8, sizeof(byte)); break;
-                case VAR_INT8: memcpy(offset, &val.value_int8, sizeof(sbyte)); break;
-                case VAR_UINT16: memcpy(offset, &val.value_uint16, sizeof(ushort)); break;
-                case VAR_INT16: memcpy(offset, &val.value_int16, sizeof(short)); break;
-                case VAR_UINT32: memcpy(offset, &val.value_uint32, sizeof(uint)); break;
-                case VAR_INT32: memcpy(offset, &val.value_int32, sizeof(int)); break;
-                case VAR_ENUM: memcpy(offset, &val.value_enum, sizeof(int)); break;
-                case VAR_STRING: {
-                    FunctionTable::setText((TextInfo *)offset,
-                                           (char *)val.value_string.toStdString().c_str(), false);
-                    break;
-                }
-                // i'm cheating w this 1
-                case VAR_VECTOR2: memcpy(offset, &val.value_vector2.x, sizeof(Vector2<int>)); break;
-                case VAR_UNKNOWN: // :urarakaconfuse:
-                    memcpy(offset, &val.value_unknown, sizeof(int));
-                    break;
-                case VAR_BOOL: memcpy(offset, &val.value_bool, sizeof(bool32)); break;
-                case VAR_COLOUR: {
-                    auto c   = val.value_color;
-                    uint clr = (c.red() << 16) | (c.green() << 8) | (c.blue());
-                    memcpy(offset, &clr, sizeof(uint));
-                    break;
-                }
-            }
-        }
-
         SceneEntity *entity = &viewer->entities[i];
         viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[entity->type].name),
                               SceneViewerv5::EVENT_CREATE, entity);
     }
+
+    ui->addEnt->setDisabled(viewer->activeEntityCount() >= 0x800);
 
     clearActions();
     appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, scnPath, QList<QString>{ gcfPath });

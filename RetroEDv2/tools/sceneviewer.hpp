@@ -63,6 +63,7 @@ public:
     {
     public:
         ushort slotID      = 0;
+        ushort prevSlotID  = 0;
         byte type          = 0;
         byte propertyValue = 0;
         Vector2<float> pos = Vector2<float>(0, 0);

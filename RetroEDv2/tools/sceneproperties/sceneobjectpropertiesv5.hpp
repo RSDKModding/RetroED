@@ -35,6 +35,7 @@ public:
 
 struct SceneEntity {
     ushort slotID          = 0;
+    ushort prevSlot        = 0;
     byte type              = 0;
     Vector2<float> pos     = Vector2<float>(0, 0);
     GameEntity *gameEntity = NULL;
@@ -88,6 +89,8 @@ private:
     Ui::SceneObjectPropertiesv5 *ui;
 
     SceneEntity *entityPtr = nullptr;
+
+    QMessageBox *msgBox = nullptr;
 };
 
 #endif // SCENEOBJECTPROPERTIES_V5_H

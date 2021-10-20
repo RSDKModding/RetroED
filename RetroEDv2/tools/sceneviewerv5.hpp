@@ -34,6 +34,7 @@ public:
     // viewing properties
     float zoom = 1.0f;
     inline float invZoom() { return 1.0f / zoom; }
+    bool disableObjects = true;
 
     QString dataPath = "";
     RSDKv5::GameConfig gameConfig;
@@ -45,6 +46,26 @@ public:
 
     QList<SceneObject> objects;
     QList<SceneEntity> entities;
+
+    inline int activeEntityCount()
+    {
+        int count = 0;
+        for (int i = 0; i < entities.count(); ++i) {
+            SceneEntity &entity = entities[i];
+            int filter          = 0;
+            for (int v = 0; v < objects[entity.type].variables.count(); ++v) {
+                if (objects[entity.type].variables[v].name == "filter") {
+                    if (v < entity.variables.count())
+                        filter = entity.variables[v].value_uint8;
+                    break;
+                }
+            }
+
+            if ((filter & sceneFilter) || !filter)
+                ++count;
+        }
+        return count;
+    }
 
     QString currentFolder = "Blank";
 

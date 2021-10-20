@@ -231,17 +231,18 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     connect(ui->addEnt, &QToolButton::clicked, [this] {
         // uint c = objectList->currentRow() + 1;
-        SceneViewer::EntityInfo obj;
-        obj.type = viewer->selectedObject;
+        SceneViewer::EntityInfo ent;
+        ent.type = viewer->selectedObject;
         if (viewer->selectedObject < 0)
-            obj.type = 0; // backup
-        obj.slotID = viewer->entities.count();
+            ent.type = 0; // backup
+        ent.slotID     = viewer->entities.count();
+        ent.prevSlotID = ent.slotID;
 
-        viewer->entities.append(obj);
+        viewer->entities.append(ent);
 
         createEntityList();
 
-        ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::maxObjectCount);
+        ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
         doAction();
     });
 
@@ -262,7 +263,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             viewer->selectedEntity = -1;
 
         ui->rmEnt->setDisabled(viewer->entities.count() <= 0);
-        ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::maxObjectCount);
+        ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
         doAction();
     });
 
@@ -1163,23 +1164,25 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                             }
                         }
                         else {
-                            if (viewer->selectedObject >= 0) {
-                                SceneViewer::EntityInfo obj;
-                                obj.type = viewer->selectedObject;
+                            if (viewer->selectedObject >= 0
+                                && viewer->entities.count() < FormatHelpers::Scene::entityLimit) {
+                                SceneViewer::EntityInfo entity;
+                                entity.type = viewer->selectedObject;
                                 int xpos = ((mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x)
                                            * 65536;
                                 int ypos = ((mEvent->pos().y() * viewer->invZoom()) + viewer->cam.pos.y)
                                            * 65536;
 
-                                obj.pos.x =
+                                entity.pos.x =
                                     ((mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x);
-                                obj.pos.y =
+                                entity.pos.y =
                                     ((mEvent->pos().y() * viewer->invZoom()) + viewer->cam.pos.y);
 
-                                int cnt    = viewer->entities.count();
-                                obj.slotID = cnt;
+                                int cnt           = viewer->entities.count();
+                                entity.slotID     = cnt;
+                                entity.prevSlotID = entity.slotID;
 
-                                viewer->entities.append(obj);
+                                viewer->entities.append(entity);
                                 viewer->compilerv2.objectEntityList[cnt].type = viewer->selectedObject;
                                 viewer->compilerv2.objectEntityList[cnt].propertyValue = 0;
                                 viewer->compilerv2.objectEntityList[cnt].XPos          = xpos;
@@ -1205,6 +1208,14 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                 createEntityList();
                                 doAction();
+                            }
+                            else if (viewer->entities.count() >= FormatHelpers::Scene::entityLimit) {
+                                QMessageBox msgBox =
+                                    QMessageBox(QMessageBox::Information, "RetroED",
+                                                QString("Entity Cap has been reached.\nUnable to add "
+                                                        "new entity.\nPlease remove an entity first."),
+                                                QMessageBox::NoButton, this);
+                                msgBox.exec();
                             }
                         }
 
@@ -1472,21 +1483,32 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     switch (clipboardType) {
                         default: break;
                         case COPY_ENTITY: {
-                            SceneViewer::EntityInfo object = *(SceneViewer::EntityInfo *)clipboard;
-                            object.pos.x                   = (sceneMousePos.x);
-                            object.pos.y                   = (sceneMousePos.y);
+                            if (viewer->entities.count() < FormatHelpers::Scene::entityLimit) {
+                                SceneViewer::EntityInfo object = *(SceneViewer::EntityInfo *)clipboard;
+                                object.pos.x                   = (sceneMousePos.x);
+                                object.pos.y                   = (sceneMousePos.y);
 
-                            int cnt = viewer->entities.count();
-                            viewer->entities.append(object);
-                            viewer->compilerv2.objectEntityList[cnt].XPos = object.pos.x * 65536;
-                            viewer->compilerv2.objectEntityList[cnt].YPos = object.pos.y * 65536;
+                                int cnt = viewer->entities.count();
+                                viewer->entities.append(object);
+                                viewer->compilerv2.objectEntityList[cnt].XPos = object.pos.x * 65536;
+                                viewer->compilerv2.objectEntityList[cnt].YPos = object.pos.y * 65536;
 
-                            viewer->compilerv3.objectEntityList[cnt].XPos = object.pos.x * 65536;
-                            viewer->compilerv3.objectEntityList[cnt].YPos = object.pos.y * 65536;
+                                viewer->compilerv3.objectEntityList[cnt].XPos = object.pos.x * 65536;
+                                viewer->compilerv3.objectEntityList[cnt].YPos = object.pos.y * 65536;
 
-                            viewer->compilerv4.objectEntityList[cnt].XPos = object.pos.x * 65536;
-                            viewer->compilerv4.objectEntityList[cnt].YPos = object.pos.y * 65536;
-                        } break;
+                                viewer->compilerv4.objectEntityList[cnt].XPos = object.pos.x * 65536;
+                                viewer->compilerv4.objectEntityList[cnt].YPos = object.pos.y * 65536;
+                            }
+                            else {
+                                QMessageBox msgBox =
+                                    QMessageBox(QMessageBox::Information, "RetroED",
+                                                QString("Entity Cap has been reached.\nUnable to add "
+                                                        "new entity.\nPlease remove an entity first."),
+                                                QMessageBox::NoButton, this);
+                                msgBox.exec();
+                            }
+                            break;
+                        }
                     }
                 }
             }
@@ -2025,6 +2047,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
         }
     }
 
+    ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
+
     viewer->objectsLoaded = true;
     clearActions();
     appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR, scnPath, QList<QString>{ gcfPath });
@@ -2042,7 +2066,6 @@ void SceneEditor::createEntityList()
               });
     for (int i = 0; i < viewer->entities.count(); ++i) {
         QString name = viewer->objects[viewer->entities[i].type].name;
-        //-1 because "blank object" is the internal type 0
         ui->entityList->addItem(QString::number(viewer->entities[i].slotID) + ": " + name);
     }
     ui->entityList->blockSignals(false);

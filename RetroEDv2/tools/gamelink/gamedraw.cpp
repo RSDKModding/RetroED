@@ -501,10 +501,13 @@ void FunctionTable::drawBlendedFace(Vector2<int> *vertices, uint *colors, int ve
 {
 }
 
-void FunctionTable::drawSprite(Animator *data, Vector2<int> *position, bool32 screenRelative)
+void FunctionTable::drawSprite(Animator *animator, Vector2<int> *position, bool32 screenRelative)
 {
-    if (data && data->framePtrs && v5Editor) {
-        SpriteFrame *frame = &data->framePtrs[data->frameID];
+    if (animator && animator->framePtrs && v5Editor) {
+        if ((uint)animator->frameID >= (uint)animator->frameCount)
+            return;
+
+        SpriteFrame *frame = &animator->framePtrs[animator->frameID];
         Vector2<float> pos;
         if (!position) {
             pos.x = Utils::fixedToFloat(sceneInfo.entity->position.x);
@@ -523,7 +526,7 @@ void FunctionTable::drawSprite(Animator *data, Vector2<int> *position, bool32 sc
         int rotation = sceneInfo.entity->rotation;
         int drawFX   = sceneInfo.entity->drawFX;
         if (sceneInfo.entity->drawFX & FX_ROTATE) {
-            switch (data->rotationFlag) {
+            switch (animator->rotationFlag) {
                 case ROTFLAG_NONE:
                     rotation = 0;
                     if ((sceneInfo.entity->drawFX & FX_ROTATE) != FX_NONE)
@@ -566,7 +569,7 @@ void FunctionTable::drawSprite(Animator *data, Vector2<int> *position, bool32 sc
                             break;
                         case 1: // 45 deg
                             rotation = 0x80;
-                            frame += data->frameCount;
+                            frame += animator->frameCount;
                             if (sceneInfo.entity->direction)
                                 rotation = 0x00;
                             break;
@@ -575,7 +578,7 @@ void FunctionTable::drawSprite(Animator *data, Vector2<int> *position, bool32 sc
                             break;
                         case 3: // 135 deg
                             rotation = 0x100;
-                            frame += data->frameCount;
+                            frame += animator->frameCount;
                             if (sceneInfo.entity->direction)
                                 rotation = 0x80;
                             break;
@@ -584,7 +587,7 @@ void FunctionTable::drawSprite(Animator *data, Vector2<int> *position, bool32 sc
                             break;
                         case 5: // 225 deg
                             rotation = 0x180;
-                            frame += data->frameCount;
+                            frame += animator->frameCount;
                             if (sceneInfo.entity->direction)
                                 rotation = 0x100;
                             break;
@@ -593,7 +596,7 @@ void FunctionTable::drawSprite(Animator *data, Vector2<int> *position, bool32 sc
                             break;
                         case 7: // 315 deg
                             rotation = 0x180;
-                            frame += data->frameCount;
+                            frame += animator->frameCount;
                             if (!sceneInfo.entity->direction)
                                 rotation = 0;
                             break;

@@ -141,10 +141,11 @@ void SceneViewerv5::loadScene(QString path)
 
         for (RSDKv5::Scene::SceneEntity &ent : obj.entities) {
             SceneEntity entity;
-            entity.slotID = ent.slotID;
-            entity.type   = type;
-            entity.pos.x  = Utils::fixedToFloat(ent.position.x);
-            entity.pos.y  = Utils::fixedToFloat(ent.position.y);
+            entity.slotID   = ent.slotID;
+            entity.prevSlot = entity.slotID;
+            entity.type     = type;
+            entity.pos.x    = Utils::fixedToFloat(ent.position.x);
+            entity.pos.y    = Utils::fixedToFloat(ent.position.y);
 
             for (int v = 0; v < ent.variables.count(); ++v) {
                 entity.variables.append(ent.variables[v]);
@@ -193,6 +194,8 @@ void SceneViewerv5::loadScene(QString path)
             tilePalette.append(PaletteColour(col));
         }
     }
+
+    disableObjects = false;
 }
 
 void SceneViewerv5::saveScene(QString path)
@@ -1039,6 +1042,8 @@ void SceneViewerv5::drawScene()
 
 void SceneViewerv5::unloadScene()
 {
+    disableObjects = true;
+
     // QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     if (tilesetTexture) {
         tilesetTexture->destroy();
@@ -1190,16 +1195,98 @@ void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, SceneEntit
             if (info->editorLoad)
                 info->editorLoad();
             break;
-        case EVENT_CREATE:
+        case EVENT_CREATE: {
+            GameEntity *entityPtr = &gameEntityList[entity->slotID];
+            memset(entityPtr, 0, sizeof(GameEntityBase));
+            entityPtr->position.x    = Utils::floatToFixed(entity->pos.x);
+            entityPtr->position.y    = Utils::floatToFixed(entity->pos.y);
+            entityPtr->interaction   = true;
+            entityPtr->active        = ACTIVE_BOUNDS;
+            entityPtr->updateRange.x = 0x800000;
+            entityPtr->updateRange.y = 0x800000;
+            entityPtr->objectID      = entity->type;
+
+            for (int o = 0; o < entity->variables.length(); o++) {
+                auto var    = objects[entity->type].variables[o];
+                auto val    = entity->variables[o];
+                auto offset = &((byte *)entityPtr)[var.offset];
+                switch (var.type) {
+                    case VAR_UINT8: memcpy(offset, &val.value_uint8, sizeof(byte)); break;
+                    case VAR_INT8: memcpy(offset, &val.value_int8, sizeof(sbyte)); break;
+                    case VAR_UINT16: memcpy(offset, &val.value_uint16, sizeof(ushort)); break;
+                    case VAR_INT16: memcpy(offset, &val.value_int16, sizeof(short)); break;
+                    case VAR_UINT32: memcpy(offset, &val.value_uint32, sizeof(uint)); break;
+                    case VAR_INT32: memcpy(offset, &val.value_int32, sizeof(int)); break;
+                    case VAR_ENUM: memcpy(offset, &val.value_enum, sizeof(int)); break;
+                    case VAR_STRING: {
+                        FunctionTable::setText((TextInfo *)offset,
+                                               (char *)val.value_string.toStdString().c_str(), false);
+                        break;
+                    }
+                    // i'm cheating w this 1
+                    case VAR_VECTOR2: memcpy(offset, &val.value_vector2.x, sizeof(Vector2<int>)); break;
+                    case VAR_UNKNOWN: // :urarakaconfuse:
+                        memcpy(offset, &val.value_unknown, sizeof(int));
+                        break;
+                    case VAR_BOOL: memcpy(offset, &val.value_bool, sizeof(bool32)); break;
+                    case VAR_COLOUR: {
+                        auto c   = val.value_color;
+                        uint clr = (c.red() << 16) | (c.green() << 8) | (c.blue());
+                        memcpy(offset, &clr, sizeof(uint));
+                        break;
+                    }
+                }
+            }
+            entity->gameEntity = entityPtr;
+
             sceneInfo.entity     = entity->gameEntity;
             sceneInfo.entitySlot = entity->slotID;
             if (info->create)
                 info->create(NULL);
             sceneInfo.entity     = NULL;
             sceneInfo.entitySlot = 0;
+
+            // editor defaults!
+            for (int o = 0; o < entity->variables.length(); o++) {
+                auto var    = objects[entity->type].variables[o];
+                auto &val   = entity->variables[o];
+                auto offset = &((byte *)entityPtr)[var.offset];
+                switch (var.type) {
+                    case VAR_UINT8: memcpy(&val.value_uint8, offset, sizeof(byte)); break;
+                    case VAR_INT8: memcpy(&val.value_int8, offset, sizeof(sbyte)); break;
+                    case VAR_UINT16: memcpy(&val.value_uint16, offset, sizeof(ushort)); break;
+                    case VAR_INT16: memcpy(&val.value_int16, offset, sizeof(short)); break;
+                    case VAR_UINT32: memcpy(&val.value_uint32, offset, sizeof(uint)); break;
+                    case VAR_INT32: memcpy(&val.value_int32, offset, sizeof(int)); break;
+                    case VAR_ENUM: memcpy(&val.value_enum, offset, sizeof(int)); break;
+                    case VAR_STRING: {
+                        char buffer[0x100];
+                        FunctionTable::getCString(buffer, (TextInfo *)offset);
+                        val.value_string = buffer;
+                        break;
+                    }
+                    case VAR_VECTOR2:
+                        memcpy(&val.value_vector2.x, offset, sizeof(Vector2<int>));
+                        val.value_vector2f.x = Utils::fixedToFloat(val.value_vector2.x);
+                        val.value_vector2f.y = Utils::fixedToFloat(val.value_vector2.y);
+                        break;
+                    case VAR_UNKNOWN: // :urarakaconfuse:
+                        memcpy(&val.value_unknown, offset, sizeof(int));
+                        break;
+                    case VAR_BOOL: memcpy(&val.value_bool, offset, sizeof(bool32)); break;
+                    case VAR_COLOUR: {
+                        auto c   = val.value_color;
+                        uint clr = 0;
+                        memcpy(&clr, offset, sizeof(uint));
+                        val.value_color = QColor(clr);
+                        break;
+                    }
+                }
+            }
             break;
+        }
         case EVENT_UPDATE:
-            // TODO: that
+            // TODO: that(?)
             sceneInfo.entity     = entity->gameEntity;
             sceneInfo.entitySlot = entity->slotID;
             if (info->update)
@@ -1316,10 +1403,12 @@ void SceneViewerv5::paintGL()
     f->glClearColor(bgColour.r / 255.0f, bgColour.g / 255.0f, bgColour.b / 255.0f, 1.0f);
     f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    processObjects();
+    if (!disableObjects) {
+        processObjects();
 
-    if (vertsPtr && tVertsPtr)
-        drawScene();
+        if (vertsPtr && tVertsPtr)
+            drawScene();
+    }
 }
 
 int SceneViewerv5::addGraphicsFile(char *sheetPath, int sheetID, byte scope)
@@ -1830,8 +1919,6 @@ void SceneViewerv5::drawLine(float x1, float y1, float z1, float x2, float y2, f
     shader.use();
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
-    f->glLineWidth(scale);
-
     QMatrix4x4 matModel;
     matModel.scale(scale, scale, 1.0f);
     shader.setValue("model", matModel);
@@ -1860,8 +1947,6 @@ void SceneViewerv5::drawLine(float x1, float y1, float z1, float x2, float y2, f
     VBO.destroy();
 
     validDraw = true;
-
-    f->glLineWidth(1.0f);
 }
 
 void SceneViewerv5::drawRect(float x, float y, float z, float w, float h, Vector4<float> colour,

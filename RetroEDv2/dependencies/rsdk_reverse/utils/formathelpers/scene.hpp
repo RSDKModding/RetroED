@@ -62,7 +62,7 @@ public:
 
     QString filepath = "";
 
-    static const int maxObjectCount = 1056;
+    static const int entityLimit = 0x400;
 };
 
 } // namespace FormatHelpers

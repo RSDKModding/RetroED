@@ -217,6 +217,7 @@ void SceneViewer::loadScene(QString path, byte ver)
     for (int i = 0; i < scene.objects.count(); ++i) {
         EntityInfo info;
         info.slotID        = scene.objects[i].slotID;
+        info.prevSlotID    = info.slotID;
         info.type          = scene.objects[i].type;
         info.propertyValue = scene.objects[i].propertyValue;
         info.pos.x         = scene.objects[i].getX();

@@ -28,6 +28,8 @@ private:
     Ui::SceneObjectProperties *ui;
 
     SceneViewer::EntityInfo *entityPtr = nullptr;
+
+    QMessageBox *msgBox = nullptr;
 };
 
 #endif // SCENEOBJECTPROPERTIES_H
