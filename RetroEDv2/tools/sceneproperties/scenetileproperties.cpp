@@ -9,8 +9,8 @@ SceneTileProperties::SceneTileProperties(QWidget *parent)
 
 SceneTileProperties::~SceneTileProperties() { delete ui; }
 
-void SceneTileProperties::setupUI(RSDKv4::Tileconfig::CollisionMask *cmA,
-                                  RSDKv4::Tileconfig::CollisionMask *cmB, ushort tid, QImage tileImg)
+void SceneTileProperties::setupUI(RSDKv4::TileConfig::CollisionMask *cmA,
+                                  RSDKv4::TileConfig::CollisionMask *cmB, ushort tid, QImage tileImg)
 {
     unsetUI();
 

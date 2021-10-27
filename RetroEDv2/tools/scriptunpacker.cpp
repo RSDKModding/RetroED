@@ -66,7 +66,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 
                     for (auto &v : gcf.globalVariables) variableNames.append(v.name);
 
-                    qDebug() << "Loading Global Bytecode: " << globalPath;
+                    printLog("Loading Global Bytecode: " + globalPath);
 
                     QList<QString> categoryChars = { "PS", "RS", "SS", "BS" };
                     for (int cat = 0; cat < 4; ++cat) {
@@ -101,8 +101,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                             stageInfo.loadGlobals = scf.loadGlobalScripts;
                             bytecodeList.append(stageInfo);
 
-                            qDebug()
-                                << "Loading Stage Bytecode: " + s.name + " (" + stageInfo.path + ")";
+                            printLog("Loading Stage Bytecode: " + s.name + " (" + stageInfo.path + ")");
                         }
                     }
 
@@ -152,7 +151,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 
                     for (auto &v : gcf.globalVariables) variableNames.append(v.name);
 
-                    qDebug() << "Loading Global Bytecode: " << globalPath;
+                    printLog("Loading Global Bytecode: " + globalPath);
 
                     for (int cat = 0; cat < 4; ++cat) {
                         auto &c = gcf.categories[cat];
@@ -175,8 +174,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                             stageInfo.loadGlobals = scf.loadGlobalScripts;
                             bytecodeList.append(stageInfo);
 
-                            qDebug()
-                                << "Loading Stage Bytecode: " + s.name + " (" + stageInfo.path + ")";
+                            printLog("Loading Stage Bytecode: " + s.name + " (" + stageInfo.path + ")");
                         }
                     }
 

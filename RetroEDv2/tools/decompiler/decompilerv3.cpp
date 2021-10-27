@@ -1240,16 +1240,16 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
         QList<ScriptPtr> scriptPtrs;
 
         if (objectScript.mainScript < 0x3FFFF)
-            scriptPtrs.append(ScriptPtr("ObjectMain", objectScript.mainScript,
-                                        objectScript.mainJumpTable, false));
+            scriptPtrs.append(
+                ScriptPtr("ObjectMain", objectScript.mainScript, objectScript.mainJumpTable, false));
 
         if (objectScript.playerScript < 0x3FFFF)
             scriptPtrs.append(ScriptPtr("ObjectPlayerInteraction", objectScript.playerScript,
                                         objectScript.playerJumpTable, false));
 
         if (objectScript.drawScript < 0x3FFFF)
-            scriptPtrs.append(ScriptPtr("ObjectDraw", objectScript.drawScript,
-                                        objectScript.drawJumpTable, false));
+            scriptPtrs.append(
+                ScriptPtr("ObjectDraw", objectScript.drawScript, objectScript.drawJumpTable, false));
 
         if (objectScript.m_startupScript < 0x3FFFF)
             scriptPtrs.append(ScriptPtr("ObjectStartup", objectScript.m_startupScript,
@@ -1278,16 +1278,16 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
         }
 
         if (objectScript.mainScript < 0x3FFFF)
-            scriptPtrs.append(ScriptPtr("ObjectMain", objectScript.mainScript,
-                                        objectScript.mainJumpTable, false));
+            scriptPtrs.append(
+                ScriptPtr("ObjectMain", objectScript.mainScript, objectScript.mainJumpTable, false));
 
         if (objectScript.playerScript < 0x3FFFF)
             scriptPtrs.append(ScriptPtr("ObjectPlayerInteraction", objectScript.playerScript,
                                         objectScript.playerJumpTable, false));
 
         if (objectScript.drawScript < 0x3FFFF)
-            scriptPtrs.append(ScriptPtr("ObjectDraw", objectScript.drawScript,
-                                        objectScript.drawJumpTable, false));
+            scriptPtrs.append(
+                ScriptPtr("ObjectDraw", objectScript.drawScript, objectScript.drawJumpTable, false));
 
         if (objectScript.m_startupScript < 0x3FFFF)
             scriptPtrs.append(ScriptPtr("ObjectStartup", objectScript.m_startupScript,
@@ -1402,17 +1402,16 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         case 0: // Read Const Variable
                             variableName[i] = variableNames[bc.scriptData[state.m_scriptCodePtr++]];
                             break;
-                        case 1:                                                // ARRAY
+                        case 1:                                              // ARRAY
                             if (bc.scriptData[state.m_scriptCodePtr++] == 1) // Variable
                             {
-                                QString value = arrayPosition[bc.scriptData[state.m_scriptCodePtr++]];
+                                QString value   = arrayPosition[bc.scriptData[state.m_scriptCodePtr++]];
                                 variableName[i] = setArrayValue(
                                     variableNames[bc.scriptData[state.m_scriptCodePtr++]], value);
                             }
                             else // Value
                             {
-                                QString value =
-                                    QString::number(bc.scriptData[state.m_scriptCodePtr++]);
+                                QString value = QString::number(bc.scriptData[state.m_scriptCodePtr++]);
                                 variableName[i] = setArrayValue(
                                     variableNames[bc.scriptData[state.m_scriptCodePtr++]], value);
                             }
@@ -1537,7 +1536,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
             if (opcode >= functionNames.count()) {
                 writer.writeText("ERROR AT: " + QString::number(state.m_scriptCodePtr) + " : "
                                  + opcode);
-                qDebug() << "OPCODE ABOVE THE MAX OPCODES";
+                printLog("OPCODE ABOVE THE MAX OPCODES");
                 return;
             }
 
@@ -1685,9 +1684,8 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         int id  = variableName[0].toInt(&ok);
                         if (ok)
                             if (useCustomAliases && id + globalSFXCount < sfxNames.count())
-                                variableName[0] = "SFXName["
-                                                  + sfxNames[id + globalSFXCount].replace(" ", "")
-                                                  + "]";
+                                variableName[0] =
+                                    "SFXName[" + sfxNames[id + globalSFXCount].replace(" ", "") + "]";
                         break;
                     }
                     case 8: //"StopStageSfx"
@@ -1696,9 +1694,8 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                         int id  = variableName[0].toInt(&ok);
                         if (ok)
                             if (useCustomAliases && id + globalSFXCount < sfxNames.count())
-                                variableName[0] = "SFXName["
-                                                  + sfxNames[id + globalSFXCount].replace(" ", "")
-                                                  + "]";
+                                variableName[0] =
+                                    "SFXName[" + sfxNames[id + globalSFXCount].replace(" ", "") + "]";
                         break;
                     }
                     case 9: //"SetSfxAttributes"
@@ -2218,7 +2215,7 @@ void RSDKv3::Decompiler::decompileSub(RSDKv3::Bytecode &bytecode, Writer writer,
                     bool ok         = false;
                     int jmpOffset   = variableName[0].toInt(&ok) + state.m_jumpTableOffset;
                     if (!ok) {
-                        qDebug() << "uh oh";
+                        printLog("uh oh");
                     }
 
                     sw.m_jumpTableOffset = jmpOffset;

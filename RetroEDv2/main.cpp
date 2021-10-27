@@ -32,8 +32,31 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     }
 }
 
+void initConsole()
+{
+#ifdef _WIN32
+    // detach from the current console window
+    // if launched from a console window, that will still run waiting for the new console (below) to
+    // close it is useful to detach from Qt Creator's <Application output> panel
+    FreeConsole();
+
+    // create a separate new console window
+    AllocConsole();
+
+    // attach the new console to this application's process
+    AttachConsole(GetCurrentProcessId());
+
+    // reopen the std I/O streams to redirect I/O to the new console
+    freopen("CON", "w", stdout);
+    freopen("CON", "w", stderr);
+    freopen("CON", "r", stdin);
+#endif
+}
+
 int main(int argc, char *argv[])
 {
+    initConsole();
+
     QSurfaceFormat format;
     format.setDepthBufferSize(24);
     format.setStencilBufferSize(8);

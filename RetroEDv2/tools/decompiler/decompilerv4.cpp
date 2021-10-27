@@ -1357,12 +1357,12 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
         scriptPtrs.clear();
 
         if (objectScript.mainScript < 0x3FFFF)
-            scriptPtrs.append(ScriptPtrv4("ObjectMain", objectScript.mainScript,
-                                          objectScript.mainJumpTable, false));
+            scriptPtrs.append(
+                ScriptPtrv4("ObjectMain", objectScript.mainScript, objectScript.mainJumpTable, false));
 
         if (objectScript.drawScript < 0x3FFFF)
-            scriptPtrs.append(ScriptPtrv4("ObjectDraw", objectScript.drawScript,
-                                          objectScript.drawJumpTable, false));
+            scriptPtrs.append(
+                ScriptPtrv4("ObjectDraw", objectScript.drawScript, objectScript.drawJumpTable, false));
 
         if (objectScript.startupScript < 0x3FFFF)
             scriptPtrs.append(ScriptPtrv4("ObjectStartup", objectScript.startupScript,
@@ -1379,8 +1379,7 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
         for (int f = funcIDv4; f < bytecode.functionList.count(); ++f) {
             int fs = bytecode.functionList[f].mainScript;
             if (fs < lastPtr) {
-                scriptPtrs.append(ScriptPtrv4(m_functionNames[f],
-                                              bytecode.functionList[f].mainScript,
+                scriptPtrs.append(ScriptPtrv4(m_functionNames[f], bytecode.functionList[f].mainScript,
                                               bytecode.functionList[f].mainJumpTable, true));
             }
             else if (!flag) {
@@ -1393,12 +1392,12 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
         }
 
         if (objectScript.mainScript < 0x3FFFF)
-            scriptPtrs.append(ScriptPtrv4("ObjectMain", objectScript.mainScript,
-                                          objectScript.mainJumpTable, false));
+            scriptPtrs.append(
+                ScriptPtrv4("ObjectMain", objectScript.mainScript, objectScript.mainJumpTable, false));
 
         if (objectScript.drawScript < 0x3FFFF)
-            scriptPtrs.append(ScriptPtrv4("ObjectDraw", objectScript.drawScript,
-                                          objectScript.drawJumpTable, false));
+            scriptPtrs.append(
+                ScriptPtrv4("ObjectDraw", objectScript.drawScript, objectScript.drawJumpTable, false));
 
         if (objectScript.startupScript < 0x3FFFF)
             scriptPtrs.append(ScriptPtrv4("ObjectStartup", objectScript.startupScript,
@@ -1576,11 +1575,10 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
             if (scriptPtrs[0].m_startPtr - m_lastOffset > 0) {
                 for (int b = m_lastOffset; b < scriptPtrs[0].m_startPtr; ++b) {
                     if (!registeredPos.contains(b) && (b >= firstOffset && b < endOffset))
-                        writer.writeLine(
-                            QString("private value value%2 = %1;")
-                                .arg(toHexString(QString::number(bytecode.scriptData[b])))
-                                .arg(toHexString(QString::number(b))),
-                            LINE_CRLF);
+                        writer.writeLine(QString("private value value%2 = %1;")
+                                             .arg(toHexString(QString::number(bytecode.scriptData[b])))
+                                             .arg(toHexString(QString::number(b))),
+                                         LINE_CRLF);
                 }
             }
 
@@ -1681,17 +1679,16 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                         case 0: // Read Const Variable
                             variableName[i] = variableNames[bc.scriptData[state.m_scriptCodePtr++]];
                             break;
-                        case 1:                                                // ARRAY
+                        case 1:                                              // ARRAY
                             if (bc.scriptData[state.m_scriptCodePtr++] == 1) // Variable
                             {
-                                QString value = arrayPosition[bc.scriptData[state.m_scriptCodePtr++]];
+                                QString value   = arrayPosition[bc.scriptData[state.m_scriptCodePtr++]];
                                 variableName[i] = setArrayValue(
                                     variableNames[bc.scriptData[state.m_scriptCodePtr++]], value);
                             }
                             else // Value
                             {
-                                QString value =
-                                    QString::number(bc.scriptData[state.m_scriptCodePtr++]);
+                                QString value = QString::number(bc.scriptData[state.m_scriptCodePtr++]);
                                 variableName[i] = setArrayValue(
                                     variableNames[bc.scriptData[state.m_scriptCodePtr++]], value);
                             }
@@ -1834,7 +1831,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                 if (opcode >= functions.count()) {
                     writer.writeText("ERROR AT: " + QString::number(state.m_scriptCodePtr) + " : "
                                      + opcode);
-                    qDebug() << "OPCODE ABOVE THE MAX OPCODES";
+                    printLog("OPCODE ABOVE THE MAX OPCODES");
                     return;
                 }
 
@@ -2538,7 +2535,7 @@ void RSDKv4::Decompiler::decompileSub(RSDKv4::Bytecode &bytecode, Writer writer,
                     bool ok         = false;
                     int jmpOffset   = variableName[0].toInt(&ok) + state.m_jumpTableOffset;
                     if (!ok) {
-                        qDebug() << "uh oh";
+                        printLog("uh oh");
                     }
 
                     sw.m_jumpTableOffset = jmpOffset;

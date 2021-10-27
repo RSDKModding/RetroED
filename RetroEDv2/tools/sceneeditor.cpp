@@ -472,35 +472,6 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(scnProp->editSCF, &QPushButton::clicked, [this] {
         QList<int> newTypes;
 
-        switch (viewer->gameType) {
-            case ENGINE_v4: {
-                StageconfigEditorv4 *edit = new StageconfigEditorv4(
-                    &viewer->stageConfig, viewer->gameConfig.objects.count() + 1,
-                    viewer->gameConfig.soundFX.count(), this);
-                edit->exec();
-                break;
-            }
-            case ENGINE_v3: {
-                StageconfigEditorv3 *edit = new StageconfigEditorv3(
-                    &viewer->stageConfig, viewer->gameConfig.objects.count() + 1,
-                    viewer->gameConfig.soundFX.count(), this);
-                edit->exec();
-                break;
-            }
-            case ENGINE_v2: {
-                StageconfigEditorv2 *edit = new StageconfigEditorv2(
-                    &viewer->stageConfig, viewer->gameConfig.objects.count() + 2,
-                    viewer->gameConfig.soundFX.count(), this);
-                edit->exec();
-                break;
-            }
-            case ENGINE_v1: {
-                StageconfigEditorv1 *edit = new StageconfigEditorv1(&viewer->stageConfig, 0, this);
-                edit->exec();
-                break;
-            }
-        }
-
         QList<QString> globals = {
             "Ring",              // 1
             "Dropped Ring",      // 2
@@ -533,6 +504,34 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             "Small Air Bubble",  // 29
             "Smoke Puff",        // 30
         };
+
+        int count = viewer->stageConfig.loadGlobalScripts ? viewer->gameConfig.objects.count() : 0;
+        switch (viewer->gameType) {
+            case ENGINE_v4: {
+                StageconfigEditorv4 *edit = new StageconfigEditorv4(
+                    &viewer->stageConfig, count + 1, viewer->gameConfig.soundFX.count(), this);
+                edit->exec();
+                break;
+            }
+            case ENGINE_v3: {
+                StageconfigEditorv3 *edit = new StageconfigEditorv3(
+                    &viewer->stageConfig, count + 1, viewer->gameConfig.soundFX.count(), this);
+                edit->exec();
+                break;
+            }
+            case ENGINE_v2: {
+                StageconfigEditorv2 *edit = new StageconfigEditorv2(
+                    &viewer->stageConfig, count + 2, viewer->gameConfig.soundFX.count(), this);
+                edit->exec();
+                break;
+            }
+            case ENGINE_v1: {
+                StageconfigEditorv1 *edit =
+                    new StageconfigEditorv1(&viewer->stageConfig, globals.count() + 1, this);
+                edit->exec();
+                break;
+            }
+        }
 
         QList<QString> names;
         for (FormatHelpers::Stageconfig::ObjectInfo &obj : viewer->stageConfig.objects) {
@@ -1633,6 +1632,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     dir.cdUp();
     viewer->dataPath = dir.path();
 
+    viewer->gameType = gameType;
+
     viewer->loadScene(scnPath, gameType);
 
     ui->layerList->clear();
@@ -1645,8 +1646,6 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     for (int o = 0; o < viewer->objects.count(); ++o) ui->objectList->addItem(viewer->objects[o].name);
 
     createEntityList();
-
-    viewer->gameType = gameType;
 
     ui->horizontalScrollBar->setMaximum((viewer->scene.width * 0x80) - viewer->storedW);
     ui->verticalScrollBar->setMaximum((viewer->scene.height * 0x80) - viewer->storedH);
@@ -1792,9 +1791,9 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                         viewer->dataPath + "/Scripts/" + viewer->gameConfig.objects[i].script, scrID++);
 
                     if (viewer->compilerv2.scriptError) {
-                        qDebug() << viewer->compilerv2.errorMsg;
-                        qDebug() << viewer->compilerv2.errorPos;
-                        qDebug() << QString::number(viewer->compilerv2.errorLine);
+                        printLog(viewer->compilerv2.errorMsg);
+                        printLog(viewer->compilerv2.errorPos);
+                        printLog(QString::number(viewer->compilerv2.errorLine));
 
                         QFileInfo info(viewer->compilerv2.errorScr);
                         QDir dir(info.dir());
@@ -1815,9 +1814,9 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                     viewer->dataPath + "/Scripts/" + viewer->stageConfig.objects[i].script, scrID++);
 
                 if (viewer->compilerv2.scriptError) {
-                    qDebug() << viewer->compilerv2.errorMsg;
-                    qDebug() << viewer->compilerv2.errorPos;
-                    qDebug() << QString::number(viewer->compilerv2.errorLine);
+                    printLog(viewer->compilerv2.errorMsg);
+                    printLog(viewer->compilerv2.errorPos);
+                    printLog(QString::number(viewer->compilerv2.errorLine));
 
                     QFileInfo info(viewer->compilerv2.errorScr);
                     QDir dir(info.dir());
@@ -1843,9 +1842,9 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                         viewer->dataPath + "/Scripts/" + viewer->gameConfig.objects[i].script, scrID++);
 
                     if (viewer->compilerv3.scriptError) {
-                        qDebug() << viewer->compilerv3.errorMsg;
-                        qDebug() << viewer->compilerv3.errorPos;
-                        qDebug() << QString::number(viewer->compilerv3.errorLine);
+                        printLog(viewer->compilerv3.errorMsg);
+                        printLog(viewer->compilerv3.errorPos);
+                        printLog(QString::number(viewer->compilerv3.errorLine));
 
                         QFileInfo info(viewer->compilerv3.errorScr);
                         QDir dir(info.dir());
@@ -1887,9 +1886,9 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                     viewer->dataPath + "/Scripts/" + viewer->stageConfig.objects[i].script, scrID++);
 
                 if (viewer->compilerv3.scriptError) {
-                    qDebug() << viewer->compilerv3.errorMsg;
-                    qDebug() << viewer->compilerv3.errorPos;
-                    qDebug() << QString::number(viewer->compilerv3.errorLine);
+                    printLog(viewer->compilerv3.errorMsg);
+                    printLog(viewer->compilerv3.errorPos);
+                    printLog(QString::number(viewer->compilerv3.errorLine));
 
                     QFileInfo info(viewer->compilerv3.errorScr);
                     QDir dir(info.dir());
@@ -1944,9 +1943,9 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                                                        scrID++);
 
                     if (viewer->compilerv4.scriptError) {
-                        qDebug() << viewer->compilerv4.errorMsg;
-                        qDebug() << viewer->compilerv4.errorPos;
-                        qDebug() << QString::number(viewer->compilerv4.errorLine);
+                        printLog(viewer->compilerv4.errorMsg);
+                        printLog(viewer->compilerv4.errorPos);
+                        printLog(QString::number(viewer->compilerv4.errorLine));
 
                         QFileInfo info(viewer->compilerv4.errorScr);
                         QDir dir(info.dir());
@@ -1988,9 +1987,9 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                     viewer->dataPath + "/../Scripts/" + viewer->stageConfig.objects[i].script, scrID++);
 
                 if (viewer->compilerv4.scriptError) {
-                    qDebug() << viewer->compilerv4.errorMsg << "\n";
-                    qDebug() << viewer->compilerv4.errorPos << "\n";
-                    qDebug() << QString::number(viewer->compilerv4.errorLine) << "\n";
+                    printLog(viewer->compilerv4.errorMsg);
+                    printLog(viewer->compilerv4.errorPos);
+                    printLog(QString::number(viewer->compilerv4.errorLine));
 
                     QFileInfo info(viewer->compilerv4.errorScr);
                     QDir dir(info.dir());
@@ -2405,7 +2404,7 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
 
         scene.objects.append(blank);
 
-        for (int o = 0; o < viewer->objects.count(); ++o) {
+        for (int o = 1; o < viewer->objects.count(); ++o) {
             RSDKv5::Scene::SceneObject obj;
 
             QString objName = viewer->objects[o].name;
@@ -2422,6 +2421,24 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
             propertyValue.type = VAR_UINT8;
             obj.variables.append(propertyValue);
 
+            for (int v = 0; v < 0xF && viewer->gameType == ENGINE_v4; ++v) {
+                bool active = false;
+                for (auto &entity : viewer->entities) {
+                    if (entity.type == o && entity.variables[v].active) {
+                        active = true;
+                        break;
+                    }
+                }
+
+                if (!active)
+                    continue;
+
+                RSDKv5::Scene::VariableInfo variable;
+                variable.name = RSDKv4::objectVariableNames[v];
+                variable.type = RSDKv4::objectVariableTypes[v] == "int" ? VAR_INT32 : VAR_UINT8;
+                obj.variables.append(variable);
+            }
+
             for (SceneViewer::VariableInfo var : viewer->objects[o].variables) {
                 RSDKv5::Scene::VariableInfo variable;
                 variable.name = RSDKv5::Scene::NameIdentifier(var.name);
@@ -2434,8 +2451,8 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
 
         for (int e = 0; e < viewer->entities.count(); ++e) {
             RSDKv5::Scene::SceneEntity entity;
-            entity.position.x = viewer->entities[e].pos.x;
-            entity.position.y = viewer->entities[e].pos.y;
+            entity.position.x = Utils::floatToFixed(viewer->entities[e].pos.x);
+            entity.position.y = Utils::floatToFixed(viewer->entities[e].pos.y);
 
             entity.parent = &scene.objects[viewer->entities[e].type];
             entity.slotID = e;
@@ -2451,7 +2468,27 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
             propertyValue.value_uint8 = viewer->entities[e].propertyValue;
             entity.variables.append(propertyValue);
 
-            for (int i = 0; i < entity.parent->variables.count(); ++i) {
+            for (int v = 0; v < 0xF && viewer->gameType == ENGINE_v4; ++v) {
+                bool active = false;
+                for (auto &ent : viewer->entities) {
+                    if (ent.type == viewer->entities[e].type && ent.variables[v].active) {
+                        active = true;
+                        break;
+                    }
+                }
+
+                if (!active)
+                    continue;
+
+                RSDKv5::Scene::VariableValue variable;
+                variable.type        = RSDKv4::objectVariableTypes[v] == "int" ? VAR_INT32 : VAR_UINT8;
+                variable.value_int32 = viewer->entities[e].variables[v].active
+                                           ? viewer->entities[e].variables[v].value
+                                           : 0;
+                entity.variables.append(variable);
+            }
+
+            for (int i = 0; i < viewer->objects[viewer->entities[e].type].variables.count(); ++i) {
                 RSDKv5::Scene::VariableValue variable;
                 variable.type        = VAR_INT32;
                 variable.value_uint8 = viewer->entities[e].customVars[i].value_int32;
@@ -2489,8 +2526,6 @@ void SceneEditor::parseGameXML(byte gameType, QString path)
         }
         // If token is StartElement - read it
         if (token == QXmlStreamReader::StartElement) {
-            qDebug() << xmlReader.name();
-
             QList<QString> listNames = { "presentationStages", "regularStages", "bonusStages",
                                          "specialStages" };
 

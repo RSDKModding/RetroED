@@ -29,7 +29,7 @@ public:
         FormatHelpers::Chunks chunkset;
         FormatHelpers::Stageconfig stageConfig;
 
-        RSDKv4::Tileconfig tileconfig;
+        RSDKv4::TileConfig tileconfig;
         RSDKv1::Tileconfig tileconfigRS;
 
         // General Editing

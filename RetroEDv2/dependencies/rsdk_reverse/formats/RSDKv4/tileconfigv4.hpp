@@ -4,7 +4,7 @@
 namespace RSDKv4
 {
 
-class Tileconfig
+class TileConfig
 {
 public:
     class CollisionMask
@@ -81,9 +81,9 @@ public:
         byte roofAngle  = 0x80;
     };
 
-    Tileconfig() {}
-    Tileconfig(QString filename) { read(filename); }
-    Tileconfig(Reader &reader) { read(reader); }
+    TileConfig() {}
+    TileConfig(QString filename) { read(filename); }
+    TileConfig(Reader &reader) { read(reader); }
 
     inline void read(QString filename)
     {

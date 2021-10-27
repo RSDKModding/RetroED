@@ -106,7 +106,14 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
             switch ((int)var.type) {
                 default: break;
                 case VAR_UINT8: {
-                    valGroup.append(new Property("uint8", &entity->variables[v].value_uint8));
+                    if (aliases.count()) {
+                        valGroup.append(new Property("uint8", aliases,
+                                                     &entity->variables[v].value_uint8,
+                                                     Property::BYTE_MANAGER));
+                    }
+                    else {
+                        valGroup.append(new Property("uint8", &entity->variables[v].value_uint8));
+                    }
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
                     connect(prop, &Property::changed, [prop, v, entity, object] {
@@ -118,7 +125,14 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     break;
                 }
                 case VAR_UINT16: {
-                    valGroup.append(new Property("uint16", &entity->variables[v].value_uint16));
+                    if (aliases.count()) {
+                        valGroup.append(new Property("uint16", aliases,
+                                                     &entity->variables[v].value_uint16,
+                                                     Property::USHORT_MANAGER));
+                    }
+                    else {
+                        valGroup.append(new Property("uint16", &entity->variables[v].value_uint16));
+                    }
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
                     connect(prop, &Property::changed, [prop, v, entity, object] {
@@ -130,7 +144,14 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     break;
                 }
                 case VAR_UINT32: {
-                    valGroup.append(new Property("uint32", &entity->variables[v].value_uint32));
+                    if (aliases.count()) {
+                        valGroup.append(new Property("uint32", aliases,
+                                                     &entity->variables[v].value_uint32,
+                                                     Property::UINT_MANAGER));
+                    }
+                    else {
+                        valGroup.append(new Property("uint32", &entity->variables[v].value_uint32));
+                    }
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
                     connect(prop, &Property::changed, [prop, v, entity, object] {
@@ -142,7 +163,13 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     break;
                 }
                 case VAR_INT8: {
-                    valGroup.append(new Property("int8", &entity->variables[v].value_int8));
+                    if (aliases.count()) {
+                        valGroup.append(new Property("int8", aliases, &entity->variables[v].value_int8,
+                                                     Property::SBYTE_MANAGER));
+                    }
+                    else {
+                        valGroup.append(new Property("int8", &entity->variables[v].value_int8));
+                    }
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
                     connect(prop, &Property::changed, [prop, v, entity, object] {
@@ -154,7 +181,14 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     break;
                 }
                 case VAR_INT16: {
-                    valGroup.append(new Property("int16", &entity->variables[v].value_int16));
+                    if (aliases.count()) {
+                        valGroup.append(new Property("int16", aliases,
+                                                     &entity->variables[v].value_int16,
+                                                     Property::INT_MANAGER));
+                    }
+                    else {
+                        valGroup.append(new Property("int16", &entity->variables[v].value_int16));
+                    }
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
                     connect(prop, &Property::changed, [prop, v, entity, object] {
@@ -166,7 +200,14 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     break;
                 }
                 case VAR_INT32: {
-                    valGroup.append(new Property("int32", &entity->variables[v].value_int32));
+                    if (aliases.count()) {
+                        valGroup.append(new Property("int32", aliases,
+                                                     &entity->variables[v].value_int32,
+                                                     Property::INT_MANAGER));
+                    }
+                    else {
+                        valGroup.append(new Property("int32", &entity->variables[v].value_int32));
+                    }
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
                     connect(prop, &Property::changed, [prop, v, entity, object] {

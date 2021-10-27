@@ -120,11 +120,9 @@ public:
     Colour bgColour    = Colour(0x20, 0x20, 0x20);
     Colour altBGColour = Colour(0x30, 0x30, 0x30);
 
+    int prevStoredW = -1, prevStoredH = -1;
     int storedW, storedH;
     int sceneWidth, sceneHeight;
-
-    QVector3D *vertsPtr  = nullptr;
-    QVector2D *tVertsPtr = nullptr;
 
     QImage *colTex = nullptr;
 
@@ -273,11 +271,11 @@ public:
 
     void drawTile(float XPos, float YPos, float ZPos, int tileX, int tileY, byte direction);
 
-    void drawSpriteFlipped(float XPos, float YPos, int width, int height, int sprX, int sprY,
+    void drawSpriteFlipped(float XPos, float YPos, float width, float height, float sprX, float sprY,
                            int direction, int inkEffect, int alpha, int sheetID);
-    void drawSpriteRotozoom(float x, float y, int pivotX, int pivotY, int width, int height, int sprX,
-                            int sprY, int scaleX, int scaleY, int direction, short rotation,
-                            int inkEffect, int alpha, int sheetID);
+    void drawSpriteRotozoom(float x, float y, float pivotX, float pivotY, float width, float height,
+                            float sprX, float sprY, int scaleX, int scaleY, int direction,
+                            short rotation, int inkEffect, int alpha, int sheetID);
 
     void drawLine(float x1, float y1, float z1, float x2, float y2, float z2, float scale,
                   Vector4<float> colour, Shader &shader);

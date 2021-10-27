@@ -438,7 +438,7 @@ void GameLink::LinkGameObjects(QString gameName)
     // logicLib.setFileName("E:/Github/Sonic-Mania-Decompilation/build/Win32/Debug/Game");
     logicLib.load();
     if (!logicLib.isLoaded())
-        qDebug() << logicLib.errorString();
+        printLog("Failed to link: " + logicLib.errorString());
 
     void (*linkGameLogic)(GameInfo *) = NULL;
 

@@ -107,7 +107,7 @@ public:
     FormatHelpers::Chunks chunkset;
     FormatHelpers::Stageconfig stageConfig;
 
-    RSDKv4::Tileconfig tileconfig;
+    RSDKv4::TileConfig tileconfig;
     RSDKv1::Tileconfig tileconfigRS;
 
     QString currentFolder = "Blank";
@@ -191,11 +191,9 @@ public:
         return layout;
     }
 
+    int prevStoredW = -1, prevStoredH = -1;
     int storedW, storedH;
     int sceneWidth, sceneHeight;
-
-    QVector3D *vertsPtr  = nullptr;
-    QVector2D *tVertsPtr = nullptr;
 
     int prevSprite = -1;
 
@@ -346,6 +344,8 @@ public:
     void addEditorVariable(QString name);
     void setActiveVariable(QString name);
     void addEnumVariable(QString name, int value);
+
+    void refreshResize();
 
 protected:
     void initializeGL();

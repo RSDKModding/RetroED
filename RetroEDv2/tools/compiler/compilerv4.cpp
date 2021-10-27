@@ -3714,12 +3714,12 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
             }
             case FUNC_PRINT: {
                 if (scriptEng.operands[1])
-                    qDebug() << QString::number(scriptEng.operands[0]);
+                    printLog(QString::number(scriptEng.operands[0]));
                 else
-                    qDebug() << scriptText;
+                    printLog(scriptText);
 
                 if (scriptEng.operands[2])
-                    qDebug() << "\n";
+                    printLog("\n");
                 break;
             }
             case FUNC_ADDEDITORVAR: {

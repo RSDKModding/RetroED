@@ -179,9 +179,15 @@ extern QIcon icon_rm;
 
 extern QLabel *statusLabel;
 
+extern QVector3D *vertsPtr;
+extern QVector2D *tVertsPtr;
+
 extern SceneEditor *scnEditor;
 extern SceneEditorv5 *v5Editor;
 
+void printLog(QString msg);
 void setStatus(QString status);
+
+void refreshScnEditorVerts(int w, int h);
 
 #endif // INCLUDES_H

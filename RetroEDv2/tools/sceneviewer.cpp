@@ -580,7 +580,7 @@ void SceneViewer::drawScene()
                                     float yStore = ypos;
                                     // draw pixel collision
                                     byte solidity = 0;
-                                    RSDKv4::Tileconfig::CollisionMask &cmask =
+                                    RSDKv4::TileConfig::CollisionMask &cmask =
                                         tileconfig.collisionPaths[c][tile.tileIndex];
 
                                     solidity = !c ? tile.solidityA : tile.solidityB;
@@ -1035,6 +1035,9 @@ void SceneViewer::unloadScene()
     tVertsPtr   = NULL;
     sceneWidth  = 0;
     sceneHeight = 0;
+
+    prevStoredW = -1;
+    prevStoredH = -1;
 }
 
 void SceneViewer::initializeGL()
@@ -1046,8 +1049,8 @@ void SceneViewer::initializeGL()
 
     QOpenGLContext *glContext = QOpenGLContext::currentContext();
     QSurfaceFormat fmt        = glContext->format();
-    qDebug() << "Widget Using OpenGL " + QString::number(fmt.majorVersion()) + "."
-                    + QString::number(fmt.minorVersion());
+    printLog("Widget Using OpenGL " + QString::number(fmt.majorVersion()) + "."
+             + QString::number(fmt.minorVersion()));
 
     const unsigned char *vendor     = f->glGetString(GL_VENDOR);
     const unsigned char *renderer   = f->glGetString(GL_RENDERER);
@@ -1061,14 +1064,14 @@ void SceneViewer::initializeGL()
     QString sdrVersionStr = reinterpret_cast<const char *>(sdrVersion);
     QString extensionsStr = reinterpret_cast<const char *>(extensions);
 
-    qDebug() << "OpenGL Details";
-    qDebug() << "Vendor:       " + vendorStr;
-    qDebug() << "Renderer:     " + rendererStr;
-    qDebug() << "Version:      " + versionStr;
-    qDebug() << "GLSL version: " + sdrVersionStr;
-    qDebug() << "Extensions:   " + extensionsStr;
-    qDebug() << (QOpenGLContext::currentContext()->isOpenGLES() ? "Using OpenGLES" : "Using OpenGL");
-    qDebug() << (QOpenGLContext::currentContext()->isValid() ? "Is valid" : "Not valid");
+    printLog("OpenGL Details");
+    printLog("Vendor:       " + vendorStr);
+    printLog("Renderer:     " + rendererStr);
+    printLog("Version:      " + versionStr);
+    printLog("GLSL version: " + sdrVersionStr);
+    printLog("Extensions:   " + extensionsStr);
+    printLog((QOpenGLContext::currentContext()->isOpenGLES() ? "Using OpenGLES" : "Using OpenGL"));
+    printLog((QOpenGLContext::currentContext()->isValid() ? "Is valid" : "Not valid"));
 
     f->glEnable(GL_DEPTH_TEST);
     f->glDepthFunc(GL_LESS);
@@ -1116,8 +1119,7 @@ void SceneViewer::resizeGL(int w, int h)
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     f->glViewport(0, 0, w, h);
 
-    // m_sbHorizontal->setMaximum((m_scene.m_sceneConfig.m_camBounds.w * 0x80) - m_storedW);
-    // m_sbVertical->setMaximum((m_scene.m_sceneConfig.m_camBounds.h * 0x80) - m_storedH);
+    refreshResize();
 }
 
 void SceneViewer::paintGL()
@@ -2250,4 +2252,26 @@ void SceneViewer::addEnumVariable(QString name, int value)
 
         objects[activeVarObj].variables[activeVar].values.append(var);
     }
+}
+
+void SceneViewer::refreshResize()
+{
+    if (storedW == prevStoredW && storedH == prevStoredH)
+        return;
+
+    screens[0].width        = storedW;
+    screens[0].height       = storedH;
+    screens[0].centerX      = screens[0].width >> 1;
+    screens[0].centerY      = screens[0].height >> 1;
+    screens[0].clipBound_X1 = 0;
+    screens[0].clipBound_Y1 = 0;
+    screens[0].clipBound_X2 = storedW;
+    screens[0].clipBound_Y2 = storedH;
+    screens[0].pitch        = storedW;
+    screens[0].waterDrawPos = storedH;
+
+    refreshScnEditorVerts(storedW, storedH);
+
+    prevStoredW = storedW;
+    prevStoredH = storedH;
 }

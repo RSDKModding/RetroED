@@ -445,6 +445,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     connect(scnProp->editSCF, &QPushButton::clicked, [this] {
         QList<int> newTypes;
 
+        QList<QString> prevObjs = viewer->stageConfig.objects;
+
         StageconfigEditorv5 *edit = new StageconfigEditorv5(&viewer->stageConfig, this);
         edit->exec();
 
@@ -466,7 +468,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         }
 
         int cnt = newTypes.count();
-        for (QString &object : viewer->stageConfig.objects) {
+        for (QString &object : prevObjs) {
             int index = names.indexOf(object);
             if (index >= 0) {
                 index += cnt;
@@ -1472,7 +1474,7 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
         }
     }
 
-    for (int i = 0; i < viewer->objects.count(); ++i) {
+    for (int i = 0; i < viewer->objects.count() && gameObjectList.count(); ++i) {
         viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[i].name),
                               SceneViewerv5::EVENT_SERIALIZE, NULL);
 
@@ -1492,7 +1494,7 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
                               SceneViewerv5::EVENT_LOAD, NULL);
     }
 
-    for (int i = 0; i < viewer->entities.count(); ++i) {
+    for (int i = 0; i < viewer->entities.count() && gameObjectList.count(); ++i) {
         SceneEntity *entity = &viewer->entities[i];
         viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[entity->type].name),
                               SceneViewerv5::EVENT_CREATE, entity);

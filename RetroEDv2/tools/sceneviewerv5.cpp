@@ -54,19 +54,6 @@ void SceneViewerv5::loadScene(QString path)
     // unloading
     unloadScene();
 
-    // TEMP until SetEditableVar() gets completed
-    {
-        variableNames.clear();
-
-        QFile file(":/resources/variableList.txt");
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream txtreader(&file);
-            while (!txtreader.atEnd()) variableNames.append(txtreader.readLine());
-
-            file.close();
-        }
-    }
-
     // Default Texture
     if (gfxSurface[0].scope == SCOPE_NONE) {
         gfxSurface[0].scope      = SCOPE_GLOBAL;
@@ -99,6 +86,7 @@ void SceneViewerv5::loadScene(QString path)
 
     QList<QString> objNames;
     objNames.append("Blank Object");
+    objNames.append("Dev Output");
 
     if (stageConfig.loadGlobalObjects) {
         for (QString &obj : gameConfig.objects) {
@@ -518,7 +506,7 @@ void SceneViewerv5::drawScene()
                 vVBO2D.bind();
                 vVBO2D.allocate(vertsPtr, vertCnt * sizeof(QVector3D));
                 spriteShader.enableAttributeArray(0);
-                spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0); //*/
+                spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
 
                 QOpenGLBuffer tVBO2D;
                 tVBO2D.create();
@@ -526,7 +514,7 @@ void SceneViewerv5::drawScene()
                 tVBO2D.bind();
                 tVBO2D.allocate(tVertsPtr, vertCnt * sizeof(QVector2D));
                 spriteShader.enableAttributeArray(1);
-                spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0); //*/
+                spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
 
                 QMatrix4x4 matModel;
                 matModel.scale(0x10 * zoom, 0x10 * zoom, 1.0f);
@@ -823,8 +811,10 @@ void SceneViewerv5::drawScene()
             if (!(filter & sceneFilter) && filter)
                 continue;
 
-            entity->gameEntity->position.x = Utils::floatToFixed(entity->pos.x);
-            entity->gameEntity->position.y = Utils::floatToFixed(entity->pos.y);
+            if (entity->gameEntity) {
+                entity->gameEntity->position.x = Utils::floatToFixed(entity->pos.x);
+                entity->gameEntity->position.y = Utils::floatToFixed(entity->pos.y);
+            }
 
             if (entity->type != 0)
                 callGameEvent(gameLink.GetObjectInfo(objects[entity->type].name), EVENT_DRAW, entity);
@@ -1075,10 +1065,12 @@ void SceneViewerv5::unloadScene()
         delete[] vertsPtr;
     if (tVertsPtr)
         delete[] tVertsPtr;
-    vertsPtr    = NULL;
-    tVertsPtr   = NULL;
+    vertsPtr    = nullptr;
+    tVertsPtr   = nullptr;
     sceneWidth  = 0;
     sceneHeight = 0;
+    prevStoredW = -1;
+    prevStoredH = -1;
 }
 
 void SceneViewerv5::processObjects()
@@ -1088,64 +1080,15 @@ void SceneViewerv5::processObjects()
     }
 
     sceneInfo.entitySlot = 0;
-    int posX             = (int)(cam.pos.x * 65536.0f);
-    int posY             = (int)(cam.pos.y * 65536.0f);
-    int offsetX          = (storedW) << 16;
-    int offsetY          = (storedH) << 16;
     for (int e = 0; e < entities.count(); ++e) {
+        if (!entities[e].gameEntity) {
+            drawLayers[15].entries.append(sceneInfo.entitySlot++);
+            continue;
+        }
+
         sceneInfo.entity = entities[e].gameEntity;
         if (entities[e].type) {
-            switch (sceneInfo.entity->active) {
-                case ACTIVE_NEVER:
-                case ACTIVE_PAUSED: sceneInfo.entity->inBounds = false; break;
-                case ACTIVE_ALWAYS:
-                case ACTIVE_NORMAL: sceneInfo.entity->inBounds = true; break;
-                case ACTIVE_BOUNDS:
-                    sceneInfo.entity->inBounds = false;
-                    {
-                        int sx = abs(sceneInfo.entity->position.x - posX);
-                        int sy = abs(sceneInfo.entity->position.y - posY);
-                        if (sx <= sceneInfo.entity->updateRange.x + offsetX
-                            && sy <= sceneInfo.entity->updateRange.y + offsetY) {
-                            sceneInfo.entity->inBounds = true;
-                            break;
-                        }
-                    }
-                    break;
-                case ACTIVE_XBOUNDS:
-                    sceneInfo.entity->inBounds = false;
-                    {
-                        int sx = abs(sceneInfo.entity->position.x - posX);
-                        if (sx <= sceneInfo.entity->updateRange.x + offsetX) {
-                            sceneInfo.entity->inBounds = true;
-                            break;
-                        }
-                    }
-                    break;
-                case ACTIVE_YBOUNDS:
-                    sceneInfo.entity->inBounds = false;
-                    {
-                        int sy = abs(sceneInfo.entity->position.y - posY);
-                        if (sy <= sceneInfo.entity->updateRange.y + offsetY) {
-                            sceneInfo.entity->inBounds = true;
-                            break;
-                        }
-                    }
-                    break;
-                case ACTIVE_RBOUNDS:
-                    sceneInfo.entity->inBounds = false;
-                    {
-                        int sx = (int)abs(sceneInfo.entity->position.x - posX) >> 0x10;
-                        int sy = (int)abs(sceneInfo.entity->position.y - posY) >> 0x10;
-
-                        if (sx * sx + sy * sy <= sceneInfo.entity->updateRange.x + offsetX) {
-                            sceneInfo.entity->inBounds = true;
-                            break;
-                        }
-                    }
-                    break;
-            }
-
+            sceneInfo.entity->inBounds = true;
             if (sceneInfo.entity->inBounds) {
                 // callGameEvent(gameLink.GetObjectInfo(objects[entities[e].type].name), EVENT_UPDATE,
                 //              &entities[e]);
@@ -1167,7 +1110,7 @@ void SceneViewerv5::processObjects()
     sceneInfo.entitySlot = 0;
     for (int e = 0; e < entities.count(); ++e) {
         sceneInfo.entity = entities[e].gameEntity;
-        if (sceneInfo.entity->inBounds && sceneInfo.entity->interaction) {
+        if (sceneInfo.entity && sceneInfo.entity->inBounds && sceneInfo.entity->interaction) {
             typeGroups[0].entries.append(e);                          // All active objects
             typeGroups[sceneInfo.entity->objectID].entries.append(e); // type-based slots
             if (sceneInfo.entity->group >= TYPE_COUNT) {
@@ -1179,13 +1122,14 @@ void SceneViewerv5::processObjects()
 
     sceneInfo.entitySlot = 0;
     for (int e = 0; e < entities.count(); ++e) {
-        entities[e].gameEntity->activeScreens = 0;
+        if (entities[e].gameEntity)
+            entities[e].gameEntity->activeScreens = 0;
     }
 }
 
 void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, SceneEntity *entity)
 {
-    if (!info)
+    if (!info || (!entity && (eventID != EVENT_LOAD && eventID != EVENT_SERIALIZE)))
         return;
 
     foreachStackPtr = foreachStackList;
@@ -1241,7 +1185,7 @@ void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, SceneEntit
 
             sceneInfo.entity     = entity->gameEntity;
             sceneInfo.entitySlot = entity->slotID;
-            if (info->create)
+            if (info->create && entity->gameEntity)
                 info->create(NULL);
             sceneInfo.entity     = NULL;
             sceneInfo.entitySlot = 0;
@@ -1289,7 +1233,7 @@ void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, SceneEntit
             // TODO: that(?)
             sceneInfo.entity     = entity->gameEntity;
             sceneInfo.entitySlot = entity->slotID;
-            if (info->update)
+            if (info->update && entity->gameEntity)
                 info->update();
             sceneInfo.entity     = NULL;
             sceneInfo.entitySlot = 0;
@@ -1300,7 +1244,7 @@ void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, SceneEntit
 
             sceneInfo.entity     = entity->gameEntity;
             sceneInfo.entitySlot = entity->slotID;
-            if (info->editorDraw)
+            if (info->editorDraw && entity->gameEntity)
                 info->editorDraw();
             sceneInfo.entity     = NULL;
             sceneInfo.entitySlot = 0;
@@ -1321,8 +1265,8 @@ void SceneViewerv5::initializeGL()
 
     QOpenGLContext *glContext = QOpenGLContext::currentContext();
     QSurfaceFormat fmt        = glContext->format();
-    qDebug() << "Widget Using OpenGL " + QString::number(fmt.majorVersion()) + "."
-                    + QString::number(fmt.minorVersion());
+    printLog("Widget Using OpenGL " + QString::number(fmt.majorVersion()) + "."
+             + QString::number(fmt.minorVersion()));
 
     const unsigned char *vendor     = f->glGetString(GL_VENDOR);
     const unsigned char *renderer   = f->glGetString(GL_RENDERER);
@@ -1336,14 +1280,14 @@ void SceneViewerv5::initializeGL()
     QString sdrVersionStr = reinterpret_cast<const char *>(sdrVersion);
     QString extensionsStr = reinterpret_cast<const char *>(extensions);
 
-    qDebug() << "OpenGL Details";
-    qDebug() << "Vendor:       " + vendorStr;
-    qDebug() << "Renderer:     " + rendererStr;
-    qDebug() << "Version:      " + versionStr;
-    qDebug() << "GLSL version: " + sdrVersionStr;
-    qDebug() << "Extensions:   " + extensionsStr;
-    qDebug() << (QOpenGLContext::currentContext()->isOpenGLES() ? "Using OpenGLES" : "Using OpenGL");
-    qDebug() << (QOpenGLContext::currentContext()->isValid() ? "Is valid" : "Not valid");
+    printLog("OpenGL Details");
+    printLog("Vendor:       " + vendorStr);
+    printLog("Renderer:     " + rendererStr);
+    printLog("Version:      " + versionStr);
+    printLog("GLSL version: " + sdrVersionStr);
+    printLog("Extensions:   " + extensionsStr);
+    printLog((QOpenGLContext::currentContext()->isOpenGLES() ? "Using OpenGLES" : "Using OpenGL"));
+    printLog((QOpenGLContext::currentContext()->isValid() ? "Is valid" : "Not valid"));
 
     f->glEnable(GL_DEPTH_TEST);
     f->glDepthFunc(GL_LESS);
@@ -1539,8 +1483,8 @@ void SceneViewerv5::drawTile(float XPos, float YPos, float ZPos, int tileX, int 
     vao.destroy();
 }
 
-void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, int width, int height, int sprX, int sprY,
-                                      int direction, int inkEffect, int alpha, int sheetID)
+void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, float width, float height, float sprX,
+                                      float sprY, int direction, int inkEffect, int alpha, int sheetID)
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
@@ -1572,23 +1516,24 @@ void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, int width, int hei
         case INK_UNMASKED: alpha = 0xFF; break;
     }
 
-    if (width + XPos > screens->clipBound_X2)
-        width = screens->clipBound_X2 - XPos;
+    if (width + XPos > screens->clipBound_X2 * invZoom())
+        width = screens->clipBound_X2 * invZoom() - XPos;
 
     if (XPos < screens->clipBound_X1) {
-        int val = XPos - screens->clipBound_X1;
+        float val = XPos - screens->clipBound_X1 * invZoom();
         sprX -= val;
         width += val;
-        XPos = screens->clipBound_X1;
+        XPos = screens->clipBound_X1 * invZoom();
     }
 
-    if (height + YPos > screens->clipBound_Y2)
-        height = screens->clipBound_Y2 - YPos;
-    if (YPos < screens->clipBound_Y1) {
-        int val = YPos - screens->clipBound_Y1;
+    if (height + YPos > screens->clipBound_Y2 * invZoom())
+        height = screens->clipBound_Y2 * invZoom() - YPos;
+
+    if (YPos < screens->clipBound_Y1 * invZoom()) {
+        float val = YPos - screens->clipBound_Y1 * invZoom();
         sprY -= val;
         height += val;
-        YPos = screens->clipBound_Y1;
+        YPos = screens->clipBound_Y1 * invZoom();
     }
 
     if (width <= 0 || height <= 0)
@@ -1686,8 +1631,8 @@ void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, int width, int hei
     validDraw = true;
 }
 
-void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, int pivotX, int pivotY, int width,
-                                       int height, int sprX, int sprY, int scaleX, int scaleY,
+void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, float pivotX, float pivotY, float width,
+                                       float height, float sprX, float sprY, int scaleX, int scaleY,
                                        int direction, short rotation, int inkEffect, int alpha,
                                        int sheetID)
 {
@@ -1697,21 +1642,17 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, int pivotX, int p
         case INK_NONE: alpha = 0xFF; break;
         case INK_BLEND: alpha = 0x80; break;
         case INK_ALPHA:
-            if (alpha > 0xFF) {
+            if (alpha > 0xFF)
                 inkEffect = INK_NONE;
-            }
-            else if (alpha <= 0) {
+            else if (alpha <= 0)
                 return;
-            }
             break;
         case INK_ADD:
         case INK_SUB:
-            if (alpha > 0xFF) {
+            if (alpha > 0xFF)
                 alpha = 0xFF;
-            }
-            else if (alpha <= 0) {
+            else if (alpha <= 0)
                 return;
-            }
             break;
         case INK_LOOKUP:
             // if (!lookupTable)
@@ -1725,15 +1666,15 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, int pivotX, int p
     if (!(rotation & 0x1FF))
         angle = rotation & 0x1FF;
 
-    int sine        = sinVal512[angle];
-    int cosine      = cosVal512[angle];
-    int fullScaleXS = scaleX * sine >> 9;
-    int fullScaleXC = scaleX * cosine >> 9;
-    int fullScaleYS = scaleY * sine >> 9;
-    int fullScaleYC = scaleY * cosine >> 9;
+    int sine          = sinVal512[angle];
+    int cosine        = cosVal512[angle];
+    float fullScaleXS = scaleX * sine / 512.0f;
+    float fullScaleXC = scaleX * cosine / 512.0f;
+    float fullScaleYS = scaleY * sine / 512.0f;
+    float fullScaleYC = scaleY * cosine / 512.0f;
 
-    int posX[4];
-    int posY[4];
+    float posX[4];
+    float posY[4];
 
     int xMax     = 0;
     int scaledX1 = 0;
@@ -1748,8 +1689,8 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, int pivotX, int p
             scaledY1 = fullScaleYS * (pivotY - 2);
             scaledY2 = fullScaleYC * (pivotY - 2);
             xMax     = pivotX + 2 + width;
-            posX[0]  = XPos + ((scaledX2 + scaledY1) >> 9);
-            posY[0]  = YPos + ((fullScaleYC * (pivotY - 2) - scaledX1) >> 9);
+            posX[0]  = XPos + ((scaledX2 + scaledY1) / 512.0f);
+            posY[0]  = YPos + ((fullScaleYC * (pivotY - 2) - scaledX1) / 512.0f);
             break;
         }
         case FLIP_X: {
@@ -1758,8 +1699,8 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, int pivotX, int p
             scaledY1 = fullScaleYS * (pivotY - 2);
             scaledY2 = fullScaleYC * (pivotY - 2);
             xMax     = -2 - pivotX - width;
-            posX[0]  = XPos + ((scaledX2 + scaledY1) >> 9);
-            posY[0]  = YPos + ((fullScaleYC * (pivotY - 2) - scaledX1) >> 9);
+            posX[0]  = XPos + ((scaledX2 + scaledY1) / 512.0f);
+            posY[0]  = YPos + ((fullScaleYC * (pivotY - 2) - scaledX1) / 512.0f);
             break;
         }
         case FLIP_Y:
@@ -1770,49 +1711,49 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, int pivotX, int p
     int scaledXMaxC = fullScaleXC * xMax;
     int scaledYMaxC = fullScaleYC * (pivotY + 2 + height);
     int scaledYMaxS = fullScaleYS * (pivotY + 2 + height);
-    posX[1]         = XPos + ((scaledXMaxC + scaledY1) >> 9);
-    posY[1]         = YPos + ((scaledY2 - scaledXMaxS) >> 9);
-    posX[2]         = XPos + ((scaledYMaxS + scaledX2) >> 9);
-    posY[2]         = YPos + ((scaledYMaxC - scaledX1) >> 9);
-    posX[3]         = XPos + ((scaledXMaxC + scaledYMaxS) >> 9);
-    posY[3]         = YPos + ((scaledYMaxC - scaledXMaxS) >> 9);
+    posX[1]         = XPos + ((scaledXMaxC + scaledY1) / 512.0f);
+    posY[1]         = YPos + ((scaledY2 - scaledXMaxS) / 512.0f);
+    posX[2]         = XPos + ((scaledYMaxS + scaledX2) / 512.0f);
+    posY[2]         = YPos + ((scaledYMaxC - scaledX1) / 512.0f);
+    posX[3]         = XPos + ((scaledXMaxC + scaledYMaxS) / 512.0f);
+    posY[3]         = YPos + ((scaledYMaxC - scaledXMaxS) / 512.0f);
 
-    int left = screens->pitch;
+    float left = screens->pitch;
     for (int i = 0; i < 4; ++i) {
         if (posX[i] < left)
             left = posX[i];
     }
-    if (left < screens->clipBound_X1)
-        left = screens->clipBound_X1;
+    if (left < screens->clipBound_X1 * invZoom())
+        left = screens->clipBound_X1 * invZoom();
 
-    int right = 0;
+    float right = 0;
     for (int i = 0; i < 4; ++i) {
         if (posX[i] > right)
             right = posX[i];
     }
-    if (right > screens->clipBound_X2)
-        right = screens->clipBound_X2;
+    if (right > screens->clipBound_X2 * invZoom())
+        right = screens->clipBound_X2 * invZoom();
 
-    int top = screens->height;
+    float top = screens->height;
     for (int i = 0; i < 4; ++i) {
         if (posY[i] < top)
             top = posY[i];
     }
-    if (top < screens->clipBound_Y1)
-        top = screens->clipBound_Y1;
+    if (top < screens->clipBound_Y1 * invZoom())
+        top = screens->clipBound_Y1 * invZoom();
 
-    int bottom = 0;
+    float bottom = 0;
     for (int i = 0; i < 4; ++i) {
         if (posY[i] > bottom)
             bottom = posY[i];
     }
-    if (bottom > screens->clipBound_Y2)
-        bottom = screens->clipBound_Y2;
+    if (bottom > screens->clipBound_Y2 * invZoom())
+        bottom = screens->clipBound_Y2 * invZoom();
 
     int xDif = right - left;
     int yDif = bottom - top;
 
-    if (xDif >= 1 && yDif >= 1) {
+    if (xDif >= 1 && yDif >= 1 && (scaleX != 0 || scaleY != 0)) {
         validDraw = true;
 
         // Draw Sprite
@@ -1880,11 +1821,24 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, int pivotX, int p
             }
         }
 
+        float normL = left - XPos;
+        float normT = top - YPos;
+        float normR = right - XPos;
+        float normB = bottom - YPos;
+
+        // 3, 4 match, 0, 1 match
+        // 2 & 5 opposites
+        QVector3D spriteVertices[] = {
+            QVector3D(normL, normT, -0.5f), QVector3D(normR, normT, -0.5f),
+            QVector3D(normR, normB, -0.5f), QVector3D(normR, normB, -0.5f),
+            QVector3D(normL, normB, -0.5f), QVector3D(normL, normT, -0.5f),
+        };
+
         QOpenGLBuffer vVBO2D;
         vVBO2D.create();
         vVBO2D.setUsagePattern(QOpenGLBuffer::DynamicDraw);
         vVBO2D.bind();
-        vVBO2D.allocate(rectVerticesv5, 6 * sizeof(QVector3D));
+        vVBO2D.allocate(spriteVertices, 6 * sizeof(QVector3D));
         spriteShader.enableAttributeArray(0);
         spriteShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
 
@@ -1897,14 +1851,8 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, int pivotX, int p
         spriteShader.setAttributeBuffer(1, GL_FLOAT, 0, 2, 0);
 
         QMatrix4x4 matModel;
-        float scalefX   = (512.0f / scaleX);
-        float scalefY   = (512.0f / scaleY);
-        float rotationf = (angle / 512.0f) * 360.0f;
-
-        matModel.scale((width * scalefX) * zoom, (height * scalefY) * zoom, 1.0f);
-        matModel.translate((xpos + (width / 2)) / (float)width, (ypos + (height / 2)) / (float)height,
-                           zpos);
-        matModel.rotate(rotationf, 0.0, 0.0, 1.0);
+        matModel.scale(zoom, zoom, 1.0f);
+        matModel.translate(xpos, ypos, zpos);
 
         spriteShader.setValue("model", matModel);
 
@@ -1916,6 +1864,9 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, int pivotX, int p
 void SceneViewerv5::drawLine(float x1, float y1, float z1, float x2, float y2, float z2, float scale,
                              Vector4<float> colour, Shader &shader)
 {
+    if (x1 == x2 && y1 == y2 && z1 == z2)
+        return;
+
     shader.use();
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
@@ -1946,7 +1897,7 @@ void SceneViewerv5::drawLine(float x1, float y1, float z1, float x2, float y2, f
     VAO.destroy();
     VBO.destroy();
 
-    validDraw = true;
+    // validDraw = true;
 }
 
 void SceneViewerv5::drawRect(float x, float y, float z, float w, float h, Vector4<float> colour,
@@ -2005,6 +1956,9 @@ void SceneViewerv5::drawCircle(float x, float y, float z, float r, Vector4<float
 
 void SceneViewerv5::refreshResize()
 {
+    if (storedW == prevStoredW && storedH == prevStoredH)
+        return;
+
     screens[0].width        = storedW;
     screens[0].height       = storedH;
     screens[0].centerX      = screens[0].width >> 1;
@@ -2016,11 +1970,8 @@ void SceneViewerv5::refreshResize()
     screens[0].pitch        = storedW;
     screens[0].waterDrawPos = storedH;
 
-    if (vertsPtr)
-        delete[] vertsPtr;
-    if (tVertsPtr)
-        delete[] tVertsPtr;
+    refreshScnEditorVerts(storedW, storedH);
 
-    vertsPtr  = new QVector3D[(storedH * storedW * 6) * 3];
-    tVertsPtr = new QVector2D[(storedH * storedW * 6) * 3];
+    prevStoredW = storedW;
+    prevStoredH = storedH;
 }

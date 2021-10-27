@@ -14,7 +14,7 @@ void FunctionTable::registerObject(GameObject **structPtr, const char *name, uin
 
     GameObjectInfo info;
     if (entitySize > sizeof(GameEntityBase))
-        qDebug() << "Class exceeds max entity memory: " + QString(name);
+        printLog("Class exceeds max entity memory: " + QString(name));
     QByteArray hashData = Utils::getMd5HashByteArray(QString(name));
     byte data[0x10];
     for (int i = 0; i < 0x10; ++i) data[i] = hashData[i];
