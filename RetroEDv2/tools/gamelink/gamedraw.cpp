@@ -421,6 +421,31 @@ void FunctionTable::drawLine(int x1, int y1, int x2, int y2, uint color, int alp
 {
     if (!v5Editor)
         return;
+
+    switch (inkEffect) {
+        case INK_NONE: alpha = 0xFF; break;
+        case INK_BLEND: alpha = 0x80; break;
+        case INK_ALPHA:
+            if (alpha > 0xFF)
+                inkEffect = INK_NONE;
+            else if (alpha <= 0)
+                return;
+            break;
+        case INK_ADD:
+        case INK_SUB:
+            if (alpha > 0xFF)
+                alpha = 0xFF;
+            else if (alpha <= 0)
+                return;
+            break;
+        case INK_LOOKUP:
+            // if (!lookupTable)
+            //    return;
+            break;
+        case INK_MASKED: alpha = 0xFF; break;
+        case INK_UNMASKED: alpha = 0xFF; break;
+    }
+
     float z               = v5Editor->viewer->incZ();
     Vector4<float> rcolor = { ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f,
                               (color & 0xFF) / 255.0f, alpha / 255.0f };
@@ -442,6 +467,31 @@ void FunctionTable::drawRect(int x, int y, int width, int height, uint color, in
 {
     if (!v5Editor)
         return;
+
+    switch (inkEffect) {
+        case INK_NONE: alpha = 0xFF; break;
+        case INK_BLEND: alpha = 0x80; break;
+        case INK_ALPHA:
+            if (alpha > 0xFF)
+                inkEffect = INK_NONE;
+            else if (alpha <= 0)
+                return;
+            break;
+        case INK_ADD:
+        case INK_SUB:
+            if (alpha > 0xFF)
+                alpha = 0xFF;
+            else if (alpha <= 0)
+                return;
+            break;
+        case INK_LOOKUP:
+            // if (!lookupTable)
+            //    return;
+            break;
+        case INK_MASKED: alpha = 0xFF; break;
+        case INK_UNMASKED: alpha = 0xFF; break;
+    }
+
     Vector4<float> rcolor = { ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f,
                               (color & 0xFF) / 255.0f, alpha / 255.0f };
 
@@ -454,22 +504,25 @@ void FunctionTable::drawRect(int x, int y, int width, int height, uint color, in
         height >>= 16;
     }
 
-    if (width + x > screens->clipBound_X2)
-        width = screens->clipBound_X2 - x;
-    if (x < screens->clipBound_X1) {
-        width += x - screens->clipBound_X1;
-        x = screens->clipBound_X1;
+    if (width + xf > screens->clipBound_X2)
+        width = screens->clipBound_X2 - xf;
+    if (xf < screens->clipBound_X1) {
+        width += xf - screens->clipBound_X1;
+        xf = screens->clipBound_X1;
     }
 
-    if (height + y > screens->clipBound_Y2)
-        height = screens->clipBound_Y2 - y;
-    if (y < screens->clipBound_Y1) {
-        height += y - screens->clipBound_Y1;
-        y = screens->clipBound_Y1;
+    if (height + yf > screens->clipBound_Y2)
+        height = screens->clipBound_Y2 - yf;
+    if (yf < screens->clipBound_Y1) {
+        height += yf - screens->clipBound_Y1;
+        yf = screens->clipBound_Y1;
     }
 
     if (width <= 0 || height <= 0)
         return;
+
+    xf += width >> 1;
+    yf += height >> 1;
 
     float zoom = v5Editor->viewer->zoom;
     v5Editor->viewer->drawRect(xf * zoom, yf * zoom, v5Editor->viewer->incZ(), width * zoom,
@@ -698,10 +751,114 @@ void FunctionTable::drawTile(ushort *tileInfo, int countX, int countY, GameEntit
 {
 }
 
-void FunctionTable::drawText(Animator *data, Vector2<int> *position, TextInfo *info, int endFrame,
-                             int textLength, byte align, int spacing, int a8,
-                             Vector2<int> *charPositions, bool32 screenRelative)
+void FunctionTable::drawText(Animator *animator, Vector2<int> *position, TextInfo *info, int startFrame,
+                             int endFrame, byte align, int spacing, int a8, Vector2<int> *charOffsets,
+                             bool32 screenRelative)
 {
+    if (animator && info && animator->framePtrs) {
+        if (!position)
+            position = &sceneInfo.entity->position;
+        GameEntity *entity = sceneInfo.entity;
+
+        int x = 0;
+        int y = 0;
+
+        if (!position) {
+            x = Utils::fixedToFloat(sceneInfo.entity->position.x);
+            y = Utils::fixedToFloat(sceneInfo.entity->position.y);
+        }
+        else {
+            x = Utils::fixedToFloat(position->x);
+            y = Utils::fixedToFloat(position->y);
+        }
+
+        if (!screenRelative) {
+            x -= v5Editor->viewer->cam.pos.x;
+            y -= v5Editor->viewer->cam.pos.y;
+        }
+
+        if (startFrame >= 0) {
+            if (startFrame >= info->textLength)
+                startFrame = info->textLength - 1;
+        }
+        else {
+            startFrame = 0;
+        }
+
+        if (endFrame > 0) {
+            if (endFrame > info->textLength)
+                endFrame = info->textLength;
+        }
+        else {
+            endFrame = info->textLength;
+        }
+
+        switch (align) {
+            case 0:
+                if (charOffsets) {
+                    for (; startFrame < endFrame; ++startFrame) {
+                        ushort curChar = info->text[startFrame];
+                        if (curChar < animator->frameCount) {
+                            SpriteFrame *frame = &animator->framePtrs[curChar];
+                            v5Editor->viewer->drawSpriteFlipped(
+                                x + (charOffsets->x >> 0x10),
+                                y + frame->pivotY + (charOffsets->y >> 0x10), frame->width,
+                                frame->height, frame->sprX, frame->sprY, FLIP_NONE,
+                                (InkEffects)entity->inkEffect, entity->alpha, frame->sheetID);
+                            x += spacing + frame->width;
+                            ++charOffsets;
+                        }
+                    }
+                }
+                else {
+                    for (; startFrame < endFrame; ++startFrame) {
+                        ushort curChar = info->text[startFrame];
+                        if (curChar < animator->frameCount) {
+                            SpriteFrame *frame = &animator->framePtrs[curChar];
+                            v5Editor->viewer->drawSpriteFlipped(
+                                x, y + frame->pivotY, frame->width, frame->height, frame->sprX,
+                                frame->sprY, FLIP_NONE, (InkEffects)entity->inkEffect, entity->alpha,
+                                frame->sheetID);
+                            x += spacing + frame->width;
+                        }
+                    }
+                }
+                break;
+            case 1:
+            case 2:
+                --endFrame;
+                if (charOffsets) {
+                    for (Vector2<int> *charOffset = &charOffsets[endFrame]; endFrame >= startFrame;
+                         --endFrame) {
+                        ushort curChar = info->text[endFrame];
+                        if (curChar < animator->frameCount) {
+                            SpriteFrame *frame = &animator->framePtrs[curChar];
+                            v5Editor->viewer->drawSpriteFlipped(
+                                x - frame->width + (charOffset->x >> 0x10),
+                                y + frame->pivotY + (charOffset->y >> 0x10), frame->width,
+                                frame->height, frame->sprX, frame->sprY, FLIP_NONE,
+                                (InkEffects)entity->inkEffect, entity->alpha, frame->sheetID);
+                            x = (x - frame->width) - spacing;
+                            --charOffset;
+                        }
+                    }
+                }
+                else {
+                    for (; endFrame >= startFrame; --endFrame) {
+                        ushort curChar = info->text[endFrame];
+                        if (curChar < animator->frameCount) {
+                            SpriteFrame *frame = &animator->framePtrs[curChar];
+                            v5Editor->viewer->drawSpriteFlipped(
+                                x - frame->width, y + frame->pivotY, frame->width, frame->height,
+                                frame->sprX, frame->sprY, FLIP_NONE, (InkEffects)entity->inkEffect,
+                                entity->alpha, frame->sheetID);
+                            x = (x - frame->width) - spacing;
+                        }
+                    }
+                }
+                break;
+        }
+    }
 }
 
 int FunctionTable::checkStageFolder(const char *folder)

@@ -52,7 +52,7 @@ void setActiveVariable(int objectID, const char *name);
 void addEnumVar(const char *name);
 
 ushort getObjectByName(const char *name);
-GameEntity *getObjectByID(ushort objectID);
+GameEntity *getEntityByID(ushort objectID);
 
 int getEntityID(GameEntityBase *entityPtr);
 

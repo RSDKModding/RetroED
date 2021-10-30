@@ -163,12 +163,12 @@ ushort FunctionTable::getObjectByName(const char *name)
     return 0;
 }
 
-GameEntity *FunctionTable::getObjectByID(ushort objectID)
+GameEntity *FunctionTable::getEntityByID(ushort entityID)
 {
     if (!v5Editor)
         return NULL;
 
-    return &v5Editor->viewer->gameEntityList[objectID < ENTITY_COUNT ? objectID : (ENTITY_COUNT - 1)];
+    return &v5Editor->viewer->gameEntityList[entityID < ENTITY_COUNT ? entityID : (ENTITY_COUNT - 1)];
 }
 
 int FunctionTable::getEntityID(GameEntityBase *entityPtr)

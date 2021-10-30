@@ -99,10 +99,15 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     ui->toolBox->setCurrentIndex(0);
     ui->propertiesBox->setCurrentIndex(0);
 
-    connect(ui->horizontalScrollBar, &QScrollBar::valueChanged,
-            [this](int v) { viewer->cam.pos.x = v; });
+    connect(ui->horizontalScrollBar, &QScrollBar::valueChanged, [this](int v) {
+        viewer->cam.pos.x   = v;
+        screens->position.x = v;
+    });
 
-    connect(ui->verticalScrollBar, &QScrollBar::valueChanged, [this](int v) { viewer->cam.pos.y = v; });
+    connect(ui->verticalScrollBar, &QScrollBar::valueChanged, [this](int v) {
+        viewer->cam.pos.y   = v;
+        screens->position.y = v;
+    });
 
     connect(ui->sceneFilter, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
         viewer->sceneFilter = v;
@@ -213,6 +218,9 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         viewer->cam.pos.x = viewer->entities[c].pos.x - ((viewer->storedW / 2) * viewer->invZoom());
         viewer->cam.pos.y = viewer->entities[c].pos.y - ((viewer->storedH / 2) * viewer->invZoom());
+
+        screens->position.x = viewer->cam.pos.x;
+        screens->position.y = viewer->cam.pos.y;
 
         objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
         ui->propertiesBox->setCurrentWidget(ui->objPropPage);
@@ -1057,6 +1065,9 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                 ui->verticalScrollBar->blockSignals(true);
                 ui->verticalScrollBar->setValue(viewer->cam.pos.y);
                 ui->verticalScrollBar->blockSignals(false);
+
+                screens->position.x = viewer->cam.pos.x;
+                screens->position.y = viewer->cam.pos.y;
             }
 
             if (viewer->curTool == TOOL_PENCIL || viewer->curTool == TOOL_ENTITY) {
@@ -1191,6 +1202,9 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                               - (viewer->storedH * viewer->invZoom()));
             ui->verticalScrollBar->setValue(viewer->cam.pos.y);
             ui->verticalScrollBar->blockSignals(false);
+
+            screens->position.x = viewer->cam.pos.x;
+            screens->position.y = viewer->cam.pos.y;
 
             break;
         }
@@ -1679,6 +1693,9 @@ void SceneEditorv5::resetAction()
 
     // Camera
     viewer->cam.pos = actions[actionIndex].camPos;
+
+    screens->position.x = viewer->cam.pos.x;
+    screens->position.y = viewer->cam.pos.y;
 
     viewer->showPixelGrid = actions[actionIndex].showPixelGrid;
     viewer->showTileGrid  = actions[actionIndex].showTileGrid;

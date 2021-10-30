@@ -833,6 +833,8 @@ void SceneViewerv5::drawScene()
                 if (prevSprite) {
                     gfxSurface[0].texturePtr->bind();
                     spriteShader.setValue("transparentColour", QVector3D(1.0f, 0.0f, 1.0f));
+                    spriteShader.setValue("useAlpha", true);
+                    spriteShader.setValue("alpha", 1.0f);
                     prevSprite = 0;
                 }
 
@@ -1088,7 +1090,16 @@ void SceneViewerv5::processObjects()
 
         sceneInfo.entity = entities[e].gameEntity;
         if (entities[e].type) {
-            sceneInfo.entity->inBounds = true;
+            sceneInfo.entity->inBounds = false;
+            int sx =
+                abs(sceneInfo.entity->position.x - ((screens->position.x + screens->centerX) << 16));
+            int sy =
+                abs(sceneInfo.entity->position.y - ((screens->position.y + screens->centerY) << 16));
+            if (sx <= sceneInfo.entity->updateRange.x + (screens->centerX << 16)
+                && sy <= sceneInfo.entity->updateRange.y + (screens->centerY << 16)) {
+                sceneInfo.entity->inBounds = true;
+            }
+
             if (sceneInfo.entity->inBounds) {
                 // callGameEvent(gameLink.GetObjectInfo(objects[entities[e].type].name), EVENT_UPDATE,
                 //              &entities[e]);
@@ -1172,7 +1183,11 @@ void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, SceneEntit
                     case VAR_UNKNOWN: // :urarakaconfuse:
                         memcpy(offset, &val.value_unknown, sizeof(int));
                         break;
-                    case VAR_BOOL: memcpy(offset, &val.value_bool, sizeof(bool32)); break;
+                    case VAR_BOOL: {
+                        bool32 value = val.value_bool;
+                        memcpy(offset, &value, sizeof(bool32));
+                        break;
+                    }
                     case VAR_COLOUR: {
                         auto c   = val.value_color;
                         uint clr = (c.red() << 16) | (c.green() << 8) | (c.blue());
@@ -1217,7 +1232,12 @@ void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, SceneEntit
                     case VAR_UNKNOWN: // :urarakaconfuse:
                         memcpy(&val.value_unknown, offset, sizeof(int));
                         break;
-                    case VAR_BOOL: memcpy(&val.value_bool, offset, sizeof(bool32)); break;
+                    case VAR_BOOL: {
+                        bool32 value = false;
+                        memcpy(&value, offset, sizeof(bool32));
+                        val.value_bool = value;
+                        break;
+                    }
                     case VAR_COLOUR: {
                         auto c   = val.value_color;
                         uint clr = 0;

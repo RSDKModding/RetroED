@@ -54,7 +54,7 @@ Property::Property(QString name, uint *value)
     typeManager             = m;
     p                       = m->addProperty(name);
     m->setValue(p, *value);
-    m->setRange(p, 0, 4294967295);
+    m->setRange(p, 0, 2147483647); // 4294967295
     type     = INT_MANAGER;
     valuePtr = value;
     connect(m, &QtIntPropertyManager::valueChanged, this, [=](QtProperty *, int x) {

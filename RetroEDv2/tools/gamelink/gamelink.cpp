@@ -20,7 +20,7 @@ enum FunctionTableIDs {
     FunctionTable_GetEntities,
     FunctionTable_BreakForeachLoop,
     FunctionTable_SetEditableVar,
-    FunctionTable_GetObjectByID,
+    FunctionTable_GetEntityByID,
     FunctionTable_GetEntityID,
     FunctionTable_GetEntityCount,
     FunctionTable_GetDrawListRef,
@@ -228,7 +228,7 @@ void GameLink::Setup()
     addToRSDKFunctionTable(FunctionTable_GetEntities, getEntities);
     addToRSDKFunctionTable(FunctionTable_BreakForeachLoop, breakForeachLoop);
     addToRSDKFunctionTable(FunctionTable_SetEditableVar, setEditableVar);
-    addToRSDKFunctionTable(FunctionTable_GetObjectByID, getObjectByID);
+    addToRSDKFunctionTable(FunctionTable_GetEntityByID, getEntityByID);
     addToRSDKFunctionTable(FunctionTable_GetEntityID, getEntityID);
     addToRSDKFunctionTable(FunctionTable_GetEntityCount, getEntityCount);
     addToRSDKFunctionTable(FunctionTable_GetDrawListRef, nullFunc);
