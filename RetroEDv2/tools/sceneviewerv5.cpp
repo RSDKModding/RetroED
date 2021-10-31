@@ -1091,13 +1091,55 @@ void SceneViewerv5::processObjects()
         sceneInfo.entity = entities[e].gameEntity;
         if (entities[e].type) {
             sceneInfo.entity->inBounds = false;
-            int sx =
-                abs(sceneInfo.entity->position.x - ((screens->position.x + screens->centerX) << 16));
-            int sy =
-                abs(sceneInfo.entity->position.y - ((screens->position.y + screens->centerY) << 16));
-            if (sx <= sceneInfo.entity->updateRange.x + (screens->centerX << 16)
-                && sy <= sceneInfo.entity->updateRange.y + (screens->centerY << 16)) {
-                sceneInfo.entity->inBounds = true;
+
+            switch (sceneInfo.entity->active) {
+                case ACTIVE_NEVER:
+                case ACTIVE_PAUSED:
+                case ACTIVE_ALWAYS:
+                case ACTIVE_NORMAL: sceneInfo.entity->inBounds = true; break;
+                case ACTIVE_BOUNDS: {
+                    int sx = abs(sceneInfo.entity->position.x
+                                 - ((screens->position.x + screens->centerX) << 16));
+                    int sy = abs(sceneInfo.entity->position.y
+                                 - ((screens->position.y + screens->centerY) << 16));
+                    if (sx <= sceneInfo.entity->updateRange.x + (screens->centerX << 16)
+                        && sy <= sceneInfo.entity->updateRange.y + (screens->centerY << 16)) {
+                        sceneInfo.entity->inBounds = true;
+                    }
+                    break;
+                }
+                case ACTIVE_XBOUNDS: {
+                    int sx = abs(sceneInfo.entity->position.x
+                                 - ((screens->position.x + screens->centerX) << 16));
+                    if (sx <= sceneInfo.entity->updateRange.x + (screens->centerX << 16)) {
+                        sceneInfo.entity->inBounds = true;
+                        break;
+                    }
+                    break;
+                }
+                case ACTIVE_YBOUNDS: {
+                    int sy = abs(sceneInfo.entity->position.y
+                                 - ((screens->position.y + screens->centerY) << 16));
+                    if (sy <= sceneInfo.entity->updateRange.y + (screens->centerY << 16)) {
+                        sceneInfo.entity->inBounds = true;
+                        break;
+                    }
+                    break;
+                }
+                case ACTIVE_RBOUNDS: {
+                    int sx = abs(sceneInfo.entity->position.x
+                                 - ((screens->position.x + screens->centerX) << 16))
+                             >> 16;
+                    int sy = abs(sceneInfo.entity->position.y
+                                 - ((screens->position.y + screens->centerY) << 16))
+                             >> 16;
+                    if (sx * sx + sy * sy
+                        <= sceneInfo.entity->updateRange.x + (screens->centerX << 16)) {
+                        sceneInfo.entity->inBounds = true;
+                        break;
+                    }
+                    break;
+                }
             }
 
             if (sceneInfo.entity->inBounds) {
@@ -1541,7 +1583,8 @@ void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, float width, float
 
     if (XPos < screens->clipBound_X1) {
         float val = XPos - screens->clipBound_X1 * invZoom();
-        sprX -= val;
+        if (!(direction & FLIP_X))
+            sprX -= val;
         width += val;
         XPos = screens->clipBound_X1 * invZoom();
     }
@@ -1551,7 +1594,8 @@ void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, float width, float
 
     if (YPos < screens->clipBound_Y1 * invZoom()) {
         float val = YPos - screens->clipBound_Y1 * invZoom();
-        sprY -= val;
+        if (!(direction & FLIP_Y))
+            sprY -= val;
         height += val;
         YPos = screens->clipBound_Y1 * invZoom();
     }
