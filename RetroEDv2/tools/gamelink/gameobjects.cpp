@@ -76,8 +76,34 @@ void FunctionTable::setEditableVar(byte type, const char *name, byte object, int
     for (int i = 0; i < v5Editor->viewer->objects[object].variables.count(); ++i) {
         if (hash == v5Editor->viewer->objects[object].variables[i].hash) {
             v5Editor->viewer->objects[object].variables[i] = VariableInfo(name, type, offset);
-            for (auto entity : v5Editor->viewer->entities) {
+            for (auto &entity : v5Editor->viewer->entities) {
                 if (entity.type == object) {
+                    // if we can transfer values, we should
+                    if (entity.variables[i].type <= VAR_BOOL && type <= VAR_BOOL) {
+                        int value = 0;
+                        switch (entity.variables[i].type) {
+                            case VAR_UINT8: value = entity.variables[i].value_uint8; break;
+                            case VAR_INT8: value = entity.variables[i].value_int8; break;
+                            case VAR_UINT16: value = entity.variables[i].value_uint16; break;
+                            case VAR_INT16: value = entity.variables[i].value_int16; break;
+                            case VAR_UINT32: value = entity.variables[i].value_uint32; break;
+                            case VAR_INT32: value = entity.variables[i].value_int32; break;
+                            case VAR_ENUM: value = entity.variables[i].value_enum; break;
+                            case VAR_BOOL: value = entity.variables[i].value_bool ? 1 : 0; break;
+                        }
+
+                        switch (type) {
+                            case VAR_UINT8: entity.variables[i].value_uint8 = value; break;
+                            case VAR_INT8: entity.variables[i].value_int8 = value; break;
+                            case VAR_UINT16: entity.variables[i].value_uint16 = value; break;
+                            case VAR_INT16: entity.variables[i].value_int16 = value; break;
+                            case VAR_UINT32: entity.variables[i].value_uint32 = value; break;
+                            case VAR_INT32: entity.variables[i].value_int32 = value; break;
+                            case VAR_ENUM: entity.variables[i].value_enum = value; break;
+                            case VAR_BOOL: entity.variables[i].value_bool = value != 0; break;
+                        }
+                    }
+
                     entity.variables[i].type = type;
                 }
             }
@@ -87,17 +113,18 @@ void FunctionTable::setEditableVar(byte type, const char *name, byte object, int
 
     if (QString(name) == "filter") {
         v5Editor->viewer->objects[object].variables.insert(0, VariableInfo(name, type, offset));
-        for (auto entity : v5Editor->viewer->entities) {
+        for (auto &entity : v5Editor->viewer->entities) {
             if (entity.type == object) {
                 RSDKv5::Scene::VariableValue variable;
-                variable.type = type;
+                variable.type        = type;
+                variable.value_uint8 = 0xFF;
                 entity.variables.insert(0, variable);
             }
         }
     }
     else {
         v5Editor->viewer->objects[object].variables.append(VariableInfo(name, type, offset));
-        for (auto entity : v5Editor->viewer->entities) {
+        for (auto &entity : v5Editor->viewer->entities) {
             if (entity.type == object) {
                 RSDKv5::Scene::VariableValue variable;
                 variable.type = type;
@@ -113,6 +140,10 @@ void FunctionTable::setActiveVariable(int objectID, const char *name)
         return;
     v5Editor->viewer->activeVar    = -1;
     v5Editor->viewer->activeVarObj = -1;
+
+    // invalid obj
+    if (objectID <= -1)
+        return;
 
     int v = 0;
     for (auto &var : v5Editor->viewer->objects[objectID].variables) {

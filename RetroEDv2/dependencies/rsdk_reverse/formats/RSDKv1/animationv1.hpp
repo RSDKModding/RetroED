@@ -115,12 +115,13 @@ public:
             for (int f = 0; f < frames.count(); ++f) frames[f].write(writer);
         }
 
+        QString name = "Retro Sonic Animation #0";
         QList<Frame> frames;
         byte loopIndex = 0;
         int speed      = 0;
     };
 
-    Animation();
+    Animation() {}
     Animation(QString filename, bool dcVer = false) { read(filename, dcVer); }
     Animation(Reader &reader, bool dcVer = false) { read(reader, dcVer); }
 
@@ -148,7 +149,7 @@ public:
     QList<QString> sheets;
     QList<AnimationEntry> animations;
 
-    QString filepath = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv1

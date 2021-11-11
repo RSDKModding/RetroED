@@ -41,6 +41,7 @@ public:
 
     RSDKv5::Scene scene;
     RSDKv5::StageConfig stageConfig;
+    RSDKv5::Stamps stamps;
 
     RSDKv5::TileConfig tileconfig;
 
@@ -92,6 +93,8 @@ public:
     int selectedObject = -1; // placing
     int selectedEntity = -1; // viewing
 
+    SceneEntity *activeDrawEntity = nullptr;
+
     // For Variable Aliases
     int activeVar    = -1;
     int activeVarObj = -1;
@@ -132,7 +135,7 @@ public:
     inline float incZ()
     {
         float c = currZ;
-        currZ += 0.0001;
+        currZ += 0.0001f;
         return c;
     }
     float currZ = 16;
@@ -140,7 +143,7 @@ public:
     int prevSprite = -1;
 
     // Game Logic
-    GameEntityBase gameEntityList[v5_ENTITY_COUNT];
+    GameEntityBase gameEntityList[v5_ENTITY_COUNT * 2];
 
     ForeachStackInfo foreachStackList[FOREACH_STACK_COUNT];
     ForeachStackInfo *foreachStackPtr;

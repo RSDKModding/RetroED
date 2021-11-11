@@ -152,7 +152,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
                         break;
                     }
-                    case TOOL_SCRIPTUNPACKER: break;
+                    case TOOL_ANIMATIONEDITOR: {
+                        AnimationEditor *tool = new AnimationEditor(r.path, r.gameVer);
+                        tool->installEventFilter(this);
+                        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Animation Editor"));
+                        break;
+                    }
                     case TOOL_RSDKUNPACKER: break;
                     case TOOL_PALETTEDITOR: {
                         PaletteEditor *tool = new PaletteEditor(r.path, r.gameVer);
@@ -246,8 +251,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 #if RETROED_VER >= 0x110 || RETROED_DEBUG
     tools->addAction("Animation Editor", [this] {
         setStatus("Opening Animation Editor...");
-        // AnimationEditor *tool = new AnimationEditor();
-        // ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Animation Editor"));
+        AnimationEditor *tool = new AnimationEditor();
+        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Animation Editor"));
     });
 #endif
 

@@ -40,6 +40,7 @@ struct SceneEntity {
     Vector2<float> pos     = Vector2<float>(0, 0);
     GameEntity *gameEntity = NULL;
     QList<RSDKv5::Scene::VariableValue> variables;
+    Rect<int> box = Rect<int>(-0x10, -0x10, 0x10, 0x10); // selection box
 
     SceneEntity() {}
 
@@ -53,6 +54,9 @@ struct SceneEntity {
 struct SceneObject {
     QString name = "";
     QList<VariableInfo> variables;
+
+    // EDITOR ONLY
+    bool visible = true;
 
     SceneObject() {}
 

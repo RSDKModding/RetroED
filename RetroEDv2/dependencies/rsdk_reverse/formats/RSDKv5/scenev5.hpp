@@ -35,7 +35,7 @@ public:
         byte unknown6           = 1;
         byte unknown7           = 4;
         byte unknown8           = 0;
-        QString stampName       = "Stamps.bin";
+        QString stampName       = "StampList.bin";
         byte unknown9           = 0;
 
         SceneEditorMetadata() {}
@@ -101,7 +101,7 @@ public:
     public:
         byte unknown = 0;
 
-        QString m_name = "";
+        QString name = "";
 
         byte type      = 0;
         byte drawOrder = 2;
@@ -117,6 +117,11 @@ public:
         QList<ScrollIndexInfo> scrollInfos;
 
         QVector<QVector<ushort>> layout;
+
+        // EDITOR-ONLY START
+        bool visible = true;
+
+        // EDITOR-ONLY END
 
         SceneLayer() {}
         SceneLayer(Reader &reader) { read(reader); }

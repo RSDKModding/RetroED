@@ -62,6 +62,7 @@ HEADERS +=    \
     $$PWD/formats/RSDKv5/savefilev5.hpp \
     $$PWD/formats/RSDKv5/scenev5.hpp \
     $$PWD/formats/RSDKv5/stageconfigv5.hpp \
+    $$PWD/formats/RSDKv5/stamps.hpp \
     $$PWD/formats/RSDKv5/staticobjectv5.hpp \
     $$PWD/formats/RSDKv5/tileconfigv5.hpp \
     $$PWD/formats/RSDKv5/userdbv5.hpp \
@@ -139,6 +140,7 @@ SOURCES +=  \
     $$PWD/formats/RSDKv5/savefilev5.cpp \
     $$PWD/formats/RSDKv5/scenev5.cpp \
     $$PWD/formats/RSDKv5/stageconfigv5.cpp \
+    $$PWD/formats/RSDKv5/stamps.cpp \
     $$PWD/formats/RSDKv5/staticobjectv5.cpp \
     $$PWD/formats/RSDKv5/tileconfigv5.cpp \
     $$PWD/formats/RSDKv5/userdbv5.cpp \

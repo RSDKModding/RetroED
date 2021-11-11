@@ -68,6 +68,7 @@ public:
     bool shiftDownL = false;
 
     Vector2<int> snapSize;
+    Vector2<float> selectionOffset = Vector2<float>(0.0f, 0.0f);
 
     SceneViewerv5 *viewer;
     ScenePropertiesv5 *scnProp       = nullptr;

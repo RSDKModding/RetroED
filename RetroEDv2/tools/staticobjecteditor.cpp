@@ -220,9 +220,9 @@ bool StaticObjectEditor::event(QEvent *event)
     }
 
     if (event->type() == (QEvent::Type)RE_EVENT_SAVE) {
-        if (staticObject.m_filename != "") {
+        if (staticObject.filePath != "") {
             staticObject.write("");
-            QString selFile = staticObject.m_filename;
+            QString selFile = staticObject.filePath;
             QString infoPath =
                 QFileInfo(selFile).absolutePath() + "/info_" + QFileInfo(selFile).fileName();
             info.write(infoPath);

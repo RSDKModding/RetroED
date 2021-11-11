@@ -25,6 +25,7 @@ INCLUDEPATH += \
 SOURCES += \
     includes.cpp \
     mainwindow.cpp \
+    tools/animationeditor.cpp \
     tools/compiler/compilerv2.cpp \
     tools/compiler/compilerv3.cpp \
     tools/compiler/compilerv4.cpp \
@@ -84,6 +85,7 @@ SOURCES += \
 
 HEADERS += \
     mainwindow.hpp \
+    tools/animationeditor.hpp \
     tools/compiler/compilerv2.hpp \
     tools/compiler/compilerv3.hpp \
     tools/compiler/compilerv4.hpp \
@@ -143,6 +145,7 @@ HEADERS += \
 
 FORMS += \
     mainwindow.ui \
+    tools/animationeditor.ui \
     tools/gameconfigeditorv5.ui \
     tools/modelmanager.ui \
     tools/paletteeditor/colourdialog.ui \

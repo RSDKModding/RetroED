@@ -61,7 +61,7 @@ void RSDKv5::Scene::SceneLayer::read(Reader &reader)
 {
     unknown = reader.read<byte>();
 
-    m_name = reader.readString();
+    name = reader.readString();
 
     type      = reader.read<byte>();
     drawOrder = reader.read<byte>();
@@ -93,7 +93,7 @@ void RSDKv5::Scene::SceneLayer::write(Writer &writer)
 
     writer.write(unknown);
 
-    writer.write(m_name + '\0');
+    writer.write(name + '\0');
 
     writer.write(type);
     writer.write(drawOrder);

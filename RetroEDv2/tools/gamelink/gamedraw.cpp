@@ -458,6 +458,26 @@ void FunctionTable::drawLine(int x1, int y1, int x2, int y2, uint color, int alp
         y2f = (y2 >> 16) - v5Editor->viewer->cam.pos.y;
     }
 
+    float entX      = v5Editor->viewer->activeDrawEntity->pos.x - v5Editor->viewer->cam.pos.x;
+    float entY      = v5Editor->viewer->activeDrawEntity->pos.y - v5Editor->viewer->cam.pos.y;
+    float boxLeft   = x1f < x2f ? x1f : x2f;
+    float boxTop    = y1f < y2f ? y1f : y2f;
+    float boxRight  = x1f > x2f ? x1f : x2f;
+    float boxBottom = y1f > y2f ? y1f : y2f;
+
+    if (boxLeft < entX + v5Editor->viewer->activeDrawEntity->box.x) {
+        v5Editor->viewer->activeDrawEntity->box.x = boxLeft - entX;
+    }
+    if (boxTop < entY + v5Editor->viewer->activeDrawEntity->box.y) {
+        v5Editor->viewer->activeDrawEntity->box.y = boxTop - entY;
+    }
+    if (boxRight > entX + v5Editor->viewer->activeDrawEntity->box.w) {
+        v5Editor->viewer->activeDrawEntity->box.w = boxRight - entX;
+    }
+    if (boxBottom > entY + v5Editor->viewer->activeDrawEntity->box.h) {
+        v5Editor->viewer->activeDrawEntity->box.h = boxBottom - entY;
+    }
+
     v5Editor->viewer->drawLine(x1f, y1f, z, x2f, y2f, z, v5Editor->viewer->zoom, rcolor,
                                v5Editor->viewer->primitiveShader);
 }
@@ -504,29 +524,55 @@ void FunctionTable::drawRect(int x, int y, int width, int height, uint color, in
         height >>= 16;
     }
 
-    if (width + xf > screens->clipBound_X2)
-        width = screens->clipBound_X2 - xf;
-    if (xf < screens->clipBound_X1) {
-        width += xf - screens->clipBound_X1;
-        xf = screens->clipBound_X1;
+    float zoom    = v5Editor->viewer->zoom;
+    float invZoom = v5Editor->viewer->invZoom();
+
+    float startX  = xf;
+    float startY  = yf;
+    float widthf  = width;
+    float heightf = height;
+
+    if (widthf + xf > screens->clipBound_X2 * invZoom)
+        widthf = screens->clipBound_X2 * invZoom - xf;
+    if (xf < screens->clipBound_X1 * invZoom) {
+        widthf += xf - screens->clipBound_X1 * invZoom;
+        xf = screens->clipBound_X1 * invZoom;
     }
 
-    if (height + yf > screens->clipBound_Y2)
-        height = screens->clipBound_Y2 - yf;
-    if (yf < screens->clipBound_Y1) {
-        height += yf - screens->clipBound_Y1;
-        yf = screens->clipBound_Y1;
+    if (heightf + yf > screens->clipBound_Y2 * invZoom)
+        heightf = screens->clipBound_Y2 * invZoom - yf;
+    if (yf < screens->clipBound_Y1 * invZoom) {
+        heightf += yf - screens->clipBound_Y1 * invZoom;
+        yf = screens->clipBound_Y1 * invZoom;
     }
 
-    if (width <= 0 || height <= 0)
+    if (widthf <= 0 || heightf <= 0)
         return;
 
-    xf += width >> 1;
-    yf += height >> 1;
+    xf += widthf / 2;
+    yf += heightf / 2;
 
-    float zoom = v5Editor->viewer->zoom;
-    v5Editor->viewer->drawRect(xf * zoom, yf * zoom, v5Editor->viewer->incZ(), width * zoom,
-                               height * zoom, rcolor, v5Editor->viewer->primitiveShader);
+    float entX      = v5Editor->viewer->activeDrawEntity->pos.x - v5Editor->viewer->cam.pos.x;
+    float entY      = v5Editor->viewer->activeDrawEntity->pos.y - v5Editor->viewer->cam.pos.y;
+    float boxLeft   = startX;
+    float boxTop    = startY;
+    float boxRight  = startX + width;
+    float boxBottom = startY + height;
+    if (boxLeft < entX + v5Editor->viewer->activeDrawEntity->box.x) {
+        v5Editor->viewer->activeDrawEntity->box.x = boxLeft - entX;
+    }
+    if (boxTop < entY + v5Editor->viewer->activeDrawEntity->box.y) {
+        v5Editor->viewer->activeDrawEntity->box.y = boxTop - entY;
+    }
+    if (boxRight > entX + v5Editor->viewer->activeDrawEntity->box.w) {
+        v5Editor->viewer->activeDrawEntity->box.w = boxRight - entX;
+    }
+    if (boxBottom > entY + v5Editor->viewer->activeDrawEntity->box.h) {
+        v5Editor->viewer->activeDrawEntity->box.h = boxBottom - entY;
+    }
+
+    v5Editor->viewer->drawRect(xf * zoom, yf * zoom, v5Editor->viewer->incZ(), widthf * zoom,
+                               heightf * zoom, rcolor, v5Editor->viewer->primitiveShader);
 }
 
 void FunctionTable::drawCircle(int x, int y, int radius, uint color, int alpha, InkEffects inkEffect,

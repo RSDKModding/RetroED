@@ -14,15 +14,15 @@ public:
         public:
             HitboxInfo() {}
 
-            char m_left   = 0;
-            char m_top    = 0;
-            char m_right  = 0;
-            char m_bottom = 0;
+            short left   = 0;
+            short top    = 0;
+            short right  = 0;
+            short bottom = 0;
         };
 
         Hitbox() {}
 
-        HitboxInfo m_hitboxes[8];
+        HitboxInfo hitboxes[8];
     };
 
     class Frame
@@ -30,15 +30,17 @@ public:
     public:
         Frame() {}
 
-        byte m_sheet        = 0;
-        byte m_collisionBox = 0;
-        Hitbox::HitboxInfo m_hitbox;
-        byte m_sprX   = 0;
-        byte m_sprY   = 0;
-        byte m_width  = 0;
-        byte m_height = 0;
-        char m_pivotX = 0;
-        char m_pivotY = 0;
+        byte sheet        = 0;
+        byte collisionBox = 0;
+        ushort delay      = 0;
+        ushort id         = 0;
+        ushort sprX       = 0;
+        ushort sprY       = 0;
+        ushort width      = 0;
+        ushort height     = 0;
+        short pivotX      = 0;
+        short pivotY      = 0;
+        QList<Hitbox::HitboxInfo> hitboxes;
     };
 
     class AnimationEntry
@@ -46,11 +48,11 @@ public:
     public:
         AnimationEntry() {}
 
-        QString m_name = "Animation";
-        QList<Frame> m_frames;
-        byte m_loopIndex       = 0;
-        byte m_speedMultiplyer = 0;
-        byte m_rotationFlags   = 0;
+        QString name = "New Animation";
+        QList<Frame> frames;
+        byte loopIndex     = 0;
+        short speed        = 0;
+        byte rotationStyle = 0;
     };
 
     Animation() {}
@@ -59,14 +61,16 @@ public:
     void read(byte ver, QString filename);
     void write(byte ver, QString filename);
 
-    QString m_filename = "";
+    QString filePath = "";
 
-    byte m_unknown    = 0;
-    byte m_playerType = 0;
+    byte unknown[5] = { 0, 0, 0, 0, 0 };
+    byte unknown2   = 0;
+    byte playerType = 0;
 
-    QList<QString> m_sheets;
-    QList<AnimationEntry> m_animations;
-    QList<Hitbox> m_hitboxes;
+    QList<QString> sheets;
+    QList<AnimationEntry> animations;
+    QList<Hitbox> hitboxes;
+    QList<QString> hitboxTypes;
 };
 
 } // namespace FormatHelpers

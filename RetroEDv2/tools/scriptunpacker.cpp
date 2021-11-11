@@ -105,7 +105,6 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                         }
                     }
 
-                    appConfig.addRecentFile(ENGINE_v3, TOOL_SCRIPTUNPACKER, dataPath, QList<QString>{});
                     setStatus(QString("loaded %1 bytecode files!").arg(bytecodeList.count()));
                 }
             }
@@ -178,7 +177,6 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                         }
                     }
 
-                    appConfig.addRecentFile(ENGINE_v4, TOOL_SCRIPTUNPACKER, dataPath, QList<QString>{});
                     setStatus(QString("loaded %1 bytecode files!").arg(bytecodeList.count()));
                 }
             }

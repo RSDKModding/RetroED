@@ -11,8 +11,6 @@
 
 #define SPRITEFRAME_COUNT_v4 (0x1000)
 
-#define TYPEGROUP_COUNT (0x103)
-
 class Compilerv4
 {
 public:

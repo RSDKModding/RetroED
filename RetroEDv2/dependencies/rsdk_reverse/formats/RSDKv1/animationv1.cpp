@@ -1,8 +1,45 @@
 #include "include.hpp"
 
+QList<QString> animNamesv1 = QList<QString>{
+    "Stopped",
+    "Waiting",
+    "Looking Up",
+    "Looking Down",
+    "Walking",
+    "Running",
+    "Skidding",
+    "Super Peel Out",
+    "Spin Dash",
+    "Jumping",
+    "Bouncing",
+    "Hurt",
+    "Dying",
+    "Life Icon",
+    "Drowning",
+    "Fan Rotate",
+    "Breathing",
+    "Pushing",
+    "Flailing Left",
+    "Flailing Right",
+    "Sliding",
+    "Hanging",
+    "Dropping",
+    "Finish Pose",
+    "CorkScrew",
+    "Retro Sonic Animation #26",
+    "Retro Sonic Animation #27",
+    "Retro Sonic Animation #28",
+    "Retro Sonic Animation #29",
+    "Retro Sonic Animation #30",
+    "Bonus Spin",
+    "Special Stop",
+    "Special Walk",
+    "Special Jump",
+};
+
 void RSDKv1::Animation::read(Reader &reader, bool dcVer)
 {
-    filepath = reader.filepath;
+    filePath = reader.filepath;
 
     unknown    = reader.read<byte>();
     playerType = reader.read<byte>();
@@ -12,12 +49,16 @@ void RSDKv1::Animation::read(Reader &reader, bool dcVer)
 
     for (int s = 0; s < sheetCount; ++s) sheets.append(reader.readString());
 
-    for (int a = 0; a < animCount; ++a) animations.append(AnimationEntry(reader));
+    for (int a = 0; a < animCount; ++a) {
+        animations.append(AnimationEntry(reader));
+        animations.last().name =
+            a < animNamesv1.count() ? animNamesv1[a] : ("Retro Sonic Animation #" + QString::number(a));
+    }
 }
 
 void RSDKv1::Animation::write(Writer &writer, bool dcVer)
 {
-    filepath = writer.filePath;
+    filePath = writer.filePath;
 
     writer.write(unknown);
     writer.write(playerType);

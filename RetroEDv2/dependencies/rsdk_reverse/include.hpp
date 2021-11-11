@@ -102,6 +102,7 @@ enum EngineVersion { ENGINE_v5, ENGINE_v4, ENGINE_v3, ENGINE_v2, ENGINE_v1, ENGI
 #include "formats/RSDKv5/savefilev5.hpp"
 #include "formats/RSDKv5/scenev5.hpp"
 #include "formats/RSDKv5/stageconfigv5.hpp"
+#include "formats/RSDKv5/stamps.hpp"
 #include "formats/RSDKv5/staticobjectv5.hpp"
 #include "formats/RSDKv5/tileconfigv5.hpp"
 #include "formats/RSDKv5/userdbv5.hpp"

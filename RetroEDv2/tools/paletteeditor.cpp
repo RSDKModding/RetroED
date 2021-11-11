@@ -340,6 +340,25 @@ void PaletteWidget::paintEvent(QPaintEvent *)
 
 bool PaletteEditor::event(QEvent *event)
 {
+    QStringList types        = { "Adobe Colour Table Palettes (*.act)",
+                          "rev02 (plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
+                          "rev01 (pre-plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
+                          "RSDKv5 StageConfig Palettes (*StageConfig*.bin)",
+                          "RSDKv4 GameConfig Palettes (*GameConfig*.bin)",
+                          "RSDKv4 StageConfig Palettes (*StageConfig*.bin)",
+                          "RSDKv3 StageConfig Palettes (*StageConfig*.bin)",
+                          "RSDKv2 StageConfig Palettes (*StageConfig*.bin)",
+                          "RSDKv1 StageConfig Palettes (*Zone*.zcf)" };
+    QList<QString> typesList = { "Adobe Colour Table Palettes (*.act)",
+                                 "rev02 (plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
+                                 "rev01 (pre-plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
+                                 "RSDKv5 StageConfig Palettes (*StageConfig*.bin)",
+                                 "RSDKv4 GameConfig Palettes (*GameConfig*.bin)",
+                                 "RSDKv4 StageConfig Palettes (*StageConfig*.bin)",
+                                 "RSDKv3 StageConfig Palettes (*StageConfig*.bin)",
+                                 "RSDKv2 StageConfig Palettes (*StageConfig*.bin)",
+                                 "RSDKv1 StageConfig Palettes (*Zone*.zcf)" };
+
     if (event->type() == (QEvent::Type)RE_EVENT_NEW) {
         palette.clear();
         reinit();
@@ -347,24 +366,6 @@ bool PaletteEditor::event(QEvent *event)
     }
 
     if (event->type() == (QEvent::Type)RE_EVENT_OPEN) {
-        QStringList types        = { "Adobe Colour Table Palettes (*.act)",
-                              "rev02 (plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
-                              "rev01 (pre-plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
-                              "RSDKv5 StageConfig Palettes (*StageConfig*.bin)",
-                              "RSDKv4 GameConfig Palettes (*GameConfig*.bin)",
-                              "RSDKv4 StageConfig Palettes (*StageConfig*.bin)",
-                              "RSDKv3 StageConfig Palettes (*StageConfig*.bin)",
-                              "RSDKv2 StageConfig Palettes (*StageConfig*.bin)",
-                              "RSDKv1 StageConfig Palettes (*Zone*.zcf)" };
-        QList<QString> typesList = { "Adobe Colour Table Palettes (*.act)",
-                                     "rev02 (plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
-                                     "rev01 (pre-plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
-                                     "RSDKv5 StageConfig Palettes (*StageConfig*.bin)",
-                                     "RSDKv4 GameConfig Palettes (*GameConfig*.bin)",
-                                     "RSDKv4 StageConfig Palettes (*StageConfig*.bin)",
-                                     "RSDKv3 StageConfig Palettes (*StageConfig*.bin)",
-                                     "RSDKv2 StageConfig Palettes (*StageConfig*.bin)",
-                                     "RSDKv1 StageConfig Palettes (*Zone*.zcf)" };
         QFileDialog filedialog(this, tr("Open Palette"), "",
                                tr(types.join(";;").toStdString().c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
@@ -479,18 +480,7 @@ bool PaletteEditor::event(QEvent *event)
 
     if (event->type() == (QEvent::Type)RE_EVENT_SAVE) {
         if (!QFile::exists(filePath)) {
-            QList<QString> typesList = {
-                "Adobe Colour Table Palettes (*.act)",
-                "rev02 (plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
-                "rev01 (pre-plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
-                "RSDKv5 StageConfig Palettes (*StageConfig*.bin)",
-                "RSDKv4 GameConfig Palettes (*GameConfig*.bin)",
-                "RSDKv4 StageConfig Palettes (*StageConfig*.bin)",
-                "RSDKv3 StageConfig Palettes (*StageConfig*.bin)",
-                "RSDKv2 StageConfig Palettes (*StageConfig*.bin)",
-                "RSDKv1 StageConfig Palettes (*Zone*.zcf)"
-            };
-            QFileDialog filedialog(this, tr("Open Palette"), "",
+            QFileDialog filedialog(this, tr("Save Palette"), "",
                                    tr(typesList[palType].toStdString().c_str()));
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {

@@ -74,6 +74,16 @@ void SceneViewerv5::loadScene(QString path)
     tileconfig.read(basePath + "TileConfig.bin");
     stageConfig.read(basePath + "StageConfig.bin");
 
+    if (scene.editorMetadata.stampName == "")
+        scene.editorMetadata.stampName = "StampList.bin";
+
+    if (QFile::exists(basePath + scene.editorMetadata.stampName)) {
+        stamps.read(basePath + scene.editorMetadata.stampName);
+    }
+    else {
+        stamps = RSDKv5::Stamps();
+    }
+
     bgColour    = Colour(scene.editorMetadata.backgroundColor1.red(),
                       scene.editorMetadata.backgroundColor1.green(),
                       scene.editorMetadata.backgroundColor1.blue());
@@ -248,6 +258,7 @@ void SceneViewerv5::saveScene(QString path)
 
     tileconfig.write(basePath + "TileConfig.bin");
     stageConfig.write(basePath + "StageConfig.bin");
+    stamps.write(basePath + scene.editorMetadata.stampName);
     tileset.save(basePath + "16x16Tiles.gif");
 }
 
@@ -259,7 +270,7 @@ void SceneViewerv5::updateScene()
         int mx = (int)((mousePos.x * invZoom()) + cam.pos.x);
         int my = (int)((mousePos.y * invZoom()) + cam.pos.y);
         statusLabel->setText(
-            QString("Zoom: %1%, Mouse Position: (%2, %3), Chunk Position: (%4, %5), Selected Chunk: "
+            QString("Zoom: %1%, Mouse Position: (%2, %3), Tile Position: (%4, %5), Selected Tile: "
                     "%6, Selected Layer: %7 (%8), Selected Object: %9")
                 .arg(zoom * 100)
                 .arg(mx)
@@ -269,11 +280,43 @@ void SceneViewerv5::updateScene()
                 .arg(selectedTile)
                 .arg(selectedLayer)
                 .arg(selectedLayer >= 0 && selectedLayer < scene.layers.count()
-                         ? scene.layers[selectedLayer].m_name
+                         ? scene.layers[selectedLayer].name
                          : "")
                 .arg(selectedObject >= 0 && selectedObject < objects.count()
                          ? objects[selectedObject].name
                          : ""));
+    }
+
+    if (v5Editor) {
+        if (v5Editor->scnProp) {
+            int activeCount = 0, inactiveCount = 0;
+            for (auto &entity : entities) {
+                int filter = 0xFF;
+                for (int v = 0; v < objects[entity.type].variables.count(); ++v) {
+                    if (objects[entity.type].variables[v].name == "filter") {
+                        if (v < entity.variables.count())
+                            filter = entity.variables[v].value_uint8;
+                        break;
+                    }
+                }
+
+                if (!(filter & sceneFilter) && filter)
+                    ++inactiveCount;
+                else
+                    ++activeCount;
+            }
+
+            v5Editor->scnProp->layerCnt->setText(
+                QString("Tile Layer Count: %1 Layers").arg(scene.layers.count()));
+            v5Editor->scnProp->objCnt->setText(
+                QString("Object Count: %1 Objects").arg(objects.count()));
+            v5Editor->scnProp->entCntTot->setText(
+                QString("Total Entity Count: %1 Entities").arg(entities.count()));
+            v5Editor->scnProp->entCntAct->setText(
+                QString("Active Entity Count: %1 Entities").arg(activeCount));
+            v5Editor->scnProp->entCntInac->setText(
+                QString("Inactive Layer Count: %1 Entities").arg(inactiveCount));
+        }
     }
 }
 
@@ -402,10 +445,12 @@ void SceneViewerv5::drawScene()
 
     for (int p = 0; p < v5_DRAWLAYER_COUNT; ++p) {
         for (int l = scene.layers.count() - 1; l >= 0; --l) {
-            if (scene.layers[l].drawOrder != p) {
+            if (scene.layers[l].drawOrder != p && !(p == 15 && scene.layers[l].drawOrder >= 16)) {
                 if (!(selectedLayer == l && p == 15))
                     continue;
             }
+            if (!scene.layers[l].visible)
+                continue;
 
             // TILE LAYERS
             QVector<QVector<ushort>> layout = scene.layers[l].layout;
@@ -797,7 +842,13 @@ void SceneViewerv5::drawScene()
         currZ = curTool == TOOL_ENTITY ? 15.75 : p;
         for (int o = 0; o < drawLayers[p].entries.count(); ++o) {
             SceneEntity *entity = &entities[drawLayers[p].entries[o]];
-            validDraw           = false;
+            activeDrawEntity    = entity;
+            entity->box         = Rect<int>(0, 0, 0, 0);
+
+            validDraw = false;
+
+            if (!objects[entity->type].visible)
+                continue;
 
             int filter = 0xFF;
             for (int v = 0; v < objects[entity->type].variables.count(); ++v) {
@@ -822,6 +873,7 @@ void SceneViewerv5::drawScene()
             // Draw Default Object Sprite if invalid
             // TODO: probably draw text intead
             if (!validDraw) {
+                entity->box = Rect<int>(-0x10, -0x10, 0x10, 0x10);
                 spriteShader.use();
                 rectVAO.bind();
 
@@ -904,24 +956,28 @@ void SceneViewerv5::drawScene()
         ex *= invZoom();
         ey *= invZoom();
 
-        float cx = cam.pos.x;
-        float cy = cam.pos.y;
-
         validDraw = false;
-        GameEntity gameEntity;
-        gameEntity.position.x = (ex + cx) * 65536.0f;
-        gameEntity.position.y = (ey + cy) * 65536.0f;
+        GameEntityBase gameEntity;
+        memset(&gameEntity, 0, sizeof(GameEntityBase));
+        gameEntity.position.x = (ex + cam.pos.x) * 65536.0f;
+        gameEntity.position.y = (ey + cam.pos.y) * 65536.0f;
         gameEntity.objectID   = selectedObject;
 
         SceneEntity tempEntity;
         tempEntity.type       = selectedObject;
-        tempEntity.pos.x      = (ex + cx) * 65536.0f;
-        tempEntity.pos.y      = (ey + cy) * 65536.0f;
+        tempEntity.pos.x      = (ex + cam.pos.x) * 65536.0f;
+        tempEntity.pos.y      = (ey + cam.pos.y) * 65536.0f;
         tempEntity.slotID     = 0xFFFF;
         tempEntity.gameEntity = &gameEntity;
-        if (selectedObject != 0)
+        tempEntity.box        = Rect<int>(0, 0, 0, 0);
+
+        activeDrawEntity = &tempEntity;
+        if (selectedObject != 0) {
+            // callGameEvent(gameLink.GetObjectInfo(objects[selectedObject].name), EVENT_CREATE,
+            //               &tempEntity);
             callGameEvent(gameLink.GetObjectInfo(objects[selectedObject].name), EVENT_DRAW,
                           &tempEntity);
+        }
 
         if (!validDraw) {
             // Draw Selected Object Preview
@@ -956,11 +1012,17 @@ void SceneViewerv5::drawScene()
     primitiveShader.setValue("model", matModel);
     if (selectedEntity >= 0) {
         SceneEntity &entity = entities[selectedEntity];
-        int w = gfxSurface[0].texturePtr->width(), h = gfxSurface[0].texturePtr->height();
+
+        float left   = entity.pos.x + entity.box.x;
+        float top    = entity.pos.y + entity.box.y;
+        float right  = entity.pos.x + entity.box.w;
+        float bottom = entity.pos.y + entity.box.h;
+
+        float w = fabsf(right) - fabsf(left), h = fabsf(bottom) - fabsf(top);
         gfxSurface[0].texturePtr->bind();
 
-        drawRect(((entity.pos.x - cam.pos.x) - (w / 2)), ((entity.pos.y - cam.pos.y) - (h / 2)), 15.7f,
-                 w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader, true);
+        drawRect(((left - cam.pos.x)), ((top - cam.pos.y)), 15.7f, w, h,
+                 Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader, true);
     }
 
     if (showTileGrid) {
@@ -1030,6 +1092,8 @@ void SceneViewerv5::drawScene()
         gridVAO.release();
         gridVBO.release();
     }
+
+    // TODO HERE: render states!
 }
 
 void SceneViewerv5::unloadScene()
@@ -1082,8 +1146,10 @@ void SceneViewerv5::processObjects()
     }
 
     sceneInfo.entitySlot = 0;
+    int centerX          = screens->centerX * invZoom();
+    int centerY          = screens->centerY * invZoom();
     for (int e = 0; e < entities.count(); ++e) {
-        if (!entities[e].gameEntity) {
+        if (!entities[e].gameEntity || !entities[e].type) {
             drawLayers[15].entries.append(sceneInfo.entitySlot++);
             continue;
         }
@@ -1092,49 +1158,48 @@ void SceneViewerv5::processObjects()
         if (entities[e].type) {
             sceneInfo.entity->inBounds = false;
 
+            int rangeX = sceneInfo.entity->updateRange.x * invZoom();
+            int rangeY = sceneInfo.entity->updateRange.y * invZoom();
+
             switch (sceneInfo.entity->active) {
                 case ACTIVE_NEVER:
                 case ACTIVE_PAUSED:
                 case ACTIVE_ALWAYS:
                 case ACTIVE_NORMAL: sceneInfo.entity->inBounds = true; break;
                 case ACTIVE_BOUNDS: {
-                    int sx = abs(sceneInfo.entity->position.x
-                                 - ((screens->position.x + screens->centerX) << 16));
-                    int sy = abs(sceneInfo.entity->position.y
-                                 - ((screens->position.y + screens->centerY) << 16));
-                    if (sx <= sceneInfo.entity->updateRange.x + (screens->centerX << 16)
-                        && sy <= sceneInfo.entity->updateRange.y + (screens->centerY << 16)) {
+                    int sx =
+                        abs(sceneInfo.entity->position.x - ((screens->position.x + centerX) << 16));
+                    int sy =
+                        abs(sceneInfo.entity->position.y - ((screens->position.y + centerY) << 16));
+                    if (sx <= rangeX + (centerX << 16) && sy <= rangeY + (centerY << 16)) {
                         sceneInfo.entity->inBounds = true;
                     }
                     break;
                 }
                 case ACTIVE_XBOUNDS: {
-                    int sx = abs(sceneInfo.entity->position.x
-                                 - ((screens->position.x + screens->centerX) << 16));
-                    if (sx <= sceneInfo.entity->updateRange.x + (screens->centerX << 16)) {
+                    int sx =
+                        abs(sceneInfo.entity->position.x - ((screens->position.x + centerX) << 16));
+                    if (sx <= rangeX + (centerX << 16)) {
                         sceneInfo.entity->inBounds = true;
                         break;
                     }
                     break;
                 }
                 case ACTIVE_YBOUNDS: {
-                    int sy = abs(sceneInfo.entity->position.y
-                                 - ((screens->position.y + screens->centerY) << 16));
-                    if (sy <= sceneInfo.entity->updateRange.y + (screens->centerY << 16)) {
+                    int sy =
+                        abs(sceneInfo.entity->position.y - ((screens->position.y + centerY) << 16));
+                    if (sy <= rangeY + (centerY << 16)) {
                         sceneInfo.entity->inBounds = true;
                         break;
                     }
                     break;
                 }
                 case ACTIVE_RBOUNDS: {
-                    int sx = abs(sceneInfo.entity->position.x
-                                 - ((screens->position.x + screens->centerX) << 16))
+                    int sx = abs(sceneInfo.entity->position.x - ((screens->position.x + centerX) << 16))
                              >> 16;
-                    int sy = abs(sceneInfo.entity->position.y
-                                 - ((screens->position.y + screens->centerY) << 16))
+                    int sy = abs(sceneInfo.entity->position.y - ((screens->position.y + centerY) << 16))
                              >> 16;
-                    if (sx * sx + sy * sy
-                        <= sceneInfo.entity->updateRange.x + (screens->centerX << 16)) {
+                    if (sx * sx + sy * sy <= rangeX + (centerX << 16)) {
                         sceneInfo.entity->inBounds = true;
                         break;
                     }
@@ -1201,6 +1266,8 @@ void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, SceneEntit
             entityPtr->active        = ACTIVE_BOUNDS;
             entityPtr->updateRange.x = 0x800000;
             entityPtr->updateRange.y = 0x800000;
+            entityPtr->scale.x       = 0x200;
+            entityPtr->scale.y       = 0x200;
             entityPtr->objectID      = entity->type;
 
             for (int o = 0; o < entity->variables.length(); o++) {
@@ -1578,10 +1645,15 @@ void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, float width, float
         case INK_UNMASKED: alpha = 0xFF; break;
     }
 
+    float startX = XPos;
+    float startY = YPos;
+    float startW = width;
+    float startH = height;
+
     if (width + XPos > screens->clipBound_X2 * invZoom())
         width = screens->clipBound_X2 * invZoom() - XPos;
 
-    if (XPos < screens->clipBound_X1) {
+    if (XPos < screens->clipBound_X1 * invZoom()) {
         float val = XPos - screens->clipBound_X1 * invZoom();
         if (!(direction & FLIP_X))
             sprX -= val;
@@ -1602,6 +1674,25 @@ void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, float width, float
 
     if (width <= 0 || height <= 0)
         return;
+
+    float entX      = activeDrawEntity->pos.x - cam.pos.x;
+    float entY      = activeDrawEntity->pos.y - cam.pos.y;
+    float boxLeft   = startX;
+    float boxTop    = startY;
+    float boxRight  = startX + startW;
+    float boxBottom = startY + startH;
+    if (boxLeft < entX + activeDrawEntity->box.x) {
+        activeDrawEntity->box.x = boxLeft - entX;
+    }
+    if (boxTop < entY + activeDrawEntity->box.y) {
+        activeDrawEntity->box.y = boxTop - entY;
+    }
+    if (boxRight > entX + activeDrawEntity->box.w) {
+        activeDrawEntity->box.w = boxRight - entX;
+    }
+    if (boxBottom > entY + activeDrawEntity->box.h) {
+        activeDrawEntity->box.h = boxBottom - entY;
+    }
 
     // Draw Sprite
     float xpos = XPos;
@@ -1819,6 +1910,21 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, float pivotX, flo
 
     if (xDif >= 1 && yDif >= 1 && (scaleX != 0 || scaleY != 0)) {
         validDraw = true;
+
+        float entX = activeDrawEntity->pos.x - cam.pos.x;
+        float entY = activeDrawEntity->pos.y - cam.pos.y;
+        if (left < entX + activeDrawEntity->box.x) {
+            activeDrawEntity->box.x = left - entX;
+        }
+        if (top < entY + activeDrawEntity->box.y) {
+            activeDrawEntity->box.y = top - entY;
+        }
+        if (right > entX + activeDrawEntity->box.w) {
+            activeDrawEntity->box.w = right - entX;
+        }
+        if (bottom > entY + activeDrawEntity->box.h) {
+            activeDrawEntity->box.h = bottom - entY;
+        }
 
         // Draw Sprite
         float xpos = left;

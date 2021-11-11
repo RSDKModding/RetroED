@@ -1146,7 +1146,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                 Vector2<float> pos = Vector2<float>(
                                     (mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x,
                                     (mEvent->pos().y() * viewer->invZoom()) + +viewer->cam.pos.y);
-                                if (box.contains(pos)) {
+                                if (box.contains(pos) && viewer->selectedEntity != o) {
                                     viewer->selectedEntity = o;
 
                                     objProp->setupUI(
@@ -1278,8 +1278,12 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
                             Vector2<float> pos = Vector2<float>(
                                 (mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x,
-                                (mEvent->pos().y() * viewer->invZoom()) + +viewer->cam.pos.y);
-                            if (box.contains(pos)) {
+                                (mEvent->pos().y() * viewer->invZoom()) + viewer->cam.pos.y);
+
+                            if (box.contains(pos) && viewer->selectedEntity == o)
+                                found = true;
+
+                            if (box.contains(pos) && viewer->selectedEntity != o) {
                                 viewer->selectedEntity = o;
                                 found                  = true;
 
@@ -2239,7 +2243,7 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
                     continue;
 
                 RSDKv5::Scene::SceneLayer layer;
-                layer.m_name = layerName + (!p ? "Low" : "High");
+                layer.name = layerName + (!p ? "Low" : "High");
                 layer.resize(viewer->layerWidth(l) * 8, viewer->layerHeight(l) * 8);
                 layer.lineIndexes.clear();
                 layer.drawOrder = 16;

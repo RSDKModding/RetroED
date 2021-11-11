@@ -2,9 +2,9 @@
 
 void RSDKv5::Animation::read(Reader &reader)
 {
-    m_filename = reader.filepath;
+    filePath = reader.filepath;
 
-    if (!reader.matchesSignature(m_signature, 4)) {
+    if (!reader.matchesSignature(signature, 4)) {
         return;
     }
 
@@ -12,33 +12,33 @@ void RSDKv5::Animation::read(Reader &reader)
     Q_UNUSED(totalFrameCount);
 
     byte sheetCount = reader.read<byte>();
-    for (int s = 0; s < sheetCount; ++s) m_sheets.append(reader.readString());
+    for (int s = 0; s < sheetCount; ++s) sheets.append(reader.readString());
 
     byte hitboxCount = reader.read<byte>();
-    for (int h = 0; h < hitboxCount; ++h) m_hitboxTypes.append(reader.readString());
+    for (int h = 0; h < hitboxCount; ++h) hitboxTypes.append(reader.readString());
 
     ushort animCount = reader.read<ushort>();
-    for (int a = 0; a < animCount; ++a) m_animations.append(AnimationEntry(reader, this));
+    for (int a = 0; a < animCount; ++a) animations.append(AnimationEntry(reader, this));
 }
 
 void RSDKv5::Animation::write(Writer &writer)
 {
-    m_filename = writer.filePath;
+    filePath = writer.filePath;
 
-    writer.write(m_signature, 4);
+    writer.write(signature, 4);
 
     uint totalFrameCount = 0;
-    for (auto &a : m_animations) totalFrameCount += a.m_frames.count();
+    for (auto &a : animations) totalFrameCount += a.frames.count();
     writer.write(totalFrameCount);
 
-    writer.write((byte)m_sheets.count());
-    for (int s = 0; s < m_sheets.count(); ++s) writer.write(m_sheets[s] + '\0');
+    writer.write((byte)sheets.count());
+    for (int s = 0; s < sheets.count(); ++s) writer.write(sheets[s] + '\0');
 
-    writer.write((byte)m_hitboxTypes.count());
-    for (int h = 0; h < m_hitboxTypes.count(); ++h) writer.write(m_hitboxTypes[h] + '\0');
+    writer.write((byte)hitboxTypes.count());
+    for (int h = 0; h < hitboxTypes.count(); ++h) writer.write(hitboxTypes[h] + '\0');
 
-    writer.write((ushort)m_animations.count());
-    for (int a = 0; a < m_animations.count(); ++a) m_animations[a].write(writer, this);
+    writer.write((ushort)animations.count());
+    for (int a = 0; a < animations.count(); ++a) animations[a].write(writer, this);
 
     writer.flush();
 }

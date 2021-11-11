@@ -19,12 +19,19 @@ public:
     void setupUI(RSDKv5::Scene *scn, RSDKv5::StageConfig *config);
     void unsetUI();
 
-    QCheckBox *loadGlobalCB = nullptr;
+    QCheckBox *loadGlobalCB  = nullptr;
+    QLineEdit *stampNameEdit = nullptr;
 
     QPushButton *editTIL  = nullptr;
     QPushButton *editSCF  = nullptr;
     QPushButton *editPAL  = nullptr;
     QPushButton *editTSet = nullptr;
+
+    QLabel *layerCnt   = nullptr;
+    QLabel *objCnt     = nullptr;
+    QLabel *entCntTot  = nullptr;
+    QLabel *entCntAct  = nullptr;
+    QLabel *entCntInac = nullptr;
 
 private:
     Ui::ScenePropertiesv5 *ui;

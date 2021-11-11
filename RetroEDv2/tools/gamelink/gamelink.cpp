@@ -295,7 +295,7 @@ void GameLink::Setup()
     addToRSDKFunctionTable(FunctionTable_GetDisplayInfo, nullFunc);
     addToRSDKFunctionTable(FunctionTable_GetWindowSize, nullFunc);
     addToRSDKFunctionTable(FunctionTable_SetScreenSize, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_SetClipBounds, nullFunc);
+    addToRSDKFunctionTable(FunctionTable_SetClipBounds, setClipBounds);
     addToRSDKFunctionTable(FunctionTable_SetScreenSplitVerticies, nullFunc);
     addToRSDKFunctionTable(FunctionTable_LoadSpriteSheet, loadSpriteSheet);
     addToRSDKFunctionTable(FunctionTable_SetLookupTable, nullFunc);

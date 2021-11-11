@@ -17,24 +17,24 @@ public:
 
             inline void read(Reader &reader)
             {
-                m_left   = reader.read<char>();
-                m_top    = reader.read<char>();
-                m_right  = reader.read<char>();
-                m_bottom = reader.read<char>();
+                left   = reader.read<sbyte>();
+                top    = reader.read<sbyte>();
+                right  = reader.read<sbyte>();
+                bottom = reader.read<sbyte>();
             }
 
             inline void write(Writer &writer)
             {
-                writer.write(m_left);
-                writer.write(m_top);
-                writer.write(m_right);
-                writer.write(m_bottom);
+                writer.write(left);
+                writer.write(top);
+                writer.write(right);
+                writer.write(bottom);
             }
 
-            char m_left   = 0;
-            char m_top    = 0;
-            char m_right  = 0;
-            char m_bottom = 0;
+            sbyte left   = 0;
+            sbyte top    = 0;
+            sbyte right  = 0;
+            sbyte bottom = 0;
         };
 
         Hitbox() {}
@@ -42,15 +42,15 @@ public:
 
         inline void read(Reader &reader)
         {
-            for (int h = 0; h < 8; ++h) m_hitboxes[h].read(reader);
+            for (int h = 0; h < 8; ++h) hitboxes[h].read(reader);
         }
 
         inline void write(Writer &writer)
         {
-            for (int h = 0; h < 8; ++h) m_hitboxes[h].write(writer);
+            for (int h = 0; h < 8; ++h) hitboxes[h].write(writer);
         }
 
-        HitboxInfo m_hitboxes[8];
+        HitboxInfo hitboxes[8];
     };
 
     class Frame
@@ -61,36 +61,36 @@ public:
 
         inline void read(Reader &reader)
         {
-            m_sheet        = reader.read<byte>();
-            m_collisionBox = reader.read<byte>();
-            m_sprX         = reader.read<byte>();
-            m_sprY         = reader.read<byte>();
-            m_width        = reader.read<byte>();
-            m_height       = reader.read<byte>();
-            m_pivotX       = reader.read<char>();
-            m_pivotY       = reader.read<char>();
+            sheet        = reader.read<byte>();
+            collisionBox = reader.read<byte>();
+            sprX         = reader.read<byte>();
+            sprY         = reader.read<byte>();
+            width        = reader.read<byte>();
+            height       = reader.read<byte>();
+            pivotX       = reader.read<sbyte>();
+            pivotY       = reader.read<sbyte>();
         }
 
         inline void write(Writer &writer)
         {
-            writer.write(m_sheet);
-            writer.write(m_collisionBox);
-            writer.write(m_sprX);
-            writer.write(m_sprY);
-            writer.write(m_width);
-            writer.write(m_height);
-            writer.write(m_pivotX);
-            writer.write(m_pivotY);
+            writer.write(sheet);
+            writer.write(collisionBox);
+            writer.write(sprX);
+            writer.write(sprY);
+            writer.write(width);
+            writer.write(height);
+            writer.write(pivotX);
+            writer.write(pivotY);
         }
 
-        byte m_sheet        = 0;
-        byte m_collisionBox = 0;
-        byte m_sprX         = 0;
-        byte m_sprY         = 0;
-        byte m_width        = 0;
-        byte m_height       = 0;
-        char m_pivotX       = 0;
-        char m_pivotY       = 0;
+        byte sheet        = 0;
+        byte collisionBox = 0;
+        byte sprX         = 0;
+        byte sprY         = 0;
+        byte width        = 0;
+        byte height       = 0;
+        sbyte pivotX      = 0;
+        sbyte pivotY      = 0;
     };
 
     class AnimationEntry
@@ -101,29 +101,30 @@ public:
 
         inline void read(Reader &reader)
         {
-            short frameCount  = reader.read<byte>();
-            m_speedMultiplyer = reader.read<byte>();
-            m_loopIndex       = reader.read<byte>();
+            short frameCount = reader.read<byte>();
+            speedMultiplyer  = reader.read<byte>();
+            loopIndex        = reader.read<byte>();
 
-            m_frames.clear();
-            for (int f = 0; f < frameCount; ++f) m_frames.append(Frame(reader));
+            frames.clear();
+            for (int f = 0; f < frameCount; ++f) frames.append(Frame(reader));
         }
 
         inline void write(Writer &writer)
         {
-            writer.write((byte)m_frames.count());
-            writer.write(m_speedMultiplyer);
-            writer.write(m_loopIndex);
+            writer.write((byte)frames.count());
+            writer.write(speedMultiplyer);
+            writer.write(loopIndex);
 
-            for (int f = 0; f < m_frames.count(); ++f) m_frames[f].write(writer);
+            for (int f = 0; f < frames.count(); ++f) frames[f].write(writer);
         }
 
-        QList<Frame> m_frames;
-        byte m_loopIndex       = 0;
-        byte m_speedMultiplyer = 0;
+        QString name         = "Sonic Nexus Animation #0";
+        byte loopIndex       = 0;
+        byte speedMultiplyer = 0;
+        QList<Frame> frames;
     };
 
-    Animation();
+    Animation() {}
     Animation(QString filename) { read(filename); }
     Animation(Reader &reader) { read(reader); }
 
@@ -137,7 +138,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filename;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -145,14 +146,13 @@ public:
     }
     void write(Writer &writer);
 
-    byte m_unknown[5] = { 0, 0, 0, 0, 0 };
-    byte m_unknownVal = 0;
+    byte unknown[5] = { 0, 0, 0, 0, 0 };
 
-    QList<QString> m_sheets;
-    QList<AnimationEntry> m_animations;
-    QList<Hitbox> m_hitboxes;
+    QList<QString> sheets;
+    QList<AnimationEntry> animations;
+    QList<Hitbox> hitboxes;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv2

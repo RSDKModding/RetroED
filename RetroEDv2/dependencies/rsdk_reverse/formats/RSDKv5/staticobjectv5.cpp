@@ -2,8 +2,8 @@
 
 void RSDKv5::StaticObject::read(Reader &reader)
 {
-    m_filename = reader.filepath;
-    if (!reader.matchesSignature(m_signature, 4))
+    filePath = reader.filepath;
+    if (!reader.matchesSignature(signature, 4))
         return;
 
     uint memPos = 0;
@@ -171,8 +171,8 @@ void RSDKv5::StaticObject::read(Reader &reader)
 
 void RSDKv5::StaticObject::write(Writer &writer)
 {
-    m_filename = writer.filePath;
-    writer.write(m_signature, 4);
+    filePath = writer.filePath;
+    writer.write(signature, 4);
 
     for (ArrayInfo &array : values) {
         writer.write((byte)(array.dataSize > 0 ? (array.type | 0x80) : array.type));

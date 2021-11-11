@@ -14,24 +14,24 @@ public:
 
         inline void read(Reader &reader)
         {
-            m_left   = reader.read<short>();
-            m_top    = reader.read<short>();
-            m_right  = reader.read<short>();
-            m_bottom = reader.read<short>();
+            left   = reader.read<short>();
+            top    = reader.read<short>();
+            right  = reader.read<short>();
+            bottom = reader.read<short>();
         }
 
         inline void write(Writer &writer)
         {
-            writer.write(m_left);
-            writer.write(m_top);
-            writer.write(m_right);
-            writer.write(m_bottom);
+            writer.write(left);
+            writer.write(top);
+            writer.write(right);
+            writer.write(bottom);
         }
 
-        short m_left   = 0;
-        short m_top    = 0;
-        short m_right  = 0;
-        short m_bottom = 0;
+        short left   = 0;
+        short top    = 0;
+        short right  = 0;
+        short bottom = 0;
     };
 
     class Frame
@@ -42,46 +42,46 @@ public:
 
         inline void read(Reader &reader, Animation *parent)
         {
-            m_sheet  = reader.read<byte>();
-            m_delay  = reader.read<short>();
-            m_id     = reader.read<short>();
-            m_sprX   = reader.read<ushort>();
-            m_sprY   = reader.read<ushort>();
-            m_width  = reader.read<ushort>();
-            m_height = reader.read<ushort>();
-            m_pivotX = reader.read<short>();
-            m_pivotY = reader.read<short>();
+            sheet  = reader.read<byte>();
+            delay  = reader.read<short>();
+            id     = reader.read<short>();
+            sprX   = reader.read<ushort>();
+            sprY   = reader.read<ushort>();
+            width  = reader.read<ushort>();
+            height = reader.read<ushort>();
+            pivotX = reader.read<short>();
+            pivotY = reader.read<short>();
 
-            m_hitboxes.clear();
-            for (int i = 0; i < parent->m_hitboxTypes.count(); ++i) m_hitboxes.append(Hitbox(reader));
+            hitboxes.clear();
+            for (int i = 0; i < parent->hitboxTypes.count(); ++i) hitboxes.append(Hitbox(reader));
         }
 
         inline void write(Writer &writer, Animation *parent)
         {
-            writer.write(m_sheet);
-            writer.write(m_delay);
-            writer.write(m_id);
-            writer.write(m_sprX);
-            writer.write(m_sprY);
-            writer.write(m_width);
-            writer.write(m_height);
-            writer.write(m_pivotX);
-            writer.write(m_pivotY);
+            writer.write(sheet);
+            writer.write(delay);
+            writer.write(id);
+            writer.write(sprX);
+            writer.write(sprY);
+            writer.write(width);
+            writer.write(height);
+            writer.write(pivotX);
+            writer.write(pivotY);
 
-            for (int i = 0; i < parent->m_hitboxTypes.count(); ++i) m_hitboxes[i].write(writer);
+            for (int i = 0; i < parent->hitboxTypes.count(); ++i) hitboxes[i].write(writer);
         }
 
-        byte m_sheet    = 0;
-        short m_delay   = 0;
-        short m_id      = 0;
-        ushort m_sprX   = 0;
-        ushort m_sprY   = 0;
-        ushort m_width  = 0;
-        ushort m_height = 0;
-        short m_pivotX  = 0;
-        short m_pivotY  = 0;
+        byte sheet    = 0;
+        ushort delay  = 0;
+        ushort id     = 0;
+        ushort sprX   = 0;
+        ushort sprY   = 0;
+        ushort width  = 0;
+        ushort height = 0;
+        short pivotX  = 0;
+        short pivotY  = 0;
 
-        QList<Hitbox> m_hitboxes;
+        QList<Hitbox> hitboxes;
     };
 
     class AnimationEntry
@@ -92,34 +92,34 @@ public:
 
         inline void read(Reader &reader, Animation *parent)
         {
-            m_name            = reader.readString();
+            name              = reader.readString();
             ushort frameCount = reader.read<ushort>();
-            m_speedMultiplyer = reader.read<short>();
-            m_loopIndex       = reader.read<byte>();
-            m_rotationFlags   = reader.read<byte>();
+            speedMultiplyer   = reader.read<short>();
+            loopIndex         = reader.read<byte>();
+            rotationFlags     = reader.read<byte>();
 
-            m_frames.clear();
-            for (int f = 0; f < frameCount; ++f) m_frames.append(Frame(reader, parent));
+            frames.clear();
+            for (int f = 0; f < frameCount; ++f) frames.append(Frame(reader, parent));
         }
 
         inline void write(Writer &writer, Animation *parent)
         {
-            writer.write(m_name + '\0');
-            writer.write((ushort)m_frames.count());
-            writer.write(m_speedMultiplyer);
-            writer.write(m_loopIndex);
-            writer.write(m_rotationFlags);
-            for (int f = 0; f < m_frames.count(); ++f) m_frames[f].write(writer, parent);
+            writer.write(name + '\0');
+            writer.write((ushort)frames.count());
+            writer.write(speedMultiplyer);
+            writer.write(loopIndex);
+            writer.write(rotationFlags);
+            for (int f = 0; f < frames.count(); ++f) frames[f].write(writer, parent);
         }
 
-        QString m_name = "Animation";
-        QList<Frame> m_frames;
-        byte m_loopIndex        = 0;
-        short m_speedMultiplyer = 0;
-        byte m_rotationFlags    = 0;
+        QString name = "Animation";
+        QList<Frame> frames;
+        byte loopIndex        = 0;
+        short speedMultiplyer = 0;
+        byte rotationFlags    = 0;
     };
 
-    Animation();
+    Animation() {}
     Animation(QString filename) { read(filename); }
     Animation(Reader &reader) { read(reader); }
 
@@ -133,7 +133,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filename;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -141,13 +141,13 @@ public:
     }
     void write(Writer &writer);
 
-    byte m_signature[4] = { 'S', 'P', 'R', 0 };
+    byte signature[4] = { 'S', 'P', 'R', 0 };
 
-    QList<QString> m_sheets;
-    QList<QString> m_hitboxTypes;
-    QList<AnimationEntry> m_animations;
+    QList<QString> sheets;
+    QList<QString> hitboxTypes;
+    QList<AnimationEntry> animations;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv5

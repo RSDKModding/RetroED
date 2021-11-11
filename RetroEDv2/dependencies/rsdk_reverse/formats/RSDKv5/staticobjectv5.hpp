@@ -43,7 +43,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -55,11 +55,11 @@ public:
 
     int getDataSize(int type);
 
-    byte m_signature[4] = { 'O', 'B', 'J', 0 };
+    byte signature[4] = { 'O', 'B', 'J', 0 };
 
     QList<ArrayInfo> values;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv5
