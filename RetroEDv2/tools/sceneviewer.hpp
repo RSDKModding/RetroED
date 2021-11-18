@@ -71,6 +71,8 @@ public:
         FormatHelpers::Scene::Object::VariableInfo variables[0x0F];
         QList<RSDKv5::Scene::VariableValue> customVars;
 
+        Rect<int> box = Rect<int>(-0x10, -0x10, 0x10, 0x10); // selection box
+
         EntityInfo() {}
     };
 
@@ -124,6 +126,7 @@ public:
     Vector2<bool> tileFlip = Vector2<bool>(false, false);
     int selectedChunk      = -1;
     int selectedLayer      = -1;
+    bool visibleLayers[9];
 
     // Collision
     bool showPlaneA = false;

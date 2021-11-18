@@ -1104,8 +1104,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 int top    = viewer->entities[o].pos.y + viewer->entities[o].box.y;
                                 int right  = viewer->entities[o].pos.x + viewer->entities[o].box.w;
                                 int bottom = viewer->entities[o].pos.y + viewer->entities[o].box.h;
-                                box        = Rect<float>(left, top, abs(right) - abs(left),
-                                                  abs(bottom) - abs(top));
+                                box = Rect<float>(left, top, abs(right - left), abs(bottom - top));
 
                                 Vector2<float> pos = Vector2<float>(
                                     (mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x,
@@ -1132,7 +1131,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                     firstPos = pos;
                                 }
 
-                                if (box.contains(pos) && viewer->selectedEntity != o && filterFlag) {
+                                if (box.contains(pos) && viewer->selectedEntity < o && filterFlag) {
                                     viewer->selectedEntity = o;
                                     sceneInfo.listPos      = o;
                                     selectionOffset.x      = pos.x - viewer->entities[o].pos.x;
@@ -1156,8 +1155,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                         firstPos.x - viewer->entities[viewer->selectedEntity].pos.x;
                                     selectionOffset.y =
                                         firstPos.y - viewer->entities[viewer->selectedEntity].pos.y;
-                                    selectionOffset.x = 0;
-                                    selectionOffset.y = 0;
+                                    // selectionOffset.x = 0;
+                                    // selectionOffset.y = 0;
                                     objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
                                     ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                 }
@@ -1282,8 +1281,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                             int top    = viewer->entities[o].pos.y + viewer->entities[o].box.y;
                             int right  = viewer->entities[o].pos.x + viewer->entities[o].box.w;
                             int bottom = viewer->entities[o].pos.y + viewer->entities[o].box.h;
-                            box =
-                                Rect<float>(left, top, abs(right) - abs(left), abs(bottom) - abs(top));
+                            box        = Rect<float>(left, top, abs(right - left), abs(bottom - top));
 
                             Vector2<float> pos = Vector2<float>(
                                 (mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x,
@@ -1330,8 +1328,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                     firstPos.x - viewer->entities[viewer->selectedEntity].pos.x;
                                 selectionOffset.y =
                                     firstPos.y - viewer->entities[viewer->selectedEntity].pos.y;
-                                selectionOffset.x = 0;
-                                selectionOffset.y = 0;
+                                // selectionOffset.x = 0;
+                                // selectionOffset.y = 0;
                                 objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                             }

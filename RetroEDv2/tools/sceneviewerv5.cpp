@@ -410,11 +410,11 @@ void SceneViewerv5::drawScene()
     if ((cam.pos.y * zoom) + storedH > (sceneHeight * 0x10) * zoom)
         cam.pos.y = ((sceneHeight * 0x10) - (storedH * invZoom()));
 
-    if ((cam.pos.x * zoom) < 0)
-        cam.pos.x = 0;
+    if ((cam.pos.x * zoom) < -64)
+        cam.pos.x = -64;
 
-    if ((cam.pos.y * zoom) < 0)
-        cam.pos.y = 0;
+    if ((cam.pos.y * zoom) < -64)
+        cam.pos.y = -64;
 
     screens[0].position.x = cam.pos.x;
     screens[0].position.y = cam.pos.y;
@@ -1046,11 +1046,11 @@ void SceneViewerv5::drawScene()
         float right  = entity.pos.x + entity.box.w;
         float bottom = entity.pos.y + entity.box.h;
 
-        float w = fabsf(right) - fabsf(left), h = fabsf(bottom) - fabsf(top);
+        float w = fabsf(right - left), h = fabsf(bottom - top);
         gfxSurface[0].texturePtr->bind();
 
-        drawRect(((left - cam.pos.x)), ((top - cam.pos.y)), 15.7f, w, h,
-                 Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader, true);
+        drawRect(left - cam.pos.x, top - cam.pos.y, 15.7f, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
+                 primitiveShader, true);
     }
 
     if (showTileGrid) {
@@ -1059,19 +1059,44 @@ void SceneViewerv5::drawScene()
         float camX = cam.pos.x;
         float camY = cam.pos.y;
 
-        for (int y = camY - ((int)camY % 0x10); y < (camY + storedH) * (zoom < 1.0f ? invZoom() : 1.0f);
-             y += 0x10) {
-            drawLine((camX - camX) * zoom, (y - camY) * zoom, 15.6f,
-                     (((camX + storedW * invZoom())) - camX) * zoom, (y - camY) * zoom, 15.6f, 1.0f,
-                     Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
+        int x = camX;
+        int y = camY;
+        int w = (camX + storedW) * (zoom < 1.0f ? invZoom() : 1.0f);
+        int h = (camY + storedH) * (zoom < 1.0f ? invZoom() : 1.0f);
+        if (cam.pos.x < 0)
+            x += abs(cam.pos.x);
+        else
+            x -= ((int)camX % 0x10);
+
+        if (cam.pos.y < 0)
+            y += abs(cam.pos.y);
+        else
+            y -= ((int)camY % 0x10);
+
+        for (; y < h; y += 0x10) {
+            float dy = (y - camY);
+
+            float x1 = 0;
+            float x2 = (((camX + storedW * invZoom())) - camX);
+            if (cam.pos.x < 0) {
+                x1 += abs(cam.pos.x);
+            }
+
+            drawLine(x1, dy, 15.6f, x2, dy, 15.6f, zoom, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
+                     primitiveShader);
         }
 
-        for (int x = camX - ((int)camX % 0x10); x < (camX + storedW) * (zoom < 1.0f ? invZoom() : 1.0f);
-             x += 0x10) {
-            drawLine((x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom, (camY - camY) * zoom, 15.6f,
-                     (x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom,
-                     (((camY + storedH * invZoom())) - camY) * zoom, 15.6f, 1.0f,
-                     Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
+        for (; x < w; x += 0x10) {
+            float dx = (x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX);
+
+            float y1 = 0;
+            float y2 = (((camY + storedH * invZoom())) - camY);
+            if (cam.pos.y < 0) {
+                y1 += abs(cam.pos.y);
+            }
+
+            drawLine(dx, y1, 15.6f, dx, y2, 15.6f, zoom, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
+                     primitiveShader);
         }
     }
 

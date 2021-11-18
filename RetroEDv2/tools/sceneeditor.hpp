@@ -34,6 +34,9 @@ public:
         RSDKv4::TileConfig tileconfig;
         RSDKv1::Tileconfig tileconfigRS;
 
+        QList<SceneViewer::ObjectInfo> objects;
+        QList<SceneViewer::EntityInfo> entities;
+
         // General Editing
         byte curTool            = TOOL_MOUSE;
         bool selecting          = false;
@@ -80,6 +83,7 @@ public:
     bool shiftDownL = false;
 
     Vector2<int> snapSize;
+    Vector2<float> selectionOffset = Vector2<float>(0.0f, 0.0f);
 
     SceneViewer *viewer;
     SceneProperties *scnProp       = nullptr;

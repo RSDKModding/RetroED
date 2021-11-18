@@ -136,6 +136,12 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         ui->expScr->setDisabled(c < 1);
     });
 
+    connect(ui->layerList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
+        int c = ui->layerList->row(item);
+        if ((uint)c < (uint)9)
+            viewer->visibleLayers[c] = item->checkState() == Qt::Checked;
+    });
+
     connect(ui->objectList, &QListWidget::currentRowChanged, [this](int c) {
         // m_uo->setDisabled(c == -1);
         // m_do->setDisabled(c == -1);
@@ -1137,17 +1143,30 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     case TOOL_ENTITY: {
                         if (!viewer->selecting || viewer->selectedObject < 0) {
                             Rect<float> box;
+                            int firstSel = -1;
+                            Vector2<float> firstPos;
 
                             viewer->selectedEntity = -1;
                             for (int o = 0; o < viewer->entities.count(); ++o) {
-                                box = Rect<float>((viewer->entities[o].pos.x - 0x10),
-                                                  (viewer->entities[o].pos.y - 0x10), 0x20, 0x20);
+                                int left   = viewer->entities[o].pos.x + viewer->entities[o].box.x;
+                                int top    = viewer->entities[o].pos.y + viewer->entities[o].box.y;
+                                int right  = viewer->entities[o].pos.x + viewer->entities[o].box.w;
+                                int bottom = viewer->entities[o].pos.y + viewer->entities[o].box.h;
+                                box = Rect<float>(left, top, abs(right - left), abs(bottom - top));
 
                                 Vector2<float> pos = Vector2<float>(
                                     (mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x,
                                     (mEvent->pos().y() * viewer->invZoom()) + +viewer->cam.pos.y);
-                                if (box.contains(pos) && viewer->selectedEntity != o) {
+
+                                if (box.contains(pos) && firstSel == -1) {
+                                    firstSel = o;
+                                    firstPos = pos;
+                                }
+
+                                if (box.contains(pos) && viewer->selectedEntity < o) {
                                     viewer->selectedEntity = o;
+                                    selectionOffset.x      = pos.x - viewer->entities[o].pos.x;
+                                    selectionOffset.y      = pos.y - viewer->entities[o].pos.y;
 
                                     objProp->setupUI(
                                         &viewer->entities[viewer->selectedEntity],
@@ -1159,6 +1178,29 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                     ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                     doAction();
                                     break;
+                                }
+                            }
+
+                            if (viewer->selectedEntity == -1) {
+                                if (firstSel >= 0) {
+                                    viewer->selectedEntity = firstSel;
+                                    selectionOffset.x =
+                                        firstPos.x - viewer->entities[viewer->selectedEntity].pos.x;
+                                    selectionOffset.y =
+                                        firstPos.y - viewer->entities[viewer->selectedEntity].pos.y;
+
+                                    objProp->setupUI(
+                                        &viewer->entities[viewer->selectedEntity],
+                                        viewer->selectedEntity,
+                                        &viewer->compilerv2.objectEntityList[viewer->selectedEntity],
+                                        &viewer->compilerv3.objectEntityList[viewer->selectedEntity],
+                                        &viewer->compilerv4.objectEntityList[viewer->selectedEntity],
+                                        viewer->gameType);
+                                    ui->propertiesBox->setCurrentWidget(ui->objPropPage);
+                                }
+                                else {
+                                    selectionOffset.x = 0;
+                                    selectionOffset.y = 0;
                                 }
                             }
                         }
@@ -1270,21 +1312,30 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         break;
                     case TOOL_ENTITY: {
                         Rect<float> box;
-                        bool found = false;
+                        bool found   = false;
+                        int firstSel = -1;
+                        Vector2<float> firstPos;
 
                         for (int o = 0; o < viewer->entities.count(); ++o) {
-                            box = Rect<float>((viewer->entities[o].pos.x - 0x10),
-                                              (viewer->entities[o].pos.y - 0x10), 0x20, 0x20);
+                            int left   = viewer->entities[o].pos.x + viewer->entities[o].box.x;
+                            int top    = viewer->entities[o].pos.y + viewer->entities[o].box.y;
+                            int right  = viewer->entities[o].pos.x + viewer->entities[o].box.w;
+                            int bottom = viewer->entities[o].pos.y + viewer->entities[o].box.h;
+                            box        = Rect<float>(left, top, abs(right - left), abs(bottom - top));
 
                             Vector2<float> pos = Vector2<float>(
                                 (mEvent->pos().x() * viewer->invZoom()) + viewer->cam.pos.x,
                                 (mEvent->pos().y() * viewer->invZoom()) + viewer->cam.pos.y);
 
-                            if (box.contains(pos) && viewer->selectedEntity == o)
-                                found = true;
+                            if (box.contains(pos) && firstSel == -1) {
+                                firstSel = o;
+                                firstPos = pos;
+                            }
 
-                            if (box.contains(pos) && viewer->selectedEntity != o) {
+                            if (box.contains(pos) && viewer->selectedEntity < o) {
                                 viewer->selectedEntity = o;
+                                selectionOffset.x      = pos.x - viewer->entities[o].pos.x;
+                                selectionOffset.y      = pos.y - viewer->entities[o].pos.y;
                                 found                  = true;
 
                                 objProp->setupUI(
@@ -1294,18 +1345,35 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                     &viewer->compilerv4.objectEntityList[viewer->selectedEntity],
                                     viewer->gameType);
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
-                                doAction();
                                 break;
                             }
                         }
 
                         if (!found) {
-                            viewer->selectedEntity = -1;
-                            viewer->selectedObject = -1;
-                            ui->objectList->setCurrentRow(-1);
-                            ui->entityList->setCurrentRow(-1);
+                            if (firstSel >= 0) {
+                                viewer->selectedEntity = firstSel;
+                                selectionOffset.x =
+                                    firstPos.x - viewer->entities[viewer->selectedEntity].pos.x;
+                                selectionOffset.y =
+                                    firstPos.y - viewer->entities[viewer->selectedEntity].pos.y;
+                                objProp->setupUI(
+                                    &viewer->entities[viewer->selectedEntity], viewer->selectedEntity,
+                                    &viewer->compilerv2.objectEntityList[viewer->selectedEntity],
+                                    &viewer->compilerv3.objectEntityList[viewer->selectedEntity],
+                                    &viewer->compilerv4.objectEntityList[viewer->selectedEntity],
+                                    viewer->gameType);
+                                ui->propertiesBox->setCurrentWidget(ui->objPropPage);
+                            }
+                            else {
+                                viewer->selectedEntity = -1;
+                                viewer->selectedObject = -1;
+                                selectionOffset.x      = 0;
+                                selectionOffset.y      = 0;
+                                ui->objectList->setCurrentRow(-1);
+                                ui->entityList->setCurrentRow(-1);
 
-                            objProp->unsetUI();
+                                objProp->unsetUI();
+                            }
                         }
                         break;
                     }
@@ -1390,27 +1458,29 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     }
                     case TOOL_ENTITY: {
                         if (viewer->selectedObject < 0 && viewer->selectedEntity >= 0) {
-                            SceneViewer::EntityInfo &object = viewer->entities[viewer->selectedEntity];
+                            SceneViewer::EntityInfo &entity = viewer->entities[viewer->selectedEntity];
 
-                            object.pos.x =
+                            entity.pos.x =
                                 ((viewer->mousePos.x * viewer->invZoom()) + viewer->cam.pos.x);
-                            object.pos.y =
+                            entity.pos.y =
                                 ((viewer->mousePos.y * viewer->invZoom()) + viewer->cam.pos.y);
+                            entity.pos.x -= selectionOffset.x;
+                            entity.pos.y -= selectionOffset.y;
 
                             if (ctrlDownL) {
-                                object.pos.x = (object.pos.x - fmodf(object.pos.x, snapSize.x));
-                                object.pos.y = (object.pos.y - fmodf(object.pos.y, snapSize.y));
+                                entity.pos.x = (entity.pos.x - fmodf(entity.pos.x, snapSize.x));
+                                entity.pos.y = (entity.pos.y - fmodf(entity.pos.y, snapSize.y));
                             }
 
                             int id                                       = viewer->selectedEntity;
-                            viewer->compilerv2.objectEntityList[id].XPos = object.pos.x * 65536;
-                            viewer->compilerv2.objectEntityList[id].YPos = object.pos.y * 65536;
+                            viewer->compilerv2.objectEntityList[id].XPos = entity.pos.x * 65536;
+                            viewer->compilerv2.objectEntityList[id].YPos = entity.pos.y * 65536;
 
-                            viewer->compilerv3.objectEntityList[id].XPos = object.pos.x * 65536;
-                            viewer->compilerv3.objectEntityList[id].YPos = object.pos.y * 65536;
+                            viewer->compilerv3.objectEntityList[id].XPos = entity.pos.x * 65536;
+                            viewer->compilerv3.objectEntityList[id].YPos = entity.pos.y * 65536;
 
-                            viewer->compilerv4.objectEntityList[id].XPos = object.pos.x * 65536;
-                            viewer->compilerv4.objectEntityList[id].YPos = object.pos.y * 65536;
+                            viewer->compilerv4.objectEntityList[id].XPos = entity.pos.x * 65536;
+                            viewer->compilerv4.objectEntityList[id].YPos = entity.pos.y * 65536;
                             doAction();
                         }
                         break;
@@ -1642,9 +1712,16 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
     ui->layerList->clear();
     ui->layerList->addItem("Foreground");
+    QListWidgetItem *itemFG = new QListWidgetItem("Foreground");
+    itemFG->setFlags(itemFG->flags() | Qt::ItemIsUserCheckable);
+    itemFG->setCheckState(viewer->visibleLayers[0] ? Qt::Checked : Qt::Unchecked);
 
-    for (int l = 0; l < viewer->background.layers.count(); ++l)
-        ui->layerList->addItem("Background " + QString::number(l + 1));
+    for (int l = 0; l < viewer->background.layers.count(); ++l) {
+        QListWidgetItem *item =
+            new QListWidgetItem("Background " + QString::number(l + 1), ui->layerList);
+        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+        item->setCheckState(viewer->visibleLayers[l + 1] ? Qt::Checked : Qt::Unchecked);
+    }
 
     ui->objectList->clear();
     for (int o = 0; o < viewer->objects.count(); ++o) ui->objectList->addItem(viewer->objects[o].name);
@@ -2628,6 +2705,9 @@ void SceneEditor::resetAction()
     viewer->tileconfig   = actions[actionIndex].tileconfig;
     viewer->tileconfigRS = actions[actionIndex].tileconfigRS;
 
+    viewer->objects  = actions[actionIndex].objects;
+    viewer->entities = actions[actionIndex].entities;
+
     // General Editing
     viewer->curTool   = actions[actionIndex].curTool;
     viewer->selecting = actions[actionIndex].selecting;
@@ -2711,6 +2791,9 @@ void SceneEditor::doAction(QString name)
 
     action.tileconfig   = viewer->tileconfig;
     action.tileconfigRS = viewer->tileconfigRS;
+
+    action.objects  = viewer->objects;
+    action.entities = viewer->entities;
 
     // General Editing
     action.curTool   = viewer->curTool;

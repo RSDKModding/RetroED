@@ -65,6 +65,10 @@ void SceneViewer::loadScene(QString path, byte ver)
         stageConfig.read(ver, basePath + "Zone.zcf");
     }
 
+    for (int l = 0; l < 9; ++l) {
+        visibleLayers[l] = true;
+    }
+
     // Always have 8 layers, even if some have w/h of 0
     for (int l = background.layers.count(); l < 8; ++l)
         background.layers.append(FormatHelpers::Background::Layer());
@@ -365,11 +369,11 @@ void SceneViewer::drawScene()
     if ((cam.pos.y * zoom) + storedH > (sceneHeight * 0x80) * zoom)
         cam.pos.y = ((sceneHeight * 0x80) - (storedH * invZoom()));
 
-    if ((cam.pos.x * zoom) < 0)
-        cam.pos.x = 0;
+    if ((cam.pos.x * zoom) < -64)
+        cam.pos.x = -64;
 
-    if ((cam.pos.y * zoom) < 0)
-        cam.pos.y = 0;
+    if ((cam.pos.y * zoom) < -64)
+        cam.pos.y = -64;
 
     // draw bg colours
     primitiveShader.use();
@@ -419,6 +423,9 @@ void SceneViewer::drawScene()
     bool showCLayers[2]            = { showPlaneA, showPlaneB };
 
     for (int l = 8; l >= 0; --l) {
+        if (!visibleLayers[l])
+            continue;
+
         // TILE LAYERS
         QList<QList<ushort>> layout = scene.layout;
         int width                   = scene.width;
@@ -697,6 +704,8 @@ void SceneViewer::drawScene()
     spriteShader.setValue("alpha", 1.0f);
     for (int o = 0; o < entities.count(); ++o) {
         validDraw = false;
+        // entities[o].box = Rect<int>(0, 0, 0, 0);
+
         if (objectsLoaded)
             callGameEvent(EVENT_RSDKDRAW, o);
 
@@ -894,19 +903,24 @@ void SceneViewer::drawScene()
     primitiveShader.setValue("model", matModel);
     if (selectedEntity >= 0) {
         EntityInfo &entity = entities[selectedEntity];
-        int w = objectSprites[0].texturePtr->width(), h = objectSprites[0].texturePtr->height();
+
+        float left   = entity.pos.x + entity.box.x;
+        float top    = entity.pos.y + entity.box.y;
+        float right  = entity.pos.x + entity.box.w;
+        float bottom = entity.pos.y + entity.box.h;
+
+        float w = fabsf(right - left), h = fabsf(bottom - top);
         objectSprites[0].texturePtr->bind();
 
-        drawRect(((entity.pos.x - cam.pos.x) - (w / 2)) * zoom,
-                 ((entity.pos.y - cam.pos.y) - (h / 2)) * zoom, 15.7f, w * zoom, h * zoom,
-                 Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader, true);
+        drawRect(left - cam.pos.x, top - cam.pos.y, 15.7f, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
+                 primitiveShader, true);
     }
 
     if (showChunkGrid) {
         rectVAO.bind();
 
-        float camX = cam.pos.x;
-        float camY = cam.pos.y;
+        float camX = qMax(cam.pos.x, 0.0f);
+        float camY = qMax(cam.pos.y, 0.0f);
 
         for (int y = camY - ((int)camY % 0x80); y < (camY + storedH) * (zoom < 1.0f ? invZoom() : 1.0f);
              y += 0x80) {
@@ -927,18 +941,18 @@ void SceneViewer::drawScene()
     if (showTileGrid) {
         rectVAO.bind();
 
-        float camX = cam.pos.x;
-        float camY = cam.pos.y;
+        float camX = qMax(cam.pos.x, 0.0f);
+        float camY = qMax(cam.pos.y, 0.0f);
 
-        for (int y = camY - ((int)camY % 0x10); y < (camY + storedH) * (zoom < 1.0f ? invZoom() : 1.0f);
-             y += 0x10) {
+        for (int y = camY - qMax(((int)camY % 0x10), 0);
+             y < (camY + storedH) * (zoom < 1.0f ? invZoom() : 1.0f); y += 0x10) {
             drawLine((camX - camX) * zoom, (y - camY) * zoom, 15.6f,
                      (((camX + storedW * invZoom())) - camX) * zoom, (y - camY) * zoom, 15.6f, 1.0f,
                      Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
         }
 
-        for (int x = camX - ((int)camX % 0x10); x < (camX + storedW) * (zoom < 1.0f ? invZoom() : 1.0f);
-             x += 0x10) {
+        for (int x = camX - qMax(((int)camX % 0x10), 0);
+             x < (camX + storedW) * (zoom < 1.0f ? invZoom() : 1.0f); x += 0x10) {
             drawLine((x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom, (camY - camY) * zoom, 15.6f,
                      (x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom,
                      (((camY + storedH * invZoom())) - camY) * zoom, 15.6f, 1.0f,
