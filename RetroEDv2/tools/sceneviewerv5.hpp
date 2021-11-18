@@ -31,6 +31,8 @@ public:
 
     void processObjects();
 
+    void dispose();
+
     // viewing properties
     float zoom = 1.0f;
     inline float invZoom() { return 1.0f / zoom; }
@@ -303,7 +305,7 @@ private:
 
     QMatrix4x4 m_matView;
 
-    // void processParallax(Scene::SceneLayer &layer);
+    QTimer *updateTimer = nullptr;
 
     inline QMatrix4x4 getProjectionMatrix()
     {

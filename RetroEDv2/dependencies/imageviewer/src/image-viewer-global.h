@@ -1,0 +1,18 @@
+#ifndef IMAGE_VIEWER_GLOBAL_H
+#define IMAGE_VIEWER_GLOBAL_H
+
+#include  <QtCore/QtGlobal>
+
+#ifdef IMAGE_VIEWER_SHARED_LIBRARY
+#  ifdef IMAGE_VIEWER_BUILD_LIBRARY
+#    define IMAGE_VIEWER_PUBLIC Q_DECL_EXPORT
+#  else
+#    define IMAGE_VIEWER_PUBLIC Q_DECL_IMPORT
+#  endif
+#  define IMAGE_VIEWER_LOCAL Q_DECL_HIDDEN
+#else
+#  define IMAGE_VIEWER_PUBLIC
+#  define IMAGE_VIEWER_LOCAL
+#endif
+
+#endif // IMAGE_VIEWER_GLOBAL_H

@@ -111,8 +111,10 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
     connect(ui->sceneFilter, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
         viewer->sceneFilter = v;
-        doAction();
+        doAction("Filter Change: " + QString::number(v));
     });
+
+    connect(ui->useGizmos, &QCheckBox::toggled, [this](bool c) { sceneInfo.effectGizmo = c; });
 
     connect(ui->layerList, &QListWidget::currentRowChanged, [this](int c) {
         ui->rmLayer->setDisabled(c == -1);
@@ -151,7 +153,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->layerList->setCurrentItem(item);
-        doAction();
+        doAction("Add Layer: " + layer.name);
 
         ui->addLayer->setDisabled(viewer->scene.layers.count() >= 8);
     });
@@ -165,7 +167,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->layerList->setCurrentRow(n);
         ui->layerList->blockSignals(false);
 
-        doAction();
+        doAction("Remove Layer: " + QString::number(c));
 
         ui->rmLayer->setDisabled(viewer->scene.layers.count() < 0);
     });
@@ -193,8 +195,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     });
 
     connect(ui->objectList, &QListWidget::currentRowChanged, [this](int c) {
-        // m_uo->setDisabled(c == -1);
-        // m_do->setDisabled(c == -1);
         ui->rmObj->setDisabled(c == -1 || c >= viewer->objects.count());
 
         if (c == -1 || c >= viewer->objects.count())
@@ -210,9 +210,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             }
         }
 
-        // m_do->setDisabled(c == m_objectList->count() - 1);
-        // m_uo->setDisabled(c == 0);
-
         viewer->selectedObject = c;
         ui->rmObj->setDisabled(c == -1 || global);
     });
@@ -224,6 +221,11 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         viewer->stageConfig.objects.append("New Object");
         viewer->objects.append(objInfo);
 
+        // viewer->callGameEvent(gameLink.GetObjectInfo(objInfo.name), SceneViewerv5::EVENT_SERIALIZE,
+        //                       NULL);
+        //
+        // viewer->callGameEvent(gameLink.GetObjectInfo(objInfo.name), SceneViewerv5::EVENT_LOAD, NULL);
+
         auto *item = new QListWidgetItem();
         item->setText("New Object");
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
@@ -232,7 +234,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->objectList->setCurrentItem(item);
-        doAction();
+        doAction("Add Object: " + objInfo.name);
     });
 
     connect(ui->rmObj, &QToolButton::clicked, [this] {
@@ -257,7 +259,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         }
 
         createEntityList();
-        doAction();
+        doAction("Remove Object: " + QString::number(c));
     });
 
     connect(ui->objectList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -278,6 +280,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->upEnt->setDisabled(c == 0);
 
         viewer->selectedEntity = c;
+        sceneInfo.listPos      = c;
 
         viewer->cam.pos.x = viewer->entities[c].pos.x - ((viewer->storedW / 2) * viewer->invZoom());
         viewer->cam.pos.y = viewer->entities[c].pos.y - ((viewer->storedH / 2) * viewer->invZoom());
@@ -320,7 +323,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         createEntityList();
 
         ui->addEnt->setDisabled(viewer->activeEntityCount() >= 0x800);
-        doAction();
+        doAction("Add Entity: " + QString::number(entity.slotID));
     });
 
     connect(ui->rmEnt, &QToolButton::clicked, [this] {
@@ -334,13 +337,15 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         createEntityList();
 
-        if (viewer->objects.count() <= 0)
+        if (viewer->objects.count() <= 0) {
             viewer->selectedEntity = -1;
+            sceneInfo.listPos      = c;
+        }
 
         ui->rmEnt->setDisabled(viewer->objects.count() <= 0);
 
         ui->addEnt->setDisabled(viewer->activeEntityCount() >= 0x800);
-        doAction();
+        doAction("Remove Entity: " + QString::number(c));
     });
 
     connect(ui->upEnt, &QToolButton::clicked, [this] {
@@ -411,7 +416,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         layer.scrollInfos.append(scr);
 
         createScrollList();
-        doAction();
+        doAction("Add Scroll Info");
     });
 
     connect(ui->rmScr, &QToolButton::clicked, [this] {
@@ -422,7 +427,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->scrollList->blockSignals(true);
         ui->scrollList->setCurrentRow(n);
         ui->scrollList->blockSignals(false);
-        doAction();
+        doAction("Remov Scroll Info: " + QString::number(c));
     });
 
     connect(ui->impScr, &QToolButton::clicked, [this] {
@@ -445,7 +450,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 layer.scrollInfos.append(info);
             }
             createScrollList();
-            doAction();
+            doAction("Import Scroll Info for layer: " + layer.name);
         }
     });
 
@@ -480,6 +485,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         // m_mainView->m_selectedTile = -1;
         // m_mainView->m_selectedStamp = -1;
         viewer->selectedEntity = -1;
+        sceneInfo.listPos      = -1;
         objProp->unsetUI();
         viewer->isSelecting = false;
 
@@ -494,6 +500,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             case TOOL_ENTITY: viewer->isSelecting = true; break;
             case TOOL_PARALLAX: viewer->isSelecting = true; break;
         }
+
+        doAction("Tool Change: " + QString::number(tool));
     };
 
     connect(ui->selToolBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -504,7 +512,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         viewer->showPlaneB = false;
         ui->showCollisionA->setChecked(viewer->showPlaneA);
         ui->showCollisionB->setChecked(viewer->showPlaneB);
-        doAction();
+        doAction("Toggle Collision A Viewer");
     });
 
     connect(ui->showCollisionB, &QPushButton::clicked, [this] {
@@ -512,16 +520,16 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         viewer->showPlaneB ^= 1;
         ui->showCollisionA->setChecked(viewer->showPlaneA);
         ui->showCollisionB->setChecked(viewer->showPlaneB);
-        doAction();
+        doAction("Toggle Collision B Viewer");
     });
 
     connect(ui->showTileGrid, &QPushButton::clicked, [this] {
         viewer->showTileGrid ^= 1;
-        doAction();
+        doAction("Toggle Tile Grid Viewer");
     });
     connect(ui->showPixelGrid, &QPushButton::clicked, [this] {
         viewer->showPixelGrid ^= 1;
-        doAction();
+        doAction("Toggle Pixel Grid Viewer");
     });
 
     connect(scnProp->loadGlobalCB, &QCheckBox::toggled, [this](bool b) {
@@ -560,7 +568,103 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         }
 
         createEntityList();
-        doAction();
+        doAction(viewer->stageConfig.loadGlobalObjects ? "Added Global Objects"
+                                                       : "Removed Global Objects");
+
+        // CODE FOR UPDATING OBJECT TYPES: TODO: GIVE ITS OWN BUTTON
+        /*{
+            if (viewer->stageConfig.loadGlobalObjects) {
+                SceneViewerv5 *viewerv5 = viewer;
+                int oldGlobalCount      = 0;
+                QList<QString> oldGlobals;
+                QList<int> oldGlobalIDs;
+                QList<int> removeFlags;
+
+                // get info about old objs
+                for (int i = 1; i <= oldGlobalCount; ++i) {
+                    oldGlobals.append(viewer->objects[i].name);
+                    oldGlobalIDs.append(i);
+                    removeFlags.append(-1);
+                }
+
+                // remove old global objs
+                for (int i = oldGlobalCount; i > 0; --i) {
+                    viewer->objects.removeAt(i);
+                }
+
+                int id = 1;
+                for (QString &global : viewer->gameConfig.objects) {
+                    SceneObject objInfo;
+                    objInfo.name = global;
+                    viewer->objects.insert(id, objInfo);
+
+                    // FunctionTable::setEditableVar(VAR_UINT8, "filter", id,
+                    //                               offsetof(GameEntity, filter));
+                    //
+                    // viewer->callGameEvent(gameLink.GetObjectInfo(objInfo.name),
+                    //                       SceneViewerv5::EVENT_SERIALIZE, NULL);
+
+                    int index = oldGlobals.indexOf(global);
+                    if (index < 0)
+                        index = oldGlobals.indexOf(Utils::getMd5HashString(global));
+
+                    if (index >= 0) {
+                        removeFlags[index] = id;
+                    }
+                    ++id;
+                }
+
+                // start by removing objects we dont need
+                id = 1;
+                for (auto &flag : removeFlags) {
+                    if (flag < 0) {
+                        for (auto &entity : viewer->entities) {
+                            if (entity.type == id) {
+                                viewer->entities.removeOne(entity);
+                            }
+                        }
+                    }
+                    ++id;
+                }
+
+                // then update the remaining ones
+                id = 1;
+                for (auto &flag : removeFlags) {
+                    if (flag > 0) {
+                        for (auto &entity : viewer->entities) {
+                            if (entity.type == id) {
+                                entity.type = flag;
+                            }
+                        }
+                    }
+                    ++id;
+                }
+
+                // update stage object ids to be proper
+                int idChange = viewer->gameConfig.objects.count() - oldGlobalCount;
+                for (auto &entity : viewer->entities) {
+                    if (entity.type >= oldGlobalCount) {
+                        entity.type += idChange;
+                    }
+                }
+
+                // load assets for new objects
+                for (int i = 1; i <= viewer->gameConfig.objects.count(); ++i) {
+                    // viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[i].name),
+                    //                       SceneViewerv5::EVENT_LOAD, NULL);
+                }
+
+                ui->objectList->clear();
+                for (int o = 0; o < viewer->objects.count(); ++o) {
+                    QListWidgetItem *item =
+                        new QListWidgetItem(viewer->objects[o].name, ui->objectList);
+                    item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+                    item->setCheckState(Qt::Checked);
+                }
+
+                createEntityList();
+            }
+        }*/
     });
 
     connect(scnProp->stampNameEdit, &QLineEdit::textChanged, [this](QString s) {
@@ -570,7 +674,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
     connect(ui->showParallax, &QPushButton::clicked, [this] {
         viewer->showParallax ^= 1;
-        doAction();
+        doAction("Toggle Parallax Viewer");
     });
 
     connect(scnProp->editSCF, &QPushButton::clicked, [this] {
@@ -627,7 +731,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         }
 
         createEntityList();
-        doAction();
+        doAction("Edited Stageconfig");
     });
 
     connect(scnProp->editTSet, &QPushButton::clicked, [this] {
@@ -668,7 +772,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 }
             }
         }
-        doAction();
+        doAction("Edited Tiles");
         setStatus("Finished rebuilding tiles!");
     });
 
@@ -676,7 +780,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         PaletteEditor *edit = new PaletteEditor(viewer->stageConfig.filePath, PALTYPE_GAMECONFIGv4);
         edit->setWindowTitle("Edit StageConfig Palette");
         edit->show();
-        doAction();
+        doAction("Edited Palette");
     });
 
     connect(ui->exportSceneImg, &QPushButton::clicked, [this] {
@@ -844,6 +948,9 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
         QApplication::sendEvent(this, event);
         return false;
     }
+    else if (event->type() == QEvent::Close) {
+        // viewer->dispose();
+    }
 
     if (object != viewer)
         return false;
@@ -899,6 +1006,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
         ui->selToolBox->setCurrentIndex(tool);
         ui->selToolBox->setDisabled(false);
         viewer->selectedEntity = -1;
+        sceneInfo.listPos      = -1;
         objProp->unsetUI();
         viewer->isSelecting = false;
 
@@ -940,7 +1048,9 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                     case TOOL_PENCIL: {
                         if (viewer->selectedTile >= 0 && viewer->isSelecting) {
                             setTile(mEvent->pos().x(), mEvent->pos().y());
-                            doAction();
+                            doAction(QString("Placed Tile: (%1, %2)")
+                                         .arg(mEvent->pos().x())
+                                         .arg(mEvent->pos().y()));
                         }
                         else {
                             // click tile to move it or change properties
@@ -975,7 +1085,9 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                             viewer->selectedTile = 0xFFFF;
                             setTile(mEvent->pos().x(), mEvent->pos().y());
                             viewer->selectedTile = sel;
-                            doAction();
+                            doAction(QString("Erased Tile: (%1, %2)")
+                                         .arg(mEvent->pos().x())
+                                         .arg(mEvent->pos().y()));
                         }
                         break;
                     }
@@ -986,6 +1098,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                             Vector2<float> firstPos;
 
                             viewer->selectedEntity = -1;
+                            sceneInfo.listPos      = -1;
                             for (int o = 0; o < viewer->entities.count(); ++o) {
                                 int left   = viewer->entities[o].pos.x + viewer->entities[o].box.x;
                                 int top    = viewer->entities[o].pos.y + viewer->entities[o].box.y;
@@ -1021,12 +1134,16 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
 
                                 if (box.contains(pos) && viewer->selectedEntity != o && filterFlag) {
                                     viewer->selectedEntity = o;
+                                    sceneInfo.listPos      = o;
                                     selectionOffset.x      = pos.x - viewer->entities[o].pos.x;
                                     selectionOffset.y      = pos.y - viewer->entities[o].pos.y;
 
                                     objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
                                     ui->propertiesBox->setCurrentWidget(ui->objPropPage);
-                                    doAction();
+                                    doAction(QString("Selected Entity: %1 (%2, %3)")
+                                                 .arg(o)
+                                                 .arg(viewer->entities[o].pos.x)
+                                                 .arg(viewer->entities[o].pos.y));
                                     break;
                                 }
                             }
@@ -1034,6 +1151,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                             if (viewer->selectedEntity == -1) {
                                 if (firstSel >= 0) {
                                     viewer->selectedEntity = firstSel;
+                                    sceneInfo.listPos      = firstSel;
                                     selectionOffset.x =
                                         firstPos.x - viewer->entities[viewer->selectedEntity].pos.x;
                                     selectionOffset.y =
@@ -1090,11 +1208,15 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
 
                                 viewer->entities.append(entity);
                                 viewer->selectedEntity = cnt;
+                                sceneInfo.listPos      = cnt;
 
                                 objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                 createEntityList();
-                                doAction();
+                                doAction(QString("Created Entity: %1 (%2, %3)")
+                                             .arg(viewer->objects[entity.type].name)
+                                             .arg(entity.pos.x)
+                                             .arg(entity.pos.y));
                             }
                             else if (viewer->activeEntityCount() >= 0x800) {
                                 QMessageBox msgBox =
@@ -1139,7 +1261,10 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                             viewer->tiles[tile & 0x3FF]);
                                         ui->propertiesBox->setCurrentIndex(PROP_TILE);
                                         viewer->selectedTile = tile;
-                                        doAction();
+                                        doAction(QString("Selected Tile: %1 (%2, %3)")
+                                                     .arg(tile & 0x3FF)
+                                                     .arg(pos.x)
+                                                     .arg(pos.y));
                                         break;
                                     }
                                 }
@@ -1186,6 +1311,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
 
                             if (box.contains(pos) && viewer->selectedEntity < o && filterFlag) {
                                 viewer->selectedEntity = o;
+                                sceneInfo.listPos      = o;
                                 selectionOffset.x      = pos.x - viewer->entities[o].pos.x;
                                 selectionOffset.y      = pos.y - viewer->entities[o].pos.y;
                                 found                  = true;
@@ -1199,6 +1325,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                         if (!found) {
                             if (firstSel >= 0) {
                                 viewer->selectedEntity = firstSel;
+                                sceneInfo.listPos      = firstSel;
                                 selectionOffset.x =
                                     firstPos.x - viewer->entities[viewer->selectedEntity].pos.x;
                                 selectionOffset.y =
@@ -1210,6 +1337,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                             }
                             else {
                                 viewer->selectedEntity = -1;
+                                sceneInfo.listPos      = -1;
                                 viewer->selectedObject = -1;
                                 selectionOffset.x      = 0;
                                 selectionOffset.y      = 0;
@@ -1217,7 +1345,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 ui->entityList->setCurrentRow(-1);
 
                                 objProp->unsetUI();
-                                doAction();
+                                // doAction();
                             }
                         }
                         break;
@@ -1308,7 +1436,10 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                     case TOOL_PENCIL: {
                         if (viewer->selectedTile >= 0 && viewer->isSelecting) {
                             setTile(viewer->mousePos.x, viewer->mousePos.y);
-                            doAction();
+                            doAction(QString("Placed Tile: %1 (%2, %3)")
+                                         .arg(viewer->selectedTile)
+                                         .arg(viewer->mousePos.x)
+                                         .arg(viewer->mousePos.y));
                         }
                         break;
                     }
@@ -1318,7 +1449,10 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                             viewer->selectedTile = 0xFFFF;
                             setTile(viewer->mousePos.x, viewer->mousePos.y);
                             viewer->selectedTile = sel;
-                            doAction();
+                            doAction(QString("Erased Tile: %1 (%2, %3)")
+                                         .arg(viewer->selectedTile)
+                                         .arg(viewer->mousePos.x)
+                                         .arg(viewer->mousePos.y));
                         }
                         break;
                     }
@@ -1376,20 +1510,6 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                                     - viewer->storedW / viewer->zoom);
                 ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x10)
                                                   - viewer->storedH / viewer->zoom);
-
-                /*if (float diff = viewer->invZoom() - oz) {
-
-                    int x0 = (int)((viewer->mousePos.x * oz) + viewer->cam.pos.x);
-                    int y0 = (int)((viewer->mousePos.y * oz) + viewer->cam.pos.y);
-
-                    /*int xi = viewer->cam.pos.x - x0;
-                    int yi = viewer->cam.pos.y - y0;
-
-                    viewer->cam.pos.x = xi * //*//*
-
-                    viewer->cam.pos.x = -(x0 * diff);
-                    viewer->cam.pos.y = -(y0 * diff);
-                }//*/
                 return true;
             }
             viewer->cam.pos.y -= wEvent->angleDelta().y() / 8;
@@ -1441,7 +1561,11 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 viewer->callGameEvent(
                                     gameLink.GetObjectInfo(viewer->objects[entity.type].name),
                                     SceneViewerv5::EVENT_CREATE, &entity);
-                                doAction();
+
+                                doAction(QString("Pasted Entity: %1 (%2, %3)")
+                                             .arg(viewer->objects[entity.type].name)
+                                             .arg(entity.pos.x)
+                                             .arg(entity.pos.y));
                             }
                             else {
                                 QMessageBox msgBox =
@@ -1501,7 +1625,9 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                     if (box.contains(pos)) {
                                         viewer->scene.layers[viewer->selectedLayer].layout[y][x] =
                                             0xFFFF;
-                                        doAction();
+
+                                        doAction(
+                                            QString("Erased Tile: (%1, %2)").arg(pos.x).arg(pos.y));
 
                                         // reset context
                                         break;
@@ -1515,12 +1641,14 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                 case TOOL_ENTITY:
                     if (kEvent->key() == Qt::Key_Delete || kEvent->key() == Qt::Key_Backspace) {
                         if (viewer->selectedEntity >= 0) {
-                            viewer->scene.objects.removeAt(viewer->selectedEntity);
+                            viewer->entities.removeAt(viewer->selectedEntity);
                             viewer->selectedEntity = -1;
+                            sceneInfo.listPos      = -1;
 
                             objProp->unsetUI();
                             createEntityList();
-                            doAction();
+
+                            doAction(QString("Deleted Entity: %1").arg(viewer->selectedEntity));
                         }
                     }
 
@@ -1575,23 +1703,30 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
         dataPath = dir.path();
     }
 
+    QString gameName = dataPath + "/../Game";
+    gameLink.LinkGameObjects(gameName);
+
     viewer->dataPath = dataPath;
 
     viewer->loadScene(scnPath);
 
     ui->layerList->clear();
+    ui->layerList->blockSignals(true);
     for (int l = 0; l < viewer->scene.layers.count(); ++l) {
         QListWidgetItem *item = new QListWidgetItem(viewer->scene.layers[l].name, ui->layerList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-        item->setCheckState(Qt::Checked);
+        item->setCheckState(viewer->scene.layers[l].visible ? Qt::Checked : Qt::Unchecked);
     }
+    ui->layerList->blockSignals(false);
 
     ui->objectList->clear();
+    ui->objectList->blockSignals(true);
     for (int o = 0; o < viewer->objects.count(); ++o) {
         QListWidgetItem *item = new QListWidgetItem(viewer->objects[o].name, ui->objectList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Checked);
     }
+    ui->objectList->blockSignals(false);
 
     createEntityList();
 
@@ -1647,9 +1782,6 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     tileProp->unsetUI();
     objProp->unsetUI();
     scrProp->unsetUI();
-
-    QString gameName = dataPath + "/../Game";
-    gameLink.LinkGameObjects(gameName);
 
     for (int i = 0; i < viewer->objects.count(); ++i) {
         GameObjectInfo *info = gameLink.GetObjectInfo(viewer->objects[i].name);
@@ -1793,7 +1925,6 @@ void SceneEditorv5::createEntityList()
     ui->entityList->blockSignals(true);
     ui->entityList->clear();
 
-    // C++11 abute poggers
     std::sort(viewer->entities.begin(), viewer->entities.end(),
               [](const SceneEntity &a, const SceneEntity &b) -> bool { return a.slotID < b.slotID; });
     for (int i = 0; i < viewer->entities.count(); ++i) {
@@ -1937,6 +2068,10 @@ void SceneEditorv5::resetAction()
 
     viewer->tileconfig = actions[actionIndex].tileconfig;
 
+    // Objects & Entities
+    viewer->objects  = actions[actionIndex].objects;
+    viewer->entities = actions[actionIndex].entities;
+
     // General Editing
     viewer->curTool     = actions[actionIndex].curTool;
     viewer->isSelecting = actions[actionIndex].selecting;
@@ -1954,21 +2089,38 @@ void SceneEditorv5::resetAction()
     // Entity Editing
     viewer->selectedObject = actions[actionIndex].selectedObject; // placing
     viewer->selectedEntity = actions[actionIndex].selectedEntity; // viewing
+    sceneInfo.listPos      = viewer->selectedEntity;
 
     // Parallax Editing
     viewer->showParallax       = actions[actionIndex].showParallax;
     viewer->selectedScrollInfo = actions[actionIndex].selectedScrollInfo;
 
     // Camera
-    viewer->cam.pos = actions[actionIndex].camPos;
-
-    screens->position.x = viewer->cam.pos.x;
-    screens->position.y = viewer->cam.pos.y;
-
     viewer->showPixelGrid = actions[actionIndex].showPixelGrid;
     viewer->showTileGrid  = actions[actionIndex].showTileGrid;
 
     // updating UI
+
+    ui->layerList->blockSignals(true);
+    ui->layerList->clear();
+    for (int l = 0; l < viewer->scene.layers.count(); ++l) {
+        QListWidgetItem *item = new QListWidgetItem(viewer->scene.layers[l].name, ui->layerList);
+        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+        item->setCheckState(viewer->scene.layers[l].visible ? Qt::Checked : Qt::Unchecked);
+    }
+    ui->layerList->blockSignals(false);
+
+    ui->objectList->blockSignals(true);
+    ui->objectList->clear();
+    for (int o = 0; o < viewer->objects.count(); ++o) {
+        QListWidgetItem *item = new QListWidgetItem(viewer->objects[o].name, ui->objectList);
+        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+        item->setCheckState(Qt::Checked);
+    }
+    ui->objectList->blockSignals(false);
+
+    createEntityList();
+
     ui->showTileGrid->blockSignals(true);
     ui->showTileGrid->setDown(viewer->showTileGrid);
     ui->showTileGrid->blockSignals(false);
@@ -1994,9 +2146,11 @@ void SceneEditorv5::resetAction()
     ui->selToolBox->blockSignals(false);
 }
 
-void SceneEditorv5::doAction()
+void SceneEditorv5::doAction(QString name)
 {
     ActionState action;
+
+    action.name = name;
 
     action.tilePalette = viewer->tilePalette;
     action.tiles       = viewer->tiles;
@@ -2006,6 +2160,10 @@ void SceneEditorv5::doAction()
     action.scene       = viewer->scene;
     action.stageConfig = viewer->stageConfig;
     action.tileconfig  = viewer->tileconfig;
+
+    // Objects & Entities
+    action.objects  = viewer->objects;
+    action.entities = viewer->entities;
 
     // General Editing
     action.curTool   = viewer->curTool;
@@ -2030,23 +2188,20 @@ void SceneEditorv5::doAction()
     action.selectedScrollInfo = viewer->selectedScrollInfo;
 
     // Camera
-    action.camPos = viewer->cam.pos;
-
-    action.showPixelGrid = viewer->showPixelGrid;
-    action.showTileGrid  = viewer->showTileGrid;
-
     for (int i = actions.count() - 1; i > actionIndex; --i) {
         actions.removeAt(i);
     }
 
     actions.append(action);
     actionIndex = actions.count() - 1;
+
+    setStatus("Did Action: " + name);
 }
 void SceneEditorv5::clearActions()
 {
     actions.clear();
     actionIndex = 0;
-    doAction(); // first action, cant be undone
+    doAction("Action Setup"); // first action, cant be undone
 }
 
 #include "moc_sceneeditorv5.cpp"

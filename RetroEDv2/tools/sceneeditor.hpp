@@ -18,6 +18,8 @@ public:
     class ActionState
     {
     public:
+        QString name = "Action";
+
         QList<PaletteColour> tilePalette;
         QList<QImage> tiles;
         QList<QImage> chunks;
@@ -119,7 +121,7 @@ private:
     void undoAction();
     void redoAction();
     void resetAction();
-    void doAction();
+    void doAction(QString name = "Action");
     void clearActions();
 
     Ui::SceneEditor *ui;

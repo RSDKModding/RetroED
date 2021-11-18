@@ -47,7 +47,6 @@ void FunctionTable::registerObjectContainer(GameObject **structPtr, const char *
     memcpy(hash, data, 0x10 * sizeof(byte));
 
     allocateStorage(v5Editor->dataStorage, objectSize, (void **)structPtr, DATASET_STG, true);
-    // LoadStaticObject((byte *)*structPtr, hash, 0);
 
     GameObjectInfo info;
     memcpy(info.hash, data, 0x10 * sizeof(byte));

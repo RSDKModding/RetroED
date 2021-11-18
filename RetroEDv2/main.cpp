@@ -133,7 +133,6 @@ int main(int argc, char *argv[])
     }
 
     gameLink.Setup();
-    gameLink.LinkGameObjects("Game");
 
     MainWindow w;
     w.show();

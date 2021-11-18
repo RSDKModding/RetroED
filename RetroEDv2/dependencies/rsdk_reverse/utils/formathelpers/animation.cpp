@@ -31,7 +31,7 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
                     Frame frame;
                     frame.sheet        = f.sheet;
                     frame.collisionBox = -1;
-                    frame.delay        = 0x100;
+                    frame.duration        = 0x100;
                     frame.id           = 0;
                     frame.sprX         = f.sprX;
                     frame.sprY         = f.sprY;
@@ -73,7 +73,7 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
                     Frame frame;
                     frame.sheet        = f.sheet;
                     frame.collisionBox = f.collisionBox;
-                    frame.delay        = 0x100;
+                    frame.duration        = 0x100;
                     frame.id           = 0;
                     frame.sprX         = f.sprX;
                     frame.sprY         = f.sprY;
@@ -117,7 +117,7 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
                     Frame frame;
                     frame.sheet        = f.sheet;
                     frame.collisionBox = f.collisionBox;
-                    frame.delay        = 0x100;
+                    frame.duration        = 0x100;
                     frame.id           = 0;
                     frame.sprX         = f.sprX;
                     frame.sprY         = f.sprY;
@@ -161,7 +161,7 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
                     Frame frame;
                     frame.sheet        = f.sheet;
                     frame.collisionBox = f.collisionBox;
-                    frame.delay        = 0x100;
+                    frame.duration        = 0x100;
                     frame.id           = 0;
                     frame.sprX         = f.sprX;
                     frame.sprY         = f.sprY;
@@ -205,7 +205,7 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
                     Frame frame;
                     frame.sheet        = f.sheet;
                     frame.collisionBox = -1;
-                    frame.delay        = f.delay;
+                    frame.duration        = f.delay;
                     frame.id           = f.id;
                     frame.sprX         = f.sprX;
                     frame.sprY         = f.sprY;
@@ -432,7 +432,7 @@ void FormatHelpers::Animation::write(byte ver, QString filename)
                 for (auto &f : a.frames) {
                     RSDKv5::Animation::Frame frame;
                     frame.sheet  = f.sheet;
-                    frame.delay  = f.delay;
+                    frame.delay  = f.duration;
                     frame.id     = f.id;
                     frame.sprX   = f.sprX;
                     frame.sprY   = f.sprY;

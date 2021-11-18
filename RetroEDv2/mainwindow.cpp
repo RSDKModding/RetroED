@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         QWidget *w = ui->toolTabs->widget(t);
         ui->toolTabs->removeTab(t);
         w->close();
+        delete w;
     };
 
     connect(closeTab, &QShortcut::activated,

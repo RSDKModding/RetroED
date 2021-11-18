@@ -59,7 +59,8 @@ void RSDKv5::Scene::VariableValue::write(Writer &writer)
 
 void RSDKv5::Scene::SceneLayer::read(Reader &reader)
 {
-    unknown = reader.read<byte>();
+    // I have no confirmation that this is what it is but you gotta trust me on this
+    visible = reader.read<byte>();
 
     name = reader.readString();
 
@@ -91,7 +92,7 @@ void RSDKv5::Scene::SceneLayer::write(Writer &writer)
 {
     scrollIndicesFromInfo();
 
-    writer.write(unknown);
+    writer.write((byte)(visible ? 1 : 0));
 
     writer.write(name + '\0');
 

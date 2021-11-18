@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>964</width>
+    <width>1049</width>
     <height>513</height>
    </rect>
   </property>
@@ -471,6 +471,13 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="4">
+       <widget class="QCheckBox" name="useGizmos">
+        <property name="text">
+         <string>Use Gizmos</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -572,6 +579,14 @@
       <layout class="QGridLayout" name="gridLayout_14"/>
      </widget>
      <widget class="QWidget" name="stampPage">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>185</width>
+        <height>244</height>
+       </rect>
+      </property>
       <attribute name="label">
        <string>Stamp List</string>
       </attribute>

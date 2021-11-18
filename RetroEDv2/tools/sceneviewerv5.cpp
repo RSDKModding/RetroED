@@ -18,9 +18,12 @@ SceneViewerv5::SceneViewerv5(QWidget *)
 
     this->setFocusPolicy(Qt::WheelFocus);
 
-    QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, QOverload<>::of(&SceneViewerv5::updateScene));
-    timer->start(1000.0f / 60.0f);
+    if (updateTimer)
+        delete updateTimer;
+
+    updateTimer = new QTimer(this);
+    connect(updateTimer, &QTimer::timeout, this, QOverload<>::of(&SceneViewerv5::updateScene));
+    updateTimer->start(1000.0f / 60.0f);
 
     for (int a = 0; a < v5_SPRFILE_COUNT; ++a) {
         spriteAnimationList[a].scope = SCOPE_NONE;
@@ -30,7 +33,9 @@ SceneViewerv5::SceneViewerv5(QWidget *)
     }
 }
 
-SceneViewerv5::~SceneViewerv5()
+SceneViewerv5::~SceneViewerv5() { dispose(); }
+
+void SceneViewerv5::dispose()
 {
     unloadScene();
 
@@ -43,6 +48,12 @@ SceneViewerv5::~SceneViewerv5()
             gfxSurface[o].texturePtr = nullptr;
             gfxSurface[o].scope      = SCOPE_NONE;
         }
+    }
+
+    if (updateTimer) {
+        disconnect(updateTimer, nullptr, nullptr, nullptr);
+        updateTimer->stop();
+        delete updateTimer;
     }
 
     screenVAO.destroy();
@@ -113,10 +124,23 @@ void SceneViewerv5::loadScene(QString path)
         SceneObject object;
         object.name = obj.name.hashString();
 
+        bool foundName = false;
         for (int i = 0; i < objNames.count(); ++i) {
             if (Utils::getMd5HashByteArray(objNames[i]) == obj.name.hash) {
                 object.name = objNames[i];
+                foundName   = true;
                 break;
+            }
+        }
+
+        // if we haven't found the name, as a last resort, try looking through any linked objects
+        if (!foundName) {
+            for (int i = 0; i < gameObjectList.count(); ++i) {
+                if (Utils::getMd5HashByteArray(QString(gameObjectList[i].name)) == obj.name.hash) {
+                    object.name = gameObjectList[i].name;
+                    foundName   = true;
+                    break;
+                }
             }
         }
 
@@ -391,6 +415,9 @@ void SceneViewerv5::drawScene()
 
     if ((cam.pos.y * zoom) < 0)
         cam.pos.y = 0;
+
+    screens[0].position.x = cam.pos.x;
+    screens[0].position.y = cam.pos.y;
 
     // draw bg colours
     primitiveShader.use();
@@ -839,7 +866,8 @@ void SceneViewerv5::drawScene()
         spriteShader.setValue("useAlpha", false);
         spriteShader.setValue("alpha", 1.0f);
 
-        currZ = curTool == TOOL_ENTITY ? 15.75 : p;
+        currZ                      = curTool == TOOL_ENTITY ? 15.75 : p;
+        sceneInfo.currentDrawGroup = p;
         for (int o = 0; o < drawLayers[p].entries.count(); ++o) {
             SceneEntity *entity = &entities[drawLayers[p].entries[o]];
             activeDrawEntity    = entity;
@@ -2140,7 +2168,7 @@ void SceneViewerv5::refreshResize()
     screens[0].pitch        = storedW;
     screens[0].waterDrawPos = storedH;
 
-    refreshScnEditorVerts(storedW, storedH);
+    refreshScnEditorVerts(storedW >> 2, storedH >> 2);
 
     prevStoredW = storedW;
     prevStoredH = storedH;

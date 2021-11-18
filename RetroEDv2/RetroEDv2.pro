@@ -11,6 +11,7 @@ include(dependencies/phantom/phantom.pri)
 include(dependencies/qtgifimage/src/gifimage/qtgifimage.pri)
 include(dependencies/qtcolorwidgets/color_widgets.pri)
 include(dependencies/rsdk_reverse/rsdk_reverse.pri)
+include(dependencies/imageviewer/imageviewer.pri)
 include(dependencies/QtPropertyBrowser/QtPropertyBrowser.pri)
 
 QMAKE_LFLAGS += -lz
@@ -26,6 +27,7 @@ SOURCES += \
     includes.cpp \
     mainwindow.cpp \
     tools/animationeditor.cpp \
+    tools/animationeditor/animsheetselector.cpp \
     tools/compiler/compilerv2.cpp \
     tools/compiler/compilerv3.cpp \
     tools/compiler/compilerv4.cpp \
@@ -86,6 +88,7 @@ SOURCES += \
 HEADERS += \
     mainwindow.hpp \
     tools/animationeditor.hpp \
+    tools/animationeditor/animsheetselector.hpp \
     tools/compiler/compilerv2.hpp \
     tools/compiler/compilerv3.hpp \
     tools/compiler/compilerv4.hpp \
@@ -146,6 +149,7 @@ HEADERS += \
 FORMS += \
     mainwindow.ui \
     tools/animationeditor.ui \
+    tools/animationeditor/animsheetselector.ui \
     tools/gameconfigeditorv5.ui \
     tools/modelmanager.ui \
     tools/paletteeditor/colourdialog.ui \

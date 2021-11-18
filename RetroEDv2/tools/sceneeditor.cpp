@@ -2692,9 +2692,11 @@ void SceneEditor::resetAction()
     ui->selToolBox->blockSignals(false);
 }
 
-void SceneEditor::doAction()
+void SceneEditor::doAction(QString name)
 {
     ActionState action;
+
+    action.name = name;
 
     action.tilePalette = viewer->tilePalette;
     action.tiles       = viewer->tiles;

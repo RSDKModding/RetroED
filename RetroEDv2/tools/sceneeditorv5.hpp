@@ -18,6 +18,8 @@ public:
     class ActionState
     {
     public:
+        QString name = "Action";
+
         QList<PaletteColour> tilePalette;
         QList<QImage> tiles;
 
@@ -38,6 +40,10 @@ public:
         Vector2<bool> tileFlip = Vector2<bool>(false, false);
         int selectedLayer      = -1;
 
+        // Entities & Objects
+        QList<SceneObject> objects;
+        QList<SceneEntity> entities;
+
         // Collision
         bool showPlaneA = false;
         bool showPlaneB = false;
@@ -49,9 +55,6 @@ public:
         // Parallax Editing
         bool showParallax      = false;
         int selectedScrollInfo = -1;
-
-        // Camera
-        Vector2<float> camPos = Vector2<float>(0.0f, 0.0f);
 
         bool showPixelGrid = false;
         bool showTileGrid  = false;
@@ -110,7 +113,7 @@ private:
     void undoAction();
     void redoAction();
     void resetAction();
-    void doAction();
+    void doAction(QString name = "Action");
     void clearActions();
 
     QList<ActionState> actions;

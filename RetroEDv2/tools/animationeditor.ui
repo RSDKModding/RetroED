@@ -177,25 +177,6 @@
        </spacer>
       </item>
       <item>
-       <widget class="QToolButton" name="showHitbox">
-        <property name="text">
-         <string>Show Hitbox</string>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonTextUnderIcon</enum>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QToolButton" name="showTransClr">
         <property name="text">
          <string>Show Transparent Colour</string>
@@ -505,7 +486,7 @@
      <item row="0" column="2" alignment="Qt::AlignRight">
       <widget class="QToolButton" name="expAnim">
        <property name="toolTip">
-        <string>Export Frame</string>
+        <string>Export Animation</string>
        </property>
        <property name="text">
         <string>E</string>
@@ -570,7 +551,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="animPage">
       <property name="geometry">
@@ -611,6 +592,65 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
+         <item row="7" column="1">
+          <widget class="QComboBox" name="playerID">
+           <item>
+            <property name="text">
+             <string>Sonic</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Tails</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Knuckles</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="2">
+          <widget class="Line" name="line">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="speedMult">
+           <property name="toolTip">
+            <string>Animation playback speed</string>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>255</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_16">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Rotation Style</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_18">
+           <property name="text">
+            <string>Animation Speed</string>
+           </property>
+          </widget>
+         </item>
          <item row="3" column="1">
           <widget class="QComboBox" name="rotationStyle">
            <property name="toolTip">
@@ -655,13 +695,6 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="0" colspan="2">
-          <widget class="Line" name="line">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="0">
           <widget class="QLabel" name="label_15">
            <property name="sizePolicy">
@@ -675,7 +708,14 @@
            </property>
           </widget>
          </item>
-         <item row="9" column="0" colspan="2">
+         <item row="7" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Player ID</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0" colspan="2">
           <spacer name="verticalSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -688,63 +728,11 @@
            </property>
           </spacer>
          </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_16">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
+         <item row="6" column="0" colspan="2">
+          <widget class="QLabel" name="label_17">
            <property name="text">
-            <string>Rotation Style</string>
+            <string>Retro-Sonic Properties</string>
            </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QSpinBox" name="speedMult">
-           <property name="toolTip">
-            <string>Animation playback speed</string>
-           </property>
-           <property name="minimum">
-            <number>0</number>
-           </property>
-           <property name="maximum">
-            <number>255</number>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>Player ID</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_18">
-           <property name="text">
-            <string>Animation Speed</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="1">
-          <widget class="QComboBox" name="playerID">
-           <item>
-            <property name="text">
-             <string>Sonic</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Tails</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Knuckles</string>
-            </property>
-           </item>
           </widget>
          </item>
         </layout>
@@ -757,7 +745,7 @@
         <x>0</x>
         <y>0</y>
         <width>246</width>
-        <height>420</height>
+        <height>464</height>
        </rect>
       </property>
       <attribute name="label">
@@ -806,79 +794,6 @@
              <property name="verticalSpacing">
               <number>0</number>
              </property>
-             <item row="3" column="0" colspan="3">
-              <widget class="QGroupBox" name="groupBox_3">
-               <property name="title">
-                <string>Pivot</string>
-               </property>
-               <layout class="QGridLayout" name="gridLayout_5">
-                <property name="leftMargin">
-                 <number>6</number>
-                </property>
-                <property name="topMargin">
-                 <number>6</number>
-                </property>
-                <property name="rightMargin">
-                 <number>6</number>
-                </property>
-                <property name="bottomMargin">
-                 <number>6</number>
-                </property>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="label_8">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string>x</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="3">
-                 <widget class="QSpinBox" name="offsetY">
-                  <property name="toolTip">
-                   <string>How far to offset the sprite vertically</string>
-                  </property>
-                  <property name="minimum">
-                   <number>-32768</number>
-                  </property>
-                  <property name="maximum">
-                   <number>32767</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QSpinBox" name="offsetX">
-                  <property name="toolTip">
-                   <string>How far to offset the sprite horizontally</string>
-                  </property>
-                  <property name="minimum">
-                   <number>-32768</number>
-                  </property>
-                  <property name="maximum">
-                   <number>32767</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="2">
-                 <widget class="QLabel" name="label_9">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string>y</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
              <item row="0" column="0">
               <widget class="QLabel" name="label_6">
                <property name="text">
@@ -886,62 +801,12 @@
                </property>
               </widget>
              </item>
-             <item row="4" column="0">
-              <widget class="QLabel" name="label">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>Duration</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1" colspan="2">
-              <widget class="QSpinBox" name="duration">
-               <property name="toolTip">
-                <string>How many in-game frames this frame lasts for</string>
-               </property>
-               <property name="maximum">
-                <number>65535</number>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1" colspan="2">
-              <widget class="QComboBox" name="sheetID">
-               <property name="toolTip">
-                <string>Sheet used by the frame</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="0" colspan="3">
+             <item row="5" column="0" colspan="3">
               <widget class="QGroupBox" name="groupBox_5">
                <property name="title">
                 <string>Hitbox</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_9">
-                <item row="0" column="1">
-                 <widget class="QComboBox" name="hitboxType">
-                  <property name="toolTip">
-                   <string>Displayed Hitbox</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_10">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string>Hitbox</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="1" column="0" colspan="2">
                  <widget class="QGroupBox" name="groupBox_6">
                   <property name="title">
@@ -1067,33 +932,100 @@
                   </layout>
                  </widget>
                 </item>
+                <item row="0" column="1">
+                 <widget class="QComboBox" name="hitboxType">
+                  <property name="toolTip">
+                   <string>Displayed Hitbox</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_10">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Hitbox</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </widget>
              </item>
-             <item row="5" column="0">
-              <widget class="QLabel" name="label_25">
-               <property name="text">
-                <string>ID</string>
+             <item row="3" column="0" colspan="3">
+              <widget class="QGroupBox" name="groupBox_3">
+               <property name="title">
+                <string>Pivot</string>
                </property>
-              </widget>
-             </item>
-             <item row="5" column="1" colspan="2">
-              <widget class="QSpinBox" name="id">
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;the frame's ID, this is a general purpose value that serves to identify frames in occasions when needed (eg: drawString uses it to find what char to match to each frame), can be used as &amp;quot;behaviour&amp;quot; if really needed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="minimum">
-                <number>-2147483647</number>
-               </property>
-               <property name="maximum">
-                <number>2147483647</number>
-               </property>
+               <layout class="QGridLayout" name="gridLayout_5">
+                <property name="leftMargin">
+                 <number>6</number>
+                </property>
+                <property name="topMargin">
+                 <number>6</number>
+                </property>
+                <property name="rightMargin">
+                 <number>6</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>6</number>
+                </property>
+                <item row="2" column="3">
+                 <widget class="QSpinBox" name="offsetY">
+                  <property name="toolTip">
+                   <string>How far to offset the sprite vertically</string>
+                  </property>
+                  <property name="minimum">
+                   <number>-32768</number>
+                  </property>
+                  <property name="maximum">
+                   <number>32767</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="2">
+                 <widget class="QLabel" name="label_9">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>y</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_8">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>x</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QSpinBox" name="offsetX">
+                  <property name="toolTip">
+                   <string>How far to offset the sprite horizontally</string>
+                  </property>
+                  <property name="minimum">
+                   <number>-32768</number>
+                  </property>
+                  <property name="maximum">
+                   <number>32767</number>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
              </item>
              <item row="2" column="0" colspan="3">
@@ -1146,7 +1078,7 @@
                 <item row="1" column="1">
                  <widget class="QSpinBox" name="boundingBoxW">
                   <property name="toolTip">
-                   <string>Sheet YPos of the sprite frame</string>
+                   <string>Width of the frame</string>
                   </property>
                   <property name="maximum">
                    <number>65535</number>
@@ -1156,7 +1088,7 @@
                 <item row="1" column="3">
                  <widget class="QSpinBox" name="boundingBoxH">
                   <property name="toolTip">
-                   <string>Height of the sprite frame</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Height of the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="maximum">
                    <number>65535</number>
@@ -1176,7 +1108,7 @@
                 <item row="0" column="3">
                  <widget class="QSpinBox" name="boundingBoxY">
                   <property name="toolTip">
-                   <string>Width of the sprite frame</string>
+                   <string>Sheet YPos of the sprite frame</string>
                   </property>
                   <property name="maximum">
                    <number>65535</number>
@@ -1219,6 +1151,77 @@
                   </property>
                   <property name="text">
                    <string>w</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="0" column="1" colspan="2">
+              <widget class="QComboBox" name="sheetID">
+               <property name="toolTip">
+                <string>Sheet used by the frame</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0" colspan="3">
+              <widget class="QGroupBox" name="groupBox_4">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>90</height>
+                </size>
+               </property>
+               <property name="title">
+                <string>Frame Properties</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_6">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Duration</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QSpinBox" name="duration">
+                  <property name="toolTip">
+                   <string>How many in-game frames this frame lasts for</string>
+                  </property>
+                  <property name="maximum">
+                   <number>65535</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_25">
+                  <property name="text">
+                   <string>ID</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QSpinBox" name="id">
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;the frame's ID, this is a general purpose value that serves to identify frames in occasions when needed (eg: drawString uses it to find what character to match to each frame), can be used as &amp;quot;behaviour&amp;quot; if really needed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="minimum">
+                   <number>0</number>
+                  </property>
+                  <property name="maximum">
+                   <number>65535</number>
                   </property>
                  </widget>
                 </item>

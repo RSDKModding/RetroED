@@ -13,13 +13,10 @@ public:
         StampEntry() {}
         StampEntry(Reader &reader) { read(reader); }
 
-        QString name  = "Stamp";
-        ushort width  = 0;
-        ushort height = 0;
-
-        QVector<QVector<ushort>> layout;
-
-        // TODO: objects?
+        QString name       = "Stamp";
+        ushort width       = 0;
+        ushort height      = 0;
+        Vector2<float> pos = Vector2<float>(0, 0);
 
         void read(Reader &reader);
         void write(Writer &writer);

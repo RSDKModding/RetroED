@@ -17,14 +17,23 @@ SceneViewer::SceneViewer(QWidget *parent)
 
     this->setFocusPolicy(Qt::WheelFocus);
 
-    QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, QOverload<>::of(&SceneViewer::updateScene));
-    timer->start(1000.0f / 60.0f);
+    if (updateTimer)
+        delete updateTimer;
+
+    updateTimer = new QTimer(this);
+    connect(updateTimer, &QTimer::timeout, this, QOverload<>::of(&SceneViewer::updateScene));
+    updateTimer->start(1000.0f / 60.0f);
 }
 
 SceneViewer::~SceneViewer()
 {
     unloadScene();
+
+    if (updateTimer) {
+        disconnect(updateTimer, nullptr, nullptr, nullptr);
+        updateTimer->stop();
+        delete updateTimer;
+    }
 
     screenVAO.destroy();
     rectVAO.destroy();
@@ -70,8 +79,7 @@ void SceneViewer::loadScene(QString path, byte ver)
             sceneHeight = background.layers[i].height;
     }
 
-    vertsPtr  = new QVector3D[sceneHeight * sceneWidth * 0x80 * 6];
-    tVertsPtr = new QVector2D[sceneHeight * sceneWidth * 0x80 * 6];
+    refreshResize();
 
     if (ver != ENGINE_v1) {
         scene.objectTypeNames.clear();
@@ -347,13 +355,7 @@ void SceneViewer::drawScene()
         sceneWidth  = sceneW;
         sceneHeight = sceneH;
 
-        if (vertsPtr)
-            delete[] vertsPtr;
-        if (tVertsPtr)
-            delete[] tVertsPtr;
-
-        vertsPtr  = new QVector3D[sceneHeight * sceneWidth * 0x80 * 6];
-        tVertsPtr = new QVector2D[sceneHeight * sceneWidth * 0x80 * 6];
+        refreshResize();
     }
 
     // pre-render
@@ -2259,18 +2261,18 @@ void SceneViewer::refreshResize()
     if (storedW == prevStoredW && storedH == prevStoredH)
         return;
 
-    screens[0].width        = storedW;
-    screens[0].height       = storedH;
-    screens[0].centerX      = screens[0].width >> 1;
-    screens[0].centerY      = screens[0].height >> 1;
-    screens[0].clipBound_X1 = 0;
-    screens[0].clipBound_Y1 = 0;
-    screens[0].clipBound_X2 = storedW;
-    screens[0].clipBound_Y2 = storedH;
-    screens[0].pitch        = storedW;
-    screens[0].waterDrawPos = storedH;
+    // screens[0].width        = storedW;
+    // screens[0].height       = storedH;
+    // screens[0].centerX      = screens[0].width >> 1;
+    // screens[0].centerY      = screens[0].height >> 1;
+    // screens[0].clipBound_X1 = 0;
+    // screens[0].clipBound_Y1 = 0;
+    // screens[0].clipBound_X2 = storedW;
+    // screens[0].clipBound_Y2 = storedH;
+    // screens[0].pitch        = storedW;
+    // screens[0].waterDrawPos = storedH;
 
-    refreshScnEditorVerts(storedW, storedH);
+    refreshScnEditorVerts(storedW >> 2, storedH >> 2);
 
     prevStoredW = storedW;
     prevStoredH = storedH;

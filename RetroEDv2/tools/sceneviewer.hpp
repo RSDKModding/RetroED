@@ -360,6 +360,8 @@ private:
 
     QOpenGLTexture *rsPlayerSprite = nullptr;
 
+    QTimer *updateTimer = nullptr;
+
     QMatrix4x4 matView;
 
     int shaderID = -1;

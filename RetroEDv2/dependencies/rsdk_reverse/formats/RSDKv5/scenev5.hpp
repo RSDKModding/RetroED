@@ -99,8 +99,6 @@ public:
     class SceneLayer
     {
     public:
-        byte unknown = 0;
-
         QString name = "";
 
         byte type      = 0;

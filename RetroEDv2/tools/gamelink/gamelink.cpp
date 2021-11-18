@@ -435,14 +435,12 @@ void GameLink::LinkGameObjects(QString gameName)
     QLibrary logicLib;
 
     logicLib.setFileName(gameName);
-    // logicLib.setFileName("E:/Github/Sonic-Mania-Decompilation/build/Win32/Debug/Game");
     logicLib.load();
     if (!logicLib.isLoaded())
         printLog("Failed to link: " + logicLib.errorString());
 
     void (*linkGameLogic)(GameInfo *) = NULL;
 
-    // LinkGameLogic(&info)
     if (logicLib.isLoaded()) {
         linkGameLogic = (void (*)(GameInfo *))logicLib.resolve("LinkGameLogicDLL");
     }

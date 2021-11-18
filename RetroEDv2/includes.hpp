@@ -148,6 +148,8 @@ public:
 #include "tools/sceneproperties/tileseteditor.hpp"
 #include "tools/exportrsdkv5scene.hpp"
 
+#include "tools/animationeditor/animsheetselector.hpp"
+
 // Forms
 #include "tools/gameconfigeditorv2.hpp"
 #include "tools/gameconfigeditorv3.hpp"
