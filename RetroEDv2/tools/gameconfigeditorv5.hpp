@@ -20,6 +20,18 @@ public:
 
     void setupUI();
 
+    inline void updateTitle(bool modified)
+    {
+        this->modified = modified;
+        if (modified)
+            emit titleChanged(tabTitle + " *");
+        else
+            emit titleChanged(tabTitle);
+    }
+
+signals:
+    void titleChanged(QString title);
+
 protected:
     bool event(QEvent *event);
 
@@ -32,6 +44,9 @@ private:
     bool oldVer = false;
 
     QStandardItemModel *m_sceneModel = nullptr;
+
+    bool modified    = false;
+    QString tabTitle = "GameConfig Editor";
 
 private:
     Ui::GameconfigEditorv5 *ui;

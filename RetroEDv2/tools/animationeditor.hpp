@@ -31,6 +31,18 @@ public:
         return 0;
     }
 
+    inline void updateTitle(bool modified)
+    {
+        this->modified = modified;
+        if (modified)
+            emit titleChanged(tabTitle + " *");
+        else
+            emit titleChanged(tabTitle);
+    }
+
+signals:
+    void titleChanged(QString title);
+
 private:
     Ui::AnimationEditor *ui;
 
@@ -74,6 +86,8 @@ private:
     bool mouseDownM = false;
     bool mouseDownR = false;
 
+    Vector2<int> offset = Vector2<int>(0, 0);
+
     QTimer *updateTimer = nullptr;
 
     void loadSheet(QString filepath, int index, bool addSource = true);
@@ -84,17 +98,8 @@ private:
 
     QVector<QImage> sheets;
 
-    inline void updateTitle(bool modified)
-    {
-        this->modified = modified;
-        // if (modified)
-        //     emit titleChanged(tabTitle + " *");
-        // else
-        //     emit titleChanged(tabTitle);
-    }
-
     bool modified    = false;
-    QString tabTitle = "";
+    QString tabTitle = "Animation Editor";
 };
 
 #endif // ANIMATIONEDITOR_H

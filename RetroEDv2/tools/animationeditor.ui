@@ -551,7 +551,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="animPage">
       <property name="geometry">
@@ -563,7 +563,7 @@
        </rect>
       </property>
       <attribute name="label">
-       <string>Animation (0 of 0)</string>
+       <string>Animation (0 of 0, ID: 0)</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <property name="leftMargin">
@@ -749,7 +749,7 @@
        </rect>
       </property>
       <attribute name="label">
-       <string>Frame (0 of 0)</string>
+       <string>Frame (0 of 0, ID: 0)</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <property name="leftMargin">
@@ -1246,7 +1246,7 @@
        </rect>
       </property>
       <attribute name="label">
-       <string>Source (0 of 0)</string>
+       <string>Source (0 of 0, ID: 0)</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_14">
        <item row="0" column="0" colspan="2">
@@ -1369,7 +1369,7 @@
        </rect>
       </property>
       <attribute name="label">
-       <string>Hitbox (0 of 0)</string>
+       <string>Hitbox (0 of 0, ID: 0)</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_11">
        <property name="leftMargin">

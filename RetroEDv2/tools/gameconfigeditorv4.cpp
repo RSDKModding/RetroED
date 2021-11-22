@@ -92,6 +92,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->objList->setCurrentItem(item);
+        updateTitle(true);
     });
 
     connect(ui->upObj, &QToolButton::clicked, [this] {
@@ -100,6 +101,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         gameConfig.objects.move(c, c - 1);
         ui->objList->insertItem(c - 1, item);
         ui->objList->setCurrentRow(c - 1);
+        updateTitle(true);
     });
 
     connect(ui->downObj, &QToolButton::clicked, [this] {
@@ -108,6 +110,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         gameConfig.objects.move(c, c + 1);
         ui->objList->insertItem(c + 1, item);
         ui->objList->setCurrentRow(c + 1);
+        updateTitle(true);
     });
 
     connect(ui->rmObj, &QToolButton::clicked, [this] {
@@ -118,6 +121,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         ui->objList->blockSignals(true);
         ui->objList->setCurrentRow(n);
         ui->objList->blockSignals(false);
+        updateTitle(true);
     });
 
     connect(ui->objList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -126,6 +130,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         ui->objName->blockSignals(true);
         ui->objName->setText(gameConfig.objects[ui->objList->row(item)].name);
         ui->objName->blockSignals(false);
+        updateTitle(true);
     });
 
     connect(ui->objName, &QLineEdit::textEdited, [this](QString s) {
@@ -133,9 +138,12 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
 
         ui->objList->item(ui->objList->currentRow())
             ->setText(gameConfig.objects[ui->objList->currentRow()].name);
+        updateTitle(true);
     });
-    connect(ui->objScript, &QLineEdit::textEdited,
-            [this](QString s) { gameConfig.objects[ui->objList->currentRow()].script = s; });
+    connect(ui->objScript, &QLineEdit::textEdited, [this](QString s) {
+        gameConfig.objects[ui->objList->currentRow()].script = s;
+        updateTitle(true);
+    });
 
     // ----------------
     // SOUNDFX
@@ -182,6 +190,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->sfxList->setCurrentItem(item);
+        updateTitle(true);
     });
 
     connect(ui->upSfx, &QToolButton::clicked, [this] {
@@ -190,6 +199,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         gameConfig.soundFX.move(c, c - 1);
         ui->sfxList->insertItem(c - 1, item);
         ui->sfxList->setCurrentRow(c - 1);
+        updateTitle(true);
     });
 
     connect(ui->downSfx, &QToolButton::clicked, [this] {
@@ -198,6 +208,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         gameConfig.soundFX.move(c, c + 1);
         ui->sfxList->insertItem(c + 1, item);
         ui->sfxList->setCurrentRow(c + 1);
+        updateTitle(true);
     });
 
     connect(ui->rmSfx, &QToolButton::clicked, [this] {
@@ -208,6 +219,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         ui->sfxList->blockSignals(true);
         ui->sfxList->setCurrentRow(n);
         ui->sfxList->blockSignals(false);
+        updateTitle(true);
     });
 
     connect(ui->sfxList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -216,6 +228,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         ui->sfxName->blockSignals(true);
         ui->sfxName->setText(gameConfig.soundFX[ui->sfxList->row(item)].name);
         ui->sfxName->blockSignals(false);
+        updateTitle(true);
     });
 
     connect(ui->sfxName, &QLineEdit::textEdited, [this](QString s) {
@@ -223,10 +236,13 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
 
         ui->sfxList->item(ui->sfxList->currentRow())
             ->setText(gameConfig.soundFX[ui->sfxList->currentRow()].name);
+        updateTitle(true);
     });
 
-    connect(ui->sfxPath, &QLineEdit::textEdited,
-            [this](QString s) { gameConfig.soundFX[ui->sfxList->currentRow()].path = s; });
+    connect(ui->sfxPath, &QLineEdit::textEdited, [this](QString s) {
+        gameConfig.soundFX[ui->sfxList->currentRow()].path = s;
+        updateTitle(true);
+    });
 
     // ----------------
     // GLOBAL VARIABLES
@@ -269,6 +285,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->varList->setCurrentItem(item);
+        updateTitle(true);
     });
 
     connect(ui->upVar, &QToolButton::clicked, [this] {
@@ -277,6 +294,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         gameConfig.globalVariables.move(c, c - 1);
         ui->varList->insertItem(c - 1, item);
         ui->varList->setCurrentRow(c - 1);
+        updateTitle(true);
     });
 
     connect(ui->downVar, &QToolButton::clicked, [this] {
@@ -285,6 +303,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         gameConfig.globalVariables.move(c, c + 1);
         ui->varList->insertItem(c + 1, item);
         ui->varList->setCurrentRow(c + 1);
+        updateTitle(true);
     });
 
     connect(ui->rmVar, &QToolButton::clicked, [this] {
@@ -295,6 +314,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         ui->varList->blockSignals(true);
         ui->varList->setCurrentRow(n);
         ui->varList->blockSignals(false);
+        updateTitle(true);
     });
 
     connect(ui->varList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -303,6 +323,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         ui->varName->blockSignals(true);
         ui->varName->setText(gameConfig.globalVariables[ui->varList->row(item)].name);
         ui->varName->blockSignals(false);
+        updateTitle(true);
     });
 
     connect(ui->varName, &QLineEdit::textEdited, [this](QString s) {
@@ -310,10 +331,13 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
 
         ui->varList->item(ui->varList->currentRow())
             ->setText(gameConfig.globalVariables[ui->varList->currentRow()].name);
+        updateTitle(true);
     });
 
-    connect(ui->varValue, QOverload<int>::of(&QSpinBox::valueChanged),
-            [this](int v) { gameConfig.globalVariables[ui->varList->currentRow()].value = v; });
+    connect(ui->varValue, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
+        gameConfig.globalVariables[ui->varList->currentRow()].value = v;
+        updateTitle(true);
+    });
 
     // ----------------
     // PLAYERS
@@ -350,6 +374,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->plrList->setCurrentItem(item);
+        updateTitle(true);
     });
 
     connect(ui->upPlr, &QToolButton::clicked, [this] {
@@ -358,6 +383,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         gameConfig.players.move(c, c - 1);
         ui->plrList->insertItem(c - 1, item);
         ui->plrList->setCurrentRow(c - 1);
+        updateTitle(true);
     });
 
     connect(ui->downPlr, &QToolButton::clicked, [this] {
@@ -366,6 +392,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         gameConfig.players.move(c, c + 1);
         ui->plrList->insertItem(c + 1, item);
         ui->plrList->setCurrentRow(c + 1);
+        updateTitle(true);
     });
 
     connect(ui->rmPlr, &QToolButton::clicked, [this] {
@@ -376,6 +403,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         ui->plrList->blockSignals(true);
         ui->plrList->setCurrentRow(n);
         ui->plrList->blockSignals(false);
+        updateTitle(true);
     });
 
     connect(ui->plrList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -384,6 +412,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         ui->plrName->blockSignals(true);
         ui->plrName->setText(gameConfig.players[ui->plrList->row(item)]);
         ui->plrName->blockSignals(false);
+        updateTitle(true);
     });
 
     connect(ui->plrName, &QLineEdit::textEdited, [this](QString s) {
@@ -391,6 +420,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
 
         ui->plrList->item(ui->plrList->currentRow())
             ->setText(gameConfig.players[ui->plrList->currentRow()]);
+        updateTitle(true);
     });
 
     // ----------------
@@ -427,6 +457,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
             m_sceneModel->itemFromIndex(index)->insertRow(scn, scnItem);
         scnItem->setFlags(scnItem->flags() | Qt::ItemIsEditable);
         ui->scnTree->setCurrentIndex(m_sceneModel->indexFromItem(scnItem));
+        updateTitle(true);
     });
 
     connect(ui->rmScn, &QToolButton::clicked, [this] {
@@ -435,6 +466,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
         if (index.parent().isValid()) { // Scene
             gameConfig.categories[index.parent().row()].scenes.removeAt(index.row());
             m_sceneModel->itemFromIndex(index.parent())->removeRow(index.row());
+            updateTitle(true);
             return;
         }
     });
@@ -450,6 +482,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
                 m_sceneModel->itemFromIndex(ui->scnTree->currentIndex().parent());
             item = parentItem->takeRow(c);
             parentItem->insertRow(c + translation, item);
+            updateTitle(true);
         }
         else
             return;
@@ -510,18 +543,22 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
                     gameConfig.categories[c.parent().row()].scenes[c.row()].name = s;
 
                     // TODO: edit text
+                    updateTitle(true);
                 });
 
                 connect(ui->scnFolder, &QLineEdit::textEdited, [this, c](QString s) {
                     gameConfig.categories[c.parent().row()].scenes[c.row()].folder = s;
+                    updateTitle(true);
                 });
 
                 connect(ui->scnID, &QLineEdit::textEdited, [this, c](QString s) {
                     gameConfig.categories[c.parent().row()].scenes[c.row()].folder = s;
+                    updateTitle(true);
                 });
 
                 connect(ui->scnHighlighted, &QCheckBox::toggled, [this, c](bool v) {
                     gameConfig.categories[c.parent().row()].scenes[c.row()].highlighted = v;
+                    updateTitle(true);
                 });
             }
 
@@ -547,10 +584,13 @@ void GameconfigEditorv4::load(QString filename)
     if (filename != "") {
         Reader reader = Reader(filename);
         gameConfig.read(reader);
+        tabTitle = Utils::getFilenameAndFolder(gameConfig.m_filename);
     }
     else {
         gameConfig = RSDKv4::GameConfig();
+        tabTitle   = "GameConfig Editor";
     }
+    updateTitle(false);
 
     ui->gameName->setText(gameConfig.gameWindowText);
     ui->gameDescription->setPlainText(gameConfig.gameDescriptionText);
@@ -658,11 +698,13 @@ bool GameconfigEditorv4::event(QEvent *event)
                 Writer writer(filedialog.selectedFiles()[0]);
                 gameConfig.write(writer);
 
+                updateTitle(false);
                 return true;
             }
         }
         else {
             gameConfig.write("");
+            updateTitle(false);
             return true;
         }
     }
@@ -981,9 +1023,40 @@ bool GameconfigEditorv4::event(QEvent *event)
                 }
             }
 
+            updateTitle(false);
             return true;
         }
     }
+
+    if (event->type() == QEvent::Close && modified) {
+        bool cancelled = false;
+        if (MainWindow::showCloseWarning(this, &cancelled)) {
+            if (!QFile(gameConfig.m_filename).exists()) {
+                QFileDialog filedialog(this, tr("Open GameConfig"), "",
+                                       tr("RSDKv4 GameConfig files (GameConfig*.bin)"));
+                filedialog.setAcceptMode(QFileDialog::AcceptSave);
+                if (filedialog.exec() == QDialog::Accepted) {
+
+                    setStatus("Saving GameConfig: " + filedialog.selectedFiles()[0]);
+
+                    appConfig.addRecentFile(ENGINE_v4, TOOL_GAMECONFIGEDITOR,
+                                            filedialog.selectedFiles()[0], QList<QString>{ /**/ });
+                    Writer writer(filedialog.selectedFiles()[0]);
+                    gameConfig.write(writer);
+                    updateTitle(false);
+                }
+            }
+            else {
+                gameConfig.write("");
+                updateTitle(false);
+            }
+        }
+        else if (cancelled) {
+            event->ignore();
+            return true;
+        }
+    }
+
     return QWidget::event(event);
 }
 

@@ -89,6 +89,18 @@ public:
     // Game Data Storage
     DataStorage dataStorage[DATASET_MAX];
 
+    inline void updateTitle(bool modified)
+    {
+        this->modified = modified;
+        if (modified)
+            emit titleChanged(tabTitle + " *");
+        else
+            emit titleChanged(tabTitle);
+    }
+
+signals:
+    void titleChanged(QString title);
+
 protected:
     bool event(QEvent *event);
     bool eventFilter(QObject *object, QEvent *event);
@@ -120,6 +132,9 @@ private:
     int actionIndex = 0;
 
     Ui::SceneEditorv5 *ui;
+
+    bool modified    = false;
+    QString tabTitle = "";
 };
 
 class TileLabel : public QLabel

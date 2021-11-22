@@ -96,6 +96,18 @@ public:
 
     void loadScene(QString scnPath, QString gcfPath, byte gameType);
 
+    inline void updateTitle(bool modified)
+    {
+        this->modified = modified;
+        if (modified)
+            emit titleChanged(tabTitle + " *");
+        else
+            emit titleChanged(tabTitle);
+    }
+
+signals:
+    void titleChanged(QString title);
+
 protected:
     bool event(QEvent *event);
     bool eventFilter(QObject *object, QEvent *event);
@@ -131,6 +143,9 @@ private:
     Ui::SceneEditor *ui;
 
     ChunkEditor *chunkEdit = nullptr;
+
+    bool modified    = false;
+    QString tabTitle = "";
 };
 
 class ChunkLabel : public QLabel

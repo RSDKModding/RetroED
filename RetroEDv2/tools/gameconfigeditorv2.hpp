@@ -18,6 +18,18 @@ public:
 
     void load(QString filename);
 
+    inline void updateTitle(bool modified)
+    {
+        this->modified = modified;
+        if (modified)
+            emit titleChanged(tabTitle + " *");
+        else
+            emit titleChanged(tabTitle);
+    }
+
+signals:
+    void titleChanged(QString title);
+
 protected:
     bool event(QEvent *event);
 
@@ -26,7 +38,10 @@ private:
 
     RSDKv2::Gameconfig gameConfig;
 
-    QStandardItemModel *m_sceneModel = nullptr;
+    QStandardItemModel *sceneModel = nullptr;
+
+    bool modified    = false;
+    QString tabTitle = "GameConfig Editor";
 };
 
 #endif // GAMECONFIGEDITOR_V1_H

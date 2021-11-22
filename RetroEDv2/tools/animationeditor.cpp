@@ -170,10 +170,10 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             ui->copyFrame->setDisabled(invalid);
 
             if (!invalid) {
-                ui->properties->setItemText(1,
-                                            QString("Frame (%1 of %2)")
-                                                .arg(c)
-                                                .arg(animFile.animations[currentAnim].frames.count()));
+                ui->properties->setItemText(1, QString("Frame (%1 of %2, ID: %3)")
+                                                   .arg(c + 1)
+                                                   .arg(animFile.animations[currentAnim].frames.count())
+                                                   .arg(c));
             }
             else {
                 ui->properties->setItemText(1, "Frame");
@@ -392,8 +392,10 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->expAnim->setDisabled(c == -1);
 
         if (c > -1) {
-            ui->properties->setItemText(
-                0, QString("Animation (%1 of %2)").arg(c).arg(animFile.animations.count()));
+            ui->properties->setItemText(0, QString("Animation (%1 of %2, ID: %3)")
+                                               .arg(c + 1)
+                                               .arg(animFile.animations.count())
+                                               .arg(c));
         }
         else {
             ui->properties->setItemText(0, "Animation");
@@ -486,8 +488,10 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                         updateTitle(true);
                     });
 
-            connect(ui->speedMult, QOverload<int>::of(&QSpinBox::valueChanged),
-                    [this, c](int v) { animFile.animations[c].speed = (byte)v; });
+            connect(ui->speedMult, QOverload<int>::of(&QSpinBox::valueChanged), [this, c](int v) {
+                animFile.animations[c].speed = (byte)v;
+                updateTitle(true);
+            });
 
             currentFrame = 0;
             if (c >= 0 && frameCount() > 0) {
@@ -544,6 +548,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->frameList->blockSignals(true);
         ui->frameList->setCurrentIndex(model->index(n, 0));
         ui->frameList->blockSignals(false);
+        updateTitle(true);
     });
 
     connect(ui->upFrame, &QToolButton::clicked, [this, model] {
@@ -552,6 +557,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         animFile.animations[currentAnim].frames.move(c, c - 1);
         model->insertRow(c - 1, item);
         ui->frameList->setCurrentIndex(model->index(c - 1, 0));
+        updateTitle(true);
     });
 
     connect(ui->downFrame, &QToolButton::clicked, [this, model] {
@@ -560,12 +566,13 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         animFile.animations[currentAnim].frames.move(c, c + 1);
         model->insertRow(c + 1, item);
         ui->frameList->setCurrentIndex(model->index(c + 1, 0));
+        updateTitle(true);
     });
 
     std::function<void(int)> sourceFunc([this](int c) {
         if (c > -1) {
             ui->properties->setItemText(
-                2, QString("Sheets (%1 of %2)").arg(c).arg(animFile.sheets.count()));
+                2, QString("Sheets (%1 of %2, ID: %3)").arg(c + 1).arg(animFile.sheets.count()).arg(c));
         }
         else {
             ui->properties->setItemText(2, "Sheets");
@@ -581,8 +588,10 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
     std::function<void(int)> hitboxFunc([this](int c) {
         if (c > -1) {
-            ui->properties->setItemText(
-                3, QString("Hitbox (%1 of %2)").arg(c).arg(animFile.hitboxTypes.count()));
+            ui->properties->setItemText(3, QString("Hitbox (%1 of %2, ID: %3)")
+                                               .arg(c + 1)
+                                               .arg(animFile.hitboxTypes.count())
+                                               .arg(c));
         }
         else {
             ui->properties->setItemText(3, "Hitbox");
@@ -1002,6 +1011,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             item->setFlags(item->flags() | Qt::ItemIsEditable);
             ui->animationList->blockSignals(false);
             ui->animationList->setCurrentRow(c);
+            updateTitle(true);
         }
     });
 
@@ -1013,6 +1023,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                 FormatHelpers::Animation::Frame frame =
                     animFile.animations[currentAnim].frames[currentFrame];
                 animFile.animations[currentAnim].frames.insert(c, frame);
+                updateTitle(true);
             }
         }
         ui->frameList->blockSignals(false);
@@ -1112,6 +1123,8 @@ void AnimationEditor::updateView()
 
     float w = ui->viewerFrame->width(), h = ui->viewerFrame->height();
     float cx = w / 2, cy = h / 2;
+    cx += offset.x;
+    cy += offset.y;
 
     QBrush bgBrush(bgColour);
     painter.fillRect(0, 0, ui->viewerFrame->width(), ui->viewerFrame->height(), bgBrush);
@@ -1258,6 +1271,7 @@ void AnimationEditor::loadAnim(QString filepath, int aniType)
         hitboxVisible.append(false);
     }
 
+    tabTitle = Utils::getFilenameAndFolder(animFile.filePath);
     updateTitle(false);
     setupUI();
 }
@@ -1273,6 +1287,8 @@ bool AnimationEditor::event(QEvent *event)
 
     if (event->type() == (QEvent::Type)RE_EVENT_NEW) {
         animFile = FormatHelpers::Animation();
+        tabTitle = "Animation Editor";
+        updateTitle(false);
         hitboxVisible.clear();
         setupUI();
         return true;
@@ -1304,6 +1320,7 @@ bool AnimationEditor::event(QEvent *event)
                 QString filepath = filedialog.selectedFiles()[0];
                 animFile.write(aniType, filepath);
                 appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
+                updateTitle(false);
                 return true;
             }
         }
@@ -1313,6 +1330,7 @@ bool AnimationEditor::event(QEvent *event)
             QString filepath = animFile.filePath;
             animFile.write(aniType, filepath);
             appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
+            updateTitle(false);
             return true;
         }
     }
@@ -1328,6 +1346,7 @@ bool AnimationEditor::event(QEvent *event)
             QString filepath = filedialog.selectedFiles()[0];
             animFile.write(aniType, filepath);
             appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
+            updateTitle(false);
             return true;
         }
     }
@@ -1348,6 +1367,39 @@ bool AnimationEditor::event(QEvent *event)
 
     if (event->type() == QEvent::Resize) {
         updateView();
+    }
+
+    if (event->type() == QEvent::Close && modified) {
+        bool cancelled = false;
+        if (MainWindow::showCloseWarning(this, &cancelled)) {
+            if (!QFile::exists(animFile.filePath)) {
+                QFileDialog filedialog(this, tr("Save Animation"), "",
+                                       tr(typesList[aniType].toStdString().c_str()));
+                filedialog.setAcceptMode(QFileDialog::AcceptSave);
+                if (filedialog.exec() == QDialog::Accepted) {
+                    setStatus("Saving animation...");
+
+                    QString filepath = filedialog.selectedFiles()[0];
+                    animFile.write(aniType, filepath);
+                    appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
+                    updateTitle(false);
+                    return true;
+                }
+            }
+            else {
+                setStatus("Saving animation...");
+
+                QString filepath = animFile.filePath;
+                animFile.write(aniType, filepath);
+                appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
+                updateTitle(false);
+                return true;
+            }
+        }
+        else if (cancelled) {
+            event->ignore();
+            return true;
+        }
     }
 
     return QWidget::event(event);

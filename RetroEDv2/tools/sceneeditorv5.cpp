@@ -114,7 +114,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         doAction("Filter Change: " + QString::number(v));
     });
 
-    connect(ui->useGizmos, &QCheckBox::toggled, [this](bool c) { sceneInfo.effectGizmo = c; });
+    connect(ui->useGizmos, &QCheckBox::toggled, [](bool c) { sceneInfo.effectGizmo = c; });
 
     connect(ui->layerList, &QListWidget::currentRowChanged, [this](int c) {
         ui->rmLayer->setDisabled(c == -1);

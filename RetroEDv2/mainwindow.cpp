@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
 
     statusLabel = ui->status;
+    toolTabs    = ui->toolTabs;
 
     icon_up   = QIcon(Utils::getColouredIcon(":/icons/ic_arrow_upward_48px.svg"));
     icon_down = QIcon(Utils::getColouredIcon(":/icons/ic_arrow_downward_48px.svg"));
@@ -24,10 +25,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     closeTab->setKey(Qt::CTRL + Qt::Key_W);
 
     auto removeTab = [this](int t) {
-        QWidget *w = ui->toolTabs->widget(t);
-        ui->toolTabs->removeTab(t);
-        w->close();
-        delete w;
+        QWidget *w  = ui->toolTabs->widget(t);
+        bool closed = w->close();
+        if (closed) {
+            ui->toolTabs->removeTab(t);
+            delete w;
+        }
     };
 
     connect(closeTab, &QShortcut::activated,
@@ -130,8 +133,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                             if (QFile::exists(r.path) && QFile::exists(r.extra[0])) {
                                 SceneEditorv5 *tool = new SceneEditorv5();
                                 tool->installEventFilter(this);
-                                ui->toolTabs->setCurrentIndex(
-                                    ui->toolTabs->addTab(tool, "Scene Editor (v5)"));
+                                addTab(tool, "Scene Editor (v5)");
                                 tool->loadScene(r.path, r.extra[0], r.gameVer);
                             }
                             else
@@ -142,9 +144,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                                 && (QFile::exists(r.extra[0]) || r.gameVer == ENGINE_v1)) {
                                 SceneEditor *tool = new SceneEditor();
                                 tool->installEventFilter(this);
-                                ui->toolTabs->setCurrentIndex(
-                                    ui->toolTabs->addTab(tool, "Scene Editor"));
-
+                                addTab(tool, "Scene Editor");
                                 tool->loadScene(r.path, r.extra[0], r.gameVer);
                             }
                             else
@@ -156,13 +156,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                     case TOOL_ANIMATIONEDITOR: {
                         AnimationEditor *tool = new AnimationEditor(r.path, r.gameVer);
                         tool->installEventFilter(this);
-                        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Animation Editor"));
+                        addTab(tool, "Animation Editor");
                         break;
                     }
                     case TOOL_RSDKUNPACKER: break;
                     case TOOL_PALETTEDITOR: {
                         PaletteEditor *tool = new PaletteEditor(r.path, r.gameVer);
                         tool->installEventFilter(this);
+                        // addTab(tool, "Palette Editor");
                         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Palette Editor"));
                         break;
                     }
@@ -172,27 +173,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                         switch (r.gameVer) {
                             case ENGINE_v2: {
                                 GameconfigEditorv2 *tool = new GameconfigEditorv2(r.path);
-                                ui->toolTabs->setCurrentIndex(
-                                    ui->toolTabs->addTab(tool, "Gameconfig Editor"));
+                                addTab(tool, "GameConfig Editor");
                                 break;
                             }
                             case ENGINE_v3: {
                                 GameconfigEditorv3 *tool = new GameconfigEditorv3(r.path);
-                                ui->toolTabs->setCurrentIndex(
-                                    ui->toolTabs->addTab(tool, "Gameconfig Editor"));
+                                addTab(tool, "GameConfig Editor");
                                 break;
                             }
                             case ENGINE_v4: {
                                 GameconfigEditorv4 *tool = new GameconfigEditorv4(r.path);
-                                ui->toolTabs->setCurrentIndex(
-                                    ui->toolTabs->addTab(tool, "Gameconfig Editor"));
+                                addTab(tool, "GameConfig Editor");
                                 break;
                             }
                             case ENGINE_v5: {
                                 GameconfigEditorv5 *tool = new GameconfigEditorv5(
                                     r.path, r.extra[0] == "StageConfig", r.extra[1] == "rev01");
-                                ui->toolTabs->setCurrentIndex(
-                                    ui->toolTabs->addTab(tool, "Gameconfig Editor"));
+                                addTab(tool, "GameConfig Editor");
                                 break;
                             }
                         }
@@ -236,7 +233,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         SceneEditor *tool = new SceneEditor();
         // tool->loadScene("", "", ENGINE_v4);
         tool->installEventFilter(this);
-        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Scene Editor"));
+        addTab(tool, "Scene Editor");
     });
 #if RETROED_VER >= 0x110 || RETROED_DEBUG
     scn->addAction("v5 (Sonic Mania)", [this] {
@@ -244,7 +241,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         SceneEditorv5 *tool = new SceneEditorv5();
         // tool->loadScene("", "", ENGINE_v5);
         tool->installEventFilter(this);
-        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Scene Editor (v5)"));
+        addTab(tool, "Scene Editor (v5)");
     });
 #endif
     tools->addMenu(scn);
@@ -253,7 +250,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     tools->addAction("Animation Editor", [this] {
         setStatus("Opening Animation Editor...");
         AnimationEditor *tool = new AnimationEditor();
-        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Animation Editor"));
+        addTab(tool, "Animation Editor");
     });
 #endif
 
@@ -261,22 +258,22 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     gc->addAction("v2 (Sonic Nexus)", [this] {
         setStatus("Opening Gameconfig Editor...");
         GameconfigEditorv2 *tool = new GameconfigEditorv2();
-        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Gameconfig Editor"));
+        addTab(tool, "GameConfig Editor");
     });
     gc->addAction("v3 (Sonic CD)", [this] {
         setStatus("Opening Gameconfig Editor...");
         GameconfigEditorv3 *tool = new GameconfigEditorv3();
-        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Gameconfig Editor"));
+        addTab(tool, "GameConfig Editor");
     });
     gc->addAction("v4 (Sonic 1/Sonic 2)", [this] {
         setStatus("Opening Gameconfig Editor...");
         GameconfigEditorv4 *tool = new GameconfigEditorv4();
-        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Gameconfig Editor"));
+        addTab(tool, "GameConfig Editor");
     });
     gc->addAction("v5 (Sonic Mania)", [this] {
         setStatus("Opening Gameconfig Editor...");
         GameconfigEditorv5 *tool = new GameconfigEditorv5("", 0, false);
-        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Gameconfig Editor"));
+        addTab(tool, "GameConfig Editor");
     });
     tools->addMenu(gc);
 
