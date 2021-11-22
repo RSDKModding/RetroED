@@ -2829,6 +2829,7 @@ void SceneEditor::doAction(QString name)
     // action.compilerv3 = viewer->compilerv3;
     // action.compilerv4 = viewer->compilerv4;
 
+    // Actions
     for (int i = actions.count() - 1; i > actionIndex; --i) {
         actions.removeAt(i);
     }

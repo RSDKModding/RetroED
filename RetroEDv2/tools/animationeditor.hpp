@@ -13,10 +13,18 @@ class AnimationEditor : public QWidget
     Q_OBJECT
 
 public:
+    class ActionState
+    {
+    public:
+        QString name = "Action";
+
+        FormatHelpers::Animation animFile;
+    };
+
     explicit AnimationEditor(QString filepath = "", byte type = 0xFF, QWidget *parent = nullptr);
     ~AnimationEditor();
 
-    void setupUI();
+    void setupUI(bool setFrame = false);
     void updateView();
     void processAnimation();
 
@@ -72,6 +80,7 @@ private:
 
         updateTimer->stop();
     }
+    void setFramePreview();
 
     bool showTransparentClr = true;
     QColor bgColour         = QColor(0xA0, 0xA0, 0xA0, 0xFF);
@@ -91,7 +100,8 @@ private:
     QPoint reference;
     Vector2<float> mousePos = Vector2<float>(0.0f, 0.0f);
 
-    QTimer *updateTimer = nullptr;
+    QTimer *updateTimer            = nullptr;
+    QStandardItemModel *frameModel = nullptr;
 
     void loadSheet(QString filepath, int index, bool addSource = true);
     void removeSheet(int index, bool removeSource = true);
@@ -100,6 +110,17 @@ private:
     void loadAnim(QString filepath, int aniType);
 
     QVector<QImage> sheets;
+
+    void undoAction();
+    void redoAction();
+    void resetAction();
+    void doAction(QString name = "Action", bool setModified = true);
+    void clearActions();
+
+    void copyAnimFile(FormatHelpers::Animation &src, FormatHelpers::Animation &dst);
+
+    QList<ActionState> actions;
+    int actionIndex = 0;
 
     bool modified    = false;
     QString tabTitle = "Animation Editor";

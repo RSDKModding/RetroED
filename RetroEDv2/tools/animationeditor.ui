@@ -196,6 +196,20 @@
        </widget>
       </item>
       <item>
+       <widget class="QLabel" name="frameOffLabel">
+        <property name="text">
+         <string>Frame Offset: (0, 0)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="zoomLabel">
+        <property name="text">
+         <string>Zoom: 100%</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QToolButton" name="bgColour">
         <property name="text">
          <string>Change BG Colour</string>
@@ -551,7 +565,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="animPage">
       <property name="geometry">
@@ -743,7 +757,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>-117</y>
         <width>246</width>
         <height>464</height>
        </rect>
@@ -854,7 +868,7 @@
                    <item row="1" column="1">
                     <widget class="QSpinBox" name="hitboxL">
                      <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How far left the hitbox extends (negative mean further left of center, positive values mean further right from center)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How far left the hitbox extends (negative values mean further left of center, positive values mean further right from center)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="minimum">
                       <number>-32768</number>
@@ -867,7 +881,7 @@
                    <item row="2" column="3">
                     <widget class="QSpinBox" name="hitboxB">
                      <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How far down the hitbox extends (negative mean further up from center, positive values mean further down from center)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How far down the hitbox extends (negative values mean further up from center, positive values mean further down from center)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="minimum">
                       <number>-32768</number>
@@ -893,7 +907,7 @@
                    <item row="2" column="1">
                     <widget class="QSpinBox" name="hitboxT">
                      <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How far up the hitbox extends (negative mean further up from center, positive values mean further down from center)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How far up the hitbox extends (negative values mean further up from center, positive values mean further down from center)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="minimum">
                       <number>-32768</number>
@@ -906,7 +920,7 @@
                    <item row="1" column="3">
                     <widget class="QSpinBox" name="hitboxR">
                      <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How far right the hitbox extends (negative mean further left of center, positive values mean further right from center)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How far right the hitbox extends (negative values mean further left of center, positive values mean further right from center)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="minimum">
                       <number>-32768</number>

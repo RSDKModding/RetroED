@@ -2185,7 +2185,7 @@ void SceneEditorv5::doAction(QString name)
     action.showParallax       = viewer->showParallax;
     action.selectedScrollInfo = viewer->selectedScrollInfo;
 
-    // Camera
+    // Actions
     for (int i = actions.count() - 1; i > actionIndex; --i) {
         actions.removeAt(i);
     }
