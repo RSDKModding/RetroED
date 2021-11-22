@@ -376,6 +376,9 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                     ui->upFrame->setDisabled(!aindex.row());
                 });
 
+        offset.x = 0;
+        offset.y = 0;
+
         currentAnim = c;
         disconnect(ui->loopIndex, nullptr, nullptr, nullptr);
         disconnect(ui->rotationStyle, nullptr, nullptr, nullptr);
@@ -944,14 +947,14 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         }
     });
 
-    connect(ui->play, &QToolButton::clicked, [this] {
+    connect(ui->play, &QToolButton::clicked, [this, model] {
         if (currentAnim < animCount()) {
             if (!playingAnim) {
                 startAnim();
             }
             else {
                 stopAnim();
-                setupUI();
+                ui->frameList->setCurrentIndex(model->index(currentFrame, 0));
             }
 
             if (currentFrame >= frameCount()) {
@@ -1064,9 +1067,10 @@ void AnimationEditor::setupUI()
         ui->animationList->addItem(anim.name);
     }
     ui->animationList->blockSignals(false);
-    ui->animationList->setCurrentRow(-1);
     if (ui->animationList->count() >= 0)
         ui->animationList->setCurrentRow(currentAnim);
+    else
+        ui->animationList->setCurrentRow(-1);
 
     ui->sourceList->blockSignals(true);
     ui->sheetID->blockSignals(true);
@@ -1078,9 +1082,10 @@ void AnimationEditor::setupUI()
     }
     ui->sheetID->blockSignals(true);
     ui->sourceList->blockSignals(false);
-    ui->sourceList->setCurrentRow(-1);
     if (ui->sourceList->count() >= 0)
         ui->sourceList->setCurrentRow(0);
+    else
+        ui->sourceList->setCurrentRow(-1);
 
     ui->hitboxList->blockSignals(true);
     ui->hitboxType->blockSignals(true);
@@ -1097,9 +1102,10 @@ void AnimationEditor::setupUI()
     }
     ui->hitboxType->blockSignals(false);
     ui->hitboxList->blockSignals(false);
-    ui->hitboxList->setCurrentRow(-1);
     if (ui->hitboxList->count() >= 0)
         ui->hitboxList->setCurrentRow(0);
+    else
+        ui->hitboxList->setCurrentRow(-1);
 
     ui->boundingBoxX->setMaximum(aniType == ENGINE_v5 ? 0xFFFF : 0xFF);
     ui->boundingBoxY->setMaximum(aniType == ENGINE_v5 ? 0xFFFF : 0xFF);
@@ -1123,8 +1129,8 @@ void AnimationEditor::updateView()
 
     float w = ui->viewerFrame->width(), h = ui->viewerFrame->height();
     float cx = w / 2, cy = h / 2;
-    cx += offset.x;
-    cy += offset.y;
+    cx -= offset.x;
+    cy -= offset.y;
 
     QBrush bgBrush(bgColour);
     painter.fillRect(0, 0, ui->viewerFrame->width(), ui->viewerFrame->height(), bgBrush);
@@ -1351,55 +1357,114 @@ bool AnimationEditor::event(QEvent *event)
         }
     }
 
-    if (event->type() == QEvent::Wheel) {
-        QWheelEvent *wEvent = static_cast<QWheelEvent *>(event);
+    switch (event->type()) {
+        default: break;
+        case QEvent::MouseButtonPress: {
+            QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
+            reference           = mEvent->pos();
 
-        if (wEvent->modifiers() & Qt::ControlModifier) {
-            if (wEvent->angleDelta().y() > 0 && zoom < 20)
-                zoom *= 1.5;
-            else if (wEvent->angleDelta().y() < 0 && zoom > 0.5)
-                zoom /= 1.5;
-            updateView();
-            return true;
+            mousePos.x = mEvent->pos().x();
+            mousePos.y = mEvent->pos().y();
+
+            if ((mEvent->button() & Qt::LeftButton) == Qt::LeftButton)
+                mouseDownL = true;
+            if ((mEvent->button() & Qt::MiddleButton) == Qt::MiddleButton)
+                mouseDownM = true;
+            if ((mEvent->button() & Qt::RightButton) == Qt::RightButton)
+                mouseDownR = true;
+
+            if (mouseDownM)
+                setCursor(Qt::ClosedHandCursor);
+
+            break;
         }
-        updateView();
-    }
 
-    if (event->type() == QEvent::Resize) {
-        updateView();
-    }
+        case QEvent::MouseMove: {
+            bool status         = false;
+            QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
 
-    if (event->type() == QEvent::Close && modified) {
-        bool cancelled = false;
-        if (MainWindow::showCloseWarning(this, &cancelled)) {
-            if (!QFile::exists(animFile.filePath)) {
-                QFileDialog filedialog(this, tr("Save Animation"), "",
-                                       tr(typesList[aniType].toStdString().c_str()));
-                filedialog.setAcceptMode(QFileDialog::AcceptSave);
-                if (filedialog.exec() == QDialog::Accepted) {
-                    setStatus("Saving animation...");
+            mousePos.x = mEvent->pos().x();
+            mousePos.y = mEvent->pos().y();
 
-                    QString filepath = filedialog.selectedFiles()[0];
-                    animFile.write(aniType, filepath);
-                    appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
-                    updateTitle(false);
+            if (mouseDownM) {
+                offset.x -= mousePos.x - reference.x();
+                offset.y -= mousePos.y - reference.y();
+                reference = mEvent->pos();
+                status    = true;
+                updateView();
+            }
+            break;
+        }
+
+        case QEvent::MouseButtonRelease: {
+            QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
+
+            mousePos.x = mEvent->pos().x();
+            mousePos.y = mEvent->pos().y();
+
+            if ((mEvent->button() & Qt::LeftButton) == Qt::LeftButton)
+                mouseDownL = false;
+            if ((mEvent->button() & Qt::MiddleButton) == Qt::MiddleButton)
+                mouseDownM = false;
+            if ((mEvent->button() & Qt::RightButton) == Qt::RightButton)
+                mouseDownR = false;
+
+            unsetCursor();
+            break;
+        }
+
+        case QEvent::Wheel: {
+            QWheelEvent *wEvent = static_cast<QWheelEvent *>(event);
+
+            if (wEvent->modifiers() & Qt::ControlModifier) {
+                if (wEvent->angleDelta().y() > 0 && zoom < 20)
+                    zoom *= 1.5;
+                else if (wEvent->angleDelta().y() < 0 && zoom > 0.5)
+                    zoom /= 1.5;
+                updateView();
+                return true;
+            }
+            updateView();
+
+            break;
+        }
+        case QEvent::Resize: updateView(); break;
+        case QEvent::Close:
+            if (modified) {
+                bool cancelled = false;
+                if (MainWindow::showCloseWarning(this, &cancelled)) {
+                    if (!QFile::exists(animFile.filePath)) {
+                        QFileDialog filedialog(this, tr("Save Animation"), "",
+                                               tr(typesList[aniType].toStdString().c_str()));
+                        filedialog.setAcceptMode(QFileDialog::AcceptSave);
+                        if (filedialog.exec() == QDialog::Accepted) {
+                            setStatus("Saving animation...");
+
+                            QString filepath = filedialog.selectedFiles()[0];
+                            animFile.write(aniType, filepath);
+                            appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath,
+                                                    QList<QString>{});
+                            updateTitle(false);
+                            return true;
+                        }
+                    }
+                    else {
+                        setStatus("Saving animation...");
+
+                        QString filepath = animFile.filePath;
+                        animFile.write(aniType, filepath);
+                        appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath,
+                                                QList<QString>{});
+                        updateTitle(false);
+                        return true;
+                    }
+                }
+                else if (cancelled) {
+                    event->ignore();
                     return true;
                 }
             }
-            else {
-                setStatus("Saving animation...");
-
-                QString filepath = animFile.filePath;
-                animFile.write(aniType, filepath);
-                appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
-                updateTitle(false);
-                return true;
-            }
-        }
-        else if (cancelled) {
-            event->ignore();
-            return true;
-        }
+            break;
     }
 
     return QWidget::event(event);

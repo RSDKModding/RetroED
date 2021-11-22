@@ -1491,8 +1491,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
             if (status)
                 return true;
-            else
-                break;
+
+            break;
         };
 
         case QEvent::MouseButtonRelease: {

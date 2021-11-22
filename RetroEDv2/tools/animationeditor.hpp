@@ -88,6 +88,9 @@ private:
 
     Vector2<int> offset = Vector2<int>(0, 0);
 
+    QPoint reference;
+    Vector2<float> mousePos = Vector2<float>(0.0f, 0.0f);
+
     QTimer *updateTimer = nullptr;
 
     void loadSheet(QString filepath, int index, bool addSource = true);
