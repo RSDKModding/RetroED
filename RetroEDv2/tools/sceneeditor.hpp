@@ -145,7 +145,7 @@ private:
     ChunkEditor *chunkEdit = nullptr;
 
     bool modified    = false;
-    QString tabTitle = "";
+    QString tabTitle = "Scene Editor";
 };
 
 class ChunkLabel : public QLabel

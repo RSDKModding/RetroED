@@ -134,7 +134,7 @@ private:
     Ui::SceneEditorv5 *ui;
 
     bool modified    = false;
-    QString tabTitle = "";
+    QString tabTitle = "Scene Editor (v5)";
 };
 
 class TileLabel : public QLabel

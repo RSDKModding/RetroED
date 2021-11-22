@@ -163,8 +163,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                     case TOOL_PALETTEDITOR: {
                         PaletteEditor *tool = new PaletteEditor(r.path, r.gameVer);
                         tool->installEventFilter(this);
-                        // addTab(tool, "Palette Editor");
-                        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Palette Editor"));
+                        addTab(tool, "Palette Editor");
                         break;
                     }
                     case TOOL_GFXTOOL: break;
@@ -280,7 +279,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     tools->addAction("Palette Editor", [this] {
         setStatus("Opening Palette Editor...");
         PaletteEditor *tool = new PaletteEditor();
-        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Palette Editor"));
+        addTab(tool, "Palette Editor");
     });
 
     /*QMenu *se = new QMenu("SaveFile Editor");
