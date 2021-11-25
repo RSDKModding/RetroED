@@ -33,10 +33,6 @@ struct TypeGroupList {
     QList<ushort> entries;
 };
 
-extern QList<GameObjectInfo> gameObjectList;
-
-extern GameObject *blankObject;
-
 namespace FunctionTable
 {
 void registerObject(GameObject **structPtr, const char *name, uint entitySize, uint objectSize,

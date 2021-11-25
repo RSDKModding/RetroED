@@ -21,11 +21,6 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    // QLabel *statusLabel = new QLabel;
-    // statusLabel->setText(QString("MousePos: %1,%2").arg(mousePos.x).arg(mousePos.y));
-    // statusLabel->repaint();
-    // viewer->addTool(statusLabel);
-
     connect(viewer->pixmapItem(), &pal::PixmapItem::mouseDownL, [this, viewer] {
         mouseDownL = true;
         selecting ^= 1;

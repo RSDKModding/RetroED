@@ -18,6 +18,9 @@ ScenePropertiesv5::ScenePropertiesv5(QWidget *parent) : QWidget(parent), ui(new 
     entCntTot  = ui->entCntTot;
     entCntAct  = ui->entCntAct;
     entCntInac = ui->entCntInac;
+
+    syncGC = ui->syncGC;
+    syncSC = ui->syncSC;
 }
 
 ScenePropertiesv5::~ScenePropertiesv5() { delete ui; }

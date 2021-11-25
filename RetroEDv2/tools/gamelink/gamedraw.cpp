@@ -23,7 +23,8 @@ short FunctionTable::loadSpriteAnimation(const char *filename, Scopes scope)
     Utils::getHashInt(filename, hash);
 
     for (int i = 0; i < v5_SPRFILE_COUNT; ++i) {
-        if (memcmp(v5Editor->viewer->spriteAnimationList[i].hash, hash, 0x10 * sizeof(byte)) == 0) {
+        SpriteAnimation *list = &v5Editor->viewer->spriteAnimationList[i];
+        if (list->scope != SCOPE_NONE && memcmp(list->hash, hash, 0x10 * sizeof(byte)) == 0) {
             return i;
         }
     }
@@ -149,14 +150,14 @@ short FunctionTable::createSpriteAnimation(const char *filename, uint frameCount
     return id;
 }
 
-ushort FunctionTable::getSpriteAnimation(ushort sprIndex, const char *name)
+ushort FunctionTable::getSpriteAnimation(ushort aniFrames, const char *name)
 {
     if (!v5Editor)
         return -1;
 
-    if (sprIndex >= v5_SPRFILE_COUNT)
+    if (aniFrames >= v5_SPRFILE_COUNT)
         return NULL;
-    SpriteAnimation *spr = &v5Editor->viewer->spriteAnimationList[sprIndex];
+    SpriteAnimation *spr = &v5Editor->viewer->spriteAnimationList[aniFrames];
 
     uint hash[4];
     Utils::getHashInt(name, hash);
@@ -169,134 +170,134 @@ ushort FunctionTable::getSpriteAnimation(ushort sprIndex, const char *name)
     return -1;
 }
 
-SpriteFrame *FunctionTable::getFrame(ushort sprIndex, ushort anim, int frame)
+SpriteFrame *FunctionTable::getFrame(ushort aniFrames, ushort anim, int frame)
 {
-    if (sprIndex >= v5_SPRFILE_COUNT)
+    if (aniFrames >= v5_SPRFILE_COUNT)
         return NULL;
-    SpriteAnimation *spr = &v5Editor->viewer->spriteAnimationList[sprIndex];
+    SpriteAnimation *spr = &v5Editor->viewer->spriteAnimationList[aniFrames];
     if (anim >= spr->animCount)
         return NULL;
     return &spr->frames[frame + spr->animations[anim].frameListOffset];
 }
 
-Hitbox *FunctionTable::getHitbox(Animator *data, byte hitboxID)
+Hitbox *FunctionTable::getHitbox(Animator *animator, byte hitboxID)
 {
     if (!v5Editor)
         return NULL;
 
-    if (data && data->framePtrs)
-        return &data->framePtrs[data->frameID].hitboxes[hitboxID & (v5_FRAMEHITBOX_COUNT - 1)];
+    if (animator && animator->framePtrs)
+        return &animator->framePtrs[animator->frameID].hitboxes[hitboxID & (v5_FRAMEHITBOX_COUNT - 1)];
     else
         return NULL;
 }
 
-short FunctionTable::getFrameID(Animator *data)
+short FunctionTable::getFrameID(Animator *animator)
 {
-    if (data && data->framePtrs)
-        return data->framePtrs[data->frameID].id;
+    if (animator && animator->framePtrs)
+        return animator->framePtrs[animator->frameID].id;
     else
         return 0;
 }
 
-void FunctionTable::processAnimation(Animator *data)
+void FunctionTable::processAnimation(Animator *animator)
 {
     if (!v5Editor)
         return;
 
-    if (data) {
-        if (data->framePtrs) {
-            data->animationTimer += data->animationSpeed;
-            if (data->framePtrs == (SpriteFrame *)1) {
-                int delay = data->frameDelay;
-                while (data->animationTimer < delay) {
-                    ++data->frameID;
-                    data->animationTimer = data->animationTimer - delay;
-                    if (data->frameID >= data->frameCount)
-                        data->frameID = data->loopIndex;
+    if (animator) {
+        if (animator->framePtrs) {
+            animator->animationTimer += animator->animationSpeed;
+            if (animator->framePtrs == (SpriteFrame *)1) {
+                int delay = animator->frameDelay;
+                while (animator->animationTimer < delay) {
+                    ++animator->frameID;
+                    animator->animationTimer = animator->animationTimer - delay;
+                    if (animator->frameID >= animator->frameCount)
+                        animator->frameID = animator->loopIndex;
                 }
             }
             else {
-                while (data->animationTimer > data->frameDelay) {
-                    ++data->frameID;
-                    data->animationTimer = data->animationTimer - data->frameDelay;
-                    if (data->frameID >= data->frameCount)
-                        data->frameID = data->loopIndex;
-                    data->frameDelay = data->framePtrs[data->frameID].delay;
+                while (animator->animationTimer > animator->frameDelay) {
+                    ++animator->frameID;
+                    animator->animationTimer = animator->animationTimer - animator->frameDelay;
+                    if (animator->frameID >= animator->frameCount)
+                        animator->frameID = animator->loopIndex;
+                    animator->frameDelay = animator->framePtrs[animator->frameID].delay;
                 }
             }
         }
     }
 }
 
-void FunctionTable::setSpriteAnimation(ushort spriteIndex, ushort animationID, Animator *data,
+void FunctionTable::setSpriteAnimation(ushort aniFrames, ushort animationID, Animator *animator,
                                        bool32 forceApply, short frameID)
 {
     if (!v5Editor)
         return;
 
-    if (spriteIndex >= v5_SPRFILE_COUNT) {
-        if (data)
-            data->framePtrs = NULL;
+    if (aniFrames >= v5_SPRFILE_COUNT) {
+        if (animator)
+            animator->framePtrs = NULL;
         return;
     }
-    if (!data)
+    if (!animator)
         return;
-    SpriteAnimation *spr = &v5Editor->viewer->spriteAnimationList[spriteIndex];
+    SpriteAnimation *spr = &v5Editor->viewer->spriteAnimationList[aniFrames];
     if (animationID >= spr->animCount)
         return;
 
     SpriteAnimationEntry *anim = &spr->animations[animationID];
     SpriteFrame *frames        = &spr->frames[anim->frameListOffset];
-    if (data->framePtrs == frames && !forceApply)
+    if (animator->framePtrs == frames && !forceApply)
         return;
 
-    data->framePtrs       = frames;
-    data->animationTimer  = 0;
-    data->frameID         = frameID;
-    data->frameCount      = anim->frameCount;
-    data->frameDelay      = data->framePtrs[frameID].delay;
-    data->animationSpeed  = anim->animationSpeed;
-    data->rotationFlag    = anim->rotationFlag;
-    data->loopIndex       = anim->loopIndex;
-    data->prevAnimationID = data->animationID;
-    data->animationID     = animationID;
+    animator->framePtrs       = frames;
+    animator->animationTimer  = 0;
+    animator->frameID         = frameID;
+    animator->frameCount      = anim->frameCount;
+    animator->frameDelay      = animator->framePtrs[frameID].delay;
+    animator->animationSpeed  = anim->animationSpeed;
+    animator->rotationFlag    = anim->rotationFlag;
+    animator->loopIndex       = anim->loopIndex;
+    animator->prevAnimationID = animator->animationID;
+    animator->animationID     = animationID;
 }
 
-void FunctionTable::editSpriteAnimation(ushort spriteIndex, ushort animID, const char *name,
-                                        int frameOffset, ushort frameCount, short animSpeed,
-                                        byte loopIndex, byte rotationFlag)
+void FunctionTable::editSpriteAnimation(ushort aniFrames, ushort animID, const char *name,
+                                        int frameOffset, ushort frameCount, short speed, byte loopIndex,
+                                        byte rotationFlag)
 {
     if (!v5Editor)
         return;
 
-    if (spriteIndex < v5_SPRFILE_COUNT) {
-        SpriteAnimation *spr = &v5Editor->viewer->spriteAnimationList[spriteIndex];
+    if (aniFrames < v5_SPRFILE_COUNT) {
+        SpriteAnimation *spr = &v5Editor->viewer->spriteAnimationList[aniFrames];
         if (animID < spr->animCount) {
             SpriteAnimationEntry *anim = &spr->animations[animID];
             Utils::getHashInt(name, anim->hash);
             anim->frameListOffset = frameOffset;
             anim->frameCount      = frameCount;
-            anim->animationSpeed  = animSpeed;
+            anim->animationSpeed  = speed;
             anim->loopIndex       = loopIndex;
             anim->rotationFlag    = rotationFlag;
         }
     }
 }
 
-int FunctionTable::getStringWidth(ushort sprIndex, ushort animID, TextInfo *info, int startIndex,
+int FunctionTable::getStringWidth(ushort aniFrames, ushort animID, TextInfo *info, int startIndex,
                                   int length, int spacing)
 {
     if (!v5Editor)
         return 0;
 
-    if (sprIndex >= v5_SPRFILE_COUNT)
+    if (aniFrames >= v5_SPRFILE_COUNT)
         return 0;
     if (!info)
         return 0;
     if (!info->text)
         return 0;
 
-    SpriteAnimation *spr = &v5Editor->viewer->spriteAnimationList[sprIndex];
+    SpriteAnimation *spr = &v5Editor->viewer->spriteAnimationList[aniFrames];
     if (animID < spr->animCount) {
         SpriteAnimationEntry *anim = &spr->animations[animID];
 
@@ -331,17 +332,17 @@ int FunctionTable::getStringWidth(ushort sprIndex, ushort animID, TextInfo *info
     return 0;
 }
 
-void FunctionTable::setSpriteString(ushort spriteIndex, ushort animID, TextInfo *info)
+void FunctionTable::setSpriteString(ushort aniFrames, ushort animID, TextInfo *info)
 {
     if (!v5Editor)
         return;
 
-    if (spriteIndex >= v5_SPRFILE_COUNT)
+    if (aniFrames >= v5_SPRFILE_COUNT)
         return;
     if (!info)
         return;
 
-    SpriteAnimation *spr = &v5Editor->viewer->spriteAnimationList[spriteIndex];
+    SpriteAnimation *spr = &v5Editor->viewer->spriteAnimationList[aniFrames];
     if (animID < spr->animCount) {
         SpriteAnimationEntry *anim = &spr->animations[animID];
 
@@ -370,7 +371,8 @@ ushort FunctionTable::loadSpriteSheet(const char *filename, int scope)
     Utils::getHashInt(buffer, hash);
 
     for (int i = 0; i < v5_SURFACE_MAX; ++i) {
-        if (memcmp(v5Editor->viewer->gfxSurface[i].hash, hash, 0x10 * sizeof(byte)) == 0) {
+        if (v5Editor->viewer->gfxSurface[i].scope != SCOPE_NONE
+            && memcmp(v5Editor->viewer->gfxSurface[i].hash, hash, 0x10 * sizeof(byte)) == 0) {
             return i;
         }
     }
@@ -392,7 +394,7 @@ void FunctionTable::setClipBounds(byte screenID, int x1, int y1, int x2, int y2)
     ScreenInfo *screen;
 
     if (screenID < 4) {
-        screen = &screens[screenID];
+        screen = &v5Editor->viewer->screens[screenID];
 
         if (x1 <= screen->width)
             screen->clipBound_X1 = x1 >= 0 ? x1 : 0;
@@ -505,6 +507,7 @@ void FunctionTable::drawRect(int x, int y, int width, int height, uint color, in
                 return;
             break;
         case INK_LOOKUP:
+            alpha = 0xFF;
             // if (!lookupTable)
             //    return;
             break;
@@ -532,18 +535,18 @@ void FunctionTable::drawRect(int x, int y, int width, int height, uint color, in
     float widthf  = width;
     float heightf = height;
 
-    if (widthf + xf > screens->clipBound_X2 * invZoom)
-        widthf = screens->clipBound_X2 * invZoom - xf;
-    if (xf < screens->clipBound_X1 * invZoom) {
-        widthf += xf - screens->clipBound_X1 * invZoom;
-        xf = screens->clipBound_X1 * invZoom;
+    if (widthf + xf > v5Editor->viewer->screens->clipBound_X2 * invZoom)
+        widthf = v5Editor->viewer->screens->clipBound_X2 * invZoom - xf;
+    if (xf < v5Editor->viewer->screens->clipBound_X1 * invZoom) {
+        widthf += xf - v5Editor->viewer->screens->clipBound_X1 * invZoom;
+        xf = v5Editor->viewer->screens->clipBound_X1 * invZoom;
     }
 
-    if (heightf + yf > screens->clipBound_Y2 * invZoom)
-        heightf = screens->clipBound_Y2 * invZoom - yf;
-    if (yf < screens->clipBound_Y1 * invZoom) {
-        heightf += yf - screens->clipBound_Y1 * invZoom;
-        yf = screens->clipBound_Y1 * invZoom;
+    if (heightf + yf > v5Editor->viewer->screens->clipBound_Y2 * invZoom)
+        heightf = v5Editor->viewer->screens->clipBound_Y2 * invZoom - yf;
+    if (yf < v5Editor->viewer->screens->clipBound_Y1 * invZoom) {
+        heightf += yf - v5Editor->viewer->screens->clipBound_Y1 * invZoom;
+        yf = v5Editor->viewer->screens->clipBound_Y1 * invZoom;
     }
 
     if (widthf <= 0 || heightf <= 0)
@@ -609,8 +612,8 @@ void FunctionTable::drawSprite(Animator *animator, Vector2<int> *position, bool3
         SpriteFrame *frame = &animator->framePtrs[animator->frameID];
         Vector2<float> pos;
         if (!position) {
-            pos.x = Utils::fixedToFloat(sceneInfo.entity->position.x);
-            pos.y = Utils::fixedToFloat(sceneInfo.entity->position.y);
+            pos.x = Utils::fixedToFloat(v5Editor->viewer->sceneInfo.entity->position.x);
+            pos.y = Utils::fixedToFloat(v5Editor->viewer->sceneInfo.entity->position.y);
         }
         else {
             pos.x = Utils::fixedToFloat(position->x);
@@ -621,6 +624,8 @@ void FunctionTable::drawSprite(Animator *animator, Vector2<int> *position, bool3
             pos.x -= v5Editor->viewer->cam.pos.x;
             pos.y -= v5Editor->viewer->cam.pos.y;
         }
+
+        SceneInfo &sceneInfo = v5Editor->viewer->sceneInfo;
 
         int rotation = sceneInfo.entity->rotation;
         int drawFX   = sceneInfo.entity->drawFX;
@@ -802,6 +807,8 @@ void FunctionTable::drawText(Animator *animator, Vector2<int> *position, TextInf
                              bool32 screenRelative)
 {
     if (animator && info && animator->framePtrs) {
+        SceneInfo &sceneInfo = v5Editor->viewer->sceneInfo;
+
         if (!position)
             position = &sceneInfo.entity->position;
         GameEntity *entity = sceneInfo.entity;

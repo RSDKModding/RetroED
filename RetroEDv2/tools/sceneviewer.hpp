@@ -110,7 +110,6 @@ public:
     FormatHelpers::Stageconfig stageConfig;
 
     RSDKv4::TileConfig tileconfig;
-    RSDKv1::Tileconfig tileconfigRS;
 
     QString currentFolder = "Blank";
 

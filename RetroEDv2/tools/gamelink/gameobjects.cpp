@@ -1,9 +1,5 @@
 #include "includes.hpp"
 
-QList<GameObjectInfo> gameObjectList;
-
-GameObject *blankObject = NULL;
-
 void FunctionTable::registerObject(GameObject **structPtr, const char *name, uint entitySize,
                                    uint objectSize, void (*update)(void), void (*lateUpdate)(void),
                                    void (*staticUpdate)(void), void (*draw)(void),
@@ -33,7 +29,7 @@ void FunctionTable::registerObject(GameObject **structPtr, const char *name, uin
     info.editorLoad   = editorLoad;
     info.serialize    = serialize;
     info.name         = name;
-    gameObjectList.append(info);
+    v5Editor->viewer->gameLinks.last().gameObjectList.append(info);
 }
 
 void FunctionTable::registerObjectContainer(GameObject **structPtr, const char *name, uint objectSize)
@@ -63,7 +59,7 @@ void FunctionTable::registerObjectContainer(GameObject **structPtr, const char *
     info.editorLoad   = NULL;
     info.serialize    = NULL;
     info.name         = name;
-    gameObjectList.append(info);
+    v5Editor->viewer->gameLinks.last().gameObjectList.append(info);
 }
 
 void FunctionTable::setEditableVar(byte type, const char *name, byte object, int offset)
@@ -183,7 +179,7 @@ ushort FunctionTable::getObjectByName(const char *name)
     memcpy(hash, data, 0x10 * sizeof(byte));
 
     for (int o = 0; o < v5Editor->viewer->objects.count(); ++o) {
-        GameObjectInfo *info = gameLink.GetObjectInfo(name);
+        GameObjectInfo *info = v5Editor->viewer->GetObjectInfo(name);
         if (info) {
             if (info->type && *info->type) {
                 return o;
@@ -235,17 +231,17 @@ void FunctionTable::resetEntityPtr(GameEntity *entity, ushort type, void *data)
         return;
 
     if (entity) {
-        GameObjectInfo *info = gameLink.GetObjectInfo(v5Editor->viewer->objects[type].name);
+        GameObjectInfo *info = v5Editor->viewer->GetObjectInfo(v5Editor->viewer->objects[type].name);
         if (!info)
             return;
         memset(entity, 0, info->entitySize);
         if (info->create) {
-            GameEntity *curEnt            = sceneInfo.entity;
-            sceneInfo.entity              = entity;
-            sceneInfo.entity->interaction = true;
+            GameEntity *curEnt                              = v5Editor->viewer->sceneInfo.entity;
+            v5Editor->viewer->sceneInfo.entity              = entity;
+            v5Editor->viewer->sceneInfo.entity->interaction = true;
             info->create(data);
-            sceneInfo.entity->objectID = type;
-            sceneInfo.entity           = curEnt;
+            v5Editor->viewer->sceneInfo.entity->objectID = type;
+            v5Editor->viewer->sceneInfo.entity           = curEnt;
         }
         entity->objectID = type;
     }
@@ -257,7 +253,7 @@ void FunctionTable::resetEntitySlot(ushort slotID, ushort type, void *data)
         return;
 
     short slot              = ENTITY_COUNT - 1;
-    GameObjectInfo *objInfo = gameLink.GetObjectInfo(v5Editor->viewer->objects[type].name);
+    GameObjectInfo *objInfo = v5Editor->viewer->GetObjectInfo(v5Editor->viewer->objects[type].name);
     if (!objInfo)
         return;
     if (slotID < ENTITY_COUNT)
@@ -265,12 +261,12 @@ void FunctionTable::resetEntitySlot(ushort slotID, ushort type, void *data)
     GameEntity *entityPtr = &v5Editor->viewer->gameEntityList[slot];
     memset(&v5Editor->viewer->gameEntityList[slot], 0, objInfo->entitySize);
     if (objInfo->create) {
-        GameEntity *curEnt     = sceneInfo.entity;
-        sceneInfo.entity       = entityPtr;
-        entityPtr->interaction = true;
+        GameEntity *curEnt                 = v5Editor->viewer->sceneInfo.entity;
+        v5Editor->viewer->sceneInfo.entity = entityPtr;
+        entityPtr->interaction             = true;
         objInfo->create(data);
-        sceneInfo.entity    = curEnt;
-        entityPtr->objectID = type;
+        v5Editor->viewer->sceneInfo.entity = curEnt;
+        entityPtr->objectID                = type;
     }
     else {
         entityPtr->objectID = type;
@@ -282,10 +278,10 @@ void FunctionTable::createEntity(ushort type, void *data, int x, int y)
     if (!v5Editor)
         return;
 
-    GameObjectInfo *objInfo = gameLink.GetObjectInfo(v5Editor->viewer->objects[type].name);
+    GameObjectInfo *objInfo = v5Editor->viewer->GetObjectInfo(v5Editor->viewer->objects[type].name);
     if (!objInfo)
         return;
-    GameEntity *entityPtr = &v5Editor->viewer->gameEntityList[sceneInfo.createSlot];
+    GameEntity *entityPtr = &v5Editor->viewer->gameEntityList[v5Editor->viewer->sceneInfo.createSlot];
 
     int permCnt = 0, loopCnt = 0;
     while (entityPtr->objectID) {
@@ -294,13 +290,13 @@ void FunctionTable::createEntity(ushort type, void *data, int x, int y)
             break;
         if (entityPtr->isPermanent)
             ++permCnt;
-        sceneInfo.createSlot++;
-        if (sceneInfo.createSlot == ENTITY_COUNT) {
-            sceneInfo.createSlot = TEMPENTITY_START;
-            entityPtr            = &v5Editor->viewer->gameEntityList[sceneInfo.createSlot];
+        v5Editor->viewer->sceneInfo.createSlot++;
+        if (v5Editor->viewer->sceneInfo.createSlot == ENTITY_COUNT) {
+            v5Editor->viewer->sceneInfo.createSlot = TEMPENTITY_START;
+            entityPtr = &v5Editor->viewer->gameEntityList[v5Editor->viewer->sceneInfo.createSlot];
         }
         else {
-            entityPtr = &v5Editor->viewer->gameEntityList[sceneInfo.createSlot];
+            entityPtr = &v5Editor->viewer->gameEntityList[v5Editor->viewer->sceneInfo.createSlot];
         }
         if (permCnt >= v5_TEMPENTITY_COUNT)
             break;
@@ -313,11 +309,11 @@ void FunctionTable::createEntity(ushort type, void *data, int x, int y)
     entityPtr->interaction = true;
 
     if (objInfo->create) {
-        GameEntity *curEnt = sceneInfo.entity;
-        sceneInfo.entity   = entityPtr;
+        GameEntity *curEnt                 = v5Editor->viewer->sceneInfo.entity;
+        v5Editor->viewer->sceneInfo.entity = entityPtr;
         objInfo->create(data);
-        sceneInfo.entity    = curEnt;
-        entityPtr->objectID = type;
+        v5Editor->viewer->sceneInfo.entity = curEnt;
+        entityPtr->objectID                = type;
     }
     else {
         entityPtr->objectID = type;

@@ -26,6 +26,7 @@ private:
     QImage *sheet;
 
     Vector2<int> mousePos;
+    Vector2<float> reference;
 
     bool selecting = false;
 

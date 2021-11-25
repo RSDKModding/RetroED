@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
         writer.flush();
     }
 
-    gameLink.Setup();
+    GameLink::Setup();
 
     MainWindow w;
     w.show();

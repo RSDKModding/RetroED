@@ -22,6 +22,8 @@ public:
     SceneViewerv5(QWidget *parent);
     ~SceneViewerv5();
 
+    void startTimer();
+
     void loadScene(QString path);
     void saveScene(QString path);
 
@@ -49,6 +51,21 @@ public:
 
     QList<SceneObject> objects;
     QList<SceneEntity> entities;
+
+    QList<GameLink> gameLinks;
+
+    // Stuff for game link
+    SceneInfo sceneInfo;
+    EngineInfo gameInfo;
+    SKUInfo skuInfo;
+    ControllerState controller[5];
+    AnalogState stickL[5];
+    AnalogState stickR[5];
+    TriggerState triggerL[5];
+    TriggerState triggerR[5];
+    TouchMouseData touchMouse;
+    UnknownInfo unknownInfo;
+    ScreenInfo screens[4];
 
     inline int activeEntityCount()
     {
@@ -94,6 +111,9 @@ public:
     // Entity Editing
     int selectedObject = -1; // placing
     int selectedEntity = -1; // viewing
+
+    GameEntityBase createGameEntity;
+    SceneEntity createTempEntity;
 
     SceneEntity *activeDrawEntity = nullptr;
 
@@ -271,8 +291,11 @@ public:
 
     Shader primitiveShader;
     Shader spriteShader;
+    QOpenGLVertexArrayObject screenVAO, rectVAO;
 
     QOpenGLTexture *tilesetTexture = nullptr;
+
+    QTimer *updateTimer = nullptr;
 
     void drawTile(float XPos, float YPos, float ZPos, int tileX, int tileY, byte direction);
 
@@ -293,6 +316,8 @@ public:
 
     void refreshResize();
 
+    GameObjectInfo *GetObjectInfo(QString name);
+
 protected:
     void initializeGL();
     void resizeGL(int w, int h);
@@ -301,11 +326,7 @@ protected:
     QSize sizeHint() const { return QSize(0, 0); }
 
 private:
-    QOpenGLVertexArrayObject screenVAO, rectVAO;
-
     QMatrix4x4 m_matView;
-
-    QTimer *updateTimer = nullptr;
 
     inline QMatrix4x4 getProjectionMatrix()
     {

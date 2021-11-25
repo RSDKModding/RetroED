@@ -33,6 +33,9 @@ public:
     QLabel *entCntAct  = nullptr;
     QLabel *entCntInac = nullptr;
 
+    QPushButton *syncGC = nullptr;
+    QPushButton *syncSC = nullptr;
+
 private:
     Ui::ScenePropertiesv5 *ui;
 };

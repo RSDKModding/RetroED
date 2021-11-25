@@ -4,7 +4,7 @@
 namespace RSDKv1
 {
 
-class Tileconfig
+class TileConfig
 {
 public:
     class CollisionMask
@@ -68,9 +68,9 @@ public:
         byte collisionMode[2];
     };
 
-    Tileconfig() {}
-    Tileconfig(QString filename) { read(filename); }
-    Tileconfig(Reader &reader) { read(reader); }
+    TileConfig() {}
+    TileConfig(QString filename) { read(filename); }
+    TileConfig(Reader &reader) { read(reader); }
 
     inline void read(QString filename)
     {

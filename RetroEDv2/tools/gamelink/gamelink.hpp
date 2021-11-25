@@ -1,5 +1,5 @@
-#ifndef GAMELINK_HPP
-#define GAMELINK_HPP
+#ifndef GAMELINK_H
+#define GAMELINK_H
 
 typedef uint bool32;
 
@@ -121,7 +121,7 @@ struct SceneInfo {
 };
 
 struct EngineInfo {
-    char engineInfo[0x40];
+    char gameTitle[0x40];
     char gameSubname[0x100];
     char version[0x10];
 };
@@ -308,24 +308,10 @@ struct GameInfo {
     void *modPtrs;
 };
 
-extern byte *gameGlobalVariablesPtr;
-
 namespace FunctionTable
 {
 void initGameOptions(void **options, int size);
 } // namespace FunctionTable
-
-extern SceneInfo sceneInfo;
-extern EngineInfo engineInfo;
-extern SKUInfo skuInfo;
-extern ControllerState controller[5];
-extern AnalogState stickL[5];
-extern AnalogState stickR[5];
-extern TriggerState triggerL[5];
-extern TriggerState triggerR[5];
-extern TouchMouseData touchMouse;
-extern UnknownInfo unknownInfo;
-extern ScreenInfo screens[4];
 
 #include "gamestorage.hpp"
 #include "gamemath.hpp"
@@ -337,15 +323,20 @@ extern ScreenInfo screens[4];
 class GameLink
 {
 public:
-    GameLink();
+    GameLink() {}
 
-    void Setup();
+    static void Setup();
     void LinkGameObjects(QString gameName = "Game");
+    void unload();
 
-    GameObjectInfo *GetObjectInfo(QString name);
-    GameObjectInfo *GetObjectInfo(int type);
+    byte *gameGlobalVariablesPtr = nullptr;
+
+    QList<GameObjectInfo> gameObjectList;
+
+private:
+    GameObject *blankObject = nullptr;
+
+    QLibrary *logicLib = nullptr;
 };
 
-extern GameLink gameLink;
-
-#endif // GAMELINK_HPP
+#endif // GAMELINK_H

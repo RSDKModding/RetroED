@@ -491,7 +491,10 @@ void PropertyBrowser::setPropertySet(QList<Property *> properties)
                 groups.append(groups[i][j]->subProperties);
         }
     }
-    for (int i = 0; i < properties.count(); i++) addProperty(properties[i]->p);
+    for (int i = 0; i < properties.count(); i++) {
+        auto *item = addProperty(properties[i]->p);
+        setExpanded(item, true);
+    }
     propertySet = properties;
 }
 

@@ -31,24 +31,53 @@ SceneViewerv5::SceneViewerv5(QWidget *)
     for (int s = 0; s < v5_SURFACE_MAX; ++s) {
         gfxSurface[s].scope = SCOPE_NONE;
     }
+
+    sceneInfo.entity           = 0;
+    sceneInfo.listData         = 0;
+    sceneInfo.listCategory     = 0;
+    sceneInfo.timeCounter      = 0;
+    sceneInfo.currentDrawGroup = 0;
+    sceneInfo.currentScreenID  = 0;
+    sceneInfo.listPos          = -1;
+    sceneInfo.entitySlot       = 0;
+    sceneInfo.createSlot       = 0;
+    sceneInfo.classCount       = 0;
+    sceneInfo.inEditor         = true;
+    sceneInfo.effectGizmo      = false;
+    sceneInfo.debugMode        = true;
+    sceneInfo.useGlobalScripts = false;
+    sceneInfo.timeEnabled      = false;
+    sceneInfo.activeCategory   = 0;
+    sceneInfo.categoryCount    = 0;
+    sceneInfo.state            = 1;
+    sceneInfo.filter           = 0xFF;
+    sceneInfo.milliseconds     = 0;
+    sceneInfo.seconds          = 0;
+    sceneInfo.minutes          = 0;
+
+    sprintf(gameInfo.gameTitle, "%s", "RetroED");
+    sprintf(gameInfo.gameSubname, "%s",
+            "General Purpose Editor for RSDK Files\n\nCreated by: Rubberduckycooly");
+    sprintf(gameInfo.version, "%s", "2.0");
+
+    skuInfo.platform = 0xFF;
 }
 
 SceneViewerv5::~SceneViewerv5() { dispose(); }
 
+void SceneViewerv5::startTimer()
+{
+    if (updateTimer) {
+        if (updateTimer->isActive())
+            updateTimer->stop();
+
+        updateTimer->start(1000.0f / 60.0f);
+    }
+}
+
 void SceneViewerv5::dispose()
 {
     unloadScene();
-
-    for (int o = 0; o < v5_SURFACE_MAX; ++o) {
-        if (gfxSurface[o].scope != SCOPE_NONE) {
-            if (gfxSurface[o].texturePtr) {
-                gfxSurface[o].texturePtr->destroy();
-                delete gfxSurface[o].texturePtr;
-            }
-            gfxSurface[o].texturePtr = nullptr;
-            gfxSurface[o].scope      = SCOPE_NONE;
-        }
-    }
 
     if (updateTimer) {
         disconnect(updateTimer, nullptr, nullptr, nullptr);
@@ -64,6 +93,18 @@ void SceneViewerv5::loadScene(QString path)
 {
     // unloading
     unloadScene();
+
+    QDirIterator it(dataPath + "/../", QStringList() << "*", QDir::Files,
+                    QDirIterator::NoIteratorFlags);
+    while (it.hasNext()) {
+        QString filePath = it.next();
+
+        if (QLibrary::isLibrary(filePath)) {
+            GameLink link;
+            gameLinks.append(link);
+            gameLinks.last().LinkGameObjects(filePath);
+        }
+    }
 
     // Default Texture
     if (gfxSurface[0].scope == SCOPE_NONE) {
@@ -135,11 +176,14 @@ void SceneViewerv5::loadScene(QString path)
 
         // if we haven't found the name, as a last resort, try looking through any linked objects
         if (!foundName) {
-            for (int i = 0; i < gameObjectList.count(); ++i) {
-                if (Utils::getMd5HashByteArray(QString(gameObjectList[i].name)) == obj.name.hash) {
-                    object.name = gameObjectList[i].name;
-                    foundName   = true;
-                    break;
+            for (GameLink &link : gameLinks) {
+                for (int i = 0; i < link.gameObjectList.count(); ++i) {
+                    if (Utils::getMd5HashByteArray(QString(link.gameObjectList[i].name))
+                        == obj.name.hash) {
+                        object.name = link.gameObjectList[i].name;
+                        foundName   = true;
+                        break;
+                    }
                 }
             }
         }
@@ -896,7 +940,7 @@ void SceneViewerv5::drawScene()
             }
 
             if (entity->type != 0)
-                callGameEvent(gameLink.GetObjectInfo(objects[entity->type].name), EVENT_DRAW, entity);
+                callGameEvent(GetObjectInfo(objects[entity->type].name), EVENT_DRAW, entity);
 
             // Draw Default Object Sprite if invalid
             // TODO: probably draw text intead
@@ -984,27 +1028,21 @@ void SceneViewerv5::drawScene()
         ex *= invZoom();
         ey *= invZoom();
 
-        validDraw = false;
-        GameEntityBase gameEntity;
-        memset(&gameEntity, 0, sizeof(GameEntityBase));
-        gameEntity.position.x = (ex + cam.pos.x) * 65536.0f;
-        gameEntity.position.y = (ey + cam.pos.y) * 65536.0f;
-        gameEntity.objectID   = selectedObject;
+        validDraw                   = false;
+        createGameEntity.position.x = (ex + cam.pos.x) * 65536.0f;
+        createGameEntity.position.y = (ey + cam.pos.y) * 65536.0f;
+        createGameEntity.objectID   = selectedObject;
 
-        SceneEntity tempEntity;
-        tempEntity.type       = selectedObject;
-        tempEntity.pos.x      = (ex + cam.pos.x) * 65536.0f;
-        tempEntity.pos.y      = (ey + cam.pos.y) * 65536.0f;
-        tempEntity.slotID     = 0xFFFF;
-        tempEntity.gameEntity = &gameEntity;
-        tempEntity.box        = Rect<int>(0, 0, 0, 0);
+        createTempEntity.type       = selectedObject;
+        createTempEntity.pos.x      = (ex + cam.pos.x) * 65536.0f;
+        createTempEntity.pos.y      = (ey + cam.pos.y) * 65536.0f;
+        createTempEntity.slotID     = 0xFFFF;
+        createTempEntity.gameEntity = &createGameEntity;
+        createTempEntity.box        = Rect<int>(0, 0, 0, 0);
 
-        activeDrawEntity = &tempEntity;
+        activeDrawEntity = &createTempEntity;
         if (selectedObject != 0) {
-            // callGameEvent(gameLink.GetObjectInfo(objects[selectedObject].name), EVENT_CREATE,
-            //               &tempEntity);
-            callGameEvent(gameLink.GetObjectInfo(objects[selectedObject].name), EVENT_DRAW,
-                          &tempEntity);
+            callGameEvent(GetObjectInfo(objects[selectedObject].name), EVENT_DRAW, &createTempEntity);
         }
 
         if (!validDraw) {
@@ -1153,6 +1191,11 @@ void SceneViewerv5::unloadScene()
 {
     disableObjects = true;
 
+    for (int l = 0; l < gameLinks.count(); ++l) {
+        gameLinks[l].unload();
+    }
+    gameLinks.clear();
+
     // QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
     if (tilesetTexture) {
         tilesetTexture->destroy();
@@ -1168,6 +1211,10 @@ void SceneViewerv5::unloadScene()
             gfxSurface[o].texturePtr = nullptr;
             gfxSurface[o].scope      = SCOPE_NONE;
         }
+    }
+
+    for (int a = 0; a < v5_SPRFILE_COUNT; ++a) {
+        spriteAnimationList[a].scope = SCOPE_NONE;
     }
 
     cam                = SceneCamerav5();
@@ -1311,7 +1358,8 @@ void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, SceneEntit
                 info->editorLoad();
             break;
         case EVENT_CREATE: {
-            GameEntity *entityPtr = &gameEntityList[entity->slotID];
+            GameEntity *entityPtr =
+                entity->slotID == 0xFFFF ? entity->gameEntity : &gameEntityList[entity->slotID];
             memset(entityPtr, 0, sizeof(GameEntityBase));
             entityPtr->position.x    = Utils::floatToFixed(entity->pos.x);
             entityPtr->position.y    = Utils::floatToFixed(entity->pos.y);
@@ -2197,4 +2245,23 @@ void SceneViewerv5::refreshResize()
 
     prevStoredW = storedW;
     prevStoredH = storedH;
+}
+
+GameObjectInfo *SceneViewerv5::GetObjectInfo(QString name)
+{
+    QByteArray hashData = Utils::getMd5HashByteArray(name);
+    byte data[0x10];
+    for (int i = 0; i < 0x10; ++i) data[i] = hashData[i];
+
+    uint hash[4];
+    memcpy(hash, data, 0x10 * sizeof(byte));
+
+    for (auto &link : gameLinks) {
+        for (int i = 0; i < link.gameObjectList.count(); ++i) {
+            if (memcmp(hash, link.gameObjectList[i].hash, 0x10 * sizeof(byte)) == 0) {
+                return &link.gameObjectList[i];
+            }
+        }
+    }
+    return NULL;
 }

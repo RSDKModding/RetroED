@@ -125,7 +125,7 @@ private:
     void undoAction();
     void redoAction();
     void resetAction();
-    void doAction(QString name = "Action");
+    void doAction(QString name = "Action", bool setModified = true);
     void clearActions();
 
     QList<ActionState> actions;

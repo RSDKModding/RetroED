@@ -71,7 +71,7 @@ void FunctionTable::calculateTrigAngles()
     for (int y = 0; y < 0x100; ++y) {
         byte *arcTan = (byte *)&atanVal256[y];
         for (int x = 0; x < 0x100; ++x) {
-            *arcTan = (byte)(atan2f(y, x) * 40.743664f);
+            *arcTan = (int)(float)((float)atan2((float)y, x) * 40.743664);
             arcTan += 0x100;
         }
     }

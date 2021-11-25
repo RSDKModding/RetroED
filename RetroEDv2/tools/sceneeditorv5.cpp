@@ -100,21 +100,22 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     ui->propertiesBox->setCurrentIndex(0);
 
     connect(ui->horizontalScrollBar, &QScrollBar::valueChanged, [this](int v) {
-        viewer->cam.pos.x   = v;
-        screens->position.x = v;
+        viewer->cam.pos.x           = v;
+        viewer->screens->position.x = v;
     });
 
     connect(ui->verticalScrollBar, &QScrollBar::valueChanged, [this](int v) {
-        viewer->cam.pos.y   = v;
-        screens->position.y = v;
+        viewer->cam.pos.y           = v;
+        viewer->screens->position.y = v;
     });
 
     connect(ui->sceneFilter, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
-        viewer->sceneFilter = v;
+        viewer->sceneFilter      = v;
+        viewer->sceneInfo.filter = v;
         doAction("Filter Change: " + QString::number(v));
     });
 
-    connect(ui->useGizmos, &QCheckBox::toggled, [](bool c) { sceneInfo.effectGizmo = c; });
+    connect(ui->useGizmos, &QCheckBox::toggled, [this](bool c) { viewer->sceneInfo.effectGizmo = c; });
 
     connect(ui->layerList, &QListWidget::currentRowChanged, [this](int c) {
         ui->rmLayer->setDisabled(c == -1);
@@ -211,6 +212,23 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         }
 
         viewer->selectedObject = c;
+
+        memset(&viewer->createGameEntity, 0, sizeof(GameEntityBase));
+        viewer->createGameEntity.position.x = 0;
+        viewer->createGameEntity.position.y = 0;
+        viewer->createGameEntity.objectID   = viewer->selectedObject;
+
+        viewer->createTempEntity.type       = viewer->selectedObject;
+        viewer->createTempEntity.pos.x      = 0;
+        viewer->createTempEntity.pos.y      = 0;
+        viewer->createTempEntity.slotID     = 0xFFFF;
+        viewer->createTempEntity.gameEntity = &viewer->createGameEntity;
+        viewer->createTempEntity.box        = Rect<int>(0, 0, 0, 0);
+
+        viewer->activeDrawEntity = &viewer->createTempEntity;
+        viewer->callGameEvent(viewer->GetObjectInfo(viewer->objects[viewer->selectedObject].name),
+                              SceneViewerv5::EVENT_CREATE, &viewer->createTempEntity);
+
         ui->rmObj->setDisabled(c == -1 || global);
     });
 
@@ -279,14 +297,14 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->downEnt->setDisabled(c == viewer->entities.count() - 1);
         ui->upEnt->setDisabled(c == 0);
 
-        viewer->selectedEntity = c;
-        sceneInfo.listPos      = c;
+        viewer->selectedEntity    = c;
+        viewer->sceneInfo.listPos = c;
 
         viewer->cam.pos.x = viewer->entities[c].pos.x - ((viewer->storedW / 2) * viewer->invZoom());
         viewer->cam.pos.y = viewer->entities[c].pos.y - ((viewer->storedH / 2) * viewer->invZoom());
 
-        screens->position.x = viewer->cam.pos.x;
-        screens->position.y = viewer->cam.pos.y;
+        viewer->screens->position.x = viewer->cam.pos.x;
+        viewer->screens->position.y = viewer->cam.pos.y;
 
         objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
         ui->propertiesBox->setCurrentWidget(ui->objPropPage);
@@ -316,7 +334,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             }
         }
 
-        viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[entity.type].name),
+        viewer->callGameEvent(viewer->GetObjectInfo(viewer->objects[entity.type].name),
                               SceneViewerv5::EVENT_CREATE, &entity);
         viewer->entities.append(entity);
 
@@ -338,8 +356,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         createEntityList();
 
         if (viewer->objects.count() <= 0) {
-            viewer->selectedEntity = -1;
-            sceneInfo.listPos      = c;
+            viewer->selectedEntity    = -1;
+            viewer->sceneInfo.listPos = c;
         }
 
         ui->rmEnt->setDisabled(viewer->objects.count() <= 0);
@@ -484,8 +502,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         // Reset
         // m_mainView->m_selectedTile = -1;
         // m_mainView->m_selectedStamp = -1;
-        viewer->selectedEntity = -1;
-        sceneInfo.listPos      = -1;
+        viewer->selectedEntity    = -1;
+        viewer->sceneInfo.listPos = -1;
         objProp->unsetUI();
         viewer->isSelecting = false;
 
@@ -500,8 +518,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             case TOOL_ENTITY: viewer->isSelecting = true; break;
             case TOOL_PARALLAX: viewer->isSelecting = true; break;
         }
-
-        doAction("Tool Change: " + QString::number(tool));
     };
 
     connect(ui->selToolBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -512,7 +528,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         viewer->showPlaneB = false;
         ui->showCollisionA->setChecked(viewer->showPlaneA);
         ui->showCollisionB->setChecked(viewer->showPlaneB);
-        doAction("Toggle Collision A Viewer");
     });
 
     connect(ui->showCollisionB, &QPushButton::clicked, [this] {
@@ -520,17 +535,10 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         viewer->showPlaneB ^= 1;
         ui->showCollisionA->setChecked(viewer->showPlaneA);
         ui->showCollisionB->setChecked(viewer->showPlaneB);
-        doAction("Toggle Collision B Viewer");
     });
 
-    connect(ui->showTileGrid, &QPushButton::clicked, [this] {
-        viewer->showTileGrid ^= 1;
-        doAction("Toggle Tile Grid Viewer");
-    });
-    connect(ui->showPixelGrid, &QPushButton::clicked, [this] {
-        viewer->showPixelGrid ^= 1;
-        doAction("Toggle Pixel Grid Viewer");
-    });
+    connect(ui->showTileGrid, &QPushButton::clicked, [this] { viewer->showTileGrid ^= 1; });
+    connect(ui->showPixelGrid, &QPushButton::clicked, [this] { viewer->showPixelGrid ^= 1; });
 
     connect(scnProp->loadGlobalCB, &QCheckBox::toggled, [this](bool b) {
         viewer->stageConfig.loadGlobalObjects = b;
@@ -568,103 +576,9 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         }
 
         createEntityList();
+        scnProp->syncGC->setDisabled(!viewer->stageConfig.loadGlobalObjects);
         doAction(viewer->stageConfig.loadGlobalObjects ? "Added Global Objects"
                                                        : "Removed Global Objects");
-
-        // CODE FOR UPDATING OBJECT TYPES: TODO: GIVE ITS OWN BUTTON
-        /*{
-            if (viewer->stageConfig.loadGlobalObjects) {
-                SceneViewerv5 *viewerv5 = viewer;
-                int oldGlobalCount      = 0;
-                QList<QString> oldGlobals;
-                QList<int> oldGlobalIDs;
-                QList<int> removeFlags;
-
-                // get info about old objs
-                for (int i = 1; i <= oldGlobalCount; ++i) {
-                    oldGlobals.append(viewer->objects[i].name);
-                    oldGlobalIDs.append(i);
-                    removeFlags.append(-1);
-                }
-
-                // remove old global objs
-                for (int i = oldGlobalCount; i > 0; --i) {
-                    viewer->objects.removeAt(i);
-                }
-
-                int id = 1;
-                for (QString &global : viewer->gameConfig.objects) {
-                    SceneObject objInfo;
-                    objInfo.name = global;
-                    viewer->objects.insert(id, objInfo);
-
-                    // FunctionTable::setEditableVar(VAR_UINT8, "filter", id,
-                    //                               offsetof(GameEntity, filter));
-                    //
-                    // viewer->callGameEvent(gameLink.GetObjectInfo(objInfo.name),
-                    //                       SceneViewerv5::EVENT_SERIALIZE, NULL);
-
-                    int index = oldGlobals.indexOf(global);
-                    if (index < 0)
-                        index = oldGlobals.indexOf(Utils::getMd5HashString(global));
-
-                    if (index >= 0) {
-                        removeFlags[index] = id;
-                    }
-                    ++id;
-                }
-
-                // start by removing objects we dont need
-                id = 1;
-                for (auto &flag : removeFlags) {
-                    if (flag < 0) {
-                        for (auto &entity : viewer->entities) {
-                            if (entity.type == id) {
-                                viewer->entities.removeOne(entity);
-                            }
-                        }
-                    }
-                    ++id;
-                }
-
-                // then update the remaining ones
-                id = 1;
-                for (auto &flag : removeFlags) {
-                    if (flag > 0) {
-                        for (auto &entity : viewer->entities) {
-                            if (entity.type == id) {
-                                entity.type = flag;
-                            }
-                        }
-                    }
-                    ++id;
-                }
-
-                // update stage object ids to be proper
-                int idChange = viewer->gameConfig.objects.count() - oldGlobalCount;
-                for (auto &entity : viewer->entities) {
-                    if (entity.type >= oldGlobalCount) {
-                        entity.type += idChange;
-                    }
-                }
-
-                // load assets for new objects
-                for (int i = 1; i <= viewer->gameConfig.objects.count(); ++i) {
-                    // viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[i].name),
-                    //                       SceneViewerv5::EVENT_LOAD, NULL);
-                }
-
-                ui->objectList->clear();
-                for (int o = 0; o < viewer->objects.count(); ++o) {
-                    QListWidgetItem *item =
-                        new QListWidgetItem(viewer->objects[o].name, ui->objectList);
-                    item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-                    item->setCheckState(Qt::Checked);
-                }
-
-                createEntityList();
-            }
-        }*/
     });
 
     connect(scnProp->stampNameEdit, &QLineEdit::textChanged, [this](QString s) {
@@ -767,11 +681,19 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             for (int y = 0; y < layer.height; ++y) {
                 for (int x = 0; x < layer.width; ++x) {
                     ushort tile        = layer.layout[y][x];
-                    layer.layout[y][x] = edit->tileIDs[tile & 0x3FF];
-                    layer.layout[y][x] |= tile >> 10 << 10;
+                    layer.layout[y][x] = edit->tileIDs.indexOf(tile & 0x3FF);
+                    layer.layout[y][x] |= (tile >> 10) << 10;
                 }
             }
         }
+
+        RSDKv5::TileConfig configStore = viewer->tileconfig;
+        for (int i = 0; i < 0x400; ++i) {
+            int id                                   = edit->tileIDs.indexOf(i);
+            viewer->tileconfig.collisionPaths[0][id] = configStore.collisionPaths[0][i];
+            viewer->tileconfig.collisionPaths[1][id] = configStore.collisionPaths[1][i];
+        }
+
         doAction("Edited Tiles");
         setStatus("Finished rebuilding tiles!");
     });
@@ -783,46 +705,231 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         doAction("Edited Palette");
     });
 
+    connect(scnProp->syncGC, &QPushButton::clicked, [this] {
+        int oldGlobalCount = 0;
+        QList<QString> oldGlobals;
+        QList<int> oldGlobalIDs;
+        QList<int> removeFlags;
+
+        // get info about old objs
+        for (int i = 1; i <= oldGlobalCount; ++i) {
+            oldGlobals.append(viewer->objects[i].name);
+            oldGlobalIDs.append(i);
+            removeFlags.append(-1);
+        }
+
+        // remove old global objs
+        for (int i = oldGlobalCount; i > 0; --i) {
+            viewer->objects.removeAt(i);
+        }
+
+        int id = 1;
+        for (QString &global : viewer->gameConfig.objects) {
+            SceneObject objInfo;
+            objInfo.name = global;
+            viewer->objects.insert(id, objInfo);
+
+            // FunctionTable::setEditableVar(VAR_UINT8, "filter", id,
+            //                               offsetof(GameEntity, filter));
+            //
+            // viewer->callGameEvent(gameLink.GetObjectInfo(objInfo.name),
+            //                       SceneViewerv5::EVENT_SERIALIZE, NULL);
+
+            int index = oldGlobals.indexOf(global);
+            if (index < 0)
+                index = oldGlobals.indexOf(Utils::getMd5HashString(global));
+
+            if (index >= 0) {
+                removeFlags[index] = id;
+            }
+            ++id;
+        }
+
+        // start by removing objects we dont need
+        id = 1;
+        for (auto &flag : removeFlags) {
+            if (flag < 0) {
+                for (auto &entity : viewer->entities) {
+                    if (entity.type == id) {
+                        viewer->entities.removeOne(entity);
+                    }
+                }
+            }
+            ++id;
+        }
+
+        // then update the remaining ones
+        id = 1;
+        for (auto &flag : removeFlags) {
+            if (flag > 0) {
+                for (auto &entity : viewer->entities) {
+                    if (entity.type == id) {
+                        entity.type = flag;
+                    }
+                }
+            }
+            ++id;
+        }
+
+        // update stage object ids to be proper
+        int idChange = viewer->gameConfig.objects.count() - oldGlobalCount;
+        for (auto &entity : viewer->entities) {
+            if (entity.type >= oldGlobalCount) {
+                entity.type += idChange;
+            }
+        }
+
+        // load assets for new objects
+        for (int i = 1; i <= viewer->gameConfig.objects.count(); ++i) {
+            // viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[i].name),
+            //                       SceneViewerv5::EVENT_LOAD, NULL);
+        }
+
+        ui->objectList->clear();
+        for (int o = 0; o < viewer->objects.count(); ++o) {
+            QListWidgetItem *item = new QListWidgetItem(viewer->objects[o].name, ui->objectList);
+            item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+            item->setCheckState(Qt::Checked);
+        }
+
+        createEntityList();
+    });
+    scnProp->syncGC->setDisabled(true);
+
+    connect(scnProp->syncSC, &QPushButton::clicked, [this] {});
+
     connect(ui->exportSceneImg, &QPushButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Save Image"), "", tr("PNG Files (*.png)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
-            SceneExportImgOptions *dlg = new SceneExportImgOptions(this);
-            if (dlg->exec() == QDialog::Accepted) {
 
-                QImage image(viewer->sceneWidth * 0x10, viewer->sceneHeight * 0x10,
-                             QImage::Format_ARGB32);
-                image.fill(0xFF00FF);
-                QPainter painter(&image);
+            int width = 0, height = 0;
 
-                for (int i = 0; i < viewer->scene.layers.count(); ++i) {
-                    if (dlg->exportBG[i][0]) {
-                        for (int y = 0; y < viewer->scene.layers[i].height; ++y) {
-                            for (int x = 0; x < viewer->scene.layers[i].width; ++x) {
-                                ushort tile = viewer->scene.layers[i].layout[y][x];
-                                if (tile != 0xFFFF) {
-                                    QImage tileImg = viewer->tiles[tile & 0x3FF];
+            for (auto &layer : viewer->scene.layers) {
+                if (!layer.visible || layer.drawOrder >= 16)
+                    continue;
 
-                                    painter.drawImage(x * 0x10, y * 0x10, tileImg);
-                                }
-                            }
+                if (layer.width > width)
+                    width = layer.width;
+                if (layer.height > height)
+                    height = layer.height;
+            }
+
+            QImage image(width * 0x10, height * 0x10, QImage::Format_ARGB32);
+            image.fill(0xFFFF00FF);
+            QPainter painter(&image);
+
+            for (auto &layer : viewer->scene.layers) {
+                if (!layer.visible || layer.drawOrder >= 16)
+                    continue;
+
+                for (int y = 0; y < layer.height; ++y) {
+                    for (int x = 0; x < layer.width; ++x) {
+                        ushort tile = layer.layout[y][x];
+                        if (tile != 0xFFFF) {
+                            QImage tileImg = viewer->tiles[tile & 0x3FF].copy().mirrored(
+                                (tile >> 10) & 1, (tile >> 11) & 1);
+                            tileImg.setColor(0, 0x00000000);
+
+                            painter.drawImage(x * 0x10, y * 0x10, tileImg);
                         }
                     }
                 }
+            }
 
-                if (dlg->exportObjects) {
-                    for (int o = 0; o < viewer->entities.count(); ++o) {
-                        SceneEntity &entity = viewer->entities[o];
+            painter.beginNativePainting();
 
-                        QString name = viewer->objects[entity.type].name;
+            /*QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+            f->glEnable(GL_DEPTH_TEST);
+            f->glDepthFunc(GL_LESS);
+            f->glEnable(GL_BLEND);
+            f->glEnable(GL_MULTISAMPLE);
+            f->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-                        painter.drawText(entity.pos.x, entity.pos.y, name);
+            QMatrix4x4 matWorld;
+            matWorld.ortho(0.0f, (float)width, (float)height, 0.0f, -16.0f, 16.0f);
+
+            viewer->primitiveShader.use();
+            viewer->primitiveShader.setValue("projection", matWorld);
+            viewer->primitiveShader.setValue("view", QMatrix4x4());
+            viewer->primitiveShader.setValue("useAlpha", false);
+            viewer->primitiveShader.setValue("alpha", 1.0f);
+
+            viewer->drawRect(0, 0, 0, 0x40, 0x40, Vector4<float>(0, 0, 0, 1.0), viewer->primitiveShader,
+                             false);
+
+            viewer->spriteShader.use();
+            viewer->rectVAO.bind();
+            viewer->spriteShader.setValue("flipX", false);
+            viewer->spriteShader.setValue("flipY", false);
+            viewer->spriteShader.setValue("useAlpha", false);
+            viewer->spriteShader.setValue("alpha", 1.0f);
+
+            for (auto &entity : viewer->entities) {
+                viewer->activeDrawEntity = NULL;
+
+                validDraw = false;
+
+                if (!viewer->objects[entity.type].visible)
+                    continue;
+
+                int filter = 0xFF;
+                for (int v = 0; v < viewer->objects[entity.type].variables.count(); ++v) {
+                    if (viewer->objects[entity.type].variables[v].name == "filter") {
+                        if (v < entity.variables.count())
+                            filter = entity.variables[v].value_uint8;
+                        break;
                     }
                 }
 
-                image.save(filedialog.selectedFiles()[0]);
-                setStatus("Scene exported to image sucessfully!");
-            }
+                if (!(filter & viewer->sceneFilter) && filter)
+                    continue;
+
+                if (entity.gameEntity) {
+                    entity.gameEntity->position.x = Utils::floatToFixed(entity.pos.x);
+                    entity.gameEntity->position.y = Utils::floatToFixed(entity.pos.y);
+                }
+
+                // if (entity->type != 0)
+                // viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[entity->type].name),
+                //    EVENT_DRAW, entity);
+
+                // Draw Default Object Sprite if invalid
+                // if (!validDraw) {
+                //     entity->box = Rect<int>(-0x10, -0x10, 0x10, 0x10);
+                //     viewer->spriteShader.use();
+                //     viewer->rectVAO.bind();
+                //
+                //     float xpos = entity->pos.x;
+                //     float ypos = entity->pos.y;
+                //     float zpos = viewer->incZ();
+                //
+                //     int w = viewer->gfxSurface[0].texturePtr->width(),
+                //         h = viewer->gfxSurface[0].texturePtr->height();
+                //     if (viewer->prevSprite) {
+                //         viewer->gfxSurface[0].texturePtr->bind();
+                //         viewer->spriteShader.setValue("transparentColour", QVector3D(1.0f,
+            0.0f, 1.0f));
+                //         viewer->spriteShader.setValue("useAlpha", true);
+                //         viewer->spriteShader.setValue("alpha", 1.0f);
+                //         viewer->prevSprite = 0;
+                //     }
+                //
+                //     QMatrix4x4 matModel;
+                //     matModel.scale(w * viewer->zoom, h * viewer->zoom, 1.0f);
+                //
+                //     matModel.translate(xpos / (float)w, ypos / (float)h, zpos);
+                //     viewer->spriteShader.setValue("model", matModel);
+                //
+                //     f->glDrawArrays(GL_TRIANGLES, 0, 6);
+                // }
+            }*/
+
+            painter.endNativePainting();
+            painter.end();
+
+            image.save(filedialog.selectedFiles()[0]);
+            setStatus("Scene exported to image sucessfully!");
         }
     });
 
@@ -843,8 +950,10 @@ SceneEditorv5::~SceneEditorv5()
 bool SceneEditorv5::event(QEvent *event)
 {
     if (event->type() == (QEvent::Type)RE_EVENT_NEW) {
+        tabTitle = "Scene Editor (v5)";
         clearActions();
     }
+
     if (event->type() == (QEvent::Type)RE_EVENT_OPEN) {
         QList<QString> types = {
             "RSDKv5 Scenes (Scene*.bin)",
@@ -885,6 +994,8 @@ bool SceneEditorv5::event(QEvent *event)
 
             viewer->saveScene(path);
 
+            tabTitle = Utils::getFilenameAndFolder(path);
+            clearActions();
             setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));
             return true;
         }
@@ -902,6 +1013,8 @@ bool SceneEditorv5::event(QEvent *event)
 
                 viewer->saveScene(path);
 
+                tabTitle = Utils::getFilenameAndFolder(path);
+                clearActions();
                 appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, filedialog.selectedFiles()[0],
                                         QList<QString>{ viewer->gameConfig.filePath });
                 setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));
@@ -923,6 +1036,8 @@ bool SceneEditorv5::event(QEvent *event)
 
             viewer->saveScene(path);
 
+            tabTitle = Utils::getFilenameAndFolder(path);
+            clearActions();
             appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, filedialog.selectedFiles()[0],
                                     QList<QString>{ viewer->gameConfig.filePath });
             setStatus("Saved Scene: " + Utils::getFilenameAndFolder(filedialog.selectedFiles()[0]));
@@ -939,6 +1054,51 @@ bool SceneEditorv5::event(QEvent *event)
         return true;
     }
 
+    if (event->type() == QEvent::Close) {
+        if (modified) {
+            bool cancelled = false;
+            if (MainWindow::showCloseWarning(this, &cancelled)) {
+                QString path = viewer->scene.filepath;
+
+                if (QFile::exists(path)) {
+                    setStatus("Saving Scene...");
+
+                    viewer->saveScene(path);
+
+                    setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));
+                    return true;
+                }
+                else {
+                    QList<QString> types = {
+                        "RSDKv5 Scenes (Scene*.bin)",
+                    };
+
+                    QFileDialog filedialog(
+                        this, tr("Save Scene"), "",
+                        tr(QString("%1;;%2;;%3;;%4").arg(types[0]).toStdString().c_str()));
+                    filedialog.setAcceptMode(QFileDialog::AcceptSave);
+                    if (filedialog.exec() == QDialog::Accepted) {
+                        setStatus("Saving Scene...");
+                        QString path = filedialog.selectedFiles()[0];
+
+                        viewer->saveScene(path);
+
+                        appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR,
+                                                filedialog.selectedFiles()[0],
+                                                QList<QString>{ viewer->gameConfig.filePath });
+                        setStatus("Saved Scene: "
+                                  + Utils::getFilenameAndFolder(viewer->scene.filepath));
+                        return true;
+                    }
+                }
+            }
+            else if (cancelled) {
+                event->ignore();
+                return true;
+            }
+        }
+    }
+
     return QWidget::event(event);
 }
 
@@ -947,9 +1107,6 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
     if (event->type() == QEvent::FocusIn || event->type() == QEvent::FocusOut) {
         QApplication::sendEvent(this, event);
         return false;
-    }
-    else if (event->type() == QEvent::Close) {
-        // viewer->dispose();
     }
 
     if (object != viewer)
@@ -1005,8 +1162,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
         ui->selToolBox->setDisabled(true);
         ui->selToolBox->setCurrentIndex(tool);
         ui->selToolBox->setDisabled(false);
-        viewer->selectedEntity = -1;
-        sceneInfo.listPos      = -1;
+        viewer->selectedEntity    = -1;
+        viewer->sceneInfo.listPos = -1;
         objProp->unsetUI();
         viewer->isSelecting = false;
 
@@ -1097,8 +1254,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                             int firstSel = -1;
                             Vector2<float> firstPos;
 
-                            viewer->selectedEntity = -1;
-                            sceneInfo.listPos      = -1;
+                            viewer->selectedEntity    = -1;
+                            viewer->sceneInfo.listPos = -1;
                             for (int o = 0; o < viewer->entities.count(); ++o) {
                                 int left   = viewer->entities[o].pos.x + viewer->entities[o].box.x;
                                 int top    = viewer->entities[o].pos.y + viewer->entities[o].box.y;
@@ -1132,10 +1289,10 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 }
 
                                 if (box.contains(pos) && viewer->selectedEntity < o && filterFlag) {
-                                    viewer->selectedEntity = o;
-                                    sceneInfo.listPos      = o;
-                                    selectionOffset.x      = pos.x - viewer->entities[o].pos.x;
-                                    selectionOffset.y      = pos.y - viewer->entities[o].pos.y;
+                                    viewer->selectedEntity    = o;
+                                    viewer->sceneInfo.listPos = o;
+                                    selectionOffset.x         = pos.x - viewer->entities[o].pos.x;
+                                    selectionOffset.y         = pos.y - viewer->entities[o].pos.y;
 
                                     objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
                                     ui->propertiesBox->setCurrentWidget(ui->objPropPage);
@@ -1149,8 +1306,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
 
                             if (viewer->selectedEntity == -1) {
                                 if (firstSel >= 0) {
-                                    viewer->selectedEntity = firstSel;
-                                    sceneInfo.listPos      = firstSel;
+                                    viewer->selectedEntity    = firstSel;
+                                    viewer->sceneInfo.listPos = firstSel;
                                     selectionOffset.x =
                                         firstPos.x - viewer->entities[viewer->selectedEntity].pos.x;
                                     selectionOffset.y =
@@ -1202,12 +1359,12 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 entity.prevSlot = entity.slotID;
 
                                 viewer->callGameEvent(
-                                    gameLink.GetObjectInfo(viewer->objects[entity.type].name),
+                                    viewer->GetObjectInfo(viewer->objects[entity.type].name),
                                     SceneViewerv5::EVENT_CREATE, &entity);
 
                                 viewer->entities.append(entity);
-                                viewer->selectedEntity = cnt;
-                                sceneInfo.listPos      = cnt;
+                                viewer->selectedEntity    = cnt;
+                                viewer->sceneInfo.listPos = cnt;
 
                                 objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
@@ -1308,11 +1465,11 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                             }
 
                             if (box.contains(pos) && viewer->selectedEntity < o && filterFlag) {
-                                viewer->selectedEntity = o;
-                                sceneInfo.listPos      = o;
-                                selectionOffset.x      = pos.x - viewer->entities[o].pos.x;
-                                selectionOffset.y      = pos.y - viewer->entities[o].pos.y;
-                                found                  = true;
+                                viewer->selectedEntity    = o;
+                                viewer->sceneInfo.listPos = o;
+                                selectionOffset.x         = pos.x - viewer->entities[o].pos.x;
+                                selectionOffset.y         = pos.y - viewer->entities[o].pos.y;
+                                found                     = true;
 
                                 objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
@@ -1322,8 +1479,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
 
                         if (!found) {
                             if (firstSel >= 0) {
-                                viewer->selectedEntity = firstSel;
-                                sceneInfo.listPos      = firstSel;
+                                viewer->selectedEntity    = firstSel;
+                                viewer->sceneInfo.listPos = firstSel;
                                 selectionOffset.x =
                                     firstPos.x - viewer->entities[viewer->selectedEntity].pos.x;
                                 selectionOffset.y =
@@ -1334,11 +1491,11 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                             }
                             else {
-                                viewer->selectedEntity = -1;
-                                sceneInfo.listPos      = -1;
-                                viewer->selectedObject = -1;
-                                selectionOffset.x      = 0;
-                                selectionOffset.y      = 0;
+                                viewer->selectedEntity    = -1;
+                                viewer->sceneInfo.listPos = -1;
+                                viewer->selectedObject    = -1;
+                                selectionOffset.x         = 0;
+                                selectionOffset.y         = 0;
                                 ui->objectList->setCurrentRow(-1);
                                 ui->entityList->setCurrentRow(-1);
 
@@ -1399,8 +1556,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                 ui->verticalScrollBar->setValue(viewer->cam.pos.y);
                 ui->verticalScrollBar->blockSignals(false);
 
-                screens->position.x = viewer->cam.pos.x;
-                screens->position.y = viewer->cam.pos.y;
+                viewer->screens->position.x = viewer->cam.pos.x;
+                viewer->screens->position.y = viewer->cam.pos.y;
             }
 
             if (viewer->curTool == TOOL_PENCIL || viewer->curTool == TOOL_ENTITY) {
@@ -1525,8 +1682,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
             ui->verticalScrollBar->setValue(viewer->cam.pos.y);
             ui->verticalScrollBar->blockSignals(false);
 
-            screens->position.x = viewer->cam.pos.x;
-            screens->position.y = viewer->cam.pos.y;
+            viewer->screens->position.x = viewer->cam.pos.x;
+            viewer->screens->position.y = viewer->cam.pos.y;
 
             break;
         }
@@ -1557,7 +1714,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
 
                                 viewer->entities.append(entity);
                                 viewer->callGameEvent(
-                                    gameLink.GetObjectInfo(viewer->objects[entity.type].name),
+                                    viewer->GetObjectInfo(viewer->objects[entity.type].name),
                                     SceneViewerv5::EVENT_CREATE, &entity);
 
                                 doAction(QString("Pasted Entity: %1 (%2, %3)")
@@ -1640,8 +1797,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                     if (kEvent->key() == Qt::Key_Delete || kEvent->key() == Qt::Key_Backspace) {
                         if (viewer->selectedEntity >= 0) {
                             viewer->entities.removeAt(viewer->selectedEntity);
-                            viewer->selectedEntity = -1;
-                            sceneInfo.listPos      = -1;
+                            viewer->selectedEntity    = -1;
+                            viewer->sceneInfo.listPos = -1;
 
                             objProp->unsetUI();
                             createEntityList();
@@ -1686,9 +1843,11 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
 {
     setStatus("Loading Scene...");
 
-    clearUnusedStorage(dataStorage, DATASET_STG);
-    clearUnusedStorage(dataStorage, DATASET_STR);
-    clearUnusedStorage(dataStorage, DATASET_TMP);
+    if (viewer->updateTimer)
+        viewer->updateTimer->stop();
+
+    releaseStorage(dataStorage);
+    initStorage(dataStorage);
 
     if (gcfPath != viewer->gameConfig.filePath) {
         if (QFileInfo(gcfPath).suffix().toLower().contains("xml"))
@@ -1700,9 +1859,6 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
         dir.cdUp();
         dataPath = dir.path();
     }
-
-    QString gameName = dataPath + "/../Game";
-    gameLink.LinkGameObjects(gameName);
 
     viewer->dataPath = dataPath;
 
@@ -1759,6 +1915,8 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     scnProp->stampNameEdit->setText(viewer->scene.editorMetadata.stampName);
     scnProp->stampNameEdit->blockSignals(false);
 
+    scnProp->syncGC->setDisabled(!viewer->stageConfig.loadGlobalObjects);
+
     if (tileSel) {
         ui->tilesPage->layout()->removeWidget(tileSel);
         delete tileSel;
@@ -1782,7 +1940,7 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     scrProp->unsetUI();
 
     for (int i = 0; i < viewer->objects.count(); ++i) {
-        GameObjectInfo *info = gameLink.GetObjectInfo(viewer->objects[i].name);
+        GameObjectInfo *info = viewer->GetObjectInfo(viewer->objects[i].name);
         if (info) {
             allocateStorage(v5Editor->dataStorage, info->objectSize, (void **)info->type, DATASET_STG,
                             true);
@@ -1882,8 +2040,8 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
         }
     }
 
-    for (int i = 0; i < viewer->objects.count() && gameObjectList.count(); ++i) {
-        viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[i].name),
+    for (int i = 0; i < viewer->objects.count() && viewer->gameLinks.count(); ++i) {
+        viewer->callGameEvent(viewer->GetObjectInfo(viewer->objects[i].name),
                               SceneViewerv5::EVENT_SERIALIZE, NULL);
 
         for (int v = viewer->objects[i].variables.count() - 1; v >= 0; --v) {
@@ -1900,23 +2058,27 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     }
 
     // EditorLoad should have all the info before being called
-    for (int i = 0; i < viewer->objects.count() && gameObjectList.count(); ++i) {
-        viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[i].name),
-                              SceneViewerv5::EVENT_LOAD, NULL);
+    for (int i = 0; i < viewer->objects.count() && viewer->gameLinks.count(); ++i) {
+        viewer->callGameEvent(viewer->GetObjectInfo(viewer->objects[i].name), SceneViewerv5::EVENT_LOAD,
+                              NULL);
     }
 
     TypeGroupList list = viewer->typeGroups[0];
-    for (int i = 0; i < viewer->entities.count() && gameObjectList.count(); ++i) {
+    for (int i = 0; i < viewer->entities.count() && viewer->gameLinks.count(); ++i) {
         SceneEntity *entity = &viewer->entities[i];
-        viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[entity->type].name),
+        viewer->callGameEvent(viewer->GetObjectInfo(viewer->objects[entity->type].name),
                               SceneViewerv5::EVENT_CREATE, entity);
     }
 
     ui->addEnt->setDisabled(viewer->activeEntityCount() >= 0x800);
 
+    tabTitle = Utils::getFilenameAndFolder(scnPath);
+
     clearActions();
     appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, scnPath, QList<QString>{ gcfPath });
     setStatus("Loaded Scene: " + QFileInfo(scnPath).fileName());
+
+    viewer->startTimer();
 }
 void SceneEditorv5::createEntityList()
 {
@@ -2085,9 +2247,9 @@ void SceneEditorv5::resetAction()
     viewer->showPlaneB = actions[actionIndex].showPlaneB;
 
     // Entity Editing
-    viewer->selectedObject = actions[actionIndex].selectedObject; // placing
-    viewer->selectedEntity = actions[actionIndex].selectedEntity; // viewing
-    sceneInfo.listPos      = viewer->selectedEntity;
+    viewer->selectedObject    = actions[actionIndex].selectedObject; // placing
+    viewer->selectedEntity    = actions[actionIndex].selectedEntity; // viewing
+    viewer->sceneInfo.listPos = viewer->selectedEntity;
 
     // Parallax Editing
     viewer->showParallax       = actions[actionIndex].showParallax;
@@ -2142,9 +2304,11 @@ void SceneEditorv5::resetAction()
     ui->selToolBox->blockSignals(true);
     ui->selToolBox->setCurrentIndex(viewer->curTool);
     ui->selToolBox->blockSignals(false);
+
+    updateTitle(actionIndex > 0);
 }
 
-void SceneEditorv5::doAction(QString name)
+void SceneEditorv5::doAction(QString name, bool setModified)
 {
     ActionState action;
 
@@ -2193,13 +2357,15 @@ void SceneEditorv5::doAction(QString name)
     actions.append(action);
     actionIndex = actions.count() - 1;
 
+    updateTitle(setModified);
+
     setStatus("Did Action: " + name);
 }
 void SceneEditorv5::clearActions()
 {
     actions.clear();
     actionIndex = 0;
-    doAction("Action Setup"); // first action, cant be undone
+    doAction("Action Setup", false); // first action, cant be undone
 }
 
 #include "moc_sceneeditorv5.cpp"

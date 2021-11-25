@@ -32,7 +32,6 @@ public:
         FormatHelpers::Stageconfig stageConfig;
 
         RSDKv4::TileConfig tileconfig;
-        RSDKv1::Tileconfig tileconfigRS;
 
         QList<SceneViewer::ObjectInfo> objects;
         QList<SceneViewer::EntityInfo> entities;
@@ -137,7 +136,7 @@ private:
     void undoAction();
     void redoAction();
     void resetAction();
-    void doAction(QString name = "Action");
+    void doAction(QString name = "Action", bool setModified = true);
     void clearActions();
 
     Ui::SceneEditor *ui;

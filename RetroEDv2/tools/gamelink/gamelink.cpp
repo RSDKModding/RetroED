@@ -1,17 +1,5 @@
 #include "includes.hpp"
 
-SceneInfo sceneInfo;
-EngineInfo engineInfo;
-SKUInfo skuInfo;
-ControllerState controller[5];
-AnalogState stickL[5];
-AnalogState stickR[5];
-TriggerState triggerL[5];
-TriggerState triggerR[5];
-TouchMouseData touchMouse;
-UnknownInfo unknownInfo;
-ScreenInfo screens[4];
-
 enum FunctionTableIDs {
     FunctionTable_InitGameOptions,
     FunctionTable_RegisterObject,
@@ -211,10 +199,6 @@ void FunctionTable::initGameOptions(void **options, int size)
     gameGlobalVariablesPtr = (byte *)*options;
 }
 
-GameLink gameLink;
-
-GameLink::GameLink() {}
-
 void GameLink::Setup()
 {
     using namespace FunctionTable;
@@ -405,44 +389,37 @@ void GameLink::Setup()
 
 void GameLink::LinkGameObjects(QString gameName)
 {
-    gameObjectList.clear();
-    sceneInfo.classCount     = 0;
-    sceneInfo.activeCategory = 0;
-    sceneInfo.listPos        = 0;
-    sceneInfo.state          = 1;
-    sceneInfo.inEditor       = true;
-    sceneInfo.debugMode      = true;
-
-    skuInfo.platform = 0xFF;
+    unload();
 
     GameInfo info;
 
     info.functionPtrs = &RSDKFunctionTable;
     info.APIPtrs      = NULL;
-    info.currentSKU   = &skuInfo;
-    info.engineInfo   = &engineInfo;
-    info.sceneInfo    = &sceneInfo;
-    info.controller   = controller;
-    info.stickL       = stickL;
-    info.stickR       = stickR;
-    info.triggerL     = triggerL;
-    info.triggerR     = triggerR;
-    info.touchMouse   = &touchMouse;
-    info.unknown      = &unknownInfo;
-    info.screenInfo   = screens;
+    info.currentSKU   = &v5Editor->viewer->skuInfo;
+    info.engineInfo   = &v5Editor->viewer->gameInfo;
+    info.sceneInfo    = &v5Editor->viewer->sceneInfo;
+    info.controller   = v5Editor->viewer->controller;
+    info.stickL       = v5Editor->viewer->stickL;
+    info.stickR       = v5Editor->viewer->stickR;
+    info.triggerL     = v5Editor->viewer->triggerL;
+    info.triggerR     = v5Editor->viewer->triggerR;
+    info.touchMouse   = &v5Editor->viewer->touchMouse;
+    info.unknown      = &v5Editor->viewer->unknownInfo;
+    info.screenInfo   = v5Editor->viewer->screens;
     info.modPtrs      = NULL;
 
-    QLibrary logicLib;
+    if (!logicLib)
+        logicLib = new QLibrary;
 
-    logicLib.setFileName(gameName);
-    logicLib.load();
-    if (!logicLib.isLoaded())
-        printLog("Failed to link: " + logicLib.errorString());
+    logicLib->setFileName(gameName);
+    logicLib->load();
+    if (!logicLib->isLoaded())
+        printLog("Failed to link: " + logicLib->errorString());
 
     void (*linkGameLogic)(GameInfo *) = NULL;
 
-    if (logicLib.isLoaded()) {
-        linkGameLogic = (void (*)(GameInfo *))logicLib.resolve("LinkGameLogicDLL");
+    if (logicLib->isLoaded()) {
+        linkGameLogic = (void (*)(GameInfo *))logicLib->resolve("LinkGameLogicDLL");
     }
 
     if (linkGameLogic) {
@@ -465,30 +442,14 @@ void GameLink::LinkGameObjects(QString gameName)
     }
 }
 
-GameObjectInfo *GameLink::GetObjectInfo(QString name)
+void GameLink::unload()
 {
-    QByteArray hashData = Utils::getMd5HashByteArray(name);
-    byte data[0x10];
-    for (int i = 0; i < 0x10; ++i) data[i] = hashData[i];
-
-    uint hash[4];
-    memcpy(hash, data, 0x10 * sizeof(byte));
-
-    for (int i = 0; i < gameObjectList.count(); ++i) {
-        if (memcmp(hash, gameObjectList[i].hash, 0x10 * sizeof(byte)) == 0) {
-            return &gameObjectList[i];
+    if (logicLib) {
+        if (logicLib->isLoaded()) {
+            logicLib->unload();
         }
+        logicLib = nullptr;
     }
-    return NULL;
-}
 
-GameObjectInfo *GameLink::GetObjectInfo(int type)
-{
-    for (int i = 0; i < gameObjectList.count(); ++i) {
-        if (gameObjectList[i].type && *gameObjectList[i].type) {
-            if ((*gameObjectList[i].type)->objectID == type)
-                return &gameObjectList[i];
-        }
-    }
-    return NULL;
+    gameObjectList.clear();
 }

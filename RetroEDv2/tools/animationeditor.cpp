@@ -231,21 +231,22 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             });
             connect(ui->selBoundBox, &QToolButton::clicked, [&f, this] {
                 auto *sel = new AnimSheetSelector(animFile.sheets[f.sheet], &sheets[f.sheet]);
-                sel->exec();
-                if (sel->returnRect.x < 0 || sel->returnRect.y < 0 || sel->returnRect.w < 0
-                    || sel->returnRect.h < 0) {
-                    // error!
-                }
-                else {
-                    f.sprX   = sel->returnRect.x;
-                    f.sprY   = sel->returnRect.y;
-                    f.width  = sel->returnRect.w;
-                    f.height = sel->returnRect.h;
-                    f.pivotX = -(f.width / 2);
-                    f.pivotY = -(f.height / 2);
-                    setFramePreview();
-                    updateView();
-                    doAction("Set bounding box", true);
+                if (sel->exec() == QDialog::Accepted) {
+                    if (sel->returnRect.x < 0 || sel->returnRect.y < 0 || sel->returnRect.w < 0
+                        || sel->returnRect.h < 0) {
+                        // error!
+                    }
+                    else {
+                        f.sprX   = sel->returnRect.x;
+                        f.sprY   = sel->returnRect.y;
+                        f.width  = sel->returnRect.w;
+                        f.height = sel->returnRect.h;
+                        f.pivotX = -(f.width / 2);
+                        f.pivotY = -(f.height / 2);
+                        setFramePreview();
+                        updateView();
+                        doAction("Set bounding box", true);
+                    }
                 }
             });
 
