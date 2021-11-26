@@ -22,6 +22,8 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
 {
     unsetUI();
 
+    SceneViewer::ObjectInfo &object = scnEditor->viewer->objects[entity->type];
+
     QList<PropertyValue> objNames;
     for (int o = 0; o < scnEditor->viewer->objects.count(); ++o) {
         PropertyValue value;
@@ -38,7 +40,7 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
     QList<Property *> infoGroup = {
         new Property("type", objNames, &entity->type, Property::BYTE_MANAGER),
         new Property("slot", &entity->slotID),
-        new Property("propertyValue", &entity->propertyValue),
+        new Property(object.variablesAliases[SceneViewer::VAR_ALIAS_PROPVAL], &entity->propertyValue),
     };
 
     connect(infoGroup[0], &Property::changed, [infoGroup, entity, entityv2, entityv3, entityv4] {
@@ -111,6 +113,7 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
     });
 
     if (ver == ENGINE_v4) {
+
         QList<PropertyValue> flipFlags     = { PropertyValue("No Flip", 0), PropertyValue("Flip X", 1),
                                            PropertyValue("Flip Y", 2), PropertyValue("Flip XY", 3) };
         QList<PropertyValue> inkEffects    = { PropertyValue("No Ink", 0), PropertyValue("Blended", 1),
@@ -166,10 +169,14 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
             Property *variable = NULL;
 
             switch (v) {
-                default:
-                    variable =
-                        new Property(RSDKv4::objectVariableTypes[v], &entity->variables[v].value);
+                default: {
+                    QString name = RSDKv4::objectVariableTypes[v];
+                    if (v >= 11) {
+                        name = object.variablesAliases[SceneViewer::VAR_ALIAS_VAL0 + (v - 11)];
+                    }
+                    variable = new Property(name, &entity->variables[v].value);
                     break;
+                }
                 case 1:
                     variable = new Property(RSDKv4::objectVariableTypes[v], flipFlags,
                                             &entity->variables[v].value, Property::BYTE_MANAGER);

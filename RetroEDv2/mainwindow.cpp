@@ -221,7 +221,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     QMenu *tools = new QMenu("Tools");
     tools->addAction("RSDK Unpacker", [this] {
         setStatus("Opening RSDK Unpacker...");
-        RSDKUnpacker *tool = new RSDKUnpacker();
+        RSDKUnpacker *tool = new RSDKUnpacker;
         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "RSDK Unpacker"));
     });
     tools->addSeparator();
@@ -229,44 +229,41 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     QMenu *scn = new QMenu("Scene Editor");
     scn->addAction("v1, v2, v3, v4", [this] {
         setStatus("Opening Scene Editor");
-        SceneEditor *tool = new SceneEditor();
+        SceneEditor *tool = new SceneEditor;
         // tool->loadScene("", "", ENGINE_v4);
         tool->installEventFilter(this);
         addTab(tool, "Scene Editor");
     });
-#if RETROED_VER >= 0x110 || RETROED_DEBUG
+
     scn->addAction("v5 (Sonic Mania)", [this] {
         setStatus("Opening Scene Editor");
-        SceneEditorv5 *tool = new SceneEditorv5();
+        SceneEditorv5 *tool = new SceneEditorv5;
         // tool->loadScene("", "", ENGINE_v5);
         tool->installEventFilter(this);
         addTab(tool, "Scene Editor (v5)");
     });
-#endif
     tools->addMenu(scn);
 
-#if RETROED_VER >= 0x110 || RETROED_DEBUG
     tools->addAction("Animation Editor", [this] {
         setStatus("Opening Animation Editor...");
-        AnimationEditor *tool = new AnimationEditor();
+        AnimationEditor *tool = new AnimationEditor;
         addTab(tool, "Animation Editor");
     });
-#endif
 
     QMenu *gc = new QMenu("Gameconfig Editor");
     gc->addAction("v2 (Sonic Nexus)", [this] {
         setStatus("Opening Gameconfig Editor...");
-        GameconfigEditorv2 *tool = new GameconfigEditorv2();
+        GameconfigEditorv2 *tool = new GameconfigEditorv2;
         addTab(tool, "GameConfig Editor");
     });
     gc->addAction("v3 (Sonic CD)", [this] {
         setStatus("Opening Gameconfig Editor...");
-        GameconfigEditorv3 *tool = new GameconfigEditorv3();
+        GameconfigEditorv3 *tool = new GameconfigEditorv3;
         addTab(tool, "GameConfig Editor");
     });
     gc->addAction("v4 (Sonic 1/Sonic 2)", [this] {
         setStatus("Opening Gameconfig Editor...");
-        GameconfigEditorv4 *tool = new GameconfigEditorv4();
+        GameconfigEditorv4 *tool = new GameconfigEditorv4;
         addTab(tool, "GameConfig Editor");
     });
     gc->addAction("v5 (Sonic Mania)", [this] {
@@ -278,7 +275,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     tools->addAction("Palette Editor", [this] {
         setStatus("Opening Palette Editor...");
-        PaletteEditor *tool = new PaletteEditor();
+        PaletteEditor *tool = new PaletteEditor;
         addTab(tool, "Palette Editor");
     });
 

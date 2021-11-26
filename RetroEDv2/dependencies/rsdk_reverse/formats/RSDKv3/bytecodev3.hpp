@@ -22,11 +22,11 @@ public:
         int mainScript       = 0;
         int playerScript     = 0;
         int drawScript       = 0;
-        int m_startupScript    = 0;
+        int startupScript    = 0;
         int mainJumpTable    = 0;
         int playerJumpTable  = 0;
         int drawJumpTable    = 0;
-        int m_startupJumpTable = 0;
+        int startupJumpTable = 0;
     };
 
     Bytecode() {}
@@ -49,7 +49,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -62,11 +62,11 @@ public:
     QList<ObjectScript> scriptList;
     QList<FunctionScript> functionList;
 
-    int m_globalScriptDataCount = 0;
-    int m_globalJumpTableCount  = 0;
+    int globalScriptDataCount = 0;
+    int globalJumpTableCount  = 0;
     int globalScriptCount     = 0;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv3

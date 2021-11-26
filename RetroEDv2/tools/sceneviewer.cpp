@@ -2270,6 +2270,13 @@ void SceneViewer::addEnumVariable(QString name, int value)
     }
 }
 
+void SceneViewer::setVariableAlias(int varID, QString alias)
+{
+    if (activeVarObj >= 0) {
+        objects[activeVarObj].variablesAliases[varID] = alias;
+    }
+}
+
 void SceneViewer::refreshResize()
 {
     if (storedW == prevStoredW && storedH == prevStoredH)

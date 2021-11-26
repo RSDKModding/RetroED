@@ -130,7 +130,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             ui->hitboxB->setValue(0);
             ui->hitboxT->setValue(0);
             ui->duration->setValue(0);
-            ui->id->setValue(0);
+            ui->id->setText("");
 
             bool invalid = c == -1 || c >= frameCount();
 
@@ -193,7 +193,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                 ui->hitboxB->setDisabled(true);
             }
             ui->duration->setValue(f.duration);
-            ui->id->setValue(f.id);
+            ui->id->setText(QChar::fromLatin1(f.id));
 
             connect(ui->sheetID, QOverload<int>::of(&QComboBox::currentIndexChanged),
                     [&f, this](int v) {
@@ -325,8 +325,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                 }
             });
 
-            connect(ui->id, QOverload<int>::of(&QSpinBox::valueChanged), [&f, this](int v) {
-                f.id = v;
+            connect(ui->id, &QLineEdit::textChanged, [&f, this](QString s) {
+                f.id = (s.length() > 0 ? s[0].toLatin1() : 0);
                 doAction("Changed frame ID", true);
             });
 
@@ -481,11 +481,9 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             if (c >= 0 && frameCount() > 0) {
                 ui->frameList->setCurrentIndex(frameModel->item(0)->index());
                 frameFunc(0);
-                // ui->properties->setCurrentIndex(1);
             }
             else {
                 frameFunc(-1);
-                // ui->properties->setCurrentIndex(0);
             }
             ui->properties->setCurrentIndex(0);
         };

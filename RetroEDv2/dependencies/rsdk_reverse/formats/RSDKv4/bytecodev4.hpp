@@ -47,7 +47,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -60,11 +60,11 @@ public:
     QList<ObjectScript> scriptList;
     QList<FunctionScript> functionList;
 
-    int m_globalScriptDataCount = 0;
-    int m_globalJumpTableCount  = 0;
+    int globalScriptDataCount = 0;
+    int globalJumpTableCount  = 0;
     int globalScriptCount     = 0;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv4

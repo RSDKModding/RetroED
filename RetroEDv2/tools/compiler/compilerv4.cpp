@@ -1,6 +1,6 @@
 #include "includes.hpp"
 
-#define COMMONALIAS_COUNT_v4 (0x51)
+#define COMMONALIAS_COUNT_v4 (0x55)
 #define ALIAS_COUNT_TRIM_v4  (0xE0)
 #define ALIAS_COUNT_v4       (COMMONALIAS_COUNT_v4 + ALIAS_COUNT_TRIM_v4)
 
@@ -358,7 +358,7 @@ const FunctionInfov4 functionsv4[] = {
     FunctionInfov4("break", 0),     // break
     FunctionInfov4("endswitch", 0), // endswitch
 
-    // Math functionsv4
+    // Math functions
     FunctionInfov4("Rand", 2),
     FunctionInfov4("Sin", 2),
     FunctionInfov4("Cos", 2),
@@ -368,7 +368,7 @@ const FunctionInfov4 functionsv4[] = {
     FunctionInfov4("Interpolate", 4),
     FunctionInfov4("InterpolateXY", 7),
 
-    // Graphics functionsv4
+    // Graphics functions
     FunctionInfov4("LoadSpriteSheet", 1),
     FunctionInfov4("RemoveSpriteSheet", 1),
     FunctionInfov4("DrawSprite", 1),
@@ -403,7 +403,7 @@ const FunctionInfov4 functionsv4[] = {
     FunctionInfov4("BoxCollisionTest", 11),
     FunctionInfov4("CreateTempObject", 4),
 
-    // Player and Animation functionsv4
+    // Player and Animation functions
     FunctionInfov4("ProcessObjectMovement", 0),
     FunctionInfov4("ProcessObjectControl", 0),
     FunctionInfov4("ProcessAnimation", 0),
@@ -489,94 +489,103 @@ const FunctionInfov4 functionsv4[] = {
     FunctionInfov4("AddEditorVariable", 1),
     FunctionInfov4("SetActiveVariable", 1),
     FunctionInfov4("AddEnumVariable", 2),
+    FunctionInfov4("SetVariableAlias", 2),
 };
 
-AliasInfov4 publicAliases[ALIAS_COUNT_v4] = { AliasInfov4("true", "1"),
-                                              AliasInfov4("false", "0"),
-                                              AliasInfov4("FX_SCALE", "0"),
-                                              AliasInfov4("FX_ROTATE", "1"),
-                                              AliasInfov4("FX_ROTOZOOM", "2"),
-                                              AliasInfov4("FX_INK", "3"),
-                                              AliasInfov4("PRESENTATION_STAGE", "0"),
-                                              AliasInfov4("REGULAR_STAGE", "1"),
-                                              AliasInfov4("BONUS_STAGE", "2"),
-                                              AliasInfov4("SPECIAL_STAGE", "3"),
-                                              AliasInfov4("MENU_1", "0"),
-                                              AliasInfov4("MENU_2", "1"),
-                                              AliasInfov4("C_TOUCH", "0"),
-                                              AliasInfov4("C_BOX", "1"),
-                                              AliasInfov4("C_BOX2", "2"),
-                                              AliasInfov4("C_PLATFORM", "3"),
-                                              AliasInfov4("MAT_WORLD", "0"),
-                                              AliasInfov4("MAT_VIEW", "1"),
-                                              AliasInfov4("MAT_TEMP", "2"),
-                                              AliasInfov4("FX_FLIP", "5"),
-                                              AliasInfov4("FACING_LEFT", "1"),
-                                              AliasInfov4("FACING_RIGHT", "0"),
-                                              AliasInfov4("FLIP_NONE", "0"),
-                                              AliasInfov4("FLIP_X", "1"),
-                                              AliasInfov4("FLIP_Y", "2"),
-                                              AliasInfov4("FLIP_XY", "3"),
-                                              AliasInfov4("STAGE_RUNNING", "1"),
-                                              AliasInfov4("STAGE_PAUSED", "2"),
-                                              AliasInfov4("STAGE_FROZEN", "3"),
-                                              AliasInfov4("STAGE_2P", "3"),
-                                              AliasInfov4("RESET_GAME", "2"),
-                                              AliasInfov4("RETRO_STANDARD", "0"),
-                                              AliasInfov4("RETRO_MOBILE", "1"),
-                                              AliasInfov4("INK_NONE", "0"),
-                                              AliasInfov4("INK_BLEND", "1"),
-                                              AliasInfov4("INK_ALPHA", "2"),
-                                              AliasInfov4("INK_ADD", "3"),
-                                              AliasInfov4("INK_SUB", "4"),
-                                              AliasInfov4("CSIDE_FLOOR", "0"),
-                                              AliasInfov4("CSIDE_LWALL", "1"),
-                                              AliasInfov4("CSIDE_RWALL", "2"),
-                                              AliasInfov4("CSIDE_ROOF", "3"),
-                                              AliasInfov4("CMODE_FLOOR", "0"),
-                                              AliasInfov4("CMODE_LWALL", "1"),
-                                              AliasInfov4("CMODE_ROOF", "2"),
-                                              AliasInfov4("CMODE_RWALL", "3"),
-                                              AliasInfov4("PATH_A", "0"),
-                                              AliasInfov4("PATH_B", "1"),
-                                              AliasInfov4("GRAVITY_GROUND", "0"),
-                                              AliasInfov4("GRAVITY_AIR", "1"),
-                                              AliasInfov4("FACE_TEXTURED_3D", "0"),
-                                              AliasInfov4("FACE_TEXTURED_2D", "1"),
-                                              AliasInfov4("FACE_COLOURED_3D", "2"),
-                                              AliasInfov4("FACE_COLOURED_2D", "3"),
-                                              AliasInfov4("FACE_FADED", "4"),
-                                              AliasInfov4("FACE_TEXTURED_C", "5"),
-                                              AliasInfov4("FACE_TEXTURED_D", "6"),
-                                              AliasInfov4("FACE_SPRITE_3D", "7"),
-                                              AliasInfov4("PRIORITY_ACTIVE_BOUNDS", "0"),
-                                              AliasInfov4("PRIORITY_ACTIVE", "1"),
-                                              AliasInfov4("PRIORITY_ACTIVE_PAUSED", "2"),
-                                              AliasInfov4("PRIORITY_XBOUNDS", "3"),
-                                              AliasInfov4("PRIORITY_XBOUNDS_DESTROY", "4"),
-                                              AliasInfov4("PRIORITY_INACTIVE", "5"),
-                                              AliasInfov4("PRIORITY_BOUNDS_SMALL", "6"),
-                                              AliasInfov4("PRIORITY_UNKNOWN", "7"),
-                                              AliasInfov4("TILEINFO_INDEX", "0"),
-                                              AliasInfov4("TILEINFO_DIRECTION", "1"),
-                                              AliasInfov4("TILEINFO_VISUALPLANE", "2"),
-                                              AliasInfov4("TILEINFO_SOLIDITYA", "3"),
-                                              AliasInfov4("TILEINFO_SOLIDITYB", "4"),
-                                              AliasInfov4("TILEINFO_FLAGSA", "5"),
-                                              AliasInfov4("TILEINFO_ANGLEA", "6"),
-                                              AliasInfov4("TILEINFO_FLAGSB", "7"),
-                                              AliasInfov4("TILEINFO_ANGLEB", "8"),
-                                              AliasInfov4("TEXTINFO_TEXTDATA", "0"),
-                                              AliasInfov4("TEXTINFO_TEXTSIZE", "1"),
-                                              AliasInfov4("TEXTINFO_ROWCOUNT", "1"),
-                                              AliasInfov4("ONLINEMENU_ACHIEVEMENTS", "0"),
-                                              AliasInfov4("ONLINEMENU_LEADERBOARDS", "1"),
-                                              AliasInfov4("TILELAYER_NOSCROLL", "0"),
-                                              AliasInfov4("TILELAYER_HSCROLL", "1"),
-                                              AliasInfov4("TILELAYER_VSCROLL", "2"),
-                                              AliasInfov4("TILELAYER_3DFLOOR", "3"),
-                                              AliasInfov4("TILELAYER_3DSKY", "4"),
-                                              AliasInfov4("GROUP_ALL", "0") };
+AliasInfov4 publicAliases[ALIAS_COUNT_v4] = {
+    AliasInfov4("true", "1"),
+    AliasInfov4("false", "0"),
+    AliasInfov4("FX_SCALE", "0"),
+    AliasInfov4("FX_ROTATE", "1"),
+    AliasInfov4("FX_ROTOZOOM", "2"),
+    AliasInfov4("FX_INK", "3"),
+    AliasInfov4("PRESENTATION_STAGE", "0"),
+    AliasInfov4("REGULAR_STAGE", "1"),
+    AliasInfov4("BONUS_STAGE", "2"),
+    AliasInfov4("SPECIAL_STAGE", "3"),
+    AliasInfov4("MENU_1", "0"),
+    AliasInfov4("MENU_2", "1"),
+    AliasInfov4("C_TOUCH", "0"),
+    AliasInfov4("C_BOX", "1"),
+    AliasInfov4("C_BOX2", "2"),
+    AliasInfov4("C_PLATFORM", "3"),
+    AliasInfov4("MAT_WORLD", "0"),
+    AliasInfov4("MAT_VIEW", "1"),
+    AliasInfov4("MAT_TEMP", "2"),
+    AliasInfov4("FX_FLIP", "5"),
+    AliasInfov4("FACING_LEFT", "1"),
+    AliasInfov4("FACING_RIGHT", "0"),
+    AliasInfov4("FLIP_NONE", "0"),
+    AliasInfov4("FLIP_X", "1"),
+    AliasInfov4("FLIP_Y", "2"),
+    AliasInfov4("FLIP_XY", "3"),
+    AliasInfov4("STAGE_RUNNING", "1"),
+    AliasInfov4("STAGE_PAUSED", "2"),
+    AliasInfov4("STAGE_FROZEN", "3"),
+    AliasInfov4("STAGE_2P", "3"),
+    AliasInfov4("RESET_GAME", "2"),
+    AliasInfov4("RETRO_STANDARD", "0"),
+    AliasInfov4("RETRO_MOBILE", "1"),
+    AliasInfov4("INK_NONE", "0"),
+    AliasInfov4("INK_BLEND", "1"),
+    AliasInfov4("INK_ALPHA", "2"),
+    AliasInfov4("INK_ADD", "3"),
+    AliasInfov4("INK_SUB", "4"),
+    AliasInfov4("CSIDE_FLOOR", "0"),
+    AliasInfov4("CSIDE_LWALL", "1"),
+    AliasInfov4("CSIDE_RWALL", "2"),
+    AliasInfov4("CSIDE_ROOF", "3"),
+    AliasInfov4("CMODE_FLOOR", "0"),
+    AliasInfov4("CMODE_LWALL", "1"),
+    AliasInfov4("CMODE_ROOF", "2"),
+    AliasInfov4("CMODE_RWALL", "3"),
+    AliasInfov4("PATH_A", "0"),
+    AliasInfov4("PATH_B", "1"),
+    AliasInfov4("GRAVITY_GROUND", "0"),
+    AliasInfov4("GRAVITY_AIR", "1"),
+    AliasInfov4("FACE_TEXTURED_3D", "0"),
+    AliasInfov4("FACE_TEXTURED_2D", "1"),
+    AliasInfov4("FACE_COLOURED_3D", "2"),
+    AliasInfov4("FACE_COLOURED_2D", "3"),
+    AliasInfov4("FACE_FADED", "4"),
+    AliasInfov4("FACE_TEXTURED_C", "5"),
+    AliasInfov4("FACE_TEXTURED_D", "6"),
+    AliasInfov4("FACE_SPRITE_3D", "7"),
+    AliasInfov4("PRIORITY_ACTIVE_BOUNDS", "0"),
+    AliasInfov4("PRIORITY_ACTIVE", "1"),
+    AliasInfov4("PRIORITY_ACTIVE_PAUSED", "2"),
+    AliasInfov4("PRIORITY_XBOUNDS", "3"),
+    AliasInfov4("PRIORITY_XBOUNDS_DESTROY", "4"),
+    AliasInfov4("PRIORITY_INACTIVE", "5"),
+    AliasInfov4("PRIORITY_BOUNDS_SMALL", "6"),
+    AliasInfov4("PRIORITY_UNKNOWN", "7"),
+    AliasInfov4("TILEINFO_INDEX", "0"),
+    AliasInfov4("TILEINFO_DIRECTION", "1"),
+    AliasInfov4("TILEINFO_VISUALPLANE", "2"),
+    AliasInfov4("TILEINFO_SOLIDITYA", "3"),
+    AliasInfov4("TILEINFO_SOLIDITYB", "4"),
+    AliasInfov4("TILEINFO_FLAGSA", "5"),
+    AliasInfov4("TILEINFO_ANGLEA", "6"),
+    AliasInfov4("TILEINFO_FLAGSB", "7"),
+    AliasInfov4("TILEINFO_ANGLEB", "8"),
+    AliasInfov4("TEXTINFO_TEXTDATA", "0"),
+    AliasInfov4("TEXTINFO_TEXTSIZE", "1"),
+    AliasInfov4("TEXTINFO_ROWCOUNT", "1"),
+    AliasInfov4("ONLINEMENU_ACHIEVEMENTS", "0"),
+    AliasInfov4("ONLINEMENU_LEADERBOARDS", "1"),
+    AliasInfov4("TILELAYER_NOSCROLL", "0"),
+    AliasInfov4("TILELAYER_HSCROLL", "1"),
+    AliasInfov4("TILELAYER_VSCROLL", "2"),
+    AliasInfov4("TILELAYER_3DFLOOR", "3"),
+    AliasInfov4("TILELAYER_3DSKY", "4"),
+    AliasInfov4("GROUP_ALL", "0"),
+    // EDITOR-ONLY
+    AliasInfov4("VAR_ALIAS_PROPVAL", "0"),
+    AliasInfov4("VAR_ALIAS_VAL0", "1"),
+    AliasInfov4("VAR_ALIAS_VAL1", "2"),
+    AliasInfov4("VAR_ALIAS_VAL2", "3"),
+    AliasInfov4("VAR_ALIAS_VAL3", "4"),
+};
 AliasInfov4 privateAliases[ALIAS_COUNT_TRIM_v4];
 
 #define TABLE_COUNT       (0x200)
@@ -1052,6 +1061,7 @@ enum ScrFunc {
     FUNC_ADDEDITORVAR,
     FUNC_SETACTIVEVAR,
     FUNC_ADDENUMVAR,
+    FUNC_SETVARALIAS,
     FUNC_MAX_CNT
 };
 
@@ -1974,8 +1984,10 @@ void Compilerv4::copyAliasStr(QString &dest, QString text, bool arrayIndex)
     }
 }
 
-void Compilerv4::parseScriptFile(QString scriptName, int scriptID)
+void Compilerv4::parseScriptFile(QString scriptName, int scriptID, bool inEditor)
 {
+    this->inEditor = inEditor;
+
     jumpTableStackPos = 0;
     lineID            = 0;
 
@@ -2088,26 +2100,105 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID)
                         scriptText = "";
                     }
 
-                    if (scriptText == "eventRSDKDraw") {
-                        parseMode                                              = PARSEMODE_FUNCTION;
-                        objectScriptList[scriptID].eventRSDKDraw.scriptCodePtr = scriptDataPos;
-                        objectScriptList[scriptID].eventRSDKDraw.jumpTablePtr  = jumpTableDataPos;
-                        scriptDataOffset                                       = scriptDataPos;
-                        jumpTableDataOffset                                    = jumpTableDataPos;
+                    if (inEditor) {
+                        if (scriptText == "eventRSDKDraw") {
+                            parseMode                                              = PARSEMODE_FUNCTION;
+                            objectScriptList[scriptID].eventRSDKDraw.scriptCodePtr = scriptDataPos;
+                            objectScriptList[scriptID].eventRSDKDraw.jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                                       = scriptDataPos;
+                            jumpTableDataOffset                                    = jumpTableDataPos;
+                        }
+                        if (scriptText == "eventRSDKLoad") {
+                            parseMode                                              = PARSEMODE_FUNCTION;
+                            objectScriptList[scriptID].eventRSDKLoad.scriptCodePtr = scriptDataPos;
+                            objectScriptList[scriptID].eventRSDKLoad.jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                                       = scriptDataPos;
+                            jumpTableDataOffset                                    = jumpTableDataPos;
+                        }
+                        if (scriptText == "eventRSDKEdit") {
+                            parseMode                                              = PARSEMODE_FUNCTION;
+                            objectScriptList[scriptID].eventRSDKEdit.scriptCodePtr = scriptDataPos;
+                            objectScriptList[scriptID].eventRSDKEdit.jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                                       = scriptDataPos;
+                            jumpTableDataOffset                                    = jumpTableDataPos;
+                        }
                     }
-                    if (scriptText == "eventRSDKLoad") {
-                        parseMode                                              = PARSEMODE_FUNCTION;
-                        objectScriptList[scriptID].eventRSDKLoad.scriptCodePtr = scriptDataPos;
-                        objectScriptList[scriptID].eventRSDKLoad.jumpTablePtr  = jumpTableDataPos;
-                        scriptDataOffset                                       = scriptDataPos;
-                        jumpTableDataOffset                                    = jumpTableDataPos;
+                    else {
+                        if (scriptText == "eventObjectMain") {
+                            parseMode                                              = PARSEMODE_FUNCTION;
+                            objectScriptList[scriptID].eventRSDKDraw.scriptCodePtr = scriptDataPos;
+                            objectScriptList[scriptID].eventRSDKDraw.jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                                       = scriptDataPos;
+                            jumpTableDataOffset                                    = jumpTableDataPos;
+                        }
+                        if (scriptText == "eventObjectDraw") {
+                            parseMode                                              = PARSEMODE_FUNCTION;
+                            objectScriptList[scriptID].eventRSDKDraw.scriptCodePtr = scriptDataPos;
+                            objectScriptList[scriptID].eventRSDKDraw.jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                                       = scriptDataPos;
+                            jumpTableDataOffset                                    = jumpTableDataPos;
+                        }
+                        if (scriptText == "eventObjectStartup") {
+                            parseMode                                              = PARSEMODE_FUNCTION;
+                            objectScriptList[scriptID].eventRSDKLoad.scriptCodePtr = scriptDataPos;
+                            objectScriptList[scriptID].eventRSDKLoad.jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                                       = scriptDataPos;
+                            jumpTableDataOffset                                    = jumpTableDataPos;
+                        }
                     }
-                    if (scriptText == "eventRSDKEdit") {
-                        parseMode                                              = PARSEMODE_FUNCTION;
-                        objectScriptList[scriptID].eventRSDKEdit.scriptCodePtr = scriptDataPos;
-                        objectScriptList[scriptID].eventRSDKEdit.jumpTablePtr  = jumpTableDataPos;
-                        scriptDataOffset                                       = scriptDataPos;
-                        jumpTableDataOffset                                    = jumpTableDataPos;
+
+                    if (!findStringToken(scriptText, "reservefunction", 1)) { // forward decl
+                        QString funcName = "";
+                        for (textPos = 15; textPos < scriptText.length(); ++textPos)
+                            funcName += scriptText[textPos];
+
+                        int funcID = -1;
+                        for (int f = 0; f < functionCount; ++f) {
+                            if (funcName == functionNames[f])
+                                funcID = f;
+                        }
+
+                        if (functionCount < FUNCTION_COUNT && funcID == -1) {
+                            functionNames[functionCount++] = funcName;
+                        }
+                        else {
+                            printLog(QString("Warning: Function %1 has already been reserved!")
+                                         .arg(funcName));
+                        }
+                        parseMode = PARSEMODE_SCOPELESS;
+                    }
+                    else if (!findStringToken(scriptText, "function", 1)) { // regular decl
+                        QString funcName = "";
+                        for (textPos = 8; textPos < scriptText.length(); ++textPos)
+                            funcName += scriptText[textPos];
+
+                        int funcID = -1;
+                        for (int f = 0; f < functionCount; ++f) {
+                            if (funcName == functionNames[f])
+                                funcID = f;
+                        }
+                        if (funcID <= -1) {
+                            if (functionCount >= FUNCTION_COUNT) {
+                                parseMode = PARSEMODE_SCOPELESS;
+                            }
+                            else {
+                                functionNames[functionCount]              = funcName;
+                                functionList[functionCount].scriptCodePtr = scriptDataPos;
+                                functionList[functionCount].jumpTablePtr  = jumpTableDataPos;
+                                scriptDataOffset                          = scriptDataPos;
+                                jumpTableDataOffset                       = jumpTableDataPos;
+                                parseMode                                 = PARSEMODE_FUNCTION;
+                                ++functionCount;
+                            }
+                        }
+                        else {
+                            functionNames[funcID]              = funcName;
+                            functionList[funcID].scriptCodePtr = scriptDataPos;
+                            functionList[funcID].jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                   = scriptDataPos;
+                            jumpTableDataOffset                = jumpTableDataPos;
+                            parseMode                          = PARSEMODE_FUNCTION;
+                        }
                     }
                     break;
                 case PARSEMODE_PLATFORMSKIP:
@@ -2216,7 +2307,7 @@ void Compilerv4::clearScriptData()
 
     memset(foreachStack, -1, FORSTACK_COUNT_v4 * sizeof(int));
     memset(jumpTableStack, 0, JUMPSTACK_COUNT_v4 * sizeof(int));
-    // memset(functionStack, 0, FUNCSTACK_COUNT_v4 * sizeof(int));
+    memset(functionStack, 0, FUNCSTACK_COUNT_v4 * sizeof(int));
 
     scriptFrameCount = 0;
 
@@ -2244,14 +2335,23 @@ void Compilerv4::clearScriptData()
     privateTableCount = 0;
 
     for (int o = 0; o < OBJECT_COUNT; ++o) {
-        ObjectScript *scriptInfo                = &objectScriptList[o];
+        ObjectScript *scriptInfo = &objectScriptList[o];
+
+        scriptInfo->eventMain.scriptCodePtr    = SCRIPTDATA_COUNT_v4 - 1;
+        scriptInfo->eventMain.jumpTablePtr     = JUMPTABLE_COUNT_v4 - 1;
+        scriptInfo->eventDraw.scriptCodePtr    = SCRIPTDATA_COUNT_v4 - 1;
+        scriptInfo->eventDraw.jumpTablePtr     = JUMPTABLE_COUNT_v4 - 1;
+        scriptInfo->eventStartup.scriptCodePtr = SCRIPTDATA_COUNT_v4 - 1;
+        scriptInfo->eventStartup.jumpTablePtr  = JUMPTABLE_COUNT_v4 - 1;
+
         scriptInfo->eventRSDKDraw.scriptCodePtr = SCRIPTDATA_COUNT_v4 - 1;
         scriptInfo->eventRSDKDraw.jumpTablePtr  = JUMPTABLE_COUNT_v4 - 1;
         scriptInfo->eventRSDKLoad.scriptCodePtr = SCRIPTDATA_COUNT_v4 - 1;
         scriptInfo->eventRSDKLoad.jumpTablePtr  = JUMPTABLE_COUNT_v4 - 1;
         scriptInfo->eventRSDKEdit.scriptCodePtr = SCRIPTDATA_COUNT_v4 - 1;
         scriptInfo->eventRSDKEdit.jumpTablePtr  = JUMPTABLE_COUNT_v4 - 1;
-        typeNames[o]                            = "";
+
+        typeNames[o] = "";
     }
 
     for (int f = 0; f < FUNCTION_COUNT; ++f) {
@@ -2280,14 +2380,15 @@ void Compilerv4::writeBytecode(QString path)
     bytecode.scriptList.clear();
     for (int i = globalScriptCount; i < scriptCount; ++i) {
         RSDKv4::Bytecode::ObjectScript scr;
-        scr.drawScript    = objectScriptList[i].eventRSDKDraw.scriptCodePtr;
-        scr.drawJumpTable = objectScriptList[i].eventRSDKDraw.jumpTablePtr;
 
-        scr.startupScript    = objectScriptList[i].eventRSDKLoad.scriptCodePtr;
-        scr.startupJumpTable = objectScriptList[i].eventRSDKLoad.jumpTablePtr;
+        scr.mainScript    = objectScriptList[i].eventMain.scriptCodePtr;
+        scr.mainJumpTable = objectScriptList[i].eventMain.jumpTablePtr;
 
-        scr.mainScript    = objectScriptList[i].eventRSDKEdit.scriptCodePtr;
-        scr.mainJumpTable = objectScriptList[i].eventRSDKEdit.jumpTablePtr;
+        scr.drawScript    = objectScriptList[i].eventDraw.scriptCodePtr;
+        scr.drawJumpTable = objectScriptList[i].eventDraw.jumpTablePtr;
+
+        scr.startupScript    = objectScriptList[i].eventStartup.scriptCodePtr;
+        scr.startupJumpTable = objectScriptList[i].eventStartup.jumpTablePtr;
 
         bytecode.scriptList.append(scr);
     }
@@ -3591,10 +3692,26 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
             case FUNC_MATRIXROTATEXYZ: opcodeSize = 0; break;
             case FUNC_MATRIXINVERSE: opcodeSize = 0; break;
             case FUNC_TRANSFORMVERTICES: opcodeSize = 0; break;
-            case FUNC_CALLFUNCTION: {
+            case FUNC_CALLFUNCTION:
+                opcodeSize                        = 0;
+                functionStack[functionStackPos++] = scriptDataPtr;
+                functionStack[functionStackPos++] = jumpTablePtr;
+                functionStack[functionStackPos++] = scriptCodePtr;
+                scriptCodePtr                     = functionList[scriptEng.operands[0]].scriptCodePtr;
+                jumpTablePtr                      = functionList[scriptEng.operands[0]].jumpTablePtr;
+                scriptDataPtr                     = scriptCodePtr;
+                break;
+            case FUNC_RETURN:
                 opcodeSize = 0;
-            } break;
-            case FUNC_RETURN: opcodeSize = 0; break;
+                if (!functionStackPos) { // event, stop running
+                    running = false;
+                }
+                else { // function, jump out
+                    scriptCodePtr = functionStack[--functionStackPos];
+                    jumpTablePtr  = functionStack[--functionStackPos];
+                    scriptDataPtr = functionStack[--functionStackPos];
+                }
+                break;
             case FUNC_SETLAYERDEFORMATION: opcodeSize = 0; break;
             case FUNC_CHECKTOUCHRECT: opcodeSize = 0; break;
             case FUNC_GETTILELAYERENTRY: opcodeSize = 0; break;
@@ -3740,6 +3857,13 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                 opcodeSize = 0;
                 if (scriptEvent == EVENT_RSDKLOAD) {
                     viewer->addEnumVariable(scriptText, scriptEng.operands[1]);
+                }
+                break;
+            }
+            case FUNC_SETVARALIAS: {
+                opcodeSize = 0;
+                if (scriptEvent == EVENT_RSDKLOAD) {
+                    viewer->setVariableAlias(scriptEng.operands[0], scriptText);
                 }
                 break;
             }

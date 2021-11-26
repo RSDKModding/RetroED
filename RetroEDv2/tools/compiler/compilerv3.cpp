@@ -1390,8 +1390,10 @@ void Compilerv3::copyAliasStr(QString &dest, QString text, bool arrayIndex)
     }
 }
 
-void Compilerv3::parseScriptFile(QString scriptName, int scriptID)
+void Compilerv3::parseScriptFile(QString scriptName, int scriptID, bool inEditor)
 {
+    this->inEditor = inEditor;
+
     jumpTableStackPos = 0;
     lineID            = 0;
     aliasCount        = COMMONALIAS_COUNT;
@@ -1467,26 +1469,111 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID)
                 case PARSEMODE_SCOPELESS:
                     ++lineID;
                     checkAliasText(scriptText);
-                    if (scriptText == "subRSDKDraw") {
-                        parseMode                                            = PARSEMODE_FUNCTION;
-                        objectScriptList[scriptID].subRSDKDraw.scriptCodePtr = scriptDataPos;
-                        objectScriptList[scriptID].subRSDKDraw.jumpTablePtr  = jumpTableDataPos;
-                        scriptDataOffset                                     = scriptDataPos;
-                        jumpTableDataOffset                                  = jumpTableDataPos;
+                    if (inEditor) {
+                        if (scriptText == "subRSDKDraw") {
+                            parseMode                                            = PARSEMODE_FUNCTION;
+                            objectScriptList[scriptID].subRSDKDraw.scriptCodePtr = scriptDataPos;
+                            objectScriptList[scriptID].subRSDKDraw.jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                                     = scriptDataPos;
+                            jumpTableDataOffset                                  = jumpTableDataPos;
+                        }
+                        if (scriptText == "subRSDKLoad") {
+                            parseMode                                            = PARSEMODE_FUNCTION;
+                            objectScriptList[scriptID].subRSDKLoad.scriptCodePtr = scriptDataPos;
+                            objectScriptList[scriptID].subRSDKLoad.jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                                     = scriptDataPos;
+                            jumpTableDataOffset                                  = jumpTableDataPos;
+                        }
+                        if (scriptText == "subRSDKEdit") {
+                            parseMode                                            = PARSEMODE_FUNCTION;
+                            objectScriptList[scriptID].subRSDKEdit.scriptCodePtr = scriptDataPos;
+                            objectScriptList[scriptID].subRSDKEdit.jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                                     = scriptDataPos;
+                            jumpTableDataOffset                                  = jumpTableDataPos;
+                        }
                     }
-                    if (scriptText == "subRSDKLoad") {
-                        parseMode                                            = PARSEMODE_FUNCTION;
-                        objectScriptList[scriptID].subRSDKLoad.scriptCodePtr = scriptDataPos;
-                        objectScriptList[scriptID].subRSDKLoad.jumpTablePtr  = jumpTableDataPos;
-                        scriptDataOffset                                     = scriptDataPos;
-                        jumpTableDataOffset                                  = jumpTableDataPos;
+                    else {
+                        if (scriptText == "subObjectMain") {
+                            parseMode                                        = PARSEMODE_FUNCTION;
+                            objectScriptList[scriptID].subMain.scriptCodePtr = scriptDataPos;
+                            objectScriptList[scriptID].subMain.jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                                 = scriptDataPos;
+                            jumpTableDataOffset                              = jumpTableDataPos;
+                        }
+                        if (scriptText == "subObjectPlayerInteraction") {
+                            parseMode = PARSEMODE_FUNCTION;
+                            objectScriptList[scriptID].subPlayerInteraction.scriptCodePtr =
+                                scriptDataPos;
+                            objectScriptList[scriptID].subPlayerInteraction.jumpTablePtr =
+                                jumpTableDataPos;
+                            scriptDataOffset    = scriptDataPos;
+                            jumpTableDataOffset = jumpTableDataPos;
+                        }
+                        if (scriptText == "subObjectDraw") {
+                            parseMode                                        = PARSEMODE_FUNCTION;
+                            objectScriptList[scriptID].subDraw.scriptCodePtr = scriptDataPos;
+                            objectScriptList[scriptID].subDraw.jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                                 = scriptDataPos;
+                            jumpTableDataOffset                              = jumpTableDataPos;
+                        }
+                        if (scriptText == "subObjectStartup") {
+                            parseMode                                           = PARSEMODE_FUNCTION;
+                            objectScriptList[scriptID].subStartup.scriptCodePtr = scriptDataPos;
+                            objectScriptList[scriptID].subStartup.jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                                    = scriptDataPos;
+                            jumpTableDataOffset                                 = jumpTableDataPos;
+                        }
                     }
-                    if (scriptText == "subRSDKEdit") {
-                        parseMode                                            = PARSEMODE_FUNCTION;
-                        objectScriptList[scriptID].subRSDKEdit.scriptCodePtr = scriptDataPos;
-                        objectScriptList[scriptID].subRSDKEdit.jumpTablePtr  = jumpTableDataPos;
-                        scriptDataOffset                                     = scriptDataPos;
-                        jumpTableDataOffset                                  = jumpTableDataPos;
+
+                    if (findStringToken(scriptText, "function", 1)) {
+                        if (findStringToken(scriptText, "function", 1) == 1) {
+                            QString funcName = "";
+                            for (textPos = 9; textPos < scriptText.length(); ++textPos)
+                                funcName += scriptText[textPos];
+
+                            int funcID = -1;
+                            for (int f = 0; f < functionCount; ++f) {
+                                if (funcName == functionNames[f])
+                                    funcID = f;
+                            }
+                            if (functionCount < FUNCTION_COUNT && funcID == -1) {
+                                functionNames[functionCount++] = funcName;
+                            }
+                            parseMode = PARSEMODE_SCOPELESS;
+                        }
+                    }
+                    else {
+                        QString funcName = "";
+                        for (textPos = 8; textPos < scriptText.length(); ++textPos)
+                            funcName += scriptText[textPos];
+
+                        int funcID = -1;
+                        for (int f = 0; f < functionCount; ++f) {
+                            if (funcName == functionNames[f])
+                                funcID = f;
+                        }
+                        if (funcID <= -1) {
+                            if (functionCount >= FUNCTION_COUNT) {
+                                parseMode = PARSEMODE_SCOPELESS;
+                            }
+                            else {
+                                functionNames[functionCount]              = funcName;
+                                functionList[functionCount].scriptCodePtr = scriptDataPos;
+                                functionList[functionCount].jumpTablePtr  = jumpTableDataPos;
+                                scriptDataOffset                          = scriptDataPos;
+                                jumpTableDataOffset                       = jumpTableDataPos;
+                                parseMode                                 = PARSEMODE_FUNCTION;
+                                ++functionCount;
+                            }
+                        }
+                        else {
+                            functionNames[funcID]              = funcName;
+                            functionList[funcID].scriptCodePtr = scriptDataPos;
+                            functionList[funcID].jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                   = scriptDataPos;
+                            jumpTableDataOffset                = jumpTableDataPos;
+                            parseMode                          = PARSEMODE_FUNCTION;
+                        }
                     }
                     break;
                 case PARSEMODE_PLATFORMSKIP:
@@ -1527,7 +1614,8 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID)
                         }
                         else if (findStringToken(scriptText, gamePlatform, 1) == -1
                                  && findStringToken(scriptText, gameRenderType, 1) == -1
-                                 && findStringToken(scriptText, gameHapticSetting, 1) == -1) {
+                                 && findStringToken(scriptText, gameHapticSetting, 1) == -1
+                                 && findStringToken(scriptText, "Use_Decomp", 1) == -1) {
                             // if NONE of these checks succeeded, then we skip everything until "end
                             // platform"
                             parseMode = PARSEMODE_PLATFORMSKIP;
@@ -1565,6 +1653,7 @@ void Compilerv3::clearScriptData()
 {
     memset(scriptData, 0, SCRIPTDATA_COUNT * sizeof(int));
     memset(jumpTableData, 0, JUMPTABLE_COUNT * sizeof(int));
+    memset(functionStack, 0, FUNCSTACK_COUNT * sizeof(int));
 
     jumpTableStackPos = 0;
 
@@ -1576,7 +1665,17 @@ void Compilerv3::clearScriptData()
     functionCount = 0;
 
     for (int o = 0; o < OBJECT_COUNT; ++o) {
-        ObjectScript *scriptInfo              = &objectScriptList[o];
+        ObjectScript *scriptInfo = &objectScriptList[o];
+
+        scriptInfo->subMain.scriptCodePtr              = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subMain.jumpTablePtr               = JUMPTABLE_COUNT - 1;
+        scriptInfo->subPlayerInteraction.scriptCodePtr = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subPlayerInteraction.jumpTablePtr  = JUMPTABLE_COUNT - 1;
+        scriptInfo->subDraw.scriptCodePtr              = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subDraw.jumpTablePtr               = JUMPTABLE_COUNT - 1;
+        scriptInfo->subStartup.scriptCodePtr           = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subStartup.jumpTablePtr            = JUMPTABLE_COUNT - 1;
+
         scriptInfo->subRSDKDraw.scriptCodePtr = SCRIPTDATA_COUNT - 1;
         scriptInfo->subRSDKDraw.jumpTablePtr  = JUMPTABLE_COUNT - 1;
         scriptInfo->subRSDKLoad.scriptCodePtr = SCRIPTDATA_COUNT - 1;
@@ -1612,14 +1711,18 @@ void Compilerv3::writeBytecode(QString path)
     bytecode.scriptList.clear();
     for (int i = globalScriptCount; i < scriptCount; ++i) {
         RSDKv3::Bytecode::ObjectScript scr;
-        scr.drawScript    = objectScriptList[i].subRSDKDraw.scriptCodePtr;
-        scr.drawJumpTable = objectScriptList[i].subRSDKDraw.jumpTablePtr;
 
-        scr.playerScript    = objectScriptList[i].subRSDKLoad.scriptCodePtr;
-        scr.playerJumpTable = objectScriptList[i].subRSDKLoad.jumpTablePtr;
+        scr.mainScript    = objectScriptList[i].subMain.scriptCodePtr;
+        scr.mainJumpTable = objectScriptList[i].subMain.jumpTablePtr;
 
-        scr.mainScript    = objectScriptList[i].subRSDKEdit.scriptCodePtr;
-        scr.mainJumpTable = objectScriptList[i].subRSDKEdit.jumpTablePtr;
+        scr.playerScript    = objectScriptList[i].subPlayerInteraction.scriptCodePtr;
+        scr.playerJumpTable = objectScriptList[i].subPlayerInteraction.jumpTablePtr;
+
+        scr.drawScript    = objectScriptList[i].subDraw.scriptCodePtr;
+        scr.drawJumpTable = objectScriptList[i].subDraw.jumpTablePtr;
+
+        scr.startupScript    = objectScriptList[i].subStartup.scriptCodePtr;
+        scr.startupJumpTable = objectScriptList[i].subStartup.jumpTablePtr;
 
         bytecode.scriptList.append(scr);
     }
@@ -2781,8 +2884,22 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
             case FUNC_MATRIXROTATEZ: opcodeSize = 0; break;
             case FUNC_MATRIXROTATEXYZ: opcodeSize = 0; break;
             case FUNC_TRANSFORMVERTICES: opcodeSize = 0; break;
-            case FUNC_CALLFUNCTION: opcodeSize = 0; break;
-            case FUNC_ENDFUNCTION: opcodeSize = 0; break;
+            case FUNC_CALLFUNCTION:
+                opcodeSize                        = 0;
+                functionStack[functionStackPos++] = scriptDataPtr;
+                functionStack[functionStackPos++] = jumpTablePtr;
+                functionStack[functionStackPos++] = scriptCodePtr;
+                scriptCodePtr                     = functionList[scriptEng.operands[0]].scriptCodePtr;
+                jumpTablePtr                      = functionList[scriptEng.operands[0]].jumpTablePtr;
+                scriptDataPtr                     = scriptCodePtr;
+                break;
+                break;
+            case FUNC_ENDFUNCTION:
+                opcodeSize    = 0;
+                scriptCodePtr = functionStack[--functionStackPos];
+                jumpTablePtr  = functionStack[--functionStackPos];
+                scriptDataPtr = functionStack[--functionStackPos];
+                break;
             case FUNC_SETLAYERDEFORMATION: opcodeSize = 0; break;
             case FUNC_CHECKTOUCHRECT: opcodeSize = 0; break;
             case FUNC_GETTILELAYERENTRY: opcodeSize = 0; break;

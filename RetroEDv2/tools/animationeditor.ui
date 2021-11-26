@@ -757,7 +757,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-117</y>
+        <y>0</y>
         <width>246</width>
         <height>464</height>
        </rect>
@@ -1216,26 +1216,17 @@
                 <item row="1" column="0">
                  <widget class="QLabel" name="label_25">
                   <property name="text">
-                   <string>ID</string>
+                   <string>Unicode Char</string>
                   </property>
                  </widget>
                 </item>
                 <item row="1" column="1">
-                 <widget class="QSpinBox" name="id">
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>16777215</height>
-                   </size>
+                 <widget class="QLineEdit" name="id">
+                  <property name="text">
+                   <string>0</string>
                   </property>
-                  <property name="toolTip">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;the frame's ID, this is a general purpose value that serves to identify frames in occasions when needed (eg: drawString uses it to find what character to match to each frame), can be used as &amp;quot;behaviour&amp;quot; if really needed&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                  </property>
-                  <property name="minimum">
-                   <number>0</number>
-                  </property>
-                  <property name="maximum">
-                   <number>65535</number>
+                  <property name="maxLength">
+                   <number>1</number>
                   </property>
                  </widget>
                 </item>

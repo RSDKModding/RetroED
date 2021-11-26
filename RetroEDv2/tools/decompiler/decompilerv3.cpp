@@ -1153,7 +1153,7 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
     for (int i = globalScriptCount; i < sourceNames.count(); ++i) {
         RSDKv3::Bytecode::ObjectScript &objectScript = bytecode.scriptList[i];
         int scriptCodePtrs[4]    = { objectScript.mainScript, objectScript.playerScript,
-                                  objectScript.drawScript, objectScript.m_startupScript };
+                                  objectScript.drawScript, objectScript.startupScript };
         int lowestScriptCodePtr  = 0x3FFFF;
         int highestScriptCodePtr = 0;
 
@@ -1189,7 +1189,7 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
         QString scriptPath = sourceNames[i];
         QString baseDir    = destPath + "/Scripts/";
         if (useCustomAliases || seperateFolders) {
-            baseDir = destPath + "/Scripts/" + QFileInfo(bytecode.m_filename).baseName() + "/";
+            baseDir = destPath + "/Scripts/" + QFileInfo(bytecode.filePath).baseName() + "/";
         }
         QString dir = baseDir + scriptPath.replace(QFileInfo(scriptPath).fileName(), "");
         scriptPath  = sourceNames[i];
@@ -1208,7 +1208,7 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
         RSDKv3::Bytecode::ObjectScript &objectScript = bytecode.scriptList[i];
 
         int scriptCodePtrs[4]    = { objectScript.mainScript, objectScript.playerScript,
-                                  objectScript.drawScript, objectScript.m_startupScript };
+                                  objectScript.drawScript, objectScript.startupScript };
         int lowestScriptCodePtr  = 0x3FFFF;
         int highestScriptCodePtr = 0;
 
@@ -1251,9 +1251,9 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
             scriptPtrs.append(
                 ScriptPtr("ObjectDraw", objectScript.drawScript, objectScript.drawJumpTable, false));
 
-        if (objectScript.m_startupScript < 0x3FFFF)
-            scriptPtrs.append(ScriptPtr("ObjectStartup", objectScript.m_startupScript,
-                                        objectScript.m_startupJumpTable, false));
+        if (objectScript.startupScript < 0x3FFFF)
+            scriptPtrs.append(ScriptPtr("ObjectStartup", objectScript.startupScript,
+                                        objectScript.startupJumpTable, false));
         std::sort(
             scriptPtrs.begin(), scriptPtrs.end(),
             [](const ScriptPtr &a, const ScriptPtr &b) -> bool { return a.m_startPtr < b.m_startPtr; });
@@ -1289,9 +1289,9 @@ void RSDKv3::Decompiler::decompile(RSDKv3::Bytecode bytecode, QString destPath)
             scriptPtrs.append(
                 ScriptPtr("ObjectDraw", objectScript.drawScript, objectScript.drawJumpTable, false));
 
-        if (objectScript.m_startupScript < 0x3FFFF)
-            scriptPtrs.append(ScriptPtr("ObjectStartup", objectScript.m_startupScript,
-                                        objectScript.m_startupJumpTable, false));
+        if (objectScript.startupScript < 0x3FFFF)
+            scriptPtrs.append(ScriptPtr("ObjectStartup", objectScript.startupScript,
+                                        objectScript.startupJumpTable, false));
 
         // Causes issues with player.state function calling
         std::sort(

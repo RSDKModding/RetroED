@@ -23,6 +23,12 @@ public:
     };
 
     struct ObjectScript {
+        // Game
+        ScriptPtr eventDraw;
+        ScriptPtr eventMain;
+        ScriptPtr eventStartup;
+
+        // Editor
         ScriptPtr eventRSDKDraw;
         ScriptPtr eventRSDKLoad;
         ScriptPtr eventRSDKEdit;
@@ -129,7 +135,9 @@ public:
     int scriptDataOffset    = 0;
     int jumpTableDataPos    = 0;
     int jumpTableDataOffset = 0;
-    int functionStackPos    = 0;
+
+    int functionStack[FUNCSTACK_COUNT_v4];
+    int functionStackPos = 0;
 
     int functionCount = 0;
     QString functionNames[FUNCTION_COUNT_v4];
@@ -183,7 +191,7 @@ public:
     bool convertStringToInteger(QString &text, int *value);
     void copyAliasStr(QString &dest, QString text, bool arrayIndex);
 
-    void parseScriptFile(QString scriptName, int scriptID);
+    void parseScriptFile(QString scriptName, int scriptID, bool inEditor = true);
 
     void clearScriptData();
 
@@ -248,6 +256,8 @@ private:
 
     // Get Arc Tan value
     byte ArcTanLookup(int X, int Y);
+
+    bool inEditor = false;
 };
 
 #endif // Compilerv4_H

@@ -6,14 +6,182 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>957</width>
-    <height>513</height>
+    <width>991</width>
+    <height>529</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="3" rowspan="3">
+    <widget class="QScrollBar" name="verticalScrollBar">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="4">
+    <widget class="QToolBox" name="propertiesBox">
+     <property name="maximumSize">
+      <size>
+       <width>310</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="currentIndex">
+      <number>2</number>
+     </property>
+     <widget class="QWidget" name="scenePropPage">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>310</width>
+        <height>287</height>
+       </rect>
+      </property>
+      <attribute name="label">
+       <string>Scene Properties</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_8">
+       <item row="0" column="0">
+        <widget class="QFrame" name="scenePropFrame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_13"/>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layerPropPage">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>310</width>
+        <height>287</height>
+       </rect>
+      </property>
+      <attribute name="label">
+       <string>Layer Properties</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_9">
+       <item row="0" column="0">
+        <widget class="QFrame" name="layerPropFrame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_12"/>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tilePropPage">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>310</width>
+        <height>287</height>
+       </rect>
+      </property>
+      <attribute name="label">
+       <string>Tile Properties</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="0" column="0">
+        <widget class="QFrame" name="tilePropFrame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_7"/>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="objPropPage">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>310</width>
+        <height>287</height>
+       </rect>
+      </property>
+      <attribute name="label">
+       <string>Entity Properties</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_10">
+       <item row="0" column="0">
+        <widget class="QFrame" name="objPropFrame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_11"/>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="scrollPropPage">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>310</width>
+        <height>287</height>
+       </rect>
+      </property>
+      <attribute name="label">
+       <string>Scroll Properties</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_16">
+       <item row="0" column="0">
+        <widget class="QFrame" name="scrPropFrame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_17"/>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="1" column="1" rowspan="3" colspan="2">
+    <widget class="QFrame" name="viewerFrame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout"/>
+    </widget>
+   </item>
+   <item row="4" column="1" colspan="2">
+    <widget class="QScrollBar" name="horizontalScrollBar">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="0">
     <widget class="QToolBox" name="toolBox">
      <property name="maximumSize">
@@ -23,7 +191,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="layerPage">
       <property name="geometry">
@@ -31,7 +199,7 @@
         <x>0</x>
         <y>0</y>
         <width>185</width>
-        <height>271</height>
+        <height>287</height>
        </rect>
       </property>
       <attribute name="label">
@@ -49,7 +217,7 @@
         <x>0</x>
         <y>0</y>
         <width>185</width>
-        <height>271</height>
+        <height>287</height>
        </rect>
       </property>
       <attribute name="label">
@@ -63,7 +231,7 @@
         <x>0</x>
         <y>0</y>
         <width>185</width>
-        <height>271</height>
+        <height>287</height>
        </rect>
       </property>
       <attribute name="label">
@@ -108,7 +276,7 @@
         <x>0</x>
         <y>0</y>
         <width>185</width>
-        <height>271</height>
+        <height>287</height>
        </rect>
       </property>
       <attribute name="label">
@@ -180,7 +348,7 @@
         <x>0</x>
         <y>0</y>
         <width>185</width>
-        <height>271</height>
+        <height>287</height>
        </rect>
       </property>
       <attribute name="label">
@@ -502,174 +670,6 @@
        </widget>
       </item>
      </layout>
-    </widget>
-   </item>
-   <item row="1" column="3" rowspan="3">
-    <widget class="QScrollBar" name="verticalScrollBar">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="4">
-    <widget class="QToolBox" name="propertiesBox">
-     <property name="maximumSize">
-      <size>
-       <width>310</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="currentIndex">
-      <number>2</number>
-     </property>
-     <widget class="QWidget" name="scenePropPage">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>310</width>
-        <height>271</height>
-       </rect>
-      </property>
-      <attribute name="label">
-       <string>Scene Properties</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_8">
-       <item row="0" column="0">
-        <widget class="QFrame" name="scenePropFrame">
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_13"/>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="layerPropPage">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>310</width>
-        <height>271</height>
-       </rect>
-      </property>
-      <attribute name="label">
-       <string>Layer Properties</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_9">
-       <item row="0" column="0">
-        <widget class="QFrame" name="layerPropFrame">
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_12"/>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tilePropPage">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>310</width>
-        <height>271</height>
-       </rect>
-      </property>
-      <attribute name="label">
-       <string>Tile Properties</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_5">
-       <item row="0" column="0">
-        <widget class="QFrame" name="tilePropFrame">
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_7"/>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="objPropPage">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>310</width>
-        <height>271</height>
-       </rect>
-      </property>
-      <attribute name="label">
-       <string>Entity Properties</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_10">
-       <item row="0" column="0">
-        <widget class="QFrame" name="objPropFrame">
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_11"/>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="scrollPropPage">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>310</width>
-        <height>271</height>
-       </rect>
-      </property>
-      <attribute name="label">
-       <string>Scroll Properties</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_16">
-       <item row="0" column="0">
-        <widget class="QFrame" name="scrPropFrame">
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_17"/>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-   </item>
-   <item row="1" column="1" rowspan="3" colspan="2">
-    <widget class="QFrame" name="viewerFrame">
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout"/>
-    </widget>
-   </item>
-   <item row="4" column="1" colspan="2">
-    <widget class="QScrollBar" name="horizontalScrollBar">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
     </widget>
    </item>
    <item row="5" column="0" colspan="5">

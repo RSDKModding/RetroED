@@ -1318,7 +1318,7 @@ void RSDKv4::Decompiler::decompile(RSDKv4::Bytecode bytecode, QString destPath)
         QString scriptPath = m_sourceNames[i];
         QString baseDir    = destPath + "/Scripts/";
         if (m_useCustomAliases || m_seperateFolders) {
-            baseDir = destPath + "/Scripts/" + QFileInfo(bytecode.m_filename).baseName() + "/";
+            baseDir = destPath + "/Scripts/" + QFileInfo(bytecode.filePath).baseName() + "/";
         }
         QString dir = baseDir + scriptPath.replace(QFileInfo(scriptPath).fileName(), "");
         scriptPath  = m_sourceNames[i];

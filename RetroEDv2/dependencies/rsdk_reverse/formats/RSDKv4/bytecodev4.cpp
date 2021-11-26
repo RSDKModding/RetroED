@@ -2,7 +2,7 @@
 
 void RSDKv4::Bytecode::read(Reader &reader, int scriptCount, bool clear)
 {
-    m_filename = reader.filepath;
+    filePath = reader.filepath;
     if (clear) {
         scriptData.clear();
         jumpTableData.clear();
@@ -10,8 +10,8 @@ void RSDKv4::Bytecode::read(Reader &reader, int scriptCount, bool clear)
         functionList.clear();
     }
     else {
-        m_globalScriptDataCount = scriptData.count();
-        m_globalJumpTableCount  = jumpTableData.count();
+        globalScriptDataCount = scriptData.count();
+        globalJumpTableCount  = jumpTableData.count();
     }
 
     for (int opcount = reader.read<int>(); opcount > 0;) {
@@ -31,7 +31,7 @@ void RSDKv4::Bytecode::read(Reader &reader, int scriptCount, bool clear)
     for (int opcount = reader.read<int>(); opcount > 0;) {
         byte data       = reader.read<byte>();
         int blocksCount = (data & 0x7F);
-        if ((data & 0x80) == 0) {
+        if (!(data & 0x80)) {
             for (int i = 0; i < blocksCount; ++i) jumpTableData.append(reader.read<byte>());
             opcount -= blocksCount;
         }
@@ -86,13 +86,13 @@ struct DataInfo {
 
 void RSDKv4::Bytecode::write(Writer &writer)
 {
-    m_filename = writer.filePath;
+    filePath = writer.filePath;
 
     QList<DataInfo> dataInfo;
 
     // Script Data
     dataInfo.clear();
-    for (int dataPos = m_globalScriptDataCount; dataPos < scriptData.count();) {
+    for (int dataPos = globalScriptDataCount; dataPos < scriptData.count();) {
         DataInfo info;
         info.m_data.clear();
         info.m_readInt = scriptData[dataPos] < 0 || scriptData[dataPos] >= 0x100;
@@ -133,13 +133,13 @@ void RSDKv4::Bytecode::write(Writer &writer)
 
     // Jump Table
     dataInfo.clear();
-    for (int dataPos = m_globalJumpTableCount; dataPos < jumpTableData.count();) {
+    for (int dataPos = globalJumpTableCount; dataPos < jumpTableData.count();) {
         DataInfo info;
         info.m_data.clear();
         info.m_readInt = jumpTableData[dataPos] < 0 || jumpTableData[dataPos] >= 0x100;
         if (!info.m_readInt) {
-            for (int i = 0;
-                 (jumpTableData[dataPos] >= 0 && jumpTableData[dataPos] < 0x100) && i < 0x7F; ++i) {
+            for (int i = 0; (jumpTableData[dataPos] >= 0 && jumpTableData[dataPos] < 0x100) && i < 0x7F;
+                 ++i) {
                 info.m_data.append(jumpTableData[dataPos++]);
                 if (dataPos >= jumpTableData.count())
                     break;
@@ -147,8 +147,8 @@ void RSDKv4::Bytecode::write(Writer &writer)
             dataInfo.append(info);
         }
         else {
-            for (int i = 0;
-                 (jumpTableData[dataPos] < 0 || jumpTableData[dataPos] >= 0x100) && i < 0x7F; ++i) {
+            for (int i = 0; (jumpTableData[dataPos] < 0 || jumpTableData[dataPos] >= 0x100) && i < 0x7F;
+                 ++i) {
                 info.m_data.append(jumpTableData[dataPos++]);
                 if (dataPos >= jumpTableData.count())
                     break;

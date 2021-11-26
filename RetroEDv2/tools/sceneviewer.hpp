@@ -50,11 +50,22 @@ public:
         VariableInfo() {}
     };
 
+    enum ObjectAliases {
+        VAR_ALIAS_PROPVAL,
+        VAR_ALIAS_VAL0,
+        VAR_ALIAS_VAL1,
+        VAR_ALIAS_VAL2,
+        VAR_ALIAS_VAL3,
+        VAR_ALIAS_COUNT
+    };
+
     class ObjectInfo
     {
     public:
         QString name = "";
         QList<VariableInfo> variables;
+        QString variablesAliases[VAR_ALIAS_COUNT] = { "PropertyValue", "Value0", "Value1", "Value2",
+                                                      "Value3" };
 
         ObjectInfo() {}
     };
@@ -346,6 +357,7 @@ public:
     void addEditorVariable(QString name);
     void setActiveVariable(QString name);
     void addEnumVariable(QString name, int value);
+    void setVariableAlias(int varID, QString alias);
 
     void refreshResize();
 

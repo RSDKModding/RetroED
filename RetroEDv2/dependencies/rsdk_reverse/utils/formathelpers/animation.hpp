@@ -32,8 +32,8 @@ public:
 
         byte sheet        = 0;
         byte collisionBox = 0;
-        ushort duration      = 0;
-        ushort id         = 0;
+        ushort duration   = 0;
+        ushort id         = '0';
         ushort sprX       = 0;
         ushort sprY       = 0;
         ushort width      = 0;
