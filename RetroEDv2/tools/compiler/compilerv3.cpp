@@ -1655,6 +1655,8 @@ void Compilerv3::clearScriptData()
     memset(jumpTableData, 0, JUMPTABLE_COUNT * sizeof(int));
     memset(functionStack, 0, FUNCSTACK_COUNT * sizeof(int));
 
+    globalVariables.clear();
+
     jumpTableStackPos = 0;
 
     scriptDataPos       = 0;

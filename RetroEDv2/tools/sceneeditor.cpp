@@ -1853,9 +1853,11 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
     viewer->loadScene(scnPath, gameType);
 
+    for (int i = 0; i < 9; ++i) viewer->visibleLayers[i] = true;
+
     ui->layerList->clear();
-    ui->layerList->addItem("Foreground");
-    QListWidgetItem *itemFG = new QListWidgetItem("Foreground");
+    ui->layerList->blockSignals(true);
+    QListWidgetItem *itemFG = new QListWidgetItem("Foreground", ui->layerList);
     itemFG->setFlags(itemFG->flags() | Qt::ItemIsUserCheckable);
     itemFG->setCheckState(viewer->visibleLayers[0] ? Qt::Checked : Qt::Unchecked);
 
@@ -1865,6 +1867,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(viewer->visibleLayers[l + 1] ? Qt::Checked : Qt::Unchecked);
     }
+    ui->layerList->blockSignals(false);
 
     ui->objectList->clear();
     for (int o = 0; o < viewer->objects.count(); ++o) ui->objectList->addItem(viewer->objects[o].name);
@@ -2001,6 +2004,12 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
         viewer->compilerv4.typeNames[id].replace(" ", "");
 
         id++;
+    }
+
+    for (int v = 0; v < viewer->gameConfig.globalVariables.count(); ++v) {
+        viewer->compilerv2.globalVariables.append(viewer->gameConfig.globalVariables[v].name);
+        viewer->compilerv3.globalVariables.append(viewer->gameConfig.globalVariables[v].name);
+        viewer->compilerv4.globalVariables.append(viewer->gameConfig.globalVariables[v].name);
     }
 
     switch (gameType) {
@@ -2643,7 +2652,10 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
             obj.variables.append(filter);
 
             RSDKv5::Scene::VariableInfo propertyValue;
-            propertyValue.name = RSDKv5::Scene::NameIdentifier("propertyValue");
+            QString propValName = viewer->objects[o].variablesAliases[SceneViewer::VAR_ALIAS_PROPVAL];
+            propValName.insert(0, propValName.at(0).toUpper());
+            propValName.remove(1, 1);
+            propertyValue.name = RSDKv5::Scene::NameIdentifier(propValName);
             propertyValue.type = VAR_UINT8;
             obj.variables.append(propertyValue);
 
@@ -2660,7 +2672,14 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
                     continue;
 
                 RSDKv5::Scene::VariableInfo variable;
-                variable.name = RSDKv4::objectVariableNames[v];
+                QString varName = RSDKv4::objectVariableNames[v];
+                if (v >= 11) {
+                    varName =
+                        viewer->objects[o].variablesAliases[SceneViewer::VAR_ALIAS_VAL0 + (v - 11)];
+                    varName.insert(0, propValName.at(0).toUpper());
+                    varName.remove(1, 1);
+                }
+                variable.name = varName;
                 variable.type = RSDKv4::objectVariableTypes[v] == "int" ? VAR_INT32 : VAR_UINT8;
                 obj.variables.append(variable);
             }

@@ -228,19 +228,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     QMenu *scn = new QMenu("Scene Editor");
     scn->addAction("v1, v2, v3, v4", [this] {
-        setStatus("Opening Scene Editor");
         SceneEditor *tool = new SceneEditor;
         // tool->loadScene("", "", ENGINE_v4);
         tool->installEventFilter(this);
         addTab(tool, "Scene Editor");
+        setStatus("Opening Scene Editor");
     });
 
     scn->addAction("v5 (Sonic Mania)", [this] {
-        setStatus("Opening Scene Editor");
         SceneEditorv5 *tool = new SceneEditorv5;
         // tool->loadScene("", "", ENGINE_v5);
         tool->installEventFilter(this);
         addTab(tool, "Scene Editor (v5)");
+        setStatus("Opening Scene Editor");
     });
     tools->addMenu(scn);
 

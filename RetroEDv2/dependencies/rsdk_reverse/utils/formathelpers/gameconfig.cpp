@@ -44,7 +44,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
 
             for (RSDKv2::Gameconfig::GlobalVariable &var : gameconfig.globalVariables) {
                 GlobalVariable v;
-                v.m_name = var.name;
+                v.name = var.name;
                 v.value  = var.value;
 
                 globalVariables.append(v);
@@ -96,7 +96,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
 
             for (RSDKv3::Gameconfig::GlobalVariable &var : gameconfig.globalVariables) {
                 GlobalVariable v;
-                v.m_name = var.name;
+                v.name = var.name;
                 v.value  = var.value;
 
                 globalVariables.append(v);
@@ -148,7 +148,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
 
             for (RSDKv4::GameConfig::GlobalVariable &var : gameconfig.globalVariables) {
                 GlobalVariable v;
-                v.m_name = var.name;
+                v.name = var.name;
                 v.value  = var.value;
 
                 globalVariables.append(v);
@@ -203,7 +203,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
 
             for (GlobalVariable &var : globalVariables) {
                 RSDKv2::Gameconfig::GlobalVariable v;
-                v.name  = var.m_name;
+                v.name  = var.name;
                 v.value = var.value;
 
                 gameconfig.globalVariables.append(v);
@@ -249,7 +249,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
 
             for (GlobalVariable &var : globalVariables) {
                 RSDKv3::Gameconfig::GlobalVariable v;
-                v.name  = var.m_name;
+                v.name  = var.name;
                 v.value = var.value;
 
                 gameconfig.globalVariables.append(v);
@@ -294,7 +294,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
 
             for (GlobalVariable &var : globalVariables) {
                 RSDKv4::GameConfig::GlobalVariable v;
-                v.name  = var.m_name;
+                v.name  = var.name;
                 v.value = var.value;
 
                 gameconfig.globalVariables.append(v);

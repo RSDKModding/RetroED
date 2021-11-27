@@ -31,7 +31,7 @@ public:
     public:
         GlobalVariable() {}
 
-        QString m_name = "Variable";
+        QString name = "Variable";
         int value      = 0;
     };
 

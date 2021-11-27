@@ -65,10 +65,6 @@ public:
         bool showPixelGrid = false;
         bool showChunkGrid = false;
         bool showTileGrid  = false;
-
-        // Compilerv2 compilerv2;
-        // Compilerv3 compilerv3;
-        // Compilerv4 compilerv4;
     };
 
     explicit SceneEditor(QWidget *parent = nullptr);

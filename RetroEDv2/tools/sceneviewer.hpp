@@ -146,6 +146,8 @@ public:
     int selectedObject = -1; // placing
     int selectedEntity = -1; // viewing
 
+    EntityInfo *activeDrawEntity = nullptr;
+
     // Parallax Editing
     bool showParallax      = false;
     int selectedScrollInfo = -1;

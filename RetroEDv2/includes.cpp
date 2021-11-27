@@ -60,6 +60,6 @@ void refreshScnEditorVerts(int w, int h)
     if (tVertsPtr)
         delete[] tVertsPtr;
 
-    vertsPtr  = new QVector3D[(h * w * 6) * 1.1];
-    tVertsPtr = new QVector2D[(h * w * 6) * 1.1];
+    vertsPtr  = new QVector3D[(int)((h * w * 6) * 1.1)];
+    tVertsPtr = new QVector2D[(int)((h * w * 6) * 1.1)];
 }

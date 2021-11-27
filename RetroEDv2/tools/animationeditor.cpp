@@ -360,11 +360,13 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->frameOffLabel->setText(QString("Frame Offset: (%1, %2)").arg(offset.x).arg(offset.y));
 
         currentAnim = c;
+        disconnect(ui->animName, nullptr, nullptr, nullptr);
         disconnect(ui->loopIndex, nullptr, nullptr, nullptr);
         disconnect(ui->rotationStyle, nullptr, nullptr, nullptr);
         disconnect(ui->speedMult, nullptr, nullptr, nullptr);
         disconnect(ui->frameList, nullptr, nullptr, nullptr);
 
+        ui->animName->setDisabled(c == -1);
         ui->loopIndex->setDisabled(c == -1);
         ui->rotationStyle->setDisabled(c == -1 || aniType >= ENGINE_v2);
         ui->speedMult->setDisabled(c == -1);
@@ -407,8 +409,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                               ROLE_PIXMAP);
                 frameModel->appendRow(item);
                 ++fID;
-                updateView();
             }
+            updateView();
 
             ui->frameList->blockSignals(false);
 
@@ -420,6 +422,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             bool invalid         = c == -1 || c >= animCount();
             bool durationInvalid = (aniType != ENGINE_v5);
 
+            ui->animName->setDisabled(invalid);
             ui->loopIndex->setDisabled(invalid);
             ui->rotationStyle->setDisabled(invalid || aniType >= ENGINE_v2);
             ui->speedMult->setDisabled(invalid);
@@ -446,10 +449,21 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             if (invalid)
                 return;
 
+            ui->animName->setText(animFile.animations[c].name);
             ui->loopIndex->setValue(animFile.animations[c].loopIndex);
             ui->rotationStyle->setCurrentIndex(animFile.animations[c].rotationStyle);
             ui->speedMult->setValue(animFile.animations[c].speed);
             ui->playerID->setCurrentIndex(animFile.playerType);
+
+            connect(ui->animName, &QLineEdit::textChanged, [this, c](QString s) {
+                animFile.animations[c].name = s;
+
+                ui->animationList->blockSignals(true);
+                ui->animationList->item(currentAnim)->setText(s);
+                ui->animationList->blockSignals(false);
+
+                doAction("Changed animation name", true);
+            });
 
             connect(ui->loopIndex, QOverload<int>::of(&QSpinBox::valueChanged), [this, c](int v) {
                 int val = v;
@@ -600,6 +614,310 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
     connect(ui->hitboxList, &QListWidget::currentRowChanged, hitboxFunc);
 
+    connect(ui->impFile, &QToolButton::clicked, [this] {
+        QFileDialog filedialog(this, tr("Open File"), QFileInfo(animFile.filePath).absolutePath(),
+                               tr("json Files (*.json)"));
+        filedialog.setAcceptMode(QFileDialog::AcceptOpen);
+        if (filedialog.exec() != QDialog::Accepted)
+            return;
+        QString filename = filedialog.selectedFiles()[0];
+
+        ui->animationList->blockSignals(true);
+
+        Reader reader(filename);
+
+        QByteArray bytes = reader.readByteArray(reader.filesize);
+        QJsonParseError jsonError;
+        QJsonDocument document = QJsonDocument::fromJson(bytes, &jsonError);
+        if (jsonError.error != QJsonParseError::NoError) {
+            printLog("fromJson failed: " + jsonError.errorString()
+                     + ", offset: " + QString::number(jsonError.offset));
+            return;
+        }
+
+        if (document.isObject()) {
+            animFile = FormatHelpers::Animation();
+            hitboxVisible.clear();
+
+            QJsonObject jsonObj = document.object();
+
+            if (jsonObj.contains("Sheets")) {
+                QJsonArray sheetsArr = jsonObj.value("Sheets").toArray();
+                for (int s = 0; s < sheetsArr.count(); ++s) {
+                    loadSheet(getBaseDir() + sheetsArr.at(s).toString(), s, true);
+                }
+            }
+            if (jsonObj.contains("Hitbox Types")) {
+                QJsonArray hitboxArr = jsonObj.value("Hitbox Types").toArray();
+                for (int h = 0; h < hitboxArr.count(); ++h) {
+                    animFile.hitboxTypes.append(hitboxArr.at(h).toString());
+                    animFile.hitboxes.append(FormatHelpers::Animation::Hitbox());
+                    hitboxVisible.append(false);
+                }
+            }
+
+            if (jsonObj.contains("Animations")) {
+                QJsonArray animsArr = jsonObj.value("Animations").toArray();
+
+                for (int a = 0; a < animsArr.count(); ++a) {
+                    QJsonObject animObj = animsArr.at(a).toObject();
+                    FormatHelpers::Animation::AnimationEntry anim;
+
+                    if (animObj.contains("Name")) {
+                        auto name = animObj.take("Name");
+                        anim.name = name.toString();
+                    }
+
+                    if (animObj.contains("Speed")) {
+                        auto speed = animObj.take("Speed");
+                        anim.speed = speed.toInt();
+                    }
+
+                    if (animObj.contains("Loop Index")) {
+                        auto loopIndex = animObj.take("Loop Index");
+                        anim.loopIndex = loopIndex.toInt();
+                    }
+
+                    if (animObj.contains("Rotation Style")) {
+                        auto rotationStyle = animObj.take("Rotation Style");
+                        anim.rotationStyle = rotationStyle.toInt();
+                    }
+
+                    if (animObj.contains("Frames")) {
+                        QJsonArray framesArr = animObj.value("Frames").toArray();
+
+                        for (int i = 0; i < framesArr.count(); ++i) {
+                            QJsonObject frameObj = framesArr.at(i).toObject();
+                            FormatHelpers::Animation::Frame frame;
+
+                            {
+                                if (frameObj.contains("Sheet")) {
+                                    auto sheet  = frameObj.take("Sheet");
+                                    int sheetID = animFile.sheets.indexOf(sheet.toString());
+                                    if (sheetID == -1) {
+                                        sheetID = animFile.sheets.count();
+
+                                        loadSheet(getBaseDir() + sheet.toString(), sheetID);
+                                    }
+                                    frame.sheet = sheetID;
+                                }
+
+                                if (frameObj.contains("Hitbox")) {
+                                    auto hitbox = frameObj.take("Hitbox");
+                                    if (hitbox.toString() == "None") {
+                                        frame.collisionBox = 0xFF;
+                                    }
+                                    else {
+                                        int hitboxID = animFile.hitboxTypes.indexOf(hitbox.toString());
+                                        if (hitboxID == -1) {
+                                            hitboxID = animFile.hitboxTypes.count();
+                                            animFile.hitboxTypes.append(hitbox.toString());
+                                            animFile.hitboxes.append(
+                                                FormatHelpers::Animation::Hitbox());
+                                            hitboxVisible.append(false);
+                                        }
+                                        frame.collisionBox = hitboxID;
+                                    }
+                                }
+
+                                if (frameObj.contains("Duration")) {
+                                    auto duration  = frameObj.take("Duration");
+                                    frame.duration = duration.toInt();
+                                }
+
+                                if (frameObj.contains("ID")) {
+                                    auto id  = frameObj.take("ID");
+                                    frame.id = id.toInt();
+                                }
+
+                                if (frameObj.contains("Src")) {
+                                    QJsonObject srcObj = frameObj.value("Src").toObject();
+
+                                    if (srcObj.contains("x")) {
+                                        auto srcX  = srcObj.take("x");
+                                        frame.sprX = srcX.toInt();
+                                    }
+
+                                    if (srcObj.contains("y")) {
+                                        auto srcY  = srcObj.take("y");
+                                        frame.sprY = srcY.toInt();
+                                    }
+                                }
+
+                                if (frameObj.contains("Size")) {
+                                    QJsonObject sizeObj = frameObj.value("Size").toObject();
+
+                                    if (sizeObj.contains("x")) {
+                                        auto sizeX  = sizeObj.take("x");
+                                        frame.width = sizeX.toInt();
+                                    }
+
+                                    if (sizeObj.contains("y")) {
+                                        auto sizeY   = sizeObj.take("y");
+                                        frame.height = sizeY.toInt();
+                                    }
+                                }
+
+                                if (frameObj.contains("Pivot")) {
+                                    QJsonObject pivotObj = frameObj.value("Pivot").toObject();
+
+                                    if (pivotObj.contains("x")) {
+                                        auto pivotX  = pivotObj.take("x");
+                                        frame.pivotX = pivotX.toInt();
+                                    }
+
+                                    if (pivotObj.contains("y")) {
+                                        auto pivotY  = pivotObj.take("y");
+                                        frame.pivotY = pivotY.toInt();
+                                    }
+                                }
+
+                                QJsonObject hitboxesObj = frameObj.value("Hitboxes").toObject();
+                                frame.hitboxes.clear();
+                                for (auto &h : animFile.hitboxTypes) {
+                                    FormatHelpers::Animation::Hitbox::HitboxInfo hitbox;
+
+                                    if (hitboxesObj.contains(h)) {
+                                        QJsonObject hitboxObj = hitboxesObj.value(h).toObject();
+
+                                        if (hitboxObj.contains("Left")) {
+                                            auto left   = hitboxObj.take("Left");
+                                            hitbox.left = left.toInt();
+                                        }
+
+                                        if (hitboxObj.contains("Top")) {
+                                            auto top   = hitboxObj.take("Top");
+                                            hitbox.top = top.toInt();
+                                        }
+
+                                        if (hitboxObj.contains("Right")) {
+                                            auto right   = hitboxObj.take("Right");
+                                            hitbox.right = right.toInt();
+                                        }
+
+                                        if (hitboxObj.contains("Bottom")) {
+                                            auto bottom   = hitboxObj.take("Bottom");
+                                            hitbox.bottom = bottom.toInt();
+                                        }
+                                    }
+
+                                    frame.hitboxes.append(hitbox);
+                                }
+                            }
+
+                            anim.frames.append(frame);
+                        }
+                    }
+
+                    animFile.animations.append(anim);
+                }
+            }
+            else {
+                return;
+            }
+        }
+
+        setupUI();
+        doAction("Imported animation file", true);
+    });
+
+    connect(ui->expFile, &QToolButton::clicked, [this] {
+        QFileDialog filedialog(this, tr("Save File"), QFileInfo(animFile.filePath).absolutePath(),
+                               tr("json Files (*.json)"));
+        filedialog.setAcceptMode(QFileDialog::AcceptSave);
+        if (filedialog.exec() != QDialog::Accepted)
+            return;
+
+        QString filename = filedialog.selectedFiles()[0];
+
+        // export json
+        QJsonObject aniFileObj;
+
+        int aniVer = 0;
+        switch (aniType) {
+            case ENGINE_v1: aniVer = 1; break;
+            case ENGINE_v2: aniVer = 2; break;
+            case ENGINE_v3: aniVer = 3; break;
+            case ENGINE_v4: aniVer = 4; break;
+            case ENGINE_v5: aniVer = 5; break;
+        }
+
+        aniFileObj.insert("Anim Version", aniVer);
+
+        QJsonArray sheetsObj;
+        for (auto &s : animFile.sheets) {
+            sheetsObj.append(s);
+        }
+        aniFileObj.insert("Sheets", sheetsObj);
+
+        QJsonArray hitboxTypesObj;
+        for (auto &h : animFile.hitboxTypes) {
+            hitboxTypesObj.append(h);
+        }
+        aniFileObj.insert("Hitbox Types", hitboxTypesObj);
+
+        QJsonArray animsObj;
+        for (auto &a : animFile.animations) {
+            QJsonObject animObj;
+            animObj.insert("Name", a.name);
+            animObj.insert("Speed", a.speed);
+            animObj.insert("Loop Index", a.loopIndex);
+            animObj.insert("Rotation Style", a.rotationStyle);
+
+            QJsonArray framesObj;
+            for (auto &f : a.frames) {
+                QJsonObject frameObj;
+
+                frameObj.insert("Sheet", animFile.sheets[f.sheet]);
+                if (f.collisionBox == 0xFF)
+                    frameObj.insert("Hitbox", "None");
+                else
+                    frameObj.insert("Hitbox", animFile.hitboxTypes[f.collisionBox]);
+                frameObj.insert("ID", f.id);
+                frameObj.insert("Duration", f.duration);
+
+                QJsonObject srcObj;
+                srcObj.insert("x", f.sprX);
+                srcObj.insert("y", f.sprY);
+                frameObj.insert("Src", srcObj);
+
+                QJsonObject sizeObj;
+                sizeObj.insert("x", f.width);
+                sizeObj.insert("y", f.height);
+                frameObj.insert("Size", sizeObj);
+
+                QJsonObject pivotObj;
+                pivotObj.insert("x", f.pivotX);
+                pivotObj.insert("y", f.pivotY);
+                frameObj.insert("Pivot", pivotObj);
+
+                QJsonObject hitboxesObj;
+                int hitboxID = 0;
+                for (auto &h : f.hitboxes) {
+                    QJsonObject hitboxObj;
+
+                    hitboxObj.insert("Left", h.left);
+                    hitboxObj.insert("Top", h.top);
+                    hitboxObj.insert("Right", h.right);
+                    hitboxObj.insert("Bottom", h.bottom);
+
+                    hitboxesObj.insert(animFile.hitboxTypes[hitboxID++], hitboxObj);
+                }
+                frameObj.insert("Hitboxes", hitboxesObj);
+
+                framesObj.append(frameObj);
+            }
+
+            animObj.insert("Frames", framesObj);
+            animsObj.append(animObj);
+        }
+        aniFileObj.insert("Animations", animsObj);
+
+        Writer writer(filename);
+        writer.write(QJsonDocument(aniFileObj).toJson());
+        writer.flush();
+    });
+
     connect(ui->impAnim, &QToolButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Open Anim"), QFileInfo(animFile.filePath).absolutePath(),
                                tr("json Files (*.json)"));
@@ -611,15 +929,182 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->animationList->blockSignals(true);
         FormatHelpers::Animation::AnimationEntry anim;
 
-        // TODO: import json
+        Reader reader(filename);
+
+        QByteArray bytes = reader.readByteArray(reader.filesize);
+        QJsonParseError jsonError;
+        QJsonDocument document = QJsonDocument::fromJson(bytes, &jsonError);
+        if (jsonError.error != QJsonParseError::NoError) {
+            printLog("fromJson failed: " + jsonError.errorString()
+                     + ", offset: " + QString::number(jsonError.offset));
+            return;
+        }
+
+        if (document.isObject()) {
+            QJsonObject jsonObj = document.object();
+
+            if (jsonObj.contains("Animation")) {
+                QJsonObject animObj = jsonObj.value("Animation").toObject();
+
+                if (animObj.contains("Name")) {
+                    auto name = animObj.take("Name");
+                    anim.name = name.toString();
+                }
+
+                if (animObj.contains("Speed")) {
+                    auto speed = animObj.take("Speed");
+                    anim.speed = speed.toInt();
+                }
+
+                if (animObj.contains("Loop Index")) {
+                    auto loopIndex = animObj.take("Loop Index");
+                    anim.loopIndex = loopIndex.toInt();
+                }
+
+                if (animObj.contains("Rotation Style")) {
+                    auto rotationStyle = animObj.take("Rotation Style");
+                    anim.rotationStyle = rotationStyle.toInt();
+                }
+
+                if (animObj.contains("Frames")) {
+                    QJsonArray framesArr = animObj.value("Frames").toArray();
+
+                    for (int i = 0; i < framesArr.count(); ++i) {
+                        QJsonObject frameObj = framesArr.at(i).toObject();
+                        FormatHelpers::Animation::Frame frame;
+
+                        {
+                            if (frameObj.contains("Sheet")) {
+                                auto sheet  = frameObj.take("Sheet");
+                                int sheetID = animFile.sheets.indexOf(sheet.toString());
+                                if (sheetID == -1) {
+                                    sheetID = animFile.sheets.count();
+
+                                    loadSheet(getBaseDir() + sheet.toString(), sheetID);
+                                }
+                                frame.sheet = sheetID;
+                            }
+
+                            if (frameObj.contains("Hitbox")) {
+                                auto hitbox = frameObj.take("Hitbox");
+                                if (hitbox.toString() == "None") {
+                                    frame.collisionBox = 0xFF;
+                                }
+                                else {
+                                    int hitboxID = animFile.hitboxTypes.indexOf(hitbox.toString());
+                                    if (hitboxID == -1) {
+                                        hitboxID = animFile.hitboxTypes.count();
+                                        animFile.hitboxTypes.append(hitbox.toString());
+                                        animFile.hitboxes.append(FormatHelpers::Animation::Hitbox());
+                                        hitboxVisible.append(false);
+                                    }
+                                    frame.collisionBox = hitboxID;
+                                }
+                            }
+
+                            if (frameObj.contains("Duration")) {
+                                auto duration  = frameObj.take("Duration");
+                                frame.duration = duration.toInt();
+                            }
+
+                            if (frameObj.contains("ID")) {
+                                auto id  = frameObj.take("ID");
+                                frame.id = id.toInt();
+                            }
+
+                            if (frameObj.contains("Src")) {
+                                QJsonObject srcObj = frameObj.value("Src").toObject();
+
+                                if (srcObj.contains("x")) {
+                                    auto srcX  = srcObj.take("x");
+                                    frame.sprX = srcX.toInt();
+                                }
+
+                                if (srcObj.contains("y")) {
+                                    auto srcY  = srcObj.take("y");
+                                    frame.sprY = srcY.toInt();
+                                }
+                            }
+
+                            if (frameObj.contains("Size")) {
+                                QJsonObject sizeObj = frameObj.value("Size").toObject();
+
+                                if (sizeObj.contains("x")) {
+                                    auto sizeX  = sizeObj.take("x");
+                                    frame.width = sizeX.toInt();
+                                }
+
+                                if (sizeObj.contains("y")) {
+                                    auto sizeY   = sizeObj.take("y");
+                                    frame.height = sizeY.toInt();
+                                }
+                            }
+
+                            if (frameObj.contains("Pivot")) {
+                                QJsonObject pivotObj = frameObj.value("Pivot").toObject();
+
+                                if (pivotObj.contains("x")) {
+                                    auto pivotX  = pivotObj.take("x");
+                                    frame.pivotX = pivotX.toInt();
+                                }
+
+                                if (pivotObj.contains("y")) {
+                                    auto pivotY  = pivotObj.take("y");
+                                    frame.pivotY = pivotY.toInt();
+                                }
+                            }
+
+                            QJsonObject hitboxesObj = frameObj.value("Hitboxes").toObject();
+                            frame.hitboxes.clear();
+                            for (auto &h : animFile.hitboxTypes) {
+                                FormatHelpers::Animation::Hitbox::HitboxInfo hitbox;
+
+                                if (hitboxesObj.contains(h)) {
+                                    QJsonObject hitboxObj = hitboxesObj.value(h).toObject();
+
+                                    if (hitboxObj.contains("Left")) {
+                                        auto left   = hitboxObj.take("Left");
+                                        hitbox.left = left.toInt();
+                                    }
+
+                                    if (hitboxObj.contains("Top")) {
+                                        auto top   = hitboxObj.take("Top");
+                                        hitbox.top = top.toInt();
+                                    }
+
+                                    if (hitboxObj.contains("Right")) {
+                                        auto right   = hitboxObj.take("Right");
+                                        hitbox.right = right.toInt();
+                                    }
+
+                                    if (hitboxObj.contains("Bottom")) {
+                                        auto bottom   = hitboxObj.take("Bottom");
+                                        hitbox.bottom = bottom.toInt();
+                                    }
+                                }
+
+                                frame.hitboxes.append(hitbox);
+                            }
+                        }
+
+                        anim.frames.append(frame);
+                    }
+                }
+            }
+            else {
+                return;
+            }
+        }
 
         uint c     = ui->animationList->currentRow() + 1;
         auto *item = new QListWidgetItem(anim.name);
         ui->animationList->insertItem(c, item);
-        doAction("Imported animation", true);
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
         animFile.animations.insert(c, anim);
         ui->animationList->blockSignals(false);
+
+        setupUI();
+        doAction("Imported animation", true);
     });
 
     connect(ui->expAnim, &QToolButton::clicked, [this] {
@@ -636,6 +1121,78 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         if (selectedFilter == "json Files (*.json)") {
             // export json
+            QJsonObject aniFileObj;
+
+            int aniVer = 0;
+            switch (aniType) {
+                case ENGINE_v1: aniVer = 1; break;
+                case ENGINE_v2: aniVer = 2; break;
+                case ENGINE_v3: aniVer = 3; break;
+                case ENGINE_v4: aniVer = 4; break;
+                case ENGINE_v5: aniVer = 5; break;
+            }
+
+            aniFileObj.insert("Anim Version", aniVer);
+
+            FormatHelpers::Animation::AnimationEntry &a = animFile.animations[currentAnim];
+
+            QJsonObject animObj;
+            animObj.insert("Name", a.name);
+            animObj.insert("Speed", a.speed);
+            animObj.insert("Loop Index", a.loopIndex);
+            animObj.insert("Rotation Style", a.rotationStyle);
+
+            QJsonArray framesObj;
+            for (auto &f : a.frames) {
+                QJsonObject frameObj;
+
+                frameObj.insert("Sheet", animFile.sheets[f.sheet]);
+                if (f.collisionBox == 0xFF)
+                    frameObj.insert("Hitbox", "None");
+                else
+                    frameObj.insert("Hitbox", animFile.hitboxTypes[f.collisionBox]);
+                frameObj.insert("ID", f.id);
+                frameObj.insert("Duration", f.duration);
+
+                QJsonObject srcObj;
+                srcObj.insert("x", f.sprX);
+                srcObj.insert("y", f.sprY);
+                frameObj.insert("Src", srcObj);
+
+                QJsonObject sizeObj;
+                sizeObj.insert("x", f.width);
+                sizeObj.insert("y", f.height);
+                frameObj.insert("Size", sizeObj);
+
+                QJsonObject pivotObj;
+                pivotObj.insert("x", f.pivotX);
+                pivotObj.insert("y", f.pivotY);
+                frameObj.insert("Pivot", pivotObj);
+
+                QJsonObject hitboxesObj;
+                int hitboxID = 0;
+                for (auto &h : f.hitboxes) {
+                    QJsonObject hitboxObj;
+
+                    hitboxObj.insert("Left", h.left);
+                    hitboxObj.insert("Top", h.top);
+                    hitboxObj.insert("Right", h.right);
+                    hitboxObj.insert("Bottom", h.bottom);
+
+                    hitboxesObj.insert(animFile.hitboxTypes[hitboxID++], hitboxObj);
+                }
+                frameObj.insert("Hitboxes", hitboxesObj);
+
+                framesObj.append(frameObj);
+            }
+
+            animObj.insert("Frames", framesObj);
+
+            aniFileObj.insert("Animation", animObj);
+
+            Writer writer(filename);
+            writer.write(QJsonDocument(aniFileObj).toJson());
+            writer.flush();
         }
         else {
             Writer writer(filename);
@@ -669,7 +1226,142 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->frameList->blockSignals(true);
         FormatHelpers::Animation::Frame frame;
 
-        // TODO: json
+        Reader reader(filename);
+
+        QByteArray bytes = reader.readByteArray(reader.filesize);
+        QJsonParseError jsonError;
+        QJsonDocument document = QJsonDocument::fromJson(bytes, &jsonError);
+        if (jsonError.error != QJsonParseError::NoError) {
+            printLog("fromJson failed: " + jsonError.errorString()
+                     + ", offset: " + QString::number(jsonError.offset));
+            return;
+        }
+
+        bool setUI = false;
+        if (document.isObject()) {
+            QJsonObject jsonObj = document.object();
+
+            if (jsonObj.contains("Frame")) {
+                QJsonObject frameObj = jsonObj.value("Frame").toObject();
+
+                if (frameObj.contains("Sheet")) {
+                    auto sheet  = frameObj.take("Sheet");
+                    int sheetID = animFile.sheets.indexOf(sheet.toString());
+                    if (sheetID == -1) {
+                        sheetID = animFile.sheets.count();
+
+                        loadSheet(getBaseDir() + sheet.toString(), sheetID);
+                        setUI = true;
+                    }
+                    frame.sheet = sheetID;
+                }
+
+                if (frameObj.contains("Hitbox")) {
+                    auto hitbox = frameObj.take("Hitbox");
+                    if (hitbox.toString() == "None") {
+                        frame.collisionBox = 0xFF;
+                    }
+                    else {
+                        int hitboxID = animFile.hitboxTypes.indexOf(hitbox.toString());
+                        if (hitboxID == -1) {
+                            hitboxID = animFile.hitboxTypes.count();
+                            animFile.hitboxTypes.append(hitbox.toString());
+                            animFile.hitboxes.append(FormatHelpers::Animation::Hitbox());
+                            hitboxVisible.append(false);
+                            setUI = true;
+                        }
+                        frame.collisionBox = hitboxID;
+                    }
+                }
+
+                if (frameObj.contains("Duration")) {
+                    auto duration  = frameObj.take("Duration");
+                    frame.duration = duration.toInt();
+                }
+
+                if (frameObj.contains("ID")) {
+                    auto id  = frameObj.take("ID");
+                    frame.id = id.toInt();
+                }
+
+                if (frameObj.contains("Src")) {
+                    QJsonObject srcObj = frameObj.value("Src").toObject();
+
+                    if (srcObj.contains("x")) {
+                        auto srcX  = srcObj.take("x");
+                        frame.sprX = srcX.toInt();
+                    }
+
+                    if (srcObj.contains("y")) {
+                        auto srcY  = srcObj.take("y");
+                        frame.sprY = srcY.toInt();
+                    }
+                }
+
+                if (frameObj.contains("Size")) {
+                    QJsonObject sizeObj = frameObj.value("Size").toObject();
+
+                    if (sizeObj.contains("x")) {
+                        auto sizeX  = sizeObj.take("x");
+                        frame.width = sizeX.toInt();
+                    }
+
+                    if (sizeObj.contains("y")) {
+                        auto sizeY   = sizeObj.take("y");
+                        frame.height = sizeY.toInt();
+                    }
+                }
+
+                if (frameObj.contains("Pivot")) {
+                    QJsonObject pivotObj = frameObj.value("Pivot").toObject();
+
+                    if (pivotObj.contains("x")) {
+                        auto pivotX  = pivotObj.take("x");
+                        frame.pivotX = pivotX.toInt();
+                    }
+
+                    if (pivotObj.contains("y")) {
+                        auto pivotY  = pivotObj.take("y");
+                        frame.pivotY = pivotY.toInt();
+                    }
+                }
+
+                QJsonObject hitboxesObj = frameObj.value("Hitboxes").toObject();
+                frame.hitboxes.clear();
+                for (auto &h : animFile.hitboxTypes) {
+                    FormatHelpers::Animation::Hitbox::HitboxInfo hitbox;
+
+                    if (hitboxesObj.contains(h)) {
+                        QJsonObject hitboxObj = hitboxesObj.value(h).toObject();
+
+                        if (hitboxObj.contains("Left")) {
+                            auto left   = hitboxObj.take("Left");
+                            hitbox.left = left.toInt();
+                        }
+
+                        if (hitboxObj.contains("Top")) {
+                            auto top   = hitboxObj.take("Top");
+                            hitbox.top = top.toInt();
+                        }
+
+                        if (hitboxObj.contains("Right")) {
+                            auto right   = hitboxObj.take("Right");
+                            hitbox.right = right.toInt();
+                        }
+
+                        if (hitboxObj.contains("Bottom")) {
+                            auto bottom   = hitboxObj.take("Bottom");
+                            hitbox.bottom = bottom.toInt();
+                        }
+                    }
+
+                    frame.hitboxes.append(hitbox);
+                }
+            }
+            else {
+                return;
+            }
+        }
 
         QRect boundingRect;
         boundingRect.setX(frame.sprX);
@@ -686,10 +1378,19 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             item->setIcon(QPixmap::fromImage(sheets[frame.sheet].copy(boundingRect)));
         }
         frameModel->insertRow(c, item);
-        doAction("Imported frame", true);
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
         animFile.animations[currentAnim].frames.insert(c, frame);
         ui->frameList->blockSignals(false);
+
+        int cur      = currentFrame;
+        currentFrame = ui->frameList->currentIndex().row() + 1;
+        setFramePreview();
+        currentFrame = cur;
+
+        if (setUI)
+            setupUI();
+
+        doAction("Imported frame", true);
     });
 
     connect(ui->expFrame, &QToolButton::clicked, [this] {
@@ -706,6 +1407,65 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         if (selectedFilter == "json Files (*.json)") {
             // export json
+            QJsonObject aniFileObj;
+
+            int aniVer = 0;
+            switch (aniType) {
+                case ENGINE_v1: aniVer = 1; break;
+                case ENGINE_v2: aniVer = 2; break;
+                case ENGINE_v3: aniVer = 3; break;
+                case ENGINE_v4: aniVer = 4; break;
+                case ENGINE_v5: aniVer = 5; break;
+            }
+
+            aniFileObj.insert("Anim Version", aniVer);
+
+            QJsonObject frameObj;
+
+            FormatHelpers::Animation::Frame &f = animFile.animations[currentAnim].frames[currentFrame];
+
+            frameObj.insert("Sheet", animFile.sheets[f.sheet]);
+            if (f.collisionBox == 0xFF)
+                frameObj.insert("Hitbox", "None");
+            else
+                frameObj.insert("Hitbox", animFile.hitboxTypes[f.collisionBox]);
+            frameObj.insert("ID", f.id);
+            frameObj.insert("Duration", f.duration);
+
+            QJsonObject srcObj;
+            srcObj.insert("x", f.sprX);
+            srcObj.insert("y", f.sprY);
+            frameObj.insert("Src", srcObj);
+
+            QJsonObject sizeObj;
+            sizeObj.insert("x", f.width);
+            sizeObj.insert("y", f.height);
+            frameObj.insert("Size", sizeObj);
+
+            QJsonObject pivotObj;
+            pivotObj.insert("x", f.pivotX);
+            pivotObj.insert("y", f.pivotY);
+            frameObj.insert("Pivot", pivotObj);
+
+            QJsonObject hitboxesObj;
+            int hitboxID = 0;
+            for (auto &h : f.hitboxes) {
+                QJsonObject hitboxObj;
+
+                hitboxObj.insert("Left", h.left);
+                hitboxObj.insert("Top", h.top);
+                hitboxObj.insert("Right", h.right);
+                hitboxObj.insert("Bottom", h.bottom);
+
+                hitboxesObj.insert(animFile.hitboxTypes[hitboxID++], hitboxObj);
+            }
+            frameObj.insert("Hitboxes", hitboxesObj);
+
+            aniFileObj.insert("Frame", frameObj);
+
+            Writer writer(filename);
+            writer.write(QJsonDocument(aniFileObj).toJson());
+            writer.flush();
         }
         else {
             Writer writer(filename);
@@ -1108,6 +1868,23 @@ void AnimationEditor::setupUI(bool setFrame)
     ui->upHB->setDisabled(aniType == ENGINE_v1);
     ui->downHB->setDisabled(aniType == ENGINE_v1);
 
+    if (currentAnim >= 0 && currentAnim < animFile.animations.count()) {
+        ui->animName->blockSignals(true);
+        ui->speedMult->blockSignals(true);
+        ui->loopIndex->blockSignals(true);
+        ui->rotationStyle->blockSignals(true);
+
+        ui->animName->setText(animFile.animations[currentAnim].name);
+        ui->speedMult->setValue(animFile.animations[currentAnim].speed);
+        ui->loopIndex->setValue(animFile.animations[currentAnim].loopIndex);
+        ui->rotationStyle->setCurrentIndex(animFile.animations[currentAnim].rotationStyle);
+
+        ui->animName->blockSignals(false);
+        ui->speedMult->blockSignals(false);
+        ui->loopIndex->blockSignals(false);
+        ui->rotationStyle->blockSignals(false);
+    }
+
     updateView();
 }
 
@@ -1221,6 +1998,10 @@ void AnimationEditor::loadSheet(QString filepath, int index, bool addSource)
             // uh oh floshed
         }
     }
+    else {
+        QImage sheet(":/icons/missing.png");
+        sheets.insert(index, sheet);
+    }
 
     if (addSource) {
         animFile.sheets.insert(index, Utils::getFilenameAndFolder(filepath));
@@ -1242,15 +2023,10 @@ void AnimationEditor::moveSheet(int from, int to)
     sheets.move(from, to);
 }
 
-void AnimationEditor::loadAnim(QString filepath, int aniType)
+QString AnimationEditor::getBaseDir()
 {
-    appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
-
-    this->aniType = aniType;
-    animFile      = FormatHelpers::Animation(aniType, filepath);
-
     QStringList folderList;
-    folderList << filepath.replace("\\", "/").split("/");
+    folderList << animFile.filePath.replace("\\", "/").split("/");
 
     QString baseDir = "";
 
@@ -1271,6 +2047,18 @@ void AnimationEditor::loadAnim(QString filepath, int aniType)
         if (folderList[pos - 1].toLower() == "characters" && aniType == ENGINE_v1)
             break;
     }
+
+    return baseDir;
+}
+
+void AnimationEditor::loadAnim(QString filepath, int aniType)
+{
+    appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
+
+    this->aniType = aniType;
+    animFile      = FormatHelpers::Animation(aniType, filepath);
+
+    QString baseDir = getBaseDir();
 
     int id = 0;
     for (auto &sheet : animFile.sheets) {
@@ -1508,7 +2296,37 @@ void AnimationEditor::redoAction()
 void AnimationEditor::resetAction()
 {
     copyAnimFile(actions[actionIndex].animFile, animFile);
+    hitboxVisible.clear();
+    for (int h = 0; h < animFile.hitboxTypes.count(); ++h) hitboxVisible.append(false);
+
     setupUI(true);
+
+    if (currentAnim >= 0) {
+        ui->frameList->blockSignals(true);
+
+        frameModel->clear();
+        uint fID = 0;
+        for (FormatHelpers::Animation::Frame &f : animFile.animations[currentAnim].frames) {
+            QRect boundingRect;
+            boundingRect.setX(f.sprX);
+            boundingRect.setY(f.sprY);
+            boundingRect.setWidth(f.width);
+            boundingRect.setHeight(f.height);
+
+            QStandardItem *item = new QStandardItem;
+            item->setEditable(false);
+            item->setData(QPixmap::fromImage((f.width == 0 || f.height == 0)
+                                                 ? QImage(":/icons/missing.png")
+                                                 : sheets[f.sheet].copy(boundingRect)),
+
+                          ROLE_PIXMAP);
+            frameModel->appendRow(item);
+            ++fID;
+        }
+        updateView();
+
+        ui->frameList->blockSignals(false);
+    }
 
     updateTitle(actionIndex > 0);
 }

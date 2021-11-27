@@ -107,6 +107,8 @@ private:
     void removeSheet(int index, bool removeSource = true);
     void moveSheet(int from, int to);
 
+    QString getBaseDir();
+
     void loadAnim(QString filepath, int aniType);
 
     QVector<QImage> sheets;

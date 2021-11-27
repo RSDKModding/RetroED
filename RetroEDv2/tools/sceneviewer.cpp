@@ -703,13 +703,16 @@ void SceneViewer::drawScene()
     spriteShader.setValue("useAlpha", false);
     spriteShader.setValue("alpha", 1.0f);
     for (int o = 0; o < entities.count(); ++o) {
-        validDraw = false;
-        // entities[o].box = Rect<int>(0, 0, 0, 0);
+        validDraw        = false;
+        entities[o].box  = Rect<int>(0, 0, 0, 0);
+        activeDrawEntity = &entities[o];
 
         if (objectsLoaded)
             callGameEvent(EVENT_RSDKDRAW, o);
 
         if (!validDraw) {
+            entities[o].box = Rect<int>(-0x10, -0x10, 0x10, 0x10);
+
             spriteShader.use();
             rectVAO.bind();
             // Draw Object
@@ -788,9 +791,11 @@ void SceneViewer::drawScene()
     spriteShader.setValue("useAlpha", true);
     spriteShader.setValue("alpha", 0.75f);
     if (selectedObject >= 0 && selecting && curTool == TOOL_ENTITY) {
-        bool flag = false;
-        float ex  = tilePos.x;
-        float ey  = tilePos.y;
+        EntityInfo tempEntity;
+        activeDrawEntity = &tempEntity;
+        bool flag        = false;
+        float ex         = tilePos.x;
+        float ey         = tilePos.y;
 
         ex *= invZoom();
         ey *= invZoom();
@@ -1355,6 +1360,9 @@ void SceneViewer::drawSprite(int XPos, int YPos, int width, int height, int sprX
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
+    if (width <= 0 || height <= 0)
+        return;
+
     if (sheetID != prevSprite)
         sprDraws = 0;
 
@@ -1362,6 +1370,25 @@ void SceneViewer::drawSprite(int XPos, int YPos, int width, int height, int sprX
     float xpos = XPos - cam.pos.x;
     float ypos = YPos - cam.pos.y;
     float zpos = 10.0f + (sprDraws * 0.001f);
+
+    float entX      = activeDrawEntity->pos.x - cam.pos.x;
+    float entY      = activeDrawEntity->pos.y - cam.pos.y;
+    float boxLeft   = xpos;
+    float boxTop    = ypos;
+    float boxRight  = xpos + width;
+    float boxBottom = ypos + height;
+    if (boxLeft < entX + activeDrawEntity->box.x) {
+        activeDrawEntity->box.x = boxLeft - entX;
+    }
+    if (boxTop < entY + activeDrawEntity->box.y) {
+        activeDrawEntity->box.y = boxTop - entY;
+    }
+    if (boxRight > entX + activeDrawEntity->box.w) {
+        activeDrawEntity->box.w = boxRight - entX;
+    }
+    if (boxBottom > entY + activeDrawEntity->box.h) {
+        activeDrawEntity->box.h = boxBottom - entY;
+    }
 
     if (sheetID != prevSprite) {
         objectSprites[sheetID].texturePtr->bind();
@@ -1436,6 +1463,9 @@ void SceneViewer::drawSpriteFlipped(int XPos, int YPos, int width, int height, i
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
+    if (width <= 0 || height <= 0)
+        return;
+
     if (sheetID != prevSprite)
         sprDraws = 0;
 
@@ -1443,6 +1473,25 @@ void SceneViewer::drawSpriteFlipped(int XPos, int YPos, int width, int height, i
     float xpos = XPos - cam.pos.x;
     float ypos = YPos - cam.pos.y;
     float zpos = 10.0f + (sprDraws * 0.001f);
+
+    float entX      = activeDrawEntity->pos.x - cam.pos.x;
+    float entY      = activeDrawEntity->pos.y - cam.pos.y;
+    float boxLeft   = xpos;
+    float boxTop    = ypos;
+    float boxRight  = xpos + width;
+    float boxBottom = ypos + height;
+    if (boxLeft < entX + activeDrawEntity->box.x) {
+        activeDrawEntity->box.x = boxLeft - entX;
+    }
+    if (boxTop < entY + activeDrawEntity->box.y) {
+        activeDrawEntity->box.y = boxTop - entY;
+    }
+    if (boxRight > entX + activeDrawEntity->box.w) {
+        activeDrawEntity->box.w = boxRight - entX;
+    }
+    if (boxBottom > entY + activeDrawEntity->box.h) {
+        activeDrawEntity->box.h = boxBottom - entY;
+    }
 
     if (sheetID != prevSprite) {
         objectSprites[sheetID].texturePtr->bind();
@@ -1549,6 +1598,9 @@ void SceneViewer::drawSpriteScaled(int direction, int XPos, int YPos, int pivotX
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
+    if (width <= 0 || height <= 0)
+        return;
+
     if (sheetID != prevSprite)
         sprDraws = 0;
 
@@ -1558,6 +1610,25 @@ void SceneViewer::drawSpriteScaled(int direction, int XPos, int YPos, int pivotX
     float xpos = XPos - cam.pos.x;
     float ypos = YPos - cam.pos.y;
     float zpos = 10.0f + (sprDraws * 0.001f);
+
+    float entX      = activeDrawEntity->pos.x - cam.pos.x;
+    float entY      = activeDrawEntity->pos.y - cam.pos.y;
+    float boxLeft   = xpos;
+    float boxTop    = ypos;
+    float boxRight  = xpos + width;
+    float boxBottom = ypos + height;
+    if (boxLeft < entX + activeDrawEntity->box.x) {
+        activeDrawEntity->box.x = boxLeft - entX;
+    }
+    if (boxTop < entY + activeDrawEntity->box.y) {
+        activeDrawEntity->box.y = boxTop - entY;
+    }
+    if (boxRight > entX + activeDrawEntity->box.w) {
+        activeDrawEntity->box.w = boxRight - entX;
+    }
+    if (boxBottom > entY + activeDrawEntity->box.h) {
+        activeDrawEntity->box.h = boxBottom - entY;
+    }
 
     if (sheetID != prevSprite) {
         objectSprites[sheetID].texturePtr->bind();
@@ -1663,6 +1734,9 @@ void SceneViewer::drawSpriteRotated(int direction, int XPos, int YPos, int pivot
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
+    if (width <= 0 || height <= 0)
+        return;
+
     if (sheetID != prevSprite)
         sprDraws = 0;
 
@@ -1672,6 +1746,25 @@ void SceneViewer::drawSpriteRotated(int direction, int XPos, int YPos, int pivot
     float xpos = XPos - cam.pos.x;
     float ypos = YPos - cam.pos.y;
     float zpos = 10.0f + (sprDraws * 0.001f);
+
+    float entX      = activeDrawEntity->pos.x - cam.pos.x;
+    float entY      = activeDrawEntity->pos.y - cam.pos.y;
+    float boxLeft   = xpos;
+    float boxTop    = ypos;
+    float boxRight  = xpos + width;
+    float boxBottom = ypos + height;
+    if (boxLeft < entX + activeDrawEntity->box.x) {
+        activeDrawEntity->box.x = boxLeft - entX;
+    }
+    if (boxTop < entY + activeDrawEntity->box.y) {
+        activeDrawEntity->box.y = boxTop - entY;
+    }
+    if (boxRight > entX + activeDrawEntity->box.w) {
+        activeDrawEntity->box.w = boxRight - entX;
+    }
+    if (boxBottom > entY + activeDrawEntity->box.h) {
+        activeDrawEntity->box.h = boxBottom - entY;
+    }
 
     if (sheetID != prevSprite) {
         objectSprites[sheetID].texturePtr->bind();
@@ -1783,6 +1876,9 @@ void SceneViewer::drawSpriteRotozoom(int direction, int XPos, int YPos, int pivo
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
+    if (width <= 0 || height <= 0)
+        return;
+
     if (sheetID != prevSprite)
         sprDraws = 0;
 
@@ -1792,6 +1888,25 @@ void SceneViewer::drawSpriteRotozoom(int direction, int XPos, int YPos, int pivo
     float xpos = XPos - cam.pos.x;
     float ypos = YPos - cam.pos.y;
     float zpos = 10.0f + (sprDraws * 0.001f);
+
+    float entX      = activeDrawEntity->pos.x - cam.pos.x;
+    float entY      = activeDrawEntity->pos.y - cam.pos.y;
+    float boxLeft   = xpos;
+    float boxTop    = ypos;
+    float boxRight  = xpos + width;
+    float boxBottom = ypos + height;
+    if (boxLeft < entX + activeDrawEntity->box.x) {
+        activeDrawEntity->box.x = boxLeft - entX;
+    }
+    if (boxTop < entY + activeDrawEntity->box.y) {
+        activeDrawEntity->box.y = boxTop - entY;
+    }
+    if (boxRight > entX + activeDrawEntity->box.w) {
+        activeDrawEntity->box.w = boxRight - entX;
+    }
+    if (boxBottom > entY + activeDrawEntity->box.h) {
+        activeDrawEntity->box.h = boxBottom - entY;
+    }
 
     if (sheetID != prevSprite) {
         objectSprites[sheetID].texturePtr->bind();
@@ -1911,6 +2026,9 @@ void SceneViewer::drawAlphaBlendedSprite(int XPos, int YPos, int width, int heig
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
+    if (width <= 0 || height <= 0)
+        return;
+
     if (sheetID != prevSprite)
         sprDraws = 0;
 
@@ -1918,6 +2036,25 @@ void SceneViewer::drawAlphaBlendedSprite(int XPos, int YPos, int width, int heig
     float xpos = XPos - cam.pos.x;
     float ypos = YPos - cam.pos.y;
     float zpos = 10.0f + (sprDraws * 0.001f);
+
+    float entX      = activeDrawEntity->pos.x - cam.pos.x;
+    float entY      = activeDrawEntity->pos.y - cam.pos.y;
+    float boxLeft   = xpos;
+    float boxTop    = ypos;
+    float boxRight  = xpos + width;
+    float boxBottom = ypos + height;
+    if (boxLeft < entX + activeDrawEntity->box.x) {
+        activeDrawEntity->box.x = boxLeft - entX;
+    }
+    if (boxTop < entY + activeDrawEntity->box.y) {
+        activeDrawEntity->box.y = boxTop - entY;
+    }
+    if (boxRight > entX + activeDrawEntity->box.w) {
+        activeDrawEntity->box.w = boxRight - entX;
+    }
+    if (boxBottom > entY + activeDrawEntity->box.h) {
+        activeDrawEntity->box.h = boxBottom - entY;
+    }
 
     if (sheetID != prevSprite) {
         objectSprites[sheetID].texturePtr->bind();
@@ -1992,6 +2129,9 @@ void SceneViewer::drawAdditiveBlendedSprite(int XPos, int YPos, int width, int h
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
+    if (width <= 0 || height <= 0)
+        return;
+
     if (sheetID != prevSprite)
         sprDraws = 0;
 
@@ -1999,6 +2139,25 @@ void SceneViewer::drawAdditiveBlendedSprite(int XPos, int YPos, int width, int h
     float xpos = XPos - cam.pos.x;
     float ypos = YPos - cam.pos.y;
     float zpos = 10.0f + (sprDraws * 0.001f);
+
+    float entX      = activeDrawEntity->pos.x - cam.pos.x;
+    float entY      = activeDrawEntity->pos.y - cam.pos.y;
+    float boxLeft   = xpos;
+    float boxTop    = ypos;
+    float boxRight  = xpos + width;
+    float boxBottom = ypos + height;
+    if (boxLeft < entX + activeDrawEntity->box.x) {
+        activeDrawEntity->box.x = boxLeft - entX;
+    }
+    if (boxTop < entY + activeDrawEntity->box.y) {
+        activeDrawEntity->box.y = boxTop - entY;
+    }
+    if (boxRight > entX + activeDrawEntity->box.w) {
+        activeDrawEntity->box.w = boxRight - entX;
+    }
+    if (boxBottom > entY + activeDrawEntity->box.h) {
+        activeDrawEntity->box.h = boxBottom - entY;
+    }
 
     if (sheetID != prevSprite) {
         objectSprites[sheetID].texturePtr->bind();
@@ -2071,6 +2230,9 @@ void SceneViewer::drawSubtractiveBlendedSprite(int XPos, int YPos, int width, in
 {
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
+    if (width <= 0 || height <= 0)
+        return;
+
     if (sheetID != prevSprite)
         sprDraws = 0;
 
@@ -2078,6 +2240,25 @@ void SceneViewer::drawSubtractiveBlendedSprite(int XPos, int YPos, int width, in
     float xpos = XPos - cam.pos.x;
     float ypos = YPos - cam.pos.y;
     float zpos = 10.0f + (sprDraws * 0.001f);
+
+    float entX      = activeDrawEntity->pos.x - cam.pos.x;
+    float entY      = activeDrawEntity->pos.y - cam.pos.y;
+    float boxLeft   = xpos;
+    float boxTop    = ypos;
+    float boxRight  = xpos + width;
+    float boxBottom = ypos + height;
+    if (boxLeft < entX + activeDrawEntity->box.x) {
+        activeDrawEntity->box.x = boxLeft - entX;
+    }
+    if (boxTop < entY + activeDrawEntity->box.y) {
+        activeDrawEntity->box.y = boxTop - entY;
+    }
+    if (boxRight > entX + activeDrawEntity->box.w) {
+        activeDrawEntity->box.w = boxRight - entX;
+    }
+    if (boxBottom > entY + activeDrawEntity->box.h) {
+        activeDrawEntity->box.h = boxBottom - entY;
+    }
 
     if (sheetID != prevSprite) {
         objectSprites[sheetID].texturePtr->bind();

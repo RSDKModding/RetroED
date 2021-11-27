@@ -1,6 +1,6 @@
 #include "includes.hpp"
 
-#define COMMONALIAS_COUNT_v4 (0x55)
+#define COMMONALIAS_COUNT_v4 (0x5A)
 #define ALIAS_COUNT_TRIM_v4  (0xE0)
 #define ALIAS_COUNT_v4       (COMMONALIAS_COUNT_v4 + ALIAS_COUNT_TRIM_v4)
 
@@ -580,11 +580,11 @@ AliasInfov4 publicAliases[ALIAS_COUNT_v4] = {
     AliasInfov4("TILELAYER_3DSKY", "4"),
     AliasInfov4("GROUP_ALL", "0"),
     // EDITOR-ONLY
-    AliasInfov4("VAR_ALIAS_PROPVAL", "0"),
-    AliasInfov4("VAR_ALIAS_VAL0", "1"),
-    AliasInfov4("VAR_ALIAS_VAL1", "2"),
-    AliasInfov4("VAR_ALIAS_VAL2", "3"),
-    AliasInfov4("VAR_ALIAS_VAL3", "4"),
+    AliasInfov4("ALIAS_VAR_PROPVAL", "0"),
+    AliasInfov4("ALIAS_VAR_VAL0", "1"),
+    AliasInfov4("ALIAS_VAR_VAL1", "2"),
+    AliasInfov4("ALIAS_VAR_VAL2", "3"),
+    AliasInfov4("ALIAS_VAR_VAL3", "4"),
 };
 AliasInfov4 privateAliases[ALIAS_COUNT_TRIM_v4];
 
@@ -1595,7 +1595,7 @@ void Compilerv4::convertFunctionText(QString &text)
             // Eg: TempValue0 = Game.Variable
             for (int v = 0; v < globalVariables.count(); ++v) {
                 if (funcName == globalVariables[v]) {
-                    funcName = "Global";
+                    funcName = "global";
                     arrayStr = "";
                     appendIntegerToString(arrayStr, v);
                 }
@@ -1930,6 +1930,12 @@ bool Compilerv4::convertStringToInteger(QString &text, int *value)
     *value  = 0;
     bool ok = false;
 
+    bool negative = false;
+    if (text.startsWith("-")) {
+        negative = true;
+        text.remove(0, 1);
+    }
+
     if (text.startsWith("0x") || text.startsWith("0X")) {
         *value = text.toInt(&ok, 0x10);
     }
@@ -1942,6 +1948,9 @@ bool Compilerv4::convertStringToInteger(QString &text, int *value)
     else {
         *value = text.toInt(&ok, 10);
     }
+
+    if (negative)
+        *value = -*value;
 
     return ok;
 }
@@ -2308,6 +2317,8 @@ void Compilerv4::clearScriptData()
     memset(foreachStack, -1, FORSTACK_COUNT_v4 * sizeof(int));
     memset(jumpTableStack, 0, JUMPSTACK_COUNT_v4 * sizeof(int));
     memset(functionStack, 0, FUNCSTACK_COUNT_v4 * sizeof(int));
+
+    globalVariables.clear();
 
     scriptFrameCount = 0;
 

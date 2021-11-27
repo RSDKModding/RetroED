@@ -177,6 +177,13 @@
        </spacer>
       </item>
       <item>
+       <widget class="QToolButton" name="impFile">
+        <property name="text">
+         <string>Import Json File</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QToolButton" name="showTransClr">
         <property name="text">
          <string>Show Transparent Colour</string>
@@ -225,6 +232,13 @@
         </property>
         <property name="autoRaise">
          <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="expFile">
+        <property name="text">
+         <string>Export Json File</string>
         </property>
        </widget>
       </item>
@@ -565,7 +579,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="animPage">
       <property name="geometry">
@@ -606,7 +620,61 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <item row="7" column="1">
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_18">
+           <property name="text">
+            <string>Animation Speed</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0" colspan="2">
+          <widget class="Line" name="line">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0" colspan="2">
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="speedMult">
+           <property name="toolTip">
+            <string>Animation playback speed</string>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>255</number>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Player ID</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0" colspan="2">
+          <widget class="QLabel" name="label_17">
+           <property name="text">
+            <string>Retro-Sonic Properties</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
           <widget class="QComboBox" name="playerID">
            <item>
             <property name="text">
@@ -625,27 +693,27 @@
            </item>
           </widget>
          </item>
-         <item row="4" column="0" colspan="2">
-          <widget class="Line" name="line">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QSpinBox" name="speedMult">
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="loopIndex">
            <property name="toolTip">
-            <string>Animation playback speed</string>
-           </property>
-           <property name="minimum">
-            <number>0</number>
-           </property>
-           <property name="maximum">
-            <number>255</number>
+            <string>What frame to loop back to</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Loop Index</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
           <widget class="QLabel" name="label_16">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -658,14 +726,7 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_18">
-           <property name="text">
-            <string>Animation Speed</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
+         <item row="4" column="1">
           <widget class="QComboBox" name="rotationStyle">
            <property name="toolTip">
             <string>How should the animation be played back</string>
@@ -702,52 +763,15 @@
            </item>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QSpinBox" name="loopIndex">
-           <property name="toolTip">
-            <string>What frame to loop back to</string>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="0">
-          <widget class="QLabel" name="label_15">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
+          <widget class="QLabel" name="label_19">
            <property name="text">
-            <string>Loop Index</string>
+            <string>Name</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>Player ID</string>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="0" colspan="2">
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="6" column="0" colspan="2">
-          <widget class="QLabel" name="label_17">
-           <property name="text">
-            <string>Retro-Sonic Properties</string>
-           </property>
-          </widget>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="animName"/>
          </item>
         </layout>
        </item>
