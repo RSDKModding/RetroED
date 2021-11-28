@@ -204,12 +204,32 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="6">
+       <widget class="QCheckBox" name="tileFlipX">
+        <property name="text">
+         <string>Flip X</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="10">
        <widget class="QCheckBox" name="tileSolidLRBA">
         <property name="text">
          <string>Solid A (LRB)</string>
         </property>
        </widget>
+      </item>
+      <item row="0" column="13">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item row="0" column="15">
        <widget class="QToolButton" name="showCollisionB">
@@ -227,6 +247,89 @@
         </property>
         <property name="checkable">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Filter</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="5">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Defaults:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="17">
+       <widget class="QToolButton" name="showTileGrid">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Show Tile Grid</string>
+        </property>
+        <property name="text">
+         <string>TLE</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_grid_48px.svg</normaloff>:/icons/ic_grid_48px.svg</iconset>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="9">
+       <widget class="QCheckBox" name="tileSolidTopA">
+        <property name="text">
+         <string>Solid A (Top)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Tool</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="14">
+       <widget class="QToolButton" name="showCollisionA">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Show Collision A</string>
+        </property>
+        <property name="text">
+         <string>A</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="19">
+       <widget class="QToolButton" name="exportSceneImg">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Img</string>
         </property>
        </widget>
       </item>
@@ -252,52 +355,6 @@
          <bool>true</bool>
         </property>
        </widget>
-      </item>
-      <item row="0" column="12">
-       <widget class="QCheckBox" name="tileSolidLRBB">
-        <property name="text">
-         <string>Solid B (LRB)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QSpinBox" name="sceneFilter">
-        <property name="minimumSize">
-         <size>
-          <width>50</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximum">
-         <number>255</number>
-        </property>
-        <property name="value">
-         <number>255</number>
-        </property>
-        <property name="displayIntegerBase">
-         <number>16</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="9">
-       <widget class="QCheckBox" name="tileSolidTopA">
-        <property name="text">
-         <string>Solid A (Top)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="13">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
       <item row="0" column="1">
        <widget class="QComboBox" name="selToolBox">
@@ -348,69 +405,6 @@
         </item>
        </widget>
       </item>
-      <item row="0" column="11">
-       <widget class="QCheckBox" name="tileSolidTopB">
-        <property name="text">
-         <string>Solid B (Top)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="6">
-       <widget class="QCheckBox" name="tileFlipX">
-        <property name="text">
-         <string>Flip X</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Tool</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="14">
-       <widget class="QToolButton" name="showCollisionA">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Show Collision A</string>
-        </property>
-        <property name="text">
-         <string>A</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="17">
-       <widget class="QToolButton" name="showTileGrid">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Show Tile Grid</string>
-        </property>
-        <property name="text">
-         <string>TLE</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_grid_48px.svg</normaloff>:/icons/ic_grid_48px.svg</iconset>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="8">
        <widget class="QCheckBox" name="tileFlipY">
         <property name="text">
@@ -418,15 +412,48 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Filter</string>
+      <item row="0" column="3">
+       <widget class="QSpinBox" name="sceneFilter">
+        <property name="minimumSize">
+         <size>
+          <width>50</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximum">
+         <number>255</number>
+        </property>
+        <property name="value">
+         <number>255</number>
+        </property>
+        <property name="displayIntegerBase">
+         <number>16</number>
         </property>
        </widget>
       </item>
-      <item row="0" column="18">
-       <widget class="QToolButton" name="showPixelGrid">
+      <item row="0" column="4">
+       <widget class="QCheckBox" name="useGizmos">
+        <property name="text">
+         <string>Use Gizmos</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="12">
+       <widget class="QCheckBox" name="tileSolidLRBB">
+        <property name="text">
+         <string>Solid B (LRB)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="11">
+       <widget class="QCheckBox" name="tileSolidTopB">
+        <property name="text">
+         <string>Solid B (Top)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="20">
+       <widget class="QToolButton" name="expScene">
         <property name="minimumSize">
          <size>
           <width>24</width>
@@ -441,40 +468,13 @@
         </property>
         <property name="icon">
          <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_grid_48px.svg</normaloff>:/icons/ic_grid_48px.svg</iconset>
+          <normaloff>:/icons/ic_redo_48px.svg</normaloff>:/icons/ic_redo_48px.svg</iconset>
         </property>
         <property name="checkable">
          <bool>true</bool>
         </property>
         <property name="autoRaise">
          <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="19">
-       <widget class="QToolButton" name="exportSceneImg">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Img</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="5">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Defaults:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="4">
-       <widget class="QCheckBox" name="useGizmos">
-        <property name="text">
-         <string>Use Gizmos</string>
         </property>
        </widget>
       </item>

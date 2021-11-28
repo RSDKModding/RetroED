@@ -87,7 +87,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
     ui->showParallax->setIcon(Utils::getColouredIcon(":/icons/ic_horizontal_split_48px.svg"));
     ui->showTileGrid->setIcon(Utils::getColouredIcon(":/icons/ic_grid_48px.svg"));
-    ui->showPixelGrid->setIcon(Utils::getColouredIcon(":/icons/ic_grid_48px.svg"));
+    // ui->showPixelGrid->setIcon(Utils::getColouredIcon(":/icons/ic_grid_48px.svg"));
 
     connect(ui->tileFlipX, &QCheckBox::toggled, [this](bool c) { viewer->tileFlip.x = c; });
     connect(ui->tileFlipY, &QCheckBox::toggled, [this](bool c) { viewer->tileFlip.y = c; });
@@ -538,7 +538,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     });
 
     connect(ui->showTileGrid, &QPushButton::clicked, [this] { viewer->showTileGrid ^= 1; });
-    connect(ui->showPixelGrid, &QPushButton::clicked, [this] { viewer->showPixelGrid ^= 1; });
+    // connect(ui->showPixelGrid, &QPushButton::clicked, [this] { viewer->showPixelGrid ^= 1; });
 
     connect(scnProp->loadGlobalCB, &QCheckBox::toggled, [this](bool b) {
         viewer->stageConfig.loadGlobalObjects = b;
@@ -930,6 +930,179 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
             image.save(filedialog.selectedFiles()[0]);
             setStatus("Scene exported to image sucessfully!");
+        }
+    });
+
+    connect(ui->expScene, &QPushButton::clicked, [this] {
+        QFileDialog filedialog(this, tr("Save File"), "", tr("XML Files (*.xml)"));
+        filedialog.setAcceptMode(QFileDialog::AcceptSave);
+        if (filedialog.exec() == QDialog::Accepted) {
+            Writer writer(filedialog.selectedFiles()[0]);
+
+            writer.writeLine("<?xml version=\"1.0\"?>");
+            writer.writeLine("");
+            writer.writeLine("<scene>");
+
+            QList<QString> types = { "uint8", "uint16", "uint32", "int8",    "int16",   "int32",
+                                     "enum",  "bool",   "string", "vector2", "unknown", "colour" };
+
+            writer.writeLine(QString("\t<metadata libraryFile=\"%1\" bgColour=\"%2\" "
+                                     "altBgColour=\"%2\"> </metadata>")
+                                 .arg(viewer->scene.editorMetadata.stampName)
+                                 .arg(viewer->scene.editorMetadata.backgroundColor1.rgba())
+                                 .arg(viewer->scene.editorMetadata.backgroundColor2.rgba()));
+
+            if (viewer->scene.layers.count()) {
+                writer.writeLine();
+                writer.writeLine("\t<layers>");
+
+                for (auto &layer : viewer->scene.layers) {
+
+                    writer.writeText(
+                        QString(
+                            "\t\t<layer name=\"%1\" type=\"%2\" drawOrder=\"%3\" width=\"%4\" "
+                            "height=\"%5\" parallaxFactor=\"%6\" scrollSpeed=\"%7\" visible=\"%8\">")
+                            .arg(layer.name)
+                            .arg(layer.type)
+                            .arg(layer.drawOrder)
+                            .arg(layer.width)
+                            .arg(layer.height)
+                            .arg(layer.parallaxFactor)
+                            .arg(layer.scrollSpeed)
+                            .arg(layer.visible));
+
+                    if (layer.scrollingInfo.count()) {
+                        writer.writeLine();
+                        for (auto &scroll : layer.scrollInfos) {
+                            writer.writeLine(QString("\t\t\t<scrollInfo startLine=\"%1\" length=\"%2\" "
+                                                     "parallaxFactor=\"%3\" scrollSpeed=\"%4\" "
+                                                     "deform=\"%5\"> </scrollInfo>")
+                                                 .arg(scroll.startLine)
+                                                 .arg(scroll.length)
+                                                 .arg(scroll.parallaxFactor)
+                                                 .arg(scroll.scrollSpeed)
+                                                 .arg(scroll.deform));
+                        }
+                    }
+                    writer.writeLine();
+
+                    writer.writeLine("\t\t\t<layout>");
+                    for (int y = 0; y < layer.height; ++y) {
+                        writer.writeText("\t\t\t\t");
+                        for (int x = 0; x < layer.width; ++x) {
+                            writer.writeText(QString::number(layer.layout[y][x]));
+                            writer.writeText(",");
+                        }
+                        writer.writeLine();
+                    }
+                    writer.writeLine("\t\t\t</layout>");
+
+                    writer.writeLine("\t\t</layer>");
+                }
+
+                writer.writeLine("\t</layers>");
+            }
+
+            if (viewer->objects.count()) {
+                writer.writeLine();
+                writer.writeLine("\t<objects>");
+
+                for (auto &object : viewer->objects) {
+                    writer.writeText(QString("\t\t<object name=\"%1\">").arg(object.name));
+                    if (object.variables.count()) {
+                        writer.writeLine();
+                        for (auto &variable : object.variables) {
+                            writer.writeLine(
+                                QString("\t\t\t<variable name=\"%1\" type=\"%2\"> </variable>")
+                                    .arg(variable.name)
+                                    .arg(types[variable.type]));
+                        }
+                    }
+                    else {
+                        writer.writeText(" ");
+                    }
+                    writer.writeLine("\t\t</object>");
+                }
+
+                writer.writeLine("\t</objects>");
+            }
+
+            if (viewer->objects.count()) {
+                writer.writeLine();
+                writer.writeLine("\t<entities>");
+
+                for (auto &entity : viewer->entities) {
+                    writer.writeText(QString("\t\t<entity name=\"%1\" slotID=\"%2\" x=\"%3\" y=\"%4\">")
+                                         .arg(viewer->objects[entity.type].name)
+                                         .arg(entity.slotID)
+                                         .arg(entity.pos.x)
+                                         .arg(entity.pos.y));
+                    if (entity.variables.count()) {
+                        writer.writeLine();
+
+                        int id = 0;
+                        for (auto &variable : entity.variables) {
+                            writer.writeText(QString("\t\t\t<variable name=\"%1\" type=\"%2\">")
+                                                 .arg(viewer->objects[entity.type].variables[id++].name)
+                                                 .arg(types[variable.type]));
+
+                            switch (variable.type) {
+                                default: break;
+                                case VAR_UINT8:
+                                    writer.writeText(QString::number(variable.value_uint8));
+                                    break;
+                                case VAR_UINT16:
+                                    writer.writeText(QString::number(variable.value_uint16));
+                                    break;
+                                case VAR_UINT32:
+                                    writer.writeText(QString::number(variable.value_uint32));
+                                    break;
+                                case VAR_INT8:
+                                    writer.writeText(QString::number(variable.value_int8));
+                                    break;
+                                case VAR_INT16:
+                                    writer.writeText(QString::number(variable.value_int16));
+                                    break;
+                                case VAR_INT32:
+                                    writer.writeText(QString::number(variable.value_int32));
+                                    break;
+                                case VAR_ENUM:
+                                    writer.writeText(QString::number(variable.value_enum));
+                                    break;
+                                case VAR_BOOL:
+                                    writer.writeText(QString::number(variable.value_bool));
+                                    break;
+                                case VAR_STRING: writer.writeText(variable.value_string); break;
+                                case VAR_VECTOR2:
+                                    writer.writeLine();
+                                    writer.writeLine(
+                                        QString("\t\t\t\t<x>%1</x>").arg(variable.value_vector2.x));
+                                    writer.writeLine(
+                                        QString("\t\t\t\t<y>%1</y>").arg(variable.value_vector2.y));
+                                    writer.writeText("\t\t\t");
+                                    break;
+                                case VAR_UNKNOWN:
+                                    writer.writeText(QString::number(variable.value_unknown));
+                                    break;
+                                case VAR_COLOUR:
+                                    writer.writeText(QString::number(variable.value_color.rgb()));
+                                    break;
+                            }
+                            writer.writeLine(QString("</variable>"));
+                        }
+                    }
+                    else {
+                        writer.writeText(" ");
+                    }
+                    writer.writeLine("\t\t</entity>");
+                }
+
+                writer.writeLine("\t</entities>");
+            }
+
+            writer.writeLine("</scene>");
+
+            writer.flush();
         }
     });
 
@@ -2285,9 +2458,9 @@ void SceneEditorv5::resetAction()
     ui->showTileGrid->setDown(viewer->showTileGrid);
     ui->showTileGrid->blockSignals(false);
 
-    ui->showPixelGrid->blockSignals(true);
-    ui->showPixelGrid->setDown(viewer->showPixelGrid);
-    ui->showPixelGrid->blockSignals(false);
+    // ui->showPixelGrid->blockSignals(true);
+    // ui->showPixelGrid->setDown(viewer->showPixelGrid);
+    // ui->showPixelGrid->blockSignals(false);
 
     ui->showCollisionA->blockSignals(true);
     ui->showCollisionA->setDown(viewer->showPlaneA);

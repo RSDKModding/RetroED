@@ -12,15 +12,15 @@ public:
     class TimeStamp
     {
     public:
-        int tm_sec;
-        int tm_min;
-        int tm_hour;
-        int tm_mday;
-        int tm_mon;
-        int tm_year;
-        int tm_wday;
-        int tm_yday;
-        int tm_isdst;
+        int tm_sec;   // seconds after the minute - [0, 60] including leap second
+        int tm_min;   // minutes after the hour - [0, 59]
+        int tm_hour;  // hours since midnight - [0, 23]
+        int tm_mday;  // day of the month - [1, 31]
+        int tm_mon;   // months since January - [0, 11]
+        int tm_year;  // years since 1900
+        int tm_wday;  // days since Sunday - [0, 6]
+        int tm_yday;  // days since January 1 - [0, 365]
+        int tm_isdst; // daylight savings time flag
 
         TimeStamp() {}
         TimeStamp(Reader &reader) { read(reader); }
@@ -83,7 +83,7 @@ public:
             writer.write(type);
 
             int i = 0;
-            for (; i < 0x10; ++i) writer.write<byte>(name[i].toLatin1());
+            for (; i < name.length(); ++i) writer.write<byte>(name[i].toLatin1());
             for (; i < 0x10; ++i) writer.write<byte>(0x00);
         }
     };
@@ -96,8 +96,8 @@ public:
         };
 
         uint uuid            = 0;
-        TimeStamp timeStampA = TimeStamp();
-        TimeStamp timeStampB = TimeStamp();
+        TimeStamp createDate = TimeStamp();
+        TimeStamp modifyDate = TimeStamp();
         QList<Value> entries = QList<Value>();
 
         TableRow() {}
@@ -106,8 +106,8 @@ public:
         void read(Reader &reader, UserDB *db)
         {
             uuid = reader.read<uint>();
-            timeStampA.read(reader);
-            timeStampB.read(reader);
+            createDate.read(reader);
+            modifyDate.read(reader);
 
             for (int v = 0; v < db->columns.count(); ++v) {
                 Value entry;
@@ -119,8 +119,8 @@ public:
         void write(Writer &writer)
         {
             writer.write(uuid);
-            timeStampA.write(writer);
-            timeStampB.write(writer);
+            createDate.write(writer);
+            modifyDate.write(writer);
 
             for (int v = 0; v < entries.count(); ++v) {
                 writer.write((byte)entries[v].data.size());

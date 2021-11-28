@@ -167,6 +167,7 @@ public:
 #include "tools/scriptunpacker.hpp"
 #include "tools/sceneeditor.hpp"
 #include "tools/sceneeditorv5.hpp"
+#include "tools/userdbmanager.hpp"
 #include "tools/rsvtool.hpp"
 
 #include "mainwindow.hpp"

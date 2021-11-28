@@ -81,6 +81,27 @@ public:
         return "";
     }
 
+    inline QString readLine()
+    {
+        QByteArray string;
+
+        char c, prev;
+        while (true) {
+            prev = c;
+            c    = read<char>();
+            if (c == '\n') {
+                if (prev == '\r')
+                    string.remove(string.length() - 1, 1);
+                break;
+            }
+            else {
+                string += c;
+            }
+        }
+
+        return QString::fromLatin1(string);
+    }
+
     inline QByteArray readByteArray(qint64 len, bool compressed = false)
     {
         QByteArray result;

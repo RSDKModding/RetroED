@@ -78,6 +78,7 @@ SOURCES += \
     tools/sceneviewerv5.cpp \
     tools/scriptunpacker.cpp \
     tools/staticobjecteditor.cpp \
+    tools/userdbmanager.cpp \
     tools/utils/propertygrid.cpp \
     utils/appconfig.cpp \
     utils/retroedutils.cpp \
@@ -139,6 +140,7 @@ HEADERS += \
     tools/sceneviewerv5.hpp \
     tools/scriptunpacker.hpp \
     tools/staticobjecteditor.hpp \
+    tools/userdbmanager.hpp \
     tools/utils/propertygrid.hpp \
     utils/appconfig.hpp \
     utils/retroedutils.hpp \
@@ -184,7 +186,8 @@ FORMS += \
     tools/sceneproperties/stageconfigeditorv5.ui \
     tools/sceneproperties/tileseteditor.ui \
     tools/scriptunpacker.ui \
-    tools/staticobjecteditor.ui
+    tools/staticobjecteditor.ui \
+    tools/userdbmanager.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
