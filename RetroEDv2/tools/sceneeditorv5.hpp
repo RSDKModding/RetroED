@@ -56,8 +56,8 @@ public:
         bool showParallax      = false;
         int selectedScrollInfo = -1;
 
-        bool showPixelGrid = false;
-        bool showTileGrid  = false;
+        bool showGrid         = false;
+        Vector2<int> gridSize = Vector2<int>(0x10, 0x10);
     };
 
     explicit SceneEditorv5(QWidget *parent = nullptr);

@@ -13,6 +13,15 @@ SceneProperties::SceneProperties(QWidget *parent) : QWidget(parent), ui(new Ui::
     editSCF  = ui->editStageconfig;
     editPAL  = ui->editPalette;
     editTSet = ui->editTSet;
+
+    objCnt    = ui->objCnt;
+    entCntTot = ui->entCntTot;
+
+    gridX = ui->gridX;
+    gridY = ui->gridY;
+
+    syncGC = ui->syncGC;
+    syncSC = ui->syncSC;
 }
 
 SceneProperties::~SceneProperties() { delete ui; }

@@ -87,7 +87,9 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
     ui->showParallax->setIcon(Utils::getColouredIcon(":/icons/ic_horizontal_split_48px.svg"));
     ui->showTileGrid->setIcon(Utils::getColouredIcon(":/icons/ic_grid_48px.svg"));
-    // ui->showPixelGrid->setIcon(Utils::getColouredIcon(":/icons/ic_grid_48px.svg"));
+
+    scnProp->gridX->setValue(viewer->gridSize.x);
+    scnProp->gridY->setValue(viewer->gridSize.y);
 
     connect(ui->tileFlipX, &QCheckBox::toggled, [this](bool c) { viewer->tileFlip.x = c; });
     connect(ui->tileFlipY, &QCheckBox::toggled, [this](bool c) { viewer->tileFlip.y = c; });
@@ -112,7 +114,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     connect(ui->sceneFilter, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
         viewer->sceneFilter      = v;
         viewer->sceneInfo.filter = v;
-        doAction("Filter Change: " + QString::number(v));
     });
 
     connect(ui->useGizmos, &QCheckBox::toggled, [this](bool c) { viewer->sceneInfo.effectGizmo = c; });
@@ -537,8 +538,13 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->showCollisionB->setChecked(viewer->showPlaneB);
     });
 
-    connect(ui->showTileGrid, &QPushButton::clicked, [this] { viewer->showTileGrid ^= 1; });
-    // connect(ui->showPixelGrid, &QPushButton::clicked, [this] { viewer->showPixelGrid ^= 1; });
+    connect(ui->showTileGrid, &QPushButton::clicked, [this] { viewer->showGrid ^= 1; });
+
+    connect(scnProp->gridX, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { viewer->gridSize.x = v; });
+
+    connect(scnProp->gridY, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { viewer->gridSize.y = v; });
 
     connect(scnProp->loadGlobalCB, &QCheckBox::toggled, [this](bool b) {
         viewer->stageConfig.loadGlobalObjects = b;
@@ -947,7 +953,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                                      "enum",  "bool",   "string", "vector2", "unknown", "colour" };
 
             writer.writeLine(QString("\t<metadata libraryFile=\"%1\" bgColour=\"%2\" "
-                                     "altBgColour=\"%2\"> </metadata>")
+                                     "altBgColour=\"%3\"> </metadata>")
                                  .arg(viewer->scene.editorMetadata.stampName)
                                  .arg(viewer->scene.editorMetadata.backgroundColor1.rgba())
                                  .arg(viewer->scene.editorMetadata.backgroundColor2.rgba()));
@@ -971,7 +977,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                             .arg(layer.scrollSpeed)
                             .arg(layer.visible));
 
-                    if (layer.scrollingInfo.count()) {
+                    if (layer.scrollInfos.count()) {
                         writer.writeLine();
                         for (auto &scroll : layer.scrollInfos) {
                             writer.writeLine(QString("\t\t\t<scrollInfo startLine=\"%1\" length=\"%2\" "
@@ -2429,8 +2435,8 @@ void SceneEditorv5::resetAction()
     viewer->selectedScrollInfo = actions[actionIndex].selectedScrollInfo;
 
     // Camera
-    viewer->showPixelGrid = actions[actionIndex].showPixelGrid;
-    viewer->showTileGrid  = actions[actionIndex].showTileGrid;
+    viewer->showGrid = actions[actionIndex].showGrid;
+    viewer->gridSize = actions[actionIndex].gridSize;
 
     // updating UI
 
@@ -2455,12 +2461,8 @@ void SceneEditorv5::resetAction()
     createEntityList();
 
     ui->showTileGrid->blockSignals(true);
-    ui->showTileGrid->setDown(viewer->showTileGrid);
+    ui->showTileGrid->setDown(viewer->showGrid);
     ui->showTileGrid->blockSignals(false);
-
-    // ui->showPixelGrid->blockSignals(true);
-    // ui->showPixelGrid->setDown(viewer->showPixelGrid);
-    // ui->showPixelGrid->blockSignals(false);
 
     ui->showCollisionA->blockSignals(true);
     ui->showCollisionA->setDown(viewer->showPlaneA);

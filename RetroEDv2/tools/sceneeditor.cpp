@@ -699,6 +699,274 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(ui->exportRSDKv5, &QPushButton::clicked, [this] {
         ExportRSDKv5Scene *dlg = new ExportRSDKv5Scene(viewer->scene.filepath, this);
         if (dlg->exec() == QDialog::Accepted) {
+            /*{
+                Writer writer(dlg.selectedFiles()[0]);
+
+                writer.writeLine("<?xml version=\"1.0\"?>");
+                writer.writeLine("");
+                writer.writeLine("<scene>");
+
+                QList<QString> types = { "uint8", "uint16", "uint32", "int8",    "int16",   "int32",
+                                         "enum",  "bool",   "string", "vector2", "unknown", "colour" };
+
+                uint bgClr1 = (viewer->bgColour.r << 16) | (viewer->bgColour.g << 8)
+                              | (viewer->bgColour.b << 0) | (0xFF << 24);
+                uint bgClr2 = (viewer->altBGColour.r << 16) | (viewer->altBGColour.g << 8)
+                              | (viewer->altBGColour.b << 0) | (0xFF << 24);
+                writer.writeLine(
+                    QString(
+                        "\t<metadata bgColour=\"%1\" "
+                        "altBgColour=\"%2\" title=\"%3\" layerMidpoint=\"%4\" activeLayer0=\"%5\" "
+                        "activeLayer1=\"%6\" activeLayer2=\"%7\" activeLayer3=\"%8\" musicID=\"%9\" "
+                        "backgroundID=\"%10\" playerX=\"%11\" playerY=\"%12\"> </metadata>")
+                        .arg(bgClr1)
+                        .arg(bgClr2)
+                        .arg(viewer->scene.title)
+                        .arg(viewer->scene.midpoint)
+                        .arg(viewer->scene.activeLayer[0])
+                        .arg(viewer->scene.activeLayer[1])
+                        .arg(viewer->scene.activeLayer[2])
+                        .arg(viewer->scene.activeLayer[3])
+                        .arg(viewer->scene.musicID)
+                        .arg(viewer->scene.backgroundID)
+                        .arg(viewer->scene.playerX)
+                        .arg(viewer->scene.playerY));
+
+                {
+                    writer.writeLine();
+                    writer.writeLine("\t<layers>");
+
+                    {
+                        int drawOrder = 0;
+
+                        writer.writeText(
+                            QString("\t\t<layer name=\"%1\" type=\"%2\" drawOrder=\"%3\" width=\"%4\" "
+                                    "height=\"%5\" parallaxFactor=\"%6\" scrollSpeed=\"%7\" "
+                                    "visible=\"%8\">")
+                                .arg("Foreground")
+                                .arg(1)
+                                .arg(drawOrder)
+                                .arg(viewer->scene.width)
+                                .arg(viewer->scene.height)
+                                .arg(1.0)
+                                .arg(0.0)
+                                .arg(viewer->visibleLayers[0]));
+
+                        writer.writeLine();
+                        writer.writeLine(QString("\t\t\t<scrollInfo startLine=\"%1\" length=\"%2\" "
+                                                 "parallaxFactor=\"%3\" scrollSpeed=\"%4\" "
+                                                 "deform=\"%5\"> </scrollInfo>")
+                                             .arg(0)
+                                             .arg(viewer->scene.height * 0x80)
+                                             .arg(1.0)
+                                             .arg(0.0)
+                                             .arg(0));
+                        writer.writeLine();
+
+                        writer.writeLine("\t\t\t<layout>");
+                        for (int y = 0; y < viewer->scene.height; ++y) {
+                            writer.writeText("\t\t\t\t");
+                            for (int x = 0; x < viewer->scene.width; ++x) {
+                                writer.writeText(QString::number(viewer->scene.layout[y][x]));
+                                writer.writeText(",");
+                            }
+                            writer.writeLine();
+                        }
+                        writer.writeLine("\t\t\t</layout>");
+
+                        writer.writeLine("\t\t</layer>");
+                    }
+
+                    int id = 0;
+                    for (auto &layer : viewer->background.layers) {
+                        int drawOrder = 0;
+
+                        writer.writeText(
+                            QString("\t\t<layer name=\"%1\" type=\"%2\" drawOrder=\"%3\" width=\"%4\" "
+                                    "height=\"%5\" parallaxFactor=\"%6\" scrollSpeed=\"%7\" "
+                                    "visible=\"%8\">")
+                                .arg("Background " + QString::number(id + 1))
+                                .arg(layer.type)
+                                .arg(drawOrder)
+                                .arg(layer.width)
+                                .arg(layer.height)
+                                .arg(layer.parallaxFactor)
+                                .arg(layer.scrollSpeed)
+                                .arg(viewer->visibleLayers[id + 1]));
+
+                        if (layer.scrollInfos.count()) {
+                            writer.writeLine();
+                            for (auto &scroll : layer.scrollInfos) {
+                                writer.writeLine(
+                                    QString("\t\t\t<scrollInfo startLine=\"%1\" length=\"%2\" "
+                                            "parallaxFactor=\"%3\" scrollSpeed=\"%4\" "
+                                            "deform=\"%5\"> </scrollInfo>")
+                                        .arg(scroll.startLine)
+                                        .arg(scroll.length)
+                                        .arg(scroll.parallaxFactor)
+                                        .arg(scroll.scrollSpeed)
+                                        .arg(scroll.deform));
+                            }
+                        }
+                        writer.writeLine();
+
+                        writer.writeLine("\t\t\t<layout>");
+                        for (int y = 0; y < layer.height; ++y) {
+                            writer.writeText("\t\t\t\t");
+                            for (int x = 0; x < layer.width; ++x) {
+                                writer.writeText(QString::number(layer.layout[y][x]));
+                                writer.writeText(",");
+                            }
+                            writer.writeLine();
+                        }
+                        writer.writeLine("\t\t\t</layout>");
+
+                        writer.writeLine("\t\t</layer>");
+                    }
+
+                    writer.writeLine("\t</layers>");
+                }
+
+                if (viewer->objects.count()) {
+                    writer.writeLine();
+                    writer.writeLine("\t<objects>");
+
+                    for (auto &object : viewer->objects) {
+                        writer.writeText(QString("\t\t<object name=\"%1\">").arg(object.name));
+                        if (object.variables.count()) {
+                            writer.writeLine();
+                            for (auto &variable : object.variables) {
+                                writer.writeLine(
+                                    QString("\t\t\t<variable name=\"%1\" type=\"%2\"> </variable>")
+                                        .arg(variable.name)
+                                        .arg("int32"));
+                            }
+                        }
+                        else {
+                            writer.writeText(" ");
+                        }
+                        writer.writeLine("\t\t</object>");
+                    }
+
+                    writer.writeLine("\t</objects>");
+                }
+
+                if (viewer->objects.count()) {
+                    writer.writeLine();
+                    writer.writeLine("\t<entities>");
+
+                    for (auto &entity : viewer->entities) {
+                        writer.writeText(
+                            QString("\t\t<entity name=\"%1\" slotID=\"%2\" x=\"%3\" y=\"%4\">")
+                                .arg(viewer->objects[entity.type].name)
+                                .arg(entity.slotID)
+                                .arg(entity.pos.x)
+                                .arg(entity.pos.y));
+
+                        writer.writeLine();
+                        writer.writeText(
+                            QString("\t\t\t<variable name=\"%1\" type=\"uint8\">%2</variable>")
+                                .arg(viewer->objects[entity.type]
+                                         .variablesAliases[SceneViewer::VAR_ALIAS_PROPVAL])
+                                .arg(entity.propertyValue));
+
+                        if (viewer->gameType == ENGINE_v4) {
+                            for (int v = 0; v < 0xF; ++v) {
+                                QString name = RSDKv4::objectVariableNames[v];
+                                name.insert(0, name.at(0).toLower());
+                                name.remove(1, 1);
+                                if (v >= 11) {
+                                    name =
+                                        viewer->objects[entity.type]
+                                            .variablesAliases[SceneViewer::VAR_ALIAS_VAL0 + (v - 11)];
+                                }
+
+                                writer.writeText(
+                                    QString("\t\t\t<variable name=\"%1\" type=\"%2\">%3</variable>")
+                                        .arg(name)
+                                        .arg(RSDKv4::objectVariableTypes[v])
+                                        .arg(entity.propertyValue));
+                            }
+                        }
+
+                        int id = 0;
+                        if (entity.customVars.count()) {
+                            for (auto &variable : entity.customVars) {
+                                writer.writeText(
+                                    QString("\t\t\t<variable name=\"%1\" type=\"%2\">")
+                                        .arg(viewer->objects[entity.type].variables[id++].name)
+                                        .arg(types[variable.type]));
+
+                                switch (variable.type) {
+                                    default: break;
+                                    case VAR_UINT8:
+                                        writer.writeText(QString::number(variable.value_uint8));
+                                        break;
+                                    case VAR_UINT16:
+                                        writer.writeText(QString::number(variable.value_uint16));
+                                        break;
+                                    case VAR_UINT32:
+                                        writer.writeText(QString::number(variable.value_uint32));
+                                        break;
+                                    case VAR_INT8:
+                                        writer.writeText(QString::number(variable.value_int8));
+                                        break;
+                                    case VAR_INT16:
+                                        writer.writeText(QString::number(variable.value_int16));
+                                        break;
+                                    case VAR_INT32:
+                                        writer.writeText(QString::number(variable.value_int32));
+                                        break;
+                                    case VAR_ENUM:
+                                        writer.writeText(QString::number(variable.value_enum));
+                                        break;
+                                    case VAR_BOOL:
+                                        writer.writeText(QString::number(variable.value_bool));
+                                        break;
+                                }
+                                writer.writeLine(QString("</variable>"));
+                            }
+                        }
+                        else {
+                            writer.writeText(" ");
+                        }
+                        writer.writeLine("\t\t</entity>");
+                    }
+
+                    writer.writeLine("\t</entities>");
+                }
+
+                {
+                    writer.writeLine();
+                    writer.writeLine("\t<chunks>");
+
+                    for (auto &chunk : viewer->chunkset.chunks) {
+                        writer.writeText(QString("\t\t<chunk>"));
+                        for (int y = 0; y < 8; ++y) {
+                            for (int x = 0; x < 8; ++x) {
+                                FormatHelpers::Chunks::Tile &tile = chunk.tiles[y][x];
+                                writer.writeLine(
+                                    QString(
+                                        "\t\t\t<tile index=\"%1\" direction=\"%2\" visualPlane=\"%3\" "
+                                        "solidityA=\"%4\" solidityB=\"%5\"> </tile>")
+                                        .arg(tile.tileIndex)
+                                        .arg(tile.direction)
+                                        .arg(tile.visualPlane)
+                                        .arg(tile.solidityA)
+                                        .arg(tile.solidityB));
+                            }
+                        }
+                        writer.writeLine("\t\t</chunk>");
+                    }
+
+                    writer.writeLine("\t</chunks>");
+                }
+
+                writer.writeLine("</scene>");
+
+                writer.flush();
+            }*/
+
             exportRSDKv5(dlg);
         }
     });

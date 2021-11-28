@@ -19,6 +19,9 @@ ScenePropertiesv5::ScenePropertiesv5(QWidget *parent) : QWidget(parent), ui(new 
     entCntAct  = ui->entCntAct;
     entCntInac = ui->entCntInac;
 
+    gridX = ui->gridX;
+    gridY = ui->gridY;
+
     syncGC = ui->syncGC;
     syncSC = ui->syncSC;
 }

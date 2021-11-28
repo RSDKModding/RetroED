@@ -28,6 +28,15 @@ public:
     QPushButton *editPAL  = nullptr;
     QPushButton *editTSet = nullptr;
 
+    QLabel *objCnt    = nullptr;
+    QLabel *entCntTot = nullptr;
+
+    QSpinBox *gridX = nullptr;
+    QSpinBox *gridY = nullptr;
+
+    QPushButton *syncGC = nullptr;
+    QPushButton *syncSC = nullptr;
+
 private:
     Ui::SceneProperties *ui;
 };

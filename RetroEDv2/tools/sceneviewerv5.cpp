@@ -1091,7 +1091,7 @@ void SceneViewerv5::drawScene()
                  primitiveShader, true);
     }
 
-    if (showTileGrid) {
+    if (showGrid) {
         rectVAO.bind();
 
         float camX = cam.pos.x;
@@ -1104,14 +1104,14 @@ void SceneViewerv5::drawScene()
         if (cam.pos.x < 0)
             x += abs(cam.pos.x);
         else
-            x -= ((int)camX % 0x10);
+            x -= ((int)camX % gridSize.x);
 
         if (cam.pos.y < 0)
             y += abs(cam.pos.y);
         else
-            y -= ((int)camY % 0x10);
+            y -= ((int)camY % gridSize.y);
 
-        for (; y < h; y += 0x10) {
+        for (; y < h; y += gridSize.y) {
             float dy = (y - camY);
 
             float x1 = 0;
@@ -1124,7 +1124,7 @@ void SceneViewerv5::drawScene()
                      primitiveShader);
         }
 
-        for (; x < w; x += 0x10) {
+        for (; x < w; x += gridSize.x) {
             float dx = (x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX);
 
             float y1 = 0;
@@ -1136,52 +1136,6 @@ void SceneViewerv5::drawScene()
             drawLine(dx, y1, 15.6f, dx, y2, 15.6f, zoom, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
                      primitiveShader);
         }
-    }
-
-    if (showPixelGrid && zoom >= 4.0f) {
-        // f->glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
-        rectVAO.bind();
-        QList<QVector3D> verts;
-        primitiveShader.use();
-        primitiveShader.setValue("colour", QVector4D(1.0f, 1.0f, 1.0f, 1.0f));
-
-        float camX = cam.pos.x;
-        float camY = cam.pos.y;
-
-        for (int y = camY; y < (camY + storedH) * (zoom < 1.0f ? invZoom() : 1.0f); ++y) {
-            verts.append(QVector3D((camX - camX) * zoom, (y - camY) * zoom, 15.6f));
-            verts.append(
-                QVector3D((((camX + storedW * invZoom())) - camX) * zoom, (y - camY) * zoom, 15.6f));
-        }
-
-        for (int x = camX; x < (camX + storedW) * (zoom < 1.0f ? invZoom() : 1.0f); ++x) {
-            verts.append(QVector3D((x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom,
-                                   (camY - camY) * zoom, 15.6f));
-            verts.append(QVector3D((x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom,
-                                   (((camY + storedH * invZoom())) - camY) * zoom, 15.6f));
-        }
-
-        QVector3D *vertsPtr = new QVector3D[(uint)verts.count()];
-        for (int v = 0; v < verts.count(); ++v) vertsPtr[v] = verts[v];
-
-        QOpenGLVertexArrayObject gridVAO;
-        gridVAO.create();
-        gridVAO.bind();
-
-        QOpenGLBuffer gridVBO;
-        gridVBO.create();
-        gridVBO.setUsagePattern(QOpenGLBuffer::StaticDraw);
-        gridVBO.bind();
-        gridVBO.allocate(vertsPtr, verts.count() * sizeof(QVector3D));
-        primitiveShader.enableAttributeArray(0);
-        primitiveShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
-
-        f->glDrawArrays(GL_LINES, 0, verts.count());
-
-        delete[] vertsPtr;
-
-        gridVAO.release();
-        gridVBO.release();
     }
 
     // TODO HERE: render states!

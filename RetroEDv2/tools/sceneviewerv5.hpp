@@ -134,8 +134,8 @@ public:
     QList<QImage> tiles;
     QImage missingObj;
 
-    bool showPixelGrid = false;
-    bool showTileGrid  = false;
+    bool showGrid         = false;
+    Vector2<int> gridSize = Vector2<int>(0x10, 0x10);
 
     // passed from main
     QLabel *statusLabel        = nullptr;

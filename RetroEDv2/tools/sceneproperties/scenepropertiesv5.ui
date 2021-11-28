@@ -35,76 +35,17 @@
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="14" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Scene Info</string>
-         </property>
-        </widget>
-       </item>
-       <item row="15" column="0">
-        <widget class="QLabel" name="layerCnt">
-         <property name="text">
-          <string>Tile Layer Count: 0 Layers</string>
-         </property>
-        </widget>
-       </item>
-       <item row="16" column="0">
-        <widget class="QLabel" name="objCnt">
-         <property name="text">
-          <string>Object Count: 0 Objects</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_11">
-         <property name="text">
-          <string>Load Global Objects</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0" colspan="2">
-        <widget class="QLabel" name="label_14">
-         <property name="text">
-          <string>Scene Properties</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Scene Background Colour</string>
-         </property>
-        </widget>
-       </item>
-       <item row="18" column="0">
-        <widget class="QLabel" name="entCntAct">
-         <property name="text">
-          <string>Active Entity Count: 0 Entities</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0" colspan="2">
-        <widget class="QPushButton" name="editChunks">
-         <property name="text">
-          <string>Edit Chunks</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="0" colspan="2">
-        <widget class="QPushButton" name="editCollision">
-         <property name="text">
-          <string>Edit Tile Collisions</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0" colspan="2">
-        <widget class="QLineEdit" name="stampName"/>
-       </item>
        <item row="3" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
           <string>Stamp Filename</string>
+         </property>
+        </widget>
+       </item>
+       <item row="24" column="0" colspan="2">
+        <widget class="QPushButton" name="syncSC">
+         <property name="text">
+          <string>Sync with StageConfig object list</string>
          </property>
         </widget>
        </item>
@@ -115,10 +56,97 @@
          </property>
         </widget>
        </item>
+       <item row="15" column="0">
+        <widget class="QLabel" name="layerCnt">
+         <property name="text">
+          <string>Tile Layer Count: 0 Layers</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0" colspan="2">
+        <widget class="Line" name="line_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="2">
+        <widget class="QLineEdit" name="stampName"/>
+       </item>
+       <item row="14" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Scene Info</string>
+         </property>
+        </widget>
+       </item>
+       <item row="20" column="0" colspan="2">
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Scene Background Colour</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string>Scene Properties</string>
+         </property>
+        </widget>
+       </item>
+       <item row="17" column="0">
+        <widget class="QLabel" name="entCntTot">
+         <property name="text">
+          <string>Total Entity Count: 0 Entities</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0" colspan="2">
+        <widget class="QPushButton" name="editStageconfig">
+         <property name="text">
+          <string>Edit Stage Configuration</string>
+         </property>
+        </widget>
+       </item>
+       <item row="18" column="0">
+        <widget class="QLabel" name="entCntAct">
+         <property name="text">
+          <string>Active Entity Count: 0 Entities</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="0" colspan="2">
+        <widget class="QPushButton" name="editPalette">
+         <property name="text">
+          <string>Edit Palette</string>
+         </property>
+        </widget>
+       </item>
        <item row="13" column="0" colspan="2">
         <widget class="Line" name="line">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="16" column="0">
+        <widget class="QLabel" name="objCnt">
+         <property name="text">
+          <string>Object Count: 0 Objects</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="0" colspan="2">
+        <widget class="QPushButton" name="editTSet">
+         <property name="text">
+          <string>Edit Tileset</string>
          </property>
         </widget>
        </item>
@@ -129,10 +157,17 @@
          </property>
         </widget>
        </item>
-       <item row="9" column="0" colspan="2">
-        <widget class="QPushButton" name="editStageconfig">
+       <item row="19" column="0">
+        <widget class="QLabel" name="entCntInac">
          <property name="text">
-          <string>Edit Stage Configuration</string>
+          <string>Inactive Entity Count: 0 Entities</string>
+         </property>
+        </widget>
+       </item>
+       <item row="23" column="0" colspan="2">
+        <widget class="QPushButton" name="syncGC">
+         <property name="text">
+          <string>Sync with GameConfig object list</string>
          </property>
         </widget>
        </item>
@@ -146,7 +181,21 @@
          </property>
         </widget>
        </item>
-       <item row="24" column="0">
+       <item row="10" column="0" colspan="2">
+        <widget class="QPushButton" name="editCollision">
+         <property name="text">
+          <string>Edit Tile Collisions</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0" colspan="2">
+        <widget class="QPushButton" name="editChunks">
+         <property name="text">
+          <string>Edit Chunks</string>
+         </property>
+        </widget>
+       </item>
+       <item row="25" column="0">
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -159,60 +208,48 @@
          </property>
         </spacer>
        </item>
-       <item row="17" column="0">
-        <widget class="QLabel" name="entCntTot">
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_11">
          <property name="text">
-          <string>Total Entity Count: 0 Entities</string>
+          <string>Load Global Objects</string>
          </property>
         </widget>
        </item>
-       <item row="11" column="0" colspan="2">
-        <widget class="QPushButton" name="editTSet">
-         <property name="text">
-          <string>Edit Tileset</string>
+       <item row="22" column="0">
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Grid Size</string>
          </property>
-        </widget>
-       </item>
-       <item row="20" column="0" colspan="2">
-        <widget class="Line" name="line_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="0" colspan="2">
-        <widget class="QPushButton" name="editPalette">
-         <property name="text">
-          <string>Edit Palette</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0" colspan="2">
-        <widget class="Line" name="line_4">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="19" column="0">
-        <widget class="QLabel" name="entCntInac">
-         <property name="text">
-          <string>Inactive Entity Count: 0 Entities</string>
-         </property>
-        </widget>
-       </item>
-       <item row="22" column="0" colspan="2">
-        <widget class="QPushButton" name="syncGC">
-         <property name="text">
-          <string>Sync with GameConfig object list</string>
-         </property>
-        </widget>
-       </item>
-       <item row="23" column="0" colspan="2">
-        <widget class="QPushButton" name="syncSC">
-         <property name="text">
-          <string>Sync with StageConfig object list</string>
-         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>x:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>y:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="gridX">
+            <property name="maximum">
+             <number>1024</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="gridY">
+            <property name="maximum">
+             <number>1024</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>

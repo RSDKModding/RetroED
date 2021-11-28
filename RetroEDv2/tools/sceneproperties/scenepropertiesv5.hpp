@@ -33,6 +33,9 @@ public:
     QLabel *entCntAct  = nullptr;
     QLabel *entCntInac = nullptr;
 
+    QSpinBox *gridX = nullptr;
+    QSpinBox *gridY = nullptr;
+
     QPushButton *syncGC = nullptr;
     QPushButton *syncSC = nullptr;
 
