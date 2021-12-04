@@ -1,10 +1,10 @@
 #include "include.hpp"
 
 Writer::Writer(QString filename)
-    : m_file(new QSaveFile(filename)), stream(new QDataStream(m_file.data()))
+    : file(new QSaveFile(filename)), stream(new QDataStream(file.data()))
 {
     filePath    = filename;
-    initialised = m_file->open(QIODevice::WriteOnly);
+    initialised = file->open(QIODevice::WriteOnly);
 }
 
 Writer::Writer(QDataStream *customDataStream) : stream(customDataStream)

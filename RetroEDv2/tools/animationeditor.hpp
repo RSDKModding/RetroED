@@ -11,7 +11,6 @@ class AnimationEditor;
 class AnimationEditor : public QWidget
 {
     Q_OBJECT
-
 public:
     class ActionState
     {

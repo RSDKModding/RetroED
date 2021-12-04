@@ -12,21 +12,20 @@ public:
     class ReplayEntry
     {
     public:
-        byte state       = 0;
-        byte changedVars = 0;
-        byte inputs      = 0;
-        byte direction   = 0;
-        int posX         = 0;
-        int posY         = 0;
-        int velX         = 0;
-        int velY         = 0;
-        int rotation     = 0;
-        byte anim        = 0;
-        byte frame       = 0;
-        byte unknown2    = 0;
-        byte unknown3    = 0;
+        byte info             = 0;
+        byte flags            = 0;
+        byte inputs           = 0;
+        byte direction        = 0;
+        Vector2<int> position = Vector2<int>(0, 0);
+        Vector2<int> velocity = Vector2<int>(0, 0);
+        int rotation          = 0;
+        byte anim             = 0;
+        byte frame            = 0;
 
         ReplayEntry() {}
+
+        int unpack(Reader &reader, bool isPacked);
+        int pack(Writer &writer, bool isPacked);
     };
 
     Replay() {}
@@ -52,15 +51,16 @@ public:
     void write(Writer &writer);
 
     // Header
-    int unknown1    = 0;
-    bool packed     = false;
-    int frameCount  = 0;
-    int zone        = 0;
-    int act         = 0;
-    int player      = 0;
-    bool plusLayout = false;
-    int oscillation = 0;
-    int unknown3    = 0;
+    int gameVer       = 0;
+    bool isPacked     = false;
+    int startingFrame = 1;
+    int zoneID        = 0;
+    int act           = 0;
+    int characterID   = 0;
+    bool isPlusLayout = false;
+    int oscillation   = 0;
+    float unknown1    = 0;
+    int unknown2      = 0;
 
     QList<ReplayEntry> entries = QList<ReplayEntry>();
 

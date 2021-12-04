@@ -16,6 +16,20 @@ public:
     explicit ModelManager(QWidget *parent = nullptr);
     ~ModelManager();
 
+    void setupUI();
+
+    inline void updateTitle(bool modified)
+    {
+        this->modified = modified;
+        if (modified)
+            emit titleChanged(tabTitle + " *");
+        else
+            emit titleChanged(tabTitle);
+    }
+
+signals:
+    void titleChanged(QString title);
+
 protected:
     bool event(QEvent *event);
 
@@ -25,6 +39,9 @@ private:
     RSDKv4::Model modelv4;
 
     Ui::ModelManager *ui;
+
+    bool modified    = false;
+    QString tabTitle = "Model Manager";
 };
 
 #endif // MODELMANAGER_H

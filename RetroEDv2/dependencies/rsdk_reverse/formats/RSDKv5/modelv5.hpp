@@ -88,7 +88,7 @@ public:
     }
     void read(Reader &reader);
 
-    inline void write(QString filename)
+    inline void write(QString filename = "")
     {
         if (filename == "")
             filename = filePath;

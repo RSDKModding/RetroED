@@ -288,8 +288,6 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                             ui->hitboxR->blockSignals(false);
                             ui->hitboxB->blockSignals(false);
                         }
-
-                        updateView();
                     });
 
             connect(ui->hitboxL, QOverload<int>::of(&QSpinBox::valueChanged), [&f, this](int v) {
@@ -1216,7 +1214,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     });
 
     connect(ui->impFrame, &QToolButton::clicked, [this] {
-        QFileDialog filedialog(this, tr("Open Anim"), QFileInfo(animFile.filePath).absolutePath(),
+        QFileDialog filedialog(this, tr("Open Frame"), QFileInfo(animFile.filePath).absolutePath(),
                                tr("json Files (*.json)"));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() != QDialog::Accepted)
@@ -1920,7 +1918,10 @@ void AnimationEditor::updateView()
                 frameImg.setColor(0, 0x00000000);
             QImage zoomedFrame = frameImg.scaled(frameImg.width() * zoom, frameImg.height() * zoom);
 
-            painter.drawImage(cx + frame.pivotX * zoom, cy + frame.pivotY * zoom, zoomedFrame);
+            QPointF point;
+            point.setX(cx + frame.pivotX * zoom);
+            point.setY(cy + frame.pivotY * zoom);
+            painter.drawImage(point, zoomedFrame);
 
             for (int h = 0; h < animFile.hitboxTypes.count(); ++h) {
                 if (hitboxVisible[h]) {
@@ -1951,7 +1952,12 @@ void AnimationEditor::processAnimation()
         while (animTimer > duration) {
             animTimer -= duration;
             ++currentFrame;
-            if (currentFrame >= animFile.animations[currentAnim].frames.count())
+
+            int frameCount = animFile.animations[currentAnim].frames.count();
+            if (animFile.animations[currentAnim].rotationStyle == 3)
+                frameCount >>= 1;
+
+            if (currentFrame >= frameCount)
                 currentFrame = animFile.animations[currentAnim].loopIndex;
             duration = animFile.animations[currentAnim].frames[currentFrame].duration;
             changed  = true;
@@ -2224,9 +2230,9 @@ bool AnimationEditor::event(QEvent *event)
 
             if (wEvent->modifiers() & Qt::ControlModifier) {
                 if (wEvent->angleDelta().y() > 0 && zoom < 20)
-                    zoom *= 1.5;
+                    zoom *= 1.1f;
                 else if (wEvent->angleDelta().y() < 0 && zoom > 0.5)
-                    zoom /= 1.5;
+                    zoom /= 1.1f;
                 ui->zoomLabel->setText(QString("Zoom: %1%").arg(zoom * 100));
                 updateView();
                 return true;

@@ -99,12 +99,6 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     snapSize = Vector2<int>(0x10, 0x10);
 
-    ui->showParallax->setIcon(Utils::getColouredIcon(":/icons/ic_horizontal_split_48px.svg"));
-    ui->showChunkGrid->setIcon(Utils::getColouredIcon(":/icons/ic_grid_48px.svg"));
-    ui->showTileGrid->setIcon(Utils::getColouredIcon(":/icons/ic_grid_48px.svg"));
-    ui->showPixelGrid->setIcon(Utils::getColouredIcon(":/icons/ic_grid_48px.svg"));
-    ui->exportRSDKv5->setIcon(Utils::getColouredIcon(":/icons/ic_redo_48px.svg"));
-
     ui->toolBox->setCurrentIndex(0);
     ui->propertiesBox->setCurrentIndex(0);
 
@@ -696,7 +690,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         doAction();
     });
 
-    connect(ui->exportRSDKv5, &QPushButton::clicked, [this] {
+    connect(ui->exportScn, &QPushButton::clicked, [this] {
         ExportRSDKv5Scene *dlg = new ExportRSDKv5Scene(viewer->scene.filepath, this);
         if (dlg->exec() == QDialog::Accepted) {
             /*{

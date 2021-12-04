@@ -157,14 +157,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                         }
                         case TOOL_ANIMATIONEDITOR: {
                             AnimationEditor *tool = new AnimationEditor(r.path, r.gameVer);
-                            tool->installEventFilter(this);
                             addTab(tool, "Animation Editor");
                             break;
                         }
                         case TOOL_RSDKUNPACKER: break;
                         case TOOL_PALETTEDITOR: {
                             PaletteEditor *tool = new PaletteEditor(r.path, r.gameVer);
-                            tool->installEventFilter(this);
                             addTab(tool, "Palette Editor");
                             break;
                         }
@@ -224,16 +222,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     QMenu *scn = new QMenu("Scene Editor");
     scn->addAction("v1, v2, v3, v4", [this] {
-        SceneEditor *tool = new SceneEditor;
-        // tool->loadScene("", "", ENGINE_v4);
+        SceneEditor *tool = new SceneEditor();
         tool->installEventFilter(this);
         addTab(tool, "Scene Editor");
         setStatus("Opening Scene Editor");
     });
 
     scn->addAction("v5 (Sonic Mania)", [this] {
-        SceneEditorv5 *tool = new SceneEditorv5;
-        // tool->loadScene("", "", ENGINE_v5);
+        SceneEditorv5 *tool = new SceneEditorv5();
         tool->installEventFilter(this);
         addTab(tool, "Scene Editor (v5)");
         setStatus("Opening Scene Editor");

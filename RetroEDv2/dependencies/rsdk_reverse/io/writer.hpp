@@ -9,27 +9,36 @@ public:
     Writer(QByteArray *byteArray, QIODevice::OpenModeFlag mode = QIODevice::WriteOnly);
 
     inline bool seek(qint64 position) { return stream->device()->seek(position); };
-    inline qint64 tell() { return m_file->pos(); };
+    inline qint64 tell()
+    {
+        if (file)
+            return file->pos();
+        else if (stream)
+            return writePos;
+    };
     inline bool flush()
     {
-        if (!m_file)
+        if (!file)
             stream->device()->close();
         else
-            return m_file->commit();
+            return file->commit();
         return false;
     }
 
-    inline QString filename() { return m_file->fileName(); }
+    inline QString filename() { return file->fileName(); }
 
     template <typename T> inline void write(T data)
     {
+        writePos += sizeof(T);
         stream->writeRawData((char *)&data, sizeof(data));
     }
 
     inline void write(byte *data, int len, bool compressed = false)
     {
-        if (!compressed)
+        if (!compressed) {
+            writePos += len;
             stream->writeRawData((const char *)data, len);
+        }
         else {
             QByteArray compressed = qCompress(data, len);
             compressed.remove(0, 4);
@@ -104,7 +113,9 @@ public:
     QString filePath = "";
 
 private:
-    QSharedPointer<QSaveFile> m_file;
+    int writePos = 0;
+
+    QSharedPointer<QSaveFile> file;
     QSharedPointer<QDataStream> stream;
 };
 

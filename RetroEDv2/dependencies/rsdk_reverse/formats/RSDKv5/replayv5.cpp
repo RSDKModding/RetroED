@@ -3,7 +3,7 @@
 void RSDKv5::Replay::read(Reader &reader)
 {
     filepath       = reader.filepath;
-    Reader creader = reader.getCReader();
+    Reader creader = reader.getCReaderRaw();
 
     uint sig = creader.read<uint>();
     if (sig != signature) {
@@ -13,84 +13,176 @@ void RSDKv5::Replay::read(Reader &reader)
         return;
     }
 
-    unknown1             = creader.read<int>();
-    packed               = creader.read<int>() != 0;
-    bool active          = creader.read<int>() != 0;
-    int entryCount       = creader.read<int>();
-    int frameCount       = creader.read<int>();
-    zone                 = creader.read<int>();
-    act                  = creader.read<int>();
-    player               = creader.read<int>();
-    plusLayout           = creader.read<int>() != 0;
-    oscillation          = creader.read<int>();
-    int compressedSize   = creader.read<int>();
-    int uncompressedSize = creader.read<int>();
-    unknown3             = creader.read<int>();
+    gameVer         = creader.read<int>();
+    isPacked        = creader.read<int>() != 0;
+    bool isNotEmpty = creader.read<int>() != 0;
+    int frameCount  = creader.read<int>();
+    startingFrame   = creader.read<int>();
+    zoneID          = creader.read<int>();
+    act             = creader.read<int>();
+    characterID     = creader.read<int>();
+    isPlusLayout    = creader.read<int>() != 0;
+    oscillation     = creader.read<int>();
+    int bufferSize  = creader.read<int>();
+    unknown1        = creader.read<float>();
+    unknown2        = creader.read<int>();
 
-    Q_UNUSED(active);
-    Q_UNUSED(compressedSize);
-    Q_UNUSED(uncompressedSize);
+    Q_UNUSED(isNotEmpty);
+    Q_UNUSED(startingFrame);
+    Q_UNUSED(bufferSize);
+    Q_UNUSED(unknown1);
+    Q_UNUSED(unknown2);
 
     for (int f = 0; f < frameCount; ++f) {
-        for (int i = 0; i < entryCount; ++i) {
-            ReplayEntry entry;
-            if (packed) {
-                if (entries.count() > 0)
-                    entry = entries[entries.count() - 1];
-                entry.state  = creader.read<byte>();
-                byte changed = creader.read<byte>();
-
-                bool flag = entry.state == 1 || entry.state == 3;
-
-                if ((changed & 0x01) != 0 || flag) {
-                    entry.inputs = creader.read<byte>();
-                }
-                if ((changed & 0x02) != 0 || flag) {
-                    entry.posX = creader.read<int>();
-                    entry.posY = creader.read<int>();
-                }
-                if ((changed & 0x04) != 0 || flag) {
-                    entry.velX = creader.read<int>();
-                    entry.velY = creader.read<int>();
-                }
-                if ((changed & 0x08) != 0 /*|| flag*/) {
-                }
-
-                if ((changed & 0x20) != 0 || flag) {
-                    entry.rotation = creader.read<byte>() * 2;
-                }
-                if ((changed & 0x10) != 0 || flag) {
-                    entry.direction = creader.read<byte>();
-                }
-                if ((changed & 0x40) != 0 || flag) {
-                    entry.anim = creader.read<byte>();
-                }
-                if ((changed & 0x80) != 0 || flag) {
-                    entry.frame = creader.read<byte>();
-                }
-                entries.append(entry);
-            }
-            else {
-                entry.state       = creader.read<byte>();
-                entry.changedVars = creader.read<byte>();
-                entry.inputs      = creader.read<byte>();
-                entry.direction   = creader.read<byte>();
-                entry.posX        = creader.read<int>();
-                entry.posY        = creader.read<int>();
-                entry.velX        = creader.read<int>();
-                entry.velY        = creader.read<int>();
-                entry.rotation    = creader.read<int>();
-                entry.anim        = creader.read<byte>();
-                entry.frame       = creader.read<byte>();
-                entry.unknown2    = creader.read<byte>();
-                entry.unknown3    = creader.read<byte>();
-                entries.append(entry);
-            }
-        }
+        ReplayEntry entry;
+        entry.unpack(creader, isPacked);
+        entries.append(entry);
     }
 
     creader.close();
     reader.close();
 }
 
-void RSDKv5::Replay::write(Writer &writer) { filepath = writer.filePath; }
+void RSDKv5::Replay::write(Writer &writer)
+{
+    filepath = writer.filePath;
+
+    QByteArray compressed;
+    QBuffer buffer(&compressed);
+    buffer.open(QIODevice::Append);
+    QDataStream *cmem = new QDataStream(&buffer);
+    Writer cwriter(cmem);
+
+    QByteArray frameBuffer;
+    QBuffer fbuffer(&frameBuffer);
+    fbuffer.open(QIODevice::Append);
+    QDataStream *fmem = new QDataStream(&fbuffer);
+    Writer fwriter(fmem);
+
+    int bufferSize = 0;
+    for (int f = 0; f < entries.count(); ++f) {
+        bufferSize += entries[f].pack(fwriter, isPacked);
+    }
+    fwriter.flush();
+
+    if (!isPacked) {
+        bufferSize = 28 * (entries.count() + 2);
+    }
+
+    cwriter.write<uint>(signature);
+    cwriter.write<int>(gameVer);
+    cwriter.write<bool32>(isPacked);
+    cwriter.write<bool32>(true);
+    cwriter.write<int>(entries.count());
+    cwriter.write<int>(startingFrame);
+    cwriter.write<int>(zoneID);
+    cwriter.write<int>(act);
+    cwriter.write<int>(characterID);
+    cwriter.write<bool32>(isPlusLayout);
+    cwriter.write<int>(oscillation);
+    cwriter.write<int>(bufferSize);
+    cwriter.write<float>(unknown1);
+    cwriter.write<int>(unknown2);
+    cwriter.write(frameBuffer);
+    cwriter.flush();
+
+    writer.writeCompressedRaw(compressed);
+    writer.flush();
+}
+
+int RSDKv5::Replay::ReplayEntry::unpack(Reader &reader, bool isPacked)
+{
+    int pos = reader.tell();
+
+    info  = reader.read<byte>();
+    flags = reader.read<byte>();
+    if (isPacked) {
+
+        bool flag = info == 1 || info == 3;
+
+        if ((flags & 0x01) || flag)
+            inputs = reader.read<byte>();
+
+        if ((flags & 0x02) || flag) {
+            position.x = reader.read<int>();
+            position.y = reader.read<int>();
+        }
+        if ((flags & 0x04) || flag) {
+            velocity.x = reader.read<int>();
+            velocity.y = reader.read<int>();
+        }
+
+        if ((flags & 0x20) || flag)
+            rotation = reader.read<byte>() << 1;
+
+        if ((flags & 0x10) || flag)
+            direction = reader.read<byte>();
+
+        if ((flags & 0x40) || flag)
+            anim = reader.read<byte>();
+
+        if ((flags & 0x80) || flag)
+            frame = reader.read<byte>();
+    }
+    else {
+        inputs     = reader.read<byte>();
+        position.x = reader.read<int>();
+        position.y = reader.read<int>();
+        velocity.x = reader.read<int>();
+        velocity.y = reader.read<int>();
+        rotation   = reader.read<int>();
+        direction  = reader.read<byte>();
+        anim       = reader.read<byte>();
+        frame      = reader.read<byte>();
+    }
+    return reader.tell() - pos;
+}
+int RSDKv5::Replay::ReplayEntry::pack(Writer &writer, bool isPacked)
+{
+    int pos = writer.tell();
+
+    writer.write(info);
+
+    bool32 flag = info == 1 || info == 3;
+    writer.write(flags);
+
+    if (isPacked) {
+        if (flag || (flags & 0x01))
+            writer.write(inputs);
+
+        if (flag || (flags & 0x02)) {
+            writer.write(position.x);
+            writer.write(position.y);
+        }
+
+        if (flag || (flags & 0x04)) {
+            writer.write(velocity.x);
+            writer.write(velocity.y);
+        }
+
+        if (flag || (flags & 0x20))
+            writer.write((byte)(rotation >> 1));
+
+        if (flag || (flags & 0x10))
+            writer.write(direction);
+
+        if (flag || (flags & 0x40))
+            writer.write(anim);
+
+        if (flag || (flags & 0x80))
+            writer.write(frame);
+    }
+    else {
+        writer.write(inputs);
+        writer.write(position.x);
+        writer.write(position.y);
+        writer.write(velocity.x);
+        writer.write(velocity.y);
+        writer.write(rotation);
+        writer.write(direction);
+        writer.write(anim);
+        writer.write(frame);
+    }
+
+    return writer.tell() - pos;
+}

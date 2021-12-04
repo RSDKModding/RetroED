@@ -84,11 +84,6 @@ public:
 
     void loadScene(QString scnPath, QString gcfPath, byte gameType);
 
-    QString dataPath = "";
-
-    // Game Data Storage
-    DataStorage dataStorage[DATASET_MAX];
-
     inline void updateTitle(bool modified)
     {
         this->modified = modified;
@@ -97,6 +92,11 @@ public:
         else
             emit titleChanged(tabTitle);
     }
+
+    QString dataPath = "";
+
+    // Game Data Storage
+    DataStorage dataStorage[DATASET_MAX];
 
 signals:
     void titleChanged(QString title);
@@ -128,10 +128,10 @@ private:
     void doAction(QString name = "Action", bool setModified = true);
     void clearActions();
 
+    Ui::SceneEditorv5 *ui;
+
     QList<ActionState> actions;
     int actionIndex = 0;
-
-    Ui::SceneEditorv5 *ui;
 
     bool modified    = false;
     QString tabTitle = "Scene Editor (v5)";

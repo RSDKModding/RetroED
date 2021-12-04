@@ -119,9 +119,6 @@ private:
     byte clipboardType = COPY_NONE;
     int clipboardInfo  = 0;
 
-    QList<ActionState> actions;
-    int actionIndex = 0;
-
     void createEntityList();
     void createScrollList();
 
@@ -138,6 +135,9 @@ private:
     Ui::SceneEditor *ui;
 
     ChunkEditor *chunkEdit = nullptr;
+
+    QList<ActionState> actions;
+    int actionIndex = 0;
 
     bool modified    = false;
     QString tabTitle = "Scene Editor";

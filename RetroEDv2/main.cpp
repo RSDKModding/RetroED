@@ -55,7 +55,7 @@ void initConsole()
 
 int main(int argc, char *argv[])
 {
-    initConsole();
+    // initConsole();
 
     QSurfaceFormat format;
     format.setDepthBufferSize(24);
@@ -68,9 +68,9 @@ int main(int argc, char *argv[])
     qInstallMessageHandler(myMessageOutput);
     PhantomStyle *style = new PhantomStyle(); // TODO: is this deleted ever???
 
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication a(argc, argv);
     a.setAttribute(Qt::AA_UseHighDpiPixmaps);
-    a.setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QApplication::setStyle(style);
 
