@@ -32,6 +32,9 @@ public:
         return reply == QMessageBox::Yes;
     }
 
+protected:
+    bool event(QEvent *event);
+
 private:
     Ui::MainWindow *ui;
 

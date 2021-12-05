@@ -201,9 +201,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     file->addMenu(rfMenu);
 
     file->addSeparator();
-    file->addAction("Close", [this] {
+    file->addAction("Close", [this, removeTab] {
         if (ui->toolTabs->currentWidget() != nullptr)
-            ui->toolTabs->removeTab(ui->toolTabs->indexOf(ui->toolTabs->currentWidget()));
+            removeTab(ui->toolTabs->currentIndex());
         else
             QApplication::closeAllWindows();
     });
@@ -363,6 +363,33 @@ MainWindow::~MainWindow()
 {
     statusLabel = nullptr;
     delete ui;
+}
+
+bool MainWindow::event(QEvent *event)
+{
+    if (event->type() == QEvent::Close) {
+        if (toolTabs->count()) {
+            bool canClose = true;
+            for (int t = toolTabs->count() - 1; t >= 0; --t) {
+                QWidget *w  = ui->toolTabs->widget(t);
+                bool closed = w->close();
+                if (closed) {
+                    ui->toolTabs->removeTab(t);
+                    delete w;
+                }
+                else {
+                    canClose = false;
+                }
+            }
+
+            if (!canClose) {
+                event->ignore();
+                return true;
+            }
+        }
+    }
+
+    return QWidget::event(event);
 }
 
 #include "moc_mainwindow.cpp"
