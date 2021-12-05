@@ -45,8 +45,6 @@ SOURCES += \
     tools/modelmanager.cpp \
     tools/paletteeditor/colourdialog.cpp \
     tools/rsvtool.cpp \
-    tools/savefileeditorv3.cpp \
-    tools/savefileeditorv4.cpp \
     tools/exportrsdkv5scene.cpp \
     tools/gameconfigeditorv2.cpp \
     tools/gameconfigeditorv3.cpp \
@@ -78,7 +76,6 @@ SOURCES += \
     tools/sceneviewer.cpp \
     tools/sceneviewerv5.cpp \
     tools/scriptunpacker.cpp \
-    tools/staticobjecteditor.cpp \
     tools/userdbmanager.cpp \
     tools/utils/propertygrid.cpp \
     utils/appconfig.cpp \
@@ -108,8 +105,6 @@ HEADERS += \
     tools/modelmanager.hpp \
     tools/paletteeditor/colourdialog.hpp \
     tools/rsvtool.hpp \
-    tools/savefileeditorv3.hpp \
-    tools/savefileeditorv4.hpp \
     tools/exportrsdkv5scene.hpp \
     tools/gameconfigeditorv2.hpp \
     tools/gameconfigeditorv3.hpp \
@@ -141,7 +136,6 @@ HEADERS += \
     tools/sceneviewer.hpp \
     tools/sceneviewerv5.hpp \
     tools/scriptunpacker.hpp \
-    tools/staticobjecteditor.hpp \
     tools/userdbmanager.hpp \
     tools/utils/propertygrid.hpp \
     utils/appconfig.hpp \
@@ -158,8 +152,6 @@ FORMS += \
     tools/modelmanager.ui \
     tools/paletteeditor/colourdialog.ui \
     tools/rsvtool.ui \
-    tools/savefileeditorv3.ui \
-    tools/savefileeditorv4.ui \
     tools/exportrsdkv5scene.ui \
     tools/gameconfigeditorv2.ui \
     tools/gameconfigeditorv3.ui \
@@ -189,7 +181,6 @@ FORMS += \
     tools/sceneproperties/stageconfigeditorv5.ui \
     tools/sceneproperties/tileseteditor.ui \
     tools/scriptunpacker.ui \
-    tools/staticobjecteditor.ui \
     tools/userdbmanager.ui
 
 # Default rules for deployment.
