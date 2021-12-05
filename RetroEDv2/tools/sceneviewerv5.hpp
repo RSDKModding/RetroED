@@ -195,8 +195,8 @@ public:
     SpriteAnimation spriteAnimationList[v5_SPRFILE_COUNT];
     GFXSurface gfxSurface[v5_SURFACE_MAX];
 
-    int addGraphicsFile(char *sheetPath, int sheetID, byte scope);
-    void removeGraphicsFile(char *sheetPath, int slot);
+    int addGraphicsFile(QString sheetPath, int sheetID, byte scope);
+    void removeGraphicsFile(QString sheetPath, int slot);
     inline void getTileVerts(QVector2D *arr, int index, int tileIndex, byte direction)
     {
         float w = tilesetTexture->width(), h = tilesetTexture->height();

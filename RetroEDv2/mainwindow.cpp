@@ -220,6 +220,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     QMenu *scn = new QMenu("Scene Editor");
     scn->addAction("v1, v2, v3, v4", [this] {
+        setStatus("Opening Scene Editor...");
         SceneEditor *tool = new SceneEditor();
         tool->installEventFilter(this);
         addTab(tool, "Scene Editor");
@@ -227,6 +228,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     });
 
     scn->addAction("v5 (Sonic Mania)", [this] {
+        setStatus("Opening Scene Editor...");
         SceneEditorv5 *tool = new SceneEditorv5();
         tool->installEventFilter(this);
         addTab(tool, "Scene Editor (v5)");
@@ -240,24 +242,24 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         addTab(tool, "Animation Editor");
     });
 
-    QMenu *gc = new QMenu("Gameconfig Editor");
+    QMenu *gc = new QMenu("GameConfig Editor");
     gc->addAction("v2 (Sonic Nexus)", [this] {
-        setStatus("Opening Gameconfig Editor...");
+        setStatus("Opening GameConfig Editor...");
         GameconfigEditorv2 *tool = new GameconfigEditorv2;
         addTab(tool, "GameConfig Editor");
     });
     gc->addAction("v3 (Sonic CD)", [this] {
-        setStatus("Opening Gameconfig Editor...");
+        setStatus("Opening GameConfig Editor...");
         GameconfigEditorv3 *tool = new GameconfigEditorv3;
         addTab(tool, "GameConfig Editor");
     });
     gc->addAction("v4 (Sonic 1/Sonic 2)", [this] {
-        setStatus("Opening Gameconfig Editor...");
+        setStatus("Opening GameConfig Editor...");
         GameconfigEditorv4 *tool = new GameconfigEditorv4;
         addTab(tool, "GameConfig Editor");
     });
     gc->addAction("v5 (Sonic Mania)", [this] {
-        setStatus("Opening Gameconfig Editor...");
+        setStatus("Opening GameConfig Editor...");
         GameconfigEditorv5 *tool = new GameconfigEditorv5("", 0, false);
         addTab(tool, "GameConfig Editor");
     });
@@ -303,13 +305,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     ui->menubar->addMenu(tools);
 
-    QMenu *options = new QMenu("Options");
+    QMenu *options                = new QMenu("Options");
+    WorkingDirManager::workingDir = "";
     options->addAction("Set Base Data Folder", [this] {
         QFileDialog filedialog(this, tr("Open Directory"), "", "");
         filedialog.setFileMode(QFileDialog::FileMode::Directory);
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
-            // baseDir = filedialog.selectedFiles()[0];
+            WorkingDirManager::workingDir = filedialog.selectedFiles()[0] + "/";
         }
     });
 

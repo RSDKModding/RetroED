@@ -2283,8 +2283,12 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
             if (viewer->stageConfig.loadGlobalScripts) {
                 for (int i = 0; i < viewer->gameConfig.objects.count(); ++i) {
-                    viewer->compilerv2.parseScriptFile(
-                        viewer->dataPath + "/Scripts/" + viewer->gameConfig.objects[i].script, scrID++);
+                    QString scriptPath =
+                        viewer->dataPath + "/Scripts/" + viewer->gameConfig.objects[i].script;
+                    scriptPath =
+                        WorkingDirManager::GetPath(viewer->gameConfig.objects[i].script, scriptPath);
+
+                    viewer->compilerv2.parseScriptFile(scriptPath, scrID++);
 
                     if (viewer->compilerv2.scriptError) {
                         printLog(viewer->compilerv2.errorMsg);
@@ -2306,8 +2310,11 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
             }
 
             for (int i = 0; i < viewer->stageConfig.objects.count(); ++i) {
-                viewer->compilerv2.parseScriptFile(
-                    viewer->dataPath + "/Scripts/" + viewer->stageConfig.objects[i].script, scrID++);
+                QString scriptPath =
+                    viewer->dataPath + "/Scripts/" + viewer->stageConfig.objects[i].script;
+                scriptPath =
+                    WorkingDirManager::GetPath(viewer->stageConfig.objects[i].script, scriptPath);
+                viewer->compilerv2.parseScriptFile(scriptPath, scrID++);
 
                 if (viewer->compilerv2.scriptError) {
                     printLog(viewer->compilerv2.errorMsg);
@@ -2334,8 +2341,11 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
             if (viewer->stageConfig.loadGlobalScripts) {
                 for (int i = 0; i < viewer->gameConfig.objects.count(); ++i) {
-                    viewer->compilerv3.parseScriptFile(
-                        viewer->dataPath + "/Scripts/" + viewer->gameConfig.objects[i].script, scrID++);
+                    QString scriptPath =
+                        viewer->dataPath + "/Scripts/" + viewer->gameConfig.objects[i].script;
+                    scriptPath =
+                        WorkingDirManager::GetPath(viewer->gameConfig.objects[i].script, scriptPath);
+                    viewer->compilerv3.parseScriptFile(scriptPath, scrID++);
 
                     if (viewer->compilerv3.scriptError) {
                         printLog(viewer->compilerv3.errorMsg);
@@ -2378,8 +2388,11 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
             }
 
             for (int i = 0; i < viewer->stageConfig.objects.count(); ++i) {
-                viewer->compilerv3.parseScriptFile(
-                    viewer->dataPath + "/Scripts/" + viewer->stageConfig.objects[i].script, scrID++);
+                QString scriptPath =
+                    viewer->dataPath + "/Scripts/" + viewer->stageConfig.objects[i].script;
+                scriptPath =
+                    WorkingDirManager::GetPath(viewer->stageConfig.objects[i].script, scriptPath);
+                viewer->compilerv3.parseScriptFile(scriptPath, scrID++);
 
                 if (viewer->compilerv3.scriptError) {
                     printLog(viewer->compilerv3.errorMsg);
@@ -2434,9 +2447,11 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
             if (viewer->stageConfig.loadGlobalScripts) {
                 for (int i = 0; i < viewer->gameConfig.objects.count(); ++i) {
-                    viewer->compilerv4.parseScriptFile(viewer->dataPath + "/../Scripts/"
-                                                           + viewer->gameConfig.objects[i].script,
-                                                       scrID++);
+                    QString scriptPath =
+                        viewer->dataPath + "/../Scripts/" + viewer->gameConfig.objects[i].script;
+                    scriptPath =
+                        WorkingDirManager::GetPath(viewer->gameConfig.objects[i].script, scriptPath);
+                    viewer->compilerv4.parseScriptFile(scriptPath, scrID++);
 
                     if (viewer->compilerv4.scriptError) {
                         printLog(viewer->compilerv4.errorMsg);
@@ -2479,8 +2494,11 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
             }
 
             for (int i = 0; i < viewer->stageConfig.objects.count(); ++i) {
-                viewer->compilerv4.parseScriptFile(
-                    viewer->dataPath + "/../Scripts/" + viewer->stageConfig.objects[i].script, scrID++);
+                QString scriptPath =
+                    viewer->dataPath + "/../Scripts/" + viewer->stageConfig.objects[i].script;
+                scriptPath =
+                    WorkingDirManager::GetPath(viewer->stageConfig.objects[i].script, scriptPath);
+                viewer->compilerv4.parseScriptFile(scriptPath, scrID++);
 
                 if (viewer->compilerv4.scriptError) {
                     printLog(viewer->compilerv4.errorMsg);

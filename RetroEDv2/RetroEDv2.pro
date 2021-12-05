@@ -82,7 +82,8 @@ SOURCES += \
     utils/retroedutils.cpp \
     utils/shaders.cpp \
     main.cpp \
-    utils/staticobjectinfo.cpp
+    utils/staticobjectinfo.cpp \
+    utils/workingdirmanager.cpp
 
 HEADERS += \
     mainwindow.hpp \
@@ -142,7 +143,8 @@ HEADERS += \
     utils/retroedutils.hpp \
     utils/shaders.hpp \
     includes.hpp \
-    utils/staticobjectinfo.hpp
+    utils/staticobjectinfo.hpp \
+    utils/workingdirmanager.hpp
 
 FORMS += \
     mainwindow.ui \

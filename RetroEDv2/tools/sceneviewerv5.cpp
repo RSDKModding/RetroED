@@ -123,14 +123,23 @@ void SceneViewerv5::loadScene(QString path)
 
     scene.read(path);
 
-    tileconfig.read(basePath + "TileConfig.bin");
-    stageConfig.read(basePath + "StageConfig.bin");
+    QString pathTCF = WorkingDirManager::GetPath("Stages/" + currentFolder + "/TileConfig.bin",
+                                                 basePath + "TileConfig.bin");
+    QString pathSCF = WorkingDirManager::GetPath("Stages/" + currentFolder + "/StageConfig.bin",
+                                                 basePath + "StageConfig.bin");
+
+    tileconfig.read(pathTCF);
+    stageConfig.read(pathSCF);
 
     if (scene.editorMetadata.stampName == "")
         scene.editorMetadata.stampName = "StampList.bin";
 
-    if (QFile::exists(basePath + scene.editorMetadata.stampName)) {
-        stamps.read(basePath + scene.editorMetadata.stampName);
+    QString pathSTP =
+        WorkingDirManager::GetPath("Stages/" + currentFolder + "/" + scene.editorMetadata.stampName,
+                                   basePath + scene.editorMetadata.stampName);
+
+    if (QFile::exists(pathSTP)) {
+        stamps.read(pathSTP);
     }
     else {
         stamps = RSDKv5::Stamps();
@@ -1592,7 +1601,7 @@ void SceneViewerv5::paintGL()
     }
 }
 
-int SceneViewerv5::addGraphicsFile(char *sheetPath, int sheetID, byte scope)
+int SceneViewerv5::addGraphicsFile(QString sheetPath, int sheetID, byte scope)
 {
     if (sheetID >= 0 && sheetID < v5_SURFACE_MAX) {
         QImage sheet;
@@ -1618,7 +1627,7 @@ int SceneViewerv5::addGraphicsFile(char *sheetPath, int sheetID, byte scope)
     return -1;
 }
 
-void SceneViewerv5::removeGraphicsFile(char *sheetPath, int slot)
+void SceneViewerv5::removeGraphicsFile(QString sheetPath, int slot)
 {
     if (slot >= 0) {
         gfxSurface[slot].texturePtr->destroy();

@@ -16,8 +16,8 @@ short FunctionTable::loadSpriteAnimation(const char *filename, Scopes scope)
     if (!v5Editor)
         return -1;
 
-    char buffer[0x100];
-    sprintf(buffer, "%s/Sprites/%s", v5Editor->dataPath.toStdString().c_str(), filename);
+    QString buffer = WorkingDirManager::GetPath(QString("Sprites/") + filename,
+                                                v5Editor->dataPath + "/Sprites/" + filename);
 
     uint hash[4];
     Utils::getHashInt(filename, hash);
@@ -364,8 +364,8 @@ ushort FunctionTable::loadSpriteSheet(const char *filename, int scope)
     if (!v5Editor)
         return -1;
 
-    char buffer[0x100];
-    sprintf(buffer, "%s/Sprites/%s", v5Editor->dataPath.toStdString().c_str(), filename);
+    QString buffer = WorkingDirManager::GetPath(QString("Sprites/") + filename,
+                                                v5Editor->dataPath + "/Sprites/" + filename);
 
     uint hash[4];
     Utils::getHashInt(buffer, hash);

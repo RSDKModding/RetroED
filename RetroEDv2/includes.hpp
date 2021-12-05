@@ -106,6 +106,7 @@ public:
 #include "utils/colour.hpp"
 #include "utils/palette.hpp"
 #include "utils/shaders.hpp"
+#include "utils/workingdirmanager.hpp"
 
 // Formats
 #include "utils/appconfig.hpp"

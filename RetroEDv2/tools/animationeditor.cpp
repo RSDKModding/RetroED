@@ -642,7 +642,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             if (jsonObj.contains("Sheets")) {
                 QJsonArray sheetsArr = jsonObj.value("Sheets").toArray();
                 for (int s = 0; s < sheetsArr.count(); ++s) {
-                    loadSheet(getBaseDir() + sheetsArr.at(s).toString(), s, true);
+                    loadSheet(sheetsArr.at(s).toString(), s, true);
                 }
             }
             if (jsonObj.contains("Hitbox Types")) {
@@ -695,7 +695,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                                     if (sheetID == -1) {
                                         sheetID = animFile.sheets.count();
 
-                                        loadSheet(getBaseDir() + sheet.toString(), sheetID);
+                                        loadSheet(sheet.toString(), sheetID);
                                     }
                                     frame.sheet = sheetID;
                                 }
@@ -978,7 +978,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                                 if (sheetID == -1) {
                                     sheetID = animFile.sheets.count();
 
-                                    loadSheet(getBaseDir() + sheet.toString(), sheetID);
+                                    loadSheet(sheet.toString(), sheetID);
                                 }
                                 frame.sheet = sheetID;
                             }
@@ -1248,7 +1248,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                     if (sheetID == -1) {
                         sheetID = animFile.sheets.count();
 
-                        loadSheet(getBaseDir() + sheet.toString(), sheetID);
+                        loadSheet(sheet.toString(), sheetID);
                         setUI = true;
                     }
                     frame.sheet = sheetID;
@@ -1496,6 +1496,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->sourceList->item(ui->sourceList->currentRow())->setText(name);
 
         removeSheet(c);
+        // TODO: fix
         loadSheet(filename, c);
         doAction("Imported sheet", true);
 
@@ -1513,6 +1514,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         ui->sourceList->blockSignals(true);
         uint c = ui->sourceList->currentRow() + 1;
+        // TODO: fix
         loadSheet(filename, c);
         doAction("Added sheet", true);
         auto *item = new QListWidgetItem(name);
@@ -1988,16 +1990,20 @@ void AnimationEditor::setFramePreview()
 
 void AnimationEditor::loadSheet(QString filepath, int index, bool addSource)
 {
-    if (QFile::exists(filepath)) {
-        if (QFileInfo(filepath).suffix().contains("gif")) {
-            QGifImage gif(filepath);
+    QString fullPath = getBaseDir() + filepath;
+
+    if (WorkingDirManager::FileExists(filepath, fullPath)) {
+        fullPath = WorkingDirManager::GetPath(filepath, fullPath);
+
+        if (QFileInfo(fullPath).suffix().contains("gif")) {
+            QGifImage gif(fullPath);
 
             QImage sheet = gif.frame(0);
 
             sheets.insert(index, sheet);
         }
-        else if (QFileInfo(filepath).suffix().contains("bmp")) {
-            QImage sheet(filepath);
+        else if (QFileInfo(fullPath).suffix().contains("bmp")) {
+            QImage sheet(fullPath);
             sheets.insert(index, sheet);
         }
         else {
@@ -2064,13 +2070,11 @@ void AnimationEditor::loadAnim(QString filepath, int aniType)
     this->aniType = aniType;
     animFile      = FormatHelpers::Animation(aniType, filepath);
 
-    QString baseDir = getBaseDir();
-
     int id = 0;
     for (auto &sheet : animFile.sheets) {
         ui->sheetID->addItem(sheet);
 
-        loadSheet(baseDir + sheet, id++, false);
+        loadSheet(sheet, id++, false);
     }
 
     hitboxVisible.clear();

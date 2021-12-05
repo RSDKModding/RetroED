@@ -53,16 +53,34 @@ void SceneViewer::loadScene(QString path, byte ver)
     scene.read(ver, path);
 
     if (ver != ENGINE_v1) {
-        background.read(ver, basePath + "Backgrounds.bin");
-        chunkset.read(ver, basePath + "128x128Tiles.bin");
-        tileconfig.read(basePath + "CollisionMasks.bin");
-        stageConfig.read(ver, basePath + "StageConfig.bin");
+        QString pathTCF = WorkingDirManager::GetPath("Stages/" + currentFolder + "/CollisionMasks.bin",
+                                                     basePath + "CollisionMasks.bin");
+        QString pathSCF = WorkingDirManager::GetPath("Stages/" + currentFolder + "/StageConfig.bin",
+                                                     basePath + "StageConfig.bin");
+        QString pathBG  = WorkingDirManager::GetPath("Stages/" + currentFolder + "/Backgrounds.bin",
+                                                    basePath + "Backgrounds.bin");
+        QString pathTIL = WorkingDirManager::GetPath("Stages/" + currentFolder + "/128x128Tiles.bin",
+                                                     basePath + "128x128Tiles.bin");
+
+        background.read(ver, pathBG);
+        chunkset.read(ver, pathTIL);
+        tileconfig.read(pathTCF);
+        stageConfig.read(ver, pathSCF);
     }
     else {
-        background.read(ver, basePath + "ZoneBG.map");
-        chunkset.read(ver, basePath + "Zone.til");
-        tileconfig.read(basePath + "Zone.tcf");
-        stageConfig.read(ver, basePath + "Zone.zcf");
+        QString pathTCF =
+            WorkingDirManager::GetPath("Stages/" + currentFolder + "/Zone.tcf", basePath + "Zone.tcf");
+        QString pathSCF =
+            WorkingDirManager::GetPath("Stages/" + currentFolder + "/Zone.zcf", basePath + "Zone.zcf");
+        QString pathBG = WorkingDirManager::GetPath("Stages/" + currentFolder + "/ZoneBG.map",
+                                                    basePath + "ZoneBG.map");
+        QString pathTIL =
+            WorkingDirManager::GetPath("Stages/" + currentFolder + "/Zone.til", basePath + "Zone.til");
+
+        background.read(ver, pathBG);
+        chunkset.read(ver, pathTIL);
+        tileconfig.read(pathTCF);
+        stageConfig.read(ver, pathSCF);
     }
 
     for (int l = 0; l < 9; ++l) {
@@ -1190,7 +1208,8 @@ void SceneViewer::drawLine(float x1, float y1, float z1, float x2, float y2, flo
 
 int SceneViewer::addGraphicsFile(QString sheetPath)
 {
-    QString path = dataPath + "/Sprites/" + sheetPath;
+    QString path =
+        WorkingDirManager::GetPath("Sprites/" + sheetPath, dataPath + "/Sprites/" + sheetPath);
     if (!QFile::exists(path))
         return 0;
 
