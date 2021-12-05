@@ -56,6 +56,7 @@ void ChunkSelector::refreshList()
 
 SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEditor)
 {
+    this->setWindowTitle("?");
     ui->setupUi(this);
 
     viewer = new SceneViewer(this);
@@ -357,7 +358,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     auto resetTools = [this](byte tool) {
         if (tool == 0xFF)
-            tool = TOOL_MOUSE;
+            tool = SceneViewer::TOOL_MOUSE;
         viewer->curTool = tool;
 
         // Reset
@@ -371,12 +372,12 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         switch (tool) {
             default: break; // what
-            case TOOL_MOUSE: break;
-            case TOOL_SELECT: break;
-            case TOOL_PENCIL: viewer->selecting = true; break;
-            case TOOL_ERASER: viewer->selecting = true; break;
-            case TOOL_ENTITY: viewer->selecting = true; break;
-            case TOOL_PARALLAX: viewer->selecting = true; break;
+            case SceneViewer::TOOL_MOUSE: break;
+            case SceneViewer::TOOL_SELECT: break;
+            case SceneViewer::TOOL_PENCIL: viewer->selecting = true; break;
+            case SceneViewer::TOOL_ERASER: viewer->selecting = true; break;
+            case SceneViewer::TOOL_ENTITY: viewer->selecting = true; break;
+            case SceneViewer::TOOL_PARALLAX: viewer->selecting = true; break;
         }
     };
 
@@ -1458,7 +1459,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
     auto resetTools = [this](byte tool) {
         if (tool == 0xFF)
-            tool = TOOL_MOUSE;
+            tool = SceneViewer::TOOL_MOUSE;
         viewer->curTool = tool;
 
         // Reset
@@ -1475,12 +1476,12 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
         switch (tool) {
             default: break; // what
-            case TOOL_MOUSE: break;
-            case TOOL_SELECT: break;
-            case TOOL_PENCIL: viewer->selecting = true; break;
-            case TOOL_ERASER: viewer->selecting = true; break;
-            case TOOL_ENTITY: viewer->selecting = true; break;
-            case TOOL_PARALLAX: viewer->selecting = true; break;
+            case SceneViewer::TOOL_MOUSE: break;
+            case SceneViewer::TOOL_SELECT: break;
+            case SceneViewer::TOOL_PENCIL: viewer->selecting = true; break;
+            case SceneViewer::TOOL_ERASER: viewer->selecting = true; break;
+            case SceneViewer::TOOL_ENTITY: viewer->selecting = true; break;
+            case SceneViewer::TOOL_PARALLAX: viewer->selecting = true; break;
         }
     };
 
@@ -1499,14 +1500,14 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             if ((mEvent->button() & Qt::RightButton) == Qt::RightButton)
                 mouseDownR = true;
 
-            if (mouseDownM || (mouseDownL && viewer->curTool == TOOL_MOUSE))
+            if (mouseDownM || (mouseDownL && viewer->curTool == SceneViewer::TOOL_MOUSE))
                 setCursor(Qt::ClosedHandCursor);
 
             if (mouseDownL) {
                 switch (viewer->curTool) {
-                    case TOOL_MOUSE: break;
-                    case TOOL_SELECT: break;
-                    case TOOL_PENCIL: {
+                    case SceneViewer::TOOL_MOUSE: break;
+                    case SceneViewer::TOOL_SELECT: break;
+                    case SceneViewer::TOOL_PENCIL: {
                         if (viewer->selectedChunk >= 0 && viewer->selecting) {
                             setTile(mEvent->pos().x(), mEvent->pos().y());
                             doAction();
@@ -1537,7 +1538,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         }
                         break;
                     }
-                    case TOOL_ERASER: {
+                    case SceneViewer::TOOL_ERASER: {
                         if (viewer->selecting) {
                             viewer->selectedChunk = 0x00;
                             setTile(mEvent->pos().x(), mEvent->pos().y());
@@ -1545,7 +1546,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         }
                         break;
                     }
-                    case TOOL_ENTITY: {
+                    case SceneViewer::TOOL_ENTITY: {
                         if (!viewer->selecting || viewer->selectedObject < 0) {
                             Rect<float> box;
                             int firstSel = -1;
@@ -1674,7 +1675,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
             if (mouseDownR) {
                 switch (viewer->curTool) {
-                    case TOOL_PENCIL:
+                    case SceneViewer::TOOL_PENCIL:
                         if (viewer->selectedLayer >= 0) {
                             Rect<float> box, box2;
 
@@ -1715,7 +1716,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                             }
                         }
                         break;
-                    case TOOL_ENTITY: {
+                    case SceneViewer::TOOL_ENTITY: {
                         Rect<float> box;
                         bool found   = false;
                         int firstSel = -1;
@@ -1782,7 +1783,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         }
                         break;
                     }
-                    case TOOL_PARALLAX: break;
+                    case SceneViewer::TOOL_PARALLAX: break;
                     default: break;
                 }
                 break;
@@ -1801,7 +1802,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             Vector2<int> sceneMousePos((viewer->mousePos.x * viewer->invZoom()) + viewer->cam.pos.x,
                                        (viewer->mousePos.y * viewer->invZoom()) + viewer->cam.pos.y);
 
-            if (mouseDownM || (mouseDownL && viewer->curTool == TOOL_MOUSE)) {
+            if (mouseDownM || (mouseDownL && viewer->curTool == SceneViewer::TOOL_MOUSE)) {
                 viewer->cam.pos.x -= (viewer->mousePos.x - viewer->reference.x()) * viewer->invZoom();
                 viewer->cam.pos.y -= (viewer->mousePos.y - viewer->reference.y()) * viewer->invZoom();
                 viewer->reference = mEvent->pos();
@@ -1818,7 +1819,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 ui->verticalScrollBar->blockSignals(false);
             }
 
-            if (viewer->curTool == TOOL_PENCIL || viewer->curTool == TOOL_ENTITY) {
+            if (viewer->curTool == SceneViewer::TOOL_PENCIL
+                || viewer->curTool == SceneViewer::TOOL_ENTITY) {
                 viewer->tilePos.x = viewer->mousePos.x;
                 viewer->tilePos.y = viewer->mousePos.y;
 
@@ -1833,27 +1835,27 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             // Hover
             switch (viewer->curTool) {
                 default: break;
-                case TOOL_MOUSE: break;
-                case TOOL_SELECT: break;
-                case TOOL_PENCIL: break;
-                case TOOL_ERASER: break;
-                case TOOL_ENTITY: break;
-                case TOOL_PARALLAX: break;
+                case SceneViewer::TOOL_MOUSE: break;
+                case SceneViewer::TOOL_SELECT: break;
+                case SceneViewer::TOOL_PENCIL: break;
+                case SceneViewer::TOOL_ERASER: break;
+                case SceneViewer::TOOL_ENTITY: break;
+                case SceneViewer::TOOL_PARALLAX: break;
             }
 
             if (mouseDownL) {
                 switch (viewer->curTool) {
                     default: break;
-                    case TOOL_MOUSE: break;
-                    case TOOL_SELECT: break;
-                    case TOOL_PENCIL: {
+                    case SceneViewer::TOOL_MOUSE: break;
+                    case SceneViewer::TOOL_SELECT: break;
+                    case SceneViewer::TOOL_PENCIL: {
                         if (viewer->selectedChunk >= 0 && viewer->selecting) {
                             setTile(viewer->mousePos.x, viewer->mousePos.y);
                             doAction();
                         }
                         break;
                     }
-                    case TOOL_ERASER: {
+                    case SceneViewer::TOOL_ERASER: {
                         if (viewer->selecting) {
                             viewer->selectedChunk = 0x0;
                             setTile(viewer->mousePos.x, viewer->mousePos.y);
@@ -1861,7 +1863,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         }
                         break;
                     }
-                    case TOOL_ENTITY: {
+                    case SceneViewer::TOOL_ENTITY: {
                         if (viewer->selectedObject < 0 && viewer->selectedEntity >= 0) {
                             SceneViewer::EntityInfo &entity = viewer->entities[viewer->selectedEntity];
 
@@ -1890,7 +1892,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         }
                         break;
                     }
-                    case TOOL_PARALLAX: break;
+                    case SceneViewer::TOOL_PARALLAX: break;
                 }
             }
 
@@ -1994,25 +1996,25 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             byte prevTool = viewer->curTool;
             byte tool     = viewer->curTool;
             if (kEvent->key() == Qt::Key_S)
-                tool = TOOL_MOUSE;
+                tool = SceneViewer::TOOL_MOUSE;
             if (kEvent->key() == Qt::Key_S)
-                tool = TOOL_SELECT;
+                tool = SceneViewer::TOOL_SELECT;
             if (kEvent->key() == Qt::Key_C)
-                tool = TOOL_PENCIL;
+                tool = SceneViewer::TOOL_PENCIL;
             if (kEvent->key() == Qt::Key_E)
-                tool = TOOL_ERASER;
+                tool = SceneViewer::TOOL_ERASER;
             if (kEvent->key() == Qt::Key_O)
-                tool = TOOL_ENTITY;
+                tool = SceneViewer::TOOL_ENTITY;
             if (kEvent->key() == Qt::Key_P)
-                tool = TOOL_PARALLAX;
+                tool = SceneViewer::TOOL_PARALLAX;
 
             if (tool != prevTool)
                 resetTools(tool);
 
             switch (viewer->curTool) {
-                case TOOL_MOUSE: break;
-                case TOOL_SELECT: break;
-                case TOOL_PENCIL:
+                case SceneViewer::TOOL_MOUSE: break;
+                case SceneViewer::TOOL_SELECT: break;
+                case SceneViewer::TOOL_PENCIL:
                     if (kEvent->key() == Qt::Key_Z)
                         viewer->tileFlip.x = true;
 
@@ -2048,8 +2050,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         }
                     }
                     break;
-                case TOOL_ERASER: break;
-                case TOOL_ENTITY:
+                case SceneViewer::TOOL_ERASER: break;
+                case SceneViewer::TOOL_ENTITY:
                     if (kEvent->key() == Qt::Key_Delete || kEvent->key() == Qt::Key_Backspace) {
                         if (viewer->selectedEntity >= 0) {
                             viewer->entities.removeAt(viewer->selectedEntity);
@@ -2070,7 +2072,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         }
                     }
                     break;
-                case TOOL_PARALLAX: break;
+                case SceneViewer::TOOL_PARALLAX: break;
             }
             break;
         }
@@ -2095,7 +2097,6 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
 void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 {
-
     setStatus("Loading Scene...");
 
     viewer->objectsLoaded = false;
@@ -2422,7 +2423,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
             viewer->compilerv3.objectLoop = ENTITY_COUNT - 1;
             for (int o = 0; o < OBJECT_COUNT; ++o) {
                 viewer->activeVarObj = o;
-                viewer->callGameEvent(EVENT_RSDKLOAD, o);
+                viewer->callGameEvent(SceneViewer::EVENT_RSDKLOAD, o);
             }
             viewer->activeVarObj = -1;
             break;
@@ -2524,7 +2525,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
             viewer->compilerv4.objectEntityPos = ENTITY_COUNT - 1;
             for (int o = 0; o < OBJECT_COUNT; ++o) {
                 viewer->activeVarObj = o;
-                viewer->callGameEvent(EVENT_RSDKLOAD, o);
+                viewer->callGameEvent(SceneViewer::EVENT_RSDKLOAD, o);
             }
             viewer->activeVarObj = -1;
             break;

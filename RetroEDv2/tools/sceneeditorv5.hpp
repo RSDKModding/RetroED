@@ -31,7 +31,7 @@ public:
         RSDKv5::TileConfig tileconfig;
 
         // General Editing
-        byte curTool            = TOOL_MOUSE;
+        byte curTool            = SceneViewerv5::TOOL_MOUSE;
         bool selecting          = false;
         Vector2<float> mousePos = Vector2<float>(0.0f, 0.0f);
 
@@ -73,14 +73,15 @@ public:
     Vector2<int> snapSize          = Vector2<int>(0, 0);
     Vector2<float> selectionOffset = Vector2<float>(0.0f, 0.0f);
 
-    SceneViewerv5 *viewer            = nullptr;
-    ScenePropertiesv5 *scnProp       = nullptr;
-    SceneLayerPropertiesv5 *lyrProp  = nullptr;
-    SceneTilePropertiesv5 *tileProp  = nullptr;
-    SceneObjectPropertiesv5 *objProp = nullptr;
-    SceneScrollPropertiesv5 *scrProp = nullptr;
-    TileSelector *tileSel            = nullptr;
-    TilesetEditor *tsetEdit          = nullptr;
+    SceneViewerv5 *viewer             = nullptr;
+    ScenePropertiesv5 *scnProp        = nullptr;
+    SceneLayerPropertiesv5 *lyrProp   = nullptr;
+    SceneTilePropertiesv5 *tileProp   = nullptr;
+    SceneStampPropertiesv5 *stampProp = nullptr;
+    SceneObjectPropertiesv5 *objProp  = nullptr;
+    SceneScrollPropertiesv5 *scrProp  = nullptr;
+    TileSelector *tileSel             = nullptr;
+    TilesetEditor *tsetEdit           = nullptr;
 
     void loadScene(QString scnPath, QString gcfPath, byte gameType);
 

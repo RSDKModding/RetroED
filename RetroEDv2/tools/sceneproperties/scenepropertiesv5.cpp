@@ -13,6 +13,9 @@ ScenePropertiesv5::ScenePropertiesv5(QWidget *parent) : QWidget(parent), ui(new 
     editPAL  = ui->editPalette;
     editTSet = ui->editTSet;
 
+    loadStamps = ui->loadStamps;
+    saveStamps = ui->saveStamps;
+
     layerCnt   = ui->layerCnt;
     objCnt     = ui->objCnt;
     entCntTot  = ui->entCntTot;

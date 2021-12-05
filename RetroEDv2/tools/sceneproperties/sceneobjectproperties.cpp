@@ -88,7 +88,7 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
 
                 scnEditor->viewer->variableID    = -1;      // prop val
                 scnEditor->viewer->variableValue = propVal; // prop val
-                scnEditor->viewer->callGameEvent(EVENT_RSDKEDIT, entityID);
+                scnEditor->viewer->callGameEvent(SceneViewer::EVENT_RSDKEDIT, entityID);
             });
 
     QList<Property *> posGroup = { new Property("x", &entity->pos.x),
@@ -247,7 +247,7 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
         scnEditor->viewer->variableValue                    = 0;
         scnEditor->viewer->returnVariable                   = true;
         scnEditor->viewer->compilerv4.scriptEng.checkResult = -1;
-        scnEditor->viewer->callGameEvent(EVENT_RSDKEDIT, entityID);
+        scnEditor->viewer->callGameEvent(SceneViewer::EVENT_RSDKEDIT, entityID);
         var.value_int32                   = scnEditor->viewer->compilerv4.scriptEng.checkResult;
         scnEditor->viewer->returnVariable = false;
 
@@ -274,7 +274,7 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
                     if (entityv4)
                         entityv4->propertyValue = entity->propertyValue;
 
-                    scnEditor->viewer->callGameEvent(EVENT_RSDKEDIT, entityID);
+                    scnEditor->viewer->callGameEvent(SceneViewer::EVENT_RSDKEDIT, entityID);
 
                     switch (ver) {
                         case ENGINE_v2: entity->propertyValue = entityv2->propertyValue; break;

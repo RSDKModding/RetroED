@@ -1067,30 +1067,6 @@ void SceneViewerv5::drawScene()
     spriteShader.setValue("useAlpha", false);
     spriteShader.setValue("alpha", 1.0f);
 
-    // Selected Ent Box
-    rectVAO.bind();
-    primitiveShader.use();
-    primitiveShader.setValue("projection", getProjectionMatrix());
-    primitiveShader.setValue("view", QMatrix4x4());
-    primitiveShader.setValue("useAlpha", false);
-    primitiveShader.setValue("alpha", 1.0f);
-    QMatrix4x4 matModel;
-    primitiveShader.setValue("model", matModel);
-    if (selectedEntity >= 0) {
-        SceneEntity &entity = entities[selectedEntity];
-
-        float left   = entity.pos.x + entity.box.x;
-        float top    = entity.pos.y + entity.box.y;
-        float right  = entity.pos.x + entity.box.w;
-        float bottom = entity.pos.y + entity.box.h;
-
-        float w = fabsf(right - left), h = fabsf(bottom - top);
-        gfxSurface[0].texturePtr->bind();
-
-        drawRect(left - cam.pos.x, top - cam.pos.y, 15.7f, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
-                 primitiveShader, true);
-    }
-
     if (showGrid) {
         rectVAO.bind();
 
@@ -1135,6 +1111,83 @@ void SceneViewerv5::drawScene()
 
             drawLine(dx, y1, 15.6f, dx, y2, 15.6f, zoom, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
                      primitiveShader);
+        }
+    }
+
+    // Selected Ent Box
+    rectVAO.bind();
+    primitiveShader.use();
+    primitiveShader.setValue("projection", getProjectionMatrix());
+    primitiveShader.setValue("view", QMatrix4x4());
+    primitiveShader.setValue("useAlpha", false);
+    primitiveShader.setValue("alpha", 1.0f);
+    QMatrix4x4 matModel;
+    primitiveShader.setValue("model", matModel);
+    if (selectedEntity >= 0) {
+        SceneEntity &entity = entities[selectedEntity];
+
+        float left   = entity.pos.x + entity.box.x;
+        float top    = entity.pos.y + entity.box.y;
+        float right  = entity.pos.x + entity.box.w;
+        float bottom = entity.pos.y + entity.box.h;
+
+        float w = fabsf(right - left), h = fabsf(bottom - top);
+        gfxSurface[0].texturePtr->bind();
+
+        drawRect(left - cam.pos.x, top - cam.pos.y, 15.7f, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
+                 primitiveShader, true);
+    }
+
+    // Selected Stamp Box
+    rectVAO.bind();
+    primitiveShader.use();
+    primitiveShader.setValue("projection", getProjectionMatrix());
+    primitiveShader.setValue("view", QMatrix4x4());
+    primitiveShader.setValue("useAlpha", false);
+    primitiveShader.setValue("alpha", 1.0f);
+    primitiveShader.setValue("model", matModel);
+    if (selectedStamp >= 0) {
+        RSDKv5::Stamps::StampEntry &stamp = stamps.stampList[selectedStamp];
+
+        float left   = stamp.pos.x - (stamp.size.x / 2.0f);
+        float top    = stamp.pos.y - (stamp.size.y / 2.0f);
+        float right  = stamp.pos.x + (stamp.size.x / 2.0f);
+        float bottom = stamp.pos.y + (stamp.size.y / 2.0f);
+
+        float w = fabsf(right - left), h = fabsf(bottom - top);
+        gfxSurface[0].texturePtr->bind();
+
+        drawRect(left - cam.pos.x, top - cam.pos.y, 15.7f, w, h, Vector4<float>(1.0f, 0.0f, 0.0f, 1.0f),
+                 primitiveShader, true);
+    }
+
+    // Selection Box
+    rectVAO.bind();
+    primitiveShader.use();
+    primitiveShader.setValue("projection", getProjectionMatrix());
+    primitiveShader.setValue("view", QMatrix4x4());
+    primitiveShader.setValue("useAlpha", false);
+    primitiveShader.setValue("alpha", 1.0f);
+    primitiveShader.setValue("model", matModel);
+    if (curTool == TOOL_SELECT && (isSelecting || (selectSize.x && selectSize.y))) {
+        gfxSurface[0].texturePtr->bind();
+
+        drawRect(selectPos.x - cam.pos.x, selectPos.y - cam.pos.y, 15.7f, selectSize.x, selectSize.y,
+                 Vector4<float>(0.0f, 0.0f, 1.0f, 0.5f), primitiveShader, true);
+
+        for (auto &id : selectedEntities) {
+            SceneEntity &entity = entities[id];
+
+            float left   = entity.pos.x + entity.box.x;
+            float top    = entity.pos.y + entity.box.y;
+            float right  = entity.pos.x + entity.box.w;
+            float bottom = entity.pos.y + entity.box.h;
+
+            float w = fabsf(right - left), h = fabsf(bottom - top);
+            gfxSurface[0].texturePtr->bind();
+
+            drawRect(left - cam.pos.x, top - cam.pos.y, 15.7f, w, h,
+                     Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader, true);
         }
     }
 

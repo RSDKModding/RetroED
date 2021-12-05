@@ -28,17 +28,17 @@ void RSDKv5::Stamps::write(Writer &writer)
 void RSDKv5::Stamps::StampEntry::read(Reader &reader)
 {
     name   = reader.readString();
-    width  = reader.read<ushort>();
-    height = reader.read<ushort>();
     pos.x  = Utils::fixedToFloat(reader.read<int>());
     pos.y  = Utils::fixedToFloat(reader.read<int>());
+    size.x = Utils::fixedToFloat(reader.read<int>());
+    size.y = Utils::fixedToFloat(reader.read<int>());
 }
 
 void RSDKv5::Stamps::StampEntry::write(Writer &writer)
 {
     writer.write(name);
-    writer.write(width);
-    writer.write(height);
     writer.write(Utils::floatToFixed(pos.x));
     writer.write(Utils::floatToFixed(pos.y));
+    writer.write(Utils::floatToFixed(size.x));
+    writer.write(Utils::floatToFixed(size.y));
 }

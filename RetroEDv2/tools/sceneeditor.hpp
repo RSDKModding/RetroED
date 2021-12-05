@@ -37,7 +37,7 @@ public:
         QList<SceneViewer::EntityInfo> entities;
 
         // General Editing
-        byte curTool            = TOOL_MOUSE;
+        byte curTool            = SceneViewer::TOOL_MOUSE;
         bool selecting          = false;
         Vector2<float> mousePos = Vector2<float>(0.0f, 0.0f);
 

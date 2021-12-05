@@ -17,6 +17,16 @@ public:
 class SceneViewerv5 : public QOpenGLWidget
 {
 public:
+    enum SceneManagerTool {
+        TOOL_MOUSE,
+        TOOL_SELECT,
+        TOOL_PENCIL,
+        TOOL_STAMP,
+        TOOL_ERASER,
+        TOOL_ENTITY,
+        TOOL_PARALLAX,
+    };
+
     enum EventTypes { EVENT_LOAD, EVENT_CREATE, EVENT_UPDATE, EVENT_DRAW, EVENT_SERIALIZE };
 
     SceneViewerv5(QWidget *parent);
@@ -96,6 +106,10 @@ public:
     bool isSelecting        = false;
     Vector2<float> mousePos = Vector2<float>(0.0f, 0.0f);
 
+    Vector2<float> selectPos  = Vector2<float>(0.0f, 0.0f);
+    Vector2<float> selectSize = Vector2<float>(0.0f, 0.0f);
+    QList<int> selectedEntities;
+
     // Layer Editing
     Vector2<float> tilePos   = Vector2<float>(0.0f, 0.0f);
     Vector2<bool> tileFlip   = Vector2<bool>(false, false);
@@ -103,6 +117,8 @@ public:
     Vector2<bool> tileSolidB = Vector2<bool>(false, false);
     int selectedTile         = -1;
     int selectedLayer        = -1;
+
+    int selectedStamp = -1;
 
     // Collision
     bool showPlaneA = false;

@@ -41,7 +41,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="scenePropPage">
       <property name="geometry">
@@ -49,7 +49,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>271</height>
+        <height>244</height>
        </rect>
       </property>
       <attribute name="label">
@@ -75,7 +75,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>271</height>
+        <height>244</height>
        </rect>
       </property>
       <attribute name="label">
@@ -101,7 +101,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>271</height>
+        <height>244</height>
        </rect>
       </property>
       <attribute name="label">
@@ -121,13 +121,31 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="stampPropPage">
+      <attribute name="label">
+       <string>Stamp Properties</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_20">
+       <item row="0" column="0">
+        <widget class="QFrame" name="stampPropFrame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_19"/>
+        </widget>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="objPropPage">
       <property name="geometry">
        <rect>
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>271</height>
+        <height>244</height>
        </rect>
       </property>
       <attribute name="label">
@@ -153,7 +171,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>271</height>
+        <height>244</height>
        </rect>
       </property>
       <attribute name="label">
@@ -390,6 +408,11 @@
         </item>
         <item>
          <property name="text">
+          <string>Stamp Tool</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>Eraser Tool</string>
          </property>
         </item>
@@ -490,7 +513,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="layerPage">
       <property name="geometry">
@@ -590,6 +613,38 @@
       <attribute name="label">
        <string>Stamp List</string>
       </attribute>
+      <layout class="QGridLayout" name="gridLayout_18">
+       <item row="0" column="0" colspan="3">
+        <widget class="QListWidget" name="stampList"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QToolButton" name="addStp">
+         <property name="text">
+          <string>+</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <spacer name="horizontalSpacer_9">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>112</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="2">
+        <widget class="QToolButton" name="rmStp">
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="objectPage">
       <property name="geometry">

@@ -40,22 +40,22 @@ public:
     class Constant
     {
     public:
-        QString m_name  = "";
-        QString m_value = "";
+        QString name  = "";
+        QString value = "";
 
         Constant() {}
         Constant(Reader &reader) { read(reader); }
 
         inline void read(Reader &reader)
         {
-            m_name  = reader.readString();
-            m_value = reader.readString();
+            name  = reader.readString();
+            value = reader.readString();
         }
 
         inline void write(Writer &writer)
         {
-            writer.write(m_name);
-            writer.write(m_value);
+            writer.write(name);
+            writer.write(value);
         }
     };
     RSDKConfig() {}

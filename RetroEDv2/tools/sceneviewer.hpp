@@ -14,24 +14,24 @@ public:
     float aspectRatio = 0.0f;
 };
 
-enum SceneManagerTool {
-    TOOL_MOUSE,
-    TOOL_SELECT,
-    TOOL_PENCIL,
-    TOOL_ERASER,
-    TOOL_ENTITY,
-    TOOL_PARALLAX,
-};
-
-enum ScriptEvents {
-    EVENT_RSDKDRAW,
-    EVENT_RSDKLOAD,
-    EVENT_RSDKEDIT,
-};
-
 class SceneViewer : public QOpenGLWidget
 {
 public:
+    enum SceneManagerTool {
+        TOOL_MOUSE,
+        TOOL_SELECT,
+        TOOL_PENCIL,
+        TOOL_ERASER,
+        TOOL_ENTITY,
+        TOOL_PARALLAX,
+    };
+
+    enum ScriptEvents {
+        EVENT_RSDKDRAW,
+        EVENT_RSDKLOAD,
+        EVENT_RSDKEDIT,
+    };
+
     class VariableValue
     {
     public:

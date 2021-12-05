@@ -66,6 +66,7 @@ SOURCES += \
     tools/sceneproperties/scenepropertiesv5.cpp \
     tools/sceneproperties/scenescrollproperties.cpp \
     tools/sceneproperties/scenescrollpropertiesv5.cpp \
+    tools/sceneproperties/scenestamppropertiesv5.cpp \
     tools/sceneproperties/scenetileproperties.cpp \
     tools/sceneproperties/scenetilepropertiesv5.cpp \
     tools/sceneproperties/stageconfigeditorv2.cpp \
@@ -128,6 +129,7 @@ HEADERS += \
     tools/sceneproperties/scenepropertiesv5.hpp \
     tools/sceneproperties/scenescrollproperties.hpp \
     tools/sceneproperties/scenescrollpropertiesv5.hpp \
+    tools/sceneproperties/scenestamppropertiesv5.hpp \
     tools/sceneproperties/scenetileproperties.hpp \
     tools/sceneproperties/scenetilepropertiesv5.hpp \
     tools/sceneproperties/stageconfigeditorv2.hpp \
@@ -177,6 +179,7 @@ FORMS += \
     tools/sceneproperties/scenepropertiesv5.ui \
     tools/sceneproperties/scenescrollproperties.ui \
     tools/sceneproperties/scenescrollpropertiesv5.ui \
+    tools/sceneproperties/scenestamppropertiesv5.ui \
     tools/sceneproperties/scenetileproperties.ui \
     tools/sceneproperties/scenetilepropertiesv5.ui \
     tools/sceneproperties/stageconfigeditorv2.ui \
