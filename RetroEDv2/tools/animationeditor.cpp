@@ -1496,8 +1496,10 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->sourceList->item(ui->sourceList->currentRow())->setText(name);
 
         removeSheet(c);
-        // TODO: fix
-        loadSheet(filename, c);
+        // TODO: test
+        QString path = filename;
+        path         = path.toLower().replace("\\", "/").split("data/")[1];
+        loadSheet(path, c);
         doAction("Imported sheet", true);
 
         setupSheetBox();
@@ -1514,8 +1516,10 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         ui->sourceList->blockSignals(true);
         uint c = ui->sourceList->currentRow() + 1;
-        // TODO: fix
-        loadSheet(filename, c);
+        // TODO: test
+        QString path = filename;
+        path         = path.toLower().replace("\\", "/").split("data/")[1];
+        loadSheet(path, c);
         doAction("Added sheet", true);
         auto *item = new QListWidgetItem(name);
         ui->sourceList->insertItem(c, item);

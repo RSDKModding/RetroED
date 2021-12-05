@@ -279,34 +279,138 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->rmObj->setDisabled(c == -1 || global);
     });
 
-    connect(ui->addObj, &QToolButton::clicked, [this] {
-        // uint c = m_objectList->currentRow() + 1;
-        SceneObject objInfo;
-        objInfo.name = "New Object";
-        viewer->stageConfig.objects.append("New Object");
-        viewer->objects.append(objInfo);
+    // MAKE SURE YOU ADD YOUR OBJECT TO THE VIEWER'S LIST BEFORE CALLING THIS
+    auto linkGameObject = [this](int objectID, GameObjectInfo *info, bool useLoadEvent = true,
+                                 bool updateTypes = true) {
+        if (!info)
+            return;
 
-        // viewer->callGameEvent(gameLink.GetObjectInfo(objInfo.name), SceneViewerv5::EVENT_SERIALIZE,
-        //                       NULL);
-        //
-        // viewer->callGameEvent(gameLink.GetObjectInfo(objInfo.name), SceneViewerv5::EVENT_LOAD, NULL);
+        if (updateTypes) {
+            for (auto &e : viewer->entities) {
+                if (e.type >= objectID) {
+                    e.type++;
+                    e.gameEntity->objectID = e.type;
+                }
+            }
 
-        auto *item = new QListWidgetItem();
-        item->setText("New Object");
-        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-        item->setCheckState(Qt::Checked);
-        ui->objectList->addItem(item);
+            for (int i = 0; i < viewer->objects.count(); ++i) {
+                GameObjectInfo *info = viewer->GetObjectInfo(viewer->objects[i].name);
+                if (info && info->type) {
+                    GameObject *obj = *info->type;
+                    if (obj) {
+                        if (obj->objectID >= objectID) {
+                            obj->objectID++;
+                        }
+                    }
+                }
+            }
+        }
+        allocateStorage(v5Editor->dataStorage, info->objectSize, (void **)info->type, DATASET_STG,
+                        true);
 
-        item->setFlags(item->flags() | Qt::ItemIsEditable);
-        ui->objectList->setCurrentItem(item);
-        doAction("Add Object: " + objInfo.name);
+        if (info->type && *info->type) {
+            GameObject *gameObj = *info->type;
+            gameObj->objectID   = objectID;
+            gameObj->active     = ACTIVE_NORMAL;
+        }
+
+        if (viewer->gameConfig.readMode)
+            FunctionTable::setEditableVar(VAR_UINT8, "filter", objectID, offsetof(GameEntity, filter));
+
+        viewer->callGameEvent(info, SceneViewerv5::EVENT_SERIALIZE, NULL);
+
+        if (useLoadEvent)
+            viewer->callGameEvent(info, SceneViewerv5::EVENT_LOAD, NULL);
+    };
+
+    auto unlinkGameObject = [this](int objectID, GameObjectInfo *info) {
+        if (!info)
+            return;
+
+        for (int o = viewer->entities.count() - 1; o >= 0; --o) {
+            SceneEntity &e = viewer->entities[o];
+
+            if (e.type > objectID) {
+                e.type--;
+                e.gameEntity->objectID = e.type;
+            }
+            else if (e.type == objectID) {
+                viewer->entities.removeAt(o);
+            }
+        }
+
+        for (int i = 0; i < viewer->objects.count(); ++i) {
+            GameObjectInfo *info = viewer->GetObjectInfo(viewer->objects[i].name);
+            if (info && info->type) {
+                GameObject *obj = *info->type;
+                if (obj) {
+                    if (obj->objectID >= objectID) {
+                        obj->objectID--;
+                    }
+                }
+            }
+        }
+
+        if (info->type && *info->type)
+            *info->type = NULL;
+
+        viewer->objects.removeAt(objectID);
+    };
+
+    connect(ui->addObj, &QToolButton::clicked, [this, linkGameObject] {
+        QList<QString> list;
+        for (int o = 0; o < viewer->objects.count(); ++o) {
+            list.append(viewer->objects[o].name);
+        }
+        QList<GameObjectInfo> objList;
+        for (auto &link : viewer->gameLinks) {
+            for (int o = 0; o < link.gameObjectList.count(); ++o) {
+                objList.append(link.gameObjectList[o]);
+            }
+        }
+
+        ObjectSelectorv5 *selector = new ObjectSelectorv5(list, objList);
+        if (selector->exec() == QDialog::Accepted) {
+            uint c          = ui->objectList->currentRow() + 1;
+            int globalCount = 1;
+            if (viewer->stageConfig.loadGlobalObjects)
+                globalCount = viewer->gameConfig.objects.count() + 1;
+
+            if (c < (uint)globalCount)
+                c = globalCount;
+
+            for (int i = 0; i < selector->objAddList.count(); ++i) {
+                if (selector->objAddList[i]) {
+                    SceneObject obj;
+                    auto &objInfo = objList[selector->objIDList[i]];
+
+                    obj.name = objInfo.name;
+
+                    viewer->objects.insert(c, obj);
+                    auto *item = new QListWidgetItem();
+                    item->setText(obj.name);
+                    item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+                    item->setCheckState(Qt::Checked);
+                    ui->objectList->insertItem(c, item);
+
+                    linkGameObject(c, &objInfo);
+
+                    ++c;
+                }
+            }
+
+            doAction("Add Object(s)");
+
+            createEntityList();
+        }
     });
 
-    connect(ui->rmObj, &QToolButton::clicked, [this] {
+    connect(ui->rmObj, &QToolButton::clicked, [this, unlinkGameObject] {
         int c = ui->objectList->currentRow();
         int n = ui->objectList->currentRow() == ui->objectList->count() - 1 ? c - 1 : c;
         delete ui->objectList->item(c);
-        viewer->objects.removeAt(c);
+
+        unlinkGameObject(c, viewer->GetObjectInfo(viewer->objects[c].name));
 
         int globalCount = 1;
         if (viewer->stageConfig.loadGlobalObjects)
@@ -316,14 +420,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->objectList->blockSignals(true);
         ui->objectList->setCurrentRow(n);
         ui->objectList->blockSignals(false);
-
-        for (int o = viewer->entities.count() - 1; o >= 0; --o) {
-            if (viewer->entities[o].type > c)
-                viewer->entities[o].type--;
-            else if (viewer->entities[o].type == c)
-                viewer->entities.removeAt(o);
-        }
-
         createEntityList();
         doAction("Remove Object: " + QString::number(c));
     });
@@ -802,17 +898,27 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         }
     });
 
-    connect(scnProp->syncGC, &QPushButton::clicked, [this] {
-        int oldGlobalCount = 0;
+    connect(scnProp->syncGC, &QPushButton::clicked, [this, linkGameObject] {
+        int oldGlobalCount = 45;
         QList<QString> oldGlobals;
         QList<int> oldGlobalIDs;
+        QList<SceneObject> oldGlobalObjs;
         QList<int> removeFlags;
 
         // get info about old objs
-        for (int i = 1; i <= oldGlobalCount; ++i) {
+        SceneViewerv5 *v = viewer;
+        for (int i = 0; i <= oldGlobalCount; ++i) {
             oldGlobals.append(viewer->objects[i].name);
             oldGlobalIDs.append(i);
+            oldGlobalObjs.append(viewer->objects[i]);
             removeFlags.append(-1);
+        }
+        removeFlags[0] = 0; // keep blank obj
+
+        // add stage object IDs
+        int idChange = viewer->gameConfig.objects.count() - oldGlobalCount;
+        for (int i = oldGlobalCount + 1; i < viewer->objects.count(); ++i) {
+            removeFlags.append(i + idChange);
         }
 
         // remove old global objs
@@ -822,64 +928,69 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         int id = 1;
         for (QString &global : viewer->gameConfig.objects) {
-            SceneObject objInfo;
-            objInfo.name = global;
-            viewer->objects.insert(id, objInfo);
-
-            // FunctionTable::setEditableVar(VAR_UINT8, "filter", id,
-            //                               offsetof(GameEntity, filter));
-            //
-            // viewer->callGameEvent(gameLink.GetObjectInfo(objInfo.name),
-            //                       SceneViewerv5::EVENT_SERIALIZE, NULL);
-
             int index = oldGlobals.indexOf(global);
             if (index < 0)
                 index = oldGlobals.indexOf(Utils::getMd5HashString(global));
 
+            SceneObject objInfo;
+            objInfo.name = global;
+
             if (index >= 0) {
                 removeFlags[index] = id;
+                objInfo.variables.clear();
+                for (auto &var : oldGlobalObjs[index].variables) {
+                    var.offset = -1;
+                    objInfo.variables.append(var);
+                }
             }
+
+            viewer->objects.insert(id, objInfo);
+
             ++id;
         }
 
         // start by removing objects we dont need
-        id = 1;
-        for (auto &flag : removeFlags) {
-            if (flag < 0) {
-                for (auto &entity : viewer->entities) {
-                    if (entity.type == id) {
-                        viewer->entities.removeOne(entity);
-                    }
-                }
-            }
-            ++id;
-        }
-
-        // then update the remaining ones
-        id = 1;
-        for (auto &flag : removeFlags) {
-            if (flag > 0) {
-                for (auto &entity : viewer->entities) {
-                    if (entity.type == id) {
-                        entity.type = flag;
-                    }
-                }
-            }
-            ++id;
-        }
-
-        // update stage object ids to be proper
-        int idChange = viewer->gameConfig.objects.count() - oldGlobalCount;
         for (auto &entity : viewer->entities) {
-            if (entity.type >= oldGlobalCount) {
-                entity.type += idChange;
+            int newType = removeFlags[entity.type];
+
+            if (newType < 0) {
+                viewer->entities.removeOne(entity);
             }
+            else {
+                entity.type = newType;
+                if (entity.gameEntity)
+                    entity.gameEntity->objectID = newType;
+            }
+        }
+
+        id = 1;
+        for (int i = 1; i < viewer->objects.count(); ++i) {
+            GameObjectInfo *info = viewer->GetObjectInfo(viewer->objects[i].name);
+            if (info && info->type) {
+                GameObject *obj = *info->type;
+                if (obj) {
+                    obj->objectID = id;
+                }
+            }
+            id++;
         }
 
         // load assets for new objects
         for (int i = 1; i <= viewer->gameConfig.objects.count(); ++i) {
-            // viewer->callGameEvent(gameLink.GetObjectInfo(viewer->objects[i].name),
-            //                       SceneViewerv5::EVENT_LOAD, NULL);
+            linkGameObject(i, viewer->GetObjectInfo(viewer->objects[i].name), true, false);
+
+            // clean up and remove unused vars
+            for (int v = viewer->objects[i].variables.count() - 1; v >= 0; --v) {
+                // check if var no longer exists
+                if (viewer->objects[i].variables[v].offset == -1) {
+                    for (auto &entity : viewer->entities) {
+                        if (entity.type == i)
+                            entity.variables.removeAt(v);
+                    }
+
+                    viewer->objects[i].variables.removeAt(v);
+                }
+            }
         }
 
         ui->objectList->clear();

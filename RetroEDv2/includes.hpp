@@ -139,6 +139,7 @@ public:
 #include "tools/sceneproperties/scenescrollpropertiesv5.hpp"
 #include "tools/sceneproperties/scenetilepropertiesv5.hpp"
 #include "tools/sceneproperties/scenestamppropertiesv5.hpp"
+#include "tools/sceneproperties/objectselector.hpp"
 #include "tools/sceneviewerv5.hpp"
 
 #include "tools/sceneproperties/stageconfigeditorv1.hpp"

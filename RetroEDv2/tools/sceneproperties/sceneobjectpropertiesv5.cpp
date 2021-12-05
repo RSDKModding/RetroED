@@ -84,7 +84,7 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
         auto &var = entity->variables[v];
 
         SceneObject *object = &v5Editor->viewer->objects[entity->type];
-        QString varName     = v5Editor->viewer->objects[entity->type].variables[v].name;
+        QString varName     = object->variables[v].name;
         Property *group     = new Property(varName);
         QList<Property *> valGroup;
 
