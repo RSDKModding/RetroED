@@ -16,10 +16,10 @@ public:
     explicit GFXTool(QWidget *parent = nullptr);
     ~GFXTool();
 
-    QString m_gfxPath = "";
-    QString m_imgPath = "";
+    QString gfxPath = "";
+    QString imgPath = "";
 
-    byte m_type = 0;
+    byte type = 0;
 
 private:
     Ui::GFXTool *ui;

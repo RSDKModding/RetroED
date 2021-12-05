@@ -166,7 +166,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                             addTab(tool, "Palette Editor");
                             break;
                         }
-                        case TOOL_GFXTOOL: break;
                         case TOOL_MODELMANAGER: break;
                         case TOOL_GAMECONFIGEDITOR:
                             switch (r.gameVer) {
@@ -194,7 +193,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                             }
 
                             break;
-                        case TOOL_RSVUNPACKER: break;
                     }
                 });
             }
