@@ -400,11 +400,12 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
                 QStandardItem *item = new QStandardItem;
                 item->setEditable(false);
-                item->setData(QPixmap::fromImage((f.width == 0 || f.height == 0)
-                                                     ? QImage(":/icons/missing.png")
-                                                     : sheets[f.sheet].copy(boundingRect)),
+                item->setData(
+                    QPixmap::fromImage((f.width == 0 || f.height == 0 || f.sheet >= sheets.count())
+                                           ? QImage(":/icons/missing.png")
+                                           : sheets[f.sheet].copy(boundingRect)),
 
-                              ROLE_PIXMAP);
+                    ROLE_PIXMAP);
                 frameModel->appendRow(item);
                 ++fID;
             }
@@ -521,10 +522,11 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         boundingRect.setHeight(frame.height);
 
         auto *item = new QStandardItem();
-        item->setData(QPixmap::fromImage((frame.width == 0 || frame.height == 0)
-                                             ? QImage(":/icons/missing.png")
-                                             : sheets[frame.sheet].copy(boundingRect)),
-                      ROLE_PIXMAP);
+        item->setData(
+            QPixmap::fromImage((frame.width == 0 || frame.height == 0 || frame.sheet >= sheets.count())
+                                   ? QImage(":/icons/missing.png")
+                                   : sheets[frame.sheet].copy(boundingRect)),
+            ROLE_PIXMAP);
         frameModel->insertRow(c, item);
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
         ui->frameList->setCurrentIndex(item->index());
@@ -1097,7 +1099,6 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         uint c     = ui->animationList->currentRow() + 1;
         auto *item = new QListWidgetItem(anim.name);
         ui->animationList->insertItem(c, item);
-        item->setFlags(item->flags() & ~Qt::ItemIsEditable);
         animFile.animations.insert(c, anim);
         ui->animationList->blockSignals(false);
 
@@ -1369,7 +1370,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         uint c     = ui->frameList->currentIndex().row() + 1;
         auto *item = new QStandardItem();
-        if (frame.width == 0 || frame.height == 0) {
+        if (frame.width == 0 || frame.height == 0 || frame.sheet >= sheets.count()) {
             item->setIcon(QPixmap::fromImage(QImage(":/icons/missing.png")));
         }
         else {
@@ -1496,15 +1497,74 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->sourceList->item(ui->sourceList->currentRow())->setText(name);
 
         removeSheet(c);
-        // TODO: test
-        QString path = filename;
-        path         = path.toLower().replace("\\", "/").split("data/")[1];
-        loadSheet(path, c);
+
+        QString wDir = WorkingDirManager::workingDir;
+        WorkingDirManager::workingDir += "Sprites/";
+        loadSheet(name, c);
+        WorkingDirManager::workingDir = wDir;
+        animFile.sheets[c]            = name;
         doAction("Imported sheet", true);
 
         setupSheetBox();
         updateView();
     });
+
+    connect(ui->addAnim, &QToolButton::clicked, [this] {
+        ui->animationList->blockSignals(true);
+        uint c = ui->animationList->currentRow() + 1;
+
+        FormatHelpers::Animation::AnimationEntry anim;
+        anim.name = "New Animation " + QString::number(animFile.animations.count());
+
+        animFile.animations.insert(c, anim);
+        auto *item = new QListWidgetItem(animFile.animations[c].name);
+        ui->animationList->insertItem(c, item);
+
+        setupUI();
+
+        ui->animationList->setCurrentItem(item);
+
+        ui->animationList->blockSignals(false);
+
+        ui->addAnim->setDisabled(animFile.animations.count() >= 0x100);
+
+        updateView();
+        doAction("Added animation", true);
+    });
+
+    connect(ui->rmAnim, &QToolButton::clicked, [this] {
+        int c = ui->animationList->currentRow();
+        int n = ui->animationList->currentRow() == ui->sourceList->count() - 1 ? c - 1 : c;
+        delete ui->animationList->item(c);
+        animFile.animations.removeAt(c);
+        setupUI();
+
+        ui->animationList->blockSignals(true);
+        ui->animationList->setCurrentRow(n);
+        ui->animationList->blockSignals(false);
+
+        ui->rmAnim->setDisabled(animFile.animations.count() <= 0);
+
+        updateView();
+        doAction("Removed animation", true);
+    });
+
+    auto moveAnim = [this](char translation) {
+        uint c     = ui->animationList->currentRow();
+        auto *item = ui->animationList->takeItem(c);
+        animFile.animations.move(c, c + translation);
+        ui->animationList->insertItem(c + translation, item);
+        setupUI();
+
+        ui->animationList->setCurrentRow(c + translation);
+
+        updateView();
+        doAction("Moved animation", true);
+    };
+
+    connect(ui->upAnim, &QToolButton::clicked, [moveAnim] { moveAnim(-1); });
+
+    connect(ui->downAnim, &QToolButton::clicked, [moveAnim] { moveAnim(1); });
 
     connect(ui->addSheet, &QToolButton::clicked, [this, setupSheetBox] {
         QFileDialog filedialog(this, tr("Open Image"), "", tr("GIF Images (*.gif)"));
@@ -1515,15 +1575,16 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         QString name     = Utils::getFilenameAndFolder(filename);
 
         ui->sourceList->blockSignals(true);
-        uint c = ui->sourceList->currentRow() + 1;
-        // TODO: test
-        QString path = filename;
-        path         = path.toLower().replace("\\", "/").split("data/")[1];
-        loadSheet(path, c);
+        uint c       = ui->sourceList->currentRow() + 1;
+        QString wDir = WorkingDirManager::workingDir;
+        WorkingDirManager::workingDir += "Sprites/";
+        loadSheet(name, c);
+        WorkingDirManager::workingDir = wDir;
+        animFile.sheets[c]            = name;
         doAction("Added sheet", true);
         auto *item = new QListWidgetItem(name);
-        ui->sourceList->insertItem(c, item);
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+        ui->sourceList->insertItem(c, item);
 
         for (int a = 0; a < animCount(); ++a) {
             for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
@@ -1641,7 +1702,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             }
         }
 
-        ui->addHB->setDisabled(animFile.hitboxes.count() <= 0);
+        ui->rmHB->setDisabled(animFile.hitboxes.count() <= 0);
 
         setupHiboxTypeBox();
         updateView();
@@ -1754,7 +1815,6 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             auto *item = new QListWidgetItem();
             item->setText(anim.name);
             ui->animationList->insertItem(c, item);
-            item->setFlags(item->flags() | Qt::ItemIsEditable);
             ui->animationList->blockSignals(false);
             ui->animationList->setCurrentRow(c);
             doAction("Copied animation", true);
@@ -1912,7 +1972,7 @@ void AnimationEditor::updateView()
     if (currentAnim < animFile.animations.count()
         && currentFrame < animFile.animations[currentAnim].frames.count()) {
         FormatHelpers::Animation::Frame &frame = animFile.animations[currentAnim].frames[currentFrame];
-        if (frame.width && frame.height) {
+        if (frame.width && frame.height && frame.sheet < sheets.count()) {
             QRect boundingRect;
             boundingRect.setX(frame.sprX);
             boundingRect.setY(frame.sprY);
@@ -1985,7 +2045,7 @@ void AnimationEditor::setFramePreview()
         boundingRect.setHeight(f.height);
 
         frameModel->itemFromIndex(frameModel->index(currentFrame, 0))
-            ->setData(QPixmap::fromImage((f.width == 0 || f.height == 0)
+            ->setData(QPixmap::fromImage((f.width == 0 || f.height == 0 || f.sheet >= sheets.count())
                                              ? QImage(":/icons/missing.png")
                                              : sheets[f.sheet].copy(boundingRect)),
                       ROLE_PIXMAP);
@@ -2127,12 +2187,13 @@ bool AnimationEditor::event(QEvent *event)
     if (event->type() == (QEvent::Type)RE_EVENT_SAVE) {
         if (!QFile::exists(animFile.filePath)) {
             QFileDialog filedialog(this, tr("Save Animation"), "",
-                                   tr(typesList[aniType].toStdString().c_str()));
+                                   tr(types.join(";;").toStdString().c_str()));
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
                 setStatus("Saving animation...");
 
                 QString filepath = filedialog.selectedFiles()[0];
+                aniType          = typesList.indexOf(filedialog.selectedNameFilter());
                 animFile.write(aniType, filepath);
                 appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
                 clearActions();
@@ -2153,12 +2214,13 @@ bool AnimationEditor::event(QEvent *event)
         QFileDialog filedialog(
             this, tr("Save Animation"),
             QFile::exists(animFile.filePath) ? QFileInfo(animFile.filePath).absolutePath() : "",
-            tr(typesList[aniType].toStdString().c_str()));
+            tr(types.join(";;").toStdString().c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
             setStatus("Saving animation...");
 
             QString filepath = filedialog.selectedFiles()[0];
+            aniType          = typesList.indexOf(filedialog.selectedNameFilter());
             animFile.write(aniType, filepath);
             appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
             clearActions();
@@ -2329,11 +2391,12 @@ void AnimationEditor::resetAction()
 
             QStandardItem *item = new QStandardItem;
             item->setEditable(false);
-            item->setData(QPixmap::fromImage((f.width == 0 || f.height == 0)
-                                                 ? QImage(":/icons/missing.png")
-                                                 : sheets[f.sheet].copy(boundingRect)),
+            item->setData(
+                QPixmap::fromImage((f.width == 0 || f.height == 0 || f.sheet >= sheets.count())
+                                       ? QImage(":/icons/missing.png")
+                                       : sheets[f.sheet].copy(boundingRect)),
 
-                          ROLE_PIXMAP);
+                ROLE_PIXMAP);
             frameModel->appendRow(item);
             ++fID;
         }
