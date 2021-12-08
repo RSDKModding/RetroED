@@ -194,17 +194,29 @@ GameEntity *FunctionTable::getEntityByID(ushort entityID)
     if (!v5Editor)
         return NULL;
 
-    return &v5Editor->viewer->gameEntityList[entityID < ENTITY_COUNT ? entityID : (ENTITY_COUNT - 1)];
+    for (auto &entity : v5Editor->viewer->entities) {
+        if (entity.slotID == entityID) {
+            return entity.gameEntity;
+        }
+    }
+
+    return NULL;
 }
 
 int FunctionTable::getEntityID(GameEntityBase *entityPtr)
 {
     if (!v5Editor)
-        return v5_ENTITY_COUNT - 1;
+        return 0;
 
-    return (int)(entityPtr - v5Editor->viewer->gameEntityList < v5_ENTITY_COUNT
-                     ? entityPtr - v5Editor->viewer->gameEntityList
-                     : 0);
+    int id = 0;
+    for (auto &entity : v5Editor->viewer->entities) {
+        if (entity.gameEntity == entityPtr) {
+            return id;
+        }
+        id++;
+    }
+
+    return 0;
 }
 
 int FunctionTable::getEntityCount(ushort type, bool32 isActive)
