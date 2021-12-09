@@ -280,7 +280,7 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
     bool mouseDownR = false;
     if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
         mouseDownL = true;
-    if ((event->button() & Qt::MidButton) == Qt::MidButton)
+    if ((event->button() & Qt::MiddleButton) == Qt::MiddleButton)
         mouseDownM = true;
     if ((event->button() & Qt::RightButton) == Qt::RightButton)
         mouseDownR = true;
@@ -319,7 +319,7 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
     bool mouseDownR = false;
     if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
         mouseDownL = true;
-    if ((event->button() & Qt::MidButton) == Qt::MidButton)
+    if ((event->button() & Qt::MiddleButton) == Qt::MiddleButton)
         mouseDownM = true;
     if ((event->button() & Qt::RightButton) == Qt::RightButton)
         mouseDownR = true;
