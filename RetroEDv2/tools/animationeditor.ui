@@ -83,7 +83,7 @@
         <string>Move Animation Up</string>
        </property>
        <property name="text">
-        <string>D</string>
+        <string>U</string>
        </property>
        <property name="icon">
         <iconset>
@@ -125,7 +125,7 @@
         <string>Move Animation Down</string>
        </property>
        <property name="text">
-        <string>U</string>
+        <string>D</string>
        </property>
        <property name="icon">
         <iconset>
@@ -781,9 +781,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>-117</y>
         <width>246</width>
-        <height>464</height>
+        <height>492</height>
        </rect>
       </property>
       <attribute name="label">
@@ -845,7 +845,20 @@
                 <string>Hitbox</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_9">
-                <item row="1" column="0" colspan="2">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_10">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Hitbox</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0" colspan="2">
                  <widget class="QGroupBox" name="groupBox_6">
                   <property name="title">
                    <string>Dimensions</string>
@@ -977,17 +990,20 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_10">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_20">
                   <property name="text">
-                   <string>Hitbox</string>
+                   <string>Type:</string>
                   </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QComboBox" name="hitboxID">
+                  <item>
+                   <property name="text">
+                    <string>Default</string>
+                   </property>
+                  </item>
                  </widget>
                 </item>
                </layout>
@@ -1315,7 +1331,7 @@
          <item row="0" column="2">
           <widget class="QToolButton" name="downSheet">
            <property name="text">
-            <string>...</string>
+            <string>D</string>
            </property>
            <property name="icon">
             <iconset>
@@ -1333,7 +1349,7 @@
          <item row="0" column="1">
           <widget class="QToolButton" name="upSheet">
            <property name="text">
-            <string>...</string>
+            <string>U</string>
            </property>
            <property name="icon">
             <iconset>
@@ -1351,7 +1367,7 @@
          <item row="0" column="3" alignment="Qt::AlignRight">
           <widget class="QToolButton" name="rmSheet">
            <property name="text">
-            <string>...</string>
+            <string>-</string>
            </property>
            <property name="icon">
             <iconset>
@@ -1369,7 +1385,7 @@
          <item row="0" column="0" alignment="Qt::AlignLeft">
           <widget class="QToolButton" name="addSheet">
            <property name="text">
-            <string>...</string>
+            <string>+</string>
            </property>
            <property name="icon">
             <iconset>
@@ -1447,7 +1463,7 @@
              <item row="0" column="1">
               <widget class="QToolButton" name="upHB">
                <property name="text">
-                <string>...</string>
+                <string>U</string>
                </property>
                <property name="icon">
                 <iconset>
@@ -1465,7 +1481,7 @@
              <item row="0" column="2">
               <widget class="QToolButton" name="downHB">
                <property name="text">
-                <string>...</string>
+                <string>D</string>
                </property>
                <property name="icon">
                 <iconset>
@@ -1483,7 +1499,7 @@
              <item row="0" column="0" alignment="Qt::AlignLeft">
               <widget class="QToolButton" name="addHB">
                <property name="text">
-                <string>...</string>
+                <string>+</string>
                </property>
                <property name="icon">
                 <iconset>
@@ -1501,7 +1517,7 @@
              <item row="0" column="3" alignment="Qt::AlignRight">
               <widget class="QToolButton" name="rmHB">
                <property name="text">
-                <string>...</string>
+                <string>-</string>
                </property>
                <property name="icon">
                 <iconset>

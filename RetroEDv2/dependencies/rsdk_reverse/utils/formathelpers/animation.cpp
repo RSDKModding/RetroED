@@ -31,7 +31,7 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
                     Frame frame;
                     frame.sheet        = f.sheet;
                     frame.collisionBox = -1;
-                    frame.duration        = 0x100;
+                    frame.duration     = 0x100;
                     frame.id           = 0;
                     frame.sprX         = f.sprX;
                     frame.sprY         = f.sprY;
@@ -53,6 +53,7 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
             }
 
             hitboxTypes.append("Hitbox");
+            hitboxes.append(Hitbox());
             break;
         }
         case ENGINE_v2: {
@@ -73,7 +74,7 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
                     Frame frame;
                     frame.sheet        = f.sheet;
                     frame.collisionBox = f.collisionBox;
-                    frame.duration        = 0x100;
+                    frame.duration     = 0x100;
                     frame.id           = 0;
                     frame.sprX         = f.sprX;
                     frame.sprY         = f.sprY;
@@ -117,7 +118,7 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
                     Frame frame;
                     frame.sheet        = f.sheet;
                     frame.collisionBox = f.collisionBox;
-                    frame.duration        = 0x100;
+                    frame.duration     = 0x100;
                     frame.id           = 0;
                     frame.sprX         = f.sprX;
                     frame.sprY         = f.sprY;
@@ -161,7 +162,7 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
                     Frame frame;
                     frame.sheet        = f.sheet;
                     frame.collisionBox = f.collisionBox;
-                    frame.duration        = 0x100;
+                    frame.duration     = 0x100;
                     frame.id           = 0;
                     frame.sprX         = f.sprX;
                     frame.sprY         = f.sprY;
@@ -205,7 +206,7 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
                     Frame frame;
                     frame.sheet        = f.sheet;
                     frame.collisionBox = -1;
-                    frame.duration        = f.delay;
+                    frame.duration     = f.delay;
                     frame.id           = f.id;
                     frame.sprX         = f.sprX;
                     frame.sprY         = f.sprY;
@@ -227,7 +228,11 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
                 animations.append(animation);
             }
 
-            for (auto &h : animFile.hitboxTypes) hitboxTypes.append(h);
+            for (auto &h : animFile.hitboxTypes) {
+                Hitbox hitbox;
+                hitboxes.append(hitbox);
+                hitboxTypes.append(h);
+            }
             break;
         }
     }

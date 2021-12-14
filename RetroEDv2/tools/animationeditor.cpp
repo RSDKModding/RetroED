@@ -56,6 +56,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     ui->setupUi(this);
 
     frameModel = new QStandardItemModel;
+    missingImg = QPixmap(":/icons/missing.png");
 
     if (updateTimer)
         delete updateTimer;
@@ -91,10 +92,19 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     };
 
     auto setupHiboxTypeBox = [this] {
+        ui->hitboxType->blockSignals(true);
         ui->hitboxType->clear();
         for (int i = 0; i < animFile.hitboxTypes.count(); ++i) {
-            ui->hitboxType->addItem(animFile.hitboxTypes[i]);
+            if (aniType == ENGINE_v5 || aniType == ENGINE_v1)
+                ui->hitboxType->addItem(animFile.hitboxTypes[i]);
+            else
+                ui->hitboxType->addItem(QString("(%1, %2, %3, %4)")
+                                            .arg(animFile.hitboxes[i].hitboxes[0].left)
+                                            .arg(animFile.hitboxes[i].hitboxes[0].top)
+                                            .arg(animFile.hitboxes[i].hitboxes[0].right)
+                                            .arg(animFile.hitboxes[i].hitboxes[0].bottom));
         }
+        ui->hitboxType->blockSignals(false);
     };
 
     setupSheetBox();
@@ -111,6 +121,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             disconnect(ui->selBoundBox, nullptr, nullptr, nullptr);
             disconnect(ui->offsetX, nullptr, nullptr, nullptr);
             disconnect(ui->offsetY, nullptr, nullptr, nullptr);
+            disconnect(ui->hitboxType, nullptr, nullptr, nullptr);
+            disconnect(ui->hitboxID, nullptr, nullptr, nullptr);
             disconnect(ui->hitboxL, nullptr, nullptr, nullptr);
             disconnect(ui->hitboxR, nullptr, nullptr, nullptr);
             disconnect(ui->hitboxB, nullptr, nullptr, nullptr);
@@ -178,19 +190,54 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             ui->boundingBoxH->setValue(f.height);
             ui->offsetX->setValue(f.pivotX);
             ui->offsetY->setValue(f.pivotY);
-            ui->hitboxType->setCurrentIndex(0);
-            if (ui->hitboxType->currentIndex() >= 0
-                && ui->hitboxType->currentIndex() < f.hitboxes.count()) {
-                ui->hitboxL->setValue(f.hitboxes[ui->hitboxType->currentIndex()].left);
-                ui->hitboxT->setValue(f.hitboxes[ui->hitboxType->currentIndex()].top);
-                ui->hitboxR->setValue(f.hitboxes[ui->hitboxType->currentIndex()].right);
-                ui->hitboxB->setValue(f.hitboxes[ui->hitboxType->currentIndex()].bottom);
+            if (aniType == ENGINE_v5 || aniType == ENGINE_v1) {
+                ui->hitboxType->setCurrentIndex(-1);
+                ui->hitboxType->setCurrentIndex(0);
             }
             else {
-                ui->hitboxL->setDisabled(true);
-                ui->hitboxT->setDisabled(true);
-                ui->hitboxR->setDisabled(true);
-                ui->hitboxB->setDisabled(true);
+                ui->hitboxType->blockSignals(true);
+                ui->hitboxType->setCurrentIndex(-1);
+                ui->hitboxType->setCurrentIndex(f.collisionBox);
+                ui->hitboxType->blockSignals(false);
+                ui->hitboxID->setCurrentIndex(-1);
+                ui->hitboxID->setCurrentIndex(0);
+            }
+
+            ui->hitboxL->setDisabled(true);
+            ui->hitboxT->setDisabled(true);
+            ui->hitboxR->setDisabled(true);
+            ui->hitboxB->setDisabled(true);
+            if (aniType == ENGINE_v5 || aniType == ENGINE_v1) {
+                uint c = ui->hitboxType->currentIndex();
+                if (c < (uint)animFile.hitboxes.count()) {
+                    ui->hitboxL->setValue(f.hitboxes[ui->hitboxType->currentIndex()].left);
+                    ui->hitboxT->setValue(f.hitboxes[ui->hitboxType->currentIndex()].top);
+                    ui->hitboxR->setValue(f.hitboxes[ui->hitboxType->currentIndex()].right);
+                    ui->hitboxB->setValue(f.hitboxes[ui->hitboxType->currentIndex()].bottom);
+
+                    ui->hitboxL->setDisabled(invalid);
+                    ui->hitboxT->setDisabled(invalid);
+                    ui->hitboxR->setDisabled(invalid);
+                    ui->hitboxB->setDisabled(invalid);
+                }
+            }
+            else {
+                uint c = ui->hitboxType->currentIndex();
+                if (f.collisionBox < animFile.hitboxes.count()) {
+                    uint id      = ui->hitboxID->currentIndex();
+                    auto &hitbox = animFile.hitboxes[f.collisionBox];
+                    if (c < (uint)animFile.hitboxes.count() && id < 2) {
+                        ui->hitboxL->setValue(hitbox.hitboxes[id].left);
+                        ui->hitboxT->setValue(hitbox.hitboxes[id].top);
+                        ui->hitboxR->setValue(hitbox.hitboxes[id].right);
+                        ui->hitboxB->setValue(hitbox.hitboxes[id].bottom);
+
+                        ui->hitboxL->setDisabled(invalid);
+                        ui->hitboxT->setDisabled(invalid);
+                        ui->hitboxR->setDisabled(invalid);
+                        ui->hitboxB->setDisabled(invalid);
+                    }
+                }
             }
             ui->duration->setValue(f.duration);
             ui->id->setText(QChar::fromLatin1(f.id));
@@ -272,52 +319,186 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                             return;
                         currentHitbox = (ushort)v;
 
-                        if (v >= 0 && v < f.hitboxes.count()) {
+                        if (aniType == ENGINE_v5 || aniType == ENGINE_v1) {
+                            if (v >= 0 && v < f.hitboxes.count()) {
+                                ui->hitboxL->blockSignals(true);
+                                ui->hitboxT->blockSignals(true);
+                                ui->hitboxR->blockSignals(true);
+                                ui->hitboxB->blockSignals(true);
+
+                                ui->hitboxL->setValue(f.hitboxes[v].left);
+                                ui->hitboxT->setValue(f.hitboxes[v].top);
+                                ui->hitboxR->setValue(f.hitboxes[v].right);
+                                ui->hitboxB->setValue(f.hitboxes[v].bottom);
+
+                                ui->hitboxL->blockSignals(false);
+                                ui->hitboxT->blockSignals(false);
+                                ui->hitboxR->blockSignals(false);
+                                ui->hitboxB->blockSignals(false);
+                            }
+                        }
+                        else {
+                            ui->hitboxID->setCurrentIndex(-1);
+                            ui->hitboxID->setCurrentIndex(0);
+                            f.collisionBox = v;
+                        }
+                    });
+
+            connect(ui->hitboxID, QOverload<int>::of(&QComboBox::currentIndexChanged),
+                    [this, invalid](int v) {
+                        if (v < 0)
+                            return;
+                        currentSubHitbox = (ushort)v;
+
+                        ui->hitboxL->setDisabled(true);
+                        ui->hitboxT->setDisabled(true);
+                        ui->hitboxR->setDisabled(true);
+                        ui->hitboxB->setDisabled(true);
+                        if (v >= 0 && v < animFile.hitboxes.count()) {
                             ui->hitboxL->blockSignals(true);
                             ui->hitboxT->blockSignals(true);
                             ui->hitboxR->blockSignals(true);
                             ui->hitboxB->blockSignals(true);
 
-                            ui->hitboxL->setValue(f.hitboxes[v].left);
-                            ui->hitboxT->setValue(f.hitboxes[v].top);
-                            ui->hitboxR->setValue(f.hitboxes[v].right);
-                            ui->hitboxB->setValue(f.hitboxes[v].bottom);
+                            auto &hitbox = animFile.hitboxes[currentHitbox];
+
+                            ui->hitboxL->setValue(hitbox.hitboxes[v].left);
+                            ui->hitboxT->setValue(hitbox.hitboxes[v].top);
+                            ui->hitboxR->setValue(hitbox.hitboxes[v].right);
+                            ui->hitboxB->setValue(hitbox.hitboxes[v].bottom);
 
                             ui->hitboxL->blockSignals(false);
                             ui->hitboxT->blockSignals(false);
                             ui->hitboxR->blockSignals(false);
                             ui->hitboxB->blockSignals(false);
+
+                            ui->hitboxL->setDisabled(invalid);
+                            ui->hitboxT->setDisabled(invalid);
+                            ui->hitboxR->setDisabled(invalid);
+                            ui->hitboxB->setDisabled(invalid);
                         }
                     });
 
             connect(ui->hitboxL, QOverload<int>::of(&QSpinBox::valueChanged), [&f, this](int v) {
-                if (ui->hitboxType->currentIndex() >= 0
-                    && ui->hitboxType->currentIndex() < f.hitboxes.count()) {
-                    f.hitboxes[ui->hitboxType->currentIndex()].left = (short)v;
+                uint c = ui->hitboxType->currentIndex();
+                if (aniType == ENGINE_v5 || aniType == ENGINE_v1) {
+                    if (c < (uint)f.hitboxes.count()) {
+                        f.hitboxes[c].left = (short)v;
+                        updateView();
+                        doAction("Changed hitbox left", true);
+                    }
+                }
+                else {
+                    uint id                        = ui->hitboxID->currentIndex();
+                    auto &hitbox                   = animFile.hitboxes[c];
+                    hitbox.hitboxes[id + 0].left   = (short)v;
+                    hitbox.hitboxes[id + 2].top    = (short)v;
+                    hitbox.hitboxes[id + 4].right  = (short)-v;
+                    hitbox.hitboxes[id + 6].bottom = (short)-v;
+
+                    QString name = QString("(%1, %2, %3, %4)")
+                                       .arg(hitbox.hitboxes[id].left)
+                                       .arg(hitbox.hitboxes[id].top)
+                                       .arg(hitbox.hitboxes[id].right)
+                                       .arg(hitbox.hitboxes[id].bottom);
+                    ui->hitboxList->blockSignals(true);
+                    ui->hitboxList->item(c)->setText(name);
+                    ui->hitboxList->blockSignals(false);
+                    ui->hitboxType->setItemText(c, name);
+
                     updateView();
                     doAction("Changed hitbox left", true);
                 }
             });
             connect(ui->hitboxT, QOverload<int>::of(&QSpinBox::valueChanged), [&f, this](int v) {
-                if (ui->hitboxType->currentIndex() >= 0
-                    && ui->hitboxType->currentIndex() < f.hitboxes.count()) {
-                    f.hitboxes[ui->hitboxType->currentIndex()].top = (short)v;
+                uint c = ui->hitboxType->currentIndex();
+                if (aniType == ENGINE_v5 || aniType == ENGINE_v1) {
+                    if (c < (uint)f.hitboxes.count()) {
+                        f.hitboxes[c].top = (short)v;
+                        updateView();
+                        doAction("Changed hitbox top", true);
+                    }
+                }
+                else {
+                    uint id                        = ui->hitboxID->currentIndex();
+                    auto &hitbox                   = animFile.hitboxes[c];
+                    hitbox.hitboxes[id + 0].top    = (short)v;
+                    hitbox.hitboxes[id + 2].right  = (short)-v;
+                    hitbox.hitboxes[id + 4].bottom = (short)-v;
+                    hitbox.hitboxes[id + 6].left   = (short)v;
+
+                    QString name = QString("(%1, %2, %3, %4)")
+                                       .arg(hitbox.hitboxes[id].left)
+                                       .arg(hitbox.hitboxes[id].top)
+                                       .arg(hitbox.hitboxes[id].right)
+                                       .arg(hitbox.hitboxes[id].bottom);
+                    ui->hitboxList->blockSignals(true);
+                    ui->hitboxList->item(c)->setText(name);
+                    ui->hitboxList->blockSignals(false);
+                    ui->hitboxType->setItemText(c, name);
+
                     updateView();
                     doAction("Changed hitbox top", true);
                 }
             });
             connect(ui->hitboxR, QOverload<int>::of(&QSpinBox::valueChanged), [&f, this](int v) {
-                if (ui->hitboxType->currentIndex() >= 0
-                    && ui->hitboxType->currentIndex() < f.hitboxes.count()) {
-                    f.hitboxes[ui->hitboxType->currentIndex()].right = (short)v;
+                uint c = ui->hitboxType->currentIndex();
+                if (aniType == ENGINE_v5 || aniType == ENGINE_v1) {
+                    if (c < (uint)f.hitboxes.count()) {
+                        f.hitboxes[c].right = (short)v;
+                        updateView();
+                        doAction("Changed hitbox right", true);
+                    }
+                }
+                else {
+                    uint id                        = ui->hitboxID->currentIndex();
+                    auto &hitbox                   = animFile.hitboxes[c];
+                    hitbox.hitboxes[id + 0].right  = (short)v;
+                    hitbox.hitboxes[id + 2].bottom = (short)v;
+                    hitbox.hitboxes[id + 4].left   = (short)-v;
+                    hitbox.hitboxes[id + 6].top    = (short)-v;
+
+                    QString name = QString("(%1, %2, %3, %4)")
+                                       .arg(hitbox.hitboxes[id].left)
+                                       .arg(hitbox.hitboxes[id].top)
+                                       .arg(hitbox.hitboxes[id].right)
+                                       .arg(hitbox.hitboxes[id].bottom);
+                    ui->hitboxList->blockSignals(true);
+                    ui->hitboxList->item(c)->setText(name);
+                    ui->hitboxList->blockSignals(false);
+                    ui->hitboxType->setItemText(c, name);
+
                     updateView();
                     doAction("Changed hitbox right", true);
                 }
             });
             connect(ui->hitboxB, QOverload<int>::of(&QSpinBox::valueChanged), [&f, this](int v) {
-                if (ui->hitboxType->currentIndex() >= 0
-                    && ui->hitboxType->currentIndex() < f.hitboxes.count()) {
-                    f.hitboxes[ui->hitboxType->currentIndex()].bottom = (short)v;
+                uint c = ui->hitboxType->currentIndex();
+                if (aniType == ENGINE_v5 || aniType == ENGINE_v1) {
+                    if (c < (uint)f.hitboxes.count()) {
+                        f.hitboxes[c].bottom = (short)v;
+                        updateView();
+                        doAction("Changed hitbox bottom", true);
+                    }
+                }
+                else {
+                    uint id                        = ui->hitboxID->currentIndex();
+                    auto &hitbox                   = animFile.hitboxes[c];
+                    hitbox.hitboxes[id + 0].bottom = (short)v;
+                    hitbox.hitboxes[id + 2].left   = (short)-v;
+                    hitbox.hitboxes[id + 4].top    = (short)-v;
+                    hitbox.hitboxes[id + 6].right  = (short)v;
+
+                    QString name = QString("(%1, %2, %3, %4)")
+                                       .arg(hitbox.hitboxes[id].left)
+                                       .arg(hitbox.hitboxes[id].top)
+                                       .arg(hitbox.hitboxes[id].right)
+                                       .arg(hitbox.hitboxes[id].bottom);
+                    ui->hitboxList->blockSignals(true);
+                    ui->hitboxList->item(c)->setText(name);
+                    ui->hitboxList->blockSignals(false);
+                    ui->hitboxType->setItemText(c, name);
+
                     updateView();
                     doAction("Changed hitbox bottom", true);
                 }
@@ -331,6 +512,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             updateView();
         });
 
+        disconnect(ui->frameList->selectionModel(), nullptr, nullptr, nullptr);
         connect(ui->frameList->selectionModel(), &QItemSelectionModel::currentRowChanged,
                 [this, frameFunc](const QModelIndex &aindex) {
                     ui->upFrame->setDisabled(!aindex.isValid());
@@ -374,6 +556,11 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->impAnim->setDisabled(c == -1);
         ui->expAnim->setDisabled(c == -1);
 
+        ui->upAnim->setDisabled(c == -1 || c - 1 < 0 || animFile.animations.count() <= 1);
+        ui->downAnim->setDisabled(c == -1 || c + 1 >= animFile.animations.count()
+                                  || animFile.animations.count() <= 1);
+        ui->rmAnim->setDisabled(c == -1 || !animFile.animations.count());
+
         if (c > -1) {
             ui->properties->setItemText(0, QString("Animation (%1 of %2, ID: %3)")
                                                .arg(c + 1)
@@ -389,26 +576,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         if (c > -1) {
             disconnect(frameModel, &QStandardItemModel::itemChanged, nullptr, nullptr);
 
-            frameModel->clear();
-            uint fID = 0;
-            for (FormatHelpers::Animation::Frame &f : animFile.animations[currentAnim].frames) {
-                QRect boundingRect;
-                boundingRect.setX(f.sprX);
-                boundingRect.setY(f.sprY);
-                boundingRect.setWidth(f.width);
-                boundingRect.setHeight(f.height);
-
-                QStandardItem *item = new QStandardItem;
-                item->setEditable(false);
-                item->setData(
-                    QPixmap::fromImage((f.width == 0 || f.height == 0 || f.sheet >= sheets.count())
-                                           ? QImage(":/icons/missing.png")
-                                           : sheets[f.sheet].copy(boundingRect)),
-
-                    ROLE_PIXMAP);
-                frameModel->appendRow(item);
-                ++fID;
-            }
+            setupFrameList(animFile.animations[currentAnim].frames);
             updateView();
 
             ui->frameList->blockSignals(false);
@@ -522,11 +690,10 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         boundingRect.setHeight(frame.height);
 
         auto *item = new QStandardItem();
-        item->setData(
-            QPixmap::fromImage((frame.width == 0 || frame.height == 0 || frame.sheet >= sheets.count())
-                                   ? QImage(":/icons/missing.png")
-                                   : sheets[frame.sheet].copy(boundingRect)),
-            ROLE_PIXMAP);
+        item->setData((frame.width == 0 || frame.height == 0 || frame.sheet >= sheets.count())
+                          ? missingImg
+                          : QPixmap::fromImage(sheets[frame.sheet].copy(boundingRect)),
+                      ROLE_PIXMAP);
         frameModel->insertRow(c, item);
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
         ui->frameList->setCurrentIndex(item->index());
@@ -541,10 +708,11 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         frameModel->takeRow(c);
         // delete model->itemFromIndex(ui->frameList->currentIndex());
         animFile.animations[currentAnim].frames.removeAt(c);
+        doAction("Removed frame", true);
+
         ui->frameList->blockSignals(true);
         ui->frameList->setCurrentIndex(frameModel->index(n, 0));
         ui->frameList->blockSignals(false);
-        doAction("Removed frame", true);
     });
 
     connect(ui->upFrame, &QToolButton::clicked, [this] {
@@ -552,8 +720,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         QList<QStandardItem *> item = frameModel->takeRow(c);
         animFile.animations[currentAnim].frames.move(c, c - 1);
         frameModel->insertRow(c - 1, item);
-        ui->frameList->setCurrentIndex(frameModel->index(c - 1, 0));
         doAction("Moved frame up", true);
+        ui->frameList->setCurrentIndex(frameModel->index(c - 1, 0));
     });
 
     connect(ui->downFrame, &QToolButton::clicked, [this] {
@@ -561,8 +729,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         QList<QStandardItem *> item = frameModel->takeRow(c);
         animFile.animations[currentAnim].frames.move(c, c + 1);
         frameModel->insertRow(c + 1, item);
-        ui->frameList->setCurrentIndex(frameModel->index(c + 1, 0));
         doAction("Moved frame down", true);
+        ui->frameList->setCurrentIndex(frameModel->index(c + 1, 0));
     });
 
     std::function<void(int)> sourceFunc([this](int c) {
@@ -596,6 +764,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         bool invalid = c == -1 || c >= animFile.hitboxTypes.count();
 
         ui->hitboxType->setDisabled(invalid);
+        ui->hitboxID->setDisabled(invalid);
         ui->hitboxL->setDisabled(invalid);
         ui->hitboxT->setDisabled(invalid);
         ui->hitboxR->setDisabled(invalid);
@@ -608,8 +777,6 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         if (invalid)
             return;
-
-        ui->hitboxType->setItemText(c, animFile.hitboxTypes[c]);
     });
 
     connect(ui->hitboxList, &QListWidget::currentRowChanged, hitboxFunc);
@@ -1371,7 +1538,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         uint c     = ui->frameList->currentIndex().row() + 1;
         auto *item = new QStandardItem();
         if (frame.width == 0 || frame.height == 0 || frame.sheet >= sheets.count()) {
-            item->setIcon(QPixmap::fromImage(QImage(":/icons/missing.png")));
+            item->setIcon(missingImg);
         }
         else {
             item->setIcon(QPixmap::fromImage(sheets[frame.sheet].copy(boundingRect)));
@@ -1520,10 +1687,12 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         auto *item = new QListWidgetItem(animFile.animations[c].name);
         ui->animationList->insertItem(c, item);
 
+        ui->animationList->blockSignals(false);
+
         setupUI();
 
+        ui->animationList->blockSignals(true);
         ui->animationList->setCurrentItem(item);
-
         ui->animationList->blockSignals(false);
 
         ui->addAnim->setDisabled(animFile.animations.count() >= 0x100);
@@ -1534,32 +1703,37 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
     connect(ui->rmAnim, &QToolButton::clicked, [this] {
         int c = ui->animationList->currentRow();
-        int n = ui->animationList->currentRow() == ui->sourceList->count() - 1 ? c - 1 : c;
+        int n = ui->animationList->currentRow() == ui->animationList->count() - 1 ? c - 1 : c;
         delete ui->animationList->item(c);
+
         animFile.animations.removeAt(c);
         setupUI();
-
-        ui->animationList->blockSignals(true);
-        ui->animationList->setCurrentRow(n);
-        ui->animationList->blockSignals(false);
 
         ui->rmAnim->setDisabled(animFile.animations.count() <= 0);
 
         updateView();
         doAction("Removed animation", true);
+
+        ui->animationList->blockSignals(true);
+        ui->animationList->setCurrentRow(n);
+        ui->animationList->blockSignals(false);
     });
 
     auto moveAnim = [this](char translation) {
-        uint c     = ui->animationList->currentRow();
-        auto *item = ui->animationList->takeItem(c);
-        animFile.animations.move(c, c + translation);
-        ui->animationList->insertItem(c + translation, item);
-        setupUI();
+        uint c = ui->animationList->currentRow();
+        uint n = ui->animationList->currentRow() + translation;
+        if (n >= (uint)animFile.animations.count())
+            return;
 
-        ui->animationList->setCurrentRow(c + translation);
+        auto *item = ui->animationList->takeItem(c);
+        animFile.animations.move(c, n);
+        ui->animationList->insertItem(n, item);
+        setupUI();
 
         updateView();
         doAction("Moved animation", true);
+
+        ui->animationList->setCurrentRow(n);
     };
 
     connect(ui->upAnim, &QToolButton::clicked, [moveAnim] { moveAnim(-1); });
@@ -1610,10 +1784,6 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         int n = ui->sourceList->currentRow() == ui->sourceList->count() - 1 ? c - 1 : c;
         delete ui->sourceList->item(c);
         removeSheet(c);
-        ui->sourceList->blockSignals(true);
-        ui->sourceList->setCurrentRow(n);
-        ui->sourceList->blockSignals(false);
-
         for (int a = 0; a < animCount(); ++a) {
             for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
                 int sheet                              = animFile.animations[a].frames[f].sheet;
@@ -1626,19 +1796,26 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         setupSheetBox();
         updateView();
         doAction("Removed sheet", true);
+
+        ui->sourceList->blockSignals(true);
+        ui->sourceList->setCurrentRow(n);
+        ui->sourceList->blockSignals(false);
     });
 
     auto moveSheetFunc = [this, setupSheetBox](sbyte translation) {
+        uint c = ui->sourceList->currentRow();
+        uint n = c + translation;
+        if (n >= (uint)animFile.sheets.count())
+            return;
+
         QList<byte> idList;
 
         for (int s = 0; s < animFile.sheets.count(); ++s) idList.append(s);
 
-        uint c     = ui->sourceList->currentRow();
         auto *item = ui->sourceList->takeItem(c);
-        moveSheet(c, c + translation);
-        idList.move(c, c + translation);
-        ui->sourceList->insertItem(c + translation, item);
-        ui->sourceList->setCurrentRow(c + translation);
+        moveSheet(c, n);
+        idList.move(c, n);
+        ui->sourceList->insertItem(n, item);
 
         for (int a = 0; a < animCount(); ++a) {
             for (int f = 0; f < frameCount(); ++f) {
@@ -1649,27 +1826,49 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         setupSheetBox();
         updateView();
         doAction("Moved sheet", true);
+
+        ui->sourceList->setCurrentRow(n);
     };
 
     connect(ui->addHB, &QToolButton::clicked, [this, setupHiboxTypeBox] {
         ui->hitboxList->blockSignals(true);
         uint c = ui->hitboxList->currentRow() + 1;
+
         animFile.hitboxTypes.insert(c, "Hitbox " + QString::number(c));
+        FormatHelpers::Animation::Hitbox hitbox;
+        animFile.hitboxes.insert(c, hitbox);
+
+        QString name = animFile.hitboxTypes[c];
+        if (aniType != ENGINE_v5)
+            QString name = "(0, 0, 0, 0)";
+
         hitboxVisible.insert(c, false);
-        auto *item = new QListWidgetItem(animFile.hitboxTypes[c]);
+        auto *item = new QListWidgetItem(name);
         ui->hitboxList->insertItem(c, item);
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->hitboxList->setCurrentItem(item);
 
-        ui->hitboxType->blockSignals(true);
-        ui->hitboxType->setCurrentIndex(c);
-        currentHitbox = c;
-        ui->hitboxType->blockSignals(false);
+        if (aniType == ENGINE_v5) {
+            ui->hitboxType->blockSignals(true);
+            ui->hitboxType->setCurrentIndex(c);
+            ui->hitboxType->blockSignals(false);
+            currentHitbox = c;
+        }
 
-        for (int a = 0; a < animCount(); ++a) {
-            for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
-                FormatHelpers::Animation::Hitbox::HitboxInfo hitbox;
-                animFile.animations[a].frames[f].hitboxes.insert(c, hitbox);
+        if (aniType == ENGINE_v5) {
+            for (int a = 0; a < animCount(); ++a) {
+                for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
+                    FormatHelpers::Animation::Hitbox::HitboxInfo hitbox;
+                    animFile.animations[a].frames[f].hitboxes.insert(c, hitbox);
+                }
+            }
+        }
+        else {
+            for (int a = 0; a < animCount(); ++a) {
+                for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
+                    if (animFile.animations[a].frames[f].collisionBox >= c)
+                        animFile.animations[a].frames[f].collisionBox++;
+                }
             }
         }
         ui->hitboxList->blockSignals(false);
@@ -1683,22 +1882,24 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
     connect(ui->rmHB, &QToolButton::clicked, [this, setupHiboxTypeBox] {
         int c = ui->hitboxList->currentRow();
-        int n = ui->hitboxList->currentRow() == ui->sourceList->count() - 1 ? c - 1 : c;
+        int n = ui->hitboxList->currentRow() == ui->hitboxList->count() - 1 ? c - 1 : c;
         delete ui->hitboxList->item(c);
         animFile.hitboxes.removeAt(c);
         animFile.hitboxTypes.removeAt(c);
-        ui->hitboxList->blockSignals(true);
-        ui->hitboxList->setCurrentRow(n);
-        ui->hitboxList->blockSignals(false);
 
-        // ui->hitboxType->blockSignals(true);
-        // ui->hitboxType->setCurrentIndex(c);
-        // mainView->currentHitbox = c;
-        // ui->hitboxType->blockSignals(false);
-
-        for (int a = 0; a < animCount(); ++a) {
-            for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
-                animFile.animations[a].frames[f].hitboxes.removeAt(c);
+        if (aniType == ENGINE_v5) {
+            for (int a = 0; a < animCount(); ++a) {
+                for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
+                    animFile.animations[a].frames[f].hitboxes.removeAt(c);
+                }
+            }
+        }
+        else {
+            for (int a = 0; a < animCount(); ++a) {
+                for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
+                    if (animFile.animations[a].frames[f].collisionBox >= c)
+                        animFile.animations[a].frames[f].collisionBox--;
+                }
             }
         }
 
@@ -1706,26 +1907,38 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         setupHiboxTypeBox();
         updateView();
+
         doAction("Removed hitbox", true);
+
+        ui->hitboxList->blockSignals(true);
+        ui->hitboxList->setCurrentRow(n);
+        ui->hitboxList->blockSignals(false);
+
+        currentHitbox = c;
     });
 
     auto moveHB = [this, setupHiboxTypeBox](char translation) {
-        uint c     = ui->hitboxList->currentRow();
+        uint c = ui->hitboxList->currentRow();
+        uint n = c + translation;
+        if (n >= (uint)animFile.hitboxTypes.count())
+            return;
+
         auto *item = ui->hitboxList->takeItem(c);
-        animFile.hitboxes.move(c, c + translation);
-        animFile.hitboxTypes.move(c, c + translation);
-        ui->hitboxList->insertItem(c + translation, item);
-        ui->hitboxList->setCurrentRow(c + translation);
+        animFile.hitboxes.move(c, n);
+        animFile.hitboxTypes.move(c, n);
+        ui->hitboxList->insertItem(n, item);
 
         for (int a = 0; a < animCount(); ++a) {
             for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
-                animFile.animations[a].frames[f].hitboxes.move(c, c + translation);
+                animFile.animations[a].frames[f].hitboxes.move(c, n);
             }
         }
 
         setupHiboxTypeBox();
         updateView();
         doAction("Moved hitbox", true);
+
+        ui->hitboxList->setCurrentRow(n);
     };
 
     connect(ui->upSheet, &QToolButton::clicked, [moveSheetFunc] { moveSheetFunc(-1); });
@@ -1862,7 +2075,7 @@ AnimationEditor::~AnimationEditor()
     delete ui;
 }
 
-void AnimationEditor::setupUI(bool setFrame)
+void AnimationEditor::setupUI(bool setFrame, bool setRow)
 {
     ui->animationList->blockSignals(true);
     ui->animationList->clear();
@@ -1878,7 +2091,7 @@ void AnimationEditor::setupUI(bool setFrame)
         ui->frameList->setCurrentIndex(frameModel->index(currentFrame, 0));
         setFramePreview();
     }
-    else {
+    else if (setRow) {
         if (ui->animationList->count() >= 0)
             ui->animationList->setCurrentRow(currentAnim);
         else
@@ -1893,32 +2106,58 @@ void AnimationEditor::setupUI(bool setFrame)
         ui->sourceList->addItem(sheet);
         ui->sheetID->addItem(sheet);
     }
-    ui->sheetID->blockSignals(true);
+    ui->sheetID->blockSignals(false);
     ui->sourceList->blockSignals(false);
-    if (ui->sourceList->count() >= 0)
-        ui->sourceList->setCurrentRow(0);
-    else
-        ui->sourceList->setCurrentRow(-1);
+    if (setRow) {
+        if (ui->sourceList->count() >= 0)
+            ui->sourceList->setCurrentRow(0);
+        else
+            ui->sourceList->setCurrentRow(-1);
+    }
 
     ui->hitboxList->blockSignals(true);
     ui->hitboxType->blockSignals(true);
+    ui->hitboxID->blockSignals(true);
 
     ui->hitboxList->clear();
     ui->hitboxType->clear();
+    ui->hitboxID->clear();
     int hID = 0;
     for (auto &hitbox : animFile.hitboxTypes) {
-        ui->hitboxType->addItem(hitbox);
+        QString name = hitbox;
 
-        QListWidgetItem *item = new QListWidgetItem(hitbox, ui->hitboxList);
+        if (aniType != ENGINE_v5 && aniType != ENGINE_v1)
+            name = QString("(%1, %2, %3, %4)")
+                       .arg(animFile.hitboxes[hID].hitboxes[0].left)
+                       .arg(animFile.hitboxes[hID].hitboxes[0].top)
+                       .arg(animFile.hitboxes[hID].hitboxes[0].right)
+                       .arg(animFile.hitboxes[hID].hitboxes[0].bottom);
+
+        ui->hitboxType->addItem(name);
+        QListWidgetItem *item = new QListWidgetItem(name, ui->hitboxList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(hitboxVisible[hID++] ? Qt::Checked : Qt::Unchecked);
     }
+
+    if (aniType == ENGINE_v5 || aniType == ENGINE_v1) {
+        ui->hitboxID->addItem("Default");
+        ui->hitboxID->setDisabled(true);
+    }
+    else {
+        ui->hitboxID->addItem("Outer Box");
+        ui->hitboxID->addItem("Inner Box");
+        ui->hitboxID->setDisabled(false);
+    }
+
+    ui->hitboxID->blockSignals(false);
     ui->hitboxType->blockSignals(false);
     ui->hitboxList->blockSignals(false);
-    if (ui->hitboxList->count() >= 0)
-        ui->hitboxList->setCurrentRow(0);
-    else
-        ui->hitboxList->setCurrentRow(-1);
+    if (setRow) {
+        if (ui->hitboxList->count() >= 0)
+            ui->hitboxList->setCurrentRow(0);
+        else
+            ui->hitboxList->setCurrentRow(-1);
+    }
 
     ui->boundingBoxX->setMaximum(aniType == ENGINE_v5 ? 0xFFFF : 0xFF);
     ui->boundingBoxY->setMaximum(aniType == ENGINE_v5 ? 0xFFFF : 0xFF);
@@ -1954,8 +2193,8 @@ void AnimationEditor::setupUI(bool setFrame)
 
 void AnimationEditor::updateView()
 {
-    QPixmap view(ui->viewerFrame->width(), ui->viewerFrame->height());
-    QPainter painter(&view);
+    QPixmap *view     = new QPixmap(ui->viewerFrame->width(), ui->viewerFrame->height());
+    QPainter *painter = new QPainter(view);
 
     float w = ui->viewerFrame->width(), h = ui->viewerFrame->height();
     float cx = w / 2, cy = h / 2;
@@ -1963,11 +2202,11 @@ void AnimationEditor::updateView()
     cy -= offset.y;
 
     QBrush bgBrush(bgColour);
-    painter.fillRect(0, 0, ui->viewerFrame->width(), ui->viewerFrame->height(), bgBrush);
+    painter->fillRect(0, 0, ui->viewerFrame->width(), ui->viewerFrame->height(), bgBrush);
 
-    painter.setPen(QColor(0x80E0E0E0));
-    painter.drawLine(0, cy, w, cy);
-    painter.drawLine(cx, 0, cx, h);
+    painter->setPen(QColor(0x80E0E0E0));
+    painter->drawLine(0, cy, w, cy);
+    painter->drawLine(cx, 0, cx, h);
 
     if (currentAnim < animFile.animations.count()
         && currentFrame < animFile.animations[currentAnim].frames.count()) {
@@ -1987,26 +2226,46 @@ void AnimationEditor::updateView()
             QPointF point;
             point.setX(cx + frame.pivotX * zoom);
             point.setY(cy + frame.pivotY * zoom);
-            painter.drawImage(point, zoomedFrame);
+            painter->drawImage(point, zoomedFrame);
 
             for (int h = 0; h < animFile.hitboxTypes.count(); ++h) {
                 if (hitboxVisible[h]) {
-                    QRect hitbox;
-                    hitbox.setX(cx + (frame.hitboxes[h].left * zoom));
-                    hitbox.setY(cy + (frame.hitboxes[h].top * zoom));
-                    hitbox.setWidth(cx + (frame.hitboxes[h].right * zoom));
-                    hitbox.setHeight(cy + (frame.hitboxes[h].bottom * zoom));
-                    QBrush hitboxBrush(QColor(255, 0, 0, 0x80));
+                    if (aniType == ENGINE_v5 || aniType == ENGINE_v1) {
+                        QRect hitbox;
+                        hitbox.setX(cx + (frame.hitboxes[h].left * zoom));
+                        hitbox.setY(cy + (frame.hitboxes[h].top * zoom));
+                        hitbox.setWidth(cx + (frame.hitboxes[h].right * zoom));
+                        hitbox.setHeight(cy + (frame.hitboxes[h].bottom * zoom));
+                        QBrush hitboxBrush(QColor(255, 0, 0, 0x80));
 
-                    painter.setPen(QColor(255, 0, 0, 0x80));
-                    painter.fillRect(hitbox.x(), hitbox.y(), abs(hitbox.x() - hitbox.width()),
-                                     abs(hitbox.y() - hitbox.height()), hitboxBrush);
+                        painter->setPen(QColor(255, 0, 0, 0x80));
+                        painter->fillRect(hitbox.x(), hitbox.y(), abs(hitbox.x() - hitbox.width()),
+                                          abs(hitbox.y() - hitbox.height()), hitboxBrush);
+                    }
+                    else {
+                        auto &frameHitbox = animFile.hitboxes[h];
+                        for (int s = 0; s < 2; ++s) {
+                            QRect hitbox;
+                            hitbox.setX(cx + (frameHitbox.hitboxes[s].left * zoom));
+                            hitbox.setY(cy + (frameHitbox.hitboxes[s].top * zoom));
+                            hitbox.setWidth(cx + (frameHitbox.hitboxes[s].right * zoom));
+                            hitbox.setHeight(cy + (frameHitbox.hitboxes[s].bottom * zoom));
+                            QBrush hitboxBrush(QColor(255, 0, 0, 0x80));
+
+                            painter->setPen(QColor(255, 0, 0, 0x80));
+                            painter->fillRect(hitbox.x(), hitbox.y(), abs(hitbox.x() - hitbox.width()),
+                                              abs(hitbox.y() - hitbox.height()), hitboxBrush);
+                        }
+                    }
                 }
             }
         }
     }
 
-    ui->viewerFrame->setPixmap(view);
+    ui->viewerFrame->setPixmap(*view);
+
+    delete painter;
+    delete view;
 }
 
 void AnimationEditor::processAnimation()
@@ -2045,12 +2304,34 @@ void AnimationEditor::setFramePreview()
         boundingRect.setHeight(f.height);
 
         frameModel->itemFromIndex(frameModel->index(currentFrame, 0))
-            ->setData(QPixmap::fromImage((f.width == 0 || f.height == 0 || f.sheet >= sheets.count())
-                                             ? QImage(":/icons/missing.png")
-                                             : sheets[f.sheet].copy(boundingRect)),
+            ->setData((f.width == 0 || f.height == 0 || f.sheet >= sheets.count())
+                          ? missingImg
+                          : QPixmap::fromImage(sheets[f.sheet].copy(boundingRect)),
                       ROLE_PIXMAP);
     }
-};
+}
+
+void AnimationEditor::setupFrameList(QList<FormatHelpers::Animation::Frame> &frames)
+{
+    frameModel->clear();
+    int fID = 0;
+    for (FormatHelpers::Animation::Frame &f : frames) {
+        QRect boundingRect;
+        boundingRect.setX(f.sprX);
+        boundingRect.setY(f.sprY);
+        boundingRect.setWidth(f.width);
+        boundingRect.setHeight(f.height);
+
+        QStandardItem *item = new QStandardItem;
+        item->setEditable(false);
+        item->setData((f.width == 0 || f.height == 0 || f.sheet >= sheets.count())
+                          ? missingImg
+                          : QPixmap::fromImage(sheets[f.sheet].copy(boundingRect)),
+                      ROLE_PIXMAP);
+        frameModel->appendRow(item);
+        ++fID;
+    }
+}
 
 void AnimationEditor::loadSheet(QString filepath, int index, bool addSource)
 {
@@ -2075,8 +2356,7 @@ void AnimationEditor::loadSheet(QString filepath, int index, bool addSource)
         }
     }
     else {
-        QImage sheet(":/icons/missing.png");
-        sheets.insert(index, sheet);
+        sheets.insert(index, missingImg.toImage());
     }
 
     if (addSource) {
@@ -2145,6 +2425,11 @@ void AnimationEditor::loadAnim(QString filepath, int aniType)
     for (int h = 0; h < animFile.hitboxTypes.count(); ++h) {
         hitboxVisible.append(false);
     }
+
+    if (aniType == ENGINE_v5 || aniType == ENGINE_v1)
+        currentSubHitbox = -1;
+    else
+        currentSubHitbox = 0;
 
     tabTitle = Utils::getFilenameAndFolder(animFile.filePath);
     clearActions();
@@ -2300,16 +2585,24 @@ bool AnimationEditor::event(QEvent *event)
 
             if (wEvent->modifiers() & Qt::ControlModifier) {
                 if (wEvent->angleDelta().y() > 0 && zoom < 20)
+                    zoom += 1;
+                else if (wEvent->angleDelta().y() < 0 && zoom > 1.5)
+                    zoom -= 1;
+
+                // round to nearest whole number
+                zoom = (int)zoom;
+                if (zoom < 1)
+                    zoom = 1;
+            }
+            else {
+                if (wEvent->angleDelta().y() > 0 && zoom < 20)
                     zoom *= 1.1f;
                 else if (wEvent->angleDelta().y() < 0 && zoom > 0.5)
                     zoom /= 1.1f;
-                ui->zoomLabel->setText(QString("Zoom: %1%").arg(zoom * 100));
-                updateView();
-                return true;
             }
+            ui->zoomLabel->setText(QString("Zoom: %1%").arg(zoom * 100));
             updateView();
-
-            break;
+            return true;
         }
         case QEvent::Resize: updateView(); break;
         case QEvent::Close:
@@ -2378,28 +2671,9 @@ void AnimationEditor::resetAction()
     setupUI(true);
 
     if (currentAnim >= 0) {
+        return;
         ui->frameList->blockSignals(true);
-
-        frameModel->clear();
-        uint fID = 0;
-        for (FormatHelpers::Animation::Frame &f : animFile.animations[currentAnim].frames) {
-            QRect boundingRect;
-            boundingRect.setX(f.sprX);
-            boundingRect.setY(f.sprY);
-            boundingRect.setWidth(f.width);
-            boundingRect.setHeight(f.height);
-
-            QStandardItem *item = new QStandardItem;
-            item->setEditable(false);
-            item->setData(
-                QPixmap::fromImage((f.width == 0 || f.height == 0 || f.sheet >= sheets.count())
-                                       ? QImage(":/icons/missing.png")
-                                       : sheets[f.sheet].copy(boundingRect)),
-
-                ROLE_PIXMAP);
-            frameModel->appendRow(item);
-            ++fID;
-        }
+        setupFrameList(animFile.animations[currentAnim].frames);
         updateView();
 
         ui->frameList->blockSignals(false);

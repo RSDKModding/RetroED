@@ -23,7 +23,7 @@ public:
     explicit AnimationEditor(QString filepath = "", byte type = 0xFF, QWidget *parent = nullptr);
     ~AnimationEditor();
 
-    void setupUI(bool setFrame = false);
+    void setupUI(bool setFrame = false, bool setRow = false);
     void updateView();
     void processAnimation();
 
@@ -57,9 +57,10 @@ private:
     QList<bool> hitboxVisible;
     int aniType = 0xFF;
 
-    ushort currentAnim   = -1;
-    ushort currentFrame  = -1;
-    ushort currentHitbox = -1;
+    ushort currentAnim    = -1;
+    ushort currentFrame   = -1;
+    ushort currentHitbox  = -1;
+    byte currentSubHitbox = -1;
 
     inline void startAnim()
     {
@@ -80,6 +81,7 @@ private:
         updateTimer->stop();
     }
     void setFramePreview();
+    void setupFrameList(QList<FormatHelpers::Animation::Frame> &frames);
 
     bool showTransparentClr = true;
     QColor bgColour         = QColor(0xA0, 0xA0, 0xA0, 0xFF);
@@ -111,6 +113,8 @@ private:
     void loadAnim(QString filepath, int aniType);
 
     QVector<QImage> sheets;
+
+    QPixmap missingImg;
 
     void undoAction();
     void redoAction();

@@ -21,7 +21,6 @@ private slots:
     void setColour(QColor col);
     void setHsv();
     void setRGB();
-    void setAlpha();
 
 private:
     Ui::ColourDialog *ui;

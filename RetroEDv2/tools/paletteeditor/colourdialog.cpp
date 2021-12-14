@@ -23,8 +23,6 @@ ColourDialog::ColourDialog(PaletteColour colour, QWidget *parent)
     connect(ui->rSpin, SIGNAL(valueChanged(int)), ui->rSlider, SLOT(setValue(int)));
     connect(ui->gSpin, SIGNAL(valueChanged(int)), ui->gSlider, SLOT(setValue(int)));
     connect(ui->bSpin, SIGNAL(valueChanged(int)), ui->bSlider, SLOT(setValue(int)));
-    connect(ui->aSlider, &QSlider::valueChanged, this, &ColourDialog::setAlpha);
-    connect(ui->aSpin, SIGNAL(valueChanged(int)), ui->vSlider, SLOT(setValue(int)));
 
     connect(ui->htmlInput, &color_widgets::ColorLineEdit::colorEdited,
             [=](QColor color) { setColour(color); });
@@ -39,8 +37,8 @@ void ColourDialog::setHsv()
 {
     if (signalsBlocked())
         return;
-    QColor col = QColor::fromHsv(ui->hSlider->value(), ui->sSlider->value(), ui->vSlider->value(),
-                                 ui->aSlider->value());
+    QColor col =
+        QColor::fromHsv(ui->hSlider->value(), ui->sSlider->value(), ui->vSlider->value(), 0xFF);
     setColour(col);
 }
 
@@ -48,19 +46,10 @@ void ColourDialog::setRGB()
 {
     if (signalsBlocked())
         return;
-    QColor col(ui->rSlider->value(), ui->gSlider->value(), ui->bSlider->value(), ui->aSlider->value());
+    QColor col(ui->rSlider->value(), ui->gSlider->value(), ui->bSlider->value(), 0xFF);
     if (col.saturation() == 0)
         col = QColor::fromHsv(ui->hSlider->value(), 0, col.value());
     setColour(col);
-}
-
-void ColourDialog::setAlpha()
-{
-    if (signalsBlocked())
-        return;
-    // QColor col = p->color;
-    // col.setAlpha(p->ui.slide_alpha->value());
-    // setColorInternal(col);
 }
 
 void ColourDialog::setColour(QColor col)
@@ -104,14 +93,6 @@ void ColourDialog::setColour(QColor col)
     ui->vSpin->setValue(ui->vSlider->value());
     ui->vSlider->setFirstColor(QColor::fromHsvF(ui->wheel->hue(), ui->wheel->saturation(), 0));
     ui->vSlider->setLastColor(QColor::fromHsvF(ui->wheel->hue(), ui->wheel->saturation(), 1));
-
-    QColor alpha_color = col;
-    alpha_color.setAlpha(0);
-    ui->aSlider->setFirstColor(alpha_color);
-    alpha_color.setAlpha(255);
-    ui->aSlider->setLastColor(alpha_color);
-    ui->aSpin->setValue(col.alpha());
-    ui->aSlider->setValue(col.alpha());
 
     ui->newPreview->setColor(col);
 
