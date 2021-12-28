@@ -94,13 +94,231 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
         TileCollisionWidgetv5 *edit = new TileCollisionWidgetv5();
         edit->cmask                 = cmask[collisionLyr];
         edit->tileImg               = tileImg;
-        edit->setWindowTitle("Edit Collision");
         edit->exec();
+    });
+
+    connect(ui->calcAngleF, &QPushButton::clicked, [this] {
+        byte angle = 0;
+        Vector2<int> start(-1, -1), end(-1, -1);
+
+        if (!cmask[collisionLyr]->flipY) // Ceiling Tile
+        {
+            for (int x = 0; x < 16; ++x) {
+                if (cmask[collisionLyr]->collision[x].solid) {
+                    if (start.x == -1) {
+                        start.x = x;
+                        start.y = cmask[collisionLyr]->collision[x].height;
+                    }
+
+                    end.x = x;
+                    end.y = cmask[collisionLyr]->collision[x].height;
+                }
+            }
+
+            float angleF = atan2((float)(end.y - start.y),
+                                 (end.x - start.x) * (cmask[collisionLyr]->flipY ? -1 : 1));
+            angle        = (int)(angleF * 40.764331) & 0xFC;
+        }
+        else {
+            angle = 0x00;
+        }
+
+        cmask[collisionLyr]->floorAngle = (byte)angle;
+        ui->floorAngle->blockSignals(true);
+        ui->floorAngle->setValue(cmask[collisionLyr]->floorAngle);
+        ui->floorAngle->blockSignals(false);
+    });
+
+    connect(ui->calcAngleC, &QPushButton::clicked, [this] {
+        byte angle = 0;
+        Vector2<int> start(-1, -1), end(-1, -1);
+
+        if (cmask[collisionLyr]->flipY) // Ceiling Tile
+        {
+            for (int x = 0; x < 16; ++x) {
+                if (cmask[collisionLyr]->collision[x].solid) {
+                    if (start.x == -1) {
+                        start.x = x;
+                        start.y = 15 - cmask[collisionLyr]->collision[x].height;
+                    }
+
+                    end.x = x;
+                    end.y = 15 - cmask[collisionLyr]->collision[x].height;
+                }
+            }
+
+            float angleF = atan2((float)(end.y - start.y),
+                                 (end.x - start.x) * (cmask[collisionLyr]->flipY ? -1 : 1));
+            angle        = (int)(angleF * 40.764331) & 0xFC;
+        }
+        else {
+            angle = 0x80;
+        }
+
+        cmask[collisionLyr]->roofAngle = angle;
+        ui->roofAngle->blockSignals(true);
+        ui->roofAngle->setValue(cmask[collisionLyr]->roofAngle);
+        ui->roofAngle->blockSignals(false);
+    });
+
+    connect(ui->calcAngleL, &QPushButton::clicked, [this] {
+        RSDKv5::TileConfig::CollisionMask mask = *cmask[collisionLyr];
+
+        if (mask.flipY) // Ceiling Tile
+        {
+            // LWall rotations
+            for (int c = 0; c < 16; ++c) {
+                int h                   = 0;
+                mask.collision[c].solid = true;
+                while (true) {
+                    if (h == 16) {
+                        mask.collision[c].solid = false;
+                        break;
+                    }
+
+                    byte m = cmask[collisionLyr]->collision[h].height;
+                    if (cmask[collisionLyr]->collision[h].solid && c <= m) {
+                        mask.collision[c].height = h;
+                        break;
+                    }
+                    else {
+                        ++h;
+                        if (h <= -1)
+                            break;
+                    }
+                }
+            }
+        }
+        else // Regular Tile
+        {
+            // LWall rotations
+            for (int c = 0; c < 16; ++c) {
+                int h                   = 0;
+                mask.collision[c].solid = true;
+                while (true) {
+                    if (h == 16) {
+                        mask.collision[c].solid = false;
+                        break;
+                    }
+
+                    byte m = cmask[collisionLyr]->collision[h].height;
+                    if (cmask[collisionLyr]->collision[h].solid && c >= m) {
+                        mask.collision[c].height = h;
+                        break;
+                    }
+                    else {
+                        ++h;
+                        if (h <= -1)
+                            break;
+                    }
+                }
+            }
+        }
+
+        byte angle = 0;
+        Vector2<int> start(-1, -1), end(-1, -1);
+
+        for (int x = 0; x < 16; ++x) {
+            if (mask.collision[x].solid) {
+                if (start.y == -1) {
+                    start.y = x;
+                    start.x = mask.collision[x].height;
+                }
+
+                end.y = x;
+                end.x = mask.collision[x].height;
+            }
+        }
+
+        double angleF = atan2(end.y - start.y, end.x - start.x);
+        angle         = (int)(angleF * 40.764331) & 0xFC;
+
+        cmask[collisionLyr]->lWallAngle = angle;
+        ui->lWallAngle->blockSignals(true);
+        ui->lWallAngle->setValue(cmask[collisionLyr]->lWallAngle);
+        ui->lWallAngle->blockSignals(false);
+    });
+
+    connect(ui->calcAngleR, &QPushButton::clicked, [this] {
+        RSDKv5::TileConfig::CollisionMask mask = *cmask[collisionLyr];
+
+        if (mask.flipY) // Ceiling Tile
+        {
+            // RWall rotations
+            for (int c = 0; c < 16; ++c) {
+                int h                   = 15;
+                mask.collision[c].solid = true;
+                while (true) {
+                    if (h == -1) {
+                        mask.collision[c].solid = false;
+                        break;
+                    }
+
+                    byte m = cmask[collisionLyr]->collision[h].height;
+                    if (cmask[collisionLyr]->collision[h].solid && c <= m) {
+                        mask.collision[c].height = h;
+                        break;
+                    }
+                    else {
+                        --h;
+                        if (h >= 16)
+                            break;
+                    }
+                }
+            }
+        }
+        else // Regular Tile
+        {
+            // RWall rotations
+            for (int c = 0; c < 16; ++c) {
+                int h                   = 15;
+                mask.collision[c].solid = true;
+                while (true) {
+                    if (h == -1) {
+                        mask.collision[c].solid = false;
+                        break;
+                    }
+
+                    byte m = cmask[collisionLyr]->collision[h].height;
+                    if (cmask[collisionLyr]->collision[h].solid && c >= m) {
+                        mask.collision[c].height = h;
+                        break;
+                    }
+                    else {
+                        --h;
+                        if (h >= 16)
+                            break;
+                    }
+                }
+            }
+        }
+
+        byte angle = 0;
+        Vector2<int> start(-1, -1), end(-1, -1);
+
+        for (int x = 15; x >= 0; --x) {
+            if (mask.collision[x].solid) {
+                if (start.y == -1) {
+                    start.y = x;
+                    start.x = mask.collision[x].height;
+                }
+
+                end.y = x;
+                end.x = mask.collision[x].height;
+            }
+        }
+
+        double angleF = atan2(end.y - start.y, end.x - start.x);
+        angle         = (int)(angleF * 40.764331) & 0xFC;
+
+        cmask[collisionLyr]->rWallAngle = angle;
+        ui->rWallAngle->blockSignals(true);
+        ui->rWallAngle->setValue(cmask[collisionLyr]->rWallAngle);
+        ui->rWallAngle->blockSignals(false);
     });
 }
 void SceneTilePropertiesv5::unsetUI()
 {
-
     if (!cmask[0] || !cmask[1]) // already unset
         return;
 
@@ -121,6 +339,11 @@ void SceneTilePropertiesv5::unsetUI()
     disconnect(ui->behaviour, nullptr, nullptr, nullptr);
 
     disconnect(ui->editCollision, nullptr, nullptr, nullptr);
+    disconnect(ui->cLayer, nullptr, nullptr, nullptr);
+    disconnect(ui->calcAngleF, nullptr, nullptr, nullptr);
+    disconnect(ui->calcAngleC, nullptr, nullptr, nullptr);
+    disconnect(ui->calcAngleL, nullptr, nullptr, nullptr);
+    disconnect(ui->calcAngleR, nullptr, nullptr, nullptr);
 
     cmask[0] = nullptr;
     cmask[1] = nullptr;
@@ -131,6 +354,7 @@ void SceneTilePropertiesv5::unsetUI()
 TileCollisionWidgetv5::TileCollisionWidgetv5(QWidget *parent) : QDialog(parent)
 {
     setMouseTracking(true);
+    setWindowTitle("Edit Collision");
 }
 
 void TileCollisionWidgetv5::paintEvent(QPaintEvent *)

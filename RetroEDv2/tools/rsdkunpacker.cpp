@@ -156,8 +156,6 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
             setStatus("Saving Datafile...");
             savePack(filedialog.selectedFiles()[0], types.indexOf(filedialog.selectedNameFilter()));
 
-            appConfig.addRecentFile(gameVer, TOOL_RSDKUNPACKER, filedialog.selectedFiles()[0],
-                                    QList<QString>{ /**/ });
             setStatus("Datafile Saved Successfully!");
         }
     });
@@ -350,8 +348,6 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
     ui->fileList->blockSignals(false);
 
     ui->fileList->setCurrentRow(-1);
-
-    appConfig.addRecentFile(gameVer, TOOL_RSDKUNPACKER, filepath, QList<QString>{ fileList });
 
     setStatus("Datafile loaded successfully!");
 }

@@ -6,48 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>211</width>
-    <height>395</height>
+    <width>227</width>
+    <height>473</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="12" column="0">
-    <widget class="QLabel" name="label_8">
+   <item row="2" column="0">
+    <widget class="QCheckBox" name="solidTopA">
      <property name="text">
-      <string>RWall Angle</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="0">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>Roof Angle</string>
-     </property>
-    </widget>
-   </item>
-   <item row="15" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="13" column="1">
-    <widget class="QSpinBox" name="behaviour">
-     <property name="toolTip">
-      <string>Behaviour of the tile</string>
-     </property>
-     <property name="maximum">
-      <number>255</number>
+      <string>Solid A (Top)</string>
      </property>
     </widget>
    </item>
@@ -61,41 +31,16 @@
      </property>
     </widget>
    </item>
-   <item row="11" column="0">
-    <widget class="QLabel" name="label_6">
+   <item row="13" column="0">
+    <widget class="QLabel" name="label">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="text">
-      <string>LWall Angle</string>
-     </property>
-    </widget>
-   </item>
-   <item row="14" column="0" colspan="2">
-    <widget class="QPushButton" name="editCollision">
-     <property name="text">
-      <string>Edit Collision</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Floor Angle</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="label_9">
-     <property name="text">
-      <string>Collision Layer</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="1">
-    <widget class="QSpinBox" name="floorAngle">
-     <property name="maximum">
-      <number>255</number>
-     </property>
-     <property name="displayIntegerBase">
-      <number>16</number>
+      <string>Behaviour</string>
      </property>
     </widget>
    </item>
@@ -109,30 +54,31 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QCheckBox" name="flipY">
+   <item row="1" column="0">
+    <widget class="QCheckBox" name="flipX">
      <property name="text">
-      <string>Flip Y</string>
+      <string>Flip X</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="tID">
+   <item row="14" column="0" colspan="2">
+    <widget class="QPushButton" name="editCollision">
      <property name="text">
-      <string>Tile:</string>
+      <string>Edit Collision</string>
      </property>
     </widget>
    </item>
-   <item row="13" column="0">
-    <widget class="QLabel" name="label">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+   <item row="12" column="0">
+    <widget class="QLabel" name="label_8">
      <property name="text">
-      <string>Behaviour</string>
+      <string>RWall Angle</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="solidTopB">
+     <property name="text">
+      <string>Solid B (Top)</string>
      </property>
     </widget>
    </item>
@@ -150,10 +96,99 @@
      </item>
     </widget>
    </item>
+   <item row="11" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>LWall Angle</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Roof Angle</string>
+     </property>
+    </widget>
+   </item>
    <item row="5" column="0" colspan="2">
     <widget class="Line" name="line">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="QSpinBox" name="floorAngle">
+     <property name="maximum">
+      <number>255</number>
+     </property>
+     <property name="displayIntegerBase">
+      <number>16</number>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>Collision Layer</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QCheckBox" name="flipY">
+     <property name="text">
+      <string>Flip Y</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="tID">
+     <property name="text">
+      <string>Tile:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QCheckBox" name="solidLRBA">
+     <property name="text">
+      <string>Solid A (All but top)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="19" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Floor Angle</string>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="1">
+    <widget class="QSpinBox" name="behaviour">
+     <property name="toolTip">
+      <string>Behaviour of the tile</string>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QCheckBox" name="solidLRBB">
+     <property name="text">
+      <string>Solid B (All but top)</string>
      </property>
     </widget>
    </item>
@@ -174,38 +209,31 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QCheckBox" name="flipX">
+   <item row="15" column="0" colspan="2">
+    <widget class="QPushButton" name="calcAngleF">
      <property name="text">
-      <string>Flip X</string>
+      <string>Calculate Floor Angle</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QCheckBox" name="solidTopA">
+   <item row="16" column="0" colspan="2">
+    <widget class="QPushButton" name="calcAngleC">
      <property name="text">
-      <string>Solid A (Top)</string>
+      <string>Calculate Roof Angle</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QCheckBox" name="solidTopB">
+   <item row="17" column="0" colspan="2">
+    <widget class="QPushButton" name="calcAngleL">
      <property name="text">
-      <string>Solid B (Top)</string>
+      <string>Calculate LWall Angle</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QCheckBox" name="solidLRBA">
+   <item row="18" column="0" colspan="2">
+    <widget class="QPushButton" name="calcAngleR">
      <property name="text">
-      <string>Solid A (All but top)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QCheckBox" name="solidLRBB">
-     <property name="text">
-      <string>Solid B (All but top)</string>
+      <string>Calculate RWall Angle</string>
      </property>
     </widget>
    </item>

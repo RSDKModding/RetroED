@@ -58,8 +58,7 @@ void SceneTileProperties::setupUI(RSDKv4::TileConfig::CollisionMask *cmA,
         ui->rWallAngle->blockSignals(false);
     });
 
-    connect(ui->colYFlip, &QCheckBox::toggled,
-            [this](bool v) { m_cmask[m_collisionLyr]->flipY = v; });
+    connect(ui->colYFlip, &QCheckBox::toggled, [this](bool v) { m_cmask[m_collisionLyr]->flipY = v; });
 
     connect(ui->behaviour, QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int v) { m_cmask[m_collisionLyr]->behaviour = (byte)v; });
@@ -83,6 +82,22 @@ void SceneTileProperties::setupUI(RSDKv4::TileConfig::CollisionMask *cmA,
         edit->setWindowTitle("Edit Collision");
         edit->exec();
     });
+
+    connect(ui->calcAngleF, &QPushButton::clicked, [this] {
+
+    });
+
+    connect(ui->calcAngleC, &QPushButton::clicked, [this] {
+
+    });
+
+    connect(ui->calcAngleL, &QPushButton::clicked, [this] {
+
+    });
+
+    connect(ui->calcAngleR, &QPushButton::clicked, [this] {
+
+    });
 }
 void SceneTileProperties::unsetUI()
 {
@@ -100,6 +115,11 @@ void SceneTileProperties::unsetUI()
     disconnect(ui->behaviour, nullptr, nullptr, nullptr);
 
     disconnect(ui->editCollision, nullptr, nullptr, nullptr);
+    disconnect(ui->cLayer, nullptr, nullptr, nullptr);
+    disconnect(ui->calcAngleF, nullptr, nullptr, nullptr);
+    disconnect(ui->calcAngleC, nullptr, nullptr, nullptr);
+    disconnect(ui->calcAngleL, nullptr, nullptr, nullptr);
+    disconnect(ui->calcAngleR, nullptr, nullptr, nullptr);
 
     m_cmask[0] = nullptr;
     m_cmask[1] = nullptr;

@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1166</width>
-    <height>766</height>
+    <width>1211</width>
+    <height>711</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -32,116 +38,6 @@
    <property name="horizontalSpacing">
     <number>6</number>
    </property>
-   <item row="3" column="0" rowspan="2">
-    <widget class="QListWidget" name="animationList">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>200</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>200</width>
-       <height>16777215</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0">
-    <layout class="QGridLayout" name="gridLayout_3">
-     <item row="0" column="6" alignment="Qt::AlignRight">
-      <widget class="QToolButton" name="rmAnim">
-       <property name="toolTip">
-        <string>Remove Animation</string>
-       </property>
-       <property name="text">
-        <string>-</string>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normalon>:/icons/delete.svg</normalon>
-        </iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QToolButton" name="upAnim">
-       <property name="toolTip">
-        <string>Move Animation Up</string>
-       </property>
-       <property name="text">
-        <string>U</string>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normalon>:/icons/up.svg</normalon>
-        </iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0" alignment="Qt::AlignLeft">
-      <widget class="QToolButton" name="addAnim">
-       <property name="toolTip">
-        <string>Add Animation</string>
-       </property>
-       <property name="text">
-        <string>+</string>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normalon>:/icons/add.svg</normalon>
-        </iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="4">
-      <widget class="QToolButton" name="downAnim">
-       <property name="toolTip">
-        <string>Move Animation Down</string>
-       </property>
-       <property name="text">
-        <string>D</string>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normalon>:/icons/down.svg</normalon>
-        </iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item row="0" column="0" colspan="4">
     <widget class="QFrame" name="toolbarFrame">
      <property name="minimumSize">
@@ -256,6 +152,321 @@
        </spacer>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="5" column="1" colspan="2">
+    <layout class="QGridLayout" name="gridLayout_7">
+     <item row="1" column="2" alignment="Qt::AlignHCenter">
+      <widget class="QToolButton" name="prevFrame">
+       <property name="toolTip">
+        <string>Prev Frame</string>
+       </property>
+       <property name="text">
+        <string>&lt;</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normalon>:/icons/warning.svg</normalon>
+        </iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="6">
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="1" column="3">
+      <widget class="QToolButton" name="play">
+       <property name="toolTip">
+        <string>Play/Pause Animation</string>
+       </property>
+       <property name="text">
+        <string>P</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normalon>:/icons/play.svg</normalon>
+        </iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4">
+      <widget class="QToolButton" name="nextFrame">
+       <property name="toolTip">
+        <string>Next Frame</string>
+       </property>
+       <property name="text">
+        <string>&gt;</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normalon>:/icons/warning.svg</normalon>
+        </iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QToolButton" name="skipStart">
+       <property name="toolTip">
+        <string>First Frame</string>
+       </property>
+       <property name="text">
+        <string>&lt;&lt;</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normalon>:/icons/skip_back.svg</normalon>
+        </iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="5">
+      <widget class="QToolButton" name="skipEnd">
+       <property name="toolTip">
+        <string>Last Frame</string>
+       </property>
+       <property name="text">
+        <string>&gt;&gt;</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normalon>:/icons/skip_forward.svg</normalon>
+        </iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="5" column="0">
+    <layout class="QGridLayout" name="gridLayout_3">
+     <item row="0" column="6" alignment="Qt::AlignRight">
+      <widget class="QToolButton" name="rmAnim">
+       <property name="toolTip">
+        <string>Remove Animation</string>
+       </property>
+       <property name="text">
+        <string>-</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normalon>:/icons/delete.svg</normalon>
+        </iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QToolButton" name="upAnim">
+       <property name="toolTip">
+        <string>Move Animation Up</string>
+       </property>
+       <property name="text">
+        <string>U</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normalon>:/icons/up.svg</normalon>
+        </iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" alignment="Qt::AlignLeft">
+      <widget class="QToolButton" name="addAnim">
+       <property name="toolTip">
+        <string>Add Animation</string>
+       </property>
+       <property name="text">
+        <string>+</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normalon>:/icons/add.svg</normalon>
+        </iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4">
+      <widget class="QToolButton" name="downAnim">
+       <property name="toolTip">
+        <string>Move Animation Down</string>
+       </property>
+       <property name="text">
+        <string>D</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normalon>:/icons/down.svg</normalon>
+        </iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0">
+    <layout class="QGridLayout" name="gridLayout_19">
+     <item row="0" column="2" alignment="Qt::AlignRight">
+      <widget class="QToolButton" name="expAnim">
+       <property name="toolTip">
+        <string>Export Animation</string>
+       </property>
+       <property name="text">
+        <string>E</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources.qrc">
+         <normaloff>:/icons/ic_redo_48px.svg</normaloff>
+         <normalon>:/icons/export.svg</normalon>:/icons/ic_redo_48px.svg</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" alignment="Qt::AlignLeft">
+      <widget class="QToolButton" name="impAnim">
+       <property name="toolTip">
+        <string>Import Animation</string>
+       </property>
+       <property name="text">
+        <string>I</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>:/icons/ic_undo_48px.svg</normaloff>
+         <normalon>:/icons/import.svg</normalon>:/icons/ic_undo_48px.svg</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QToolButton" name="copyAnim">
+       <property name="toolTip">
+        <string>Copy Animation</string>
+       </property>
+       <property name="text">
+        <string>C</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normalon>:/icons/copy.svg</normalon>
+        </iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="0" rowspan="2">
+    <widget class="QListWidget" name="animationList">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>140</width>
+       <height>16777215</height>
+      </size>
+     </property>
     </widget>
    </item>
    <item row="6" column="0" colspan="4">
@@ -509,72 +720,41 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
-    <layout class="QGridLayout" name="gridLayout_19">
-     <item row="0" column="2" alignment="Qt::AlignRight">
-      <widget class="QToolButton" name="expAnim">
-       <property name="toolTip">
-        <string>Export Animation</string>
-       </property>
-       <property name="text">
-        <string>E</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../resources.qrc">
-         <normaloff>:/icons/ic_redo_48px.svg</normaloff>
-         <normalon>:/icons/export.svg</normalon>:/icons/ic_redo_48px.svg</iconset>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0" alignment="Qt::AlignLeft">
-      <widget class="QToolButton" name="impAnim">
-       <property name="toolTip">
-        <string>Import Animation</string>
-       </property>
-       <property name="text">
-        <string>I</string>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>:/icons/ic_undo_48px.svg</normaloff>
-         <normalon>:/icons/import.svg</normalon>:/icons/ic_undo_48px.svg</iconset>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QToolButton" name="copyAnim">
-       <property name="toolTip">
-        <string>Copy Animation</string>
-       </property>
-       <property name="text">
-        <string>C</string>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normalon>:/icons/copy.svg</normalon>
-        </iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-    </layout>
+   <item row="3" column="1" colspan="2">
+    <widget class="QLabel" name="viewerFrame">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+       <horstretch>0</horstretch>
+       <verstretch>2</verstretch>
+      </sizepolicy>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+     </layout>
+    </widget>
    </item>
    <item row="3" column="3" rowspan="3">
     <widget class="QToolBox" name="properties">
      <property name="minimumSize">
       <size>
-       <width>260</width>
+       <width>0</width>
        <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>200</width>
+       <width>300</width>
        <height>16777215</height>
       </size>
      </property>
@@ -586,8 +766,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>296</width>
-        <height>333</height>
+        <width>300</width>
+        <height>292</height>
        </rect>
       </property>
       <attribute name="label">
@@ -781,8 +961,8 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-117</y>
-        <width>246</width>
+        <y>0</y>
+        <width>286</width>
         <height>492</height>
        </rect>
       </property>
@@ -1286,8 +1466,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>260</width>
-        <height>347</height>
+        <width>300</width>
+        <height>292</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1409,8 +1589,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>260</width>
-        <height>347</height>
+        <width>300</width>
+        <height>292</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1542,180 +1722,6 @@
       </layout>
      </widget>
     </widget>
-   </item>
-   <item row="3" column="1" colspan="2">
-    <widget class="QLabel" name="viewerFrame">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>2</verstretch>
-      </sizepolicy>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-     </layout>
-    </widget>
-   </item>
-   <item row="5" column="1" colspan="2">
-    <layout class="QGridLayout" name="gridLayout_7">
-     <item row="1" column="6">
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="1" column="3">
-      <widget class="QToolButton" name="play">
-       <property name="toolTip">
-        <string>Play/Pause Animation</string>
-       </property>
-       <property name="text">
-        <string>P</string>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normalon>:/icons/play.svg</normalon>
-        </iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>24</width>
-         <height>24</height>
-        </size>
-       </property>
-       <property name="autoRaise">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2" alignment="Qt::AlignHCenter">
-      <widget class="QToolButton" name="prevFrame">
-       <property name="toolTip">
-        <string>Prev Frame</string>
-       </property>
-       <property name="text">
-        <string>&lt;</string>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normalon>:/icons/warning.svg</normalon>
-        </iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-       <property name="autoRaise">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="4">
-      <widget class="QToolButton" name="nextFrame">
-       <property name="toolTip">
-        <string>Next Frame</string>
-       </property>
-       <property name="text">
-        <string>&gt;</string>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normalon>:/icons/warning.svg</normalon>
-        </iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-       <property name="autoRaise">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QToolButton" name="skipStart">
-       <property name="toolTip">
-        <string>First Frame</string>
-       </property>
-       <property name="text">
-        <string>&lt;&lt;</string>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normalon>:/icons/skip_back.svg</normalon>
-        </iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-       <property name="autoRaise">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="1" column="5">
-      <widget class="QToolButton" name="skipEnd">
-       <property name="toolTip">
-        <string>Last Frame</string>
-       </property>
-       <property name="text">
-        <string>&gt;&gt;</string>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normalon>:/icons/skip_forward.svg</normalon>
-        </iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-       <property name="autoRaise">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
   </layout>
  </widget>

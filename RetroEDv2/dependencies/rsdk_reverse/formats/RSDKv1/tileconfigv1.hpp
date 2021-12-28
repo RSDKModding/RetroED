@@ -65,6 +65,11 @@ public:
 
         HeightMask collisionPaths[2][4][16];
 
+        // 0 = 0
+        // 1 = RWall
+        // 2 = 2
+        // 3 = LWall
+        // 4 = 4
         byte collisionMode[2];
     };
 
