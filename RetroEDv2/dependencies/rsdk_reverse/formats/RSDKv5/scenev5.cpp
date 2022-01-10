@@ -20,9 +20,9 @@ void RSDKv5::Scene::VariableValue::read(Reader &reader)
             break;
         case VariableTypes::UNKNOWN: value_unknown = reader.read<int>(); break;
         case VariableTypes::COLOR: {
-            byte r      = reader.read<byte>();
-            byte g      = reader.read<byte>();
             byte b      = reader.read<byte>();
+            byte g      = reader.read<byte>();
+            byte r      = reader.read<byte>();
             byte a      = reader.read<byte>();
             value_color = QColor(r, g, b, a);
             break;
@@ -286,6 +286,6 @@ void RSDKv5::Scene::SceneEditorMetadata::write(Writer &writer)
     writer.write(unknown6);
     writer.write(unknown7);
     writer.write(unknown8);
-    writer.write(stampName + '\0');
+    writer.write(stampName);
     writer.write(unknown9);
 }
