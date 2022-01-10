@@ -161,7 +161,7 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
     });
 
     connect(ui->fileList, &QListWidget::currentRowChanged, [this](int c) {
-        ui->encrypted->setDisabled(c == -1 || gameVer >= 2);
+        ui->encrypted->setDisabled(c == -1 || gameVer >= ENGINE_v3);
         ui->rmFile->setDisabled(c == -1);
 
         ui->filename->setText("");
@@ -247,7 +247,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
     setStatus("Loading Datafile...");
     files.clear();
     switch (gameVer) {
-        case 0: // RSDKv5
+        case ENGINE_v5: // RSDKv5
         {
             RSDKv5::Datafile datafilev5(reader, m_fileList);
 
@@ -263,7 +263,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
             }
             break;
         }
-        case 1: // RSDKv4
+        case ENGINE_v4: // RSDKv4
         {
             RSDKv4::Datafile datafilev4(reader, m_fileList);
 
@@ -279,7 +279,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
             }
             break;
         }
-        case 2: // RSDKv3
+        case ENGINE_v3: // RSDKv3
         {
             RSDKv3::Datafile datafilev3(reader);
 
@@ -295,7 +295,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
             }
             break;
         }
-        case 3: // RSDKv2
+        case ENGINE_v2: // RSDKv2
         {
             RSDKv2::Datafile datafilev2(reader);
 
@@ -311,7 +311,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
             }
             break;
         }
-        case 4: // RSDKv1
+        case ENGINE_v1: // RSDKv1
         {
             RSDKv1::Datafile datafilev1(reader);
 
@@ -327,7 +327,8 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
             }
             break;
         }
-        case 5: // ARC
+        case ENGINE_v1
+            + 1: // ARC
         {
             RSDKv3::ArcContainer arcContainer(reader);
 
@@ -361,7 +362,7 @@ void RSDKUnpacker::savePack(QString filepath, byte ver)
               [](const FileInfo &a, const FileInfo &b) -> bool { return a.filename < b.filename; });
 
     switch (ver) {
-        case 0: // RSDKv5
+        case ENGINE_v5: // RSDKv5
         {
             RSDKv5::Datafile datafile;
 
@@ -378,7 +379,7 @@ void RSDKUnpacker::savePack(QString filepath, byte ver)
             datafile.write(filepath);
             break;
         }
-        case 1: // RSDKv4
+        case ENGINE_v4: // RSDKv4
         {
             RSDKv4::Datafile datafile;
 
@@ -395,7 +396,7 @@ void RSDKUnpacker::savePack(QString filepath, byte ver)
             datafile.write(filepath);
             break;
         }
-        case 2: // RSDKv3
+        case ENGINE_v3: // RSDKv3
         {
             RSDKv3::Datafile datafile;
 
@@ -414,7 +415,7 @@ void RSDKUnpacker::savePack(QString filepath, byte ver)
                 info.fileName = QFileInfo(file.filename).fileName();
                 info.fileSize = file.fileSize;
                 info.fileData = file.fileData;
-                info.m_dirID  = dirID;
+                info.dirID    = dirID;
                 datafile.files.append(info);
             }
 
@@ -427,7 +428,7 @@ void RSDKUnpacker::savePack(QString filepath, byte ver)
             datafile.write(filepath);
             break;
         }
-        case 3: // RSDKv2
+        case ENGINE_v2: // RSDKv2
         {
             RSDKv2::Datafile datafile;
 
@@ -459,7 +460,7 @@ void RSDKUnpacker::savePack(QString filepath, byte ver)
             datafile.write(filepath);
             break;
         }
-        case 4: // RSDKv1
+        case ENGINE_v1: // RSDKv1
         {
             RSDKv1::Datafile datafile;
 
@@ -491,7 +492,8 @@ void RSDKUnpacker::savePack(QString filepath, byte ver)
             datafile.write(filepath);
             break;
         }
-        case 5: // Arc
+        case ENGINE_v1
+            + 1: // Arc
         {
             RSDKv3::ArcContainer container;
 

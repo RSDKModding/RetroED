@@ -19,7 +19,8 @@ public:
 private:
     Ui::RSVTool *ui;
 
-    QString rsvPath = "";
+    QString rsvPath    = "";
+    QString framesPath = "";
 };
 
 #endif // RSVUNPACKER_H

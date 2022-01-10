@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv5::Animation::read(Reader &reader)
 {
-    filePath = reader.filepath;
+    filePath = reader.filePath;
 
     if (!reader.matchesSignature(signature, 4)) {
         return;
@@ -32,10 +32,10 @@ void RSDKv5::Animation::write(Writer &writer)
     writer.write(totalFrameCount);
 
     writer.write((byte)sheets.count());
-    for (int s = 0; s < sheets.count(); ++s) writer.write(sheets[s] + '\0');
+    for (int s = 0; s < sheets.count(); ++s) writer.write(sheets[s]);
 
     writer.write((byte)hitboxTypes.count());
-    for (int h = 0; h < hitboxTypes.count(); ++h) writer.write(hitboxTypes[h] + '\0');
+    for (int h = 0; h < hitboxTypes.count(); ++h) writer.write(hitboxTypes[h]);
 
     writer.write((ushort)animations.count());
     for (int a = 0; a < animations.count(); ++a) animations[a].write(writer, this);

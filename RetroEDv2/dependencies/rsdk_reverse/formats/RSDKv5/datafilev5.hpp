@@ -19,22 +19,22 @@ public:
 
         inline void setName(QString filename)
         {
-            fileName     = filename;
-            m_filenameHash = Utils::getMd5HashString(fileName);
+            fileName       = filename;
+            filenameHash   = Utils::getMd5HashString(fileName);
             QByteArray md5 = Utils::getMd5HashByteArray(fileName);
-            for (int h = 0; h < 0x10; ++h) m_md5Hash[h] = (byte)md5[h];
+            for (int h = 0; h < 0x10; ++h) hash[h] = (byte)md5[h];
         }
 
         QString fileName     = "";
-        QString m_filenameHash = "";
+        QString filenameHash = "";
 
-        uint m_dataOffset = 0;
+        uint fileOffset = 0;
         uint fileSize   = 0;
         bool encrypted  = false;
         QByteArray fileData;
 
     private:
-        byte m_md5Hash[0x10];
+        byte hash[0x10];
 
         inline QString getMd5Hash(QString input)
         {
@@ -47,14 +47,14 @@ public:
         }
 
         void generateELoadKeys(QString filename, uint size);
-        QByteArray decrypt(QByteArray data);
+        QByteArray decrypt(QByteArray data, bool encrypting);
 
-        QByteArray m_encryptionKeyA;
-        QByteArray m_encryptionKeyB;
-        int m_eKeyNo;
-        int m_eKeyPosA;
-        int m_eKeyPosB;
-        int m_eNybbleSwap;
+        QByteArray encryptionKeyA;
+        QByteArray encryptionKeyB;
+        int eKeyNo;
+        int eKeyPosA;
+        int eKeyPosB;
+        int eNybbleSwap;
     };
 
     Datafile() {}
@@ -71,7 +71,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -79,11 +79,11 @@ public:
     }
     void write(Writer &writer);
 
-    const byte m_signature[6] = { 'R', 'S', 'D', 'K', 'v', '5' };
+    const byte signature[6] = { 'R', 'S', 'D', 'K', 'v', '5' };
 
     QList<FileInfo> files;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv5

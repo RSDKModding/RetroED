@@ -10,20 +10,20 @@ public:
     class SoundInfo
     {
     public:
-        QString path         = "SFX.wav";
+        QString path           = "SFX.wav";
         byte maxConcurrentPlay = 1;
 
         SoundInfo() {}
         SoundInfo(QString name, byte maxPlays)
         {
-            path            = name;
+            path              = name;
             maxConcurrentPlay = maxPlays;
         }
         SoundInfo(Reader &reader) { read(reader); }
 
         inline void read(Reader reader)
         {
-            path            = reader.readString();
+            path              = reader.readString();
             maxConcurrentPlay = reader.read<byte>();
         }
 
@@ -37,19 +37,19 @@ public:
     class SceneInfo
     {
     public:
-        QString name  = "Scene";
-        QString folder  = "";
-        QString id = "";
-        byte filter = 0;
+        QString name   = "Scene";
+        QString folder = "";
+        QString id     = "";
+        byte filter    = 0;
 
         SceneInfo() {}
         SceneInfo(Reader &reader, bool readMode = true) { read(reader, readMode); }
 
         inline void read(Reader &reader, bool readMode = true)
         {
-            name  = reader.readString();
-            folder  = reader.readString();
-            id = reader.readString();
+            name   = reader.readString();
+            folder = reader.readString();
+            id     = reader.readString();
             if (readMode)
                 filter = reader.read<byte>();
         }
@@ -160,7 +160,7 @@ public:
     QList<GlobalVariable> globalVariables;
 
     QString filePath = "";
-    bool readMode      = false;
+    bool readFilter  = false;
 };
 
 } // namespace RSDKv5

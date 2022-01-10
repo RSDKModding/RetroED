@@ -42,7 +42,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = filepath;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -62,9 +62,9 @@ public:
     float unknown1    = 0;
     int unknown2      = 0;
 
-    QList<ReplayEntry> entries = QList<ReplayEntry>();
+    QList<ReplayEntry> frames = QList<ReplayEntry>();
 
-    QString filepath = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv5

@@ -968,7 +968,7 @@ bool GameconfigEditorv5::event(QEvent *event)
             if (filedialog.exec() == QDialog::Accepted) {
                 oldVer = filedialog.selectedNameFilter()
                          == "rev01 (pre-plus) RSDKv5 GameConfig files (*GameConfig*.bin)";
-                gameConfig.readMode = !oldVer;
+                gameConfig.readFilter = !oldVer;
                 gameConfig.write(filedialog.selectedFiles()[0]);
                 tabTitle = Utils::getFilenameAndFolder(gameConfig.filePath);
                 updateTitle(false);
@@ -1026,7 +1026,7 @@ bool GameconfigEditorv5::event(QEvent *event)
                     case 1: {
                         setStatus("Saving GameConfig: " + filedialog.selectedFiles()[0]);
 
-                        gameConfig.readMode = filter == 3;
+                        gameConfig.readFilter = filter == 3;
                         appConfig.addRecentFile(
                             ENGINE_v5, TOOL_GAMECONFIGEDITOR, filedialog.selectedFiles()[0],
                             QList<QString>{ "GameConfig", filter == 1 ? "rev01" : "rev02" });
@@ -1089,7 +1089,7 @@ bool GameconfigEditorv5::event(QEvent *event)
                     }
                     case 3: {
                         setStatus("Saving (v3) GameConfig: " + filedialog.selectedFiles()[0]);
-                        RSDKv3::Gameconfig config;
+                        RSDKv3::GameConfig config;
 
                         config.gameWindowText      = gameConfig.gameTitle;
                         config.gameDescriptionText = gameConfig.gameSubtitle;
@@ -1097,7 +1097,7 @@ bool GameconfigEditorv5::event(QEvent *event)
                         config.globalVariables.clear();
                         int varID = 0;
                         for (auto &var : gameConfig.globalVariables) {
-                            RSDKv3::Gameconfig::GlobalVariable variable;
+                            RSDKv3::GameConfig::GlobalVariable variable;
                             variable.name  = rsdkconfig.variables[varID++].name;
                             variable.value = var.values.count() >= 1 ? var.values[0] : 0;
                             config.globalVariables.append(variable);
@@ -1105,7 +1105,7 @@ bool GameconfigEditorv5::event(QEvent *event)
 
                         config.objects.clear();
                         for (auto &obj : gameConfig.objects) {
-                            RSDKv3::Gameconfig::ObjectInfo object;
+                            RSDKv3::GameConfig::ObjectInfo object;
                             object.name   = obj;
                             object.script = obj + ".txt";
                             config.objects.append(object);
@@ -1121,11 +1121,11 @@ bool GameconfigEditorv5::event(QEvent *event)
                         config.categories.clear();
                         int id = 0;
                         for (auto &cat : gameConfig.categories) {
-                            RSDKv3::Gameconfig::Category category;
+                            RSDKv3::GameConfig::Category category;
                             category.scenes.clear();
 
                             for (auto &scn : cat.scenes) {
-                                RSDKv3::Gameconfig::SceneInfo scene;
+                                RSDKv3::GameConfig::SceneInfo scene;
                                 scene.name        = scn.name;
                                 scene.folder      = scn.folder;
                                 scene.id          = scn.id;
@@ -1325,7 +1325,7 @@ bool GameconfigEditorv5::event(QEvent *event)
                 if (filedialog.exec() == QDialog::Accepted) {
                     oldVer = filedialog.selectedNameFilter()
                              == "rev01 (pre-plus) RSDKv5 GameConfig files (*GameConfig*.bin)";
-                    gameConfig.readMode = !oldVer;
+                    gameConfig.readFilter = !oldVer;
                     gameConfig.write(filedialog.selectedFiles()[0]);
                     tabTitle = Utils::getFilenameAndFolder(gameConfig.filePath);
                     updateTitle(false);

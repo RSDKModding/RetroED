@@ -30,20 +30,20 @@ private:
 
     RSDKv3::Decompiler decompilerv3;
     RSDKv4::Decompiler decompilerv4;
-    RSDKv1::Decompiler m_decompilerv1;
+    RSDKv1::Decompiler decompilerv1;
 
     QString dataPath = "";
 
     QList<BytecodeInfo> bytecodeList; // Bytecode Paths
     QList<QString> variableNames;     // Global Variable Names
 
-    int globalScriptCount     = 0;
-    int globalFunctionCount   = 0;
-    int m_globalConstantCount = 0;
-    int m_globalArrayCount    = 0;
-    int globalSFXCount        = 0;
-    int m_globalOffset        = 0;
-    bool mobileVer            = false;
+    int globalScriptCount   = 0;
+    int globalFunctionCount = 0;
+    int globalConstantCount = 0;
+    int globalArrayCount    = 0;
+    int globalSFXCount      = 0;
+    int globalOffset        = 0;
+    bool mobileVer          = false;
 };
 
 #endif // SCRIPTUNPACKER_H

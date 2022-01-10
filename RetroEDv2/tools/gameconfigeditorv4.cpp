@@ -584,7 +584,7 @@ void GameconfigEditorv4::load(QString filename)
     if (filename != "") {
         Reader reader = Reader(filename);
         gameConfig.read(reader);
-        tabTitle = Utils::getFilenameAndFolder(gameConfig.m_filename);
+        tabTitle = Utils::getFilenameAndFolder(gameConfig.filePath);
     }
     else {
         gameConfig = RSDKv4::GameConfig();
@@ -685,7 +685,7 @@ bool GameconfigEditorv4::event(QEvent *event)
     }
 
     if (event->type() == (QEvent::Type)RE_EVENT_SAVE) {
-        if (!QFile(gameConfig.m_filename).exists()) {
+        if (!QFile(gameConfig.filePath).exists()) {
             QFileDialog filedialog(this, tr("Save GameConfig"), "",
                                    tr("RSDKv4 GameConfig files (GameConfig*.bin)"));
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
@@ -797,14 +797,14 @@ bool GameconfigEditorv4::event(QEvent *event)
                 }
                 case 2: {
                     setStatus("Saving (v3) GameConfig: " + filedialog.selectedFiles()[0]);
-                    RSDKv3::Gameconfig config;
+                    RSDKv3::GameConfig config;
 
                     config.gameWindowText      = gameConfig.gameWindowText;
                     config.gameDescriptionText = gameConfig.gameDescriptionText;
 
                     config.globalVariables.clear();
                     for (auto &var : gameConfig.globalVariables) {
-                        RSDKv3::Gameconfig::GlobalVariable variable;
+                        RSDKv3::GameConfig::GlobalVariable variable;
                         variable.name  = var.name;
                         variable.value = var.value;
                         config.globalVariables.append(variable);
@@ -812,7 +812,7 @@ bool GameconfigEditorv4::event(QEvent *event)
 
                     config.objects.clear();
                     for (auto &obj : gameConfig.objects) {
-                        RSDKv3::Gameconfig::ObjectInfo object;
+                        RSDKv3::GameConfig::ObjectInfo object;
                         object.name   = obj.name;
                         object.script = obj.script;
                         config.objects.append(object);
@@ -830,11 +830,11 @@ bool GameconfigEditorv4::event(QEvent *event)
 
                     config.categories.clear();
                     for (auto &cat : gameConfig.categories) {
-                        RSDKv3::Gameconfig::Category category;
+                        RSDKv3::GameConfig::Category category;
                         category.scenes.clear();
 
                         for (auto &scn : cat.scenes) {
-                            RSDKv3::Gameconfig::SceneInfo scene;
+                            RSDKv3::GameConfig::SceneInfo scene;
                             scene.name        = scn.name;
                             scene.folder      = scn.folder;
                             scene.id          = scn.id;
@@ -856,7 +856,7 @@ bool GameconfigEditorv4::event(QEvent *event)
                     RSDKv5::RSDKConfig rsdkConfig;
 
                     config.gameTitle = gameConfig.gameWindowText;
-                    config.readMode  = true;
+                    config.readFilter  = true;
 
                     config.globalVariables.clear();
                     rsdkConfig.variables.clear();
@@ -938,7 +938,7 @@ bool GameconfigEditorv4::event(QEvent *event)
                         ++catID;
                     }
 
-                    config.readMode = filter == 3;
+                    config.readFilter = filter == 3;
                     appConfig.addRecentFile(
                         ENGINE_v5, TOOL_GAMECONFIGEDITOR, filedialog.selectedFiles()[0],
                         QList<QString>{ "GameConfig", filter == 4 ? "rev01" : "rev02" });
@@ -1031,7 +1031,7 @@ bool GameconfigEditorv4::event(QEvent *event)
     if (event->type() == QEvent::Close && modified) {
         bool cancelled = false;
         if (MainWindow::showCloseWarning(this, &cancelled)) {
-            if (!QFile(gameConfig.m_filename).exists()) {
+            if (!QFile(gameConfig.filePath).exists()) {
                 QFileDialog filedialog(this, tr("Open GameConfig"), "",
                                        tr("RSDKv4 GameConfig files (GameConfig*.bin)"));
                 filedialog.setAcceptMode(QFileDialog::AcceptSave);

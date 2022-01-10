@@ -116,7 +116,7 @@ void SceneViewer::loadScene(QString path, byte ver)
         }
 
         for (FormatHelpers::Stageconfig::ObjectInfo &obj : stageConfig.objects) {
-            scene.objectTypeNames.append(obj.m_name);
+            scene.objectTypeNames.append(obj.name);
         }
     }
     else {
@@ -132,11 +132,11 @@ void SceneViewer::loadScene(QString path, byte ver)
             "Yellow Spring",     // 6
             "Red Spring",        // 7
             "Spikes",            // 8
-            "StarPost",          // 9
-            "PlaneSwitch A",     // 10
-            "PlaneSwitch B",     // 11
-            "Unknown (ID 12)",   // 12
-            "Unknown (ID 13)",   // 13
+            "LampPost",          // 9
+            "PlaneSwitch L",     // 10
+            "PlaneSwitch R",     // 11
+            "PlaneSwitch U",     // 12
+            "PlaneSwitch D",     // 13
             "ForceSpin R",       // 14
             "ForceSpin L",       // 15
             "Unknown (ID 16)",   // 16
@@ -161,7 +161,7 @@ void SceneViewer::loadScene(QString path, byte ver)
         }
 
         for (FormatHelpers::Stageconfig::ObjectInfo &obj : stageConfig.objects) {
-            scene.objectTypeNames.append(obj.m_name);
+            scene.objectTypeNames.append(obj.name);
         }
     }
 

@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv4::Model::read(Reader &reader)
 {
-    filePath = reader.filepath;
+    filePath = reader.filePath;
 
     if (!reader.matchesSignature(signature, 4))
         return;
@@ -40,7 +40,7 @@ void RSDKv4::Model::write(Writer &writer)
     filePath = writer.filePath;
     writer.write(signature, 4);
 
-    int vertCount = frames.count() ? frames[0].vertices.count() : 0;
+    int vertCount = frames.count() >= 0 ? frames[0].vertices.count() : 0;
     writer.write((ushort)vertCount);
 
     for (int v = 0; v < vertCount; ++v) texCoords[v].write(writer);
@@ -50,7 +50,6 @@ void RSDKv4::Model::write(Writer &writer)
 
     writer.write((ushort)frames.count());
     for (int f = 0; f < frames.count(); ++f) {
-        Frame frame;
         for (int v = 0; v < vertCount; ++v) {
             writer.write(frames[f].vertices[v].x);
             writer.write(frames[f].vertices[v].y);

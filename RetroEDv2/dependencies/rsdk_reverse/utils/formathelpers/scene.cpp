@@ -1,4 +1,4 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void FormatHelpers::Scene::read(byte ver, QString filename)
 {

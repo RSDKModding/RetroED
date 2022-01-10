@@ -115,7 +115,7 @@ public:
             for (int f = 0; f < frames.count(); ++f) frames[f].write(writer);
         }
 
-        QString name = "Retro Sonic Animation #0";
+        QString name = "Retro Sonic Animation #";
         QList<Frame> frames;
         byte loopIndex = 0;
         int speed      = 0;

@@ -143,7 +143,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = filepath;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -154,7 +154,7 @@ public:
     QList<TableColumn> columns = QList<TableColumn>();
     QList<TableRow> rows       = QList<TableRow>();
 
-    QString filepath = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv5

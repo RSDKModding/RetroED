@@ -483,7 +483,7 @@ bool PaletteEditor::event(QEvent *event)
                                 }
                             }
                         }
-                        gameConfigv5.readMode = palType != PALTYPE_GAMECONFIGv5_rev01;
+                        gameConfigv5.readFilter = palType != PALTYPE_GAMECONFIGv5_rev01;
                         gameConfigv5.write(filepath);
                         break;
                     }
@@ -603,7 +603,7 @@ bool PaletteEditor::event(QEvent *event)
                             }
                         }
                     }
-                    gameConfigv5.readMode = palType != PALTYPE_GAMECONFIGv5_rev01;
+                    gameConfigv5.readFilter = palType != PALTYPE_GAMECONFIGv5_rev01;
                     gameConfigv5.write(filepath);
                     break;
                 }
@@ -738,7 +738,7 @@ bool PaletteEditor::event(QEvent *event)
                             }
                         }
                     }
-                    gameConfigv5.readMode = palType != PALTYPE_GAMECONFIGv5_rev01;
+                    gameConfigv5.readFilter = palType != PALTYPE_GAMECONFIGv5_rev01;
                     gameConfigv5.write(filepath);
                     break;
                 }
@@ -879,7 +879,7 @@ bool PaletteEditor::event(QEvent *event)
                                             }
                                         }
                                     }
-                                    gameConfigv5.readMode = palType != PALTYPE_GAMECONFIGv5_rev01;
+                                    gameConfigv5.readFilter = palType != PALTYPE_GAMECONFIGv5_rev01;
                                     gameConfigv5.write(filepath);
                                     break;
                                 }
@@ -1007,7 +1007,7 @@ bool PaletteEditor::event(QEvent *event)
                                         }
                                     }
                                 }
-                                gameConfigv5.readMode = palType != PALTYPE_GAMECONFIGv5_rev01;
+                                gameConfigv5.readFilter = palType != PALTYPE_GAMECONFIGv5_rev01;
                                 gameConfigv5.write(filepath);
                                 break;
                             }

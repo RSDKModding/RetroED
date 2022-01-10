@@ -7,17 +7,17 @@ namespace RSDKv1
 class TileConfig
 {
 public:
+    enum CollisionSides {
+        Floor,
+        LWall,
+        RWall,
+        Roof,
+        Max,
+    };
+
     class CollisionMask
     {
     public:
-        enum CollisionSides {
-            Floor,
-            LWall,
-            RWall,
-            Roof,
-            Max,
-        };
-
         class HeightMask
         {
         public:
@@ -28,49 +28,15 @@ public:
         };
 
         CollisionMask() {}
-        CollisionMask(Reader &reader) { read(reader); }
 
-        void read(Reader &reader, bool dcVer = false)
-        {
-            if (!dcVer) {
-                byte buffer      = reader.read<byte>();
-                collisionMode[0] = (byte)((buffer & 0xF0) >> 4);
-                collisionMode[1] = (byte)(buffer & 0x0F);
-            }
-
-            for (int p = 0; p < 2; ++p) {
-                for (int f = 0; f < CollisionSides::Max; ++f) {
-                    for (int c = 0; c < 16; ++c) {
-                        byte buffer                    = reader.read<byte>();
-                        collisionPaths[p][f][c].height = (byte)((buffer & 0xF0) >> 4);
-                        collisionPaths[p][f][c].solid  = (byte)(buffer & 0x0F);
-                    }
-                }
-            }
-        }
-        void write(Writer &writer, bool dcVer = false)
-        {
-            if (!dcVer)
-                writer.write(Utils::addNybbles(collisionMode[0], collisionMode[1]));
-
-            for (int p = 0; p < 2; ++p) {
-                for (int f = 0; f < CollisionSides::Max; ++f) {
-                    for (int c = 0; c < 16; ++c) {
-                        writer.write(Utils::addNybbles(collisionPaths[p][f][c].height,
-                                                       collisionPaths[p][f][c].solid));
-                    }
-                }
-            }
-        }
-
-        HeightMask collisionPaths[2][4][16];
+        HeightMask collision[4][16];
 
         // 0 = 0
         // 1 = RWall
         // 2 = 2
         // 3 = LWall
         // 4 = 4
-        byte collisionMode[2];
+        byte collisionMode;
     };
 
     TileConfig() {}
@@ -84,9 +50,25 @@ public:
     }
     inline void read(Reader &reader, bool dcVer = false)
     {
-        filepath = reader.filepath;
+        filepath = reader.filePath;
 
-        for (int c = 0; c < 0x400; ++c) collision[c].read(reader, dcVer);
+        for (int c = 0; c < 0x400; ++c) {
+            if (!dcVer) {
+                byte buffer                        = reader.read<byte>();
+                collisionPaths[0][c].collisionMode = (byte)((buffer & 0xF0) >> 4);
+                collisionPaths[1][c].collisionMode = (byte)(buffer & 0x0F);
+            }
+
+            for (int p = 0; p < 2; ++p) {
+                for (int f = 0; f < CollisionSides::Max; ++f) {
+                    for (int i = 0; i < 16; ++i) {
+                        byte buffer                                 = reader.read<byte>();
+                        collisionPaths[p][c].collision[f][i].height = (byte)((buffer & 0xF0) >> 4);
+                        collisionPaths[p][c].collision[f][i].solid  = (byte)(buffer & 0x0F);
+                    }
+                }
+            }
+        }
     }
 
     inline void write(QString filename)
@@ -102,12 +84,25 @@ public:
     {
         filepath = writer.filePath;
 
-        for (int c = 0; c < 0x400; ++c) collision[c].write(writer, dcVer);
+        for (int c = 0; c < 0x400; ++c) {
+            if (!dcVer)
+                writer.write(Utils::addNybbles(collisionPaths[0][c].collisionMode,
+                                               collisionPaths[1][c].collisionMode));
+
+            for (int p = 0; p < 2; ++p) {
+                for (int f = 0; f < CollisionSides::Max; ++f) {
+                    for (int i = 0; i < 16; ++i) {
+                        writer.write(Utils::addNybbles(collisionPaths[p][c].collision[f][i].height,
+                                                       collisionPaths[p][c].collision[f][i].solid));
+                    }
+                }
+            }
+        }
 
         writer.flush();
     }
 
-    CollisionMask collision[0x400];
+    CollisionMask collisionPaths[2][0x400];
 
     QString filepath = "";
 };

@@ -2,7 +2,7 @@
 
 void AppConfig::read(Reader &reader)
 {
-    m_filename = reader.filepath;
+    m_filename = reader.filePath;
 
     byte fVer = reader.read<byte>();
 

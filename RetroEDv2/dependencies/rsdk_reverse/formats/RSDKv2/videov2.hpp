@@ -1,5 +1,5 @@
-#ifndef VIDEO_V1_H
-#define VIDEO_V1_H
+#ifndef VIDEO_V2_H
+#define VIDEO_V2_H
 
 namespace RSDKv2
 {
@@ -21,7 +21,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -29,9 +29,14 @@ public:
     }
     void write(Writer &writer);
 
-    QString m_filename = "";
+    QList<FormatHelpers::Gif> frames;
+
+    ushort width  = 0x100;
+    ushort height = 0x100;
+
+    QString filePath = "";
 };
 
 } // namespace RSDKv2
 
-#endif // VIDEO_V1_H
+#endif // VIDEO_V2_H

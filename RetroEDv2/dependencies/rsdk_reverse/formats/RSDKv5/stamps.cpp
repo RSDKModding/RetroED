@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv5::Stamps::read(Reader &reader)
 {
-    filePath = reader.filepath;
+    filePath = reader.filePath;
     if (!reader.matchesSignature(signature, 4))
         return;
 

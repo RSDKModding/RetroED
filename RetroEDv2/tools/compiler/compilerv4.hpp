@@ -1,8 +1,8 @@
 #ifndef Compilerv4_H
 #define Compilerv4_H
 
-#define SCRIPTDATA_COUNT_v4 (0x100000)
-#define JUMPTABLE_COUNT_v4  (0x10000)
+#define SCRIPTDATA_COUNT_v4 (0x40000)
+#define JUMPTABLE_COUNT_v4  (0x4000)
 #define FUNCTION_COUNT_v4   (0x200)
 
 #define JUMPSTACK_COUNT_v4 (0x400)
@@ -113,7 +113,8 @@ public:
     enum InkFlags { INK_NONE, INK_BLEND, INK_ALPHA, INK_ADD, INK_SUB };
     enum DrawFXFlags { FX_SCALE, FX_ROTATE, FX_ROTOZOOM, FX_INK, FX_TINT, FX_FLIP };
 
-    enum ScriptEvents { EVENT_RSDKDRAW = 0, EVENT_RSDKLOAD = 1, EVENT_RSDKEDIT = 0 };
+    enum ScriptEvents { EVENT_MAIN = 0, EVENT_DRAW = 1, EVENT_STARTUP = 2 };
+    enum ScriptEditorEvents { EVENT_RSDKDRAW = 0, EVENT_RSDKLOAD = 1, EVENT_RSDKEDIT = 2 };
 
     ObjectScript objectScriptList[OBJECT_COUNT];
     ScriptPtr functionList[FUNCTION_COUNT_v4];
@@ -212,6 +213,8 @@ public:
     void processScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent);
 
     RSDKv4::Bytecode bytecode;
+
+    RSDKv4::GameConfig gameConfig;
 
 private:
     int sinVal512[0x200];

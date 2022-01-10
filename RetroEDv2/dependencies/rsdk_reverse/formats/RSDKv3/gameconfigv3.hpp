@@ -4,7 +4,7 @@
 namespace RSDKv3
 {
 
-class Gameconfig
+class GameConfig
 {
 public:
     class SceneInfo
@@ -97,15 +97,15 @@ public:
         QString script = "Folder/Script.txt";
     };
 
-    Gameconfig()
+    GameConfig()
     {
         categories.clear();
         for (int c = 0; c < 4; ++c) {
             categories.append(Category());
         }
     }
-    Gameconfig(QString filename) { read(filename); }
-    Gameconfig(Reader &reader) { read(reader); }
+    GameConfig(QString filename) { read(filename); }
+    GameConfig(Reader &reader) { read(reader); }
 
     inline void read(QString filename)
     {

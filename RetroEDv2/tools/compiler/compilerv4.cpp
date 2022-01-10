@@ -1,6 +1,6 @@
 #include "includes.hpp"
 
-#define COMMONALIAS_COUNT_v4 (0x5A)
+#define COMMONALIAS_COUNT_v4 (0x5B + 6)
 #define ALIAS_COUNT_TRIM_v4  (0xE0)
 #define ALIAS_COUNT_v4       (COMMONALIAS_COUNT_v4 + ALIAS_COUNT_TRIM_v4)
 
@@ -522,7 +522,7 @@ AliasInfov4 publicAliases[ALIAS_COUNT_v4] = {
     AliasInfov4("STAGE_RUNNING", "1"),
     AliasInfov4("STAGE_PAUSED", "2"),
     AliasInfov4("STAGE_FROZEN", "3"),
-    AliasInfov4("STAGE_2P", "3"),
+    AliasInfov4("STAGE_2P", "4"),
     AliasInfov4("RESET_GAME", "2"),
     AliasInfov4("RETRO_STANDARD", "0"),
     AliasInfov4("RETRO_MOBILE", "1"),
@@ -539,6 +539,11 @@ AliasInfov4 publicAliases[ALIAS_COUNT_v4] = {
     AliasInfov4("CMODE_LWALL", "1"),
     AliasInfov4("CMODE_ROOF", "2"),
     AliasInfov4("CMODE_RWALL", "3"),
+    AliasInfov4("COL_NONE", "0"),
+    AliasInfov4("COL_TOP", "1"),
+    AliasInfov4("COL_LEFT", "2"),
+    AliasInfov4("COL_RIGHT", "3"),
+    AliasInfov4("COL_BOTTOM", "4"),
     AliasInfov4("PATH_A", "0"),
     AliasInfov4("PATH_B", "1"),
     AliasInfov4("GRAVITY_GROUND", "0"),
@@ -570,7 +575,7 @@ AliasInfov4 publicAliases[ALIAS_COUNT_v4] = {
     AliasInfov4("TILEINFO_ANGLEB", "8"),
     AliasInfov4("TEXTINFO_TEXTDATA", "0"),
     AliasInfov4("TEXTINFO_TEXTSIZE", "1"),
-    AliasInfov4("TEXTINFO_ROWCOUNT", "1"),
+    AliasInfov4("TEXTINFO_ROWCOUNT", "2"),
     AliasInfov4("ONLINEMENU_ACHIEVEMENTS", "0"),
     AliasInfov4("ONLINEMENU_LEADERBOARDS", "1"),
     AliasInfov4("TILELAYER_NOSCROLL", "0"),
@@ -1488,6 +1493,7 @@ void Compilerv4::convertFunctionText(QString &text)
             int mode     = 0;
             int prevMode = 0;
             funcName     = "";
+            arrayStr     = "";
             while (((text[textPos] != ',' && text[textPos] != ')') || mode == 2)
                    && textPos < text.length()) {
                 switch (mode) {
@@ -1649,33 +1655,82 @@ void Compilerv4::convertFunctionText(QString &text)
                 funcName = "";
                 appendIntegerToString(funcName, 0);
                 int p = 0;
-                for (; p < ((SceneViewer *)viewer)->gameConfig.players.count(); ++p) {
-                    QString name = ((SceneViewer *)viewer)->gameConfig.players[p].m_name;
-                    name         = name.replace(" ", "");
+                if (viewer) {
+                    for (; p < ((SceneViewer *)viewer)->gameConfig.players.count(); ++p) {
+                        QString name = ((SceneViewer *)viewer)->gameConfig.players[p].m_name;
+                        name         = name.replace(" ", "");
 
-                    if (arrayStr == name) {
-                        funcName = "";
-                        appendIntegerToString(funcName, p);
-                        break;
+                        if (arrayStr == name) {
+                            funcName = "";
+                            appendIntegerToString(funcName, p);
+                            break;
+                        }
+                    }
+
+                    if (p == ((SceneViewer *)viewer)->gameConfig.players.count()) {
+                        // printLog("WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
                     }
                 }
+                else {
+                    for (; p < gameConfig.players.count(); ++p) {
+                        QString name = gameConfig.players[p];
+                        name         = name.replace(" ", "");
 
-                if (p == ((SceneViewer *)viewer)->gameConfig.players.count()) {
-                    // printLog("WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
+                        if (arrayStr == name) {
+                            funcName = "";
+                            appendIntegerToString(funcName, p);
+                            break;
+                        }
+                    }
+
+                    if (p == gameConfig.players.count()) {
+                        printLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
+                                     .arg(arrayStr)
+                                     .arg(lineID));
+                    }
                 }
             }
 
             // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
             if (funcName == "StageName") {
                 funcName = "";
-                appendIntegerToString(funcName, 0);
-                /*int s = GetSceneID(activeStageList, arrayStr);
+                int s    = -1;
+                if (arrayStr.length() >= 2) {
+                    char list = arrayStr[0].toLatin1();
+                    switch (list) {
+                        default: list = 0xFF;
+                        case 'P': list = 0; break;
+                        case 'R': list = 1; break;
+                        case 'S': list = 2; break;
+                        case 'B': list = 3; break;
+                    }
+
+                    s = -1;
+                    if (list <= 3) {
+                        QString scnName = arrayStr;
+                        scnName.replace(" ", "");
+                        scnName = scnName.mid(2, scnName.length() - 2);
+
+                        for (; s < gameConfig.categories[list].scenes.count(); ++s) {
+                            QString name = gameConfig.categories[list].scenes[s].name;
+                            name         = name.replace(" ", "");
+                            if (scnName == name)
+                                break;
+                        }
+
+                        if (s == gameConfig.categories[list].scenes.count())
+                            s = -1;
+                    }
+                }
 
                 if (s == -1) {
-                    //printLog("WARNING: Unknown StageName \"%s\", on line %d", arrayStr, lineID);
+                    printLog(QString("WARNING: Unknown StageName \"%1\", on line %2")
+                                 .arg(arrayStr)
+                                 .arg(lineID));
+                    s = 0;
                 }
                 funcName = "";
-                AppendIntegerToString(funcName, s);*/
+                appendIntegerToString(funcName, s);
             }
 
             if (convertStringToInteger(funcName, &value)) {
@@ -1792,7 +1847,157 @@ void Compilerv4::checkCaseNumber(QString &text)
     }
 
     bool flag = false;
-    for (int a = 0; a < privateAliasCount; ++a) {
+
+    if (findStringToken(caseString, "[", 1) >= 0) {
+        QString caseValue = "";
+        QString arrayStr  = "";
+
+        int textPos = 0;
+        int mode    = 0;
+
+        while (caseString[textPos] != ':' && textPos < caseString.length()) {
+            switch (mode) {
+                case 0: // normal
+                    if (caseString[textPos] == '[')
+                        mode = 1;
+                    else
+                        caseValue += caseString[textPos];
+                    ++textPos;
+                    break;
+                case 1: // array val
+                    if (caseString[textPos] == ']')
+                        mode = 0;
+                    else
+                        arrayStr += caseString[textPos];
+                    ++textPos;
+                    break;
+            }
+        }
+
+        // Eg: TempValue0 = TypeName[PlayerObject]
+        if (caseValue == "TypeName") {
+            caseValue = "";
+            appendIntegerToString(caseValue, 0);
+            for (int o = 0; o < OBJECT_COUNT; ++o) {
+                if (arrayStr == typeNames[o]) {
+                    caseValue = "";
+                    appendIntegerToString(caseValue, o);
+                }
+            }
+        }
+
+        // Eg: TempValue0 = SfxName[Jump]
+        if (caseValue == "SfxName") {
+            caseValue = "";
+            appendIntegerToString(caseValue, 0);
+            int s = 0;
+            for (; s < SFX_COUNT; ++s) {
+                if (arrayStr == sfxNames[s]) {
+                    caseValue = "";
+                    appendIntegerToString(caseValue, s);
+                    break;
+                }
+            }
+
+            if (s == SFX_COUNT) {
+                // printLog("WARNING: Unknown sfxName \"%s\", on line %d", arrayStr, lineID);
+            }
+        }
+
+        // Eg: TempValue0 = AchievementName[Ring King]
+        if (caseValue == "AchievementName") {
+            caseValue = "";
+            appendIntegerToString(caseValue, 0);
+            // default to 0, we don't know what these are
+        }
+
+        // Eg: TempValue0 = PlayerName[SONIC]
+        if (caseValue == "PlayerName") {
+            caseValue = "";
+            appendIntegerToString(caseValue, 0);
+            int p = 0;
+            if (viewer) {
+                for (; p < ((SceneViewer *)viewer)->gameConfig.players.count(); ++p) {
+                    QString name = ((SceneViewer *)viewer)->gameConfig.players[p].m_name;
+                    name         = name.replace(" ", "");
+
+                    if (arrayStr == name) {
+                        caseValue = "";
+                        appendIntegerToString(caseValue, p);
+                        break;
+                    }
+                }
+
+                if (p == ((SceneViewer *)viewer)->gameConfig.players.count()) {
+                    // printLog("WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
+                }
+            }
+            else {
+                for (; p < gameConfig.players.count(); ++p) {
+                    QString name = gameConfig.players[p];
+                    name         = name.replace(" ", "");
+
+                    if (arrayStr == name) {
+                        caseValue = "";
+                        appendIntegerToString(caseValue, p);
+                        break;
+                    }
+                }
+
+                if (p == gameConfig.players.count()) {
+                    printLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
+                                 .arg(arrayStr)
+                                 .arg(lineID));
+                }
+            }
+        }
+
+        // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
+        if (caseValue == "StageName") {
+            caseValue = "";
+            int s     = -1;
+            if (arrayStr.length() >= 2) {
+                char list = arrayStr[0].toLatin1();
+                switch (list) {
+                    default: list = 0xFF;
+                    case 'P': list = 0; break;
+                    case 'R': list = 1; break;
+                    case 'S': list = 2; break;
+                    case 'B': list = 3; break;
+                }
+
+                s = -1;
+                if (list <= 3) {
+                    QString scnName = arrayStr;
+                    scnName.replace(" ", "");
+                    scnName = scnName.mid(2, scnName.length() - 2);
+
+                    for (; s < gameConfig.categories[list].scenes.count(); ++s) {
+                        QString name = gameConfig.categories[list].scenes[s].name;
+                        name         = name.replace(" ", "");
+                        if (scnName == name)
+                            break;
+                    }
+
+                    if (s == gameConfig.categories[list].scenes.count())
+                        s = -1;
+                }
+            }
+
+            if (s == -1) {
+                printLog(
+                    QString("WARNING: Unknown StageName \"%1\", on line %2").arg(arrayStr).arg(lineID));
+                s = 0;
+            }
+            caseValue = "";
+            appendIntegerToString(caseValue, s);
+        }
+
+        caseString = caseValue;
+        flag       = true;
+    }
+
+    for (int a = 0; a < privateAliasCount && !flag; ++a) {
         if (caseString == privateAliases[a].name) {
             caseString = privateAliases[a].value;
             flag       = true;
@@ -1817,8 +2022,9 @@ void Compilerv4::checkCaseNumber(QString &text)
             jumpTableData[stackValue] = caseID;
     }
     else {
-        // printLog("WARNING: unable to convert case string \"%s\" to int, on line %d", caseString,
-        // lineID);
+        printLog(QString("WARNING: unable to convert case string \"%1\" to int, on line %2")
+                     .arg(caseString)
+                     .arg(lineID));
     }
 }
 bool Compilerv4::readSwitchCase(QString &text)
@@ -1850,7 +2056,158 @@ bool Compilerv4::readSwitchCase(QString &text)
         }
 
         bool flag = false;
-        for (int a = 0; a < privateAliasCount; ++a) {
+
+        if (findStringToken(caseText, "[", 1) >= 0) {
+            QString caseValue = "";
+            QString arrayStr  = "";
+
+            int textPos = 0;
+            int mode    = 0;
+
+            while (caseText[textPos] != ':' && textPos < caseText.length()) {
+                switch (mode) {
+                    case 0: // normal
+                        if (caseText[textPos] == '[')
+                            mode = 1;
+                        else
+                            caseValue += caseText[textPos];
+                        ++textPos;
+                        break;
+                    case 1: // array val
+                        if (caseText[textPos] == ']')
+                            mode = 0;
+                        else
+                            arrayStr += caseText[textPos];
+                        ++textPos;
+                        break;
+                }
+            }
+
+            // Eg: TempValue0 = TypeName[PlayerObject]
+            if (caseValue == "TypeName") {
+                caseValue = "";
+                appendIntegerToString(caseValue, 0);
+                for (int o = 0; o < OBJECT_COUNT; ++o) {
+                    if (arrayStr == typeNames[o]) {
+                        caseValue = "";
+                        appendIntegerToString(caseValue, o);
+                    }
+                }
+            }
+
+            // Eg: TempValue0 = SfxName[Jump]
+            if (caseValue == "SfxName") {
+                caseValue = "";
+                appendIntegerToString(caseValue, 0);
+                int s = 0;
+                for (; s < SFX_COUNT; ++s) {
+                    if (arrayStr == sfxNames[s]) {
+                        caseValue = "";
+                        appendIntegerToString(caseValue, s);
+                        break;
+                    }
+                }
+
+                if (s == SFX_COUNT) {
+                    // printLog("WARNING: Unknown sfxName \"%s\", on line %d", arrayStr, lineID);
+                }
+            }
+
+            // Eg: TempValue0 = AchievementName[Ring King]
+            if (caseValue == "AchievementName") {
+                caseValue = "";
+                appendIntegerToString(caseValue, 0);
+                // default to 0, we don't know what these are
+            }
+
+            // Eg: TempValue0 = PlayerName[SONIC]
+            if (caseValue == "PlayerName") {
+                caseValue = "";
+                appendIntegerToString(caseValue, 0);
+                int p = 0;
+                if (viewer) {
+                    for (; p < ((SceneViewer *)viewer)->gameConfig.players.count(); ++p) {
+                        QString name = ((SceneViewer *)viewer)->gameConfig.players[p].m_name;
+                        name         = name.replace(" ", "");
+
+                        if (arrayStr == name) {
+                            caseValue = "";
+                            appendIntegerToString(caseValue, p);
+                            break;
+                        }
+                    }
+
+                    if (p == ((SceneViewer *)viewer)->gameConfig.players.count()) {
+                        // printLog("WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
+                    }
+                }
+                else {
+                    for (; p < gameConfig.players.count(); ++p) {
+                        QString name = gameConfig.players[p];
+                        name         = name.replace(" ", "");
+
+                        if (arrayStr == name) {
+                            caseValue = "";
+                            appendIntegerToString(caseValue, p);
+                            break;
+                        }
+                    }
+
+                    if (p == gameConfig.players.count()) {
+                        printLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
+                                     .arg(arrayStr)
+                                     .arg(lineID));
+                    }
+                }
+            }
+
+            // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
+            if (caseValue == "StageName") {
+                caseValue = "";
+                int s     = -1;
+                if (arrayStr.length() >= 2) {
+                    char list = arrayStr[0].toLatin1();
+                    switch (list) {
+                        default: list = 0xFF;
+                        case 'P': list = 0; break;
+                        case 'R': list = 1; break;
+                        case 'S': list = 2; break;
+                        case 'B': list = 3; break;
+                    }
+
+                    s = -1;
+                    if (list <= 3) {
+                        QString scnName = arrayStr;
+                        scnName.replace(" ", "");
+                        scnName = scnName.mid(2, scnName.length() - 2);
+
+                        for (; s < gameConfig.categories[list].scenes.count(); ++s) {
+                            QString name = gameConfig.categories[list].scenes[s].name;
+                            name         = name.replace(" ", "");
+                            if (scnName == name)
+                                break;
+                        }
+
+                        if (s == gameConfig.categories[list].scenes.count())
+                            s = -1;
+                    }
+                }
+
+                if (s == -1) {
+                    printLog(QString("WARNING: Unknown StageName \"%1\", on line %2")
+                                 .arg(arrayStr)
+                                 .arg(lineID));
+                    s = 0;
+                }
+                caseValue = "";
+                appendIntegerToString(caseValue, s);
+            }
+
+            caseText = caseValue;
+            flag     = true;
+        }
+
+        for (int a = 0; a < privateAliasCount && !flag; ++a) {
             if (caseText == privateAliases[a].name) {
                 caseText = privateAliases[a].value;
                 flag     = true;
@@ -1937,12 +2294,15 @@ bool Compilerv4::convertStringToInteger(QString &text, int *value)
     }
 
     if (text.startsWith("0x") || text.startsWith("0X")) {
+        text.remove(0, 2);
         *value = text.toInt(&ok, 0x10);
     }
     else if (text.startsWith("0b") || text.startsWith("0B")) {
+        text.remove(0, 2);
         *value = text.toInt(&ok, 0b10);
     }
     else if (text.startsWith("0o") || text.startsWith("0O")) {
+        text.remove(0, 2);
         *value = text.toInt(&ok, 0010);
     }
     else {
@@ -2016,9 +2376,10 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID, bool inEditor
         int storePos   = 0;
 
         while (readMode < READMODE_EOF) {
-            scriptText  = "";
-            int textPos = 0;
-            readMode    = READMODE_NORMAL;
+            scriptText    = "";
+            int textPos   = 0;
+            readMode      = READMODE_NORMAL;
+            bool semiFlag = false;
             while (readMode < READMODE_ENDLINE) {
                 prevChar = curChar;
                 curChar  = reader.read<char>();
@@ -2041,6 +2402,8 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                         if ((curChar == '\n' && prevChar != '\r')
                             || (curChar == '\n' && prevChar == '\r') || curChar == ';') {
                             readMode = READMODE_ENDLINE;
+                            if (curChar == ';')
+                                semiFlag = true;
                         }
                     }
                     else if (curChar != '/' || textPos <= 0) {
@@ -2075,6 +2438,8 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                     if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r')
                         || curChar == ';') {
                         readMode = READMODE_ENDLINE;
+                        if (curChar == ';')
+                            semiFlag = true;
                         textPos++;
                     }
                 }
@@ -2092,14 +2457,14 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                     scriptText += curChar;
                     textPos++;
                 }
-                if (reader.isEOF()) {
+                if (reader.isEOF())
                     readMode = READMODE_EOF;
-                }
             }
 
             switch (parseMode) {
                 case PARSEMODE_SCOPELESS:
-                    ++lineID;
+                    if (!semiFlag)
+                        ++lineID;
                     checkAliasText(scriptText);
                     checkStaticText(scriptText);
 
@@ -2134,25 +2499,25 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                     }
                     else {
                         if (scriptText == "eventObjectMain") {
-                            parseMode                                              = PARSEMODE_FUNCTION;
-                            objectScriptList[scriptID].eventRSDKDraw.scriptCodePtr = scriptDataPos;
-                            objectScriptList[scriptID].eventRSDKDraw.jumpTablePtr  = jumpTableDataPos;
-                            scriptDataOffset                                       = scriptDataPos;
-                            jumpTableDataOffset                                    = jumpTableDataPos;
+                            parseMode                                          = PARSEMODE_FUNCTION;
+                            objectScriptList[scriptID].eventMain.scriptCodePtr = scriptDataPos;
+                            objectScriptList[scriptID].eventMain.jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                                   = scriptDataPos;
+                            jumpTableDataOffset                                = jumpTableDataPos;
                         }
                         if (scriptText == "eventObjectDraw") {
-                            parseMode                                              = PARSEMODE_FUNCTION;
-                            objectScriptList[scriptID].eventRSDKDraw.scriptCodePtr = scriptDataPos;
-                            objectScriptList[scriptID].eventRSDKDraw.jumpTablePtr  = jumpTableDataPos;
-                            scriptDataOffset                                       = scriptDataPos;
-                            jumpTableDataOffset                                    = jumpTableDataPos;
+                            parseMode                                          = PARSEMODE_FUNCTION;
+                            objectScriptList[scriptID].eventDraw.scriptCodePtr = scriptDataPos;
+                            objectScriptList[scriptID].eventDraw.jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                                   = scriptDataPos;
+                            jumpTableDataOffset                                = jumpTableDataPos;
                         }
                         if (scriptText == "eventObjectStartup") {
-                            parseMode                                              = PARSEMODE_FUNCTION;
-                            objectScriptList[scriptID].eventRSDKLoad.scriptCodePtr = scriptDataPos;
-                            objectScriptList[scriptID].eventRSDKLoad.jumpTablePtr  = jumpTableDataPos;
-                            scriptDataOffset                                       = scriptDataPos;
-                            jumpTableDataOffset                                    = jumpTableDataPos;
+                            parseMode                                             = PARSEMODE_FUNCTION;
+                            objectScriptList[scriptID].eventStartup.scriptCodePtr = scriptDataPos;
+                            objectScriptList[scriptID].eventStartup.jumpTablePtr  = jumpTableDataPos;
+                            scriptDataOffset                                      = scriptDataPos;
+                            jumpTableDataOffset                                   = jumpTableDataPos;
                         }
                     }
 
@@ -2211,12 +2576,14 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                     }
                     break;
                 case PARSEMODE_PLATFORMSKIP:
-                    ++lineID;
+                    if (!semiFlag)
+                        ++lineID;
                     if (!findStringToken(scriptText, "#endplatform", 1))
                         parseMode = PARSEMODE_FUNCTION;
                     break;
                 case PARSEMODE_FUNCTION:
-                    ++lineID;
+                    if (!semiFlag)
+                        ++lineID;
                     if (scriptText.length()) {
                         if (scriptText == "endevent") {
                             scriptData[scriptDataPos++] = FUNC_END;
@@ -2250,7 +2617,8 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                         else if (findStringToken(scriptText, gamePlatform, 1) == -1
                                  && findStringToken(scriptText, gameRenderType, 1) == -1
                                  && findStringToken(scriptText, gameHapticSetting, 1) == -1
-                                 && findStringToken(scriptText, "USE_DECOMP", 1) == -1) {
+                                 && findStringToken(scriptText, "USE_DECOMP", 1) == -1
+                                 && findStringToken(scriptText, "USE_EDITOR", 1) == -1) {
                             // if NONE of these checks succeeded, then we skip everything until "end
                             // platform"
                             parseMode = PARSEMODE_PLATFORMSKIP;
@@ -2277,6 +2645,8 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                     }
                     break;
                 case PARSEMODE_TABLEREAD:
+                    if (!semiFlag)
+                        ++lineID;
                     if (findStringToken(scriptText, "endtable", 1)) {
                         readTableValues(scriptText);
                     }
@@ -2377,38 +2747,37 @@ void Compilerv4::writeBytecode(QString path)
 {
     bytecode = RSDKv4::Bytecode();
 
-    bytecode.scriptData.clear();
+    bytecode.scriptCode.clear();
     for (int i = globalScriptDataCount; i < scriptDataPos; ++i) {
-        bytecode.scriptData.append(scriptData[i]);
+        bytecode.scriptCode.append(scriptData[i]);
     }
 
-    bytecode.jumpTableData.clear();
+    bytecode.jumpTable.clear();
     for (int i = globalJumpTableCount; i < jumpTableDataPos; ++i) {
-        bytecode.jumpTableData.append(jumpTableData[i]);
+        bytecode.jumpTable.append(jumpTableData[i]);
     }
 
-    bytecode.globalScriptCount = 0;
     bytecode.scriptList.clear();
     for (int i = globalScriptCount; i < scriptCount; ++i) {
-        RSDKv4::Bytecode::ObjectScript scr;
+        RSDKv4::Bytecode::ScriptInfo scr;
 
-        scr.mainScript    = objectScriptList[i].eventMain.scriptCodePtr;
-        scr.mainJumpTable = objectScriptList[i].eventMain.jumpTablePtr;
+        scr.main.scriptCodePos = objectScriptList[i].eventMain.scriptCodePtr;
+        scr.main.jumpTablePos  = objectScriptList[i].eventMain.jumpTablePtr;
 
-        scr.drawScript    = objectScriptList[i].eventDraw.scriptCodePtr;
-        scr.drawJumpTable = objectScriptList[i].eventDraw.jumpTablePtr;
+        scr.draw.scriptCodePos = objectScriptList[i].eventDraw.scriptCodePtr;
+        scr.draw.jumpTablePos  = objectScriptList[i].eventDraw.jumpTablePtr;
 
-        scr.startupScript    = objectScriptList[i].eventStartup.scriptCodePtr;
-        scr.startupJumpTable = objectScriptList[i].eventStartup.jumpTablePtr;
+        scr.startup.scriptCodePos = objectScriptList[i].eventStartup.scriptCodePtr;
+        scr.startup.jumpTablePos  = objectScriptList[i].eventStartup.jumpTablePtr;
 
         bytecode.scriptList.append(scr);
     }
 
     bytecode.functionList.clear();
     for (int f = 0; f < functionCount; ++f) {
-        RSDKv4::Bytecode::FunctionScript func;
-        func.mainScript    = functionList[f].scriptCodePtr;
-        func.mainJumpTable = functionList[f].jumpTablePtr;
+        RSDKv4::Bytecode::FunctionInfo func;
+        func.scriptCodePos = functionList[f].scriptCodePtr;
+        func.jumpTablePos  = functionList[f].jumpTablePtr;
         bytecode.functionList.append(func);
     }
 

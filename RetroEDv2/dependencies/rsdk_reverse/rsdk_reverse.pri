@@ -5,7 +5,6 @@ INCLUDEPATH += $$PWD
 HEADERS +=    \
     $$PWD/formats/RSDKv1/animationv1.hpp \
     $$PWD/formats/RSDKv1/backgroundv1.hpp \
-    $$PWD/formats/RSDKv1/bytecodev1.hpp \
     $$PWD/formats/RSDKv1/characterlistv1.hpp \
     $$PWD/formats/RSDKv1/chunksv1.hpp \
     $$PWD/formats/RSDKv1/datafilev1.hpp \
@@ -68,6 +67,8 @@ HEADERS +=    \
     $$PWD/formats/RSDKv5/userdbv5.hpp \
     $$PWD/io/reader.hpp \
     $$PWD/io/writer.hpp \
+    $$PWD/rsdkreverse.hpp \
+    $$PWD/utils/formathelpers/gif.hpp \
     $$PWD/utils/utils.hpp \
     $$PWD/utils/vectors.hpp \
     $$PWD/utils/colour.hpp \
@@ -78,12 +79,10 @@ HEADERS +=    \
     $$PWD/utils/formathelpers/gameconfig.hpp \
     $$PWD/utils/formathelpers/scene.hpp \
     $$PWD/utils/formathelpers/stageconfig.hpp \
-    $$PWD/include.hpp \
 
 SOURCES +=  \
     $$PWD/formats/RSDKv1/animationv1.cpp \
     $$PWD/formats/RSDKv1/backgroundv1.cpp \
-    $$PWD/formats/RSDKv1/bytecodev1.cpp \
     $$PWD/formats/RSDKv1/characterlistv1.cpp \
     $$PWD/formats/RSDKv1/chunksv1.cpp \
     $$PWD/formats/RSDKv1/datafilev1.cpp \
@@ -146,6 +145,7 @@ SOURCES +=  \
     $$PWD/formats/RSDKv5/userdbv5.cpp \
     $$PWD/io/reader.cpp \
     $$PWD/io/writer.cpp \
+    $$PWD/utils/formathelpers/gif.cpp \
     $$PWD/utils/utils.cpp \
     $$PWD/utils/vectors.cpp \
     $$PWD/utils/colour.cpp \

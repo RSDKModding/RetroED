@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv3::StageConfig::read(Reader &reader)
 {
-    m_filename = reader.filepath;
+    filePath = reader.filePath;
 
     // Global Objects Flag
     loadGlobalScripts = reader.read<byte>();
@@ -35,7 +35,7 @@ void RSDKv3::StageConfig::read(Reader &reader)
 
 void RSDKv3::StageConfig::write(Writer &writer)
 {
-    m_filename = writer.filePath;
+    filePath = writer.filePath;
 
     // Global Objects Flag
     writer.write(loadGlobalScripts);

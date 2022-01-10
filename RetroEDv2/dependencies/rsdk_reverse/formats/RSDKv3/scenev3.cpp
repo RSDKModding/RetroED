@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv3::Scene::read(Reader &reader)
 {
-    m_filename = reader.filepath;
+    m_filename = reader.filePath;
 
     title = reader.readString();
 

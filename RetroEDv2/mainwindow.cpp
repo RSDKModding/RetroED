@@ -279,6 +279,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     });
 #endif
 
+    tools->addAction("Script Compiler", [this] {
+        setStatus("Opening Script Compiler...");
+        ScriptCompiler *tool = new ScriptCompiler();
+        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Script Compiler"));
+    });
+
     tools->addAction("Model Manager", [this] {
         setStatus("Opening Model Manager...");
         ModelManager *tool = new ModelManager();

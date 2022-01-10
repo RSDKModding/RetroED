@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv1::Scene::read(Reader &reader)
 {
-    filepath = reader.filepath;
+    filepath = reader.filePath;
 
     // Map width in 128 pixel units
     // In RSDKv1, it's one byte long
@@ -19,8 +19,8 @@ void RSDKv1::Scene::read(Reader &reader)
         }
     }
 
-    QString itmpath = QFileInfo(reader.filepath).absolutePath() + "/"
-                      + QFileInfo(reader.filepath).baseName() + ".itm";
+    QString itmpath = QFileInfo(reader.filePath).absolutePath() + "/"
+                      + QFileInfo(reader.filePath).baseName() + ".itm";
     Reader ITMreader(itmpath);
 
     title = ITMreader.readString();

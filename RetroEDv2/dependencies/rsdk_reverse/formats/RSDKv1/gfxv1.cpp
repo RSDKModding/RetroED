@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv1::GFX::read(Reader &reader, bool dcGFX)
 {
-    filepath = reader.filepath;
+    filepath = reader.filePath;
 
     if (dcGFX)
         reader.read<byte>();

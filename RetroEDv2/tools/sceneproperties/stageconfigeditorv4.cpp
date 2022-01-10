@@ -52,7 +52,7 @@ StageconfigEditorv4::StageconfigEditorv4(FormatHelpers::Stageconfig *scf, int gc
             return;
 
         ui->objName->blockSignals(true);
-        ui->objName->setText(stageConfig->objects[c].m_name);
+        ui->objName->setText(stageConfig->objects[c].name);
         ui->objName->blockSignals(false);
 
         ui->objScript->blockSignals(true);
@@ -71,7 +71,7 @@ StageconfigEditorv4::StageconfigEditorv4(FormatHelpers::Stageconfig *scf, int gc
         uint c = ui->objList->currentRow() + 1;
         stageConfig->objects.insert(c, FormatHelpers::Stageconfig::ObjectInfo());
         auto *item = new QListWidgetItem();
-        item->setText(stageConfig->objects[c].m_name);
+        item->setText(stageConfig->objects[c].name);
         ui->objList->insertItem(c, item);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -106,18 +106,18 @@ StageconfigEditorv4::StageconfigEditorv4(FormatHelpers::Stageconfig *scf, int gc
     });
 
     connect(ui->objList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        stageConfig->objects[ui->objList->row(item)].m_name = item->text();
+        stageConfig->objects[ui->objList->row(item)].name = item->text();
 
         ui->objName->blockSignals(true);
-        ui->objName->setText(stageConfig->objects[ui->objList->row(item)].m_name);
+        ui->objName->setText(stageConfig->objects[ui->objList->row(item)].name);
         ui->objName->blockSignals(false);
     });
 
     connect(ui->objName, &QLineEdit::textEdited, [this](QString s) {
-        stageConfig->objects[ui->objList->currentRow()].m_name = s;
+        stageConfig->objects[ui->objList->currentRow()].name = s;
 
         ui->objList->item(ui->objList->currentRow())
-            ->setText(stageConfig->objects[ui->objList->currentRow()].m_name);
+            ->setText(stageConfig->objects[ui->objList->currentRow()].name);
     });
     connect(ui->objScript, &QLineEdit::textEdited,
             [this](QString s) { stageConfig->objects[ui->objList->currentRow()].script = s; });
@@ -141,7 +141,7 @@ StageconfigEditorv4::StageconfigEditorv4(FormatHelpers::Stageconfig *scf, int gc
             return;
 
         ui->sfxName->blockSignals(true);
-        ui->sfxName->setText(stageConfig->soundFX[c].m_name);
+        ui->sfxName->setText(stageConfig->soundFX[c].name);
         ui->sfxName->blockSignals(false);
 
         ui->sfxPath->blockSignals(true);
@@ -196,18 +196,18 @@ StageconfigEditorv4::StageconfigEditorv4(FormatHelpers::Stageconfig *scf, int gc
     });
 
     connect(ui->sfxList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        stageConfig->soundFX[ui->sfxList->row(item)].m_name = item->text();
+        stageConfig->soundFX[ui->sfxList->row(item)].name = item->text();
 
         ui->sfxName->blockSignals(true);
-        ui->sfxName->setText(stageConfig->soundFX[ui->sfxList->currentRow()].m_name);
+        ui->sfxName->setText(stageConfig->soundFX[ui->sfxList->currentRow()].name);
         ui->sfxName->blockSignals(false);
     });
 
     connect(ui->sfxName, &QLineEdit::textEdited, [this](QString s) {
-        stageConfig->soundFX[ui->sfxList->currentRow()].m_name = s;
+        stageConfig->soundFX[ui->sfxList->currentRow()].name = s;
 
         ui->sfxList->item(ui->sfxList->currentRow())
-            ->setText(stageConfig->soundFX[ui->sfxList->currentRow()].m_name);
+            ->setText(stageConfig->soundFX[ui->sfxList->currentRow()].name);
     });
 
     connect(ui->sfxPath, &QLineEdit::textEdited,
@@ -232,7 +232,7 @@ void StageconfigEditorv4::setupUI()
     ui->objList->clear();
     int id = 0;
     for (FormatHelpers::Stageconfig::ObjectInfo &obj : stageConfig->objects) {
-        ui->objList->addItem(obj.m_name);
+        ui->objList->addItem(obj.name);
         ui->objList->item(id)->setFlags(ui->objList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
     }

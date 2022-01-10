@@ -1,10 +1,10 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv4::Datafile::read(Reader &reader, QList<QString> fileList)
 {
-    m_filename = reader.filepath;
+    filePath = reader.filePath;
 
-    if (QByteArray((const char *)m_signature, 6) != reader.readByteArray(6))
+    if (QByteArray((const char *)signature, 6) != reader.readByteArray(6))
         return;
 
     files.clear();
@@ -15,12 +15,12 @@ void RSDKv4::Datafile::read(Reader &reader, QList<QString> fileList)
 
 void RSDKv4::Datafile::write(Writer &writer)
 {
-    m_filename = writer.filePath;
+    filePath = writer.filePath;
 
-    for (int h = 0; h < 6; ++h) writer.write(m_signature[h]);
+    for (int h = 0; h < 6; ++h) writer.write(signature[h]);
 
-    // std::sort(m_files.begin(), m_files.end(), [](const FileInfo &a, const FileInfo &b) -> bool {
-    // return a.m_filename < b.m_filename; });
+    // std::sort(files.begin(), files.end(), [](const FileInfo &a, const FileInfo &b) -> bool {
+    // return a.filename < b.filename; });
 
     writer.write((ushort)files.count()); // write the header
     for (FileInfo &f : files) {
@@ -28,7 +28,7 @@ void RSDKv4::Datafile::write(Writer &writer)
     }
 
     for (FileInfo &f : files) {
-        f.m_dataOffset = (uint)writer.tell();
+        f.fileOffset = (uint)writer.tell();
         QByteArray b;
         b.resize(f.fileSize);
         writer.write(b);
@@ -36,13 +36,13 @@ void RSDKv4::Datafile::write(Writer &writer)
 
     writer.seek(0); // jump back to the start of the file
 
-    for (int h = 0; h < 6; ++h) writer.write(m_signature[h]);
+    for (int h = 0; h < 6; ++h) writer.write(signature[h]);
     writer.write((ushort)files.count());
 
     for (FileInfo &f : files) {
         f.writeHeader(writer);
         long tmp = writer.tell();
-        writer.seek(f.m_dataOffset);
+        writer.seek(f.fileOffset);
         f.writeData(writer);
         writer.seek(tmp);
     }
@@ -54,15 +54,15 @@ void RSDKv4::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, i
 {
     QByteArray hash;
     for (int y = 0; y < 16; y += 4) {
-        m_md5Hash[y + 3] = reader.read<byte>();
-        m_md5Hash[y + 2] = reader.read<byte>();
-        m_md5Hash[y + 1] = reader.read<byte>();
-        m_md5Hash[y + 0] = reader.read<byte>();
+        hash[y + 3] = reader.read<byte>();
+        hash[y + 2] = reader.read<byte>();
+        hash[y + 1] = reader.read<byte>();
+        hash[y + 0] = reader.read<byte>();
     }
 
-    for (int i = 0; i < 16; ++i) hash.append(m_md5Hash[i]);
+    for (int i = 0; i < 16; ++i) hash.append(hash[i]);
 
-    m_filenameHash = hash.toHex();
+    filenameHash = hash.toHex();
     fileName     = QString::number(cnt + 1) + ".bin"; // Make a base name
 
     for (int i = 0; i < fileList.count(); ++i) {
@@ -71,7 +71,7 @@ void RSDKv4::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, i
 
         bool match = true;
         for (int z = 0; z < 16; ++z) {
-            if ((byte)calculateMD5Hash(fp)[z] != (byte)m_md5Hash[z]) {
+            if ((byte)calculateMD5Hash(fp)[z] != (byte)hash[z]) {
                 match = false;
                 break;
             }
@@ -83,26 +83,26 @@ void RSDKv4::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, i
         }
     }
 
-    m_dataOffset = reader.read<uint>();
-    uint tmp     = reader.read<uint>();
+    fileOffset = reader.read<uint>();
+    uint tmp   = reader.read<uint>();
 
     encrypted = (tmp & 0x80000000) != 0;
     fileSize  = (tmp & 0x7FFFFFFF);
 
     long tmp2 = reader.tell();
-    reader.seek(m_dataOffset);
+    reader.seek(fileOffset);
 
     fileData = reader.readByteArray(fileSize);
 
     // Decrypt File if Encrypted
     if (encrypted)
-        fileData = decrypt(fileData);
+        fileData = decrypt(fileData, false);
 
     reader.seek(tmp2);
 
-    m_extension = getExtensionFromData();
+    extension = getExtensionFromData();
     if (fileName == QString::number(cnt + 1) + ".bin") {
-        switch (m_extension) {
+        switch (extension) {
             case ExtensionTypes::GIF: fileName = "Sprite" + QString::number(cnt + 1) + ".gif"; break;
             case ExtensionTypes::R3D: fileName = "Model" + QString::number(cnt + 1) + ".bin"; break;
             case ExtensionTypes::OGG: fileName = "Music" + QString::number(cnt + 1) + ".ogg"; break;
@@ -119,35 +119,34 @@ void RSDKv4::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, i
 
 void RSDKv4::Datafile::FileInfo::writeHeader(Writer &writer)
 {
-    fileName     = fileName.replace('\\', '/');
+    fileName       = fileName.replace('\\', '/');
     QString fn     = fileName;
     QByteArray md5 = calculateMD5Hash(fn.toLower());
 
     for (int y = 0; y < 16; y += 4) {
-        m_md5Hash[y + 3] = md5[y + 0];
-        m_md5Hash[y + 2] = md5[y + 1];
-        m_md5Hash[y + 1] = md5[y + 2];
-        m_md5Hash[y + 0] = md5[y + 3];
+        hash[y + 3] = md5[y + 0];
+        hash[y + 2] = md5[y + 1];
+        hash[y + 1] = md5[y + 2];
+        hash[y + 0] = md5[y + 3];
     }
 
     // again, temp
     encrypted = false;
 
-    for (int i = 0; i < 0x10; ++i) writer.write((byte)m_md5Hash[i]);
-    writer.write<uint>(m_dataOffset);
+    for (int i = 0; i < 0x10; ++i) writer.write((byte)hash[i]);
+    writer.write<uint>(fileOffset);
     writer.write<uint>(fileSize | (encrypted ? 0x80000000 : 0));
 }
 
 void RSDKv4::Datafile::FileInfo::writeData(Writer &writer)
 {
-    // Too lazy and I dont even fuckin think it works so
-    // if (m_encrypted)
-    //    writer.write(decrypt(m_filedata));
-    // else
-    writer.write(fileData);
+    if (encrypted)
+        writer.write(decrypt(fileData, true));
+    else
+        writer.write(fileData);
 }
 
-QByteArray RSDKv4::Datafile::FileInfo::decrypt(QByteArray data)
+QByteArray RSDKv4::Datafile::FileInfo::decrypt(QByteArray data, bool encrypting)
 {
     // Note: Since only XOr is used, this function does both,
     //       decryption and encryption.
@@ -157,58 +156,66 @@ QByteArray RSDKv4::Datafile::FileInfo::decrypt(QByteArray data)
     const uint ENC_KEY_2 = 0x24924925;
     const uint ENC_KEY_1 = 0xAAAAAAAB;
 
-    byte tempByt = 0;
-    int key1     = 0;
-    int key2     = 0;
-    int temp1    = 0;
-    int temp2    = 0;
+    int key1  = 0;
+    int key2  = 0;
+    int temp1 = 0;
+    int temp2 = 0;
 
     for (int i = 0; i < data.length(); ++i) {
-        tempByt = m_eKeyNo ^ (byte)m_encryptionKeyB[m_eKeyPosB];
-        tempByt ^= (byte)data[i];
-        if (m_eNybbleSwap == 1) // swap nibbles: 0xAB <-> 0xBA
-            tempByt = ((tempByt << 4) + (tempByt >> 4)) & 0xFF;
-        tempByt ^= (byte)m_encryptionKeyA[m_eKeyPosA];
-        data[i] = (byte)tempByt;
+        byte encByte = data[i];
+        if (encrypting) {
+            encByte ^= encryptionKeyA[eKeyPosA++];
 
-        ++m_eKeyPosA;
-        ++m_eKeyPosB;
+            if (eNybbleSwap == 1) // swap nibbles: 0xAB <-> 0xBA
+                encByte = ((encByte << 4) + (encByte >> 4)) & 0xFF;
 
-        if (m_eKeyPosA <= 0x0F) {
-            if (m_eKeyPosB > 0x0C) {
-                m_eKeyPosB = 0;
-                m_eNybbleSwap ^= 0x01;
-            }
-        }
-        else if (m_eKeyPosB <= 0x08) {
-            m_eKeyPosA = 0;
-            m_eNybbleSwap ^= 0x01;
+            encByte ^= eKeyNo ^ encryptionKeyB[eKeyPosB++];
         }
         else {
-            m_eKeyNo += 2;
-            m_eKeyNo &= 0x7F;
+            encByte ^= eKeyNo ^ encryptionKeyB[eKeyPosB++];
 
-            if (m_eNybbleSwap != 0) {
-                key1          = mulUnsignedHigh(ENC_KEY_1, m_eKeyNo);
-                key2          = mulUnsignedHigh(ENC_KEY_2, m_eKeyNo);
-                m_eNybbleSwap = 0;
+            if (eNybbleSwap == 1) // swap nibbles: 0xAB <-> 0xBA
+                encByte = ((encByte << 4) + (encByte >> 4)) & 0xFF;
 
-                temp1 = key2 + (m_eKeyNo - key2) / 2;
+            encByte ^= encryptionKeyA[eKeyPosA++];
+        }
+        data[i] = encByte;
+
+        if (eKeyPosA <= 0x0F) {
+            if (eKeyPosB > 0x0C) {
+                eKeyPosB = 0;
+                eNybbleSwap ^= 0x01;
+            }
+        }
+        else if (eKeyPosB <= 0x08) {
+            eKeyPosA = 0;
+            eNybbleSwap ^= 0x01;
+        }
+        else {
+            eKeyNo += 2;
+            eKeyNo &= 0x7F;
+
+            if (eNybbleSwap != 0) {
+                key1        = mulUnsignedHigh(ENC_KEY_1, eKeyNo);
+                key2        = mulUnsignedHigh(ENC_KEY_2, eKeyNo);
+                eNybbleSwap = 0;
+
+                temp1 = key2 + (eKeyNo - key2) / 2;
                 temp2 = key1 / 8 * 3;
 
-                m_eKeyPosA = m_eKeyNo - temp1 / 4 * 7;
-                m_eKeyPosB = m_eKeyNo - temp2 * 4 + 2;
+                eKeyPosA = eKeyNo - temp1 / 4 * 7;
+                eKeyPosB = eKeyNo - temp2 * 4 + 2;
             }
             else {
-                key1          = mulUnsignedHigh(ENC_KEY_1, m_eKeyNo);
-                key2          = mulUnsignedHigh(ENC_KEY_2, m_eKeyNo);
-                m_eNybbleSwap = 1;
+                key1        = mulUnsignedHigh(ENC_KEY_1, eKeyNo);
+                key2        = mulUnsignedHigh(ENC_KEY_2, eKeyNo);
+                eNybbleSwap = 1;
 
-                temp1 = key2 + (m_eKeyNo - key2) / 2;
+                temp1 = key2 + (eKeyNo - key2) / 2;
                 temp2 = key1 / 8 * 3;
 
-                m_eKeyPosB = m_eKeyNo - temp1 / 4 * 7;
-                m_eKeyPosA = m_eKeyNo - temp2 * 4 + 3;
+                eKeyPosB = eKeyNo - temp1 / 4 * 7;
+                eKeyPosA = eKeyNo - temp2 * 4 + 3;
             }
         }
     }

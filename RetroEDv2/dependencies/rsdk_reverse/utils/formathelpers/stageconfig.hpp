@@ -12,7 +12,7 @@ public:
     public:
         ObjectInfo() {}
 
-        QString m_name   = "Object";
+        QString name   = "Object";
         QString script = "Folder/Script.txt";
         byte sheetID   = 0;
     };
@@ -22,7 +22,7 @@ public:
     public:
         SoundInfo() {}
 
-        QString m_name = "Sound";
+        QString name = "Sound";
         QString path = "Folder/Sound.wav";
     };
 

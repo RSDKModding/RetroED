@@ -1,4 +1,4 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 QList<QString> RSDKv4::objectVariableNames = { "State",          "Direction", "Scale",     "Rotation",
                                                "DrawOrder",      "Priority",  "Alpha",     "Animation",
@@ -11,7 +11,7 @@ QList<QString> RSDKv4::objectVariableTypes = { "int",   "uint8", "int",   "int",
 
 void RSDKv4::Scene::read(Reader &reader)
 {
-    filePath = reader.filepath;
+    filePath = reader.filePath;
 
     title = reader.readString();
 

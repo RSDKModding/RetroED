@@ -314,7 +314,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             gameObj->active     = ACTIVE_NORMAL;
         }
 
-        if (viewer->gameConfig.readMode)
+        if (viewer->gameConfig.readFilter)
             FunctionTable::setEditableVar(VAR_UINT8, "filter", objectID, offsetof(GameEntity, filter));
 
         viewer->callGameEvent(info, SceneViewerv5::EVENT_SERIALIZE, NULL);

@@ -56,7 +56,7 @@ public:
     }
     void write(Writer &writer);
 
-    byte m_signature[4] = { 'C', 'F', 'G', 0 };
+    byte signature[4] = { 'C', 'F', 'G', 0 };
 
     bool loadGlobalObjects = true;
     QList<QString> objects;

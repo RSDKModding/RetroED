@@ -35,14 +35,11 @@ public:
             ushort activeCollision = reader.read<byte>() << 8;
             activeCollision |= reader.read<byte>();
 
-            int i  = 0;
-            int i2 = 1;
-
+            int i = 0;
             for (int c = 0; c < 8; ++c) {
-                collision[i].height  = (byte)((collisionBytes[c] & 0xF0) >> 4);
-                collision[i2].height = (byte)(collisionBytes[c] & 0x0F);
+                collision[i + 0].height = (byte)((collisionBytes[c] & 0xF0) >> 4);
+                collision[i + 1].height = (byte)(collisionBytes[c] & 0x0F);
                 i += 2;
-                i2 += 2;
             }
 
             for (int c = 0; c < 16; ++c) collision[c].solid = (activeCollision >> c & 1);
@@ -56,19 +53,19 @@ public:
             writer.write(roofAngle);
 
             QByteArray collisionBytes;
-            ushort collisionActive = 0;
+            ushort collisionSolid = 0;
 
             for (int i = 0; i < 8; ++i)
                 collisionBytes.append((byte)(((byte)collision[i * 2].height & 0xF) << 4
                                              | (collision[(i * 2) + 1].height & 0xF)));
 
             for (int c = 0; c < 16; ++c)
-                collisionActive ^= (-(bool)collision[c].solid ^ collisionActive) & (1 << c);
+                collisionSolid ^= (-(bool)collision[c].solid ^ collisionSolid) & (1 << c);
 
             writer.write(collisionBytes); // Write Collision Data
 
-            writer.write((byte)((collisionActive >> 8) & 0xFF)); // Write Collision Solidity byte 1
-            writer.write((byte)((collisionActive >> 0) & 0xFF)); // Write Collision Solidity byte 2
+            writer.write((byte)((collisionSolid >> 8) & 0xFF)); // Write Collision Solidity byte 1
+            writer.write((byte)((collisionSolid >> 0) & 0xFF)); // Write Collision Solidity byte 2
         }
 
         HeightMask collision[16];
@@ -92,7 +89,7 @@ public:
     }
     inline void read(Reader &reader)
     {
-        filepath = reader.filepath;
+        filepath = reader.filePath;
         for (int c = 0; c < 0x400; ++c) {
             for (int p = 0; p < 2; ++p) collisionPaths[p][c].read(reader);
         }

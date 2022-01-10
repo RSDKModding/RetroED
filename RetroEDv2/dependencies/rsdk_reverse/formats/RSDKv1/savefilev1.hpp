@@ -43,7 +43,7 @@ public:
     }
     void read(Reader &reader)
     {
-        filepath = reader.filepath;
+        filepath = reader.filePath;
         for (int i = 0; i < 10; ++i) saveFiles[i].read(reader);
     }
 

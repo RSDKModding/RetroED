@@ -10,126 +10,132 @@ public:
     class SwitchJumpPtr
     {
     public:
-        QList<int> m_cases;
-        int m_jump;
+        QList<int> cases;
+        int jump;
 
         inline bool operator==(const SwitchJumpPtr &rhs)
         {
-            if (m_cases.count() != rhs.m_cases.count())
+            if (cases.count() != rhs.cases.count())
                 return false;
-            for (int c = 0; c < m_cases.count(); ++c) {
-                if (m_cases[c] != rhs.m_cases[c])
+            for (int c = 0; c < cases.count(); ++c) {
+                if (cases[c] != rhs.cases[c])
                     return false;
             }
-            return m_jump == rhs.m_jump;
+            return jump == rhs.jump;
         }
     };
 
     struct SwitchState {
     public:
-        int m_jumpTableOffset;
-        int m_lowCase;
-        int m_highCase;
-        int m_case;
-        int m_defaultJmp;
-        int m_endJmp;
-        QList<SwitchJumpPtr> m_jumpPtr;
+        int jumpTableOffset;
+        int lowCase;
+        int highCase;
+        int caseID;
+        int defaultJmp;
+        int endJmp;
+        QList<SwitchJumpPtr> jumpPtr;
     };
 
     class StateScriptEngine
     {
     public:
-        int m_scriptCodePtr    = 0;
-        int m_jumpTablePtr     = 0;
-        int m_scriptCodeOffset = 0;
-        int m_jumpTableOffset  = 0;
-        int m_scriptSub        = 0;
-        int m_deep             = 0;
-        int m_switchDeep       = 0;
-        bool m_endFlag         = false;
-        SwitchState m_switchState[0x100];
+        int scriptCodePtr    = 0;
+        int jumpTablePtr     = 0;
+        int scriptCodeOffset = 0;
+        int jumpTableOffset  = 0;
+        int scriptSub        = 0;
+        int deep             = 0;
+        int switchDeep       = 0;
+        bool endFlag         = false;
+        SwitchState switchState[0x100];
 
         StateScriptEngine()
         {
-            m_scriptCodePtr    = 0;
-            m_jumpTablePtr     = 0;
-            m_scriptCodeOffset = 0;
-            m_jumpTableOffset  = 0;
-            m_scriptSub        = 0;
-            m_deep             = 0;
-            m_switchDeep       = 0;
-            m_endFlag          = false;
+            scriptCodePtr    = 0;
+            jumpTablePtr     = 0;
+            scriptCodeOffset = 0;
+            jumpTableOffset  = 0;
+            scriptSub        = 0;
+            deep             = 0;
+            switchDeep       = 0;
+            endFlag          = false;
             for (int i = 0; i < 0x100; i++) {
-                m_switchState[i]           = SwitchState();
-                m_switchState[i].m_jumpPtr = QList<SwitchJumpPtr>();
+                switchState[i]         = SwitchState();
+                switchState[i].jumpPtr = QList<SwitchJumpPtr>();
             }
         }
 
         StateScriptEngine IncDeep()
         {
-            m_deep += 1;
+            deep += 1;
             return *this;
         }
     };
 
     Decompiler() {}
 
-    void decompile(RSDKv4::Bytecode bytecode, QString destPath = "");
+    void decompile(QString destPath = "");
     void clearScriptData();
 
-    QList<QString> m_functionNames;
-    int m_functionCount       = 0;
-    int m_globalFunctionCount = 0;
+    QList<QString> functionNames;
+    int functionCount       = 0;
+    int globalFunctionCount = 0;
 
-    QList<QString> m_variableNames;
+    QList<QString> variableNames;
 
-    QList<QString> m_sourceNames;
-    QList<QString> m_typeNames;
+    QList<QString> sourceNames;
+    QList<QString> typeNames;
 
-    QList<QString> m_sfxNames;
+    QList<QString> sfxNames;
 
-    int m_globalScriptCount = 0;
-    int m_globalArrayCount  = 0;
-    int m_globalStaticCount = 0;
-    int m_globalSFXCount    = 0;
+    int globalScriptCount = 0;
+    int globalArrayCount  = 0;
+    int globalStaticCount = 0;
+    int globalSFXCount    = 0;
 
-    int m_lastOffset = 0;
+    int lastOffset = 0;
 
-    bool m_useHex           = false;
-    bool m_useCustomAliases = false;
-    bool m_seperateFolders  = false;
-    bool m_useOldOps        = false;
+    bool useHex           = false;
+    bool useCustomAliases = false;
+    bool seperateFolders  = false;
+    bool useOldOps        = false;
 
     struct StaticVarInfo {
-        QString m_name = "";
-        int m_dataPos  = 0x3FFFF;
+        QString name = "";
+        int dataPos  = 0x3FFFF;
 
         StaticVarInfo() {}
         StaticVarInfo(QString n, int p)
         {
-            m_name    = n;
-            m_dataPos = p;
+            name    = n;
+            dataPos = p;
         }
 
         inline bool operator==(const StaticVarInfo &rhs)
         {
-            return /*(m_name == rhs.m_name) && */ (m_dataPos == rhs.m_dataPos);
+            return /*(name == rhs.name) && */ (dataPos == rhs.dataPos);
         }
     };
 
-    QList<StaticVarInfo> m_staticVars;
-    QList<StaticVarInfo> m_tables;
+    QList<StaticVarInfo> staticVars;
+    QList<StaticVarInfo> tables;
+
+    // Bytecode info
+    QList<int> scriptCode;
+    QList<int> jumpTable;
+    QList<RSDKv4::Bytecode::ScriptInfo> scriptList;
+    QList<RSDKv4::Bytecode::FunctionInfo> functionList;
+    QString bytecodePath = "";
 
 private:
-    int decompileScript(RSDKv4::Bytecode &bytecode, Writer &writer, int scriptCodePtr, int jumpTablePtr,
-                        QString subName, bool isFunction);
-    void decompileSub(RSDKv4::Bytecode &bytecode, Writer writer, StateScriptEngine &state,
-                      bool isFunction);
+    int decompileScript(Writer &writer, int scriptCodePtr, int jumpTablePtr, QString subName,
+                        bool isFunction);
+    void decompileSub(Writer writer, StateScriptEngine &state, bool isFunction);
 
     inline QString toHexString(QString str)
     {
         QString original = str;
-        if (!m_useHex)
+        if (!useHex)
             return original;
         bool negative = str.startsWith("-");
 
@@ -158,10 +164,10 @@ private:
 
     QString setArrayValue(QString strIn, QString index);
 
-    int m_scriptDataPos    = 0;
-    int m_jumpTableDataPos = 0;
+    int scriptDataPos    = 0;
+    int jumpTableDataPos = 0;
 
-    StateScriptEngine m_state;
+    StateScriptEngine state;
 };
 
 }; // namespace RSDKv4

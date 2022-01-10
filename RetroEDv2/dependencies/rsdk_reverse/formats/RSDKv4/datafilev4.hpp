@@ -19,10 +19,10 @@ public:
 
         inline void setName(QString filename)
         {
-            fileName     = filename;
-            m_filenameHash = Utils::getMd5HashString(fileName);
+            fileName       = filename;
+            filenameHash   = Utils::getMd5HashString(fileName);
             QByteArray md5 = Utils::getMd5HashByteArray(fileName);
-            for (int h = 0; h < 0x10; ++h) m_md5Hash[h] = (byte)md5[h];
+            for (int h = 0; h < 0x10; ++h) hash[h] = (byte)md5[h];
         }
 
         enum ExtensionTypes {
@@ -35,15 +35,15 @@ public:
         };
 
         QString fileName     = "";
-        QString m_filenameHash = "";
+        QString filenameHash = "";
 
-        uint m_dataOffset = 0;
+        uint fileOffset = 0;
         uint fileSize   = 0;
         bool encrypted  = false;
         QByteArray fileData;
 
     private:
-        byte m_md5Hash[0x10];
+        byte hash[0x10];
 
         inline QString getMd5Hash(QString input)
         {
@@ -77,18 +77,18 @@ public:
             return buffer;
         }
 
-        void generateELoadKeys(uint arg1, uint arg2, uint size)
+        inline void generateELoadKeys(uint arg1, uint arg2, uint size)
         {
-            m_encryptionKeyA = generateKey(arg1);
-            m_encryptionKeyB = generateKey(arg2);
+            encryptionKeyA = generateKey(arg1);
+            encryptionKeyB = generateKey(arg2);
 
-            m_eKeyNo      = (int)(size / 4) & 0x7F;
-            m_eKeyPosA    = 0;
-            m_eKeyPosB    = 8;
-            m_eNybbleSwap = 0;
+            eKeyNo      = (int)(size / 4) & 0x7F;
+            eKeyPosA    = 0;
+            eKeyPosB    = 8;
+            eNybbleSwap = 0;
         }
 
-        QByteArray decrypt(QByteArray data);
+        QByteArray decrypt(QByteArray data, bool encrypting);
 
         inline uint mulUnsignedHigh(uint64_t arg1, uint64_t arg2)
         {
@@ -97,14 +97,14 @@ public:
 
         byte getExtensionFromData();
 
-        byte m_extension = ExtensionTypes::UNKNOWN;
+        byte extension = ExtensionTypes::UNKNOWN;
 
-        QByteArray m_encryptionKeyA;
-        QByteArray m_encryptionKeyB;
-        int m_eKeyNo;
-        int m_eKeyPosA;
-        int m_eKeyPosB;
-        int m_eNybbleSwap;
+        QByteArray encryptionKeyA;
+        QByteArray encryptionKeyB;
+        int eKeyNo;
+        int eKeyPosA;
+        int eKeyPosB;
+        int eNybbleSwap;
     };
 
     Datafile() {}
@@ -121,7 +121,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -129,11 +129,11 @@ public:
     }
     void write(Writer &writer);
 
-    const byte m_signature[6] = { (byte)'R', (byte)'S', (byte)'D', (byte)'K', (byte)'v', (byte)'B' };
+    const byte signature[6] = { 'R', 'S', 'D', 'K', 'v', 'B' };
 
     QList<FileInfo> files;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv4

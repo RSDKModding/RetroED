@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv5::Replay::read(Reader &reader)
 {
-    filepath       = reader.filepath;
+    filePath       = reader.filePath;
     Reader creader = reader.getCReaderRaw();
 
     uint sig = creader.read<uint>();
@@ -14,14 +14,14 @@ void RSDKv5::Replay::read(Reader &reader)
     }
 
     gameVer         = creader.read<int>();
-    isPacked        = creader.read<int>() != 0;
-    bool isNotEmpty = creader.read<int>() != 0;
+    isPacked        = creader.read<uint>() != 0;
+    bool isNotEmpty = creader.read<uint>() != 0;
     int frameCount  = creader.read<int>();
     startingFrame   = creader.read<int>();
     zoneID          = creader.read<int>();
     act             = creader.read<int>();
     characterID     = creader.read<int>();
-    isPlusLayout    = creader.read<int>() != 0;
+    isPlusLayout    = creader.read<uint>() != 0;
     oscillation     = creader.read<int>();
     int bufferSize  = creader.read<int>();
     unknown1        = creader.read<float>();
@@ -36,7 +36,7 @@ void RSDKv5::Replay::read(Reader &reader)
     for (int f = 0; f < frameCount; ++f) {
         ReplayEntry entry;
         entry.unpack(creader, isPacked);
-        entries.append(entry);
+        frames.append(entry);
     }
 
     creader.close();
@@ -45,7 +45,7 @@ void RSDKv5::Replay::read(Reader &reader)
 
 void RSDKv5::Replay::write(Writer &writer)
 {
-    filepath = writer.filePath;
+    filePath = writer.filePath;
 
     QByteArray compressed;
     QBuffer buffer(&compressed);
@@ -60,25 +60,25 @@ void RSDKv5::Replay::write(Writer &writer)
     Writer fwriter(fmem);
 
     int bufferSize = 0;
-    for (int f = 0; f < entries.count(); ++f) {
-        bufferSize += entries[f].pack(fwriter, isPacked);
+    for (int f = 0; f < frames.count(); ++f) {
+        bufferSize += frames[f].pack(fwriter, isPacked);
     }
     fwriter.flush();
 
     if (!isPacked) {
-        bufferSize = 28 * (entries.count() + 2);
+        bufferSize = 28 * (frames.count() + 2);
     }
 
     cwriter.write<uint>(signature);
     cwriter.write<int>(gameVer);
-    cwriter.write<bool32>(isPacked);
-    cwriter.write<bool32>(true);
-    cwriter.write<int>(entries.count());
+    cwriter.write<uint>(isPacked);
+    cwriter.write<uint>(true);
+    cwriter.write<int>(frames.count());
     cwriter.write<int>(startingFrame);
     cwriter.write<int>(zoneID);
     cwriter.write<int>(act);
     cwriter.write<int>(characterID);
-    cwriter.write<bool32>(isPlusLayout);
+    cwriter.write<uint>(isPlusLayout);
     cwriter.write<int>(oscillation);
     cwriter.write<int>(bufferSize);
     cwriter.write<float>(unknown1);
@@ -97,7 +97,6 @@ int RSDKv5::Replay::ReplayEntry::unpack(Reader &reader, bool isPacked)
     info  = reader.read<byte>();
     flags = reader.read<byte>();
     if (isPacked) {
-
         bool flag = info == 1 || info == 3;
 
         if ((flags & 0x01) || flag)
@@ -143,7 +142,7 @@ int RSDKv5::Replay::ReplayEntry::pack(Writer &writer, bool isPacked)
 
     writer.write(info);
 
-    bool32 flag = info == 1 || info == 3;
+    bool flag = info == 1 || info == 3;
     writer.write(flags);
 
     if (isPacked) {

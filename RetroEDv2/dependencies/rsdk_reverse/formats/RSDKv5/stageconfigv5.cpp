@@ -1,10 +1,10 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv5::StageConfig::read(Reader &reader)
 {
-    filePath = reader.filepath;
+    filePath = reader.filePath;
 
-    if (!reader.matchesSignature(m_signature, 4))
+    if (!reader.matchesSignature(signature, 4))
         return;
 
     loadGlobalObjects = reader.read<bool>();
@@ -23,7 +23,7 @@ void RSDKv5::StageConfig::read(Reader &reader)
 void RSDKv5::StageConfig::write(Writer &writer)
 {
     filePath = writer.filePath;
-    writer.write(m_signature, 4);
+    writer.write(signature, 4);
 
     writer.write(loadGlobalObjects);
 

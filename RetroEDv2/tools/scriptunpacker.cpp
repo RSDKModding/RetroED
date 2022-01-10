@@ -8,6 +8,8 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
     connect(ui->selEngineType, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int i) {
         if (i >= 0)
             ui->stackedWidget->setCurrentIndex(i == 2);
+        variableNames.clear();
+        bytecodeList.clear();
     });
 
     connect(ui->useCustomAliases, &QCheckBox::toggled,
@@ -40,7 +42,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     return;
                 }
                 else {
-                    RSDKv3::Gameconfig gcf;
+                    RSDKv3::GameConfig gcf;
                     gcf.read(dataPath + "/Game/GameConfig.bin");
 
                     BytecodeInfo globalInfo;
@@ -195,8 +197,8 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                 decompilerv3.useCustomAliases = ui->useCustomAliases->isChecked();
                 if (decompilerv3.useCustomAliases)
                     decompilerv3.seperateFolders = true;
-                decompilerv3.m_useHex    = ui->useHex->isChecked();
-                decompilerv3.m_mobileVer = mobileVer;
+                decompilerv3.useHex    = ui->useHex->isChecked();
+                decompilerv3.mobileVer = mobileVer;
 
                 decompilerv3.globalScriptCount = globalScriptCount;
                 decompilerv3.globalSFXCount    = globalSFXCount;
@@ -242,14 +244,36 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     for (auto &n : bytecodeList[b].sfxNames) decompilerv3.sfxNames.append(n);
 
                     RSDKv3::Bytecode bc;
+                    decompilerv3.scriptCode.clear();
+                    decompilerv3.jumpTable.clear();
+                    decompilerv3.scriptList.clear();
+                    decompilerv3.functionList.clear();
+                    decompilerv3.bytecodePath = "";
                     if (b && bytecodeList[b].loadGlobals) {
-                        bc.read(bytecodeList[0].path, 1);
-                        bc.read(bytecodeList[b].path, globalScriptCount, false);
+                        // Load Global Bytecode
+                        bc.read(bytecodeList[0].path);
+                        decompilerv3.scriptCode = bc.scriptCode;
+                        decompilerv3.jumpTable  = bc.jumpTable;
+                        decompilerv3.scriptList = bc.scriptList;
+
+                        // Load Stage-Specific Bytecode
+                        bc.read(bytecodeList[b].path);
+                        decompilerv3.scriptCode.append(bc.scriptCode);
+                        decompilerv3.jumpTable.append(bc.jumpTable);
+                        decompilerv3.scriptList.append(bc.scriptList);
+                        decompilerv3.functionList = bc.functionList;
+                        decompilerv3.bytecodePath = bc.filePath;
                     }
                     else {
-                        bc.read(bytecodeList[b].path, 1);
+                        // Load Stage-Specific Bytecode
+                        bc.read(bytecodeList[b].path);
+                        decompilerv3.scriptCode   = bc.scriptCode;
+                        decompilerv3.jumpTable    = bc.jumpTable;
+                        decompilerv3.scriptList   = bc.scriptList;
+                        decompilerv3.functionList = bc.functionList;
+                        decompilerv3.bytecodePath = bc.filePath;
                     }
-                    decompilerv3.decompile(bc, outputPath);
+                    decompilerv3.decompile(outputPath);
 
                     if (!b) {
                         globalFunctionCount = bc.functionList.count();
@@ -262,94 +286,115 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                 setStatus("finished decompiling scripts!");
             }
             else if (ui->selEngineType->currentIndex() == 1) {
-                decompilerv4.m_seperateFolders  = ui->sepFolders->isChecked();
-                decompilerv4.m_useCustomAliases = ui->useCustomAliases->isChecked();
-                if (decompilerv4.m_useCustomAliases)
-                    decompilerv4.m_seperateFolders = true;
-                decompilerv4.m_useHex    = ui->useHex->isChecked();
-                decompilerv4.m_useOldOps = ui->useOldOps->isChecked();
+                decompilerv4.seperateFolders  = ui->sepFolders->isChecked();
+                decompilerv4.useCustomAliases = ui->useCustomAliases->isChecked();
+                if (decompilerv4.useCustomAliases)
+                    decompilerv4.seperateFolders = true;
+                decompilerv4.useHex    = ui->useHex->isChecked();
+                decompilerv4.useOldOps = ui->useOldOps->isChecked();
 
-                decompilerv4.m_globalScriptCount = globalScriptCount;
-                decompilerv4.m_globalSFXCount    = globalSFXCount;
+                decompilerv4.globalScriptCount = globalScriptCount;
+                decompilerv4.globalSFXCount    = globalSFXCount;
                 QList<QString> globalFunctionScripts;
                 QList<QString> globalFunctionNames;
 
-                decompilerv4.m_variableNames = variableNames;
-                QList<RSDKv4::Decompiler::StaticVarInfo> m_globalConstants;
-                QList<RSDKv4::Decompiler::StaticVarInfo> m_globalArrays;
+                decompilerv4.variableNames = variableNames;
+                QList<RSDKv4::Decompiler::StaticVarInfo> globalConstants;
+                QList<RSDKv4::Decompiler::StaticVarInfo> globalArrays;
 
                 for (int b = 0; b < bytecodeList.count(); ++b) {
-                    decompilerv4.m_sourceNames.clear();
-                    decompilerv4.m_typeNames.clear();
-                    decompilerv4.m_sfxNames.clear();
-                    decompilerv4.m_functionNames.clear();
-                    decompilerv4.m_staticVars.clear();
-                    decompilerv4.m_tables.clear();
+                    decompilerv4.sourceNames.clear();
+                    decompilerv4.typeNames.clear();
+                    decompilerv4.sfxNames.clear();
+                    decompilerv4.functionNames.clear();
+                    decompilerv4.staticVars.clear();
+                    decompilerv4.tables.clear();
 
-                    decompilerv4.m_globalScriptCount = b ? globalScriptCount : 0;
+                    decompilerv4.globalScriptCount = b ? globalScriptCount : 0;
 
                     // Add Global Info
                     if (b && bytecodeList[b].loadGlobals) {
-                        for (auto &n : bytecodeList[0].sourceNames)
-                            decompilerv4.m_sourceNames.append(n);
-                        for (auto &n : bytecodeList[0].typeNames) decompilerv4.m_typeNames.append(n);
-                        for (auto &n : bytecodeList[0].sfxNames) decompilerv4.m_sfxNames.append(n);
-                        for (auto &n : globalFunctionNames) decompilerv4.m_functionNames.append(n);
-                        for (auto &n : m_globalConstants) decompilerv4.m_staticVars.append(n);
-                        for (auto &n : m_globalArrays) decompilerv4.m_tables.append(n);
+                        for (auto &n : bytecodeList[0].sourceNames) decompilerv4.sourceNames.append(n);
+                        for (auto &n : bytecodeList[0].typeNames) decompilerv4.typeNames.append(n);
+                        for (auto &n : bytecodeList[0].sfxNames) decompilerv4.sfxNames.append(n);
+                        for (auto &n : globalFunctionNames) decompilerv4.functionNames.append(n);
+                        for (auto &n : globalConstants) decompilerv4.staticVars.append(n);
+                        for (auto &n : globalArrays) decompilerv4.tables.append(n);
 
-                        decompilerv4.m_globalFunctionCount = globalFunctionCount;
-                        decompilerv4.m_globalStaticCount   = m_globalArrayCount;
-                        decompilerv4.m_globalArrayCount    = m_globalConstantCount;
-                        decompilerv4.m_globalScriptCount   = globalScriptCount;
-                        decompilerv4.m_globalSFXCount      = globalSFXCount;
+                        decompilerv4.globalFunctionCount = globalFunctionCount;
+                        decompilerv4.globalStaticCount   = globalArrayCount;
+                        decompilerv4.globalArrayCount    = globalConstantCount;
+                        decompilerv4.globalScriptCount   = globalScriptCount;
+                        decompilerv4.globalSFXCount      = globalSFXCount;
 
-                        decompilerv4.m_lastOffset = m_globalOffset;
+                        decompilerv4.lastOffset = globalOffset;
                     }
                     else {
                         if (!bytecodeList[b].loadGlobals && b) {
-                            decompilerv4.m_sourceNames.append("Blank Object");
-                            decompilerv4.m_typeNames.append("Blank Object");
+                            decompilerv4.sourceNames.append("Blank Object");
+                            decompilerv4.typeNames.append("Blank Object");
 
-                            for (auto &n : bytecodeList[0].sfxNames) decompilerv4.m_sfxNames.append(n);
+                            for (auto &n : bytecodeList[0].sfxNames) decompilerv4.sfxNames.append(n);
                         }
 
-                        decompilerv4.m_globalFunctionCount = 0;
-                        decompilerv4.m_globalStaticCount   = 0;
-                        decompilerv4.m_globalArrayCount    = 0;
-                        decompilerv4.m_globalScriptCount   = 0;
-                        decompilerv4.m_globalSFXCount      = globalSFXCount;
+                        decompilerv4.globalFunctionCount = 0;
+                        decompilerv4.globalStaticCount   = 0;
+                        decompilerv4.globalArrayCount    = 0;
+                        decompilerv4.globalScriptCount   = 0;
+                        decompilerv4.globalSFXCount      = globalSFXCount;
 
-                        decompilerv4.m_lastOffset = 0;
+                        decompilerv4.lastOffset = 0;
                     }
 
-                    for (auto &n : bytecodeList[b].sourceNames) decompilerv4.m_sourceNames.append(n);
-                    for (auto &n : bytecodeList[b].typeNames) decompilerv4.m_typeNames.append(n);
-                    for (auto &n : bytecodeList[b].sfxNames) decompilerv4.m_sfxNames.append(n);
+                    for (auto &n : bytecodeList[b].sourceNames) decompilerv4.sourceNames.append(n);
+                    for (auto &n : bytecodeList[b].typeNames) decompilerv4.typeNames.append(n);
+                    for (auto &n : bytecodeList[b].sfxNames) decompilerv4.sfxNames.append(n);
 
                     RSDKv4::Bytecode bc;
+                    decompilerv4.scriptCode.clear();
+                    decompilerv4.jumpTable.clear();
+                    decompilerv4.scriptList.clear();
+                    decompilerv4.functionList.clear();
+                    decompilerv4.bytecodePath = "";
                     if (b && bytecodeList[b].loadGlobals) {
-                        bc.read(bytecodeList[0].path, 1);
-                        bc.read(bytecodeList[b].path, globalScriptCount, false);
+                        // Load Global Bytecode
+                        bc.read(bytecodeList[0].path);
+                        decompilerv4.scriptCode = bc.scriptCode;
+                        decompilerv4.jumpTable  = bc.jumpTable;
+                        decompilerv4.scriptList = bc.scriptList;
+
+                        // Load Stage-Specific Bytecode
+                        bc.read(bytecodeList[b].path);
+                        decompilerv4.scriptCode.append(bc.scriptCode);
+                        decompilerv4.jumpTable.append(bc.jumpTable);
+                        decompilerv4.scriptList.append(bc.scriptList);
+                        decompilerv4.functionList = bc.functionList;
+                        decompilerv4.bytecodePath = bc.filePath;
                     }
                     else {
-                        bc.read(bytecodeList[b].path, 1);
+                        // Load Stage-Specific Bytecode
+                        bc.read(bytecodeList[b].path);
+                        decompilerv4.scriptCode   = bc.scriptCode;
+                        decompilerv4.jumpTable    = bc.jumpTable;
+                        decompilerv4.scriptList   = bc.scriptList;
+                        decompilerv4.functionList = bc.functionList;
+                        decompilerv4.bytecodePath = bc.filePath;
                     }
-                    decompilerv4.decompile(bc, outputPath);
+                    decompilerv4.decompile(outputPath);
 
                     if (!b) {
-                        globalFunctionCount   = bc.functionList.count();
-                        m_globalConstantCount = decompilerv4.m_staticVars.count();
-                        m_globalArrayCount    = decompilerv4.m_tables.count();
-                        m_globalOffset        = decompilerv4.m_lastOffset;
+                        globalFunctionCount = bc.functionList.count();
+                        globalConstantCount = decompilerv4.staticVars.count();
+                        globalArrayCount    = decompilerv4.tables.count();
+                        globalOffset        = decompilerv4.lastOffset;
 
                         globalFunctionNames.clear();
                         globalFunctionScripts.clear();
-                        m_globalConstants.clear();
-                        m_globalArrays.clear();
-                        for (auto &n : decompilerv4.m_functionNames) globalFunctionNames.append(n);
-                        for (auto &n : decompilerv4.m_staticVars) m_globalConstants.append(n);
-                        for (auto &n : decompilerv4.m_tables) m_globalArrays.append(n);
+                        globalConstants.clear();
+                        globalArrays.clear();
+                        for (auto &n : decompilerv4.functionNames) globalFunctionNames.append(n);
+                        for (auto &n : decompilerv4.staticVars) globalConstants.append(n);
+                        for (auto &n : decompilerv4.tables) globalArrays.append(n);
                     }
                 }
                 setStatus("finished decompiling scripts!");
@@ -357,8 +402,29 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
         }
     });
 
-    connect(ui->loadTRBytecode, &QPushButton::clicked, [this] {});
-    connect(ui->saveTRScript, &QPushButton::clicked, [this] {});
+    connect(ui->loadTRBytecode, &QPushButton::clicked, [this] {
+        QFileDialog filedialog(this, tr("Open Retro-Sonic Bytecode"), "",
+                               tr("Retro-Sonic Bytecode files (*.rsf)"));
+        filedialog.setAcceptMode(QFileDialog::AcceptOpen);
+        if (filedialog.exec() == QDialog::Accepted) {
+            variableNames.clear(); // hack :]
+            variableNames.append(filedialog.selectedFiles()[0]);
+        }
+    });
+    connect(ui->saveTRScript, &QPushButton::clicked, [this] {
+        if (!variableNames.count())
+            return;
+
+        QFileDialog filedialog(this, tr("Save Script"), "", tr("Text Files (*.txt)"));
+        filedialog.setFileMode(QFileDialog::Directory);
+        filedialog.setAcceptMode(QFileDialog::AcceptSave);
+        if (filedialog.exec() == QDialog::Accepted) {
+            QString scriptPath = filedialog.selectedFiles()[0];
+
+            RSDKv1::Script script(variableNames[0]);
+            decompilerv1.decompile(script, scriptPath);
+        }
+    });
 }
 
 ScriptUnpacker::~ScriptUnpacker() { delete ui; }

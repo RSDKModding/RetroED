@@ -98,7 +98,7 @@ public:
 };
 
 // RSDK
-#include "dependencies/rsdk_reverse/include.hpp"
+#include "dependencies/rsdk_reverse/rsdkreverse.hpp"
 
 // Misc/Utils
 #include "utils/retroedutils.hpp"
@@ -108,19 +108,23 @@ public:
 #include "utils/shaders.hpp"
 #include "utils/workingdirmanager.hpp"
 
+// RSDKv5 Link
+#include "tools/gamelink/gamelink.hpp"
+
 // Formats
 #include "utils/appconfig.hpp"
 #include "utils/staticobjectinfo.hpp"
 
 // Compilers
+#include "tools/compiler/compilerv1.hpp"
+#include "tools/compiler/compilerv2.hpp"
 #include "tools/compiler/compilerv3.hpp"
 #include "tools/compiler/compilerv4.hpp"
-#include "tools/compiler/compilerv2.hpp"
 
 // Decompilers
+#include "tools/decompiler/decompilerv1.hpp"
 #include "tools/decompiler/decompilerv3.hpp"
 #include "tools/decompiler/decompilerv4.hpp"
-#include "tools/decompiler/decompilerv1.hpp"
 
 // Form Utils
 #include "tools/utils/propertygrid.hpp"
@@ -164,6 +168,7 @@ public:
 #include "tools/paletteeditor.hpp"
 #include "tools/paletteeditor/colourdialog.hpp"
 #include "tools/rsdkunpacker.hpp"
+#include "tools/scriptcompiler.hpp"
 #include "tools/scriptunpacker.hpp"
 #include "tools/sceneeditor.hpp"
 #include "tools/sceneeditorv5.hpp"

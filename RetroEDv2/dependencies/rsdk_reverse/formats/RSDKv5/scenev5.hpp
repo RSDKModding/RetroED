@@ -174,12 +174,12 @@ public:
     {
     public:
         QByteArray hash;
-        QString m_name = "";
+        QString name = "";
 
         NameIdentifier(QString name)
         {
-            hash   = Utils::getMd5HashByteArray(name);
-            m_name = name;
+            hash = Utils::getMd5HashByteArray(name);
+            name = name;
         }
 
         NameIdentifier(Reader &reader) { read(reader); }
@@ -191,8 +191,8 @@ public:
 
         QString toString()
         {
-            if (m_name != "")
-                return m_name;
+            if (name != "")
+                return name;
             return hashString();
         }
     };
@@ -336,7 +336,7 @@ public:
     }
     void read(Reader &reader)
     {
-        filepath = reader.filepath;
+        filepath = reader.filePath;
 
         if (!reader.matchesSignature(signature, 4))
             return;

@@ -16,8 +16,8 @@ public:
         void read(Reader &reader)
         {
             parallaxFactor = reader.read<byte>();
-            scrollSpeed = reader.read<byte>();
-            deform     = reader.read<byte>();
+            scrollSpeed    = reader.read<byte>();
+            deform         = reader.read<byte>();
         }
         void write(Writer &writer)
         {
@@ -26,9 +26,9 @@ public:
             writer.write(deform);
         }
 
-        byte parallaxFactor = 0;
-        byte scrollSpeed = 0;
-        byte deform     = 0;
+        byte parallaxFactor = 1 << 7;
+        byte scrollSpeed    = 0 << 6;
+        bool deform         = false;
     };
 
     class Layer
@@ -44,9 +44,9 @@ public:
 
         byte width         = 0;
         byte height        = 0;
-        byte behaviour     = 0;
-        byte relativeSpeed = 0;
-        byte constantSpeed = 0;
+        byte type          = 1;
+        byte relativeSpeed = 1 << 7;
+        byte constantSpeed = 0 << 6;
         QByteArray lineIndexes;
     };
 
@@ -64,7 +64,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = filepath;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -76,7 +76,7 @@ public:
     QList<ScrollInfo> hScroll;
     QList<ScrollInfo> vScroll;
 
-    QString filepath = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv1

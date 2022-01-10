@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv5::StaticObject::read(Reader &reader)
 {
-    filePath = reader.filepath;
+    filePath = reader.filePath;
     if (!reader.matchesSignature(signature, 4))
         return;
 
@@ -190,8 +190,8 @@ void RSDKv5::StaticObject::write(Writer &writer)
                 case VariableTypes::INT16:
                     for (int i = 0; i < array.dataSize; ++i) {
                         Utils::intBytes b = Utils::intBytes(array.entries[i]);
-                        writer.write(b.m_bytes[0]);
-                        writer.write(b.m_bytes[1]);
+                        writer.write(b.bytes[0]);
+                        writer.write(b.bytes[1]);
                     }
                     break;
                 case VariableTypes::UINT32:
@@ -199,10 +199,10 @@ void RSDKv5::StaticObject::write(Writer &writer)
                 case VariableTypes::ENUM:
                     for (int i = 0; i < array.dataSize; ++i) {
                         Utils::intBytes b = Utils::intBytes(array.entries[i]);
-                        writer.write(b.m_bytes[0]);
-                        writer.write(b.m_bytes[1]);
-                        writer.write(b.m_bytes[2]);
-                        writer.write(b.m_bytes[3]);
+                        writer.write(b.bytes[0]);
+                        writer.write(b.bytes[1]);
+                        writer.write(b.bytes[2]);
+                        writer.write(b.bytes[3]);
                     }
                     break;
             }

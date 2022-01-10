@@ -1,4 +1,4 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void FormatHelpers::Stageconfig::read(byte ver, QString filename)
 {
@@ -21,7 +21,7 @@ void FormatHelpers::Stageconfig::read(byte ver, QString filename)
 
             for (RSDKv1::StageConfig::ObjectInfo &obj : stageconfig.objects) {
                 ObjectInfo o;
-                o.m_name  = QFileInfo(obj.script).baseName();
+                o.name    = QFileInfo(obj.script).baseName();
                 o.script  = obj.script;
                 o.sheetID = obj.sheetID;
 
@@ -32,8 +32,8 @@ void FormatHelpers::Stageconfig::read(byte ver, QString filename)
 
             for (QString &sfx : stageconfig.soundFX) {
                 SoundInfo s;
-                s.m_name = QFileInfo(sfx).baseName();
-                s.path   = sfx;
+                s.name = QFileInfo(sfx).baseName();
+                s.path = sfx;
 
                 soundFX.append(s);
             }
@@ -49,7 +49,7 @@ void FormatHelpers::Stageconfig::read(byte ver, QString filename)
 
             for (QString &obj : stageconfig.scripts) {
                 ObjectInfo o;
-                o.m_name = QFileInfo(obj).baseName();
+                o.name   = QFileInfo(obj).baseName();
                 o.script = obj;
 
                 objects.append(o);
@@ -57,8 +57,8 @@ void FormatHelpers::Stageconfig::read(byte ver, QString filename)
 
             for (QString &sfx : stageconfig.soundFX) {
                 SoundInfo s;
-                s.m_name = QFileInfo(sfx).baseName();
-                s.path   = sfx;
+                s.name = QFileInfo(sfx).baseName();
+                s.path = sfx;
 
                 soundFX.append(s);
             }
@@ -72,7 +72,7 @@ void FormatHelpers::Stageconfig::read(byte ver, QString filename)
 
             for (RSDKv3::StageConfig::ObjectInfo &obj : stageconfig.objects) {
                 ObjectInfo o;
-                o.m_name = obj.name;
+                o.name   = obj.name;
                 o.script = obj.script;
 
                 objects.append(o);
@@ -80,8 +80,8 @@ void FormatHelpers::Stageconfig::read(byte ver, QString filename)
 
             for (QString &sfx : stageconfig.soundFX) {
                 SoundInfo s;
-                s.m_name = QFileInfo(sfx).baseName();
-                s.path   = sfx;
+                s.name = QFileInfo(sfx).baseName();
+                s.path = sfx;
 
                 soundFX.append(s);
             }
@@ -95,7 +95,7 @@ void FormatHelpers::Stageconfig::read(byte ver, QString filename)
 
             for (RSDKv4::StageConfig::ObjectInfo &obj : stageconfig.objects) {
                 ObjectInfo o;
-                o.m_name = obj.name;
+                o.name   = obj.name;
                 o.script = obj.script;
 
                 objects.append(o);
@@ -103,8 +103,8 @@ void FormatHelpers::Stageconfig::read(byte ver, QString filename)
 
             for (RSDKv4::StageConfig::SoundInfo &sfx : stageconfig.soundFX) {
                 SoundInfo s;
-                s.m_name = sfx.name;
-                s.path   = sfx.path;
+                s.name = sfx.name;
+                s.path = sfx.path;
 
                 soundFX.append(s);
             }
@@ -165,7 +165,7 @@ void FormatHelpers::Stageconfig::write(byte ver, QString filename)
 
             for (ObjectInfo &obj : objects) {
                 RSDKv3::StageConfig::ObjectInfo o;
-                o.name   = obj.m_name;
+                o.name   = obj.name;
                 o.script = obj.script;
 
                 stageconfig.objects.append(o);
@@ -185,7 +185,7 @@ void FormatHelpers::Stageconfig::write(byte ver, QString filename)
 
             for (ObjectInfo &obj : objects) {
                 RSDKv4::StageConfig::ObjectInfo o;
-                o.name   = obj.m_name;
+                o.name   = obj.name;
                 o.script = obj.script;
 
                 stageconfig.objects.append(o);
@@ -193,7 +193,7 @@ void FormatHelpers::Stageconfig::write(byte ver, QString filename)
 
             for (SoundInfo &sfx : soundFX) {
                 RSDKv4::StageConfig::SoundInfo s;
-                s.name = sfx.m_name;
+                s.name = sfx.name;
                 s.path = sfx.path;
 
                 stageconfig.soundFX.append(s);

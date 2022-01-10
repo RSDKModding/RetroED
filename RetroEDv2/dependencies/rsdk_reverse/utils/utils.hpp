@@ -8,7 +8,7 @@ union intBytes {
     intBytes() : val(0) {}
     intBytes(int v) : val(v) {}
     int val;
-    byte m_bytes[4];
+    byte bytes[4];
 };
 
 template <typename T> inline void setBit(T &value, char set, int pos)
@@ -60,12 +60,8 @@ inline void getHashInt(QString input, uint *hash)
     memcpy(hash, data, 0x10 * sizeof(byte));
 }
 
-inline float fixedToFloat(int fixed) {
-    return (float)(fixed) / (1 << 0x10);
-}
-inline int floatToFixed(float floating) {
-    return (int)round(floating * (1 << 0x10));
-}
+inline float fixedToFloat(int fixed) { return (float)(fixed) / (1 << 0x10); }
+inline int floatToFixed(float floating) { return (int)round(floating * (1 << 0x10)); }
 
 } // namespace Utils
 

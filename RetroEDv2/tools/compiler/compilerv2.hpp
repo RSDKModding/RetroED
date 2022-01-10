@@ -1,6 +1,18 @@
 #ifndef COMPILERV2_H
 #define COMPILERV2_H
 
+#define OBJECT_COUNT_v2     (0x100)
+#define SFX_COUNT_v2        (0x100)
+#define ENTITY_COUNT_v2     (0x4A0)
+#define TEMPENTITY_START_v2 (ENTITY_COUNT - 0x80)
+
+#define SCRIPTDATA_COUNT_v2 (0x40000)
+#define JUMPTABLE_COUNT_v2  (0x4000)
+
+#define JUMPSTACK_COUNT_v2 (0x400)
+
+#define SPRITEFRAME_COUNT_v2 (0x1000)
+
 class Compilerv2
 {
 public:
@@ -58,12 +70,12 @@ public:
 
     enum ScriptSubs { SUB_RSDK };
 
-    ObjectScript objectScriptList[OBJECT_COUNT];
+    ObjectScript objectScriptList[OBJECT_COUNT_v2];
 
-    int scriptData[SCRIPTDATA_COUNT];
-    int jumpTableData[JUMPTABLE_COUNT];
+    int scriptData[SCRIPTDATA_COUNT_v2];
+    int jumpTableData[JUMPTABLE_COUNT_v2];
 
-    int jumpTableStack[JUMPSTACK_COUNT];
+    int jumpTableStack[JUMPSTACK_COUNT_v2];
 
     int jumpTableStackPos = 0;
 
@@ -73,10 +85,6 @@ public:
     int scriptDataOffset    = 0;
     int jumpTableDataPos    = 0;
     int jumpTableDataOffset = 0;
-    int functionStackPos    = 0;
-
-    int functionCount = 0;
-    QString functionNames[FUNCTION_COUNT];
 
     int aliasCount = 0;
     int lineID     = 0;
@@ -117,8 +125,8 @@ public:
     int objectLoop = 0;
 
     ScriptEngine scriptEng;
-    Entity objectEntityList[ENTITY_COUNT];
-    SpriteFrame scriptFrames[SPRITEFRAME_COUNT];
+    Entity objectEntityList[ENTITY_COUNT_v2];
+    SpriteFrame scriptFrames[SPRITEFRAME_COUNT_v2];
     int scriptFrameCount = 0;
 
     int xScrollOffset = 0;

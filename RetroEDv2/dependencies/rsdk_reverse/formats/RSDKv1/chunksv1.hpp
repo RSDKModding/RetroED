@@ -93,7 +93,7 @@ public:
     }
     inline void read(Reader &reader)
     {
-        filepath = reader.filepath;
+        filepath = reader.filePath;
 
         for (int c = 0; c < 0x100; ++c) chunkList[c].read(reader);
     }

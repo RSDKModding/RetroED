@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv2::Background::read(Reader &reader)
 {
-    m_filename = reader.filepath;
+    filePath = reader.filePath;
 
     byte layerCount = reader.read<byte>();
 
@@ -17,7 +17,7 @@ void RSDKv2::Background::read(Reader &reader)
 
 void RSDKv2::Background::write(Writer &writer)
 {
-    m_filename = writer.filePath;
+    filePath = writer.filePath;
 
     writer.write((byte)layers.count());
 
@@ -34,11 +34,11 @@ void RSDKv2::Background::write(Writer &writer)
 
 void RSDKv2::Background::Layer::read(Reader &reader)
 {
-    width         = reader.read<byte>();
-    height        = reader.read<byte>();
-    type     = reader.read<byte>();
+    width          = reader.read<byte>();
+    height         = reader.read<byte>();
+    type           = reader.read<byte>();
     parallaxFactor = reader.read<byte>();
-    scrollSpeed = reader.read<byte>();
+    scrollSpeed    = reader.read<byte>();
 
     lineIndexes.clear();
     lineIndexes.reserve(height * 128);
@@ -84,8 +84,6 @@ void rle_writev2(Writer writer, int value, int count)
             writer.write((byte)value);
             writer.write((byte)((count > 254) ? 255 : (count + 1)));
             count -= 254;
-
-            // Keep an eye on this, might be wrong
         }
     }
 }

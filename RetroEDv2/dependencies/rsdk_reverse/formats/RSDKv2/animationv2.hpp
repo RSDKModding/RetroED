@@ -102,7 +102,7 @@ public:
         inline void read(Reader &reader)
         {
             short frameCount = reader.read<byte>();
-            speedMultiplyer  = reader.read<byte>();
+            speed            = reader.read<byte>();
             loopIndex        = reader.read<byte>();
 
             frames.clear();
@@ -112,15 +112,15 @@ public:
         inline void write(Writer &writer)
         {
             writer.write((byte)frames.count());
-            writer.write(speedMultiplyer);
+            writer.write(speed);
             writer.write(loopIndex);
 
             for (int f = 0; f < frames.count(); ++f) frames[f].write(writer);
         }
 
-        QString name         = "Sonic Nexus Animation #0";
-        byte loopIndex       = 0;
-        byte speedMultiplyer = 0;
+        QString name   = "Sonic Nexus Animation #";
+        byte loopIndex = 0;
+        byte speed     = 0;
         QList<Frame> frames;
     };
 

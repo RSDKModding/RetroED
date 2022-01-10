@@ -1,6 +1,6 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
-int decryptARCFileInfo(int &key)
+int decryptByte(int &key)
 {
     int val = 48271 * (key % 44488) - 3399 * (key / 44488);
     if (val <= 0)
@@ -12,7 +12,7 @@ int decryptARCFileInfo(int &key)
 
 void RSDKv3::ArcContainer::read(Reader &reader)
 {
-    filePath = reader.filepath;
+    filePath = reader.filePath;
 
     if (!reader.matchesSignature(signature, 4))
         return;
@@ -27,15 +27,15 @@ void RSDKv3::ArcContainer::read(Reader &reader)
         Utils::intBytes fsize;
         for (int i = 0; i < 0x28; ++i) {
             byte buffer        = reader.read<byte>();
-            byte decryptedByte = (byte)((decryptARCFileInfo(key) % 0xFF) ^ buffer);
+            byte decryptedByte = (byte)((decryptByte(key) % 0xFF) ^ buffer);
             if (i < 0x20) {
                 if (decryptedByte != 0)
                     info.fileName += (char)decryptedByte;
             }
             else if (i >= 0x20 && i < 0x24)
-                offset.m_bytes[i - 0x20] = decryptedByte;
+                offset.bytes[i - 0x20] = decryptedByte;
             else
-                fsize.m_bytes[i - 0x24] = decryptedByte;
+                fsize.bytes[i - 0x24] = decryptedByte;
         }
         info.offset   = offset.val;
         info.fileSize = fsize.val;
@@ -85,10 +85,10 @@ void RSDKv3::ArcContainer::write(Writer &writer)
             if (i < 0x20)
                 buffer = (byte)(i >= file.fileName.length() ? 0 : file.fileName[i].toLatin1());
             else if (i >= 0x20 && i < 0x24)
-                buffer = offset.m_bytes[i - 32];
+                buffer = offset.bytes[i - 32];
             else
-                buffer = fsize.m_bytes[i - 32];
-            writer.write((byte)(decryptARCFileInfo(key) % 0xFF ^ buffer));
+                buffer = fsize.bytes[i - 36];
+            writer.write((byte)(decryptByte(key) % 0xFF ^ buffer));
         }
     }
 

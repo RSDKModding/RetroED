@@ -56,7 +56,7 @@ void ChunkSelector::refreshList()
 
 SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEditor)
 {
-    this->setWindowTitle("?");
+    // this->setWindowTitle("?");
     ui->setupUi(this);
 
     viewer = new SceneViewer(this);
@@ -165,7 +165,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(ui->addObj, &QToolButton::clicked, [this] {
         // uint c = m_objectList->currentRow() + 1;
         FormatHelpers::Stageconfig::ObjectInfo objInfo;
-        objInfo.m_name = "New Object";
+        objInfo.name = "New Object";
         viewer->stageConfig.objects.append(objInfo);
         SceneViewer::ObjectInfo info;
         info.name = "New Object";
@@ -536,7 +536,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         QList<QString> names;
         for (FormatHelpers::Stageconfig::ObjectInfo &obj : viewer->stageConfig.objects) {
-            names.append(obj.m_name);
+            names.append(obj.name);
         }
 
         int o = 0;
@@ -596,7 +596,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
             for (FormatHelpers::Stageconfig::ObjectInfo &obj : viewer->stageConfig.objects) {
                 SceneViewer::ObjectInfo info;
-                info.name = obj.m_name;
+                info.name = obj.name;
                 viewer->objects.append(info);
             }
         }
@@ -609,7 +609,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
             for (FormatHelpers::Stageconfig::ObjectInfo &obj : viewer->stageConfig.objects) {
                 SceneViewer::ObjectInfo info;
-                info.name = obj.m_name;
+                info.name = obj.name;
                 viewer->objects.append(info);
             }
         }
@@ -2260,8 +2260,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
         id++;
     }
     for (int o = 0; o < viewer->stageConfig.objects.count(); ++o) {
-        viewer->compilerv3.typeNames[id] = viewer->stageConfig.objects[o].m_name;
-        viewer->compilerv4.typeNames[id] = viewer->stageConfig.objects[o].m_name;
+        viewer->compilerv3.typeNames[id] = viewer->stageConfig.objects[o].name;
+        viewer->compilerv4.typeNames[id] = viewer->stageConfig.objects[o].name;
 
         viewer->compilerv3.typeNames[id].replace(" ", "");
         viewer->compilerv4.typeNames[id].replace(" ", "");
@@ -2336,8 +2336,11 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
             break;
         }
         case ENGINE_v3: { // compile RSDKDraw & RSDKLoad and draw via those
-            int scrID                 = 1;
-            viewer->compilerv3.viewer = viewer;
+            int scrID                            = 1;
+            viewer->compilerv3.viewer            = viewer;
+            viewer->compilerv3.gamePlatform      = "Editor";
+            viewer->compilerv3.gameRenderType    = "SW_Rendering";
+            viewer->compilerv3.gameHapticSetting = "No_Haptics";
 
             if (viewer->stageConfig.loadGlobalScripts) {
                 for (int i = 0; i < viewer->gameConfig.objects.count(); ++i) {
@@ -2358,15 +2361,15 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                         QString dirFile = dir.relativeFilePath(viewer->compilerv3.errorScr);
 
                         QMessageBox msgBox(QMessageBox::Information, "RetroED",
-                                           QString(QString("Failed to compile script: %1\n"
-                                                           "Error: %2\n"
-                                                           "\n"
-                                                           "Pos: %3\n"
-                                                           "Line: %4\n")
-                                                       .arg(viewer->gameConfig.objects[i].script)
-                                                       .arg(viewer->compilerv3.errorMsg)
-                                                       .arg(viewer->compilerv3.errorPos)
-                                                       .arg(viewer->compilerv3.errorLine)),
+                                           QString("Failed to compile script: %1\n"
+                                                   "Error: %2\n"
+                                                   "\n"
+                                                   "Pos: %3\n"
+                                                   "Line: %4\n")
+                                               .arg(viewer->gameConfig.objects[i].script)
+                                               .arg(viewer->compilerv3.errorMsg)
+                                               .arg(viewer->compilerv3.errorPos)
+                                               .arg(viewer->compilerv3.errorLine),
                                            QMessageBox::Ok);
                         msgBox.exec();
 
@@ -2405,15 +2408,15 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                     QString dirFile = dir.relativeFilePath(viewer->compilerv3.errorScr);
 
                     QMessageBox msgBox(QMessageBox::Information, "RetroED",
-                                       QString(QString("Failed to compile script: %1\n"
-                                                       "Error: %2\n"
-                                                       "\n"
-                                                       "Pos: %3\n"
-                                                       "Line: %4\n")
-                                                   .arg(viewer->stageConfig.objects[i].script)
-                                                   .arg(viewer->compilerv3.errorMsg)
-                                                   .arg(viewer->compilerv3.errorPos)
-                                                   .arg(viewer->compilerv3.errorLine)),
+                                       QString("Failed to compile script: %1\n"
+                                               "Error: %2\n"
+                                               "\n"
+                                               "Pos: %3\n"
+                                               "Line: %4\n")
+                                           .arg(viewer->stageConfig.objects[i].script)
+                                           .arg(viewer->compilerv3.errorMsg)
+                                           .arg(viewer->compilerv3.errorPos)
+                                           .arg(viewer->compilerv3.errorLine),
                                        QMessageBox::Ok);
                     msgBox.exec();
 
@@ -2442,8 +2445,11 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
             break;
         }
         case ENGINE_v4: { // compile RSDKDraw & RSDKLoad and draw via those
-            int scrID                 = 1;
-            viewer->compilerv4.viewer = viewer;
+            int scrID                            = 1;
+            viewer->compilerv4.viewer            = viewer;
+            viewer->compilerv4.gamePlatform      = "EDITOR";
+            viewer->compilerv4.gameRenderType    = "SW_RENDERING";
+            viewer->compilerv4.gameHapticSetting = "NO_F_FEEDBACK";
 
             if (viewer->stageConfig.loadGlobalScripts) {
                 for (int i = 0; i < viewer->gameConfig.objects.count(); ++i) {
@@ -2464,15 +2470,15 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                         QString dirFile = dir.relativeFilePath(viewer->compilerv4.errorScr);
 
                         QMessageBox msgBox(QMessageBox::Information, "RetroED",
-                                           QString(QString("Failed to compile script: %1\n"
-                                                           "Error: %2\n"
-                                                           "\n"
-                                                           "Pos: %3\n"
-                                                           "Line: %4\n")
-                                                       .arg(viewer->gameConfig.objects[i].script)
-                                                       .arg(viewer->compilerv4.errorMsg)
-                                                       .arg(viewer->compilerv4.errorPos)
-                                                       .arg(viewer->compilerv4.errorLine)),
+                                           QString("Failed to compile script: %1\n"
+                                                   "Error: %2\n"
+                                                   "\n"
+                                                   "Pos: %3\n"
+                                                   "Line: %4\n")
+                                               .arg(viewer->gameConfig.objects[i].script)
+                                               .arg(viewer->compilerv4.errorMsg)
+                                               .arg(viewer->compilerv4.errorPos)
+                                               .arg(viewer->compilerv4.errorLine),
                                            QMessageBox::Ok);
                         msgBox.exec();
 
@@ -2513,15 +2519,15 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                     setStatus("Failed to compile script: " + dirFile);
 
                     QMessageBox msgBox(QMessageBox::Information, "RetroED",
-                                       QString(QString("Failed to compile script: %1\n"
-                                                       "Error: %2\n"
-                                                       "\n"
-                                                       "Pos: %3\n"
-                                                       "Line: %4\n")
-                                                   .arg(viewer->stageConfig.objects[i].script)
-                                                   .arg(viewer->compilerv4.errorMsg)
-                                                   .arg(viewer->compilerv4.errorPos)
-                                                   .arg(viewer->compilerv4.errorLine)),
+                                       QString("Failed to compile script: %1\n"
+                                               "Error: %2\n"
+                                               "\n"
+                                               "Pos: %3\n"
+                                               "Line: %4\n")
+                                           .arg(viewer->stageConfig.objects[i].script)
+                                           .arg(viewer->compilerv4.errorMsg)
+                                           .arg(viewer->compilerv4.errorPos)
+                                           .arg(viewer->compilerv4.errorLine),
                                        QMessageBox::Ok);
                     msgBox.exec();
 
@@ -2685,7 +2691,7 @@ void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
 
         stageConfig.objects.clear();
         for (auto o : viewer->stageConfig.objects) {
-            QString name = o.m_name;
+            QString name = o.name;
             stageConfig.objects.append(name.replace(" ", ""));
         }
 

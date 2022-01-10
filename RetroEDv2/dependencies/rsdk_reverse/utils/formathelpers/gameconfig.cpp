@@ -1,4 +1,4 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void FormatHelpers::Gameconfig::read(byte ver, QString filename)
 {
@@ -44,8 +44,8 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
 
             for (RSDKv2::Gameconfig::GlobalVariable &var : gameconfig.globalVariables) {
                 GlobalVariable v;
-                v.name = var.name;
-                v.value  = var.value;
+                v.name  = var.name;
+                v.value = var.value;
 
                 globalVariables.append(v);
             }
@@ -72,13 +72,13 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
             }
         } break;
         case ENGINE_v3: {
-            RSDKv3::Gameconfig gameconfig(reader);
+            RSDKv3::GameConfig gameconfig(reader);
 
             gameWindowText      = gameconfig.gameWindowText;
             gameDescriptionText = gameconfig.gameDescriptionText;
             unknown             = gameconfig.unknown;
 
-            for (RSDKv3::Gameconfig::ObjectInfo &obj : gameconfig.objects) {
+            for (RSDKv3::GameConfig::ObjectInfo &obj : gameconfig.objects) {
                 ObjectInfo o;
                 o.m_name = obj.name;
                 o.script = obj.script;
@@ -94,10 +94,10 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
                 soundFX.append(s);
             }
 
-            for (RSDKv3::Gameconfig::GlobalVariable &var : gameconfig.globalVariables) {
+            for (RSDKv3::GameConfig::GlobalVariable &var : gameconfig.globalVariables) {
                 GlobalVariable v;
-                v.name = var.name;
-                v.value  = var.value;
+                v.name  = var.name;
+                v.value = var.value;
 
                 globalVariables.append(v);
             }
@@ -112,7 +112,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
             }
 
             for (int c = 0; c < 4; ++c) {
-                for (RSDKv3::Gameconfig::SceneInfo &scn : gameconfig.categories[c].scenes) {
+                for (RSDKv3::GameConfig::SceneInfo &scn : gameconfig.categories[c].scenes) {
                     SceneInfo s;
                     s.m_name      = scn.name;
                     s.folder      = scn.folder;
@@ -148,8 +148,8 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
 
             for (RSDKv4::GameConfig::GlobalVariable &var : gameconfig.globalVariables) {
                 GlobalVariable v;
-                v.name = var.name;
-                v.value  = var.value;
+                v.name  = var.name;
+                v.value = var.value;
 
                 globalVariables.append(v);
             }
@@ -231,14 +231,14 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
             }
         } break;
         case ENGINE_v3: {
-            RSDKv3::Gameconfig gameconfig;
+            RSDKv3::GameConfig gameconfig;
 
             gameconfig.gameWindowText      = gameWindowText;
             gameconfig.gameDescriptionText = gameDescriptionText;
             gameconfig.unknown             = unknown;
 
             for (ObjectInfo &obj : objects) {
-                RSDKv3::Gameconfig::ObjectInfo o;
+                RSDKv3::GameConfig::ObjectInfo o;
                 o.name   = obj.m_name;
                 o.script = obj.script;
 
@@ -248,7 +248,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
             for (SoundInfo &sfx : soundFX) gameconfig.soundFX.append(sfx.path);
 
             for (GlobalVariable &var : globalVariables) {
-                RSDKv3::Gameconfig::GlobalVariable v;
+                RSDKv3::GameConfig::GlobalVariable v;
                 v.name  = var.name;
                 v.value = var.value;
 
@@ -259,7 +259,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
 
             for (int c = 0; c < 4; ++c) {
                 for (SceneInfo &scn : stageLists[c].scenes) {
-                    RSDKv3::Gameconfig::SceneInfo s;
+                    RSDKv3::GameConfig::SceneInfo s;
                     s.name        = scn.m_name;
                     s.folder      = scn.folder;
                     s.id          = scn.id;

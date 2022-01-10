@@ -16,7 +16,7 @@ public:
         inline void read(Reader &reader)
         {
             folder      = reader.readString();
-            id       = reader.readString();
+            id          = reader.readString();
             name        = reader.readString();
             highlighted = reader.read<bool>();
         }
@@ -31,7 +31,7 @@ public:
 
         QString name     = "Scene";
         QString folder   = "Folder";
-        QString id    = "1";
+        QString id       = "1";
         bool highlighted = false;
     };
 
@@ -70,10 +70,10 @@ public:
 
         inline void read(Reader &reader)
         {
-            name           = reader.readString();
+            name             = reader.readString();
             QByteArray bytes = reader.readByteArray(4);
-            value          = ((byte)bytes[3] << 24) + ((byte)bytes[2] << 16) + ((byte)bytes[1] << 8)
-                      + ((byte)bytes[0] << 0);
+            value            = ((byte)bytes[3] << 24) + ((byte)bytes[2] << 16) + ((byte)bytes[1] << 8)
+                    + ((byte)bytes[0] << 0);
         }
         inline void write(Writer &writer)
         {
@@ -126,7 +126,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -144,7 +144,7 @@ public:
     QList<QString> players;
     QList<Category> categories;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv4

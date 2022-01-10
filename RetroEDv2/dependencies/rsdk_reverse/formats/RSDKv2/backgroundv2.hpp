@@ -1,5 +1,5 @@
-#ifndef BACKGROUND_V1_H
-#define BACKGROUND_V1_H
+#ifndef BACKGROUND_V2_H
+#define BACKGROUND_V2_H
 
 namespace RSDKv2
 {
@@ -16,8 +16,8 @@ public:
         void read(Reader &reader)
         {
             parallaxFactor = reader.read<byte>();
-            scrollSpeed = reader.read<byte>();
-            deform     = reader.read<byte>();
+            scrollSpeed    = reader.read<byte>();
+            deform         = reader.read<byte>();
         }
         void write(Writer &writer)
         {
@@ -26,9 +26,9 @@ public:
             writer.write(deform);
         }
 
-        byte parallaxFactor = 0;
-        byte scrollSpeed = 0;
-        byte deform     = 0;
+        byte parallaxFactor = 1 << 7;
+        byte scrollSpeed    = 0 << 6;
+        bool deform         = false;
     };
 
     class Layer
@@ -42,11 +42,11 @@ public:
 
         QList<QList<byte>> layout;
 
-        byte width         = 0;
-        byte height        = 0;
-        byte type     = 0;
-        byte parallaxFactor = 0;
-        byte scrollSpeed = 0;
+        byte width          = 0;
+        byte height         = 0;
+        byte type           = 1;
+        byte parallaxFactor = 1 << 7;
+        byte scrollSpeed    = 0 << 6;
         QByteArray lineIndexes;
     };
 
@@ -64,7 +64,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -76,9 +76,9 @@ public:
     QList<ScrollInfo> hScroll;
     QList<ScrollInfo> vScroll;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv2
 
-#endif // BACKGROUND_V1_H
+#endif // BACKGROUND_V2_H

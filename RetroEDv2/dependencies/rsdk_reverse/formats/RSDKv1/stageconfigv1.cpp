@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv1::StageConfig::read(Reader &reader)
 {
-    filepath = reader.filepath;
+    filepath = reader.filePath;
 
     // Stage Palette
     palette.read(reader, 2 * 16);

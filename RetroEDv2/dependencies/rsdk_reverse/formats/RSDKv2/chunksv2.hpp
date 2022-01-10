@@ -19,10 +19,10 @@ public:
             bytes[0]         = (byte)((byte)bytes[0] - ((byte)bytes[0] >> 6 << 6));
 
             visualPlane = (byte)(bytes[0] >> 4);
-            bytes[0]      = (byte)((byte)bytes[0] - ((byte)bytes[0] >> 4 << 4));
+            bytes[0]    = (byte)((byte)bytes[0] - ((byte)bytes[0] >> 4 << 4));
 
             direction = (byte)((byte)bytes[0] >> 2);
-            bytes[0]    = (byte)((byte)bytes[0] - ((byte)bytes[0] >> 2 << 2));
+            bytes[0]  = (byte)((byte)bytes[0] - ((byte)bytes[0] >> 2 << 2));
 
             tileIndex = (ushort)(((byte)bytes[0] << 8) + (byte)bytes[1]);
 
@@ -93,7 +93,7 @@ public:
     }
     inline void read(Reader &reader)
     {
-        filepath = reader.filepath;
+        filepath = reader.filePath;
 
         for (int c = 0; c < 0x200; ++c) chunkList[c].read(reader);
     }

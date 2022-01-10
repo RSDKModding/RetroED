@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv5::GameConfig::read(Reader &reader, bool oldVer)
 {
-    filePath = reader.filepath;
+    filePath = reader.filePath;
 
     if (!reader.matchesSignature(signature, 4))
         return;
@@ -11,7 +11,7 @@ void RSDKv5::GameConfig::read(Reader &reader, bool oldVer)
     gameSubtitle = reader.readString();
     version      = reader.readString();
 
-    readMode = !oldVer;
+    readFilter = !oldVer;
 
     startSceneCategoryIndex = reader.read<byte>();
     startSceneIndex         = reader.read<ushort>();
@@ -31,7 +31,7 @@ void RSDKv5::GameConfig::read(Reader &reader, bool oldVer)
     byte categoryCount = reader.read<byte>();
 
     categories.clear();
-    for (int i = 0; i < categoryCount; ++i) categories.append(Category(reader, readMode));
+    for (int i = 0; i < categoryCount; ++i) categories.append(Category(reader, readFilter));
 
     byte varCount = reader.read<byte>();
     globalVariables.clear();
@@ -63,7 +63,7 @@ void RSDKv5::GameConfig::write(Writer &writer)
     writer.write(totScn);
 
     writer.write((byte)categories.count());
-    for (Category &cat : categories) cat.write(writer, readMode);
+    for (Category &cat : categories) cat.write(writer, readFilter);
 
     writer.write((byte)globalVariables.count());
     for (GlobalVariable &c : globalVariables) c.write(writer);

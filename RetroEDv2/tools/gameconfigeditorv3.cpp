@@ -90,7 +90,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
 
     connect(ui->addObj, &QToolButton::clicked, [this] {
         uint c = ui->objList->currentRow() + 1;
-        gameConfig.objects.insert(c, RSDKv3::Gameconfig::ObjectInfo());
+        gameConfig.objects.insert(c, RSDKv3::GameConfig::ObjectInfo());
         auto *item = new QListWidgetItem();
         item->setText(gameConfig.objects[c].name);
         ui->objList->insertItem(c, item);
@@ -272,7 +272,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
 
     connect(ui->addVar, &QToolButton::clicked, [this] {
         uint c = ui->varList->currentRow() + 1;
-        gameConfig.globalVariables.insert(c, RSDKv3::Gameconfig::GlobalVariable());
+        gameConfig.globalVariables.insert(c, RSDKv3::GameConfig::GlobalVariable());
         auto *item = new QListWidgetItem();
         item->setText(gameConfig.globalVariables[c].name);
         ui->varList->insertItem(c, item);
@@ -443,7 +443,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         }
         uint cat = scnSelected ? index.parent().row() : index.row();
         uint scn = scnSelected ? index.row() + 1 : 0;
-        gameConfig.categories[cat].scenes.insert(scn, RSDKv3::Gameconfig::SceneInfo());
+        gameConfig.categories[cat].scenes.insert(scn, RSDKv3::GameConfig::SceneInfo());
         auto *scnItem = new QStandardItem(gameConfig.categories[cat].scenes[scn].name);
         if (scnSelected)
             m_sceneModel->itemFromIndex(index.parent())->insertRow(scn, scnItem);
@@ -581,7 +581,7 @@ void GameconfigEditorv3::load(QString filename)
         tabTitle = Utils::getFilenameAndFolder(gameConfig.m_filename);
     }
     else {
-        gameConfig = RSDKv3::Gameconfig();
+        gameConfig = RSDKv3::GameConfig();
         tabTitle   = "GameConfig Editor";
     }
     updateTitle(false);
@@ -603,7 +603,7 @@ void GameconfigEditorv3::load(QString filename)
 
     ui->objList->clear();
     int id = 0;
-    for (RSDKv3::Gameconfig::ObjectInfo &obj : gameConfig.objects) {
+    for (RSDKv3::GameConfig::ObjectInfo &obj : gameConfig.objects) {
         ui->objList->addItem(obj.name);
         ui->objList->item(id)->setFlags(ui->objList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
@@ -619,7 +619,7 @@ void GameconfigEditorv3::load(QString filename)
 
     ui->varList->clear();
     id = 0;
-    for (RSDKv3::Gameconfig::GlobalVariable &var : gameConfig.globalVariables) {
+    for (RSDKv3::GameConfig::GlobalVariable &var : gameConfig.globalVariables) {
         ui->varList->addItem(var.name);
         ui->varList->item(id)->setFlags(ui->varList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
@@ -858,7 +858,7 @@ bool GameconfigEditorv3::event(QEvent *event)
                     RSDKv5::RSDKConfig rsdkConfig;
 
                     config.gameTitle = gameConfig.gameWindowText;
-                    config.readMode  = true;
+                    config.readFilter  = true;
 
                     config.globalVariables.clear();
                     rsdkConfig.variables.clear();
@@ -920,7 +920,7 @@ bool GameconfigEditorv3::event(QEvent *event)
                         ++catID;
                     }
 
-                    config.readMode = filter == 3;
+                    config.readFilter = filter == 3;
                     appConfig.addRecentFile(
                         ENGINE_v5, TOOL_GAMECONFIGEDITOR, filedialog.selectedFiles()[0],
                         QList<QString>{ "GameConfig", filter == 4 ? "rev01" : "rev02" });

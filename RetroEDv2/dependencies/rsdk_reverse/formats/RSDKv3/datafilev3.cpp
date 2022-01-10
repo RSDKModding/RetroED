@@ -1,6 +1,6 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
-QString readEncString1(Reader &reader)
+QString readDataFileDirNamev3(Reader &reader)
 {
     byte ss     = reader.read<byte>();
     QString str = "";
@@ -10,7 +10,7 @@ QString readEncString1(Reader &reader)
     return str;
 }
 
-QString readEncString2(Reader &reader)
+QString readDataFileNamev3(Reader &reader)
 {
     byte ss     = reader.read<byte>();
     QString str = "";
@@ -20,7 +20,7 @@ QString readEncString2(Reader &reader)
     return str;
 }
 
-void writeEncString1(Writer &writer, QString string)
+void writeDataFileDirNamev3(Writer &writer, QString string)
 {
     writer.write((byte)string.length());
 
@@ -28,7 +28,7 @@ void writeEncString1(Writer &writer, QString string)
         writer.write((byte)((byte)string[i].toLatin1() ^ (0xFF - (byte)string.length())));
 }
 
-void writeEncString2(Writer &writer, QString string)
+void writeDataFileNamev3(Writer &writer, QString string)
 {
     writer.write((byte)string.length());
 
@@ -38,31 +38,29 @@ void writeEncString2(Writer &writer, QString string)
 
 void RSDKv3::Datafile::read(Reader &reader)
 {
-    m_filename = reader.filepath;
+    filePath = reader.filePath;
 
     int headerSize = reader.read<uint>();
     int dircount   = reader.read<ushort>();
 
     directories.clear();
-    for (int d = 0; d < dircount; ++d) {
-        directories.append(DirInfo(reader));
-    }
+    for (int d = 0; d < dircount; ++d) directories.append(DirInfo(reader));
 
     files.clear();
     for (int d = 0; d < dircount; ++d) {
         if ((d + 1) < directories.count()) {
-            while (reader.tell() - headerSize < directories[d + 1].m_address && !reader.isEOF()) {
-                FileInfo f       = FileInfo(reader);
+            while (reader.tell() - headerSize < directories[d + 1].startOffset && !reader.isEOF()) {
+                FileInfo f     = FileInfo(reader);
                 f.fullFileName = directories[d].directory + f.fileName;
-                f.m_dirID        = d;
+                f.dirID        = d;
                 files.append(f);
             }
         }
         else {
             while (!reader.isEOF()) {
-                FileInfo f       = FileInfo(reader);
+                FileInfo f     = FileInfo(reader);
                 f.fullFileName = directories[d].directory + f.fileName;
-                f.m_dirID        = d;
+                f.dirID        = d;
                 files.append(f);
             }
         }
@@ -71,7 +69,7 @@ void RSDKv3::Datafile::read(Reader &reader)
 
 void RSDKv3::Datafile::write(Writer &writer)
 {
-    m_filename = writer.filePath;
+    filePath = writer.filePath;
 
     int dirHeaderSize = 0;
 
@@ -79,27 +77,27 @@ void RSDKv3::Datafile::write(Writer &writer)
     writer.write((ushort)directories.count());
 
     // TODO: sort dirs by name
-    // std::sort(m_directories.begin(), m_directories.end(), [](const DirInfo &a, const DirInfo &b) ->
-    // bool { return a.m_directory < b.m_directory; });
+    // std::sort(directories.begin(), directories.end(), [](const DirInfo &a, const DirInfo &b) ->
+    // bool { return a.directory < b.directory; });
 
     for (int i = 0; i < directories.count(); ++i) {
         directories[i].write(writer);
     }
 
     dirHeaderSize = (int)writer.tell();
-    // std::sort(m_files.begin(), m_files.end(), [](const FileInfo &a, const FileInfo &b) -> bool {
-    //    return a.m_dirID < b.m_dirID && a.m_filename < b.m_filename;
+    // std::sort(files.begin(), files.end(), [](const FileInfo &a, const FileInfo &b) -> bool {
+    //    return a.dirID < b.dirID && a.filename < b.filename;
     //});
 
     int dir                      = 0;
-    directories[dir].m_address = 0;
+    directories[dir].startOffset = 0;
     for (int i = 0; i < files.count(); ++i) {
-        if (files[i].m_dirID == dir) {
+        if (files[i].dirID == dir) {
             files[i].write(writer);
         }
         else {
             ++dir;
-            directories[dir].m_address = (int)writer.tell() - dirHeaderSize;
+            directories[dir].startOffset = (int)writer.tell() - dirHeaderSize;
             files[i].write(writer);
         }
     }
@@ -116,7 +114,7 @@ void RSDKv3::Datafile::write(Writer &writer)
 
     dir = 0;
     for (int i = 0; i < files.count(); ++i) {
-        if (files[i].m_dirID == dir) {
+        if (files[i].dirID == dir) {
             files[i].write(writer);
         }
         else {
@@ -130,54 +128,9 @@ void RSDKv3::Datafile::write(Writer &writer)
 
 void RSDKv3::Datafile::FileInfo::read(Reader &reader)
 {
-    fileName = readEncString2(reader);
+    fileName = readDataFileNamev3(reader);
     fileSize = reader.read<uint>();
-    fileData = reader.readByteArray(fileSize);
-
-    m_eKeyNo   = ((int)fileSize & 0x1FC) >> 2;
-    m_eKeyPosB = (m_eKeyNo % 9) + 1;
-    m_eKeyPosA = (m_eKeyNo % m_eKeyPosB) + 1;
-
-    m_eNybbleSwap = 0;
-
-    for (int i = 0; i < (int)fileSize; ++i) {
-        byte buf = (byte)fileData[i];
-
-        buf ^= (byte)m_encryptionKeyB[m_eKeyPosB++] ^ m_eKeyNo;
-
-        if (m_eNybbleSwap == 1) // swap nibbles
-            buf = (buf >> 4) | ((buf & 0xf) << 4);
-
-        buf ^= (byte)m_decryptionKeyA[m_eKeyPosA++];
-
-        if ((m_eKeyPosA <= 19) || (m_eKeyPosB <= 11)) {
-            if (m_eKeyPosA > 19) {
-                m_eKeyPosA = 1;
-                m_eNybbleSwap ^= 1;
-            }
-            if (m_eKeyPosB > 11) {
-                m_eKeyPosB = 1;
-                m_eNybbleSwap ^= 1;
-            }
-        }
-        else {
-            m_eKeyNo++;
-            m_eKeyNo &= 0x7F;
-
-            if (m_eNybbleSwap != 0) {
-                m_eKeyPosA    = (m_eKeyNo % 12) + 6;
-                m_eKeyPosB    = (m_eKeyNo % 5) + 4;
-                m_eNybbleSwap = 0;
-            }
-            else {
-                m_eNybbleSwap = 1;
-                m_eKeyPosA    = (m_eKeyNo % 15) + 3;
-                m_eKeyPosB    = (m_eKeyNo % 7) + 1;
-            }
-        }
-
-        fileData[i] = buf;
-    }
+    fileData = decrypt(reader.readByteArray(fileSize), false);
 }
 
 void RSDKv3::Datafile::FileInfo::write(Writer &writer)
@@ -185,61 +138,15 @@ void RSDKv3::Datafile::FileInfo::write(Writer &writer)
     fileName = fileName.replace('\\', '/');
     fileSize = fileData.count();
 
-    // Encrypt file
-    m_eKeyNo   = ((int)fileSize & 0x1FC) >> 2;
-    m_eKeyPosB = (m_eKeyNo % 9) + 1;
-    m_eKeyPosA = (m_eKeyNo % m_eKeyPosB) + 1;
-
-    m_eNybbleSwap = 0;
-
-    QByteArray data = fileData;
-    for (uint i = 0; i < fileSize; ++i) {
-        byte buf = (byte)fileData[i];
-        buf ^= (byte)m_decryptionKeyA[m_eKeyPosA++];
-
-        if (m_eNybbleSwap == 1) // swap nibbles
-            buf = (byte)((buf >> 4) | ((buf & 0xf) << 4));
-
-        buf ^= (byte)((byte)m_encryptionKeyB[m_eKeyPosB++] ^ m_eKeyNo);
-
-        if (m_eKeyPosA <= 19 || m_eKeyPosB <= 11) {
-            if (m_eKeyPosA > 19) {
-                m_eKeyPosA = 1;
-                m_eNybbleSwap ^= 1;
-            }
-            if (m_eKeyPosB > 11) {
-                m_eKeyPosB = 1;
-                m_eNybbleSwap ^= 1;
-            }
-        }
-        else {
-            ++m_eKeyNo;
-            m_eKeyNo &= 0x7F;
-
-            if (m_eNybbleSwap != 0) {
-                m_eKeyPosA    = (m_eKeyNo % 12) + 6;
-                m_eKeyPosB    = (m_eKeyNo % 5) + 4;
-                m_eNybbleSwap = 0;
-            }
-            else {
-                m_eNybbleSwap = 1;
-                m_eKeyPosA    = (m_eKeyNo % 15) + 3;
-                m_eKeyPosB    = (m_eKeyNo % 7) + 1;
-            }
-        }
-
-        data[i] = (byte)buf;
-    }
-
-    writeEncString2(writer, fileName);
+    writeDataFileNamev3(writer, fileName);
     writer.write(fileSize);
-    writer.write(data);
+    writer.write(decrypt(fileData, true));
 }
 
 void RSDKv3::Datafile::DirInfo::read(Reader &reader)
 {
-    directory = readEncString1(reader);
-    m_address   = reader.read<int>();
+    directory   = readDataFileDirNamev3(reader);
+    startOffset = reader.read<int>();
 }
 
 void RSDKv3::Datafile::DirInfo::write(Writer &writer)
@@ -247,6 +154,65 @@ void RSDKv3::Datafile::DirInfo::write(Writer &writer)
     if (!directory.endsWith('/'))
         directory += "/";
 
-    writeEncString1(writer, directory);
-    writer.write(m_address);
+    writeDataFileDirNamev3(writer, directory);
+    writer.write(startOffset);
+}
+
+QByteArray RSDKv3::Datafile::FileInfo::decrypt(QByteArray data, bool encrypting)
+{
+    eKeyNo   = ((int)fileSize & 0x1FC) >> 2;
+    eKeyPosB = (eKeyNo % 9) + 1;
+    eKeyPosA = (eKeyNo % eKeyPosB) + 1;
+
+    eNybbleSwap = 0;
+
+    for (int i = 0; i < (int)fileSize; ++i) {
+        byte encByte = (byte)data[i];
+
+        if (encrypting) {
+            encByte ^= (byte)decryptionKeyA[eKeyPosA++];
+
+            if (eNybbleSwap == 1) // swap nibbles
+                encByte = (byte)((encByte >> 4) | ((encByte & 0xF) << 4));
+
+            encByte ^= (byte)((byte)encryptionKeyB[eKeyPosB++] ^ eKeyNo);
+        }
+        else {
+            encByte ^= (byte)encryptionKeyB[eKeyPosB++] ^ eKeyNo;
+
+            if (eNybbleSwap == 1) // swap nibbles
+                encByte = (encByte >> 4) | ((encByte & 0xF) << 4);
+
+            encByte ^= (byte)decryptionKeyA[eKeyPosA++];
+        }
+        data[i] = encByte;
+
+        if ((eKeyPosA <= 19) || (eKeyPosB <= 11)) {
+            if (eKeyPosA > 19) {
+                eKeyPosA = 1;
+                eNybbleSwap ^= 1;
+            }
+            if (eKeyPosB > 11) {
+                eKeyPosB = 1;
+                eNybbleSwap ^= 1;
+            }
+        }
+        else {
+            eKeyNo++;
+            eKeyNo &= 0x7F;
+
+            if (eNybbleSwap != 0) {
+                eKeyPosA    = (eKeyNo % 12) + 6;
+                eKeyPosB    = (eKeyNo % 5) + 4;
+                eNybbleSwap = 0;
+            }
+            else {
+                eNybbleSwap = 1;
+                eKeyPosA    = (eKeyNo % 15) + 3;
+                eKeyPosB    = (eKeyNo % 7) + 1;
+            }
+        }
+    }
+
+    return data;
 }

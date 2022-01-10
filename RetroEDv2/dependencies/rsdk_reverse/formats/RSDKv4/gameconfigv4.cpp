@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv4::GameConfig::read(Reader &reader)
 {
-    m_filename = reader.filepath;
+    filePath = reader.filePath;
 
     // Game Text
     gameWindowText      = reader.readString();
@@ -64,7 +64,7 @@ void RSDKv4::GameConfig::read(Reader &reader)
 
 void RSDKv4::GameConfig::write(Writer &writer)
 {
-    m_filename = writer.filePath;
+    filePath = writer.filePath;
 
     writer.write(gameWindowText);
     writer.write(gameDescriptionText);

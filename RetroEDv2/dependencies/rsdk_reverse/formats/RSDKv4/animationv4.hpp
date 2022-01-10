@@ -103,9 +103,9 @@ public:
         {
             name             = reader.readString();
             short frameCount = reader.read<byte>();
-            speedMultiplyer  = reader.read<byte>();
+            speed            = reader.read<byte>();
             loopIndex        = reader.read<byte>();
-            rotationFlags    = reader.read<byte>();
+            rotationStyle    = reader.read<byte>();
 
             frames.clear();
             for (int f = 0; f < frameCount; ++f) frames.append(Frame(reader));
@@ -115,17 +115,17 @@ public:
         {
             writer.write(name);
             writer.write((byte)frames.count());
-            writer.write(speedMultiplyer);
+            writer.write(speed);
             writer.write(loopIndex);
-            writer.write(rotationFlags);
+            writer.write(rotationStyle);
             for (int f = 0; f < frames.count(); ++f) frames[f].write(writer);
         }
 
-        QString name = "Animation";
+        QString name = "New Animation";
         QList<Frame> frames;
-        byte loopIndex       = 0;
-        byte speedMultiplyer = 0;
-        byte rotationFlags   = 0;
+        byte loopIndex     = 0;
+        byte speed         = 0;
+        byte rotationStyle = 0;
     };
     Animation() {}
     Animation(QString filename) { read(filename); }

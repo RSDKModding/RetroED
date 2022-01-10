@@ -66,7 +66,7 @@ public:
     }
     void read(Reader &reader)
     {
-        filepath = reader.filepath;
+        filePath = reader.filePath;
         if (!reader.matchesSignature(signature, 4))
             return;
 
@@ -79,7 +79,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = filepath;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -87,7 +87,7 @@ public:
     }
     void write(Writer &writer)
     {
-        filepath = writer.filePath;
+        filePath = writer.filePath;
         QByteArray compressed;
         QBuffer buffer(&compressed);
         buffer.open(QIODevice::Append);
@@ -104,9 +104,9 @@ public:
 
     byte signature[4] = { 'T', 'I', 'L', 0 };
 
-    CollisionMask collisionPaths[0x2][0x400];
+    CollisionMask collisionPaths[2][0x400];
 
-    QString filepath = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv5

@@ -1,4 +1,4 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 QList<QString> animNamesv2 = QList<QString>{
     "Stopped",
@@ -57,7 +57,7 @@ QList<QString> animNamesv2 = QList<QString>{
 
 void RSDKv2::Animation::read(Reader &reader)
 {
-    filePath = reader.filepath;
+    filePath = reader.filePath;
 
     for (int u = 0; u < 5; ++u) unknown[u] = reader.read<byte>();
 
@@ -70,8 +70,8 @@ void RSDKv2::Animation::read(Reader &reader)
             a < animNamesv2.count() ? animNamesv2[a] : ("Sonic Nexus Animation #" + QString::number(a));
     }
 
-    int collisionBoxCount = reader.read<byte>();
-    for (int h = 0; h < collisionBoxCount; ++h) hitboxes.append(Hitbox(reader));
+    int hitboxCount = reader.read<byte>();
+    for (int h = 0; h < hitboxCount; ++h) hitboxes.append(Hitbox(reader));
 }
 
 void RSDKv2::Animation::write(Writer &writer)

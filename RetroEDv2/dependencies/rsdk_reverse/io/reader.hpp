@@ -61,7 +61,7 @@ public:
             byte len = read<byte>();
             QByteArray string;
             for (byte i = 0; i < len; ++i) string += read<byte>();
-            return QString::fromLatin1(string);
+            return QString::fromLatin1(string).replace("\0", "");
         }
         else if (mode == 1) {
             ushort len      = read<ushort>();
@@ -100,6 +100,11 @@ public:
         }
 
         return QString::fromLatin1(string);
+    }
+
+    inline void readBytes(void *buffer, qint64 len)
+    {
+        stream->readRawData((char *)buffer, sizeof(byte) * len);
     }
 
     inline QByteArray readByteArray(qint64 len, bool compressed = false)
@@ -141,7 +146,7 @@ public:
     }
 
     qint64 filesize  = 0;
-    QString filepath = "";
+    QString filePath = "";
     bool initialised = false;
 
 private:

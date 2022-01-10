@@ -53,7 +53,7 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
             return;
 
         ui->objName->blockSignals(true);
-        ui->objName->setText(stageConfig->objects[c].m_name);
+        ui->objName->setText(stageConfig->objects[c].name);
         ui->objName->blockSignals(false);
 
         ui->objScript->blockSignals(true);
@@ -72,7 +72,7 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
         uint c = ui->objList->currentRow() + 1;
         stageConfig->objects.insert(c, FormatHelpers::Stageconfig::ObjectInfo());
         auto *item = new QListWidgetItem();
-        item->setText(stageConfig->objects[c].m_name);
+        item->setText(stageConfig->objects[c].name);
         ui->objList->insertItem(c, item);
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -108,10 +108,10 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
 
     connect(ui->objList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
         stageConfig->objects[ui->objList->row(item)].script = item->text();
-        stageConfig->objects[ui->objList->row(item)].m_name = QFileInfo(item->text()).baseName();
+        stageConfig->objects[ui->objList->row(item)].name   = QFileInfo(item->text()).baseName();
 
         ui->objName->blockSignals(true);
-        ui->objName->setText(stageConfig->objects[ui->objList->row(item)].m_name);
+        ui->objName->setText(stageConfig->objects[ui->objList->row(item)].name);
         ui->objName->blockSignals(false);
 
         ui->objScript->blockSignals(true);
@@ -121,13 +121,13 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
 
     connect(ui->objScript, &QLineEdit::textEdited, [this](QString s) {
         stageConfig->objects[ui->objList->currentRow()].script = s;
-        stageConfig->objects[ui->objList->currentRow()].m_name = QFileInfo(s).baseName();
+        stageConfig->objects[ui->objList->currentRow()].name   = QFileInfo(s).baseName();
 
         ui->objList->item(ui->objList->currentRow())
-            ->setText(stageConfig->objects[ui->objList->currentRow()].m_name);
+            ->setText(stageConfig->objects[ui->objList->currentRow()].name);
 
         ui->objName->blockSignals(true);
-        ui->objName->setText(stageConfig->objects[ui->objList->currentRow()].m_name);
+        ui->objName->setText(stageConfig->objects[ui->objList->currentRow()].name);
         ui->objName->blockSignals(false);
     });
 
@@ -200,8 +200,8 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
     });
 
     connect(ui->sfxList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        stageConfig->soundFX[ui->sfxList->row(item)].path   = item->text();
-        stageConfig->soundFX[ui->sfxList->row(item)].m_name = QFileInfo(item->text()).baseName();
+        stageConfig->soundFX[ui->sfxList->row(item)].path = item->text();
+        stageConfig->soundFX[ui->sfxList->row(item)].name = QFileInfo(item->text()).baseName();
 
         ui->sfxPath->blockSignals(true);
         ui->sfxPath->setText(stageConfig->soundFX[ui->sfxList->row(item)].path);
@@ -209,8 +209,8 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
     });
 
     connect(ui->sfxPath, &QLineEdit::textEdited, [this](QString s) {
-        stageConfig->soundFX[ui->sfxList->currentRow()].path   = s;
-        stageConfig->soundFX[ui->sfxList->currentRow()].m_name = QFileInfo(s).baseName();
+        stageConfig->soundFX[ui->sfxList->currentRow()].path = s;
+        stageConfig->soundFX[ui->sfxList->currentRow()].name = QFileInfo(s).baseName();
 
         ui->sfxList->item(ui->sfxList->currentRow())
             ->setText(stageConfig->soundFX[ui->sfxList->currentRow()].path);

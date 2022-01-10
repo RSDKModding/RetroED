@@ -28,6 +28,7 @@ SOURCES += \
     mainwindow.cpp \
     tools/animationeditor.cpp \
     tools/animationeditor/animsheetselector.cpp \
+    tools/compiler/compilerv1.cpp \
     tools/compiler/compilerv2.cpp \
     tools/compiler/compilerv3.cpp \
     tools/compiler/compilerv4.cpp \
@@ -76,6 +77,7 @@ SOURCES += \
     tools/sceneproperties/tileseteditor.cpp \
     tools/sceneviewer.cpp \
     tools/sceneviewerv5.cpp \
+    tools/scriptcompiler.cpp \
     tools/scriptunpacker.cpp \
     tools/userdbmanager.cpp \
     tools/utils/propertygrid.cpp \
@@ -90,6 +92,7 @@ HEADERS += \
     mainwindow.hpp \
     tools/animationeditor.hpp \
     tools/animationeditor/animsheetselector.hpp \
+    tools/compiler/compilerv1.hpp \
     tools/compiler/compilerv2.hpp \
     tools/compiler/compilerv3.hpp \
     tools/compiler/compilerv4.hpp \
@@ -138,6 +141,7 @@ HEADERS += \
     tools/sceneproperties/tileseteditor.hpp \
     tools/sceneviewer.hpp \
     tools/sceneviewerv5.hpp \
+    tools/scriptcompiler.hpp \
     tools/scriptunpacker.hpp \
     tools/userdbmanager.hpp \
     tools/utils/propertygrid.hpp \
@@ -185,6 +189,7 @@ FORMS += \
     tools/sceneproperties/stageconfigeditorv1.ui \
     tools/sceneproperties/stageconfigeditorv5.ui \
     tools/sceneproperties/tileseteditor.ui \
+    tools/scriptcompiler.ui \
     tools/scriptunpacker.ui \
     tools/userdbmanager.ui
 

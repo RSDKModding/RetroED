@@ -1,4 +1,4 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void FormatHelpers::Background::read(byte ver, QString filename)
 {
@@ -17,7 +17,7 @@ void FormatHelpers::Background::read(byte ver, QString filename)
             for (RSDKv1::Background::ScrollInfo &scr : bg.hScroll) {
                 ScrollInfo scroll;
                 scroll.deform         = scr.deform;
-                scroll.parallaxFactor = scr.parallaxFactor / 64.0f;
+                scroll.parallaxFactor = scr.parallaxFactor / 128.0f;
                 scroll.scrollSpeed    = (scr.scrollSpeed << 10) / 65536.0f;
 
                 hScroll.append(scroll);
@@ -26,7 +26,7 @@ void FormatHelpers::Background::read(byte ver, QString filename)
             for (RSDKv1::Background::ScrollInfo &scr : bg.vScroll) {
                 ScrollInfo scroll;
                 scroll.deform         = scr.deform;
-                scroll.parallaxFactor = scr.parallaxFactor / 64.0f;
+                scroll.parallaxFactor = scr.parallaxFactor / 128.0f;
                 scroll.scrollSpeed    = (scr.scrollSpeed << 10) / 65536.0f;
 
                 vScroll.append(scroll);
@@ -36,8 +36,8 @@ void FormatHelpers::Background::read(byte ver, QString filename)
                 Layer layer;
                 layer.width          = lyr.width;
                 layer.height         = lyr.height;
-                layer.type           = lyr.behaviour;
-                layer.parallaxFactor = lyr.relativeSpeed / 64.0f;
+                layer.type           = lyr.type;
+                layer.parallaxFactor = lyr.relativeSpeed / 128.0f;
                 layer.scrollSpeed    = (lyr.constantSpeed << 10) / 65536.0f;
                 layer.lineIndexes    = lyr.lineIndexes;
 
@@ -51,14 +51,15 @@ void FormatHelpers::Background::read(byte ver, QString filename)
 
                 layers.append(layer);
             }
-        } break;
+            break;
+        }
         case ENGINE_v2: {
             RSDKv2::Background bg(reader);
 
             for (RSDKv2::Background::ScrollInfo &scr : bg.hScroll) {
                 ScrollInfo scroll;
                 scroll.deform         = scr.deform;
-                scroll.parallaxFactor = scr.parallaxFactor / 64.0f;
+                scroll.parallaxFactor = scr.parallaxFactor / 128.0f;
                 scroll.scrollSpeed    = (scr.scrollSpeed << 10) / 65536.0f;
 
                 hScroll.append(scroll);
@@ -67,7 +68,7 @@ void FormatHelpers::Background::read(byte ver, QString filename)
             for (RSDKv2::Background::ScrollInfo &scr : bg.vScroll) {
                 ScrollInfo scroll;
                 scroll.deform         = scr.deform;
-                scroll.parallaxFactor = scr.parallaxFactor / 64.0f;
+                scroll.parallaxFactor = scr.parallaxFactor / 128.0f;
                 scroll.scrollSpeed    = (scr.scrollSpeed << 10) / 65536.0f;
 
                 vScroll.append(scroll);
@@ -78,7 +79,7 @@ void FormatHelpers::Background::read(byte ver, QString filename)
                 layer.width          = lyr.width;
                 layer.height         = lyr.height;
                 layer.type           = lyr.type;
-                layer.parallaxFactor = lyr.parallaxFactor / 64.0f;
+                layer.parallaxFactor = lyr.parallaxFactor / 128.0f;
                 layer.scrollSpeed    = (lyr.scrollSpeed << 10) / 65536.0f;
                 layer.lineIndexes    = lyr.lineIndexes;
 
@@ -92,7 +93,8 @@ void FormatHelpers::Background::read(byte ver, QString filename)
 
                 layers.append(layer);
             }
-        } break;
+            break;
+        }
         case ENGINE_v3: {
             RSDKv3::Background bg(reader);
 
@@ -133,7 +135,8 @@ void FormatHelpers::Background::read(byte ver, QString filename)
 
                 layers.append(layer);
             }
-        } break;
+            break;
+        }
         case ENGINE_v4: {
             RSDKv4::Background bg(reader);
 
@@ -174,7 +177,8 @@ void FormatHelpers::Background::read(byte ver, QString filename)
 
                 layers.append(layer);
             }
-        } break;
+            break;
+        }
     }
 
     scrollInfoFromIndices();
@@ -199,7 +203,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
             for (ScrollInfo &scr : hScroll) {
                 RSDKv1::Background::ScrollInfo scroll;
                 scroll.deform         = scr.deform;
-                scroll.parallaxFactor = scr.parallaxFactor * 64;
+                scroll.parallaxFactor = scr.parallaxFactor * 128;
                 scroll.scrollSpeed    = (int)(scr.scrollSpeed * 65536) >> 10;
 
                 bg.hScroll.append(scroll);
@@ -208,7 +212,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
             for (ScrollInfo &scr : vScroll) {
                 RSDKv1::Background::ScrollInfo scroll;
                 scroll.deform         = scr.deform;
-                scroll.parallaxFactor = scr.parallaxFactor * 64;
+                scroll.parallaxFactor = scr.parallaxFactor * 128;
                 scroll.scrollSpeed    = (int)(scr.scrollSpeed * 65536) >> 10;
 
                 bg.vScroll.append(scroll);
@@ -218,8 +222,8 @@ void FormatHelpers::Background::write(byte ver, QString filename)
                 RSDKv1::Background::Layer layer;
                 layer.width         = lyr.width;
                 layer.height        = lyr.height;
-                layer.behaviour     = lyr.type;
-                layer.relativeSpeed = lyr.parallaxFactor * 64;
+                layer.type          = lyr.type;
+                layer.relativeSpeed = lyr.parallaxFactor * 128;
                 layer.constantSpeed = (int)(lyr.scrollSpeed * 65536) >> 10;
                 layer.lineIndexes   = lyr.lineIndexes;
 
@@ -246,7 +250,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
             for (ScrollInfo &scr : hScroll) {
                 RSDKv2::Background::ScrollInfo scroll;
                 scroll.deform         = scr.deform;
-                scroll.parallaxFactor = scr.parallaxFactor * 64;
+                scroll.parallaxFactor = scr.parallaxFactor * 128;
                 scroll.scrollSpeed    = (int)(scr.scrollSpeed * 65536) >> 10;
 
                 bg.hScroll.append(scroll);
@@ -255,7 +259,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
             for (ScrollInfo &scr : vScroll) {
                 RSDKv2::Background::ScrollInfo scroll;
                 scroll.deform         = scr.deform;
-                scroll.parallaxFactor = scr.parallaxFactor * 64;
+                scroll.parallaxFactor = scr.parallaxFactor * 128;
                 scroll.scrollSpeed    = (int)(scr.scrollSpeed * 65536) >> 10;
 
                 bg.vScroll.append(scroll);
@@ -266,7 +270,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
                 layer.width          = lyr.width;
                 layer.height         = lyr.height;
                 layer.type           = lyr.type;
-                layer.parallaxFactor = lyr.parallaxFactor * 64;
+                layer.parallaxFactor = lyr.parallaxFactor * 128;
                 layer.scrollSpeed    = (int)(lyr.scrollSpeed * 65536) >> 10;
                 layer.lineIndexes    = lyr.lineIndexes;
 

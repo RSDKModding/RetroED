@@ -2,7 +2,7 @@
 
 void StaticObjectInfo::read(Reader &reader)
 {
-    m_filename = reader.filepath;
+    m_filename = reader.filePath;
     byte fVer  = reader.read<byte>();
     Q_UNUSED(fVer);
     m_name = reader.readString();

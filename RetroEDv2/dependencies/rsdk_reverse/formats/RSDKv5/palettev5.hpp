@@ -9,12 +9,10 @@ class Palette
 public:
     Palette()
     {
-        // m_filename = "";
-        for (int y = 0; y < 0x10; ++y) {
-            activeRows[y] = false;
-            for (int x = 0; x < 0x10; ++x) {
-                colours[y][x] = QColor(0xFF, 0x00, 0xFF);
-            }
+        // filePath = "";
+        for (int r = 0; r < 0x10; ++r) {
+            activeRows[r] = false;
+            for (int c = 0; c < 0x10; ++c) colours[r][c] = QColor(0xFF, 0x00, 0xFF);
         }
     }
     Palette(QString filename) { read(filename); }
@@ -27,7 +25,7 @@ public:
     }
     inline void read(Reader &reader)
     {
-        // m_filename        = reader.m_filepath;
+        // filePath        = reader.filePath;
         ushort activeRowBits = reader.read<ushort>();
         for (int r = 0; r < 0x10; ++r) activeRows[r] = Utils::getBit(activeRowBits, r);
 
@@ -46,7 +44,7 @@ public:
     inline void write(QString filename)
     {
         // if (filename == "")
-        //    filename = m_filename;
+        //    filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -55,7 +53,7 @@ public:
     inline void write(Writer &writer, bool internal = false)
     {
         // if (!internal)
-        //    m_filename = writer.m_filename;
+        //    filePath = writer.filePath;
         ushort activeRowBits = 0x00;
         for (int r = 0; r < 0x10; ++r) Utils::setBit(activeRowBits, activeRows[r], r);
         writer.write(activeRowBits);
@@ -77,7 +75,7 @@ public:
     QColor colours[0x10][0x10];
     bool activeRows[0x10];
 
-    // QString m_filename;
+    // QString filePath;
 };
 
 } // namespace RSDKv5

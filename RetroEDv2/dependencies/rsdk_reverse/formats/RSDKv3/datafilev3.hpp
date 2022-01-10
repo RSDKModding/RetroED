@@ -17,7 +17,7 @@ public:
         void write(Writer &writer);
 
         QString directory = "dir/";
-        int m_address       = 0;
+        int startOffset   = 0;
     };
 
     class FileInfo
@@ -32,17 +32,19 @@ public:
         QString fileName     = "File.ext";
         QString fullFileName = "Folder/File.ext";
         uint fileSize        = 0;
+        ushort dirID         = 0;
         QByteArray fileData;
-        ushort m_dirID = 0;
 
     private:
-        int m_eKeyNo      = 0;
-        int m_eNybbleSwap = 0;
-        int m_eKeyPosB    = 0;
-        int m_eKeyPosA    = 0;
+        int eKeyNo      = 0;
+        int eNybbleSwap = 0;
+        int eKeyPosB    = 0;
+        int eKeyPosA    = 0;
 
-        const char *m_decryptionKeyA = "4RaS9D7KaEbxcp2o5r6t";
-        const char *m_encryptionKeyB = "3tRaUxLmEaSn";
+        const char *decryptionKeyA = "4RaS9D7KaEbxcp2o5r6t";
+        const char *encryptionKeyB = "3tRaUxLmEaSn";
+
+        QByteArray decrypt(QByteArray data, bool encrypting);
     };
 
     Datafile() {}
@@ -59,7 +61,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -70,7 +72,7 @@ public:
     QList<DirInfo> directories;
     QList<FileInfo> files;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv3

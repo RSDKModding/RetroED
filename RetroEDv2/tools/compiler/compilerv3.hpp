@@ -132,6 +132,8 @@ public:
     QList<QString> globalVariables;
 
     QString typeNames[OBJECT_COUNT];
+    QList<QString> globalSfxNames;
+    QList<QString> stageSfxNames;
 
     int findStringToken(QString &string, QString token, char stopID);
 
@@ -142,7 +144,7 @@ public:
     void convertFunctionText(QString &text);
     void checkCaseNumber(QString &text);
     bool readSwitchCase(QString &text);
-    void appendIntegerToSting(QString &text, int value);
+    void appendIntegerToString(QString &text, int value);
     bool convertStringToInteger(QString &text, int *value);
     void copyAliasStr(QString &dest, QString text, bool arrayIndex);
 
@@ -167,6 +169,8 @@ public:
     void processScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub);
 
     RSDKv3::Bytecode bytecode;
+
+    RSDKv3::GameConfig gameConfig;
 
 private:
     int sinVal512[0x200];

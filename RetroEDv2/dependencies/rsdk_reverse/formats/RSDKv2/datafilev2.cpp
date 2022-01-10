@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv2::Datafile::read(Reader &reader)
 {
-    m_filename = reader.filepath;
+    m_filename = reader.filePath;
 
     int headerSize = reader.read<uint>();
     int dircount   = reader.read<byte>();

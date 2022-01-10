@@ -1086,9 +1086,10 @@ void Compilerv2::parseScriptFile(QString scriptName, int scriptID)
         int storePos   = 0;
 
         while (readMode < READMODE_EOF) {
-            scriptText  = "";
-            int textPos = 0;
-            readMode    = READMODE_NORMAL;
+            scriptText    = "";
+            int textPos   = 0;
+            readMode      = READMODE_NORMAL;
+            bool semiFlag = false;
             while (readMode < READMODE_ENDLINE) {
                 prevChar = curChar;
                 curChar  = reader.read<char>();
@@ -1098,6 +1099,8 @@ void Compilerv2::parseScriptFile(QString scriptName, int scriptID)
                         if ((curChar == '\n' && prevChar != '\r')
                             || (curChar == '\n' && prevChar == '\r')) {
                             readMode = READMODE_ENDLINE;
+                            if (curChar == ';')
+                                semiFlag = true;
                         }
                     }
                     else if (curChar != '/' || textPos <= 0) {
@@ -1118,6 +1121,8 @@ void Compilerv2::parseScriptFile(QString scriptName, int scriptID)
                     if ((curChar == '\n' && prevChar != '\r')
                         || (curChar == '\n' && prevChar == '\r')) {
                         readMode = READMODE_ENDLINE;
+                        if (curChar == ';')
+                            semiFlag = true;
                     }
                 }
                 else if (curChar != '/' || textPos <= 0) {
@@ -1139,7 +1144,8 @@ void Compilerv2::parseScriptFile(QString scriptName, int scriptID)
 
             switch (parseMode) {
                 case PARSEMODE_SCOPELESS:
-                    ++lineID;
+                    if (!semiFlag)
+                        ++lineID;
                     checkAliasText(scriptText);
                     if (scriptText == "subRSDK") {
                         parseMode                                        = PARSEMODE_FUNCTION;
@@ -1150,7 +1156,8 @@ void Compilerv2::parseScriptFile(QString scriptName, int scriptID)
                     }
                     break;
                 case PARSEMODE_FUNCTION:
-                    ++lineID;
+                    if (!semiFlag)
+                        ++lineID;
                     if (scriptText.length()) {
                         if (scriptText == "endsub") {
                             scriptData[scriptDataPos++] = FUNC_END;
@@ -1213,8 +1220,6 @@ void Compilerv2::clearScriptData()
     jumpTableDataPos    = 0;
     jumpTableDataOffset = 0;
 
-    functionCount = 0;
-
     for (int o = 0; o < OBJECT_COUNT; ++o) {
         ObjectScript *scriptInfo          = &objectScriptList[o];
         scriptInfo->subRSDK.scriptCodePtr = SCRIPTDATA_COUNT - 1;
@@ -1254,7 +1259,6 @@ void Compilerv2::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
     bool running        = true;
     int scriptDataPtr   = scriptCodePtr;
     jumpTableStackPos   = 0;
-    functionStackPos    = 0;
     SceneViewer *viewer = (SceneViewer *)this->viewer;
 
     while (running) {

@@ -7,44 +7,34 @@ namespace RSDKv3
 class Bytecode
 {
 public:
-    struct FunctionScript {
+    struct FunctionInfo {
     public:
-        FunctionScript() {}
+        FunctionInfo() {}
 
-        int mainScript    = 0;
-        int mainJumpTable = 0;
+        int scriptCodePos = 0;
+        int jumpTablePos  = 0;
     };
 
-    struct ObjectScript {
+    struct ScriptInfo {
     public:
-        ObjectScript() {}
+        ScriptInfo() {}
 
-        int mainScript       = 0;
-        int playerScript     = 0;
-        int drawScript       = 0;
-        int startupScript    = 0;
-        int mainJumpTable    = 0;
-        int playerJumpTable  = 0;
-        int drawJumpTable    = 0;
-        int startupJumpTable = 0;
+        FunctionInfo main;
+        FunctionInfo playerInteraction;
+        FunctionInfo draw;
+        FunctionInfo startup;
     };
 
     Bytecode() {}
-    Bytecode(QString filename, int scriptCount = 0, bool clear = true)
-    {
-        read(filename, scriptCount, clear);
-    }
-    Bytecode(Reader &reader, int scriptCount = 0, bool clear = true)
-    {
-        read(reader, scriptCount, clear);
-    }
+    Bytecode(QString filename) { read(filename); }
+    Bytecode(Reader &reader) { read(reader); }
 
-    inline void read(QString filename, int scriptCount = 0, bool clear = true)
+    inline void read(QString filename)
     {
         Reader reader(filename);
-        read(reader, scriptCount, clear);
+        read(reader);
     }
-    void read(Reader &reader, int scriptCount = 0, bool clear = true);
+    void read(Reader &reader);
 
     inline void write(QString filename)
     {
@@ -57,14 +47,10 @@ public:
     }
     void write(Writer &writer);
 
-    QList<int> scriptData;
-    QList<int> jumpTableData;
-    QList<ObjectScript> scriptList;
-    QList<FunctionScript> functionList;
-
-    int globalScriptDataCount = 0;
-    int globalJumpTableCount  = 0;
-    int globalScriptCount     = 0;
+    QList<int> scriptCode;
+    QList<int> jumpTable;
+    QList<ScriptInfo> scriptList;
+    QList<FunctionInfo> functionList;
 
     QString filePath = "";
 };

@@ -94,7 +94,7 @@ public:
     }
     inline void read(Reader &reader)
     {
-        filepath = reader.filepath;
+        filepath = reader.filePath;
         for (int c = 0; c < 0x400; ++c) {
             for (int p = 0; p < 2; ++p) m_collisionPaths[p][c].read(reader);
         }

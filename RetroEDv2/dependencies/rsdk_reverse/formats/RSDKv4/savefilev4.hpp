@@ -18,7 +18,7 @@ public:
     }
     inline void read(Reader &reader)
     {
-        filepath = reader.filepath;
+        filepath = reader.filePath;
         for (int i = 0; i < 0x2000; ++i) saveRAM[i] = reader.read<int>();
     }
 

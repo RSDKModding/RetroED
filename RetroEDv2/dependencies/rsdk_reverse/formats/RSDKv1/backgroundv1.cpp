@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv1::Background::read(Reader &reader)
 {
-    filepath = reader.filepath;
+    filePath = reader.filePath;
 
     byte layerCount = reader.read<byte>();
 
@@ -17,7 +17,7 @@ void RSDKv1::Background::read(Reader &reader)
 
 void RSDKv1::Background::write(Writer &writer)
 {
-    filepath = writer.filePath;
+    filePath = writer.filePath;
 
     writer.write((byte)layers.count());
 
@@ -36,7 +36,7 @@ void RSDKv1::Background::Layer::read(Reader &reader)
 {
     width         = reader.read<byte>();
     height        = reader.read<byte>();
-    behaviour     = reader.read<byte>();
+    type          = reader.read<byte>();
     relativeSpeed = reader.read<byte>();
     constantSpeed = reader.read<byte>();
 
@@ -94,7 +94,7 @@ void RSDKv1::Background::Layer::write(Writer &writer)
 {
     writer.write(width);
     writer.write(height);
-    writer.write(behaviour);
+    writer.write(type);
     writer.write(relativeSpeed);
     writer.write(constantSpeed);
 

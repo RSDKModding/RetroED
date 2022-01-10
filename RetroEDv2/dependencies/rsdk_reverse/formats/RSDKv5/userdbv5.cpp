@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv5::UserDB::read(Reader &reader)
 {
-    filepath       = reader.filepath;
+    filePath       = reader.filePath;
     Reader creader = reader.getCReaderRaw();
 
     uint sig = creader.read<uint>();
@@ -29,7 +29,7 @@ void RSDKv5::UserDB::read(Reader &reader)
 
 void RSDKv5::UserDB::write(Writer &writer)
 {
-    filepath = writer.filePath;
+    filePath = writer.filePath;
 
     QByteArray compressed;
     QBuffer buffer(&compressed);

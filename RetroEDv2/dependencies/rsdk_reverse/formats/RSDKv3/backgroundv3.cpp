@@ -1,54 +1,42 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv3::Background::read(Reader &reader)
 {
-    m_filename = reader.filepath;
+    filePath = reader.filePath;
 
     byte layerCount = reader.read<byte>();
 
     byte hLineCount = reader.read<byte>();
-    for (int h = 0; h < hLineCount; ++h) {
-        hScroll.append(ScrollInfo(reader));
-    }
+    for (int h = 0; h < hLineCount; ++h) hScroll.append(ScrollInfo(reader));
 
     byte vLineCount = reader.read<byte>();
-    for (int v = 0; v < vLineCount; ++v) {
-        vScroll.append(ScrollInfo(reader));
-    }
+    for (int v = 0; v < vLineCount; ++v) vScroll.append(ScrollInfo(reader));
 
-    for (int l = 0; l < layerCount; ++l) {
-        layers.append(Layer(reader));
-    }
+    for (int l = 0; l < layerCount; ++l) layers.append(Layer(reader));
 }
 
 void RSDKv3::Background::write(Writer &writer)
 {
-    m_filename = writer.filePath;
+    filePath = writer.filePath;
 
     writer.write((byte)layers.count());
 
     writer.write((byte)hScroll.count());
-    for (int h = 0; h < hScroll.count(); h++) {
-        hScroll[h].write(writer);
-    }
+    for (int h = 0; h < hScroll.count(); h++) hScroll[h].write(writer);
 
     writer.write((byte)vScroll.count());
-    for (int v = 0; v < vScroll.count(); v++) {
-        vScroll[v].write(writer);
-    }
+    for (int v = 0; v < vScroll.count(); v++) vScroll[v].write(writer);
 
-    for (int l = 0; l < layers.count(); ++l) {
-        layers[l].write(writer);
-    }
+    for (int l = 0; l < layers.count(); ++l) layers[l].write(writer);
 
     writer.flush();
 }
 
 void RSDKv3::Background::Layer::read(Reader &reader)
 {
-    width         = reader.read<byte>();
-    height        = reader.read<byte>();
-    type     = reader.read<byte>();
+    width          = reader.read<byte>();
+    height         = reader.read<byte>();
+    type           = reader.read<byte>();
     parallaxFactor = (short)(reader.read<byte>() << 8);
     parallaxFactor |= (short)reader.read<byte>();
     scrollSpeed = reader.read<byte>();
@@ -102,8 +90,6 @@ void rle_writev3(Writer writer, int value, int count)
             writer.write((byte)value);
             writer.write((byte)((count > 254) ? 255 : (count + 1)));
             count -= 254;
-
-            // Keep an eye on this, might be wrong
         }
     }
 }

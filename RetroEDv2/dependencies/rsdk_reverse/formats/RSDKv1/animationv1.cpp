@@ -1,45 +1,28 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 QList<QString> animNamesv1 = QList<QString>{
-    "Stopped",
-    "Waiting",
-    "Looking Up",
-    "Looking Down",
-    "Walking",
-    "Running",
-    "Skidding",
-    "Super Peel Out",
-    "Spin Dash",
-    "Jumping",
-    "Bouncing",
-    "Hurt",
-    "Dying",
-    "Life Icon",
-    "Drowning",
-    "Fan Rotate",
-    "Breathing",
-    "Pushing",
-    "Flailing Left",
-    "Flailing Right",
-    "Sliding",
-    "Hanging",
-    "Dropping",
-    "Finish Pose",
-    "CorkScrew",
-    "Retro Sonic Animation #26",
-    "Retro Sonic Animation #27",
-    "Retro Sonic Animation #28",
-    "Retro Sonic Animation #29",
-    "Retro Sonic Animation #30",
-    "Bonus Spin",
-    "Special Stop",
-    "Special Walk",
-    "Special Jump",
+    "Stopped",       "Waiting",
+    "Looking Up",    "Looking Down",
+    "Walking",       "Running",
+    "Skidding",      "Super Peel Out",
+    "Spin Dash",     "Jumping",
+    "Bouncing",      "Hurt",
+    "Dying",         "Life Icon",
+    "Drowning",      "Fan Rotate",
+    "Breathing",     "Pushing",
+    "Flailing Left", "Flailing Right",
+    "Sliding",       "Hanging",
+    "Dropping",      "Finish Pose",
+    "CorkScrew",     "Retro Sonic Animation #26",
+    "Fly Tired",     "Climbing",
+    "Ledge Pull Up", "Glide Slide",
+    "Bonus Spin",    "Special Stop",
+    "Special Walk",  "Special Jump",
 };
 
 void RSDKv1::Animation::read(Reader &reader, bool dcVer)
 {
-    filePath = reader.filepath;
+    filePath = reader.filePath;
 
     unknown    = reader.read<byte>();
     playerType = reader.read<byte>();

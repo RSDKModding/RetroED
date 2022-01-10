@@ -1,16 +1,16 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 Reader::Reader(QString filepath) : file(new QFile(filepath)), stream(new QDataStream(file.data()))
 {
     initialised = file->open(QIODevice::ReadOnly);
 
-    this->filepath = filepath;
+    this->filePath = filepath;
     this->filesize = file->size();
 }
 
 Reader::Reader(QDataStream *stream) : stream(stream)
 {
-    filepath    = "Memory";
+    filePath    = "Memory";
     initialised = true;
 }
 

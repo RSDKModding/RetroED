@@ -1,4 +1,4 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void FormatHelpers::Animation::read(byte ver, QString filename)
 {
@@ -66,7 +66,7 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
             for (auto &a : animFile.animations) {
                 AnimationEntry animation;
                 animation.name          = a.name;
-                animation.speed         = a.speedMultiplyer;
+                animation.speed         = a.speed;
                 animation.loopIndex     = a.loopIndex;
                 animation.rotationStyle = 1;
 
@@ -110,9 +110,9 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
             for (auto &a : animFile.animations) {
                 AnimationEntry animation;
                 animation.name          = a.name;
-                animation.speed         = a.speedMultiplyer;
+                animation.speed         = a.speed;
                 animation.loopIndex     = a.loopIndex;
-                animation.rotationStyle = a.rotationFlags;
+                animation.rotationStyle = a.rotationStyle;
 
                 for (auto &f : a.frames) {
                     Frame frame;
@@ -154,9 +154,9 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
             for (auto &a : animFile.animations) {
                 AnimationEntry animation;
                 animation.name          = a.name;
-                animation.speed         = a.speedMultiplyer;
+                animation.speed         = a.speed;
                 animation.loopIndex     = a.loopIndex;
-                animation.rotationStyle = a.rotationFlags;
+                animation.rotationStyle = a.rotationStyle;
 
                 for (auto &f : a.frames) {
                     Frame frame;
@@ -198,16 +198,16 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
             for (auto &a : animFile.animations) {
                 AnimationEntry animation;
                 animation.name          = a.name;
-                animation.speed         = a.speedMultiplyer;
+                animation.speed         = a.speed;
                 animation.loopIndex     = a.loopIndex;
-                animation.rotationStyle = a.rotationFlags;
+                animation.rotationStyle = a.rotationStyle;
 
                 for (auto &f : a.frames) {
                     Frame frame;
                     frame.sheet        = f.sheet;
                     frame.collisionBox = -1;
-                    frame.duration     = f.delay;
-                    frame.id           = f.id;
+                    frame.duration     = f.duration;
+                    frame.id           = f.unicodeChar;
                     frame.sprX         = f.sprX;
                     frame.sprY         = f.sprY;
                     frame.width        = f.width;
@@ -302,7 +302,7 @@ void FormatHelpers::Animation::write(byte ver, QString filename)
             for (int aID = 0; aID < animations.count(); ++aID) {
                 auto &a = animations[aID];
                 RSDKv2::Animation::AnimationEntry animEntry;
-                animEntry.speedMultiplyer = a.speed;
+                animEntry.speed = a.speed;
                 animEntry.loopIndex       = a.loopIndex;
 
                 for (auto &f : a.frames) {
@@ -344,9 +344,9 @@ void FormatHelpers::Animation::write(byte ver, QString filename)
                 auto &a = animations[aID];
                 RSDKv3::Animation::AnimationEntry animEntry;
                 animEntry.name            = a.name;
-                animEntry.speedMultiplyer = a.speed;
+                animEntry.speed = a.speed;
                 animEntry.loopIndex       = a.loopIndex;
-                animEntry.rotationFlags   = a.rotationStyle;
+                animEntry.rotationStyle   = a.rotationStyle;
 
                 for (auto &f : a.frames) {
                     RSDKv3::Animation::Frame frame;
@@ -387,9 +387,9 @@ void FormatHelpers::Animation::write(byte ver, QString filename)
                 auto &a = animations[aID];
                 RSDKv4::Animation::AnimationEntry animEntry;
                 animEntry.name            = a.name;
-                animEntry.speedMultiplyer = a.speed;
+                animEntry.speed = a.speed;
                 animEntry.loopIndex       = a.loopIndex;
-                animEntry.rotationFlags   = a.rotationStyle;
+                animEntry.rotationStyle   = a.rotationStyle;
 
                 for (auto &f : a.frames) {
                     RSDKv4::Animation::Frame frame;
@@ -430,15 +430,15 @@ void FormatHelpers::Animation::write(byte ver, QString filename)
                 auto &a = animations[aID];
                 RSDKv5::Animation::AnimationEntry animEntry;
                 animEntry.name            = a.name;
-                animEntry.speedMultiplyer = a.speed;
+                animEntry.speed = a.speed;
                 animEntry.loopIndex       = a.loopIndex;
-                animEntry.rotationFlags   = a.rotationStyle;
+                animEntry.rotationStyle   = a.rotationStyle;
 
                 for (auto &f : a.frames) {
                     RSDKv5::Animation::Frame frame;
                     frame.sheet  = f.sheet;
-                    frame.delay  = f.duration;
-                    frame.id     = f.id;
+                    frame.duration  = f.duration;
+                    frame.unicodeChar     = f.id;
                     frame.sprX   = f.sprX;
                     frame.sprY   = f.sprY;
                     frame.width  = f.width;

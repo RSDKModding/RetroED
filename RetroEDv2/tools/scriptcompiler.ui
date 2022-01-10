@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ScriptCompiler</class>
+ <widget class="QWidget" name="ScriptCompiler">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>455</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QComboBox" name="selEngineType">
+     <item>
+      <property name="text">
+       <string>RSDKv3 (Sonic CD)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>RSDKv4 (Sonic 1/Sonic 2)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>RSDKv1 (Retro-Sonic)</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QStackedWidget" name="stackedWidget">
+     <widget class="QWidget" name="page_v3v4">
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="5" column="0">
+        <widget class="QPushButton" name="setScriptsDir">
+         <property name="text">
+          <string>Set Scripts Folder</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="10" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Renderer:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="gameConfigPath">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QPushButton" name="setOutputDir">
+         <property name="text">
+          <string>Set Output Folder</string>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="0" colspan="2">
+        <widget class="Line" name="line_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Platform:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLineEdit" name="outputPath">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QCheckBox" name="isGlobal">
+         <property name="text">
+          <string>Compiling GlobalCode</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QLineEdit" name="scriptsPath">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QPushButton" name="setGameConfig">
+         <property name="text">
+          <string>Set GameConfig Path</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QPushButton" name="setStageConfig">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Set StageConfig Path</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLineEdit" name="stageConfigPath">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0" colspan="2">
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Compilation Properties:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Properties:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="0">
+        <widget class="QCheckBox" name="useHaptics">
+         <property name="text">
+          <string>Use Haptics</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="1">
+        <widget class="QComboBox" name="platformType">
+         <item>
+          <property name="text">
+           <string>Standard</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Mobile</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="10" column="1">
+        <widget class="QComboBox" name="renderType">
+         <item>
+          <property name="text">
+           <string>Software Renderer</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Hardware Renderer</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_v1">
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Properties:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="selectTRScript">
+         <property name="text">
+          <string>Select Script</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="trScript">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="trBytecodePath"/>
+       </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="setTRBytecodePath">
+         <property name="text">
+          <string>Set Bytecode Path</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QPushButton" name="compileScr">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Compile Bytecode</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

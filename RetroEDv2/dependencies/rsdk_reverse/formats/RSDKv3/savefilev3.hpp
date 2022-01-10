@@ -18,7 +18,7 @@ public:
     }
     inline void read(Reader &reader)
     {
-        filepath = reader.filepath;
+        filepath = reader.filePath;
         for (int i = 0; i < 0x2000; ++i) saveRAM[i] = reader.read<int>();
     }
 
@@ -43,7 +43,7 @@ public:
     inline int getScore(int saveFile)
     {
         Utils::intBytes b = Utils::intBytes(saveRAM[(saveFilePos(saveFile) + 0x08) / 4]);
-        return b.m_bytes[0] + (b.m_bytes[1] << 8) + (b.m_bytes[2] << 16) + (b.m_bytes[3] << 24);
+        return b.bytes[0] + (b.bytes[1] << 8) + (b.bytes[2] << 16) + (b.bytes[3] << 24);
     }
     inline int getZoneID(int saveFile) { return saveRAM[(saveFilePos(saveFile) + 0x0C) / 4]; }
     inline int getTimeStones(int saveFile) { return saveRAM[(saveFilePos(saveFile) + 0x10) / 4]; }
@@ -56,12 +56,12 @@ public:
     inline int getFuturesSaved(int saveFile)
     {
         Utils::intBytes b = Utils::intBytes(saveRAM[(saveFilePos(saveFile) + 0x1C) / 4]);
-        return b.m_bytes[2] + (b.m_bytes[3] << 8);
+        return b.bytes[2] + (b.bytes[3] << 8);
     }
     inline int getMSDestroyed(int saveFile)
     {
         Utils::intBytes b = Utils::intBytes(saveRAM[(saveFilePos(saveFile) + 0x1C) / 4]);
-        return b.m_bytes[0] + (b.m_bytes[1] << 8);
+        return b.bytes[0] + (b.bytes[1] << 8);
     }
 
     inline void setCharacterID(int saveFile, int value)
@@ -75,10 +75,10 @@ public:
     inline void setScore(int saveFile, int value)
     {
         Utils::intBytes b = Utils::intBytes(saveRAM[(saveFilePos(saveFile) + 0x08) / 4]);
-        b.m_bytes[0]      = (byte)(value >> 0);
-        b.m_bytes[1]      = (byte)(value >> 8);
-        b.m_bytes[2]      = (byte)(value >> 16);
-        b.m_bytes[3]      = (byte)(value >> 24);
+        b.bytes[0]        = (byte)(value >> 0);
+        b.bytes[1]        = (byte)(value >> 8);
+        b.bytes[2]        = (byte)(value >> 16);
+        b.bytes[3]        = (byte)(value >> 24);
         saveRAM[(saveFilePos(saveFile) + 0x08) / 4] = b.val;
     }
     inline void setZoneID(int saveFile, int value)
@@ -104,15 +104,15 @@ public:
     inline void setFuturesSaved(int saveFile, short value)
     {
         Utils::intBytes b = Utils::intBytes(saveRAM[(saveFilePos(saveFile) + 0x1C) / 4]);
-        b.m_bytes[2]      = (byte)(value >> 0);
-        b.m_bytes[3]      = (byte)(value >> 8);
+        b.bytes[2]        = (byte)(value >> 0);
+        b.bytes[3]        = (byte)(value >> 8);
         saveRAM[(saveFilePos(saveFile) + 0x08) / 4] = b.val;
     }
     inline void setMSDestroyed(int saveFile, short value)
     {
         Utils::intBytes b = Utils::intBytes(saveRAM[(saveFilePos(saveFile) + 0x1C) / 4]);
-        b.m_bytes[0]      = (byte)(value >> 0);
-        b.m_bytes[1]      = (byte)(value >> 8);
+        b.bytes[0]        = (byte)(value >> 0);
+        b.bytes[1]        = (byte)(value >> 8);
         saveRAM[(saveFilePos(saveFile) + 0x08) / 4] = b.val;
     }
 

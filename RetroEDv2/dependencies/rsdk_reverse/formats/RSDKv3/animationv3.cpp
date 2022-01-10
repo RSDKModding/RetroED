@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv3::Animation::read(Reader &reader)
 {
-    filePath = reader.filepath;
+    filePath = reader.filePath;
 
     int sheetCount = reader.read<byte>();
     for (int s = 0; s < sheetCount; ++s) sheets.append(reader.readString());

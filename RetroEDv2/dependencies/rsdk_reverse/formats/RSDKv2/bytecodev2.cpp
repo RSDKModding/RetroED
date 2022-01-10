@@ -1,8 +1,8 @@
-#include "include.hpp"
+#include "rsdkreverse.hpp"
 
 void RSDKv2::Bytecode::read(Reader &reader, int scriptCount, bool clear)
 {
-    filePath = reader.filepath;
+    filePath = reader.filePath;
     if (clear) {
         scriptData.clear();
         jumpTableData.clear();
