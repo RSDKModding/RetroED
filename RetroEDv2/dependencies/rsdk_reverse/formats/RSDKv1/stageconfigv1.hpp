@@ -1,5 +1,5 @@
-#ifndef STAGECONFIG_VRS_H
-#define STAGECONFIG_VRS_H
+#ifndef STAGECONFIG_V1_H
+#define STAGECONFIG_V1_H
 
 namespace RSDKv1
 {
@@ -30,7 +30,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = filepath;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -44,9 +44,9 @@ public:
     QList<QString> music;
     QList<QString> soundFX;
 
-    QString filepath = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv1
 
-#endif // STAGECONFIG_VRS_H
+#endif // STAGECONFIG_V1_H

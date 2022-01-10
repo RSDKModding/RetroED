@@ -1263,14 +1263,14 @@ void Compilerv3::convertFunctionText(QString &text)
                         scnName.replace(" ", "");
                         scnName = scnName.mid(2, scnName.length() - 2);
 
-                        for (; s < gameConfig.categories[list].scenes.count(); ++s) {
-                            QString name = gameConfig.categories[list].scenes[s].name;
+                        for (; s < gameConfig.stageLists[list].scenes.count(); ++s) {
+                            QString name = gameConfig.stageLists[list].scenes[s].name;
                             name         = name.replace(" ", "");
                             if (scnName == name)
                                 break;
                         }
 
-                        if (s == gameConfig.categories[list].scenes.count())
+                        if (s == gameConfig.stageLists[list].scenes.count())
                             s = -1;
                     }
                 }
@@ -1524,14 +1524,14 @@ void Compilerv3::checkCaseNumber(QString &text)
                     scnName.replace(" ", "");
                     scnName = scnName.mid(2, scnName.length() - 2);
 
-                    for (; s < gameConfig.categories[list].scenes.count(); ++s) {
-                        QString name = gameConfig.categories[list].scenes[s].name;
+                    for (; s < gameConfig.stageLists[list].scenes.count(); ++s) {
+                        QString name = gameConfig.stageLists[list].scenes[s].name;
                         name         = name.replace(" ", "");
                         if (scnName == name)
                             break;
                     }
 
-                    if (s == gameConfig.categories[list].scenes.count())
+                    if (s == gameConfig.stageLists[list].scenes.count())
                         s = -1;
                 }
             }
@@ -1737,14 +1737,14 @@ bool Compilerv3::readSwitchCase(QString &text)
                         scnName.replace(" ", "");
                         scnName = scnName.mid(2, scnName.length() - 2);
 
-                        for (; s < gameConfig.categories[list].scenes.count(); ++s) {
-                            QString name = gameConfig.categories[list].scenes[s].name;
+                        for (; s < gameConfig.stageLists[list].scenes.count(); ++s) {
+                            QString name = gameConfig.stageLists[list].scenes[s].name;
                             name         = name.replace(" ", "");
                             if (scnName == name)
                                 break;
                         }
 
-                        if (s == gameConfig.categories[list].scenes.count())
+                        if (s == gameConfig.stageLists[list].scenes.count())
                             s = -1;
                     }
                 }

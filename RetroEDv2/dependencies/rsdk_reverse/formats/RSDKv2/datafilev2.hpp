@@ -1,5 +1,5 @@
-#ifndef DATAFILE_V1_H
-#define DATAFILE_V1_H
+#ifndef DATAFILE_V2_H
+#define DATAFILE_V2_H
 
 namespace RSDKv2
 {
@@ -17,7 +17,7 @@ public:
         void write(Writer &writer);
 
         QString directory = "dir/";
-        int m_address       = 0;
+        int startOffset   = 0;
     };
 
     class FileInfo
@@ -33,7 +33,7 @@ public:
         QString fullFileName = "Folder/File.ext";
         uint fileSize        = 0;
         QByteArray fileData;
-        ushort m_dirID = 0;
+        ushort dirID = 0;
     };
 
     Datafile() {}
@@ -50,7 +50,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -61,9 +61,9 @@ public:
     QList<DirInfo> directories;
     QList<FileInfo> files;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv2
 
-#endif // DATAFILE_V1_H
+#endif // DATAFILE_V2_H

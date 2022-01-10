@@ -7,7 +7,16 @@ namespace FormatHelpers
 class Gif
 {
 public:
-    Gif() {}
+    Gif()
+    {
+        for (int c = 0; c < 0x100; ++c) palette[c] = QColor(0xFF, 0x00, 0xFF);
+    }
+    Gif(ushort w, ushort h) : Gif()
+    {
+        width  = w;
+        height = h;
+        pixels.resize(w * h);
+    }
 
     inline void read(QString filename, bool skipHeader = false, int clrCnt = 0x80)
     {

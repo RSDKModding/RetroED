@@ -2,7 +2,7 @@
 
 void RSDKv2::Datafile::read(Reader &reader)
 {
-    m_filename = reader.filePath;
+    filePath = reader.filePath;
 
     int headerSize = reader.read<uint>();
     int dircount   = reader.read<byte>();
@@ -15,10 +15,10 @@ void RSDKv2::Datafile::read(Reader &reader)
     files.clear();
     for (int d = 0; d < dircount; ++d) {
         if ((d + 1) < directories.count()) {
-            while (reader.tell() - headerSize < directories[d + 1].m_address) {
+            while (reader.tell() - headerSize < directories[d + 1].startOffset) {
                 FileInfo f       = FileInfo(reader);
                 f.fullFileName = directories[d].directory + f.fileName;
-                f.m_dirID        = d;
+                f.dirID        = d;
                 files.append(f);
             }
         }
@@ -26,7 +26,7 @@ void RSDKv2::Datafile::read(Reader &reader)
             while (!reader.isEOF()) {
                 FileInfo f       = FileInfo(reader);
                 f.fullFileName = directories[d].directory + f.fileName;
-                f.m_dirID        = d;
+                f.dirID        = d;
                 files.append(f);
             }
         }
@@ -35,7 +35,7 @@ void RSDKv2::Datafile::read(Reader &reader)
 
 void RSDKv2::Datafile::write(Writer &writer)
 {
-    m_filename = writer.filePath;
+    filePath = writer.filePath;
 
     int dirHeaderSize = 0;
 
@@ -56,14 +56,14 @@ void RSDKv2::Datafile::write(Writer &writer)
     //});
 
     int dir                      = 0;
-    directories[dir].m_address = 0;
+    directories[dir].startOffset = 0;
     for (int i = 0; i < files.count(); ++i) {
-        if (files[i].m_dirID == dir) {
+        if (files[i].dirID == dir) {
             files[i].write(writer);
         }
         else {
             ++dir;
-            directories[dir].m_address = (int)writer.tell() - dirHeaderSize;
+            directories[dir].startOffset = (int)writer.tell() - dirHeaderSize;
             files[i].write(writer);
         }
     }
@@ -80,7 +80,7 @@ void RSDKv2::Datafile::write(Writer &writer)
 
     dir = 0;
     for (int i = 0; i < files.count(); ++i) {
-        if (files[i].m_dirID == dir) {
+        if (files[i].dirID == dir) {
             files[i].write(writer);
         }
         else {
@@ -120,7 +120,7 @@ void RSDKv2::Datafile::FileInfo::write(Writer &writer)
 void RSDKv2::Datafile::DirInfo::read(Reader &reader)
 {
     directory = reader.readString();
-    m_address   = reader.read<int>();
+    startOffset   = reader.read<int>();
 }
 
 void RSDKv2::Datafile::DirInfo::write(Writer &writer)
@@ -129,5 +129,5 @@ void RSDKv2::Datafile::DirInfo::write(Writer &writer)
         directory += "/";
 
     writer.write(directory);
-    writer.write(m_address);
+    writer.write(startOffset);
 }

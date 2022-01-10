@@ -1,5 +1,5 @@
-#ifndef ANIMATION_V1_H
-#define ANIMATION_V1_H
+#ifndef ANIMATION_V2_H
+#define ANIMATION_V2_H
 
 namespace RSDKv2
 {
@@ -157,4 +157,4 @@ public:
 
 } // namespace RSDKv2
 
-#endif // ANIMATION_V1_H
+#endif // ANIMATION_V2_H

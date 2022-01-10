@@ -429,7 +429,7 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
     connect(sceneModel, &QStandardItemModel::itemChanged, [this](QStandardItem *item) {
         const QModelIndex &index = sceneModel->indexFromItem(item);
         if (index.parent().isValid()) { // Scene
-            gameConfig.categories[index.parent().row()].scenes[index.row()].name = item->text();
+            gameConfig.stageLists[index.parent().row()].scenes[index.row()].name = item->text();
             updateTitle(true);
             return;
         }
@@ -443,8 +443,8 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
         }
         uint cat = scnSelected ? index.parent().row() : index.row();
         uint scn = scnSelected ? index.row() + 1 : 0;
-        gameConfig.categories[cat].scenes.insert(scn, RSDKv2::Gameconfig::SceneInfo());
-        auto *scnItem = new QStandardItem(gameConfig.categories[cat].scenes[scn].name);
+        gameConfig.stageLists[cat].scenes.insert(scn, RSDKv2::Gameconfig::SceneInfo());
+        auto *scnItem = new QStandardItem(gameConfig.stageLists[cat].scenes[scn].name);
         if (scnSelected)
             sceneModel->itemFromIndex(index.parent())->insertRow(scn, scnItem);
         else
@@ -458,7 +458,7 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
         const QModelIndex &index = ui->scnTree->currentIndex();
 
         if (index.parent().isValid()) { // Scene
-            gameConfig.categories[index.parent().row()].scenes.removeAt(index.row());
+            gameConfig.stageLists[index.parent().row()].scenes.removeAt(index.row());
             sceneModel->itemFromIndex(index.parent())->removeRow(index.row());
             updateTitle(true);
             return;
@@ -471,7 +471,7 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
         int c = ui->scnTree->currentIndex().row();
         QList<QStandardItem *> item;
         if (isScn) {
-            gameConfig.categories[ui->scnTree->currentIndex().parent().row()].scenes.move(
+            gameConfig.stageLists[ui->scnTree->currentIndex().parent().row()].scenes.move(
                 c, c + translation);
             QStandardItem *parentItem = sceneModel->itemFromIndex(ui->scnTree->currentIndex().parent());
             item                      = parentItem->takeRow(c);
@@ -516,50 +516,50 @@ GameconfigEditorv2::GameconfigEditorv2(QString path, QWidget *parent)
 
             if (c.parent().isValid()) {
                 ui->scnID->setDisabled(c.row()
-                                       >= gameConfig.categories[c.parent().row()].scenes.count());
+                                       >= gameConfig.stageLists[c.parent().row()].scenes.count());
                 ui->scnFolder->setDisabled(c.row()
-                                           >= gameConfig.categories[c.parent().row()].scenes.count());
+                                           >= gameConfig.stageLists[c.parent().row()].scenes.count());
                 ui->scnName->setDisabled(c.row()
-                                         >= gameConfig.categories[c.parent().row()].scenes.count());
+                                         >= gameConfig.stageLists[c.parent().row()].scenes.count());
                 ui->scnHighlighted->setDisabled(
-                    c.row() >= gameConfig.categories[c.parent().row()].scenes.count());
+                    c.row() >= gameConfig.stageLists[c.parent().row()].scenes.count());
 
-                if (c.row() >= gameConfig.categories[c.parent().row()].scenes.count())
+                if (c.row() >= gameConfig.stageLists[c.parent().row()].scenes.count())
                     return;
 
-                ui->scnID->setText(gameConfig.categories[c.parent().row()].scenes[c.row()].id);
+                ui->scnID->setText(gameConfig.stageLists[c.parent().row()].scenes[c.row()].id);
                 ui->scnHighlighted->setChecked(
-                    gameConfig.categories[c.parent().row()].scenes[c.row()].highlighted);
-                ui->scnFolder->setText(gameConfig.categories[c.parent().row()].scenes[c.row()].folder);
-                ui->scnName->setText(gameConfig.categories[c.parent().row()].scenes[c.row()].name);
+                    gameConfig.stageLists[c.parent().row()].scenes[c.row()].highlighted);
+                ui->scnFolder->setText(gameConfig.stageLists[c.parent().row()].scenes[c.row()].folder);
+                ui->scnName->setText(gameConfig.stageLists[c.parent().row()].scenes[c.row()].name);
 
                 connect(ui->scnName, &QLineEdit::textEdited, [this, c](QString s) {
-                    gameConfig.categories[c.parent().row()].scenes[c.row()].name = s;
+                    gameConfig.stageLists[c.parent().row()].scenes[c.row()].name = s;
 
                     // TODO: edit text
                     updateTitle(true);
                 });
 
                 connect(ui->scnFolder, &QLineEdit::textEdited, [this, c](QString s) {
-                    gameConfig.categories[c.parent().row()].scenes[c.row()].folder = s;
+                    gameConfig.stageLists[c.parent().row()].scenes[c.row()].folder = s;
                     updateTitle(true);
                 });
 
                 connect(ui->scnID, &QLineEdit::textEdited, [this, c](QString s) {
-                    gameConfig.categories[c.parent().row()].scenes[c.row()].folder = s;
+                    gameConfig.stageLists[c.parent().row()].scenes[c.row()].folder = s;
                     updateTitle(true);
                 });
 
                 connect(ui->scnHighlighted, &QCheckBox::toggled, [this, c](bool v) {
-                    gameConfig.categories[c.parent().row()].scenes[c.row()].highlighted = v;
+                    gameConfig.stageLists[c.parent().row()].scenes[c.row()].highlighted = v;
                     updateTitle(true);
                 });
             }
 
             ui->downScn->setDisabled(
                 c.parent().isValid()
-                    ? c.row() == gameConfig.categories[c.parent().row()].scenes.count() - 1
-                    : c.row() == gameConfig.categories.count() - 1);
+                    ? c.row() == gameConfig.stageLists[c.parent().row()].scenes.count() - 1
+                    : c.row() == gameConfig.stageLists.count() - 1);
             ui->upScn->setDisabled(c.row() == 0);
         });
 
@@ -578,7 +578,7 @@ void GameconfigEditorv2::load(QString filename)
     if (filename != "") {
         Reader reader = Reader(filename);
         gameConfig.read(reader);
-        tabTitle = Utils::getFilenameAndFolder(gameConfig.m_filename);
+        tabTitle = Utils::getFilenameAndFolder(gameConfig.filePath);
     }
     else {
         gameConfig = RSDKv2::Gameconfig();
@@ -643,7 +643,7 @@ void GameconfigEditorv2::load(QString filename)
     for (int c = 0; c < 4; ++c) {
         auto *catItem = new QStandardItem(names[c]);
 
-        for (auto &scn : gameConfig.categories[c].scenes) {
+        for (auto &scn : gameConfig.stageLists[c].scenes) {
             auto *scnItem = new QStandardItem(scn.name);
             catItem->appendRow(scnItem);
 
@@ -679,7 +679,7 @@ bool GameconfigEditorv2::event(QEvent *event)
     }
 
     if (event->type() == (QEvent::Type)RE_EVENT_SAVE) {
-        if (!QFile(gameConfig.m_filename).exists()) {
+        if (!QFile(gameConfig.filePath).exists()) {
             QFileDialog filedialog(this, tr("Open GameConfig"), "",
                                    tr("RSDKv2 GameConfig files (GameConfig*.bin)"));
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
@@ -769,8 +769,8 @@ bool GameconfigEditorv2::event(QEvent *event)
                         config.players.append(plr.name);
                     }
 
-                    config.categories.clear();
-                    for (auto &cat : gameConfig.categories) {
+                    config.stageLists.clear();
+                    for (auto &cat : gameConfig.stageLists) {
                         RSDKv3::GameConfig::Category category;
                         category.scenes.clear();
 
@@ -782,7 +782,7 @@ bool GameconfigEditorv2::event(QEvent *event)
                             scene.highlighted = scn.highlighted;
                             category.scenes.append(scene);
                         }
-                        config.categories.append(category);
+                        config.stageLists.append(category);
                     }
 
                     appConfig.addRecentFile(ENGINE_v3, TOOL_GAMECONFIGEDITOR,
@@ -832,7 +832,7 @@ bool GameconfigEditorv2::event(QEvent *event)
                     }
 
                     config.categories.clear();
-                    for (auto &cat : gameConfig.categories) {
+                    for (auto &cat : gameConfig.stageLists) {
                         RSDKv4::GameConfig::Category category;
                         category.scenes.clear();
 
@@ -904,7 +904,7 @@ bool GameconfigEditorv2::event(QEvent *event)
                     QList<QString> catNames = { "Presentation", "Regular Stages", "Bonus Stages",
                                                 "Special Stages" };
                     int catID               = 0;
-                    for (auto &cat : gameConfig.categories) {
+                    for (auto &cat : gameConfig.stageLists) {
                         RSDKv5::GameConfig::Category category;
                         category.name = catNames[catID];
                         category.scenes.clear();
@@ -983,10 +983,10 @@ bool GameconfigEditorv2::event(QEvent *event)
                     QString elementNames[] = { "presentationStages", "regularStages", "specialStages",
                                                "bonusStages" };
                     for (int i = 0; i < 4; ++i) {
-                        if (gameConfig.categories[i].scenes.count()) {
+                        if (gameConfig.stageLists[i].scenes.count()) {
                             writer.writeLine();
                             writer.writeLine(QString("\t<%1>").arg(elementNames[i]));
-                            for (auto &stg : gameConfig.categories[i].scenes) {
+                            for (auto &stg : gameConfig.stageLists[i].scenes) {
                                 writer.writeLine(QString("\t\t<stage name=\"%1\" folder=\"%2\" "
                                                          "id=\"%3\" highlight=\"%4\"> </stage>")
                                                      .arg(stg.name)
@@ -1012,7 +1012,7 @@ bool GameconfigEditorv2::event(QEvent *event)
     if (event->type() == QEvent::Close && modified) {
         bool cancelled = false;
         if (MainWindow::showCloseWarning(this, &cancelled)) {
-            if (!QFile(gameConfig.m_filename).exists()) {
+            if (!QFile(gameConfig.filePath).exists()) {
                 QFileDialog filedialog(this, tr("Open GameConfig"), "",
                                        tr("RSDKv2 GameConfig files (GameConfig*.bin)"));
                 filedialog.setAcceptMode(QFileDialog::AcceptSave);

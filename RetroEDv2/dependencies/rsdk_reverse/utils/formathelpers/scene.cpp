@@ -50,7 +50,7 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
                 }
             }
 
-            for (RSDKv1::Scene::Object &object : scn.objects) {
+            for (RSDKv1::Scene::Entity &object : scn.entities) {
                 Object obj;
 
                 obj.type          = object.type;
@@ -83,7 +83,7 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
 
             for (QString name : scn.typeNames) objectTypeNames.append(name);
 
-            for (RSDKv2::Scene::Object &object : scn.objects) {
+            for (RSDKv2::Scene::Entity &object : scn.entities) {
                 Object obj;
 
                 obj.type          = object.type;
@@ -116,7 +116,7 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
 
             for (QString name : scn.typeNames) objectTypeNames.append(name);
 
-            for (RSDKv3::Scene::Object &object : scn.objects) {
+            for (RSDKv3::Scene::Entity &object : scn.entities) {
                 Object obj;
 
                 obj.type          = object.type;
@@ -147,7 +147,7 @@ void FormatHelpers::Scene::read(byte ver, QString filename)
                 }
             }
 
-            for (RSDKv4::Scene::Object &object : scn.objects) {
+            for (RSDKv4::Scene::Entity &object : scn.entities) {
                 Object obj;
 
                 obj.type          = object.type;
@@ -206,7 +206,7 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
             }
 
             for (Object &object : objects) {
-                RSDKv1::Scene::Object obj;
+                RSDKv1::Scene::Entity obj;
 
                 obj.type          = object.type;
                 obj.propertyValue = object.propertyValue;
@@ -214,7 +214,7 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
                 obj.posY          = object.pos.y >> 0x10;
 
                 obj.slotID = object.slotID;
-                scn.objects.append(obj);
+                scn.entities.append(obj);
             }
 
             scn.write(writer);
@@ -242,7 +242,7 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
             for (QString name : objectTypeNames) scn.typeNames.append(name);
 
             for (Object &object : objects) {
-                RSDKv2::Scene::Object obj;
+                RSDKv2::Scene::Entity obj;
 
                 obj.type          = object.type;
                 obj.propertyValue = object.propertyValue;
@@ -250,7 +250,7 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
                 obj.posY          = object.pos.y >> 0x10;
 
                 obj.slotID = object.slotID;
-                scn.objects.append(obj);
+                scn.entities.append(obj);
             }
 
             scn.write(writer);
@@ -278,7 +278,7 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
             for (QString name : objectTypeNames) scn.typeNames.append(name);
 
             for (Object &object : objects) {
-                RSDKv3::Scene::Object obj;
+                RSDKv3::Scene::Entity obj;
 
                 obj.type          = object.type;
                 obj.propertyValue = object.propertyValue;
@@ -286,7 +286,7 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
                 obj.posY          = object.pos.y >> 0x10;
 
                 obj.slotID = object.slotID;
-                scn.objects.append(obj);
+                scn.entities.append(obj);
             }
 
             scn.write(writer);
@@ -312,7 +312,7 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
             }
 
             for (Object &object : objects) {
-                RSDKv4::Scene::Object obj;
+                RSDKv4::Scene::Entity obj;
 
                 obj.type          = object.type;
                 obj.propertyValue = object.propertyValue;
@@ -326,7 +326,7 @@ void FormatHelpers::Scene::write(byte ver, QString filename)
                     obj.variables[a].active = object.variables[a].active;
                 }
 
-                scn.objects.append(obj);
+                scn.entities.append(obj);
             }
 
             scn.write(writer);

@@ -47,7 +47,7 @@ void FormatHelpers::Stageconfig::read(byte ver, QString filename)
             loadGlobalScripts = stageconfig.loadGlobalScripts;
             palette           = stageconfig.palette;
 
-            for (QString &obj : stageconfig.scripts) {
+            for (QString &obj : stageconfig.objects) {
                 ObjectInfo o;
                 o.name   = QFileInfo(obj).baseName();
                 o.script = obj;
@@ -151,7 +151,7 @@ void FormatHelpers::Stageconfig::write(byte ver, QString filename)
             stageconfig.loadGlobalScripts = loadGlobalScripts;
             stageconfig.palette           = palette;
 
-            for (ObjectInfo &obj : objects) stageconfig.scripts.append(obj.script);
+            for (ObjectInfo &obj : objects) stageconfig.objects.append(obj.script);
 
             for (SoundInfo &sfx : soundFX) stageconfig.soundFX.append(sfx.path);
 

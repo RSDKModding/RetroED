@@ -2,26 +2,26 @@
 
 void RSDKv2::GFX::read(Reader &reader, bool dcGFX)
 {
-    m_filename = reader.filePath;
+    filePath = reader.filePath;
 
     if (dcGFX)
         reader.read<byte>();
 
-    m_width = (ushort)(reader.read<byte>() << 8);
-    m_width |= reader.read<byte>();
+    width = (ushort)(reader.read<byte>() << 8);
+    width |= reader.read<byte>();
 
-    m_height = (ushort)(reader.read<byte>() << 8);
-    m_height |= reader.read<byte>();
+    height = (ushort)(reader.read<byte>() << 8);
+    height |= reader.read<byte>();
 
     // Read & Process palette
     for (int i = 0; i < 255; ++i) {
-        m_palette[i].read(reader);
+        palette[i].read(reader);
     }
 
     // Read Image Data
     byte buf[3];
 
-    m_pixelData.clear();
+    pixels.clear();
     while (true) {
         buf[0] = reader.read<byte>();
         if (buf[0] == 255) {
@@ -36,11 +36,11 @@ void RSDKv2::GFX::read(Reader &reader, bool dcGFX)
                 if (dcGFX)
                     --buf[2];
 
-                for (int l = 0; l < buf[2]; ++l) m_pixelData.append(buf[1]);
+                for (int l = 0; l < buf[2]; ++l) pixels.append(buf[1]);
             }
         }
         else
-            m_pixelData.append(buf[0]);
+            pixels.append(buf[0]);
     }
 }
 
@@ -70,33 +70,33 @@ void rle_writeRSDKv2(Writer writer, int pixel, int count, bool dcGFX)
 
 void RSDKv2::GFX::write(Writer &writer, bool dcGFX)
 {
-    m_filename = writer.filePath;
+    filePath = writer.filePath;
 
     if (dcGFX)
         writer.write((byte)0);
 
     // Output width and height
-    writer.write((byte)(m_width >> 8));
-    writer.write((byte)(m_width & 0xFF));
+    writer.write((byte)(width >> 8));
+    writer.write((byte)(width & 0xFF));
 
-    writer.write((byte)(m_height >> 8));
-    writer.write((byte)(m_height & 0xFF));
+    writer.write((byte)(height >> 8));
+    writer.write((byte)(height & 0xFF));
 
     // Output palette
     for (int x = 0; x < 0xFF; ++x) {
-        m_palette[x].write(writer);
+        palette[x].write(writer);
     }
 
     // Output data
     int p   = 0;
     int cnt = 0;
 
-    for (int x = 0; x < m_height * m_width; ++x) {
-        if ((byte)m_pixelData[x] != p && x > 0) {
+    for (int x = 0; x < height * width; ++x) {
+        if ((byte)pixels[x] != p && x > 0) {
             rle_writeRSDKv2(writer, p, cnt, dcGFX);
             cnt = 0;
         }
-        p = (byte)m_pixelData[x];
+        p = (byte)pixels[x];
         ++cnt;
     }
 
@@ -115,52 +115,91 @@ void RSDKv2::GFX::importImage(QImage image)
         return;
     }
 
-    int width  = image.width();
-    int height = image.height();
-    // m_imageData.clear();
-    m_pixelData.resize(width * height);
+    int w = image.width();
+    int h = image.height();
+    pixels.resize(w * h);
 
     int size = image.colorCount();
     for (int c = 0; c < size; ++c) {
-        m_palette[c] = Colour(qRed(image.color(c)), qGreen(image.color(c)), qBlue(image.color(c)));
+        palette[c] = Colour(qRed(image.color(c)), qGreen(image.color(c)), qBlue(image.color(c)));
     }
 
     for (int c = size; c < 0xFF; ++c) {
-        m_palette[c] = Colour(0xFF, 0x00, 0xFF);
+        palette[c] = Colour(0xFF, 0x00, 0xFF);
     }
 
-    int i    = 0;
-    m_width  = width;
-    m_height = height;
+    int i  = 0;
+    width  = w;
+    height = h;
     for (int y = 0; y < image.height(); ++y) {
         for (int x = 0; x < image.width(); ++x) {
-            if (image.format() == QImage::Format_Indexed8) {
-                m_pixelData[i++] = (byte)image.pixelIndex(x, y);
-            }
-            else {
-                m_pixelData[i++] = 0;
-            }
+            if (image.format() == QImage::Format_Indexed8)
+                pixels[i++] = (byte)image.pixelIndex(x, y);
+            else
+                pixels[i++] = 0;
+        }
+    }
+}
+
+void RSDKv2::GFX::importImage(FormatHelpers::Gif image)
+{
+
+    int w = image.width;
+    int h = image.height;
+    pixels.resize(w * h);
+
+    for (int c = 0; c < 0xFF; ++c)
+        palette[c] = Colour(image.palette[c].red(), image.palette[c].green(), image.palette[c].blue());
+
+    int i  = 0;
+    width  = w;
+    height = h;
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            pixels[i] = image.pixels[i];
+            i++;
         }
     }
 }
 
 QImage RSDKv2::GFX::exportImage()
 {
-    QImage img(m_width, m_height, QImage::Format_Indexed8);
+    QImage img(width, height, QImage::Format_Indexed8);
 
     QVector<QRgb> colours;
 
     for (int i = 0; i < 0xFF; ++i) {
-        Colour c = m_palette[i];
+        Colour c = palette[i];
         colours.append(qRgb(c.r, c.g, c.b));
     }
     img.setColorTable(colours);
 
-    for (int y = 0; y < m_height; ++y) {
-        for (int x = 0; x < m_width; ++x) {
-            byte index = (byte)m_pixelData[(y * m_width) + x];
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            byte index = (byte)pixels[(y * width) + x];
             if (index < img.colorCount())
                 img.setPixel(x, y, index);
+        }
+    }
+
+    return img;
+}
+
+FormatHelpers::Gif RSDKv2::GFX::exportGif()
+{
+    FormatHelpers::Gif img(width, height);
+
+    QVector<QRgb> colours;
+
+    for (int i = 0; i < 0xFF; ++i) {
+        Colour c       = palette[i];
+        img.palette[i] = QColor(c.r, c.g, c.b);
+    }
+
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            byte index                  = (byte)pixels[(y * width) + x];
+            img.pixels[(y * width) + x] = index;
         }
     }
 

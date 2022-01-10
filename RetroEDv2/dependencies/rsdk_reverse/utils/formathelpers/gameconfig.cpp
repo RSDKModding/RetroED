@@ -60,7 +60,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
             }
 
             for (int c = 0; c < 4; ++c) {
-                for (RSDKv2::Gameconfig::SceneInfo &scn : gameconfig.categories[c].scenes) {
+                for (RSDKv2::Gameconfig::SceneInfo &scn : gameconfig.stageLists[c].scenes) {
                     SceneInfo s;
                     s.m_name      = scn.name;
                     s.folder      = scn.folder;
@@ -112,7 +112,7 @@ void FormatHelpers::Gameconfig::read(byte ver, QString filename)
             }
 
             for (int c = 0; c < 4; ++c) {
-                for (RSDKv3::GameConfig::SceneInfo &scn : gameconfig.categories[c].scenes) {
+                for (RSDKv3::GameConfig::SceneInfo &scn : gameconfig.stageLists[c].scenes) {
                     SceneInfo s;
                     s.m_name      = scn.name;
                     s.folder      = scn.folder;
@@ -226,7 +226,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
                     s.id          = scn.id;
                     s.highlighted = scn.highlighted;
 
-                    gameconfig.categories[c].scenes.append(s);
+                    gameconfig.stageLists[c].scenes.append(s);
                 }
             }
         } break;
@@ -265,7 +265,7 @@ void FormatHelpers::Gameconfig::write(byte ver, QString filename)
                     s.id          = scn.id;
                     s.highlighted = scn.highlighted;
 
-                    gameconfig.categories[c].scenes.append(s);
+                    gameconfig.stageLists[c].scenes.append(s);
                 }
             }
         } break;

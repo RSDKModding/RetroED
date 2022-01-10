@@ -2,7 +2,7 @@
 
 void RSDKv2::Scene::read(Reader &reader)
 {
-    m_filename = reader.filePath;
+    filePath = reader.filePath;
 
     title = reader.readString();
 
@@ -41,12 +41,12 @@ void RSDKv2::Scene::read(Reader &reader)
     objCount = reader.read<byte>() << 8;
     objCount |= reader.read<byte>();
 
-    for (int n = 0; n < objCount; ++n) objects.append(Object(reader, n));
+    for (int n = 0; n < objCount; ++n) entities.append(Entity(reader, n));
 }
 
 void RSDKv2::Scene::write(Writer &writer)
 {
-    m_filename = writer.filePath;
+    filePath = writer.filePath;
 
     // Write zone name
     writer.write(title);
@@ -73,13 +73,13 @@ void RSDKv2::Scene::write(Writer &writer)
     for (int n = 0; n < typeNames.count(); ++n) writer.write(typeNames[n]);
 
     // Write number of objects
-    writer.write((byte)(objects.count() >> 8));
-    writer.write((byte)(objects.count() & 0xFF));
+    writer.write((byte)(entities.count() >> 8));
+    writer.write((byte)(entities.count() & 0xFF));
 
-    std::sort(objects.begin(), objects.end(),
-              [](const Object &a, const Object &b) -> bool { return a.slotID < b.slotID; });
+    std::sort(entities.begin(), entities.end(),
+              [](const Entity &a, const Entity &b) -> bool { return a.slotID < b.slotID; });
 
     // Write object data
-    for (Object &obj : objects) obj.write(writer);
+    for (Entity &obj : entities) obj.write(writer);
     writer.flush();
 }

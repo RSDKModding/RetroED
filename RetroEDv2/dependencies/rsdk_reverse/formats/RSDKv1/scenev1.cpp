@@ -2,7 +2,7 @@
 
 void RSDKv1::Scene::read(Reader &reader)
 {
-    filepath = reader.filePath;
+    filePath = reader.filePath;
 
     // Map width in 128 pixel units
     // In RSDKv1, it's one byte long
@@ -38,13 +38,13 @@ void RSDKv1::Scene::read(Reader &reader)
     objCount |= ITMreader.read<byte>();
 
     for (int n = 0; n < objCount; ++n) {
-        objects.append(Object(ITMreader, n));
+        entities.append(Entity(ITMreader, n));
     }
 }
 
 void RSDKv1::Scene::write(Writer &writer)
 {
-    filepath = writer.filePath;
+    filePath = writer.filePath;
 
     // Write width and height
     writer.write(width);
@@ -73,14 +73,14 @@ void RSDKv1::Scene::write(Writer &writer)
     ITMwriter.write((byte)(playerYPos & 0xFF));
 
     // Write number of objects
-    ITMwriter.write((byte)(objects.count() >> 8));
-    ITMwriter.write((byte)(objects.count() & 0xFF));
+    ITMwriter.write((byte)(entities.count() >> 8));
+    ITMwriter.write((byte)(entities.count() & 0xFF));
 
-    std::sort(objects.begin(), objects.end(),
-              [](const Object &a, const Object &b) -> bool { return a.slotID < b.slotID; });
+    std::sort(entities.begin(), entities.end(),
+              [](const Entity &a, const Entity &b) -> bool { return a.slotID < b.slotID; });
 
     // Write object data
-    for (Object &obj : objects) {
+    for (Entity &obj : entities) {
         obj.write(ITMwriter);
     }
 

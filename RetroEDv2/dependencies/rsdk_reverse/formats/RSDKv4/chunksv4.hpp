@@ -93,7 +93,7 @@ public:
     }
     inline void read(Reader &reader)
     {
-        filepath = reader.filePath;
+        filePath = reader.filePath;
 
         for (int c = 0; c < 0x200; ++c) chunkList[c].read(reader);
     }
@@ -101,7 +101,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = filepath;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -109,7 +109,7 @@ public:
     }
     inline void write(Writer &writer)
     {
-        filepath = writer.filePath;
+        filePath = writer.filePath;
 
         for (int c = 0; c < 0x200; ++c) chunkList[c].write(writer);
 
@@ -118,7 +118,7 @@ public:
 
     Chunk chunkList[0x200];
 
-    QString filepath = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv4

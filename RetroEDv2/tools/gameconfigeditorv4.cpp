@@ -774,7 +774,7 @@ bool GameconfigEditorv4::event(QEvent *event)
                         config.players.append(player);
                     }
 
-                    config.categories.clear();
+                    config.stageLists.clear();
                     for (auto &cat : gameConfig.categories) {
                         RSDKv2::Gameconfig::Category category;
                         category.scenes.clear();
@@ -787,7 +787,7 @@ bool GameconfigEditorv4::event(QEvent *event)
                             scene.highlighted = scn.highlighted;
                             category.scenes.append(scene);
                         }
-                        config.categories.append(category);
+                        config.stageLists.append(category);
                     }
 
                     appConfig.addRecentFile(ENGINE_v2, TOOL_GAMECONFIGEDITOR,
@@ -828,7 +828,7 @@ bool GameconfigEditorv4::event(QEvent *event)
                         config.players.append(plr);
                     }
 
-                    config.categories.clear();
+                    config.stageLists.clear();
                     for (auto &cat : gameConfig.categories) {
                         RSDKv3::GameConfig::Category category;
                         category.scenes.clear();
@@ -841,7 +841,7 @@ bool GameconfigEditorv4::event(QEvent *event)
                             scene.highlighted = scn.highlighted;
                             category.scenes.append(scene);
                         }
-                        config.categories.append(category);
+                        config.stageLists.append(category);
                     }
 
                     appConfig.addRecentFile(ENGINE_v3, TOOL_GAMECONFIGEDITOR,

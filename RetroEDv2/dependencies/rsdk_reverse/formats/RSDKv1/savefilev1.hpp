@@ -43,29 +43,29 @@ public:
     }
     void read(Reader &reader)
     {
-        filepath = reader.filePath;
+        filePath = reader.filePath;
         for (int i = 0; i < 10; ++i) saveFiles[i].read(reader);
     }
 
     inline void write(QString filename)
     {
-        if (filepath == "")
-            filepath = filename;
-        if (filepath == "")
+        if (filename == "")
+            filename = filePath;
+        if (filename == "")
             return;
-        Writer writer(filepath);
+        Writer writer(filename);
         write(writer);
     }
     inline void write(Writer &writer)
     {
-        filepath = writer.filePath;
+        filePath = writer.filePath;
         for (int i = 0; i < 10; ++i) saveFiles[i].write(writer);
         writer.flush();
     }
 
     SaveFileEntry saveFiles[10];
 
-    QString filepath = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv1

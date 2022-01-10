@@ -2,7 +2,7 @@
 
 void RSDKv2::StageConfig::read(Reader &reader)
 {
-    m_filename = reader.filePath;
+    filePath = reader.filePath;
 
     // Global Objects Flag
     loadGlobalScripts = reader.read<byte>();
@@ -12,10 +12,10 @@ void RSDKv2::StageConfig::read(Reader &reader)
 
     // Stage Scripts
     byte scrCount = reader.read<byte>();
-    scripts.clear();
+    objects.clear();
 
     for (int s = 0; s < scrCount; ++s) {
-        scripts.append(reader.readString());
+        objects.append(reader.readString());
     }
 
     // Stage SoundFX
@@ -29,7 +29,7 @@ void RSDKv2::StageConfig::read(Reader &reader)
 
 void RSDKv2::StageConfig::write(Writer &writer)
 {
-    m_filename = writer.filePath;
+    filePath = writer.filePath;
 
     // Global Objects Flag
     writer.write(loadGlobalScripts);
@@ -38,8 +38,8 @@ void RSDKv2::StageConfig::write(Writer &writer)
     palette.write(writer);
 
     // Stage Scripts
-    writer.write((byte)scripts.count());
-    for (QString &scr : scripts) {
+    writer.write((byte)objects.count());
+    for (QString &scr : objects) {
         writer.write(scr);
     }
 

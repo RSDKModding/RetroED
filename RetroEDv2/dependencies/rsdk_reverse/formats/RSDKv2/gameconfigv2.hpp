@@ -1,5 +1,5 @@
-#ifndef GAMECONFIG_V1_H
-#define GAMECONFIG_V1_H
+#ifndef GAMECONFIG_V2_H
+#define GAMECONFIG_V2_H
 
 namespace RSDKv2
 {
@@ -16,7 +16,7 @@ public:
         inline void read(Reader &reader)
         {
             folder      = reader.readString();
-            id       = reader.readString();
+            id          = reader.readString();
             name        = reader.readString();
             highlighted = reader.read<bool>();
         }
@@ -31,7 +31,7 @@ public:
 
         QString name     = "Scene";
         QString folder   = "Folder";
-        QString id    = "1";
+        QString id       = "1";
         bool highlighted = false;
     };
 
@@ -70,10 +70,10 @@ public:
 
         inline void read(Reader &reader)
         {
-            name           = reader.readString();
+            name             = reader.readString();
             QByteArray bytes = reader.readByteArray(4);
-            value          = ((byte)bytes[0] << 24) + ((byte)bytes[1] << 16) + ((byte)bytes[2] << 8)
-                      + ((byte)bytes[3] << 0);
+            value            = ((byte)bytes[0] << 24) + ((byte)bytes[1] << 16) + ((byte)bytes[2] << 8)
+                    + ((byte)bytes[3] << 0);
         }
         inline void write(Writer &writer)
         {
@@ -108,15 +108,15 @@ public:
         }
 
         QString name   = "PLAYER";
-        QString anim   = "player.ani";
+        QString anim   = "Player.ani";
         QString script = "Player/Player.txt";
     };
 
     Gameconfig()
     {
-        categories.clear();
+        stageLists.clear();
         for (int c = 0; c < 4; ++c) {
-            categories.append(Category());
+            stageLists.append(Category());
         }
     }
     Gameconfig(QString filename) { read(filename); }
@@ -132,7 +132,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -148,11 +148,11 @@ public:
     QList<QString> soundFX;
     QList<GlobalVariable> globalVariables;
     QList<PlayerInfo> players;
-    QList<Category> categories;
+    QList<Category> stageLists;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv2
 
-#endif // GAMECONFIG_V1_H
+#endif // GAMECONFIG_V2_H

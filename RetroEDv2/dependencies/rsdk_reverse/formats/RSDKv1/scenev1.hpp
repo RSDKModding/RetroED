@@ -1,5 +1,5 @@
-#ifndef SCENE_VRS_H
-#define SCENE_VRS_H
+#ifndef SCENE_V1_H
+#define SCENE_V1_H
 
 namespace RSDKv1
 {
@@ -7,11 +7,11 @@ namespace RSDKv1
 class Scene
 {
 public:
-    class Object
+    class Entity
     {
     public:
-        Object() {}
-        Object(Reader &reader, int id = 0) { read(reader, id); }
+        Entity() {}
+        Entity(Reader &reader, int id = 0) { read(reader, id); }
 
         inline void read(Reader &reader, int id = 0)
         {
@@ -65,7 +65,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = filepath;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -83,14 +83,14 @@ public:
     short playerXPos = 0;
     short playerYPos = 0;
 
-    QList<Object> objects;
+    QList<Entity> entities;
 
     byte width  = 0;
     byte height = 0;
 
-    QString filepath = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv1
 
-#endif // SCENE_VRS_H
+#endif // SCENE_V1_H

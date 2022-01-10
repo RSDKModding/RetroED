@@ -1,5 +1,5 @@
-#ifndef GFX_V1_H
-#define GFX_V1_H
+#ifndef GFX_V2_H
+#define GFX_V2_H
 
 namespace RSDKv2
 {
@@ -21,7 +21,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -30,16 +30,19 @@ public:
     void write(Writer &writer, bool dcGFX = false);
 
     void importImage(QImage image);
+    void importImage(FormatHelpers::Gif image);
+
     QImage exportImage();
+    FormatHelpers::Gif exportGif();
 
-    Colour m_palette[255];
-    ushort m_width  = 16;
-    ushort m_height = 16;
-    QByteArray m_pixelData;
+    Colour palette[255];
+    ushort width  = 16;
+    ushort height = 16;
+    QByteArray pixels;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv2
 
-#endif // GFX_V1_H
+#endif // GFX_V2_H

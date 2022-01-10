@@ -2,7 +2,7 @@
 
 void RSDKv3::GameConfig::read(Reader &reader)
 {
-    m_filename = reader.filePath;
+    filePath = reader.filePath;
 
     // Game Text
     gameWindowText      = reader.readString();
@@ -48,15 +48,15 @@ void RSDKv3::GameConfig::read(Reader &reader)
     }
 
     // Categories
-    categories.clear();
+    stageLists.clear();
     for (int c = 0; c < 4; ++c) {
-        categories.append(Category(reader));
+        stageLists.append(Category(reader));
     }
 }
 
 void RSDKv3::GameConfig::write(Writer &writer)
 {
-    m_filename = writer.filePath;
+    filePath = writer.filePath;
 
     writer.write(gameWindowText);
     writer.write(unknown);
@@ -92,7 +92,7 @@ void RSDKv3::GameConfig::write(Writer &writer)
 
     // Categories
     for (int c = 0; c < 4; ++c) {
-        categories[c].write(writer);
+        stageLists[c].write(writer);
     }
 
     writer.flush();

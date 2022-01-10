@@ -1,5 +1,5 @@
-#ifndef STAGECONFIG_V1_H
-#define STAGECONFIG_V1_H
+#ifndef STAGECONFIG_V2_H
+#define STAGECONFIG_V2_H
 
 namespace RSDKv2
 {
@@ -21,7 +21,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -31,12 +31,12 @@ public:
 
     Palette palette;
     QList<QString> soundFX;
-    QList<QString> scripts;
+    QList<QString> objects;
     bool loadGlobalScripts = true;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv2
 
-#endif // STAGECONFIG_V1_H
+#endif // STAGECONFIG_V2_H

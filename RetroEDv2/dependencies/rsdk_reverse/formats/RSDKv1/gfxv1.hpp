@@ -21,7 +21,7 @@ public:
     inline void write(QString filename, bool dcGFX = false)
     {
         if (filename == "")
-            filename = filepath;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -30,14 +30,17 @@ public:
     void write(Writer &writer, bool dcGFX = false);
 
     void importImage(QImage image);
+    void importImage(FormatHelpers::Gif image);
+
     QImage exportImage();
+    FormatHelpers::Gif exportGif();
 
     Colour palette[255];
     ushort width  = 16;
     ushort height = 16;
     QByteArray pixels;
 
-    QString filepath = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv1

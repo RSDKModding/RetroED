@@ -2,7 +2,7 @@
 
 void RSDKv1::StageConfig::read(Reader &reader)
 {
-    filepath = reader.filePath;
+    filePath = reader.filePath;
 
     // Stage Palette
     palette.read(reader, 2 * 16);
@@ -40,7 +40,7 @@ void RSDKv1::StageConfig::read(Reader &reader)
 
 void RSDKv1::StageConfig::write(Writer &writer)
 {
-    filepath = writer.filePath;
+    filePath = writer.filePath;
 
     // Stage Palette
     palette.write(writer);

@@ -1,5 +1,5 @@
-#ifndef SCENE_V1_H
-#define SCENE_V1_H
+#ifndef SCENE_V2_H
+#define SCENE_V2_H
 
 namespace RSDKv2
 {
@@ -7,11 +7,11 @@ namespace RSDKv2
 class Scene
 {
 public:
-    class Object
+    class Entity
     {
     public:
-        Object() {}
-        Object(Reader &reader, int id = 0) { read(reader, id); }
+        Entity() {}
+        Entity(Reader &reader, int id = 0) { read(reader, id); }
 
         inline void read(Reader &reader, int id = 0)
         {
@@ -43,10 +43,10 @@ public:
             writer.write((byte)(posY & 0xFF));
         }
 
-        byte type    = 0;
+        byte type          = 0;
         byte propertyValue = 0;
-        short posX   = 0;
-        short posY   = 0;
+        short posX         = 0;
+        short posY         = 0;
 
         short slotID = 0;
     };
@@ -65,7 +65,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -80,15 +80,15 @@ public:
     byte activeLayer[4];
     byte midpoint = 3;
 
-    QList<Object> objects;
+    QList<Entity> entities;
     QList<QString> typeNames;
 
     byte width  = 0;
     byte height = 0;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv2
 
-#endif // SCENE_V1_H
+#endif // SCENE_V2_H

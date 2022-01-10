@@ -35,6 +35,7 @@ SOURCES += \
     tools/decompiler/decompilerv3.cpp \
     tools/decompiler/decompilerv4.cpp \
     tools/decompiler/decompilerv1.cpp \
+    tools/gameconfigeditorv1.cpp \
     tools/gameconfigeditorv5.cpp \
     tools/gamelink/gamelink.cpp \
     tools/gamelink/gamemath.cpp \
@@ -99,6 +100,7 @@ HEADERS += \
     tools/decompiler/decompilerv3.hpp \
     tools/decompiler/decompilerv4.hpp \
     tools/decompiler/decompilerv1.hpp \
+    tools/gameconfigeditorv1.hpp \
     tools/gameconfigeditorv5.hpp \
     tools/gamelink/gamelink.hpp \
     tools/gamelink/gamemath.hpp \
@@ -156,6 +158,7 @@ FORMS += \
     mainwindow.ui \
     tools/animationeditor.ui \
     tools/animationeditor/animsheetselector.ui \
+    tools/gameconfigeditorv1.ui \
     tools/gameconfigeditorv5.ui \
     tools/modelmanager.ui \
     tools/paletteeditor/colourdialog.ui \

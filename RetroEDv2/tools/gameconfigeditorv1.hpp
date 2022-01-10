@@ -1,20 +1,20 @@
-#ifndef GAMECONFIGEDITOR_V2_H
-#define GAMECONFIGEDITOR_V2_H
+#ifndef GAMECONFIGEDITOR_V1_H
+#define GAMECONFIGEDITOR_V1_H
 
 #include <QWidget>
 
 namespace Ui
 {
-class GameconfigEditorv2;
+class GameconfigEditorv1;
 }
 
-class GameconfigEditorv2 : public QWidget
+class GameconfigEditorv1 : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit GameconfigEditorv2(QString path = "", QWidget *parent = nullptr);
-    ~GameconfigEditorv2();
+    explicit GameconfigEditorv1(QString path = "", QWidget *parent = nullptr);
+    ~GameconfigEditorv1();
 
     void load(QString filename);
 
@@ -34,9 +34,17 @@ protected:
     bool event(QEvent *event);
 
 private:
-    Ui::GameconfigEditorv2 *ui;
+    Ui::GameconfigEditorv1 *ui;
 
-    RSDKv2::Gameconfig gameConfig;
+    QList<QString> stageListNames = {
+        "Regular Stages",
+        "Custom Stages",
+        "Special Stages",
+        "Bonus Stages",
+    };
+
+    RSDKv1::CharacterList characters;
+    RSDKv1::StageList stageList[4];
 
     QStandardItemModel *sceneModel = nullptr;
 
@@ -44,4 +52,4 @@ private:
     QString tabTitle = "GameConfig Editor";
 };
 
-#endif // GAMECONFIGEDITOR_V2_H
+#endif // GAMECONFIGEDITOR_V1_H

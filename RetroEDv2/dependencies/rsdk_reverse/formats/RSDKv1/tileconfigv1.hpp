@@ -50,7 +50,7 @@ public:
     }
     inline void read(Reader &reader, bool dcVer = false)
     {
-        filepath = reader.filePath;
+        filePath = reader.filePath;
 
         for (int c = 0; c < 0x400; ++c) {
             if (!dcVer) {
@@ -74,7 +74,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = filepath;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -82,7 +82,7 @@ public:
     }
     inline void write(Writer &writer, bool dcVer = false)
     {
-        filepath = writer.filePath;
+        filePath = writer.filePath;
 
         for (int c = 0; c < 0x400; ++c) {
             if (!dcVer)
@@ -104,7 +104,7 @@ public:
 
     CollisionMask collisionPaths[2][0x400];
 
-    QString filepath = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv1

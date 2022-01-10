@@ -1,5 +1,5 @@
-#ifndef BACKGROUND_VRS_H
-#define BACKGROUND_VRS_H
+#ifndef BACKGROUND_V1_H
+#define BACKGROUND_V1_H
 
 namespace RSDKv1
 {
@@ -81,4 +81,4 @@ public:
 
 } // namespace RSDKv1
 
-#endif // BACKGROUND_VRS_H
+#endif // BACKGROUND_V1_H

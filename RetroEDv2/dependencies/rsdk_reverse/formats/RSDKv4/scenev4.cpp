@@ -47,7 +47,7 @@ void RSDKv4::Scene::read(Reader &reader)
     objCount = reader.read<byte>();
     objCount |= reader.read<byte>() << 8;
 
-    for (int n = 0; n < objCount; ++n) objects.append(Object(reader, n));
+    for (int n = 0; n < objCount; ++n) entities.append(Entity(reader, n));
 }
 
 void RSDKv4::Scene::write(Writer &writer)
@@ -77,18 +77,18 @@ void RSDKv4::Scene::write(Writer &writer)
     }
 
     // Write number of objects
-    writer.write((byte)(objects.count() & 0xFF));
-    writer.write((byte)(objects.count() >> 8));
+    writer.write((byte)(entities.count() & 0xFF));
+    writer.write((byte)(entities.count() >> 8));
 
-    std::sort(objects.begin(), objects.end(),
-              [](const Object &a, const Object &b) -> bool { return a.slotID < b.slotID; });
+    std::sort(entities.begin(), entities.end(),
+              [](const Entity &a, const Entity &b) -> bool { return a.slotID < b.slotID; });
 
     // Write object data
-    for (Object &obj : objects) obj.write(writer);
+    for (Entity &obj : entities) obj.write(writer);
     writer.flush();
 }
 
-void RSDKv4::Scene::Object::read(Reader &reader, int id)
+void RSDKv4::Scene::Entity::read(Reader &reader, int id)
 {
 
     QByteArray buf;
@@ -129,7 +129,7 @@ void RSDKv4::Scene::Object::read(Reader &reader, int id)
     slotID = id;
 }
 
-void RSDKv4::Scene::Object::write(Writer &writer)
+void RSDKv4::Scene::Entity::write(Writer &writer)
 {
     ushort flags = 0;
     for (int a = 0; a < 0x0F; ++a) {

@@ -1,5 +1,5 @@
-#ifndef DATAFILE_VRS_H
-#define DATAFILE_VRS_H
+#ifndef DATAFILE_V1_H
+#define DATAFILE_V1_H
 
 namespace RSDKv1
 {
@@ -17,7 +17,7 @@ public:
         void write(Writer &writer);
 
         QString directory = "dir/";
-        int offset        = 0;
+        int startOffset   = 0;
     };
 
     class FileInfo
@@ -50,7 +50,7 @@ public:
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = filepath;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -61,9 +61,9 @@ public:
     QList<DirInfo> directories;
     QList<FileInfo> files;
 
-    QString filepath = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv1
 
-#endif // DATAFILE_VRS_H
+#endif // DATAFILE_V1_H

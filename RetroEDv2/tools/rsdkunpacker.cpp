@@ -447,7 +447,7 @@ void RSDKUnpacker::savePack(QString filepath, byte ver)
                 info.fileName = QFileInfo(file.filename).fileName();
                 info.fileSize = file.fileSize;
                 info.fileData = file.fileData;
-                info.m_dirID  = dirID;
+                info.dirID  = dirID;
                 datafile.files.append(info);
             }
 

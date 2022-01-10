@@ -171,9 +171,8 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
             switch (v) {
                 default: {
                     QString name = RSDKv4::objectVariableTypes[v];
-                    if (v >= 11) {
+                    if (v >= 11)
                         name = object.variablesAliases[SceneViewer::VAR_ALIAS_VAL0 + (v - 11)];
-                    }
                     variable = new Property(name, &entity->variables[v].value);
                     break;
                 }
@@ -191,29 +190,17 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
                     break;
             }
 
-            Property *active           = new Property("Active", &entity->variables[v].active);
-            QList<Property *> valGroup = { variable, active };
+            QList<Property *> valGroup = { variable };
 
             disconnect(variable, nullptr, nullptr, nullptr);
             connect(variable, &Property::changed, [=] {
                 entity->variables[v].value = *(int *)variable->valuePtr;
-                if (entity->variables[v].active) {
-                    if (values[v])
-                        *values[v] = entity->variables[v].value;
-                    else
-                        *valuesB[v] = entity->variables[v].value;
-                }
-            });
+                if (values[v])
+                    *values[v] = entity->variables[v].value;
+                else
+                    *valuesB[v] = entity->variables[v].value;
 
-            disconnect(active, nullptr, nullptr, nullptr);
-            connect(active, &Property::changed, [=] {
-                entity->variables[v].active = *(bool *)active->valuePtr;
-                if (entity->variables[v].active) {
-                    if (values[v])
-                        *values[v] = entity->variables[v].value;
-                    else
-                        *valuesB[v] = entity->variables[v].value;
-                }
+                entity->variables[v].active = entity->variables[v].value != 0;
             });
 
             group->setSubProperties(valGroup);

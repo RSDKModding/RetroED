@@ -18,18 +18,18 @@ public:
     }
     inline void read(Reader &reader)
     {
-        m_filename = reader.m_filepath;
+        filePath = reader.m_filepath;
 
-        m_gameWidth  = reader.read<int>();
-        m_gameHeight = reader.read<int>();
-        m_gameFPS    = reader.read<int>();
-        m_windowed   = reader.read<bool>();
+        width    = reader.read<int>();
+        height   = reader.read<int>();
+        fps      = reader.read<int>();
+        windowed = reader.read<bool>();
     }
 
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -37,21 +37,21 @@ public:
     }
     inline void write(Writer &writer)
     {
-        m_filename = writer.m_filename;
-        writer.write(m_gameWidth);
-        writer.write(m_gameHeight);
-        writer.write(m_gameFPS);
-        writer.write(m_windowed);
+        filePath = writer.filePath;
+        writer.write(width);
+        writer.write(height);
+        writer.write(fps);
+        writer.write(windowed);
 
         writer.flush();
     }
 
-    int m_gameWidth  = 1280;
-    int m_gameHeight = 720;
-    int m_gameFPS    = 60;
-    bool m_windowed  = true;
+    int width     = 400;
+    int height    = 240;
+    int fps       = 60;
+    bool windowed = true;
 
-    QString m_filename = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv3

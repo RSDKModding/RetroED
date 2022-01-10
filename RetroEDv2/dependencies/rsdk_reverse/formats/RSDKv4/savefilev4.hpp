@@ -18,14 +18,14 @@ public:
     }
     inline void read(Reader &reader)
     {
-        filepath = reader.filePath;
+        filePath = reader.filePath;
         for (int i = 0; i < 0x2000; ++i) saveRAM[i] = reader.read<int>();
     }
 
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = filepath;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -33,14 +33,14 @@ public:
     }
     inline void write(Writer &writer)
     {
-        filepath = writer.filePath;
+        filePath = writer.filePath;
         for (int i = 0; i < 0x2000; ++i) writer.write(saveRAM[i]);
         writer.flush();
     }
 
     int saveRAM[0x2000];
 
-    QString filepath = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv4

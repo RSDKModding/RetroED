@@ -1,5 +1,5 @@
-#ifndef SCRIPT_VRS_H
-#define SCRIPT_VRS_H
+#ifndef SCRIPT_V1_H
+#define SCRIPT_V1_H
 
 namespace RSDKv1
 {
@@ -14,10 +14,10 @@ public:
         int paramCount = 0;
 
         FunctionInfo() {}
-        FunctionInfo(QString name, int paramCount)
+        FunctionInfo(QString n, int p)
         {
-            this->name       = name;
-            this->paramCount = paramCount;
+            name       = n;
+            paramCount = p;
         }
     };
 
@@ -160,4 +160,4 @@ public:
 
 } // namespace RSDKv1
 
-#endif // SCRIPT_VRS_H
+#endif // SCRIPT_V1_H

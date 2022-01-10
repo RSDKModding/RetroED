@@ -2,7 +2,7 @@
 
 void RSDKv1::GFX::read(Reader &reader, bool dcGFX)
 {
-    filepath = reader.filePath;
+    filePath = reader.filePath;
 
     if (dcGFX)
         reader.read<byte>();
@@ -70,7 +70,7 @@ void rle_writev1(Writer writer, int pixel, int count, bool dcGFX)
 
 void RSDKv1::GFX::write(Writer &writer, bool dcGFX)
 {
-    filepath = writer.filePath;
+    filePath = writer.filePath;
 
     if (dcGFX)
         writer.write((byte)0);
@@ -144,6 +144,27 @@ void RSDKv1::GFX::importImage(QImage image)
     }
 }
 
+void RSDKv1::GFX::importImage(FormatHelpers::Gif image)
+{
+
+    int w = image.width;
+    int h = image.height;
+    pixels.resize(w * h);
+
+    for (int c = 0; c < 0xFF; ++c)
+        palette[c] = Colour(image.palette[c].red(), image.palette[c].green(), image.palette[c].blue());
+
+    int i  = 0;
+    width  = w;
+    height = h;
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            pixels[i] = image.pixels[i];
+            i++;
+        }
+    }
+}
+
 QImage RSDKv1::GFX::exportImage()
 {
     QImage img(width, height, QImage::Format_Indexed8);
@@ -161,6 +182,27 @@ QImage RSDKv1::GFX::exportImage()
             byte index = (byte)pixels[(y * width) + x];
             if (index < img.colorCount())
                 img.setPixel(x, y, index);
+        }
+    }
+
+    return img;
+}
+
+FormatHelpers::Gif RSDKv1::GFX::exportGif()
+{
+    FormatHelpers::Gif img(width, height);
+
+    QVector<QRgb> colours;
+
+    for (int i = 0; i < 0xFF; ++i) {
+        Colour c       = palette[i];
+        img.palette[i] = QColor(c.r, c.g, c.b);
+    }
+
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            byte index                  = (byte)pixels[(y * width) + x];
+            img.pixels[(y * width) + x] = index;
         }
     }
 

@@ -158,6 +158,7 @@ public:
 #include "tools/animationeditor/animsheetselector.hpp"
 
 // Forms
+#include "tools/gameconfigeditorv1.hpp"
 #include "tools/gameconfigeditorv2.hpp"
 #include "tools/gameconfigeditorv3.hpp"
 #include "tools/gameconfigeditorv4.hpp"

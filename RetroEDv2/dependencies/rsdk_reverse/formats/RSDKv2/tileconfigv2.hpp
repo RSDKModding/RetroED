@@ -1,22 +1,20 @@
-#ifndef TILECONFIG_V1_H
-#define TILECONFIG_V1_H
+#ifndef TILECONFIG_V2_H
+#define TILECONFIG_V2_H
 
 namespace RSDKv2
 {
 
-class Tileconfig
+class TileConfig
 {
 public:
     class CollisionMask
     {
     public:
-        class HeightMask
-        {
-        public:
+        struct HeightMask {
             HeightMask() {}
 
-            byte m_height = 0;
-            bool m_solid  = false;
+            byte height = 0;
+            bool solid  = false;
         };
 
         CollisionMask() {}
@@ -24,68 +22,65 @@ public:
 
         void read(Reader &reader)
         {
-            byte flags   = reader.read<byte>();
-            m_isCeiling  = (flags >> 4) != 0;
-            m_behaviour  = (byte)(flags & 0xF);
-            m_floorAngle = reader.read<byte>();
-            m_lWallAngle = reader.read<byte>();
-            m_rWallAngle = reader.read<byte>();
-            m_roofAngle  = reader.read<byte>();
+            byte flags = reader.read<byte>();
+            flipY      = (flags >> 4) != 0;
+            behaviour  = (byte)(flags & 0xF);
+            floorAngle = reader.read<byte>();
+            lWallAngle = reader.read<byte>();
+            rWallAngle = reader.read<byte>();
+            roofAngle  = reader.read<byte>();
 
-            QByteArray collision = reader.readByteArray(8);
+            QByteArray collisionBytes = reader.readByteArray(8);
 
             ushort activeCollision = reader.read<byte>() << 8;
             activeCollision |= reader.read<byte>();
 
-            int i  = 0;
-            int i2 = 1;
-
+            int i = 0;
             for (int c = 0; c < 8; ++c) {
-                m_collision[i].m_height  = (byte)((collision[c] & 0xF0) >> 4);
-                m_collision[i2].m_height = (byte)(collision[c] & 0x0F);
+                collision[i + 0].height = (byte)((collisionBytes[c] & 0xF0) >> 4);
+                collision[i + 1].height = (byte)(collisionBytes[c] & 0x0F);
                 i += 2;
-                i2 += 2;
             }
 
-            for (int c = 0; c < 16; ++c) m_collision[c].m_solid = (activeCollision >> c & 1);
+            for (int c = 0; c < 16; ++c) collision[c].solid = (activeCollision >> c & 1);
         }
         void write(Writer &writer)
         {
-            writer.write((byte)(((byte)m_isCeiling & 0xF) << 4 | (m_behaviour & 0xF)));
-            writer.write(m_floorAngle);
-            writer.write(m_lWallAngle);
-            writer.write(m_rWallAngle);
-            writer.write(m_roofAngle);
+            writer.write((byte)(((byte)flipY & 0xF) << 4 | (behaviour & 0xF)));
+            writer.write(floorAngle);
+            writer.write(lWallAngle);
+            writer.write(rWallAngle);
+            writer.write(roofAngle);
 
-            QByteArray collision;
-            ushort collisionActive = 0;
+            QByteArray collisionBytes;
+            ushort collisionSolid = 0;
 
             for (int i = 0; i < 8; ++i)
-                collision.append((byte)(((byte)m_collision[i * 2].m_height & 0xF) << 4
-                                        | (m_collision[(i * 2) + 1].m_height & 0xF)));
+                collisionBytes.append((byte)(((byte)collision[i * 2].height & 0xF) << 4
+                                             | (collision[(i * 2) + 1].height & 0xF)));
 
             for (int c = 0; c < 16; ++c)
-                collisionActive ^= (-(bool)m_collision[c].m_solid ^ collisionActive) & (1 << c);
+                collisionSolid ^= (-(bool)collision[c].solid ^ collisionSolid) & (1 << c);
 
-            writer.write(collision); // Write Collision Data
+            writer.write(collisionBytes); // Write Collision Data
 
-            writer.write((byte)((collisionActive >> 8) & 0xFF)); // Write Collision Solidity byte 1
-            writer.write((byte)((collisionActive >> 0) & 0xFF)); // Write Collision Solidity byte 2
+            writer.write((byte)((collisionSolid >> 8) & 0xFF)); // Write Collision Solidity byte 1
+            writer.write((byte)((collisionSolid >> 0) & 0xFF)); // Write Collision Solidity byte 2
         }
 
-        HeightMask m_collision[16];
+        HeightMask collision[16];
 
-        bool m_isCeiling  = false;
-        byte m_behaviour  = 0;
-        byte m_floorAngle = 0x00;
-        byte m_rWallAngle = 0xC0;
-        byte m_lWallAngle = 0x40;
-        byte m_roofAngle  = 0x80;
+        bool flipY      = false;
+        byte behaviour  = 0;
+        byte floorAngle = 0x00;
+        byte rWallAngle = 0xC0;
+        byte lWallAngle = 0x40;
+        byte roofAngle  = 0x80;
     };
 
-    Tileconfig() {}
-    Tileconfig(QString filename) { read(filename); }
-    Tileconfig(Reader &reader) { read(reader); }
+    TileConfig() {}
+    TileConfig(QString filename) { read(filename); }
+    TileConfig(Reader &reader) { read(reader); }
 
     inline void read(QString filename)
     {
@@ -94,16 +89,16 @@ public:
     }
     inline void read(Reader &reader)
     {
-        filepath = reader.filePath;
+        filePath = reader.filePath;
         for (int c = 0; c < 0x400; ++c) {
-            for (int p = 0; p < 2; ++p) m_collisionPaths[p][c].read(reader);
+            for (int p = 0; p < 2; ++p) collisionPaths[p][c].read(reader);
         }
     }
 
     inline void write(QString filename)
     {
         if (filename == "")
-            filename = filepath;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -111,19 +106,19 @@ public:
     }
     inline void write(Writer &writer)
     {
-        filepath = writer.filePath;
+        filePath = writer.filePath;
 
         for (int c = 0; c < 0x400; ++c) {
-            for (int p = 0; p < 2; ++p) m_collisionPaths[p][c].write(writer);
+            for (int p = 0; p < 2; ++p) collisionPaths[p][c].write(writer);
         }
         writer.flush();
     }
 
-    CollisionMask m_collisionPaths[2][0x400];
+    CollisionMask collisionPaths[2][0x400];
 
-    QString filepath = "";
+    QString filePath = "";
 };
 
 } // namespace RSDKv2
 
-#endif // TILECONFIG_V1_H
+#endif // TILECONFIG_V2_H

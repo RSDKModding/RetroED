@@ -10,7 +10,7 @@ extern QList<QString> objectVariableTypes;
 class Scene
 {
 public:
-    class Object
+    class Entity
     {
     public:
         struct VariableInfo {
@@ -38,8 +38,8 @@ public:
             VAR_VALUE3,
         };
 
-        Object() {}
-        Object(Reader &reader, int id = 0) { read(reader, id); }
+        Entity() {}
+        Entity(Reader &reader, int id = 0) { read(reader, id); }
 
         void read(Reader &reader, int id = 0);
         void write(Writer &writer);
@@ -88,7 +88,7 @@ public:
     byte activeLayers[4];
     byte midpoint = 3;
 
-    QList<Object> objects;
+    QList<Entity> entities;
 
     byte width;
     byte height;

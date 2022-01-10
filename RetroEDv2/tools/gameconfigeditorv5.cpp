@@ -1063,7 +1063,7 @@ bool GameconfigEditorv5::event(QEvent *event)
 
                         config.players.clear();
 
-                        config.categories.clear();
+                        config.stageLists.clear();
                         int id = 0;
                         for (auto &cat : gameConfig.categories) {
                             RSDKv2::Gameconfig::Category category;
@@ -1077,7 +1077,7 @@ bool GameconfigEditorv5::event(QEvent *event)
                                 scene.highlighted = false;
                                 category.scenes.append(scene);
                             }
-                            config.categories.append(category);
+                            config.stageLists.append(category);
                             if (++id >= 4)
                                 break;
                         }
@@ -1118,7 +1118,7 @@ bool GameconfigEditorv5::event(QEvent *event)
 
                         config.players.clear();
 
-                        config.categories.clear();
+                        config.stageLists.clear();
                         int id = 0;
                         for (auto &cat : gameConfig.categories) {
                             RSDKv3::GameConfig::Category category;
@@ -1132,7 +1132,7 @@ bool GameconfigEditorv5::event(QEvent *event)
                                 scene.highlighted = false;
                                 category.scenes.append(scene);
                             }
-                            config.categories.append(category);
+                            config.stageLists.append(category);
                             if (++id >= 4)
                                 break;
                         }

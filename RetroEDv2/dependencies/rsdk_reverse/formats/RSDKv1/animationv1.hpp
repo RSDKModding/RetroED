@@ -1,5 +1,5 @@
-#ifndef ANIMATION_VRS_H
-#define ANIMATION_VRS_H
+#ifndef ANIMATION_V1_H
+#define ANIMATION_V1_H
 
 namespace RSDKv1
 {
@@ -99,7 +99,7 @@ public:
         inline void read(Reader &reader)
         {
             byte frameCount = reader.read<byte>();
-            speed           = (byte)(reader.read<byte>() * 4);
+            speed           = reader.read<byte>();
             loopIndex       = reader.read<byte>();
 
             frames.clear();
@@ -109,7 +109,7 @@ public:
         inline void write(Writer &writer)
         {
             writer.write((byte)frames.count());
-            writer.write((byte)(speed / 4));
+            writer.write(speed / 4);
             writer.write(loopIndex);
 
             for (int f = 0; f < frames.count(); ++f) frames[f].write(writer);
@@ -118,7 +118,7 @@ public:
         QString name = "Retro Sonic Animation #";
         QList<Frame> frames;
         byte loopIndex = 0;
-        int speed      = 0;
+        byte speed     = 0;
     };
 
     Animation() {}
@@ -154,4 +154,4 @@ public:
 
 } // namespace RSDKv1
 
-#endif // ANIMATION_VRS_H
+#endif // ANIMATION_V1_H
