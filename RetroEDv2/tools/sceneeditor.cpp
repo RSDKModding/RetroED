@@ -56,7 +56,6 @@ void ChunkSelector::refreshList()
 
 SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEditor)
 {
-    // this->setWindowTitle("?");
     ui->setupUi(this);
 
     viewer = new SceneViewer(this);
@@ -962,7 +961,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 writer.flush();
             }*/
 
-            exportRSDKv5(dlg);
+            // exportRSDKv5(dlg);
         }
     });
 
@@ -1065,112 +1064,16 @@ SceneEditor::~SceneEditor() { delete ui; }
 
 bool SceneEditor::event(QEvent *event)
 {
-    if (event->type() == (QEvent::Type)RE_EVENT_NEW) {
-        tabTitle = "Scene Editor";
-        clearActions();
-    }
-    if (event->type() == (QEvent::Type)RE_EVENT_OPEN) {
-        QList<QString> types = {
-            "RSDKv4 Scenes (Act*.bin)",
-            "RSDKv3 Scenes (Act*.bin)",
-            "RSDKv2 Scenes (Act*.bin)",
-            "RSDKv1 Scenes (Act*.map)",
-        };
 
-        QList<QString> gcTypes = {
-            "RSDKv4 GameConfig (GameConfig*.bin)",
-            "RSDKv3 GameConfig (GameConfig*.bin)",
-            "RSDKv2 GameConfig (GameConfig*.bin)",
-        };
+    switch ((int)event->type()) {
+        default: break;
 
-        QFileDialog filedialog(this, tr("Open Scene"), "",
-                               tr(QString("%1;;%2;;%3;;%4")
-                                      .arg(types[0])
-                                      .arg(types[1])
-                                      .arg(types[2])
-                                      .arg(types[3])
-                                      .toStdString()
-                                      .c_str()));
-        filedialog.setAcceptMode(QFileDialog::AcceptOpen);
-        if (filedialog.exec() == QDialog::Accepted) {
-            int filter     = types.indexOf(filedialog.selectedNameFilter());
-            QString gcPath = "";
-
-            if (filter < 3) {
-                QFileDialog gcdialog(
-                    this, tr("Open GameConfig"), "",
-                    tr((gcTypes[filter] + ";;RSDK Game.xml Files (Game*.xml)").toStdString().c_str()));
-                gcdialog.setAcceptMode(QFileDialog::AcceptOpen);
-                if (gcdialog.exec() == QDialog::Accepted) {
-                    gcPath = gcdialog.selectedFiles()[0];
-                }
-                else {
-                    if (!QFile::exists(viewer->gameConfig.filePath)) {
-                        return false;
-                    }
-                    gcPath = viewer->gameConfig.filePath;
-                }
-            }
-
-            loadScene(filedialog.selectedFiles()[0], gcPath, filter + 1);
-            return true;
-        }
-    }
-
-    if (event->type() == (QEvent::Type)RE_EVENT_SAVE) {
-        QString path = viewer->scene.filepath;
-
-        if (QFile::exists(path)) {
-            setStatus("Saving Scene...");
-            QString basePath = path.replace(QFileInfo(path).fileName(), "");
-
-            QImage tileset(0x10, 0x400 * 0x10, QImage::Format_Indexed8);
-
-            QVector<QRgb> pal;
-            for (PaletteColour &col : viewer->tilePalette) {
-                pal.append(col.toQColor().rgb());
-            }
-            tileset.setColorTable(pal);
-
-            uchar *pixels = tileset.bits();
-            for (int i = 0; i < 0x400; ++i) {
-                uchar *src = viewer->tiles[i].bits();
-                for (int y = 0; y < 16; ++y) {
-                    for (int x = 0; x < 16; ++x) {
-                        *pixels++ = *src++;
-                    }
-                }
-            }
-
-            if (viewer->gameType != ENGINE_v1) {
-                viewer->scene.write(viewer->gameType, viewer->scene.filepath);
-                viewer->background.write(viewer->gameType, basePath + "Backgrounds.bin");
-                viewer->chunkset.write(viewer->gameType, basePath + "128x128Tiles.bin");
-                viewer->tileconfig.write(basePath + "CollisionMasks.bin");
-                viewer->stageConfig.write(viewer->gameType, basePath + "StageConfig.bin");
-                tileset.save(basePath + "16x16Tiles.gif");
-            }
-            else {
-                RSDKv1::TileConfig tileconfigRS;
-
-                // TODO: port data
-
-                viewer->scene.write(viewer->gameType, viewer->scene.filepath);
-                viewer->background.write(viewer->gameType, basePath + "ZoneBG.map");
-                viewer->chunkset.write(viewer->gameType, basePath + "Zone.til");
-                tileconfigRS.write(basePath + "Zone.tcf");
-                viewer->stageConfig.write(viewer->gameType, basePath + "Zone.zcf");
-                RSDKv1::GFX gfx;
-                gfx.importImage(tileset);
-                gfx.write(basePath + "16x16Tiles.gfx");
-            }
-
-            tabTitle = Utils::getFilenameAndFolder(path);
+        case RE_EVENT_NEW:
+            tabTitle = "Scene Editor";
             clearActions();
-            setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));
-            return true;
-        }
-        else {
+            break;
+
+        case RE_EVENT_OPEN: {
             QList<QString> types = {
                 "RSDKv4 Scenes (Act*.bin)",
                 "RSDKv3 Scenes (Act*.bin)",
@@ -1178,7 +1081,13 @@ bool SceneEditor::event(QEvent *event)
                 "RSDKv1 Scenes (Act*.map)",
             };
 
-            QFileDialog filedialog(this, tr("Save Scene"), "",
+            QList<QString> gcTypes = {
+                "RSDKv4 GameConfig (GameConfig*.bin)",
+                "RSDKv3 GameConfig (GameConfig*.bin)",
+                "RSDKv2 GameConfig (GameConfig*.bin)",
+            };
+
+            QFileDialog filedialog(this, tr("Open Scene"), "",
                                    tr(QString("%1;;%2;;%3;;%4")
                                           .arg(types[0])
                                           .arg(types[1])
@@ -1186,227 +1095,63 @@ bool SceneEditor::event(QEvent *event)
                                           .arg(types[3])
                                           .toStdString()
                                           .c_str()));
-            filedialog.setAcceptMode(QFileDialog::AcceptSave);
+            filedialog.setAcceptMode(QFileDialog::AcceptOpen);
             if (filedialog.exec() == QDialog::Accepted) {
-                int filter = types.indexOf(filedialog.selectedNameFilter());
+                int filter     = types.indexOf(filedialog.selectedNameFilter());
+                QString gcPath = "";
 
-                setStatus("Saving Scene...");
-                QString path     = filedialog.selectedFiles()[0];
-                QString basePath = path.replace(QFileInfo(path).fileName(), "");
-
-                RSDKv1::TileConfig tileconfigRS;
-
-                // TODO: port data
-
-                switch (filter + 1) {
-                    case ENGINE_v4:
-                    case ENGINE_v3:
-                    case ENGINE_v2:
-                        viewer->scene.write(filter + 1, filedialog.selectedFiles()[0]);
-                        viewer->background.write(filter + 1, basePath + "Backgrounds.bin");
-                        viewer->chunkset.write(filter + 1, basePath + "128x128Tiles.bin");
-                        viewer->tileconfig.write(basePath + "CollisionMasks.bin");
-                        viewer->stageConfig.write(filter + 1, basePath + "StageConfig.bin");
-                        break;
-                    case ENGINE_v1:
-                        viewer->scene.write(filter + 1, filedialog.selectedFiles()[0]);
-                        viewer->background.write(filter + 1, basePath + "ZoneBG.map");
-                        viewer->chunkset.write(filter + 1, basePath + "Zone.til");
-                        tileconfigRS.write(basePath + "Zone.tcf");
-                        viewer->stageConfig.write(filter + 1, basePath + "Zone.zcf");
-                        break;
-                }
-
-                tabTitle = Utils::getFilenameAndFolder(path);
-                clearActions();
-                appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR,
-                                        filedialog.selectedFiles()[0],
-                                        QList<QString>{ viewer->gameConfig.filePath });
-                setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));
-                return true;
-            }
-        }
-    }
-    if (event->type() == (QEvent::Type)RE_EVENT_SAVE_AS) {
-        QList<QString> types = {
-            "RSDKv4 Scenes (Act*.bin)",
-            "RSDKv3 Scenes (Act*.bin)",
-            "RSDKv2 Scenes (Act*.bin)",
-            "RSDKv1 Scenes (Act*.map)",
-        };
-
-        QFileDialog filedialog(this, tr("Save Scene"), "",
-                               tr(QString("%1;;%2;;%3;;%4")
-                                      .arg(types[0])
-                                      .arg(types[1])
-                                      .arg(types[2])
-                                      .arg(types[3])
-                                      .toStdString()
-                                      .c_str()));
-        filedialog.setAcceptMode(QFileDialog::AcceptSave);
-        if (filedialog.exec() == QDialog::Accepted) {
-            int filter = types.indexOf(filedialog.selectedNameFilter());
-
-            setStatus("Saving Scene...");
-            QString path     = filedialog.selectedFiles()[0];
-            QString basePath = path.replace(QFileInfo(path).fileName(), "");
-
-            RSDKv1::TileConfig tileconfigRS;
-
-            // TODO: port data
-
-            switch (filter + 1) {
-                case ENGINE_v4:
-                case ENGINE_v3:
-                case ENGINE_v2:
-                    viewer->scene.write(filter + 1, filedialog.selectedFiles()[0]);
-                    viewer->background.write(filter + 1, basePath + "Backgrounds.bin");
-                    viewer->chunkset.write(filter + 1, basePath + "128x128Tiles.bin");
-                    viewer->tileconfig.write(basePath + "CollisionMasks.bin");
-                    viewer->stageConfig.write(filter + 1, basePath + "StageConfig.bin");
-                    break;
-                case ENGINE_v1:
-                    viewer->scene.write(filter + 1, filedialog.selectedFiles()[0]);
-                    viewer->background.write(filter + 1, basePath + "ZoneBG.map");
-                    viewer->chunkset.write(filter + 1, basePath + "Zone.til");
-                    tileconfigRS.write(basePath + "Zone.tcf");
-                    viewer->stageConfig.write(filter + 1, basePath + "Zone.zcf");
-                    break;
-            }
-
-            tabTitle = Utils::getFilenameAndFolder(path);
-            clearActions();
-            appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR, filedialog.selectedFiles()[0],
-                                    QList<QString>{ viewer->gameConfig.filePath });
-            setStatus("Saved Scene: " + Utils::getFilenameAndFolder(filedialog.selectedFiles()[0]));
-            return true;
-        }
-    }
-
-    if (event->type() == (QEvent::Type)RE_EVENT_UNDO) {
-        undoAction();
-        return true;
-    }
-    if (event->type() == (QEvent::Type)RE_EVENT_REDO) {
-        redoAction();
-        return true;
-    }
-
-    if (event->type() == QEvent::Close) {
-        if (modified) {
-            bool cancelled = false;
-            if (MainWindow::showCloseWarning(this, &cancelled)) {
-                QString path = viewer->scene.filepath;
-
-                if (QFile::exists(path)) {
-                    setStatus("Saving Scene...");
-                    QString basePath = path.replace(QFileInfo(path).fileName(), "");
-
-                    QImage tileset(0x10, 0x400 * 0x10, QImage::Format_Indexed8);
-
-                    QVector<QRgb> pal;
-                    for (PaletteColour &col : viewer->tilePalette) {
-                        pal.append(col.toQColor().rgb());
-                    }
-                    tileset.setColorTable(pal);
-
-                    uchar *pixels = tileset.bits();
-                    for (int i = 0; i < 0x400; ++i) {
-                        uchar *src = viewer->tiles[i].bits();
-                        for (int y = 0; y < 16; ++y) {
-                            for (int x = 0; x < 16; ++x) {
-                                *pixels++ = *src++;
-                            }
-                        }
-                    }
-
-                    if (viewer->gameType != ENGINE_v1) {
-                        viewer->scene.write(viewer->gameType, viewer->scene.filepath);
-                        viewer->background.write(viewer->gameType, basePath + "Backgrounds.bin");
-                        viewer->chunkset.write(viewer->gameType, basePath + "128x128Tiles.bin");
-                        viewer->tileconfig.write(basePath + "CollisionMasks.bin");
-                        viewer->stageConfig.write(viewer->gameType, basePath + "StageConfig.bin");
-                        tileset.save(basePath + "16x16Tiles.gif");
+                if (filter < 3) {
+                    QFileDialog gcdialog(this, tr("Open GameConfig"), "",
+                                         tr((gcTypes[filter] + ";;RSDK Game.xml Files (Game*.xml)")
+                                                .toStdString()
+                                                .c_str()));
+                    gcdialog.setAcceptMode(QFileDialog::AcceptOpen);
+                    if (gcdialog.exec() == QDialog::Accepted) {
+                        gcPath = gcdialog.selectedFiles()[0];
                     }
                     else {
-                        RSDKv1::TileConfig tileconfigRS;
-
-                        // TODO: port data
-
-                        viewer->scene.write(viewer->gameType, viewer->scene.filepath);
-                        viewer->background.write(viewer->gameType, basePath + "ZoneBG.map");
-                        viewer->chunkset.write(viewer->gameType, basePath + "Zone.til");
-                        tileconfigRS.write(basePath + "Zone.tcf");
-                        viewer->stageConfig.write(viewer->gameType, basePath + "Zone.zcf");
-                        RSDKv1::GFX gfx;
-                        gfx.importImage(tileset);
-                        gfx.write(basePath + "16x16Tiles.gfx");
-                    }
-
-                    setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));
-                    return true;
-                }
-                else {
-                    QList<QString> types = {
-                        "RSDKv4 Scenes (Act*.bin)",
-                        "RSDKv3 Scenes (Act*.bin)",
-                        "RSDKv2 Scenes (Act*.bin)",
-                        "RSDKv1 Scenes (Act*.map)",
-                    };
-
-                    QFileDialog filedialog(this, tr("Save Scene"), "",
-                                           tr(QString("%1;;%2;;%3;;%4")
-                                                  .arg(types[0])
-                                                  .arg(types[1])
-                                                  .arg(types[2])
-                                                  .arg(types[3])
-                                                  .toStdString()
-                                                  .c_str()));
-                    filedialog.setAcceptMode(QFileDialog::AcceptSave);
-                    if (filedialog.exec() == QDialog::Accepted) {
-                        int filter = types.indexOf(filedialog.selectedNameFilter());
-
-                        setStatus("Saving Scene...");
-                        QString path     = filedialog.selectedFiles()[0];
-                        QString basePath = path.replace(QFileInfo(path).fileName(), "");
-
-                        RSDKv1::TileConfig tileconfigRS;
-
-                        // TODO: port data
-
-                        switch (filter + 1) {
-                            case ENGINE_v4:
-                            case ENGINE_v3:
-                            case ENGINE_v2:
-                                viewer->scene.write(filter + 1, filedialog.selectedFiles()[0]);
-                                viewer->background.write(filter + 1, basePath + "Backgrounds.bin");
-                                viewer->chunkset.write(filter + 1, basePath + "128x128Tiles.bin");
-                                viewer->tileconfig.write(basePath + "CollisionMasks.bin");
-                                viewer->stageConfig.write(filter + 1, basePath + "StageConfig.bin");
-                                break;
-                            case ENGINE_v1:
-                                viewer->scene.write(filter + 1, filedialog.selectedFiles()[0]);
-                                viewer->background.write(filter + 1, basePath + "ZoneBG.map");
-                                viewer->chunkset.write(filter + 1, basePath + "Zone.til");
-                                tileconfigRS.write(basePath + "Zone.tcf");
-                                viewer->stageConfig.write(filter + 1, basePath + "Zone.zcf");
-                                break;
+                        if (!QFile::exists(viewer->gameConfig.filePath)) {
+                            return false;
                         }
-
-                        appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR,
-                                                filedialog.selectedFiles()[0],
-                                                QList<QString>{ viewer->gameConfig.filePath });
-                        setStatus("Saved Scene: "
-                                  + Utils::getFilenameAndFolder(viewer->scene.filepath));
-                        return true;
+                        gcPath = viewer->gameConfig.filePath;
                     }
                 }
-            }
-            else if (cancelled) {
-                event->ignore();
+
+                loadScene(filedialog.selectedFiles()[0], gcPath, filter + 1);
                 return true;
             }
+            break;
         }
+
+        case RE_EVENT_SAVE: {
+            if (saveScene())
+                return true;
+            break;
+        }
+
+        case RE_EVENT_SAVE_AS: {
+            if (saveScene(true))
+                return true;
+            break;
+        }
+
+        case RE_EVENT_UNDO: undoAction(); return true;
+
+        case RE_EVENT_REDO: redoAction(); return true;
+
+        case QEvent::Close:
+            if (modified) {
+                bool cancelled = false;
+                if (MainWindow::showCloseWarning(this, &cancelled)) {
+                    if (saveScene())
+                        return true;
+                }
+                else if (cancelled) {
+                    event->ignore();
+                    return true;
+                }
+            }
+            break;
     }
 
     return QWidget::event(event);
@@ -2285,8 +2030,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                 for (int i = 0; i < viewer->gameConfig.objects.count(); ++i) {
                     QString scriptPath =
                         viewer->dataPath + "/Scripts/" + viewer->gameConfig.objects[i].script;
-                    scriptPath =
-                        WorkingDirManager::GetPath(viewer->gameConfig.objects[i].script, scriptPath);
+                    scriptPath = WorkingDirManager::GetPath(
+                        "/Scripts/" + viewer->gameConfig.objects[i].script, scriptPath);
 
                     viewer->compilerv2.parseScriptFile(scriptPath, scrID++);
 
@@ -2312,8 +2057,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
             for (int i = 0; i < viewer->stageConfig.objects.count(); ++i) {
                 QString scriptPath =
                     viewer->dataPath + "/Scripts/" + viewer->stageConfig.objects[i].script;
-                scriptPath =
-                    WorkingDirManager::GetPath(viewer->stageConfig.objects[i].script, scriptPath);
+                scriptPath = WorkingDirManager::GetPath(
+                    "/Scripts/" + viewer->stageConfig.objects[i].script, scriptPath);
                 viewer->compilerv2.parseScriptFile(scriptPath, scrID++);
 
                 if (viewer->compilerv2.scriptError) {
@@ -2346,8 +2091,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                 for (int i = 0; i < viewer->gameConfig.objects.count(); ++i) {
                     QString scriptPath =
                         viewer->dataPath + "/Scripts/" + viewer->gameConfig.objects[i].script;
-                    scriptPath =
-                        WorkingDirManager::GetPath(viewer->gameConfig.objects[i].script, scriptPath);
+                    scriptPath = WorkingDirManager::GetPath(
+                        "/Scripts/" + viewer->gameConfig.objects[i].script, scriptPath);
                     viewer->compilerv3.parseScriptFile(scriptPath, scrID++);
 
                     if (viewer->compilerv3.scriptError) {
@@ -2393,8 +2138,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
             for (int i = 0; i < viewer->stageConfig.objects.count(); ++i) {
                 QString scriptPath =
                     viewer->dataPath + "/Scripts/" + viewer->stageConfig.objects[i].script;
-                scriptPath =
-                    WorkingDirManager::GetPath(viewer->stageConfig.objects[i].script, scriptPath);
+                scriptPath = WorkingDirManager::GetPath(
+                    "/Scripts/" + viewer->stageConfig.objects[i].script, scriptPath);
                 viewer->compilerv3.parseScriptFile(scriptPath, scrID++);
 
                 if (viewer->compilerv3.scriptError) {
@@ -2455,8 +2200,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                 for (int i = 0; i < viewer->gameConfig.objects.count(); ++i) {
                     QString scriptPath =
                         viewer->dataPath + "/../Scripts/" + viewer->gameConfig.objects[i].script;
-                    scriptPath =
-                        WorkingDirManager::GetPath(viewer->gameConfig.objects[i].script, scriptPath);
+                    scriptPath = WorkingDirManager::GetPath(
+                        "/../Scripts/" + viewer->gameConfig.objects[i].script, scriptPath);
                     viewer->compilerv4.parseScriptFile(scriptPath, scrID++);
 
                     if (viewer->compilerv4.scriptError) {
@@ -2502,8 +2247,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
             for (int i = 0; i < viewer->stageConfig.objects.count(); ++i) {
                 QString scriptPath =
                     viewer->dataPath + "/../Scripts/" + viewer->stageConfig.objects[i].script;
-                scriptPath =
-                    WorkingDirManager::GetPath(viewer->stageConfig.objects[i].script, scriptPath);
+                scriptPath = WorkingDirManager::GetPath(
+                    "/../Scripts/" + viewer->stageConfig.objects[i].script, scriptPath);
                 viewer->compilerv4.parseScriptFile(scriptPath, scrID++);
 
                 if (viewer->compilerv4.scriptError) {
@@ -2575,6 +2320,112 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR, scnPath, QList<QString>{ gcfPath });
     setStatus("Loaded Scene: " + QFileInfo(scnPath).fileName());
 }
+
+bool SceneEditor::saveScene(bool forceSaveAs)
+{
+    QString path = viewer->scene.filepath;
+
+    if (!forceSaveAs && QFile::exists(path)) {
+        setStatus("Saving Scene...");
+        QString basePath = path.replace(QFileInfo(path).fileName(), "");
+
+        QImage tileset(0x10, 0x400 * 0x10, QImage::Format_Indexed8);
+
+        QVector<QRgb> pal;
+        for (PaletteColour &col : viewer->tilePalette) pal.append(col.toQColor().rgb());
+        tileset.setColorTable(pal);
+
+        uchar *pixels = tileset.bits();
+        for (int i = 0; i < 0x400; ++i) {
+            uchar *src = viewer->tiles[i].bits();
+            for (int y = 0; y < 16; ++y) {
+                for (int x = 0; x < 16; ++x) {
+                    *pixels++ = *src++;
+                }
+            }
+        }
+
+        if (viewer->gameType != ENGINE_v1) {
+            viewer->scene.write(viewer->gameType, viewer->scene.filepath);
+            viewer->background.write(viewer->gameType, basePath + "Backgrounds.bin");
+            viewer->chunkset.write(viewer->gameType, basePath + "128x128Tiles.bin");
+            viewer->tileconfig.write(basePath + "CollisionMasks.bin");
+            viewer->stageConfig.write(viewer->gameType, basePath + "StageConfig.bin");
+            tileset.save(basePath + "16x16Tiles.gif");
+        }
+        else {
+            RSDKv1::TileConfig tileconfigRS;
+
+            // TODO: port data
+
+            viewer->scene.write(viewer->gameType, viewer->scene.filepath);
+            viewer->background.write(viewer->gameType, basePath + "ZoneBG.map");
+            viewer->chunkset.write(viewer->gameType, basePath + "Zone.til");
+            tileconfigRS.write(basePath + "Zone.tcf");
+            viewer->stageConfig.write(viewer->gameType, basePath + "Zone.zcf");
+            RSDKv1::GFX gfx;
+            gfx.importImage(tileset);
+            gfx.write(basePath + "16x16Tiles.gfx");
+        }
+
+        setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));
+        return true;
+    }
+    else {
+        QList<QString> types = {
+            "RSDKv4 Scenes (Act*.bin)",
+            "RSDKv3 Scenes (Act*.bin)",
+            "RSDKv2 Scenes (Act*.bin)",
+            "RSDKv1 Scenes (Act*.map)",
+        };
+
+        QFileDialog filedialog(this, tr("Save Scene"), "",
+                               tr(QString("%1;;%2;;%3;;%4")
+                                      .arg(types[0])
+                                      .arg(types[1])
+                                      .arg(types[2])
+                                      .arg(types[3])
+                                      .toStdString()
+                                      .c_str()));
+        filedialog.setAcceptMode(QFileDialog::AcceptSave);
+        if (filedialog.exec() == QDialog::Accepted) {
+            /*int filter = types.indexOf(filedialog.selectedNameFilter());
+
+            setStatus("Saving Scene...");
+            QString path     = filedialog.selectedFiles()[0];
+            QString basePath = path.replace(QFileInfo(path).fileName(), "");
+
+            RSDKv1::TileConfig tileconfigRS;
+
+            // TODO: port data
+
+            switch (filter + 1) {
+                case ENGINE_v4:
+                case ENGINE_v3:
+                case ENGINE_v2:
+                    viewer->scene.write(filter + 1, filedialog.selectedFiles()[0]);
+                    viewer->background.write(filter + 1, basePath + "Backgrounds.bin");
+                    viewer->chunkset.write(filter + 1, basePath + "128x128Tiles.bin");
+                    viewer->tileconfig.write(basePath + "CollisionMasks.bin");
+                    viewer->stageConfig.write(filter + 1, basePath + "StageConfig.bin");
+                    break;
+                case ENGINE_v1:
+                    viewer->scene.write(filter + 1, filedialog.selectedFiles()[0]);
+                    viewer->background.write(filter + 1, basePath + "ZoneBG.map");
+                    viewer->chunkset.write(filter + 1, basePath + "Zone.til");
+                    tileconfigRS.write(basePath + "Zone.tcf");
+                    viewer->stageConfig.write(filter + 1, basePath + "Zone.zcf");
+                    break;
+            }*/
+
+            appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR, filedialog.selectedFiles()[0],
+                                    QList<QString>{ viewer->gameConfig.filePath });
+            setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));
+            return true;
+        }
+    }
+}
+
 void SceneEditor::createEntityList()
 {
     ui->entityList->blockSignals(true);
@@ -2658,7 +2509,6 @@ void SceneEditor::createEntityList()
         }
     }
 }
-
 void SceneEditor::createScrollList()
 {
     ui->scrollList->clear();
@@ -2677,364 +2527,7 @@ void SceneEditor::createScrollList()
     ui->scrollList->setCurrentRow(-1);
 }
 
-void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg)
-{
-    if (!QDir("").exists(dlg->m_outputPath))
-        return;
-
-    RSDKv5::Scene scene;
-    RSDKv5::TileConfig tileConfig;
-    RSDKv5::StageConfig stageConfig;
-
-    if (dlg->exportStageConfig) {
-        stageConfig.loadGlobalObjects = viewer->stageConfig.loadGlobalScripts;
-
-        stageConfig.objects.clear();
-        for (auto o : viewer->stageConfig.objects) {
-            QString name = o.name;
-            stageConfig.objects.append(name.replace(" ", ""));
-        }
-
-        stageConfig.soundFX.clear();
-        for (auto s : viewer->stageConfig.soundFX)
-            stageConfig.soundFX.append(RSDKv5::StageConfig::WAVConfiguration(s.path, 1));
-
-        stageConfig.palettes[0].activeRows[6] = true;
-        stageConfig.palettes[0].activeRows[7] = true;
-
-        for (int c = 0; c < 0x20; ++c) {
-            stageConfig.palettes[0].colours[(c / 0x10) + 0x60][c % 0x10].setRed(
-                viewer->stageConfig.palette.colours[c].r);
-            stageConfig.palettes[0].colours[(c / 0x10) + 0x60][c % 0x10].setGreen(
-                viewer->stageConfig.palette.colours[c].g);
-            stageConfig.palettes[0].colours[(c / 0x10) + 0x60][c % 0x10].setBlue(
-                viewer->stageConfig.palette.colours[c].b);
-        }
-
-        stageConfig.write(dlg->m_outputPath + "/StageConfig.bin");
-    }
-
-    if (dlg->exportTileConfig) {
-        for (int c = 0; c < 2; ++c) {
-            for (int t = 0; t < 0x400; ++t) {
-                // TODO:: retro sonic
-
-                if (viewer->gameType != ENGINE_v1) {
-                    tileConfig.collisionPaths[c][t].behaviour =
-                        viewer->tileconfig.collisionPaths[c][t].behaviour;
-                    tileConfig.collisionPaths[c][t].flipY =
-                        viewer->tileconfig.collisionPaths[c][t].flipY;
-                    tileConfig.collisionPaths[c][t].floorAngle =
-                        viewer->tileconfig.collisionPaths[c][t].floorAngle;
-                    tileConfig.collisionPaths[c][t].lWallAngle =
-                        viewer->tileconfig.collisionPaths[c][t].lWallAngle;
-                    tileConfig.collisionPaths[c][t].rWallAngle =
-                        viewer->tileconfig.collisionPaths[c][t].rWallAngle;
-                    tileConfig.collisionPaths[c][t].roofAngle =
-                        viewer->tileconfig.collisionPaths[c][t].roofAngle;
-
-                    for (int h = 0; h < 0x10; ++h) {
-                        tileConfig.collisionPaths[c][t].collision[h].height =
-                            viewer->tileconfig.collisionPaths[c][t].collision[c].height;
-                        tileConfig.collisionPaths[c][t].collision[h].solid =
-                            viewer->tileconfig.collisionPaths[c][t].collision[c].solid;
-                    }
-                }
-                else {
-                }
-            }
-        }
-
-        tileConfig.write(dlg->m_outputPath + "/TileConfig.bin");
-    }
-
-    if (dlg->exportChunks) {
-        // TODO:
-    }
-
-    scene.layers.clear();
-    if (dlg->exportLayers) {
-        for (int l = 0; l < 9; ++l) {
-            QString layerName = !l ? "FG " : QString("BG %1 ").arg(l);
-            for (int p = 0; p < 2; ++p) {
-                if (!viewer->layerWidth(l) || !viewer->layerHeight(l))
-                    continue;
-
-                RSDKv5::Scene::SceneLayer layer;
-                layer.name = layerName + (!p ? "Low" : "High");
-                layer.resize(viewer->layerWidth(l) * 8, viewer->layerHeight(l) * 8);
-                layer.lineIndexes.clear();
-                layer.drawOrder = 16;
-
-                switch (viewer->gameType) {
-                    case ENGINE_v4:
-                    case ENGINE_v3:
-                    case ENGINE_v2: {
-                        for (int i = 0; i < 4; ++i) {
-                            if (l == viewer->scene.activeLayer[i]) {
-                                byte vPlane = i >= viewer->scene.midpoint;
-
-                                if (vPlane == p) {
-                                    if (viewer->scene.midpoint < 3 && viewer->gameType == ENGINE_v4) {
-                                        switch (i) {
-                                            case 0: layer.drawOrder = 1; break;
-                                            case 1: layer.drawOrder = 2; break;
-                                            case 2: layer.drawOrder = 5; break;
-                                            case 3: layer.drawOrder = 5; break;
-                                        }
-                                    }
-                                    else {
-                                        switch (i) {
-                                            case 0: layer.drawOrder = 1; break;
-                                            case 1: layer.drawOrder = 2; break;
-                                            case 2: layer.drawOrder = 3; break;
-                                            case 3: layer.drawOrder = 5; break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    }
-                    case ENGINE_v1: {
-                        // None, let user decide
-                        break;
-                    }
-                }
-
-                layer.type           = 0;
-                layer.parallaxFactor = 1.0 * 0x100;
-                layer.scrollSpeed    = 0.0 * 0x100;
-
-                layer.scrollInfos.clear();
-                if (l > 0) {
-                    layer.parallaxFactor = viewer->background.layers[l - 1].parallaxFactor * 0x100;
-                    layer.scrollSpeed    = viewer->background.layers[l - 1].scrollSpeed * 0x100;
-
-                    for (int s = 0; s < viewer->background.layers[l - 1].scrollInfos.count(); ++s) {
-                        RSDKv5::Scene::ScrollIndexInfo info;
-                        info.parallaxFactor =
-                            viewer->background.layers[l - 1].scrollInfos[s].parallaxFactor;
-                        info.scrollSpeed = viewer->background.layers[l - 1].scrollInfos[s].scrollSpeed;
-                        info.deform      = viewer->background.layers[l - 1].scrollInfos[s].deform;
-                        info.startLine   = viewer->background.layers[l - 1].scrollInfos[s].startLine;
-                        info.length      = viewer->background.layers[l - 1].scrollInfos[s].length;
-                    }
-                }
-                else {
-                    RSDKv5::Scene::ScrollIndexInfo info;
-                    info.parallaxFactor = 1.0f;
-                    info.scrollSpeed    = 0.0f;
-                    info.deform         = false;
-                    info.startLine      = 0;
-                    info.length         = viewer->layerHeight(l) * 128;
-                }
-
-                layer.scrollInfos.clear();
-                if (l) {
-                    if (viewer->background.layers[l - 1].scrollInfos.count() == 0) {
-                        RSDKv5::Scene::ScrollIndexInfo info;
-                        info.startLine      = 0;
-                        info.length         = layer.height * 16;
-                        info.parallaxFactor = 1.0f;
-                        info.scrollSpeed    = 0.0f;
-                        info.deform         = false;
-                        layer.scrollInfos.append(info);
-                    }
-                    else {
-                        for (int s = 0; s < viewer->background.layers[l - 1].scrollInfos.count(); ++s) {
-                            RSDKv5::Scene::ScrollIndexInfo info;
-                            info.startLine = viewer->background.layers[l - 1].scrollInfos[s].startLine;
-                            info.length    = viewer->background.layers[l - 1].scrollInfos[s].length;
-                            info.parallaxFactor =
-                                viewer->background.layers[l - 1].scrollInfos[s].parallaxFactor;
-                            info.scrollSpeed =
-                                viewer->background.layers[l - 1].scrollInfos[s].scrollSpeed;
-                            info.deform = viewer->background.layers[l - 1].scrollInfos[s].deform;
-                            layer.scrollInfos.append(info);
-                        }
-                    }
-                }
-                else {
-                    RSDKv5::Scene::ScrollIndexInfo info;
-                    info.startLine      = 0;
-                    info.length         = layer.height * 16;
-                    info.parallaxFactor = 1.0f;
-                    info.scrollSpeed    = 0.0f;
-                    info.deform         = false;
-                    layer.scrollInfos.append(info);
-                }
-
-                int cnt     = 0;
-                auto layout = viewer->layerLayout(l);
-                for (int y = 0; y < viewer->layerHeight(l); ++y) {
-                    for (int x = 0; x < viewer->layerWidth(l); ++x) {
-                        int chunkID                         = layout[y][x];
-                        FormatHelpers::Chunks::Chunk &chunk = viewer->chunkset.chunks[chunkID];
-                        for (int ty = 0; ty < 8; ++ty) {
-                            for (int tx = 0; tx < 8; ++tx) {
-                                // check we're on the right plane
-                                if (chunk.tiles[ty][tx].visualPlane != p) {
-                                    layer.layout[(y * 8) + ty][(x * 8) + tx] = 0xFFFF;
-                                    continue;
-                                }
-                                cnt++;
-
-                                ushort tile = chunk.tiles[ty][tx].tileIndex;
-                                byte solA   = chunk.tiles[ty][tx].solidityA;
-                                byte solB   = chunk.tiles[ty][tx].solidityB;
-
-                                if (solA == 4)
-                                    solA = 1;
-                                if (solB == 4)
-                                    solB = 1;
-
-                                Utils::setBit(tile, (chunk.tiles[ty][tx].direction & 1) == 1, 10);
-                                Utils::setBit(tile, (chunk.tiles[ty][tx].direction & 2) == 2, 11);
-                                Utils::setBit(tile, solA == 0 || solA == 1, 12);
-                                Utils::setBit(tile, solA == 0 || solA == 2, 13);
-                                Utils::setBit(tile, solB == 0 || solB == 1, 14);
-                                Utils::setBit(tile, solB == 0 || solB == 2, 15);
-
-                                layer.layout[(y * 8) + ty][(x * 8) + tx] = tile;
-                            }
-                        }
-                    }
-                }
-
-                if (scene.layers.count() < 8 && cnt)
-                    scene.layers.append(layer);
-            }
-        }
-    }
-
-    scene.objects.clear();
-    if (dlg->exportObjects) {
-        RSDKv5::Scene::SceneObject blank;
-        blank.name = RSDKv5::Scene::NameIdentifier("Blank Object");
-
-        blank.variables.clear();
-        RSDKv5::Scene::VariableInfo blankFilter;
-        blankFilter.name = RSDKv5::Scene::NameIdentifier("filter");
-        blankFilter.type = VAR_UINT8;
-        blank.variables.append(blankFilter);
-
-        RSDKv5::Scene::VariableInfo blankPropertyValue;
-        blankPropertyValue.name = RSDKv5::Scene::NameIdentifier("propertyValue");
-        blankPropertyValue.type = VAR_UINT8;
-        blank.variables.append(blankPropertyValue);
-
-        scene.objects.append(blank);
-
-        for (int o = 1; o < viewer->objects.count(); ++o) {
-            RSDKv5::Scene::SceneObject obj;
-
-            QString objName = viewer->objects[o].name;
-            objName.replace(" ", "");
-            obj.name = RSDKv5::Scene::NameIdentifier(objName);
-            obj.variables.clear();
-            RSDKv5::Scene::VariableInfo filter;
-            filter.name = RSDKv5::Scene::NameIdentifier("filter");
-            filter.type = VAR_UINT8;
-            obj.variables.append(filter);
-
-            RSDKv5::Scene::VariableInfo propertyValue;
-            QString propValName = viewer->objects[o].variablesAliases[SceneViewer::VAR_ALIAS_PROPVAL];
-            propValName.insert(0, propValName.at(0).toUpper());
-            propValName.remove(1, 1);
-            propertyValue.name = RSDKv5::Scene::NameIdentifier(propValName);
-            propertyValue.type = VAR_UINT8;
-            obj.variables.append(propertyValue);
-
-            for (int v = 0; v < 0xF && viewer->gameType == ENGINE_v4; ++v) {
-                bool active = false;
-                for (auto &entity : viewer->entities) {
-                    if (entity.type == o && entity.variables[v].active) {
-                        active = true;
-                        break;
-                    }
-                }
-
-                if (!active)
-                    continue;
-
-                RSDKv5::Scene::VariableInfo variable;
-                QString varName = RSDKv4::objectVariableNames[v];
-                if (v >= 11) {
-                    varName =
-                        viewer->objects[o].variablesAliases[SceneViewer::VAR_ALIAS_VAL0 + (v - 11)];
-                    varName.insert(0, propValName.at(0).toUpper());
-                    varName.remove(1, 1);
-                }
-                variable.name = varName;
-                variable.type = RSDKv4::objectVariableTypes[v] == "int" ? VAR_INT32 : VAR_UINT8;
-                obj.variables.append(variable);
-            }
-
-            for (SceneViewer::VariableInfo var : viewer->objects[o].variables) {
-                RSDKv5::Scene::VariableInfo variable;
-                variable.name = RSDKv5::Scene::NameIdentifier(var.name);
-                variable.type = VAR_INT32;
-                obj.variables.append(variable);
-            }
-
-            scene.objects.append(obj);
-        }
-
-        for (int e = 0; e < viewer->entities.count(); ++e) {
-            RSDKv5::Scene::SceneEntity entity;
-            entity.position.x = Utils::floatToFixed(viewer->entities[e].pos.x);
-            entity.position.y = Utils::floatToFixed(viewer->entities[e].pos.y);
-
-            entity.parent = &scene.objects[viewer->entities[e].type];
-            entity.slotID = e;
-
-            entity.variables.clear();
-            RSDKv5::Scene::VariableValue filter;
-            filter.type        = VAR_UINT8;
-            filter.value_uint8 = 0xFF;
-            entity.variables.append(filter);
-
-            RSDKv5::Scene::VariableValue propertyValue;
-            propertyValue.type        = VAR_UINT8;
-            propertyValue.value_uint8 = viewer->entities[e].propertyValue;
-            entity.variables.append(propertyValue);
-
-            for (int v = 0; v < 0xF && viewer->gameType == ENGINE_v4; ++v) {
-                bool active = false;
-                for (auto &ent : viewer->entities) {
-                    if (ent.type == viewer->entities[e].type && ent.variables[v].active) {
-                        active = true;
-                        break;
-                    }
-                }
-
-                if (!active)
-                    continue;
-
-                RSDKv5::Scene::VariableValue variable;
-                variable.type        = RSDKv4::objectVariableTypes[v] == "int" ? VAR_INT32 : VAR_UINT8;
-                variable.value_int32 = viewer->entities[e].variables[v].active
-                                           ? viewer->entities[e].variables[v].value
-                                           : 0;
-                entity.variables.append(variable);
-            }
-
-            for (int i = 0; i < viewer->objects[viewer->entities[e].type].variables.count(); ++i) {
-                RSDKv5::Scene::VariableValue variable;
-                variable.type        = VAR_INT32;
-                variable.value_uint8 = viewer->entities[e].customVars[i].value_int32;
-                entity.variables.append(variable);
-            }
-
-            entity.parent->entities.append(entity);
-        }
-    }
-
-    if (dlg->exportLayers || dlg->exportObjects) {
-        scene.write(dlg->m_outputPath + "/Scene.bin");
-    }
-}
+void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg) {}
 
 void SceneEditor::parseGameXML(byte gameType, QString path)
 {
@@ -3139,7 +2632,6 @@ void SceneEditor::redoAction()
         resetAction();
     }
 }
-
 void SceneEditor::resetAction()
 {
     viewer->tilePalette = actions[actionIndex].tilePalette;
@@ -3223,7 +2715,6 @@ void SceneEditor::resetAction()
 
     updateTitle(actionIndex > 0);
 }
-
 void SceneEditor::doAction(QString name, bool setModified)
 {
     ActionState action;

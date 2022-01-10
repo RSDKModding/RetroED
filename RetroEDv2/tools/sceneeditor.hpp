@@ -90,6 +90,7 @@ public:
     TilesetEditor *tsetEdit        = nullptr;
 
     void loadScene(QString scnPath, QString gcfPath, byte gameType);
+    bool saveScene(bool forceSaveAs = false);
 
     inline void updateTitle(bool modified)
     {
