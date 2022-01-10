@@ -29,6 +29,32 @@ public:
 
     enum EventTypes { EVENT_LOAD, EVENT_CREATE, EVENT_UPDATE, EVENT_DRAW, EVENT_SERIALIZE };
 
+    struct DrawVertex {
+        DrawVertex() {}
+
+        QVector3D pos;
+        QVector2D uv;
+        QVector4D colour;
+    };
+
+    struct RenderState {
+        RenderState() {}
+
+        Shader *shader = nullptr;
+
+        byte blendMode = INK_NONE;
+        byte alpha     = 0xFF;
+
+        ushort indexCount = 0;
+        ushort indecies[0x800 * 6];
+
+        ushort sheetID = 0;
+
+        ScreenInfo *screen;
+        Vector2<int> clipRectTL;
+        Vector2<int> clipRectBR;
+    };
+
     SceneViewerv5(QWidget *parent);
     ~SceneViewerv5();
 
@@ -167,8 +193,14 @@ public:
 
     QImage *colTex = nullptr;
 
-    // TEMP until SetEditableVar() gets completed
-    QList<QString> variableNames;
+    DrawVertex vertexList[0x800];
+    ushort baseIndexList[0x800 * 6];
+
+    QList<RenderState> renderStates;
+
+    sbyte renderStateIndex = -1;
+    ushort renderCount     = 0;
+    ushort lastRenderCount = 0;
 
     inline float incZ()
     {
@@ -305,9 +337,12 @@ public:
         return tex;
     }
 
-    Shader primitiveShader;
-    Shader spriteShader;
+    Shader primitiveShader = Shader("Primitive");
+    Shader spriteShader    = Shader("Sprite");
     QOpenGLVertexArrayObject screenVAO, rectVAO;
+
+    QOpenGLBuffer VBO;
+    uint indexVBO = 0;
 
     QOpenGLTexture *tilesetTexture = nullptr;
 
@@ -329,6 +364,23 @@ public:
 
     void drawCircle(float x, float y, float z, float r, Vector4<float> colour, Shader &shader,
                     bool outline = false);
+
+    void drawFace(Vector2<int> *vertices, int vertCount, int r, int g, int b, int alpha,
+                  InkEffects inkEffect);
+    void drawBlendedFace(Vector2<int> *vertices, uint *colors, int vertCount, int alpha,
+                         InkEffects inkEffect);
+
+    inline void addPoly(float x, float y, float z, float u, float v, uint color = 0,
+                        GFXSurface *surface = NULL);
+    inline void addPoly(float x, float y, float u, float v, uint color = 0, GFXSurface *surface = NULL)
+    {
+        addPoly(x, y, incZ(), u, v, color, surface);
+    }
+
+    void addRenderState(int blendMode, ushort vertCount, ushort indexCount, int sheetID = -1,
+                        byte alpha = 0xFF, Shader *shader = nullptr, ushort *altIndex = nullptr,
+                        Vector2<int> *clipRect = nullptr);
+    void renderRenderStates();
 
     void refreshResize();
 
