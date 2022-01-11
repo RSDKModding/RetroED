@@ -169,6 +169,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                         case TOOL_MODELMANAGER: break;
                         case TOOL_GAMECONFIGEDITOR:
                             switch (r.gameVer) {
+                                case ENGINE_v1: {
+                                    GameconfigEditorv1 *tool = new GameconfigEditorv1(r.path);
+                                    addTab(tool, "GameConfig Editor");
+                                    break;
+                                }
                                 case ENGINE_v2: {
                                     GameconfigEditorv2 *tool = new GameconfigEditorv2(r.path);
                                     addTab(tool, "GameConfig Editor");
@@ -243,6 +248,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     });
 
     QMenu *gc = new QMenu("GameConfig Editor");
+    gc->addAction("v1 (Retro-Sonic)", [this] {
+        setStatus("Opening Game Configuration Editor...");
+        GameconfigEditorv1 *tool = new GameconfigEditorv1;
+        addTab(tool, "GameConfig Editor");
+    });
     gc->addAction("v2 (Sonic Nexus)", [this] {
         setStatus("Opening GameConfig Editor...");
         GameconfigEditorv2 *tool = new GameconfigEditorv2;

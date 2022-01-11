@@ -22,6 +22,14 @@ GameconfigEditorv1::GameconfigEditorv1(QString path, QWidget *parent)
     ui->rmScn->setIcon(icon_rm);
 
     // ----------------
+    // DETAILS
+    // ----------------
+    connect(ui->sectionList, &QListWidget::currentRowChanged, [this](int v) {
+        ui->detailsWidget->setCurrentIndex(v);
+        ui->sectionLabel->setText(ui->sectionList->item(v)->text());
+    });
+
+    // ----------------
     // PLAYERS
     // ----------------
     connect(ui->plrList, &QListWidget::currentRowChanged, [this](int c) {
@@ -42,7 +50,7 @@ GameconfigEditorv1::GameconfigEditorv1(QString path, QWidget *parent)
         ui->plrNameDisplay->blockSignals(false);
 
         ui->plrName->blockSignals(true);
-        ui->plrName->setText(characters.players[c].displayName);
+        ui->plrName->setText(characters.players[c].playerName);
         ui->plrName->blockSignals(false);
 
         ui->plrAnim->blockSignals(true);
@@ -54,7 +62,7 @@ GameconfigEditorv1::GameconfigEditorv1(QString path, QWidget *parent)
         ui->hasP2->blockSignals(false);
 
         ui->plr2Anim->blockSignals(true);
-        ui->plr2Anim->setReadOnly(characters.players[c].hasP2);
+        ui->plr2Anim->setDisabled(!characters.players[c].hasP2);
         ui->plr2Anim->setText(characters.players[c].player2Anim);
         ui->plr2Anim->blockSignals(false);
 
@@ -129,6 +137,12 @@ GameconfigEditorv1::GameconfigEditorv1(QString path, QWidget *parent)
 
     connect(ui->plrAnim, &QLineEdit::textEdited, [this](QString s) {
         characters.players[ui->plrList->currentRow()].player1Anim = s;
+        updateTitle(true);
+    });
+
+    connect(ui->hasP2, &QCheckBox::toggled, [this](bool c) {
+        characters.players[ui->plrList->currentRow()].hasP2 = c;
+        ui->plr2Anim->setDisabled(!characters.players[ui->plrList->currentRow()].hasP2);
         updateTitle(true);
     });
 
@@ -225,7 +239,7 @@ GameconfigEditorv1::GameconfigEditorv1(QString path, QWidget *parent)
             ui->scnName->setDisabled(!c.parent().isValid());
             ui->scnHighlighted->setDisabled(!c.parent().isValid());
 
-            ui->addScn->setDisabled(!c.parent().isValid());
+            // ui->addScn->setDisabled(!c.parent().isValid());
             ui->upScn->setDisabled(!c.parent().isValid());
             ui->downScn->setDisabled(!c.parent().isValid());
             ui->rmScn->setDisabled(!c.parent().isValid());
@@ -291,6 +305,15 @@ void GameconfigEditorv1::load(QString filename)
     if (filename != "") {
         Reader reader = Reader(filename);
         characters.read(reader);
+
+        QList<QString> listFileNames = { "Zones.mdf", "CZones.mdf", "SStages.mdf", "BStages.mdf" };
+
+        QString baseDir = filename;
+        baseDir         = baseDir.replace(QFileInfo(baseDir).fileName(), "");
+        for (int l = 0; l < 4; ++l) {
+            stageList[l] = RSDKv1::StageList(baseDir + "/" + listFileNames[l]);
+        }
+
         tabTitle = Utils::getFilenameAndFolder(characters.filePath);
     }
     else {
@@ -328,6 +351,8 @@ void GameconfigEditorv1::load(QString filename)
 
 bool GameconfigEditorv1::event(QEvent *event)
 {
+    QList<QString> listFileNames = { "Zones.mdf", "CZones.mdf", "SStages.mdf", "BStages.mdf" };
+
     if (event->type() == (QEvent::Type)RE_EVENT_NEW) {
         load("");
         return true;
@@ -356,12 +381,19 @@ bool GameconfigEditorv1::event(QEvent *event)
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
 
-                setStatus("Saving GameConfig: " + filedialog.selectedFiles()[0]);
+                setStatus("Saving Game Configuration: " + filedialog.selectedFiles()[0]);
 
                 appConfig.addRecentFile(ENGINE_v1, TOOL_GAMECONFIGEDITOR, filedialog.selectedFiles()[0],
                                         QList<QString>{ /**/ });
                 Writer writer(filedialog.selectedFiles()[0]);
                 characters.write(writer);
+
+                QString baseDir = filedialog.selectedFiles()[0];
+                baseDir         = baseDir.replace(QFileInfo(baseDir).fileName(), "");
+                for (int l = 0; l < 4; ++l) {
+                    stageList[l].write(baseDir + "/" + listFileNames[l]);
+                }
+
                 updateTitle(false);
 
                 return true;
@@ -369,6 +401,13 @@ bool GameconfigEditorv1::event(QEvent *event)
         }
         else {
             characters.write("");
+
+            QString baseDir = characters.filePath;
+            baseDir         = baseDir.replace(QFileInfo(baseDir).fileName(), "");
+            for (int l = 0; l < 4; ++l) {
+                stageList[l].write(baseDir + "/" + listFileNames[l]);
+            }
+
             updateTitle(false);
             return true;
         }
@@ -392,6 +431,13 @@ bool GameconfigEditorv1::event(QEvent *event)
                                             filedialog.selectedFiles()[0], QList<QString>{ /**/ });
 
                     characters.write(filedialog.selectedFiles()[0]);
+
+                    QString baseDir = filedialog.selectedFiles()[0];
+                    baseDir         = baseDir.replace(QFileInfo(baseDir).fileName(), "");
+                    for (int l = 0; l < 4; ++l) {
+                        stageList[l].write(baseDir + "/" + listFileNames[l]);
+                    }
+
                     break;
                 }
             }
@@ -421,6 +467,13 @@ bool GameconfigEditorv1::event(QEvent *event)
             }
             else {
                 characters.write("");
+
+                QString baseDir = characters.filePath;
+                baseDir         = baseDir.replace(QFileInfo(baseDir).fileName(), "");
+                for (int l = 0; l < 4; ++l) {
+                    stageList[l].write(baseDir + "/" + listFileNames[l]);
+                }
+
                 updateTitle(false);
             }
         }

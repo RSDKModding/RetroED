@@ -43,7 +43,7 @@ private:
 
     bool oldVer = false;
 
-    QStandardItemModel *m_sceneModel = nullptr;
+    QStandardItemModel *sceneModel = nullptr;
 
     bool modified    = false;
     QString tabTitle = "GameConfig Editor";

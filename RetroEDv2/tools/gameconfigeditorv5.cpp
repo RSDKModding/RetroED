@@ -77,7 +77,7 @@ GameconfigEditorv5::GameconfigEditorv5(QString configPath, byte type, bool oldVe
         setupInitScenes();
     };
 
-    m_sceneModel = new QStandardItemModel(ui->gcScnTree);
+    sceneModel = new QStandardItemModel(ui->gcScnTree);
 
     QMenu *scnAddMenu = new QMenu(ui->gcAddScn);
 
@@ -90,8 +90,8 @@ GameconfigEditorv5::GameconfigEditorv5(QString configPath, byte type, bool oldVe
         auto *scnItem = new QStandardItem(gameConfig.categories[c].scenes.first().name);
         catItem->appendRow(scnItem);
         catItem->setFlags(catItem->flags() | Qt::ItemIsEditable);
-        m_sceneModel->insertRow(c, catItem);
-        ui->gcScnTree->setCurrentIndex(m_sceneModel->indexFromItem(catItem));
+        sceneModel->insertRow(c, catItem);
+        ui->gcScnTree->setCurrentIndex(sceneModel->indexFromItem(catItem));
 
         updateTitle(true);
         setupInitCategories();
@@ -111,18 +111,18 @@ GameconfigEditorv5::GameconfigEditorv5(QString configPath, byte type, bool oldVe
         gameConfig.categories[cat].scenes.insert(scn, RSDKv5::GameConfig::SceneInfo());
         auto *scnItem = new QStandardItem(gameConfig.categories[cat].scenes[scn].name);
         if (scnSelected)
-            m_sceneModel->itemFromIndex(index.parent())->insertRow(scn, scnItem);
+            sceneModel->itemFromIndex(index.parent())->insertRow(scn, scnItem);
         else
-            m_sceneModel->itemFromIndex(index)->insertRow(scn, scnItem);
+            sceneModel->itemFromIndex(index)->insertRow(scn, scnItem);
         scnItem->setFlags(scnItem->flags() | Qt::ItemIsEditable);
-        ui->gcScnTree->setCurrentIndex(m_sceneModel->indexFromItem(scnItem));
+        ui->gcScnTree->setCurrentIndex(sceneModel->indexFromItem(scnItem));
 
         updateTitle(true);
         setupInitScenes();
     });
 
-    connect(m_sceneModel, &QStandardItemModel::itemChanged, [this](QStandardItem *item) {
-        const QModelIndex &index = m_sceneModel->indexFromItem(item);
+    connect(sceneModel, &QStandardItemModel::itemChanged, [this](QStandardItem *item) {
+        const QModelIndex &index = sceneModel->indexFromItem(item);
         if (index.parent().isValid()) { // Scene
             gameConfig.categories[index.parent().row()].scenes[index.row()].name = item->text();
             return;
@@ -138,12 +138,12 @@ GameconfigEditorv5::GameconfigEditorv5(QString configPath, byte type, bool oldVe
 
         if (index.parent().isValid()) { // Scene
             gameConfig.categories[index.parent().row()].scenes.removeAt(index.row());
-            m_sceneModel->itemFromIndex(index.parent())->removeRow(index.row());
+            sceneModel->itemFromIndex(index.parent())->removeRow(index.row());
             setupInitScenes();
             return;
         }
         gameConfig.categories.removeAt(index.row());
-        m_sceneModel->removeRow(index.row());
+        sceneModel->removeRow(index.row());
 
         updateTitle(true);
         setupInitCategories();
@@ -157,7 +157,7 @@ GameconfigEditorv5::GameconfigEditorv5(QString configPath, byte type, bool oldVe
             gameConfig.categories[ui->gcScnTree->currentIndex().parent().row()].scenes.move(
                 c, c + translation);
             QStandardItem *parentItem =
-                m_sceneModel->itemFromIndex(ui->gcScnTree->currentIndex().parent());
+                sceneModel->itemFromIndex(ui->gcScnTree->currentIndex().parent());
             item = parentItem->takeRow(c);
             parentItem->insertRow(c + translation, item);
             setupInitScenes();
@@ -165,19 +165,19 @@ GameconfigEditorv5::GameconfigEditorv5(QString configPath, byte type, bool oldVe
         else {
             gameConfig.categories.move(c, c + translation);
             bool expand = ui->gcScnTree->isExpanded(ui->gcScnTree->currentIndex());
-            item        = m_sceneModel->takeRow(c), m_sceneModel->insertRow(c + translation, item);
-            ui->gcScnTree->setExpanded(m_sceneModel->indexFromItem(item.first()), expand);
+            item        = sceneModel->takeRow(c), sceneModel->insertRow(c + translation, item);
+            ui->gcScnTree->setExpanded(sceneModel->indexFromItem(item.first()), expand);
             setupInitCategories();
         }
         updateTitle(true);
-        ui->gcScnTree->setCurrentIndex(m_sceneModel->indexFromItem(item.first()));
+        ui->gcScnTree->setCurrentIndex(sceneModel->indexFromItem(item.first()));
     };
 
     connect(ui->gcUpScn, &QToolButton::clicked, [moveScn] { moveScn(-1); });
 
     connect(ui->gcDownScn, &QToolButton::clicked, [moveScn] { moveScn(1); });
 
-    ui->gcScnTree->setModel(m_sceneModel);
+    ui->gcScnTree->setModel(sceneModel);
 
     connect(
         ui->gcScnTree->selectionModel(), &QItemSelectionModel::currentChanged,
@@ -387,7 +387,7 @@ void GameconfigEditorv5::setupUI()
     ui->gcSfxName->setText("");
     ui->gcMaxConcurrentPlays->setValue(0x00);
 
-    m_sceneModel->clear();
+    sceneModel->clear();
     for (int c = 0; c < gameConfig.categories.count(); ++c) {
         auto *catItem = new QStandardItem(gameConfig.categories[c].name);
 
@@ -399,7 +399,7 @@ void GameconfigEditorv5::setupUI()
         }
 
         catItem->setFlags(catItem->flags() | Qt::ItemIsEditable);
-        m_sceneModel->appendRow(catItem);
+        sceneModel->appendRow(catItem);
     }
     ui->gcScnName->setText("");
     ui->gcScnFolder->setText("");

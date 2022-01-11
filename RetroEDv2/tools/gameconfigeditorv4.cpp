@@ -512,7 +512,7 @@ GameconfigEditorv4::GameconfigEditorv4(QString path, QWidget *parent)
             ui->scnName->setDisabled(!c.parent().isValid());
             ui->scnHighlighted->setDisabled(!c.parent().isValid());
 
-            ui->addScn->setDisabled(!c.parent().isValid());
+            // ui->addScn->setDisabled(!c.parent().isValid());
             ui->upScn->setDisabled(!c.parent().isValid());
             ui->downScn->setDisabled(!c.parent().isValid());
             ui->rmScn->setDisabled(!c.parent().isValid());
@@ -855,8 +855,8 @@ bool GameconfigEditorv4::event(QEvent *event)
                     RSDKv5::GameConfig config;
                     RSDKv5::RSDKConfig rsdkConfig;
 
-                    config.gameTitle = gameConfig.gameWindowText;
-                    config.readFilter  = true;
+                    config.gameTitle  = gameConfig.gameWindowText;
+                    config.readFilter = true;
 
                     config.globalVariables.clear();
                     rsdkConfig.variables.clear();
