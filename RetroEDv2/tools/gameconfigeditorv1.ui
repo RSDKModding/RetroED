@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>GameconfigEditorv1</class>
- <widget class="QWidget" name="GameconfigEditorv1">
+ <class>GameConfigEditorv1</class>
+ <widget class="QWidget" name="GameConfigEditorv1">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -64,6 +64,10 @@
            <property name="text">
             <string>-</string>
            </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
+           </property>
           </widget>
          </item>
          <item row="0" column="1">
@@ -84,6 +88,10 @@
            <property name="text">
             <string>D</string>
            </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
+           </property>
           </widget>
          </item>
          <item row="0" column="2">
@@ -91,12 +99,20 @@
            <property name="text">
             <string>U</string>
            </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
+           </property>
           </widget>
          </item>
          <item row="0" column="0">
           <widget class="QToolButton" name="addPlr">
            <property name="text">
             <string>+</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
            </property>
           </widget>
          </item>
@@ -241,6 +257,10 @@
            <property name="text">
             <string>+</string>
            </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
+           </property>
           </widget>
          </item>
          <item row="0" column="6">
@@ -248,12 +268,20 @@
            <property name="text">
             <string>-</string>
            </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
+           </property>
           </widget>
          </item>
          <item row="0" column="2">
           <widget class="QToolButton" name="upScn">
            <property name="text">
             <string>U</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
            </property>
           </widget>
          </item>
@@ -287,6 +315,10 @@
           <widget class="QToolButton" name="downScn">
            <property name="text">
             <string>D</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
            </property>
           </widget>
          </item>
@@ -353,6 +385,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

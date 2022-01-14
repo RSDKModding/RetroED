@@ -4,7 +4,7 @@
 namespace FormatHelpers
 {
 
-class Stageconfig
+class StageConfig
 {
 public:
     class ObjectInfo
@@ -26,8 +26,8 @@ public:
         QString path = "Folder/Sound.wav";
     };
 
-    Stageconfig() {}
-    Stageconfig(byte ver, QString filepath) { read(ver, filepath); }
+    StageConfig() {}
+    StageConfig(byte ver, QString filepath) { read(ver, filepath); }
 
     void read(byte ver, QString filename);
     void write(byte ver, QString filename);

@@ -108,9 +108,9 @@ public:
 
     GameConfig()
     {
-        categories.clear();
+        stageLists.clear();
         for (int c = 0; c < 4; ++c) {
-            categories.append(Category());
+            stageLists.append(Category());
         }
     }
     GameConfig(QString filename) { read(filename); }
@@ -142,7 +142,7 @@ public:
     QList<SoundInfo> soundFX;
     QList<GlobalVariable> globalVariables;
     QList<QString> players;
-    QList<Category> categories;
+    QList<Category> stageLists;
 
     QString filePath = "";
 };

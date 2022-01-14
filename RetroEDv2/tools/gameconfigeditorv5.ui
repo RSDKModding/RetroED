@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>GameconfigEditorv5</class>
- <widget class="QWidget" name="GameconfigEditorv5">
+ <class>GameConfigEditorv5</class>
+ <widget class="QWidget" name="GameConfigEditorv5">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>GameconfigEditorv5</string>
+   <string>GameConfigEditorv5</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_14">
    <item row="0" column="0">
@@ -115,6 +115,10 @@
                  <property name="text">
                   <string>D</string>
                  </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
+                 </property>
                 </widget>
                </item>
                <item row="1" column="1">
@@ -135,6 +139,10 @@
                  <property name="text">
                   <string>+</string>
                  </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
+                 </property>
                 </widget>
                </item>
                <item row="1" column="2">
@@ -142,12 +150,20 @@
                  <property name="text">
                   <string>U</string>
                  </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
+                 </property>
                 </widget>
                </item>
                <item row="1" column="5">
                 <widget class="QToolButton" name="gcRmObj">
                  <property name="text">
                   <string>-</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
                  </property>
                 </widget>
                </item>
@@ -241,6 +257,10 @@
                  <property name="text">
                   <string>+</string>
                  </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
+                 </property>
                 </widget>
                </item>
                <item row="0" column="2">
@@ -248,12 +268,20 @@
                  <property name="text">
                   <string>U</string>
                  </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
+                 </property>
                 </widget>
                </item>
                <item row="0" column="3">
                 <widget class="QToolButton" name="gcDownSfx">
                  <property name="text">
                   <string>D</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
                  </property>
                 </widget>
                </item>
@@ -274,6 +302,10 @@
                 <widget class="QToolButton" name="gcRmSfx">
                  <property name="text">
                   <string>-</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
                  </property>
                 </widget>
                </item>
@@ -359,6 +391,10 @@
                  <property name="text">
                   <string>+</string>
                  </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
+                 </property>
                  <property name="popupMode">
                   <enum>QToolButton::InstantPopup</enum>
                  </property>
@@ -369,12 +405,20 @@
                  <property name="text">
                   <string>-</string>
                  </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
+                 </property>
                 </widget>
                </item>
                <item row="0" column="2">
                 <widget class="QToolButton" name="gcUpScn">
                  <property name="text">
                   <string>U</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
                  </property>
                 </widget>
                </item>
@@ -408,6 +452,10 @@
                 <widget class="QToolButton" name="gcDownScn">
                  <property name="text">
                   <string>D</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
                  </property>
                 </widget>
                </item>
@@ -718,6 +766,10 @@
                  <property name="text">
                   <string>D</string>
                  </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
+                 </property>
                 </widget>
                </item>
                <item row="1" column="1">
@@ -738,6 +790,10 @@
                  <property name="text">
                   <string>+</string>
                  </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
+                 </property>
                 </widget>
                </item>
                <item row="1" column="2">
@@ -745,12 +801,20 @@
                  <property name="text">
                   <string>U</string>
                  </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
+                 </property>
                 </widget>
                </item>
                <item row="1" column="5">
                 <widget class="QToolButton" name="scRmObj">
                  <property name="text">
                   <string>-</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
                  </property>
                 </widget>
                </item>
@@ -825,6 +889,10 @@
                  <property name="text">
                   <string>+</string>
                  </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
+                 </property>
                 </widget>
                </item>
                <item row="0" column="2">
@@ -832,12 +900,20 @@
                  <property name="text">
                   <string>U</string>
                  </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
+                 </property>
                 </widget>
                </item>
                <item row="0" column="3">
                 <widget class="QToolButton" name="scDownSfx">
                  <property name="text">
                   <string>D</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
                  </property>
                 </widget>
                </item>
@@ -858,6 +934,10 @@
                 <widget class="QToolButton" name="scRmSfx">
                  <property name="text">
                   <string>-</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../resources.qrc">
+                   <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
                  </property>
                 </widget>
                </item>
@@ -976,9 +1056,9 @@
     <string>Script Editor</string>
    </property>
   </action>
-  <action name="actionGameconfigEditor">
+  <action name="actionGameConfigEditor">
    <property name="text">
-    <string>Gameconfig Editor</string>
+    <string>GameConfig Editor</string>
    </property>
   </action>
   <action name="actionGFXTool">
@@ -1027,6 +1107,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

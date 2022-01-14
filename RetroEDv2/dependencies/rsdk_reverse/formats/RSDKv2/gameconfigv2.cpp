@@ -1,6 +1,6 @@
 #include "rsdkreverse.hpp"
 
-void RSDKv2::Gameconfig::read(Reader &reader)
+void RSDKv2::GameConfig::read(Reader &reader)
 {
     filePath = reader.filePath;
 
@@ -11,8 +11,8 @@ void RSDKv2::Gameconfig::read(Reader &reader)
 
     // Global Scripts
     byte scrCount = reader.read<byte>();
-    scripts.clear();
-    for (int s = 0; s < scrCount; ++s) scripts.append(reader.readString());
+    objects.clear();
+    for (int s = 0; s < scrCount; ++s) objects.append(reader.readString());
 
     // Global Variables
     byte varCount = reader.read<byte>();
@@ -34,7 +34,7 @@ void RSDKv2::Gameconfig::read(Reader &reader)
     for (int c = 0; c < 4; ++c) stageLists.append(Category(reader));
 }
 
-void RSDKv2::Gameconfig::write(Writer &writer)
+void RSDKv2::GameConfig::write(Writer &writer)
 {
     filePath = writer.filePath;
 
@@ -43,8 +43,8 @@ void RSDKv2::Gameconfig::write(Writer &writer)
     writer.write(gameDescriptionText);
 
     // Objects
-    writer.write((byte)scripts.count());
-    for (QString &obj : scripts) writer.write(obj);
+    writer.write((byte)objects.count());
+    for (QString &obj : objects) writer.write(obj);
 
     // Global Variables
     writer.write((byte)globalVariables.count());

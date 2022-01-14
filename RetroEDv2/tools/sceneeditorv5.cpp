@@ -748,7 +748,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         QList<QString> prevObjs = viewer->stageConfig.objects;
 
-        StageconfigEditorv5 *edit = new StageconfigEditorv5(&viewer->stageConfig, this);
+        StageConfigEditorv5 *edit = new StageConfigEditorv5(&viewer->stageConfig, this);
         edit->exec();
 
         QList<QString> names;
@@ -797,11 +797,11 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         }
 
         createEntityList();
-        doAction("Edited Stageconfig");
+        doAction("Edited StageConfig");
     });
 
     connect(scnProp->editTSet, &QPushButton::clicked, [this] {
-        TilesetEditor *edit = new TilesetEditor(&viewer->tiles, &viewer->tilePalette);
+        TilesetEditor *edit = new TilesetEditor(viewer->tiles, viewer->tilePalette);
         edit->setWindowTitle("Edit Tileset");
         edit->exec();
 
@@ -1151,8 +1151,9 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             writer.writeLine("");
             writer.writeLine("<scene>");
 
-            QList<QString> types = { "uint8", "uint16", "uint32", "int8",    "int16",   "int32",
+            QList<QString> types      = { "uint8", "uint16", "uint32", "int8",    "int16",   "int32",
                                      "enum",  "bool",   "string", "vector2", "unknown", "colour" };
+            QList<QString> layerTypes = { "HScroll", "VScroll", "RotoZoom", "Basic" };
 
             writer.writeLine(QString("\t<metadata libraryFile=\"%1\" bgColour=\"%2\" "
                                      "altBgColour=\"%3\"> </metadata>")
@@ -1165,32 +1166,34 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 writer.writeLine("\t<layers>");
 
                 for (auto &layer : viewer->scene.layers) {
-
                     writer.writeText(
                         QString(
                             "\t\t<layer name=\"%1\" type=\"%2\" drawOrder=\"%3\" width=\"%4\" "
                             "height=\"%5\" parallaxFactor=\"%6\" scrollSpeed=\"%7\" visible=\"%8\">")
                             .arg(layer.name)
-                            .arg(layer.type)
+                            .arg(layerTypes[layer.type])
                             .arg(layer.drawOrder)
                             .arg(layer.width)
                             .arg(layer.height)
-                            .arg(layer.parallaxFactor)
-                            .arg(layer.scrollSpeed)
-                            .arg(layer.visible));
+                            .arg(layer.parallaxFactor / 256.0f)
+                            .arg(layer.scrollSpeed / 256.0f)
+                            .arg(layer.visible ? "true" : "false"));
 
                     if (layer.scrollInfos.count()) {
                         writer.writeLine();
+                        writer.writeLine("\t\t\t<scrollingInfo>");
                         for (auto &scroll : layer.scrollInfos) {
-                            writer.writeLine(QString("\t\t\t<scrollInfo startLine=\"%1\" length=\"%2\" "
-                                                     "parallaxFactor=\"%3\" scrollSpeed=\"%4\" "
-                                                     "deform=\"%5\"> </scrollInfo>")
-                                                 .arg(scroll.startLine)
-                                                 .arg(scroll.length)
-                                                 .arg(scroll.parallaxFactor)
-                                                 .arg(scroll.scrollSpeed)
-                                                 .arg(scroll.deform));
+                            writer.writeLine(
+                                QString("\t\t\t\t<scrollInfo startLine=\"%1\" length=\"%2\" "
+                                        "parallaxFactor=\"%3\" scrollSpeed=\"%4\" "
+                                        "deform=\"%5\"> </scrollInfo>")
+                                    .arg(scroll.startLine)
+                                    .arg(scroll.length)
+                                    .arg(scroll.parallaxFactor)
+                                    .arg(scroll.scrollSpeed)
+                                    .arg(scroll.deform ? "true" : "false"));
                         }
+                        writer.writeLine("\t\t\t</scrollingInfo>");
                     }
                     writer.writeLine();
 
@@ -1204,11 +1207,14 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                         writer.writeLine();
                     }
                     writer.writeLine("\t\t\t</layout>");
+                    writer.writeLine();
 
                     writer.writeLine("\t\t</layer>");
+                    writer.writeLine();
                 }
 
                 writer.writeLine("\t</layers>");
+                writer.writeLine();
             }
 
             if (viewer->objects.count()) {
@@ -1233,6 +1239,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 }
 
                 writer.writeLine("\t</objects>");
+                writer.writeLine();
             }
 
             if (viewer->objects.count()) {
@@ -1306,6 +1313,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 }
 
                 writer.writeLine("\t</entities>");
+                writer.writeLine();
             }
 
             writer.writeLine("</scene>");

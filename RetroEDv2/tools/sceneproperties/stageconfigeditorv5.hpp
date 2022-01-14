@@ -5,21 +5,43 @@
 
 namespace Ui
 {
-class StageconfigEditorv5;
+class StageConfigEditorv5;
 }
 
-class StageconfigEditorv5 : public QDialog
+class StageConfigEditorv5 : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit StageconfigEditorv5(RSDKv5::StageConfig *scf, QWidget *parent = nullptr);
-    ~StageconfigEditorv5();
+    class ActionState
+    {
+    public:
+        QString name = "Action";
 
-    void setupUI();
+        RSDKv5::StageConfig stageConfig;
+    };
+
+    explicit StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *parent = nullptr);
+    ~StageConfigEditorv5();
+
+    void setupUI(bool allowRowChange = true);
+
+protected:
+    bool event(QEvent *event);
 
 private:
-    Ui::StageconfigEditorv5 *ui;
+    void undoAction();
+    void redoAction();
+    void resetAction();
+    void doAction(QString name = "Action", bool setModified = true);
+    void clearActions();
+
+    void copyConfig(ActionState *stateDst, ActionState *stateSrc);
+
+    QList<ActionState> actions;
+    int actionIndex = 0;
+
+    Ui::StageConfigEditorv5 *ui;
 
     RSDKv5::StageConfig *stageConfig;
 };

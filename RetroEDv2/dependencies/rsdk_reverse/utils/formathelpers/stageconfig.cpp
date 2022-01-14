@@ -1,6 +1,6 @@
 #include "rsdkreverse.hpp"
 
-void FormatHelpers::Stageconfig::read(byte ver, QString filename)
+void FormatHelpers::StageConfig::read(byte ver, QString filename)
 {
     Reader reader(filename);
     filePath = filename;
@@ -113,7 +113,7 @@ void FormatHelpers::Stageconfig::read(byte ver, QString filename)
     }
 }
 
-void FormatHelpers::Stageconfig::write(byte ver, QString filename)
+void FormatHelpers::StageConfig::write(byte ver, QString filename)
 {
     if (filename == "")
         filename = filePath;

@@ -1,15 +1,15 @@
 #include "includes.hpp"
 #include "ui_stageconfigeditorv2.h"
 
-StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gcCount,
+StageConfigEditorv2::StageConfigEditorv2(FormatHelpers::StageConfig *scf, int gcCount,
                                          int globalSfxCount, QWidget *parent)
-    : stageConfig(scf), QDialog(parent), ui(new Ui::StageconfigEditorv2)
+    : stageConfig(scf), QDialog(parent), ui(new Ui::StageConfigEditorv2)
 {
     ui->setupUi(this);
     globalObjectCount = gcCount;
     globalSFXCount    = globalSfxCount;
 
-    this->setWindowTitle("Stageconfig Editor");
+    this->setWindowTitle("StageConfig Editor");
 
     ui->objName->setDisabled(true);
 
@@ -20,17 +20,17 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
     ui->sectionList->blockSignals(false);
     ui->sectionList->setCurrentRow(0);
 
-    ui->addObj->setIcon(icon_add);
-    ui->upObj->setIcon(icon_up);
-    ui->downObj->setIcon(icon_down);
-    ui->rmObj->setIcon(icon_rm);
-
-    ui->addSfx->setIcon(icon_add);
-    ui->upSfx->setIcon(icon_up);
-    ui->downSfx->setIcon(icon_down);
-    ui->rmSfx->setIcon(icon_rm);
-
     connect(ui->sectionList, &QListWidget::currentRowChanged, [this](int v) {
+        ui->objList->blockSignals(true);
+        ui->objList->setCurrentRow(0);
+        ui->objList->blockSignals(false);
+        ui->objList->setCurrentRow(-1);
+
+        ui->sfxList->blockSignals(true);
+        ui->sfxList->setCurrentRow(0);
+        ui->sfxList->blockSignals(false);
+        ui->sfxList->setCurrentRow(-1);
+
         ui->detailsWidget->setCurrentIndex(v);
         ui->sectionLabel->setText(ui->sectionList->item(v)->text());
     });
@@ -70,7 +70,7 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
     connect(ui->addObj, &QToolButton::clicked, [this] {
         ui->objList->blockSignals(true);
         uint c = ui->objList->currentRow() + 1;
-        stageConfig->objects.insert(c, FormatHelpers::Stageconfig::ObjectInfo());
+        stageConfig->objects.insert(c, FormatHelpers::StageConfig::ObjectInfo());
         auto *item = new QListWidgetItem();
         item->setText(stageConfig->objects[c].name);
         ui->objList->insertItem(c, item);
@@ -78,6 +78,7 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->objList->setCurrentItem(item);
         ui->objList->blockSignals(false);
+        doAction("Added Object");
     });
 
     connect(ui->upObj, &QToolButton::clicked, [this] {
@@ -86,6 +87,7 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
         stageConfig->objects.move(c, c - 1);
         ui->objList->insertItem(c - 1, item);
         ui->objList->setCurrentRow(c - 1);
+        doAction("Moved Object Up");
     });
 
     connect(ui->downObj, &QToolButton::clicked, [this] {
@@ -94,6 +96,7 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
         stageConfig->objects.move(c, c + 1);
         ui->objList->insertItem(c + 1, item);
         ui->objList->setCurrentRow(c + 1);
+        doAction("Moved Object Down");
     });
 
     connect(ui->rmObj, &QToolButton::clicked, [this] {
@@ -104,6 +107,7 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
         ui->objList->blockSignals(true);
         ui->objList->setCurrentRow(n);
         ui->objList->blockSignals(false);
+        doAction("Removed Object");
     });
 
     connect(ui->objList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -117,6 +121,7 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
         ui->objScript->blockSignals(true);
         ui->objScript->setText(stageConfig->objects[ui->objList->currentRow()].script);
         ui->objScript->blockSignals(false);
+        doAction("Changed Object Script");
     });
 
     connect(ui->objScript, &QLineEdit::textEdited, [this](QString s) {
@@ -129,6 +134,7 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
         ui->objName->blockSignals(true);
         ui->objName->setText(stageConfig->objects[ui->objList->currentRow()].name);
         ui->objName->blockSignals(false);
+        doAction("Changed Object Script");
     });
 
     // ----------------
@@ -163,7 +169,7 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
     connect(ui->addSfx, &QToolButton::clicked, [this] {
         ui->sfxList->blockSignals(true);
         uint c = ui->sfxList->currentRow() + 1;
-        stageConfig->soundFX.insert(c, FormatHelpers::Stageconfig::SoundInfo());
+        stageConfig->soundFX.insert(c, FormatHelpers::StageConfig::SoundInfo());
         auto *item = new QListWidgetItem();
         item->setText(stageConfig->soundFX[c].path);
         ui->sfxList->insertItem(c, item);
@@ -171,6 +177,7 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->sfxList->setCurrentItem(item);
         ui->sfxList->blockSignals(false);
+        doAction("Add Sfx");
     });
 
     connect(ui->upSfx, &QToolButton::clicked, [this] {
@@ -179,6 +186,7 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
         stageConfig->soundFX.move(c, c - 1);
         ui->sfxList->insertItem(c - 1, item);
         ui->sfxList->setCurrentRow(c - 1);
+        doAction("Moved Sfx Up");
     });
 
     connect(ui->downSfx, &QToolButton::clicked, [this] {
@@ -187,6 +195,7 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
         stageConfig->soundFX.move(c, c + 1);
         ui->sfxList->insertItem(c + 1, item);
         ui->sfxList->setCurrentRow(c + 1);
+        doAction("Moved Sfx Down");
     });
 
     connect(ui->rmSfx, &QToolButton::clicked, [this] {
@@ -197,6 +206,7 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
         ui->sfxList->blockSignals(true);
         ui->sfxList->setCurrentRow(n);
         ui->sfxList->blockSignals(false);
+        doAction("Removed Sfx");
     });
 
     connect(ui->sfxList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -206,6 +216,7 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
         ui->sfxPath->blockSignals(true);
         ui->sfxPath->setText(stageConfig->soundFX[ui->sfxList->row(item)].path);
         ui->sfxPath->blockSignals(false);
+        doAction("Changed Sfx Path");
     });
 
     connect(ui->sfxPath, &QLineEdit::textEdited, [this](QString s) {
@@ -214,27 +225,47 @@ StageconfigEditorv2::StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int gc
 
         ui->sfxList->item(ui->sfxList->currentRow())
             ->setText(stageConfig->soundFX[ui->sfxList->currentRow()].path);
+        doAction("Changed Sfx Path");
     });
 }
 
-StageconfigEditorv2::~StageconfigEditorv2() { delete ui; }
+StageConfigEditorv2::~StageConfigEditorv2() { delete ui; }
 
-void StageconfigEditorv2::setupUI()
+bool StageConfigEditorv2::event(QEvent *event)
 {
-    ui->sectionList->blockSignals(true);
-    ui->sectionList->setCurrentRow(-1);
-    ui->sectionList->blockSignals(false);
-    ui->sectionList->setCurrentRow(0);
 
+    switch ((int)event->type()) {
+        default: break;
+        case RE_EVENT_UNDO: undoAction(); break;
+        case RE_EVENT_REDO: undoAction(); break;
+    }
+
+    return QWidget::event(event);
+}
+
+void StageConfigEditorv2::setupUI(bool allowRowChange)
+{
+    if (allowRowChange) {
+        ui->sectionList->blockSignals(true);
+        ui->sectionList->setCurrentRow(-1);
+        ui->sectionList->blockSignals(false);
+        ui->sectionList->setCurrentRow(0);
+    }
+
+    ui->objList->blockSignals(true);
+    ui->sfxList->blockSignals(true);
+
+    int prevIndex = ui->objList->currentRow();
     ui->objList->setCurrentRow(0);
-    ui->objList->setCurrentRow(-1);
+    ui->objList->setCurrentRow(prevIndex >= ui->objList->count() ? -1 : prevIndex);
 
+    prevIndex = ui->sfxList->currentRow();
     ui->sfxList->setCurrentRow(0);
-    ui->sfxList->setCurrentRow(-1);
+    ui->sfxList->setCurrentRow(prevIndex >= ui->sfxList->count() ? -1 : prevIndex);
 
     ui->objList->clear();
     int id = 0;
-    for (FormatHelpers::Stageconfig::ObjectInfo &obj : stageConfig->objects) {
+    for (FormatHelpers::StageConfig::ObjectInfo &obj : stageConfig->objects) {
         ui->objList->addItem(obj.script);
         ui->objList->item(id)->setFlags(ui->objList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
@@ -242,11 +273,85 @@ void StageconfigEditorv2::setupUI()
 
     ui->sfxList->clear();
     id = 0;
-    for (FormatHelpers::Stageconfig::SoundInfo &sfx : stageConfig->soundFX) {
+    for (FormatHelpers::StageConfig::SoundInfo &sfx : stageConfig->soundFX) {
         ui->sfxList->addItem(sfx.path);
         ui->sfxList->item(id)->setFlags(ui->sfxList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
     }
+
+    ui->objList->blockSignals(false);
+    ui->sfxList->blockSignals(false);
+}
+
+void StageConfigEditorv2::undoAction()
+{
+    if (actionIndex > 0) {
+        // setStatus("Undid Action: " + actions[actionIndex].name);
+        actionIndex--;
+        resetAction();
+    }
+}
+void StageConfigEditorv2::redoAction()
+{
+    if (actionIndex + 1 < actions.count()) {
+        // setStatus("Redid Action: " + actions[actionIndex].name);
+        actionIndex++;
+        resetAction();
+    }
+}
+void StageConfigEditorv2::resetAction()
+{
+    copyConfig(NULL, &actions[actionIndex]);
+
+    setupUI(false);
+}
+void StageConfigEditorv2::doAction(QString name, bool setModified)
+{
+    Q_UNUSED(setModified);
+
+    ActionState action;
+
+    action.name = name;
+
+    copyConfig(&action, NULL);
+
+    // Actions
+    for (int i = actions.count() - 1; i > actionIndex; --i) actions.removeAt(i);
+
+    actions.append(action);
+    actionIndex = actions.count() - 1;
+
+    // setStatus("Did Action: " + name);
+}
+void StageConfigEditorv2::clearActions()
+{
+    actions.clear();
+    actionIndex = 0;
+    doAction("Action Setup", false); // first action, cant be undone
+}
+
+void StageConfigEditorv2::copyConfig(ActionState *stateDst, ActionState *stateSrc)
+{
+    FormatHelpers::StageConfig *src = stateSrc ? &stateSrc->stageConfig : stageConfig;
+    FormatHelpers::StageConfig *dst = stateDst ? &stateDst->stageConfig : stageConfig;
+
+    dst->filePath          = src->filePath;
+    dst->loadGlobalScripts = src->loadGlobalScripts;
+
+    dst->palette.colours.clear();
+    for (auto clr : src->palette.colours) dst->palette.colours.append(clr);
+
+    dst->objects.clear();
+    for (auto obj : src->objects) dst->objects.append(obj);
+
+    dst->soundFX.clear();
+    for (auto sfx : src->soundFX) dst->soundFX.append(sfx);
+
+    dst->music.clear();
+    for (auto mus : src->music) dst->music.append(mus);
+
+    dst->spriteSheets.clear();
+    for (auto sht : src->spriteSheets) dst->spriteSheets.append(sht);
 }
 
 #include "moc_stageconfigeditorv2.cpp"

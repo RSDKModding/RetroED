@@ -4,11 +4,6 @@ QString homeDir     = "";
 QString appDir      = "";
 AppConfig appConfig = AppConfig();
 
-QIcon icon_up   = QIcon();
-QIcon icon_down = QIcon();
-QIcon icon_add  = QIcon();
-QIcon icon_rm   = QIcon();
-
 QLabel *statusLabel = nullptr;
 
 QVector3D *vertsPtr  = nullptr;

@@ -5,18 +5,28 @@
 
 namespace Ui
 {
-class GameconfigEditorv2;
+class GameConfigEditorv2;
 }
 
-class GameconfigEditorv2 : public QWidget
+class GameConfigEditorv2 : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit GameconfigEditorv2(QString path = "", QWidget *parent = nullptr);
-    ~GameconfigEditorv2();
+    class ActionState
+    {
+    public:
+        QString name = "Action";
+
+        RSDKv2::GameConfig gameConfig;
+    };
+
+    explicit GameConfigEditorv2(QString path = "", QWidget *parent = nullptr);
+    ~GameConfigEditorv2();
 
     void load(QString filename);
+
+    void setupUI(bool allowRowChange = true);
 
     inline void updateTitle(bool modified)
     {
@@ -34,11 +44,22 @@ protected:
     bool event(QEvent *event);
 
 private:
-    Ui::GameconfigEditorv2 *ui;
+    void undoAction();
+    void redoAction();
+    void resetAction();
+    void doAction(QString name = "Action", bool setModified = true);
+    void clearActions();
 
-    RSDKv2::Gameconfig gameConfig;
+    void copyConfig(ActionState *stateDst, ActionState *stateSr);
+
+    Ui::GameConfigEditorv2 *ui;
+
+    RSDKv2::GameConfig gameConfig;
 
     QStandardItemModel *sceneModel = nullptr;
+
+    QList<ActionState> actions;
+    int actionIndex = 0;
 
     bool modified    = false;
     QString tabTitle = "GameConfig Editor";

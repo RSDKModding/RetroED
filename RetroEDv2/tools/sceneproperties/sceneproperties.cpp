@@ -10,7 +10,7 @@ SceneProperties::SceneProperties(QWidget *parent) : QWidget(parent), ui(new Ui::
     loadGlobalCB = ui->loadGlobals;
 
     editTIL  = ui->editChunks;
-    editSCF  = ui->editStageconfig;
+    editSCF  = ui->editStageConfig;
     editPAL  = ui->editPalette;
     editTSet = ui->editTSet;
 

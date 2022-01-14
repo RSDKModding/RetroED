@@ -11,11 +11,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     statusLabel = ui->status;
     toolTabs    = ui->toolTabs;
 
-    icon_up   = QIcon(Utils::getColouredIcon(":/icons/ic_arrow_upward_48px.svg"));
-    icon_down = QIcon(Utils::getColouredIcon(":/icons/ic_arrow_downward_48px.svg"));
-    icon_add  = QIcon(Utils::getColouredIcon(":/icons/ic_add_circle_48px.svg"));
-    icon_rm   = QIcon(Utils::getColouredIcon(":/icons/ic_cancel_48px.svg"));
-
     connect(ui->toolTabs, &QTabWidget::currentChanged, [this](int) {
         scnEditor = qobject_cast<SceneEditor *>(ui->toolTabs->currentWidget());
         v5Editor  = qobject_cast<SceneEditorv5 *>(ui->toolTabs->currentWidget());
@@ -43,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         if (!ui->toolTabs->currentWidget())
             return;
 
-        RENewEvent e = RENewEvent();
+        REAppEvent e = REAppEvent(RE_EVENT_NEW);
         QApplication::sendEvent(ui->toolTabs->currentWidget(), &e);
     };
     file->addAction("New", newAction);
@@ -52,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         if (!ui->toolTabs->currentWidget())
             return;
 
-        REOpenEvent e = REOpenEvent();
+        REAppEvent e = REAppEvent(RE_EVENT_OPEN);
         QApplication::sendEvent(ui->toolTabs->currentWidget(), &e);
     };
     file->addAction("Open", openAction);
@@ -61,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         if (!ui->toolTabs->currentWidget())
             return;
 
-        RESaveEvent e = RESaveEvent();
+        REAppEvent e = REAppEvent(RE_EVENT_SAVE);
         QApplication::sendEvent(ui->toolTabs->currentWidget(), &e);
     };
     file->addAction("Save", saveAction);
@@ -70,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         if (!ui->toolTabs->currentWidget())
             return;
 
-        RESaveAsEvent e = RESaveAsEvent();
+        REAppEvent e = REAppEvent(RE_EVENT_SAVE_AS);
         QApplication::sendEvent(ui->toolTabs->currentWidget(), &e);
     };
     file->addAction("Save As", saveAsAction);
@@ -79,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         if (!ui->toolTabs->currentWidget())
             return;
 
-        REUndoEvent e = REUndoEvent();
+        REAppEvent e = REAppEvent(RE_EVENT_UNDO);
         QApplication::sendEvent(ui->toolTabs->currentWidget(), &e);
     };
     // file->addAction("Undo", undoAction);
@@ -88,7 +83,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         if (!ui->toolTabs->currentWidget())
             return;
 
-        RERedoEvent e = RERedoEvent();
+        REAppEvent e = REAppEvent(RE_EVENT_REDO);
         QApplication::sendEvent(ui->toolTabs->currentWidget(), &e);
     };
     // file->addAction("Redo", redoAction);
@@ -170,27 +165,27 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                         case TOOL_GAMECONFIGEDITOR:
                             switch (r.gameVer) {
                                 case ENGINE_v1: {
-                                    GameconfigEditorv1 *tool = new GameconfigEditorv1(r.path);
+                                    GameConfigEditorv1 *tool = new GameConfigEditorv1(r.path);
                                     addTab(tool, "GameConfig Editor");
                                     break;
                                 }
                                 case ENGINE_v2: {
-                                    GameconfigEditorv2 *tool = new GameconfigEditorv2(r.path);
+                                    GameConfigEditorv2 *tool = new GameConfigEditorv2(r.path);
                                     addTab(tool, "GameConfig Editor");
                                     break;
                                 }
                                 case ENGINE_v3: {
-                                    GameconfigEditorv3 *tool = new GameconfigEditorv3(r.path);
+                                    GameConfigEditorv3 *tool = new GameConfigEditorv3(r.path);
                                     addTab(tool, "GameConfig Editor");
                                     break;
                                 }
                                 case ENGINE_v4: {
-                                    GameconfigEditorv4 *tool = new GameconfigEditorv4(r.path);
+                                    GameConfigEditorv4 *tool = new GameConfigEditorv4(r.path);
                                     addTab(tool, "GameConfig Editor");
                                     break;
                                 }
                                 case ENGINE_v5: {
-                                    GameconfigEditorv5 *tool = new GameconfigEditorv5(
+                                    GameConfigEditorv5 *tool = new GameConfigEditorv5(
                                         r.path, r.extra[0] == "StageConfig", r.extra[1] == "rev01");
                                     addTab(tool, "GameConfig Editor");
                                     break;
@@ -250,27 +245,27 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     QMenu *gc = new QMenu("GameConfig Editor");
     gc->addAction("v1 (Retro-Sonic)", [this] {
         setStatus("Opening Game Configuration Editor...");
-        GameconfigEditorv1 *tool = new GameconfigEditorv1;
+        GameConfigEditorv1 *tool = new GameConfigEditorv1;
         addTab(tool, "GameConfig Editor");
     });
     gc->addAction("v2 (Sonic Nexus)", [this] {
         setStatus("Opening GameConfig Editor...");
-        GameconfigEditorv2 *tool = new GameconfigEditorv2;
+        GameConfigEditorv2 *tool = new GameConfigEditorv2;
         addTab(tool, "GameConfig Editor");
     });
     gc->addAction("v3 (Sonic CD)", [this] {
         setStatus("Opening GameConfig Editor...");
-        GameconfigEditorv3 *tool = new GameconfigEditorv3;
+        GameConfigEditorv3 *tool = new GameConfigEditorv3;
         addTab(tool, "GameConfig Editor");
     });
     gc->addAction("v4 (Sonic 1/Sonic 2)", [this] {
         setStatus("Opening GameConfig Editor...");
-        GameconfigEditorv4 *tool = new GameconfigEditorv4;
+        GameConfigEditorv4 *tool = new GameConfigEditorv4;
         addTab(tool, "GameConfig Editor");
     });
     gc->addAction("v5 (Sonic Mania)", [this] {
         setStatus("Opening GameConfig Editor...");
-        GameconfigEditorv5 *tool = new GameconfigEditorv5("", 0, false);
+        GameConfigEditorv5 *tool = new GameConfigEditorv5("", 0, false);
         addTab(tool, "GameConfig Editor");
     });
     tools->addMenu(gc);

@@ -23,7 +23,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="layerPage">
       <property name="geometry">
@@ -75,12 +75,20 @@
          <property name="text">
           <string>-</string>
          </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
+         </property>
         </widget>
        </item>
        <item row="1" column="0">
         <widget class="QToolButton" name="addObj">
          <property name="text">
           <string>+</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
          </property>
         </widget>
        </item>
@@ -120,6 +128,10 @@
          <property name="text">
           <string>+</string>
          </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
+         </property>
         </widget>
        </item>
        <item row="1" column="4">
@@ -140,6 +152,10 @@
          <property name="text">
           <string>-</string>
          </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
+         </property>
         </widget>
        </item>
        <item row="0" column="0" colspan="6">
@@ -150,12 +166,20 @@
          <property name="text">
           <string>U</string>
          </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
+         </property>
         </widget>
        </item>
        <item row="1" column="3">
         <widget class="QToolButton" name="downEnt">
          <property name="text">
           <string>D</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
          </property>
         </widget>
        </item>
@@ -195,6 +219,10 @@
          <property name="text">
           <string>-</string>
          </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
+         </property>
         </widget>
        </item>
        <item row="1" column="2">
@@ -209,12 +237,20 @@
          <property name="text">
           <string>+</string>
          </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
+         </property>
         </widget>
        </item>
        <item row="1" column="3">
         <widget class="QToolButton" name="expScr">
          <property name="text">
           <string>E</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_redo_48px.svg</normaloff>:/icons/ic_redo_48px.svg</iconset>
          </property>
         </widget>
        </item>
@@ -420,27 +456,21 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="3">
-       <widget class="QToolButton" name="showCollisionA">
-        <property name="minimumSize">
+      <item row="0" column="2">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
          <size>
-          <width>24</width>
-          <height>24</height>
+          <width>40</width>
+          <height>20</height>
          </size>
         </property>
-        <property name="toolTip">
-         <string>Show Collision A</string>
-        </property>
-        <property name="text">
-         <string>A</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
+       </spacer>
       </item>
-      <item row="0" column="8">
-       <widget class="QToolButton" name="showPixelGrid">
+      <item row="0" column="7">
+       <widget class="QToolButton" name="showTileGrid">
         <property name="minimumSize">
          <size>
           <width>24</width>
@@ -448,10 +478,10 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>show Pixel Grid</string>
+         <string>Show Tile Grid</string>
         </property>
         <property name="text">
-         <string>PXL</string>
+         <string>TLE</string>
         </property>
         <property name="icon">
          <iconset resource="../resources.qrc">
@@ -459,9 +489,6 @@
         </property>
         <property name="checkable">
          <bool>true</bool>
-        </property>
-        <property name="autoRaise">
-         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -488,6 +515,67 @@
         </property>
         <property name="autoRaise">
          <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QToolButton" name="showCollisionB">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Show Collision B</string>
+        </property>
+        <property name="text">
+         <string>B</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="5">
+       <widget class="QToolButton" name="showParallax">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Show Parallax Lines</string>
+        </property>
+        <property name="text">
+         <string>SP</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_horizontal_split_48px.svg</normaloff>:/icons/ic_horizontal_split_48px.svg</iconset>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QToolButton" name="showCollisionA">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Show Collision A</string>
+        </property>
+        <property name="text">
+         <string>A</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -540,74 +628,6 @@
         </item>
        </widget>
       </item>
-      <item row="0" column="5">
-       <widget class="QToolButton" name="showParallax">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Show Parallax Lines</string>
-        </property>
-        <property name="text">
-         <string>SP</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_horizontal_split_48px.svg</normaloff>:/icons/ic_horizontal_split_48px.svg</iconset>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="4">
-       <widget class="QToolButton" name="showCollisionB">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Show Collision B</string>
-        </property>
-        <property name="text">
-         <string>B</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="0" column="10">
-       <widget class="QToolButton" name="exportSceneImg">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Img</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="9">
        <widget class="QToolButton" name="exportScn">
         <property name="minimumSize">
@@ -628,26 +648,16 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="7">
-       <widget class="QToolButton" name="showTileGrid">
+      <item row="0" column="8">
+       <widget class="QToolButton" name="exportSceneImg">
         <property name="minimumSize">
          <size>
           <width>24</width>
           <height>24</height>
          </size>
         </property>
-        <property name="toolTip">
-         <string>Show Tile Grid</string>
-        </property>
         <property name="text">
-         <string>TLE</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_grid_48px.svg</normaloff>:/icons/ic_grid_48px.svg</iconset>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
+         <string>Img</string>
         </property>
        </widget>
       </item>

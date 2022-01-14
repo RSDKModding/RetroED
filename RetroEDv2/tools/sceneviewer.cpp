@@ -110,12 +110,12 @@ void SceneViewer::loadScene(QString path, byte ver)
             if (ver == ENGINE_v2)
                 scene.objectTypeNames.append("Player");
 
-            for (FormatHelpers::Gameconfig::ObjectInfo &obj : gameConfig.objects) {
+            for (FormatHelpers::GameConfig::ObjectInfo &obj : gameConfig.objects) {
                 scene.objectTypeNames.append(obj.m_name);
             }
         }
 
-        for (FormatHelpers::Stageconfig::ObjectInfo &obj : stageConfig.objects) {
+        for (FormatHelpers::StageConfig::ObjectInfo &obj : stageConfig.objects) {
             scene.objectTypeNames.append(obj.name);
         }
     }
@@ -160,7 +160,7 @@ void SceneViewer::loadScene(QString path, byte ver)
             scene.objectTypeNames.append(obj);
         }
 
-        for (FormatHelpers::Stageconfig::ObjectInfo &obj : stageConfig.objects) {
+        for (FormatHelpers::StageConfig::ObjectInfo &obj : stageConfig.objects) {
             scene.objectTypeNames.append(obj.name);
         }
     }
@@ -821,11 +821,23 @@ void SceneViewer::drawScene()
         float cx = cam.pos.x;
         float cy = cam.pos.y;
         switch (gameType) {
-            case ENGINE_v1: break;
+            case ENGINE_v1: {
+                /*auto &curObj = compilerv1.objectScriptList[selectedObject];
+
+                if (curObj.subRSDK.scriptCodePtr >= 0 && selectedObject != 0) {
+                    compilerv1.objectLoop                              = ENTITY_COUNT - 1;
+                    compilerv1.objectEntityList[ENTITY_COUNT - 1].XPos = (ex + cx) * 65536.0f;
+                    compilerv1.objectEntityList[ENTITY_COUNT - 1].YPos = (ey + cy) * 65536.0f;
+                    compilerv1.processScript(curObj.subRSDK.scriptCodePtr, curObj.subRSDK.jumpTablePtr,
+                                             Compilerv1::SUB_RSDK);
+                    flag = true;
+                }*/
+                break;
+            }
             case ENGINE_v2: {
                 auto &curObj = compilerv2.objectScriptList[selectedObject];
 
-                if (curObj.subRSDK.scriptCodePtr != SCRIPTDATA_COUNT - 1 && selectedObject != 0) {
+                if (curObj.subRSDK.scriptCodePtr >= 0 && selectedObject != 0) {
                     compilerv2.objectLoop                              = ENTITY_COUNT - 1;
                     compilerv2.objectEntityList[ENTITY_COUNT - 1].XPos = (ex + cx) * 65536.0f;
                     compilerv2.objectEntityList[ENTITY_COUNT - 1].YPos = (ey + cy) * 65536.0f;
@@ -838,7 +850,7 @@ void SceneViewer::drawScene()
             case ENGINE_v3: {
                 auto &curObj = compilerv3.objectScriptList[selectedObject];
 
-                if (curObj.subRSDKDraw.scriptCodePtr != SCRIPTDATA_COUNT - 1 && selectedObject != 0) {
+                if (curObj.subRSDKDraw.scriptCodePtr >= 0 && selectedObject != 0) {
                     compilerv3.objectLoop                              = ENTITY_COUNT - 1;
                     compilerv3.objectEntityList[ENTITY_COUNT - 1].XPos = (ex + cx) * 65536.0f;
                     compilerv3.objectEntityList[ENTITY_COUNT - 1].YPos = (ey + cy) * 65536.0f;
@@ -851,7 +863,7 @@ void SceneViewer::drawScene()
             case ENGINE_v4: {
                 auto &curObj = compilerv4.objectScriptList[selectedObject];
 
-                if (curObj.eventRSDKDraw.scriptCodePtr != ENTITY_COUNT - 1 && selectedObject != 0) {
+                if (curObj.eventRSDKDraw.scriptCodePtr >= 0 && selectedObject != 0) {
                     compilerv4.objectEntityList[ENTITY_COUNT - 1].type = selectedObject;
                     compilerv4.objectEntityList[ENTITY_COUNT - 1].XPos = (ex + cx) * 65536.0f;
                     compilerv4.objectEntityList[ENTITY_COUNT - 1].YPos = (ey + cy) * 65536.0f;

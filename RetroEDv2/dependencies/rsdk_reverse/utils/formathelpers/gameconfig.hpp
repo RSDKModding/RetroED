@@ -4,7 +4,7 @@
 namespace FormatHelpers
 {
 
-class Gameconfig
+class GameConfig
 {
 public:
     class SceneInfo
@@ -63,12 +63,12 @@ public:
         QString script = "Player/Player.txt";
     };
 
-    Gameconfig()
+    GameConfig()
     {
         stageLists.clear();
         for (int i = 0; i < 4; ++i) stageLists.append(Category());
     }
-    Gameconfig(byte ver, QString filepath) { read(ver, filepath); }
+    GameConfig(byte ver, QString filepath) { read(ver, filepath); }
 
     void read(byte ver, QString filename);
     void write(byte ver, QString filename);

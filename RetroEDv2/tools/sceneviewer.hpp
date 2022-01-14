@@ -110,7 +110,7 @@ public:
     byte gameType = ENGINE_NONE;
 
     QString dataPath = "";
-    FormatHelpers::Gameconfig gameConfig;
+    FormatHelpers::GameConfig gameConfig;
 
     QList<ObjectInfo> objects;
     QList<EntityInfo> entities;
@@ -118,7 +118,7 @@ public:
     FormatHelpers::Scene scene;
     FormatHelpers::Background background;
     FormatHelpers::Chunks chunkset;
-    FormatHelpers::Stageconfig stageConfig;
+    FormatHelpers::StageConfig stageConfig;
 
     RSDKv4::TileConfig tileconfig;
 

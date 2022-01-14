@@ -315,9 +315,8 @@
         <string>-</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normalon>:/icons/delete.svg</normalon>
-        </iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -336,9 +335,8 @@
         <string>U</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normalon>:/icons/up.svg</normalon>
-        </iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -357,9 +355,8 @@
         <string>+</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normalon>:/icons/add.svg</normalon>
-        </iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -378,9 +375,8 @@
         <string>D</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normalon>:/icons/down.svg</normalon>
-        </iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -504,9 +500,8 @@
            <string>+</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normalon>:/icons/add.svg</normalon>
-           </iconset>
+           <iconset resource="../resources.qrc">
+            <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -528,9 +523,8 @@
            <string>U</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normalon>:/icons/back.svg</normalon>
-           </iconset>
+           <iconset resource="../resources.qrc">
+            <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -549,9 +543,8 @@
            <string>D</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normalon>:/icons/forward.svg</normalon>
-           </iconset>
+           <iconset resource="../resources.qrc">
+            <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -570,9 +563,8 @@
            <string>-</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normalon>:/icons/delete.svg</normalon>
-           </iconset>
+           <iconset resource="../resources.qrc">
+            <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
           </property>
           <property name="iconSize">
            <size>

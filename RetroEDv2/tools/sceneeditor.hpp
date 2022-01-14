@@ -24,12 +24,12 @@ public:
         QList<QImage> tiles;
         QList<QImage> chunks;
 
-        FormatHelpers::Gameconfig gameConfig;
+        FormatHelpers::GameConfig gameConfig;
 
         FormatHelpers::Scene scene;
         FormatHelpers::Background background;
         FormatHelpers::Chunks chunkset;
-        FormatHelpers::Stageconfig stageConfig;
+        FormatHelpers::StageConfig stageConfig;
 
         RSDKv4::TileConfig tileconfig;
 
@@ -123,15 +123,34 @@ private:
     void createEntityList();
     void createScrollList();
 
-    void exportRSDKv5(ExportRSDKv5Scene *dlg);
-
-    void parseGameXML(byte gameType, QString path);
-
     void undoAction();
     void redoAction();
     void resetAction();
     void doAction(QString name = "Action", bool setModified = true);
     void clearActions();
+
+    // XML Management
+    void parseGameXML(byte gameType, QString path);
+
+    inline void writeXMLIndentation(Writer &writer, int tabCount)
+    {
+        for (int t = 0; t < tabCount; ++t) writer.write<char>('\t');
+    }
+
+    void readXMLScrollInfo(QXmlStreamReader &xmlReader, int layerID, byte mode = 0);
+    void readXMLLayout(QXmlStreamReader &xmlReader, int layerID, byte mode = 0);
+    void readXMLLayers(QXmlStreamReader &xmlReader);
+
+    void writeXMLScrollInfo(Writer &writer, int layerID, int indentPos);
+    void writeXMLLayout(Writer &writer, int layerID, int indentPos);
+    void writeXMLLayer(Writer &writer, int layerID, int indentPos);
+
+    void writeXMLObject(Writer &writer, int objID, int indentPos);
+    void writeXMLEntity(Writer &writer, int entityID, int indentPos);
+
+    void writeXMLChunk(Writer &writer, int chunkID, int indentPos);
+
+    void writeXMLScene(Writer &writer);
 
     Ui::SceneEditor *ui;
 

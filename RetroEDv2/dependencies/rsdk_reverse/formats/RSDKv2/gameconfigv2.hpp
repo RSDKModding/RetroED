@@ -4,7 +4,7 @@
 namespace RSDKv2
 {
 
-class Gameconfig
+class GameConfig
 {
 public:
     class SceneInfo
@@ -112,15 +112,15 @@ public:
         QString script = "Player/Player.txt";
     };
 
-    Gameconfig()
+    GameConfig()
     {
         stageLists.clear();
         for (int c = 0; c < 4; ++c) {
             stageLists.append(Category());
         }
     }
-    Gameconfig(QString filename) { read(filename); }
-    Gameconfig(Reader &reader) { read(reader); }
+    GameConfig(QString filename) { read(filename); }
+    GameConfig(Reader &reader) { read(reader); }
 
     inline void read(QString filename)
     {
@@ -144,7 +144,7 @@ public:
     QString unknown;
     QString gameDescriptionText;
 
-    QList<QString> scripts;
+    QList<QString> objects;
     QList<QString> soundFX;
     QList<GlobalVariable> globalVariables;
     QList<PlayerInfo> players;

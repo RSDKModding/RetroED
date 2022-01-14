@@ -47,66 +47,6 @@
     </rect>
    </property>
   </widget>
-  <action name="actionAboutRetroED">
-   <property name="text">
-    <string>About RetroED</string>
-   </property>
-  </action>
-  <action name="actionChangeExecutable">
-   <property name="text">
-    <string>Change executable</string>
-   </property>
-  </action>
-  <action name="actionRunExecutable">
-   <property name="text">
-    <string>Run executable</string>
-   </property>
-  </action>
-  <action name="actionRSDKUnpacker">
-   <property name="text">
-    <string>RSDK Unpacker</string>
-   </property>
-  </action>
-  <action name="actionSceneEditor">
-   <property name="text">
-    <string>Scene Editor</string>
-   </property>
-  </action>
-  <action name="actionScriptEditor">
-   <property name="text">
-    <string>Script Editor</string>
-   </property>
-  </action>
-  <action name="actionGameconfigEditor">
-   <property name="text">
-    <string>Gameconfig Editor</string>
-   </property>
-  </action>
-  <action name="actionGFXTool">
-   <property name="text">
-    <string>GFX Tool</string>
-   </property>
-  </action>
-  <action name="actionRSVExtractor">
-   <property name="text">
-    <string>RSV Extractor</string>
-   </property>
-  </action>
-  <action name="actionOpen">
-   <property name="text">
-    <string>Open</string>
-   </property>
-  </action>
-  <action name="actionSave">
-   <property name="text">
-    <string>Save</string>
-   </property>
-  </action>
-  <action name="actionSaveAs">
-   <property name="text">
-    <string>Save As</string>
-   </property>
-  </action>
  </widget>
  <resources/>
  <connections/>

@@ -6,19 +6,30 @@
 QT_BEGIN_NAMESPACE
 namespace Ui
 {
-class GameconfigEditorv5;
+class GameConfigEditorv5;
 }
 QT_END_NAMESPACE
 
-class GameconfigEditorv5 : public QWidget
+class GameConfigEditorv5 : public QWidget
 {
     Q_OBJECT
 
 public:
-    GameconfigEditorv5(QString configPath, byte type, bool oldVer, QWidget *parent = nullptr);
-    ~GameconfigEditorv5();
+    class ActionState
+    {
+    public:
+        QString name = "Action";
 
-    void setupUI();
+        RSDKv5::GameConfig gameConfig;
+        RSDKv5::RSDKConfig rsdkconfig;
+
+        RSDKv5::StageConfig stageconfig;
+    };
+
+    GameConfigEditorv5(QString configPath, byte type, bool oldVer, QWidget *parent = nullptr);
+    ~GameConfigEditorv5();
+
+    void setupUI(bool allowRowChange = true);
 
     inline void updateTitle(bool modified)
     {
@@ -36,19 +47,30 @@ protected:
     bool event(QEvent *event);
 
 private:
-    RSDKv5::GameConfig gameConfig;
-    RSDKv5::RSDKConfig rsdkconfig;
+    void undoAction();
+    void redoAction();
+    void resetAction();
+    void doAction(QString name = "Action", bool setModified = true);
+    void clearActions();
 
-    RSDKv5::StageConfig stageconfig;
+    void copyConfig(ActionState *stateDst, ActionState *stateSr);
+
+    RSDKv5::GameConfig gameConfig;
+    RSDKv5::RSDKConfig rsdkConfig;
+
+    RSDKv5::StageConfig stageConfig;
 
     bool oldVer = false;
 
     QStandardItemModel *sceneModel = nullptr;
 
+    QList<ActionState> actions;
+    int actionIndex = 0;
+
     bool modified    = false;
     QString tabTitle = "GameConfig Editor";
 
 private:
-    Ui::GameconfigEditorv5 *ui;
+    Ui::GameConfigEditorv5 *ui;
 };
 #endif // GAMECONFIGEDITOR_V5_H

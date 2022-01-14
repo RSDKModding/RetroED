@@ -2649,7 +2649,7 @@ bool AnimationEditor::event(QEvent *event)
 void AnimationEditor::undoAction()
 {
     if (actionIndex > 0) {
-        setStatus("Undid Action: " + actions[actionIndex].name);
+        // setStatus("Undid Action: " + actions[actionIndex].name);
         actionIndex--;
         resetAction();
     }
@@ -2657,7 +2657,7 @@ void AnimationEditor::undoAction()
 void AnimationEditor::redoAction()
 {
     if (actionIndex + 1 < actions.count()) {
-        setStatus("Redid Action: " + actions[actionIndex].name);
+        // setStatus("Redid Action: " + actions[actionIndex].name);
         actionIndex++;
         resetAction();
     }
@@ -2699,7 +2699,7 @@ void AnimationEditor::doAction(QString name, bool setModified)
 
     updateTitle(setModified);
 
-    setStatus("Did Action: " + name);
+    // setStatus("Did Action: " + name);
 }
 void AnimationEditor::clearActions()
 {

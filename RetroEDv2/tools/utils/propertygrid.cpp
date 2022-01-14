@@ -270,7 +270,8 @@ void Property::setValuePtr(void *newPtr)
                 *(static_cast<unsigned char *>(valuePtr)) = x;
                 emit changed();
             });
-        } break;
+            break;
+        }
         case SBYTE_MANAGER: {
             QtIntPropertyManager *m = static_cast<QtIntPropertyManager *>(typeManager);
             disconnect(m, &QtIntPropertyManager::valueChanged, nullptr, nullptr);
@@ -279,7 +280,8 @@ void Property::setValuePtr(void *newPtr)
                 *(static_cast<signed char *>(valuePtr)) = x;
                 emit changed();
             });
-        } break;
+            break;
+        }
         case INT_MANAGER: {
             QtIntPropertyManager *m = static_cast<QtIntPropertyManager *>(typeManager);
             disconnect(m, &QtIntPropertyManager::valueChanged, nullptr, nullptr);
@@ -288,7 +290,8 @@ void Property::setValuePtr(void *newPtr)
                 *(static_cast<int *>(valuePtr)) = x;
                 emit changed();
             });
-        } break;
+            break;
+        }
         case UINT_MANAGER: {
             QtIntPropertyManager *m = static_cast<QtIntPropertyManager *>(typeManager);
             disconnect(m, &QtIntPropertyManager::valueChanged, nullptr, nullptr);
@@ -297,7 +300,8 @@ void Property::setValuePtr(void *newPtr)
                 *(static_cast<uint *>(valuePtr)) = x;
                 emit changed();
             });
-        } break;
+            break;
+        }
         case SHORT_MANAGER: {
             QtIntPropertyManager *m = static_cast<QtIntPropertyManager *>(typeManager);
             disconnect(m, &QtIntPropertyManager::valueChanged, nullptr, nullptr);
@@ -306,7 +310,8 @@ void Property::setValuePtr(void *newPtr)
                 *(static_cast<short *>(valuePtr)) = x;
                 emit changed();
             });
-        } break;
+            break;
+        }
         case FLOAT_MANAGER: {
             QtDoublePropertyManager *m = static_cast<QtDoublePropertyManager *>(typeManager);
             disconnect(m, &QtDoublePropertyManager::valueChanged, nullptr, nullptr);
@@ -315,7 +320,8 @@ void Property::setValuePtr(void *newPtr)
                 *(static_cast<float *>(valuePtr)) = x;
                 emit changed();
             });
-        } break;
+            break;
+        }
         case USHORT_MANAGER: {
             QtIntPropertyManager *m = static_cast<QtIntPropertyManager *>(typeManager);
             disconnect(m, &QtIntPropertyManager::valueChanged, nullptr, nullptr);
@@ -324,7 +330,8 @@ void Property::setValuePtr(void *newPtr)
                 *(static_cast<ushort *>(valuePtr)) = x;
                 emit changed();
             });
-        } break;
+            break;
+        }
         case BOOL_MANAGER: {
             QtBoolPropertyManager *m = static_cast<QtBoolPropertyManager *>(typeManager);
             disconnect(m, &QtBoolPropertyManager::valueChanged, nullptr, nullptr);
@@ -333,7 +340,8 @@ void Property::setValuePtr(void *newPtr)
                 *static_cast<bool *>(valuePtr) = x;
                 emit changed();
             });
-        } break;
+            break;
+        }
         case STRING_MANAGER: {
             QtStringPropertyManager *m = static_cast<QtStringPropertyManager *>(typeManager);
             disconnect(m, &QtStringPropertyManager::valueChanged, nullptr, nullptr);
@@ -342,7 +350,8 @@ void Property::setValuePtr(void *newPtr)
                 *static_cast<QString *>(valuePtr) = x;
                 emit changed();
             });
-        } break;
+            break;
+        }
         case ENUM_MANAGER: {
             QtEnumPropertyManager *m = static_cast<QtEnumPropertyManager *>(typeManager);
             disconnect(m, &QtEnumPropertyManager::valueChanged, nullptr, nullptr);
@@ -351,7 +360,8 @@ void Property::setValuePtr(void *newPtr)
                 *static_cast<int *>(valuePtr) = x;
                 emit changed();
             });
-        } break;
+            break;
+        }
         case COLOR_MANAGER: {
             QtColorPropertyManager *m = static_cast<QtColorPropertyManager *>(typeManager);
             disconnect(m, &QtColorPropertyManager::valueChanged, nullptr, nullptr);
@@ -473,7 +483,9 @@ void Property::setSubProperties(QList<Property *> properties)
 {
     subProperties = properties;
     QListIterator<Property *> i(properties);
-    while (i.hasNext()) p->addSubProperty(i.next()->p);
+    while (i.hasNext()) {
+        p->addSubProperty(i.next()->p);
+    }
 }
 
 PropertyBrowser::PropertyBrowser(QWidget *parent) : QtTreePropertyBrowser(parent)

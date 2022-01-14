@@ -34,12 +34,20 @@
            <property name="text">
             <string>-</string>
            </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
+           </property>
           </widget>
          </item>
          <item row="0" column="0">
           <widget class="QToolButton" name="addFile">
            <property name="text">
             <string>+</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
            </property>
           </widget>
          </item>
@@ -187,6 +195,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

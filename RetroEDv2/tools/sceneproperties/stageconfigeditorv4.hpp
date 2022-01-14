@@ -5,26 +5,46 @@
 
 namespace Ui
 {
-class StageconfigEditorv4;
+class StageConfigEditorv4;
 }
 
-class StageconfigEditorv4 : public QDialog
+class StageConfigEditorv4 : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit StageconfigEditorv4(FormatHelpers::Stageconfig *scf, int globalObjCount,
-                                 int globalSfxCount, QWidget *parent = nullptr);
-    ~StageconfigEditorv4();
+    class ActionState
+    {
+    public:
+        QString name = "Action";
 
-    void setupUI();
+        FormatHelpers::StageConfig stageConfig;
+    };
+
+    explicit StageConfigEditorv4(FormatHelpers::StageConfig *scf, int globalObjCount,
+                                 int globalSfxCount, QWidget *parent = nullptr);
+    ~StageConfigEditorv4();
+
+    void setupUI(bool allowRowChange = true);
+
+protected:
+    bool event(QEvent *event);
 
 private:
-    Ui::StageconfigEditorv4 *ui;
+    void undoAction();
+    void redoAction();
+    void resetAction();
+    void doAction(QString name = "Action", bool setModified = true);
+    void clearActions();
 
-    FormatHelpers::Stageconfig *stageConfig;
+    void copyConfig(ActionState *stateDst, ActionState *stateSrc);
 
-    QStandardItemModel *m_sceneModel = nullptr;
+    QList<ActionState> actions;
+    int actionIndex = 0;
+
+    Ui::StageConfigEditorv4 *ui;
+
+    FormatHelpers::StageConfig *stageConfig;
 
     int globalObjectCount = 0;
     int globalSFXCount    = 0;

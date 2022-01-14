@@ -1,33 +1,53 @@
-#ifndef STAGECONFIGEDITOR_V1_H
-#define STAGECONFIGEDITOR_V1_H
+#ifndef STAGECONFIGEDITOR_V2_H
+#define STAGECONFIGEDITOR_V2_H
 
 #include <QWidget>
 
 namespace Ui
 {
-class StageconfigEditorv2;
+class StageConfigEditorv2;
 }
 
-class StageconfigEditorv2 : public QDialog
+class StageConfigEditorv2 : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit StageconfigEditorv2(FormatHelpers::Stageconfig *scf, int globalObjCount,
-                                 int globalSfxCount, QWidget *parent = nullptr);
-    ~StageconfigEditorv2();
+    class ActionState
+    {
+    public:
+        QString name = "Action";
 
-    void setupUI();
+        FormatHelpers::StageConfig stageConfig;
+    };
+
+    explicit StageConfigEditorv2(FormatHelpers::StageConfig *scf, int globalObjCount,
+                                 int globalSfxCount, QWidget *parent = nullptr);
+    ~StageConfigEditorv2();
+
+    void setupUI(bool allowRowChange = true);
+
+protected:
+    bool event(QEvent *event);
 
 private:
-    Ui::StageconfigEditorv2 *ui;
+    void undoAction();
+    void redoAction();
+    void resetAction();
+    void doAction(QString name = "Action", bool setModified = true);
+    void clearActions();
 
-    FormatHelpers::Stageconfig *stageConfig;
+    void copyConfig(ActionState *stateDst, ActionState *stateSrc);
 
-    QStandardItemModel *m_sceneModel = nullptr;
+    QList<ActionState> actions;
+    int actionIndex = 0;
+
+    Ui::StageConfigEditorv2 *ui;
+
+    FormatHelpers::StageConfig *stageConfig;
 
     int globalObjectCount = 0;
     int globalSFXCount    = 0;
 };
 
-#endif // STAGECONFIGEDITOR_V1_H
+#endif // STAGECONFIGEDITOR_V2_H

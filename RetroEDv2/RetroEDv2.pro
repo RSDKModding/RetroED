@@ -47,7 +47,6 @@ SOURCES += \
     tools/modelmanager.cpp \
     tools/paletteeditor/colourdialog.cpp \
     tools/rsvtool.cpp \
-    tools/exportrsdkv5scene.cpp \
     tools/gameconfigeditorv2.cpp \
     tools/gameconfigeditorv3.cpp \
     tools/gameconfigeditorv4.cpp \
@@ -112,7 +111,6 @@ HEADERS += \
     tools/modelmanager.hpp \
     tools/paletteeditor/colourdialog.hpp \
     tools/rsvtool.hpp \
-    tools/exportrsdkv5scene.hpp \
     tools/gameconfigeditorv2.hpp \
     tools/gameconfigeditorv3.hpp \
     tools/gameconfigeditorv4.hpp \
@@ -163,7 +161,6 @@ FORMS += \
     tools/modelmanager.ui \
     tools/paletteeditor/colourdialog.ui \
     tools/rsvtool.ui \
-    tools/exportrsdkv5scene.ui \
     tools/gameconfigeditorv2.ui \
     tools/gameconfigeditorv3.ui \
     tools/gameconfigeditorv4.ui \

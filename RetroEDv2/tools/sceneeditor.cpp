@@ -163,7 +163,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     connect(ui->addObj, &QToolButton::clicked, [this] {
         // uint c = m_objectList->currentRow() + 1;
-        FormatHelpers::Stageconfig::ObjectInfo objInfo;
+        FormatHelpers::StageConfig::ObjectInfo objInfo;
         objInfo.name = "New Object";
         viewer->stageConfig.objects.append(objInfo);
         SceneViewer::ObjectInfo info;
@@ -309,24 +309,25 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     connect(ui->impScr, &QToolButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Import RSDK Scroll File"), "",
-                               tr("RSDK Scroll Files (*.bin)"));
+                               tr("RSDK Scroll Files (*.xml)"));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
             Reader reader(filedialog.selectedFiles()[0]);
-            FormatHelpers::Background::Layer &layer =
-                viewer->background.layers[ui->layerList->currentRow() - 1];
-            layer.scrollInfos.clear();
-            ushort count = reader.read<ushort>();
-            for (int i = 0; i < count; ++i) {
-                FormatHelpers::Background::ScrollIndexInfo info;
-                info.startLine      = reader.read<int>();
-                info.length         = reader.read<int>();
-                info.parallaxFactor = reader.read<float>();
-                info.scrollSpeed    = reader.read<float>();
-                info.deform         = reader.read<byte>();
-                reader.read<byte>();
-                layer.scrollInfos.append(info);
+            QByteArray bytes = reader.readByteArray(reader.filesize, false);
+
+            QXmlStreamReader xmlReader = QXmlStreamReader(bytes);
+
+            readXMLScrollInfo(xmlReader, ui->layerList->currentRow());
+
+            if (xmlReader.hasError()) {
+                QMessageBox::critical(this, "Scroll.xml Parse Error", xmlReader.errorString(),
+                                      QMessageBox::Ok);
+                return;
             }
+
+            // close reader and flush file
+            xmlReader.clear();
+
             createScrollList();
             doAction();
         }
@@ -334,23 +335,15 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     connect(ui->expScr, &QToolButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Export RSDK Scroll File"), "",
-                               tr("RSDK Scroll Files (*.bin)"));
+                               tr("RSDK Scroll Files (*.xml)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
             Writer writer(filedialog.selectedFiles()[0]);
-            FormatHelpers::Background::Layer &layer =
-                viewer->background.layers[ui->layerList->currentRow() - 1];
+            writer.writeLine("<?xml version=\"1.0\"?>");
+            writer.writeLine("");
 
-            writer.write<ushort>(layer.scrollInfos.count());
-            for (int i = 0; i < layer.scrollInfos.count(); ++i) {
-                FormatHelpers::Background::ScrollIndexInfo &info = layer.scrollInfos[i];
-                writer.write<int>(info.startLine);
-                writer.write<int>(info.length);
-                writer.write<float>(info.parallaxFactor);
-                writer.write<float>(info.scrollSpeed);
-                writer.write<byte>(info.deform);
-                writer.write<byte>(0);
-            }
+            writeXMLScrollInfo(writer, ui->layerList->currentRow(), 0);
+
             writer.flush();
         }
     });
@@ -408,10 +401,6 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     });
     connect(ui->showTileGrid, &QPushButton::clicked, [this] {
         viewer->showTileGrid ^= 1;
-        doAction();
-    });
-    connect(ui->showPixelGrid, &QPushButton::clicked, [this] {
-        viewer->showPixelGrid ^= 1;
         doAction();
     });
 
@@ -508,33 +497,32 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         int count = viewer->stageConfig.loadGlobalScripts ? viewer->gameConfig.objects.count() : 0;
         switch (viewer->gameType) {
             case ENGINE_v4: {
-                StageconfigEditorv4 *edit = new StageconfigEditorv4(
+                StageConfigEditorv4 *edit = new StageConfigEditorv4(
                     &viewer->stageConfig, count + 1, viewer->gameConfig.soundFX.count(), this);
                 edit->exec();
                 break;
             }
             case ENGINE_v3: {
-                StageconfigEditorv3 *edit = new StageconfigEditorv3(
+                StageConfigEditorv3 *edit = new StageConfigEditorv3(
                     &viewer->stageConfig, count + 1, viewer->gameConfig.soundFX.count(), this);
                 edit->exec();
                 break;
             }
             case ENGINE_v2: {
-                StageconfigEditorv2 *edit = new StageconfigEditorv2(
+                StageConfigEditorv2 *edit = new StageConfigEditorv2(
                     &viewer->stageConfig, count + 2, viewer->gameConfig.soundFX.count(), this);
                 edit->exec();
                 break;
             }
             case ENGINE_v1: {
-                StageconfigEditorv1 *edit =
-                    new StageconfigEditorv1(&viewer->stageConfig, globals.count() + 1, this);
+                StageConfigEditorv1 *edit = new StageConfigEditorv1(&viewer->stageConfig, this);
                 edit->exec();
                 break;
             }
         }
 
         QList<QString> names;
-        for (FormatHelpers::Stageconfig::ObjectInfo &obj : viewer->stageConfig.objects) {
+        for (FormatHelpers::StageConfig::ObjectInfo &obj : viewer->stageConfig.objects) {
             names.append(obj.name);
         }
 
@@ -586,14 +574,14 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                     viewer->objects.append(info);
                 }
 
-                for (FormatHelpers::Gameconfig::ObjectInfo &obj : viewer->gameConfig.objects) {
+                for (FormatHelpers::GameConfig::ObjectInfo &obj : viewer->gameConfig.objects) {
                     SceneViewer::ObjectInfo info;
                     info.name = obj.m_name;
                     viewer->objects.append(info);
                 }
             }
 
-            for (FormatHelpers::Stageconfig::ObjectInfo &obj : viewer->stageConfig.objects) {
+            for (FormatHelpers::StageConfig::ObjectInfo &obj : viewer->stageConfig.objects) {
                 SceneViewer::ObjectInfo info;
                 info.name = obj.name;
                 viewer->objects.append(info);
@@ -606,7 +594,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 viewer->objects.append(info);
             }
 
-            for (FormatHelpers::Stageconfig::ObjectInfo &obj : viewer->stageConfig.objects) {
+            for (FormatHelpers::StageConfig::ObjectInfo &obj : viewer->stageConfig.objects) {
                 SceneViewer::ObjectInfo info;
                 info.name = obj.name;
                 viewer->objects.append(info);
@@ -630,7 +618,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     });
 
     connect(scnProp->editTSet, &QPushButton::clicked, [this] {
-        TilesetEditor *edit = new TilesetEditor(&viewer->tiles, &viewer->tilePalette);
+        TilesetEditor *edit = new TilesetEditor(viewer->tiles, viewer->tilePalette);
         edit->setWindowTitle("Edit Tileset");
         edit->exec();
 
@@ -640,9 +628,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         QImage tileset(0x10, 0x400 * 0x10, QImage::Format_Indexed8);
 
         QVector<QRgb> pal;
-        for (PaletteColour &col : viewer->tilePalette) {
-            pal.append(col.toQColor().rgb());
-        }
+        for (PaletteColour &col : viewer->tilePalette) pal.append(col.toQColor().rgb());
         tileset.setColorTable(pal);
 
         uchar *pixels = tileset.bits();
@@ -674,9 +660,10 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         }
 
         viewer->chunks.clear();
-        for (FormatHelpers::Chunks::Chunk &c : viewer->chunkset.chunks) {
+        for (FormatHelpers::Chunks::Chunk &c : viewer->chunkset.chunks)
             viewer->chunks.append(c.getImage(viewer->tiles));
-        }
+
+        chkProp->refreshList();
 
         doAction();
         setStatus("Finished rebuilding tiles!");
@@ -691,278 +678,22 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     });
 
     connect(ui->exportScn, &QPushButton::clicked, [this] {
-        ExportRSDKv5Scene *dlg = new ExportRSDKv5Scene(viewer->scene.filepath, this);
-        if (dlg->exec() == QDialog::Accepted) {
-            /*{
-                Writer writer(dlg.selectedFiles()[0]);
+        QFileDialog dlg(this, tr("Save Scene XML"), "", tr("RSDK Scene XML Files (*.xml)"));
+        dlg.setAcceptMode(QFileDialog::AcceptSave);
+        if (dlg.exec() == QDialog::Accepted) {
+            Writer writer(dlg.selectedFiles()[0]);
 
-                writer.writeLine("<?xml version=\"1.0\"?>");
-                writer.writeLine("");
-                writer.writeLine("<scene>");
+            writer.writeLine("<?xml version=\"1.0\"?>");
+            writer.writeLine("");
+            writeXMLScene(writer);
 
-                QList<QString> types = { "uint8", "uint16", "uint32", "int8",    "int16",   "int32",
-                                         "enum",  "bool",   "string", "vector2", "unknown", "colour" };
-
-                uint bgClr1 = (viewer->bgColour.r << 16) | (viewer->bgColour.g << 8)
-                              | (viewer->bgColour.b << 0) | (0xFF << 24);
-                uint bgClr2 = (viewer->altBGColour.r << 16) | (viewer->altBGColour.g << 8)
-                              | (viewer->altBGColour.b << 0) | (0xFF << 24);
-                writer.writeLine(
-                    QString(
-                        "\t<metadata bgColour=\"%1\" "
-                        "altBgColour=\"%2\" title=\"%3\" layerMidpoint=\"%4\" activeLayer0=\"%5\" "
-                        "activeLayer1=\"%6\" activeLayer2=\"%7\" activeLayer3=\"%8\" musicID=\"%9\" "
-                        "backgroundID=\"%10\" playerX=\"%11\" playerY=\"%12\"> </metadata>")
-                        .arg(bgClr1)
-                        .arg(bgClr2)
-                        .arg(viewer->scene.title)
-                        .arg(viewer->scene.midpoint)
-                        .arg(viewer->scene.activeLayer[0])
-                        .arg(viewer->scene.activeLayer[1])
-                        .arg(viewer->scene.activeLayer[2])
-                        .arg(viewer->scene.activeLayer[3])
-                        .arg(viewer->scene.musicID)
-                        .arg(viewer->scene.backgroundID)
-                        .arg(viewer->scene.playerX)
-                        .arg(viewer->scene.playerY));
-
-                {
-                    writer.writeLine();
-                    writer.writeLine("\t<layers>");
-
-                    {
-                        int drawOrder = 0;
-
-                        writer.writeText(
-                            QString("\t\t<layer name=\"%1\" type=\"%2\" drawOrder=\"%3\" width=\"%4\" "
-                                    "height=\"%5\" parallaxFactor=\"%6\" scrollSpeed=\"%7\" "
-                                    "visible=\"%8\">")
-                                .arg("Foreground")
-                                .arg(1)
-                                .arg(drawOrder)
-                                .arg(viewer->scene.width)
-                                .arg(viewer->scene.height)
-                                .arg(1.0)
-                                .arg(0.0)
-                                .arg(viewer->visibleLayers[0]));
-
-                        writer.writeLine();
-                        writer.writeLine(QString("\t\t\t<scrollInfo startLine=\"%1\" length=\"%2\" "
-                                                 "parallaxFactor=\"%3\" scrollSpeed=\"%4\" "
-                                                 "deform=\"%5\"> </scrollInfo>")
-                                             .arg(0)
-                                             .arg(viewer->scene.height * 0x80)
-                                             .arg(1.0)
-                                             .arg(0.0)
-                                             .arg(0));
-                        writer.writeLine();
-
-                        writer.writeLine("\t\t\t<layout>");
-                        for (int y = 0; y < viewer->scene.height; ++y) {
-                            writer.writeText("\t\t\t\t");
-                            for (int x = 0; x < viewer->scene.width; ++x) {
-                                writer.writeText(QString::number(viewer->scene.layout[y][x]));
-                                writer.writeText(",");
-                            }
-                            writer.writeLine();
-                        }
-                        writer.writeLine("\t\t\t</layout>");
-
-                        writer.writeLine("\t\t</layer>");
-                    }
-
-                    int id = 0;
-                    for (auto &layer : viewer->background.layers) {
-                        int drawOrder = 0;
-
-                        writer.writeText(
-                            QString("\t\t<layer name=\"%1\" type=\"%2\" drawOrder=\"%3\" width=\"%4\" "
-                                    "height=\"%5\" parallaxFactor=\"%6\" scrollSpeed=\"%7\" "
-                                    "visible=\"%8\">")
-                                .arg("Background " + QString::number(id + 1))
-                                .arg(layer.type)
-                                .arg(drawOrder)
-                                .arg(layer.width)
-                                .arg(layer.height)
-                                .arg(layer.parallaxFactor)
-                                .arg(layer.scrollSpeed)
-                                .arg(viewer->visibleLayers[id + 1]));
-
-                        if (layer.scrollInfos.count()) {
-                            writer.writeLine();
-                            for (auto &scroll : layer.scrollInfos) {
-                                writer.writeLine(
-                                    QString("\t\t\t<scrollInfo startLine=\"%1\" length=\"%2\" "
-                                            "parallaxFactor=\"%3\" scrollSpeed=\"%4\" "
-                                            "deform=\"%5\"> </scrollInfo>")
-                                        .arg(scroll.startLine)
-                                        .arg(scroll.length)
-                                        .arg(scroll.parallaxFactor)
-                                        .arg(scroll.scrollSpeed)
-                                        .arg(scroll.deform));
-                            }
-                        }
-                        writer.writeLine();
-
-                        writer.writeLine("\t\t\t<layout>");
-                        for (int y = 0; y < layer.height; ++y) {
-                            writer.writeText("\t\t\t\t");
-                            for (int x = 0; x < layer.width; ++x) {
-                                writer.writeText(QString::number(layer.layout[y][x]));
-                                writer.writeText(",");
-                            }
-                            writer.writeLine();
-                        }
-                        writer.writeLine("\t\t\t</layout>");
-
-                        writer.writeLine("\t\t</layer>");
-                    }
-
-                    writer.writeLine("\t</layers>");
-                }
-
-                if (viewer->objects.count()) {
-                    writer.writeLine();
-                    writer.writeLine("\t<objects>");
-
-                    for (auto &object : viewer->objects) {
-                        writer.writeText(QString("\t\t<object name=\"%1\">").arg(object.name));
-                        if (object.variables.count()) {
-                            writer.writeLine();
-                            for (auto &variable : object.variables) {
-                                writer.writeLine(
-                                    QString("\t\t\t<variable name=\"%1\" type=\"%2\"> </variable>")
-                                        .arg(variable.name)
-                                        .arg("int32"));
-                            }
-                        }
-                        else {
-                            writer.writeText(" ");
-                        }
-                        writer.writeLine("\t\t</object>");
-                    }
-
-                    writer.writeLine("\t</objects>");
-                }
-
-                if (viewer->objects.count()) {
-                    writer.writeLine();
-                    writer.writeLine("\t<entities>");
-
-                    for (auto &entity : viewer->entities) {
-                        writer.writeText(
-                            QString("\t\t<entity name=\"%1\" slotID=\"%2\" x=\"%3\" y=\"%4\">")
-                                .arg(viewer->objects[entity.type].name)
-                                .arg(entity.slotID)
-                                .arg(entity.pos.x)
-                                .arg(entity.pos.y));
-
-                        writer.writeLine();
-                        writer.writeText(
-                            QString("\t\t\t<variable name=\"%1\" type=\"uint8\">%2</variable>")
-                                .arg(viewer->objects[entity.type]
-                                         .variablesAliases[SceneViewer::VAR_ALIAS_PROPVAL])
-                                .arg(entity.propertyValue));
-
-                        if (viewer->gameType == ENGINE_v4) {
-                            for (int v = 0; v < 0xF; ++v) {
-                                QString name = RSDKv4::objectVariableNames[v];
-                                name.insert(0, name.at(0).toLower());
-                                name.remove(1, 1);
-                                if (v >= 11) {
-                                    name =
-                                        viewer->objects[entity.type]
-                                            .variablesAliases[SceneViewer::VAR_ALIAS_VAL0 + (v - 11)];
-                                }
-
-                                writer.writeText(
-                                    QString("\t\t\t<variable name=\"%1\" type=\"%2\">%3</variable>")
-                                        .arg(name)
-                                        .arg(RSDKv4::objectVariableTypes[v])
-                                        .arg(entity.propertyValue));
-                            }
-                        }
-
-                        int id = 0;
-                        if (entity.customVars.count()) {
-                            for (auto &variable : entity.customVars) {
-                                writer.writeText(
-                                    QString("\t\t\t<variable name=\"%1\" type=\"%2\">")
-                                        .arg(viewer->objects[entity.type].variables[id++].name)
-                                        .arg(types[variable.type]));
-
-                                switch (variable.type) {
-                                    default: break;
-                                    case VAR_UINT8:
-                                        writer.writeText(QString::number(variable.value_uint8));
-                                        break;
-                                    case VAR_UINT16:
-                                        writer.writeText(QString::number(variable.value_uint16));
-                                        break;
-                                    case VAR_UINT32:
-                                        writer.writeText(QString::number(variable.value_uint32));
-                                        break;
-                                    case VAR_INT8:
-                                        writer.writeText(QString::number(variable.value_int8));
-                                        break;
-                                    case VAR_INT16:
-                                        writer.writeText(QString::number(variable.value_int16));
-                                        break;
-                                    case VAR_INT32:
-                                        writer.writeText(QString::number(variable.value_int32));
-                                        break;
-                                    case VAR_ENUM:
-                                        writer.writeText(QString::number(variable.value_enum));
-                                        break;
-                                    case VAR_BOOL:
-                                        writer.writeText(QString::number(variable.value_bool));
-                                        break;
-                                }
-                                writer.writeLine(QString("</variable>"));
-                            }
-                        }
-                        else {
-                            writer.writeText(" ");
-                        }
-                        writer.writeLine("\t\t</entity>");
-                    }
-
-                    writer.writeLine("\t</entities>");
-                }
-
-                {
-                    writer.writeLine();
-                    writer.writeLine("\t<chunks>");
-
-                    for (auto &chunk : viewer->chunkset.chunks) {
-                        writer.writeText(QString("\t\t<chunk>"));
-                        for (int y = 0; y < 8; ++y) {
-                            for (int x = 0; x < 8; ++x) {
-                                FormatHelpers::Chunks::Tile &tile = chunk.tiles[y][x];
-                                writer.writeLine(
-                                    QString(
-                                        "\t\t\t<tile index=\"%1\" direction=\"%2\" visualPlane=\"%3\" "
-                                        "solidityA=\"%4\" solidityB=\"%5\"> </tile>")
-                                        .arg(tile.tileIndex)
-                                        .arg(tile.direction)
-                                        .arg(tile.visualPlane)
-                                        .arg(tile.solidityA)
-                                        .arg(tile.solidityB));
-                            }
-                        }
-                        writer.writeLine("\t\t</chunk>");
-                    }
-
-                    writer.writeLine("\t</chunks>");
-                }
-
-                writer.writeLine("</scene>");
-
-                writer.flush();
-            }*/
-
-            // exportRSDKv5(dlg);
+            writer.flush();
         }
+
+        // ExportRSDKv5Scene *dlg = new ExportRSDKv5Scene(viewer->scene.filepath, this);
+        // if (dlg->exec() == QDialog::Accepted) {
+        // exportRSDKv5(dlg);
+        // }
     });
 
     connect(ui->exportSceneImg, &QPushButton::clicked, [this] {
@@ -2046,10 +1777,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                         QString dirFile = dir.relativeFilePath(viewer->compilerv2.errorScr);
 
                         setStatus("Failed to compile script: " + dirFile);
-                        viewer->compilerv2.objectScriptList[scrID - 1].subRSDK.scriptCodePtr =
-                            SCRIPTDATA_COUNT - 1;
-                        viewer->compilerv2.objectScriptList[scrID - 1].subRSDK.jumpTablePtr =
-                            JUMPTABLE_COUNT - 1;
+                        viewer->compilerv2.objectScriptList[scrID - 1].subRSDK.scriptCodePtr = -1;
+                        viewer->compilerv2.objectScriptList[scrID - 1].subRSDK.jumpTablePtr  = -1;
                     }
                 }
             }
@@ -2072,10 +1801,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                     QString dirFile = dir.relativeFilePath(viewer->compilerv2.errorScr);
 
                     setStatus("Failed to compile script: " + dirFile);
-                    viewer->compilerv2.objectScriptList[scrID - 1].subRSDK.scriptCodePtr =
-                        SCRIPTDATA_COUNT - 1;
-                    viewer->compilerv2.objectScriptList[scrID - 1].subRSDK.jumpTablePtr =
-                        JUMPTABLE_COUNT - 1;
+                    viewer->compilerv2.objectScriptList[scrID - 1].subRSDK.scriptCodePtr = -1;
+                    viewer->compilerv2.objectScriptList[scrID - 1].subRSDK.jumpTablePtr  = -1;
                 }
             }
             break;
@@ -2119,18 +1846,12 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                         msgBox.exec();
 
                         setStatus("Failed to compile script: " + dirFile);
-                        viewer->compilerv3.objectScriptList[scrID - 1].subRSDKDraw.scriptCodePtr =
-                            SCRIPTDATA_COUNT - 1;
-                        viewer->compilerv3.objectScriptList[scrID - 1].subRSDKDraw.jumpTablePtr =
-                            JUMPTABLE_COUNT - 1;
-                        viewer->compilerv3.objectScriptList[scrID - 1].subRSDKLoad.scriptCodePtr =
-                            SCRIPTDATA_COUNT - 1;
-                        viewer->compilerv3.objectScriptList[scrID - 1].subRSDKLoad.jumpTablePtr =
-                            JUMPTABLE_COUNT - 1;
-                        viewer->compilerv3.objectScriptList[scrID - 1].subRSDKEdit.scriptCodePtr =
-                            SCRIPTDATA_COUNT - 1;
-                        viewer->compilerv3.objectScriptList[scrID - 1].subRSDKEdit.jumpTablePtr =
-                            JUMPTABLE_COUNT - 1;
+                        viewer->compilerv3.objectScriptList[scrID - 1].subRSDKDraw.scriptCodePtr = -1;
+                        viewer->compilerv3.objectScriptList[scrID - 1].subRSDKDraw.jumpTablePtr  = -1;
+                        viewer->compilerv3.objectScriptList[scrID - 1].subRSDKLoad.scriptCodePtr = -1;
+                        viewer->compilerv3.objectScriptList[scrID - 1].subRSDKLoad.jumpTablePtr  = -1;
+                        viewer->compilerv3.objectScriptList[scrID - 1].subRSDKEdit.scriptCodePtr = -1;
+                        viewer->compilerv3.objectScriptList[scrID - 1].subRSDKEdit.jumpTablePtr  = -1;
                     }
                 }
             }
@@ -2166,18 +1887,12 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                     msgBox.exec();
 
                     setStatus("Failed to compile script: " + dirFile);
-                    viewer->compilerv3.objectScriptList[scrID - 1].subRSDKDraw.scriptCodePtr =
-                        SCRIPTDATA_COUNT - 1;
-                    viewer->compilerv3.objectScriptList[scrID - 1].subRSDKDraw.jumpTablePtr =
-                        JUMPTABLE_COUNT - 1;
-                    viewer->compilerv3.objectScriptList[scrID - 1].subRSDKLoad.scriptCodePtr =
-                        SCRIPTDATA_COUNT - 1;
-                    viewer->compilerv3.objectScriptList[scrID - 1].subRSDKLoad.jumpTablePtr =
-                        JUMPTABLE_COUNT - 1;
-                    viewer->compilerv3.objectScriptList[scrID - 1].subRSDKEdit.scriptCodePtr =
-                        SCRIPTDATA_COUNT - 1;
-                    viewer->compilerv3.objectScriptList[scrID - 1].subRSDKEdit.jumpTablePtr =
-                        JUMPTABLE_COUNT - 1;
+                    viewer->compilerv3.objectScriptList[scrID - 1].subRSDKDraw.scriptCodePtr = -1;
+                    viewer->compilerv3.objectScriptList[scrID - 1].subRSDKDraw.jumpTablePtr  = -1;
+                    viewer->compilerv3.objectScriptList[scrID - 1].subRSDKLoad.scriptCodePtr = -1;
+                    viewer->compilerv3.objectScriptList[scrID - 1].subRSDKLoad.jumpTablePtr  = -1;
+                    viewer->compilerv3.objectScriptList[scrID - 1].subRSDKEdit.scriptCodePtr = -1;
+                    viewer->compilerv3.objectScriptList[scrID - 1].subRSDKEdit.jumpTablePtr  = -1;
                 }
             }
 
@@ -2228,18 +1943,12 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                         msgBox.exec();
 
                         setStatus("Failed to compile script: " + dirFile);
-                        viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKDraw.scriptCodePtr =
-                            SCRIPTDATA_COUNT_v4 - 1;
-                        viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKDraw.jumpTablePtr =
-                            JUMPTABLE_COUNT_v4 - 1;
-                        viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKLoad.scriptCodePtr =
-                            SCRIPTDATA_COUNT_v4 - 1;
-                        viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKLoad.jumpTablePtr =
-                            JUMPTABLE_COUNT_v4 - 1;
-                        viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKEdit.scriptCodePtr =
-                            SCRIPTDATA_COUNT_v4 - 1;
-                        viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKEdit.jumpTablePtr =
-                            JUMPTABLE_COUNT_v4 - 1;
+                        viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKDraw.scriptCodePtr = -1;
+                        viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKDraw.jumpTablePtr  = -1;
+                        viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKLoad.scriptCodePtr = -1;
+                        viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKLoad.jumpTablePtr  = -1;
+                        viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKEdit.scriptCodePtr = -1;
+                        viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKEdit.jumpTablePtr  = -1;
                     }
                 }
             }
@@ -2276,18 +1985,12 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                                        QMessageBox::Ok);
                     msgBox.exec();
 
-                    viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKDraw.scriptCodePtr =
-                        SCRIPTDATA_COUNT_v4 - 1;
-                    viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKDraw.jumpTablePtr =
-                        JUMPTABLE_COUNT_v4 - 1;
-                    viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKLoad.scriptCodePtr =
-                        SCRIPTDATA_COUNT_v4 - 1;
-                    viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKLoad.jumpTablePtr =
-                        JUMPTABLE_COUNT_v4 - 1;
-                    viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKEdit.scriptCodePtr =
-                        SCRIPTDATA_COUNT_v4 - 1;
-                    viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKEdit.jumpTablePtr =
-                        JUMPTABLE_COUNT_v4 - 1;
+                    viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKDraw.scriptCodePtr = -1;
+                    viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKDraw.jumpTablePtr  = -1;
+                    viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKLoad.scriptCodePtr = -1;
+                    viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKLoad.jumpTablePtr  = -1;
+                    viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKEdit.scriptCodePtr = -1;
+                    viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKEdit.jumpTablePtr  = -1;
                 }
             }
 
@@ -2422,6 +2125,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
             return true;
         }
     }
+    return false;
 }
 
 void SceneEditor::createEntityList()
@@ -2525,11 +2229,9 @@ void SceneEditor::createScrollList()
     ui->scrollList->setCurrentRow(-1);
 }
 
-void SceneEditor::exportRSDKv5(ExportRSDKv5Scene *dlg) {}
-
 void SceneEditor::parseGameXML(byte gameType, QString path)
 {
-    viewer->gameConfig          = FormatHelpers::Gameconfig();
+    viewer->gameConfig          = FormatHelpers::GameConfig();
     viewer->gameConfig.filePath = path;
 
     Reader fileReader = Reader(path);
@@ -2559,7 +2261,7 @@ void SceneEditor::parseGameXML(byte gameType, QString path)
             else if (objectFlag && name == "object") {
                 QString objName   = "";
                 QString objScript = "";
-                foreach (const QXmlStreamAttribute &attr, xmlReader.attributes()) {
+                for (const QXmlStreamAttribute &attr : xmlReader.attributes()) {
                     if (attr.name().toString() == QLatin1String("name")) {
                         objName = attr.value().toString();
                     }
@@ -2567,7 +2269,7 @@ void SceneEditor::parseGameXML(byte gameType, QString path)
                         objScript = attr.value().toString();
                     }
                 }
-                FormatHelpers::Gameconfig::ObjectInfo obj;
+                FormatHelpers::GameConfig::ObjectInfo obj;
                 obj.m_name = objName;
                 obj.script = objScript;
                 viewer->gameConfig.objects.append(obj);
@@ -2583,7 +2285,7 @@ void SceneEditor::parseGameXML(byte gameType, QString path)
                 QString stgFolder = "";
                 QString stgID     = "";
                 int stgHighlight  = 0;
-                foreach (const QXmlStreamAttribute &attr, xmlReader.attributes()) {
+                for (const QXmlStreamAttribute &attr : xmlReader.attributes()) {
                     if (attr.name().toString() == QLatin1String("name")) {
                         stgName = attr.value().toString();
                     }
@@ -2597,7 +2299,7 @@ void SceneEditor::parseGameXML(byte gameType, QString path)
                         stgHighlight = attr.value().toInt();
                     }
                 }
-                FormatHelpers::Gameconfig::SceneInfo stage;
+                FormatHelpers::GameConfig::SceneInfo stage;
                 stage.m_name      = stgName;
                 stage.folder      = stgFolder;
                 stage.id          = stgID;
@@ -2691,10 +2393,6 @@ void SceneEditor::resetAction()
     ui->showTileGrid->setDown(viewer->showTileGrid);
     ui->showTileGrid->blockSignals(false);
 
-    ui->showPixelGrid->blockSignals(true);
-    ui->showPixelGrid->setDown(viewer->showPixelGrid);
-    ui->showPixelGrid->blockSignals(false);
-
     ui->showCollisionA->blockSignals(true);
     ui->showCollisionA->setDown(viewer->showPlaneA);
     ui->showCollisionA->blockSignals(false);
@@ -2786,6 +2484,592 @@ void SceneEditor::clearActions()
     actions.clear();
     actionIndex = 0;
     doAction("Action Setup", false); // first action, cant be undone
+}
+
+// XML Management
+void SceneEditor::readXMLScrollInfo(QXmlStreamReader &xmlReader, int layerID, byte mode)
+{
+    if (layerID <= 0 || layerID >= 9)
+        return;
+
+    FormatHelpers::Background::Layer &layer = viewer->background.layers[layerID];
+    layer.scrollInfos.clear();
+    // Parse the XML until we reach end of it
+    while (!xmlReader.atEnd() && !xmlReader.hasError() && mode < 2) {
+        // Read next element
+        QXmlStreamReader::TokenType token = xmlReader.readNext();
+        // If token is just StartDocument - go to next
+        if (token == QXmlStreamReader::StartDocument)
+            continue;
+
+        // If token is StartElement - read it
+        if (token == QXmlStreamReader::StartElement) {
+            const QStringRef name = xmlReader.name();
+            if (name == "scrollingInfo")
+                mode++;
+            else if (name == "layers")
+                mode = 2;
+            else if (mode && name == "scrollInfo") {
+                int startLine        = 0;
+                int length           = 0;
+                float parallaxFactor = 1.0f;
+                float scrollSpeed    = 0.0f;
+                bool deform          = false;
+                for (const QXmlStreamAttribute &attr : xmlReader.attributes()) {
+                    if (attr.name().toString() == QLatin1String("startLine"))
+                        startLine = attr.value().toInt();
+                    if (attr.name().toString() == QLatin1String("length"))
+                        length = attr.value().toInt();
+                    if (attr.name().toString() == QLatin1String("parallaxFactor"))
+                        parallaxFactor = attr.value().toFloat();
+                    if (attr.name().toString() == QLatin1String("scrollSpeed"))
+                        scrollSpeed = attr.value().toFloat();
+                    if (attr.name().toString() == QLatin1String("deform"))
+                        deform = attr.value().toString() != "false" && attr.value().toString() != "0";
+                }
+                FormatHelpers::Background::ScrollIndexInfo info;
+                info.startLine      = startLine;
+                info.length         = length;
+                info.parallaxFactor = parallaxFactor;
+                info.scrollSpeed    = scrollSpeed;
+                info.deform         = deform;
+                layer.scrollInfos.append(info);
+            }
+        }
+    }
+}
+
+void SceneEditor::readXMLLayout(QXmlStreamReader &xmlReader, int layerID, byte mode)
+{
+    if (layerID < 0 || layerID >= 9)
+        return;
+
+    // Parse the XML until we reach end of it
+    while (!xmlReader.atEnd() && !xmlReader.hasError() && mode < 2) {
+        // Read next element
+        QXmlStreamReader::TokenType token = xmlReader.readNext();
+        // If token is just StartDocument - go to next
+        if (token == QXmlStreamReader::StartDocument)
+            continue;
+
+        // If token is StartElement - read it
+        if (token == QXmlStreamReader::StartElement) {
+            const QStringRef name = xmlReader.name();
+            if (name == "layout" || mode == 1) {
+                QString text = xmlReader.readElementText()
+                                   .replace('\n', "")
+                                   .replace('\r', "")
+                                   .replace('\t', "")
+                                   .replace(' ', "");
+                QStringList layout = text.split(",");
+
+                int id = 0;
+                if (layerID > 0) {
+                    FormatHelpers::Background::Layer &layer = viewer->background.layers[layerID - 1];
+
+                    for (int y = 0; y < layer.height; ++y) {
+                        for (int x = 0; x < layer.width; ++x) {
+                            bool ok            = false;
+                            layer.layout[y][x] = 0;
+                            if (id < layout.count()) {
+                                int index = layout[id].toInt(&ok);
+                                if (ok)
+                                    layer.layout[y][x] = index;
+                            }
+
+                            ++id;
+                        }
+                    }
+                }
+                else {
+                    for (int y = 0; y < viewer->scene.height; ++y) {
+                        for (int x = 0; x < viewer->scene.width; ++x) {
+                            bool ok                    = false;
+                            viewer->scene.layout[y][x] = 0;
+                            if (id < layout.count()) {
+                                int index = layout[id].toInt(&ok);
+                                if (ok)
+                                    viewer->scene.layout[y][x] = index;
+                            }
+
+                            ++id;
+                        }
+                    }
+                }
+
+                mode += 2;
+            }
+            else if (name == "layers")
+                mode = 2;
+        }
+    }
+}
+
+void SceneEditor::readXMLLayers(QXmlStreamReader &xmlReader)
+{
+    QList<QString> layerTypes = { "None", "HScroll", "VScroll", "3D Sky", "3D Floor" };
+
+    byte mode   = 0;
+    int id      = 0;
+    int layerID = 0;
+    // Parse the XML until we reach end of it
+    while (!xmlReader.atEnd() && !xmlReader.hasError() && mode < 2) {
+        // Read next element
+        QXmlStreamReader::TokenType token = xmlReader.readNext();
+        // If token is just StartDocument - go to next
+        if (token == QXmlStreamReader::StartDocument)
+            continue;
+
+        // If token is StartElement - read it
+        if (token == QXmlStreamReader::StartElement) {
+            const QStringRef name = xmlReader.name();
+            if (name == "layers") {
+                mode++;
+            }
+            else if (mode) {
+                if (name == "layer") {
+                    QString name = "", type = "";
+                    int width = 0, height = 0, drawOrder = 0;
+                    float parallaxFactor = 1.0f, scrollSpeed = 0.0f;
+                    bool visible = false;
+                    for (const QXmlStreamAttribute &attr : xmlReader.attributes()) {
+                        if (attr.name().toString() == QLatin1String("name"))
+                            name = attr.value().toString();
+                        if (attr.name().toString() == QLatin1String("type"))
+                            type = attr.value().toString();
+                        if (attr.name().toString() == QLatin1String("drawOrder"))
+                            drawOrder = attr.value().toInt();
+                        if (attr.name().toString() == QLatin1String("width"))
+                            width = attr.value().toInt();
+                        if (attr.name().toString() == QLatin1String("height"))
+                            height = attr.value().toInt();
+                        if (attr.name().toString() == QLatin1String("parallaxFactor"))
+                            parallaxFactor = attr.value().toFloat();
+                        if (attr.name().toString() == QLatin1String("scrollSpeed"))
+                            scrollSpeed = attr.value().toFloat();
+                        if (attr.name().toString() == QLatin1String("visible"))
+                            visible =
+                                attr.value().toString() != "false" && attr.value().toString() != "0";
+                    }
+
+                    layerID = id + 1;
+
+                    if (name == "Foreground") {
+                        viewer->scene.width      = width;
+                        viewer->scene.height     = height;
+                        viewer->visibleLayers[0] = visible;
+                        layerID                  = 0;
+                    }
+                    else if (id < 8) {
+                        FormatHelpers::Background::Layer layer;
+                        layer.type   = layerTypes.indexOf(type) == -1 ? 1 : layerTypes.indexOf(type);
+                        layer.width  = width;
+                        layer.height = height;
+                        layer.parallaxFactor      = parallaxFactor;
+                        layer.scrollSpeed         = scrollSpeed;
+                        viewer->visibleLayers[id] = visible;
+                    }
+
+                    id++;
+                }
+                else if (name == "scrollingInfo")
+                    readXMLScrollInfo(xmlReader, layerID, 1);
+                else if (name == "layout")
+                    readXMLLayout(xmlReader, layerID, 1);
+            }
+        }
+    }
+}
+
+void SceneEditor::writeXMLScrollInfo(Writer &writer, int layerID, int indentPos)
+{
+    if (layerID > 0) {
+        auto &layer = viewer->background.layers[layerID - 1];
+
+        if (layer.scrollInfos.count()) {
+            writeXMLIndentation(writer, indentPos++);
+            writer.writeLine("<scrollingInfo>");
+            for (auto &scroll : layer.scrollInfos) {
+                writeXMLIndentation(writer, indentPos);
+                writer.writeLine(QString("<scrollInfo startLine=\"%1\" length=\"%2\" "
+                                         "parallaxFactor=\"%3\" scrollSpeed=\"%4\" "
+                                         "deform=\"%5\"> </scrollInfo>")
+                                     .arg(scroll.startLine)
+                                     .arg(scroll.length)
+                                     .arg(scroll.parallaxFactor)
+                                     .arg(scroll.scrollSpeed)
+                                     .arg(scroll.deform ? "true" : "false"));
+            }
+            writeXMLIndentation(writer, --indentPos);
+            writer.writeLine("</scrollingInfo>");
+            writer.writeLine();
+        }
+    }
+    else {
+        writeXMLIndentation(writer, indentPos++);
+        writer.writeLine("<scrollingInfo>");
+
+        writeXMLIndentation(writer, indentPos);
+        writer.writeLine(QString("<scrollInfo startLine=\"%1\" length=\"%2\" "
+                                 "parallaxFactor=\"%3\" scrollSpeed=\"%4\" "
+                                 "deform=\"%5\"> </scrollInfo>")
+                             .arg(0)
+                             .arg(viewer->scene.height * 0x80)
+                             .arg(1.0)
+                             .arg(0.0)
+                             .arg("false"));
+
+        writeXMLIndentation(writer, --indentPos);
+        writer.writeLine("</scrollingInfo>");
+        writer.writeLine();
+    }
+}
+
+void SceneEditor::writeXMLLayout(Writer &writer, int layerID, int indentPos)
+{
+    writeXMLIndentation(writer, indentPos++);
+    writer.writeLine("<layout>");
+    if (layerID > 0) {
+        auto &layer = viewer->background.layers[layerID - 1];
+
+        for (int y = 0; y < layer.height; ++y) {
+            writeXMLIndentation(writer, indentPos);
+            for (int x = 0; x < layer.width; ++x) {
+                writer.writeText(QString::number(layer.layout[y][x]));
+                writer.writeText(",");
+            }
+            writer.writeLine();
+        }
+    }
+    else {
+        for (int y = 0; y < viewer->scene.height; ++y) {
+            writeXMLIndentation(writer, indentPos);
+            for (int x = 0; x < viewer->scene.width; ++x) {
+                writer.writeText(QString::number(viewer->scene.layout[y][x]));
+                writer.writeText(",");
+            }
+            writer.writeLine();
+        }
+    }
+    writeXMLIndentation(writer, --indentPos);
+    writer.writeLine("</layout>");
+    writer.writeLine();
+}
+
+void SceneEditor::writeXMLLayer(Writer &writer, int layerID, int indentPos)
+{
+    QList<QString> layerTypes = { "None", "HScroll", "VScroll", "3D Sky", "3D Floor" };
+
+    if (layerID > 0) {
+        auto &layer = viewer->background.layers[layerID - 1];
+
+        int drawOrder = 0;
+
+        writeXMLIndentation(writer, indentPos);
+        writer.writeLine(QString("<layer name=\"%1\" type=\"%2\" drawOrder=\"%3\" width=\"%4\" "
+                                 "height=\"%5\" parallaxFactor=\"%6\" scrollSpeed=\"%7\" "
+                                 "visible=\"%8\">")
+                             .arg("Background " + QString::number(layerID))
+                             .arg(layerTypes[layer.type])
+                             .arg(drawOrder)
+                             .arg(layer.width)
+                             .arg(layer.height)
+                             .arg(layer.parallaxFactor)
+                             .arg(layer.scrollSpeed)
+                             .arg(viewer->visibleLayers[layerID] ? "true" : "false"));
+
+        writeXMLScrollInfo(writer, layerID, indentPos + 1);
+
+        writeXMLLayout(writer, layerID, indentPos + 1);
+
+        writeXMLIndentation(writer, indentPos);
+        writer.writeLine("</layer>");
+        writer.writeLine();
+    }
+    else {
+        int drawOrder = 0;
+
+        writeXMLIndentation(writer, indentPos);
+        writer.writeLine(QString("<layer name=\"%1\" type=\"%2\" drawOrder=\"%3\" width=\"%4\" "
+                                 "height=\"%5\" parallaxFactor=\"%6\" scrollSpeed=\"%7\" "
+                                 "visible=\"%8\">")
+                             .arg("Foreground")
+                             .arg(layerTypes[1])
+                             .arg(drawOrder)
+                             .arg(viewer->scene.width)
+                             .arg(viewer->scene.height)
+                             .arg(1.0)
+                             .arg(0.0)
+                             .arg(viewer->visibleLayers[0] ? "true" : "false"));
+
+        writeXMLScrollInfo(writer, 0, indentPos + 1);
+
+        writeXMLLayout(writer, 0, indentPos + 1);
+
+        writeXMLIndentation(writer, indentPos);
+        writer.writeLine("</layer>");
+        writer.writeLine();
+    }
+}
+
+void SceneEditor::writeXMLObject(Writer &writer, int objID, int indentPos)
+{
+    auto &object = viewer->objects[objID];
+
+    writeXMLIndentation(writer, indentPos);
+    writer.writeLine(QString("<object name=\"%1\">").arg(object.name));
+
+    writeXMLIndentation(writer, indentPos + 1);
+    writer.writeLine(QString("<variable name=\"%1\" type=\"%2\"> </variable>")
+                         .arg(viewer->objects[objID].variablesAliases[SceneViewer::VAR_ALIAS_PROPVAL])
+                         .arg("uint8"));
+
+    if (viewer->gameType == ENGINE_v4) {
+        bool activeVars[0xF];
+        memset(activeVars, 0, sizeof(activeVars));
+
+        if (viewer->gameType == ENGINE_v4) {
+            for (auto &entity : viewer->entities) {
+                for (int v = 0; v < 0xF; ++v) {
+                    if (!entity.variables[v].active)
+                        continue;
+
+                    activeVars[v] = true;
+                }
+            }
+
+            for (int v = 0; v < 0xF; ++v) {
+                if (!activeVars[v])
+                    continue;
+
+                QString name = RSDKv4::objectVariableNames[v];
+                name.insert(0, name.at(0).toLower());
+                name.remove(1, 1);
+                if (v >= 11) {
+                    name =
+                        viewer->objects[objID].variablesAliases[SceneViewer::VAR_ALIAS_VAL0 + (v - 11)];
+                }
+
+                writeXMLIndentation(writer, indentPos + 1);
+                writer.writeLine(QString("<variable name=\"%1\" type=\"%2\"> </variable>")
+                                     .arg(name)
+                                     .arg(RSDKv4::objectVariableTypes[v]));
+            }
+        }
+    }
+
+    if (object.variables.count()) {
+        for (auto &variable : object.variables) {
+            writeXMLIndentation(writer, indentPos + 1);
+            writer.writeLine(QString("<variable name=\"%1\" type=\"%2\"> </variable>")
+                                 .arg(variable.name)
+                                 .arg("int32"));
+        }
+    }
+    writeXMLIndentation(writer, indentPos);
+    writer.writeLine("</object>");
+}
+
+void SceneEditor::writeXMLEntity(Writer &writer, int entityID, int indentPos)
+{
+
+    QList<QString> types = { "uint8", "uint16", "uint32", "int8",    "int16",   "int32",
+                             "enum",  "bool",   "string", "vector2", "unknown", "colour" };
+
+    auto &entity = viewer->entities[entityID];
+
+    writeXMLIndentation(writer, indentPos);
+    writer.writeLine(QString("<entity name=\"%1\" slotID=\"%2\" x=\"%3\" y=\"%4\">")
+                         .arg(viewer->objects[entity.type].name)
+                         .arg(entity.slotID)
+                         .arg(entity.pos.x)
+                         .arg(entity.pos.y));
+
+    writeXMLIndentation(writer, indentPos + 1);
+    writer.writeLine(
+        QString("<variable name=\"%1\" type=\"uint8\">%2</variable>")
+            .arg(viewer->objects[entity.type].variablesAliases[SceneViewer::VAR_ALIAS_PROPVAL])
+            .arg(entity.propertyValue));
+
+    if (viewer->gameType == ENGINE_v4) {
+        for (int v = 0; v < 0xF; ++v) {
+            if (!entity.variables[v].active)
+                continue;
+
+            QString name = RSDKv4::objectVariableNames[v];
+            name.insert(0, name.at(0).toLower());
+            name.remove(1, 1);
+            if (v >= 11) {
+                name = viewer->objects[entity.type]
+                           .variablesAliases[SceneViewer::VAR_ALIAS_VAL0 + (v - 11)];
+            }
+
+            writeXMLIndentation(writer, indentPos + 1);
+            writer.writeLine(QString("<variable name=\"%1\" type=\"%2\">%3</variable>")
+                                 .arg(name)
+                                 .arg(RSDKv4::objectVariableTypes[v])
+                                 .arg(entity.variables[v].value));
+        }
+    }
+
+    int id = 0;
+    if (entity.customVars.count()) {
+        for (auto &variable : entity.customVars) {
+            writeXMLIndentation(writer, indentPos + 1);
+            writer.writeText(QString("<variable name=\"%1\" type=\"%2\">")
+                                 .arg(viewer->objects[entity.type].variables[id++].name)
+                                 .arg(types[variable.type]));
+
+            // TODO: these aren't set
+
+            switch (variable.type) {
+                default: break;
+                case VAR_UINT8: writer.writeText(QString::number(variable.value_uint8)); break;
+                case VAR_UINT16: writer.writeText(QString::number(variable.value_uint16)); break;
+                case VAR_UINT32: writer.writeText(QString::number(variable.value_uint32)); break;
+                case VAR_INT8: writer.writeText(QString::number(variable.value_int8)); break;
+                case VAR_INT16: writer.writeText(QString::number(variable.value_int16)); break;
+                case VAR_INT32: writer.writeText(QString::number(variable.value_int32)); break;
+                case VAR_ENUM: writer.writeText(QString::number(variable.value_enum)); break;
+                case VAR_BOOL: writer.writeText(QString::number(variable.value_bool)); break;
+            }
+            writer.writeLine(QString("</variable>"));
+        }
+    }
+    writeXMLIndentation(writer, indentPos);
+    writer.writeLine("</entity>");
+}
+
+void SceneEditor::writeXMLChunk(Writer &writer, int chunkID, int indentPos)
+{
+    QList<QString> directions = { "No Flip", "Flip X", "Flip Y", "Flip XY" };
+    QList<QString> solidities = { "All Solid", "Solid Top", "Solid LRB", "Not Solid",
+                                  "Solid Top (No Grip)" };
+
+    auto &chunk = viewer->chunkset.chunks[chunkID];
+
+    writeXMLIndentation(writer, indentPos);
+    writer.writeLine(QString("\t\t<chunk>"));
+    for (int y = 0; y < 8; ++y) {
+        for (int x = 0; x < 8; ++x) {
+            FormatHelpers::Chunks::Tile &tile = chunk.tiles[y][x];
+            writeXMLIndentation(writer, indentPos + 1);
+            writer.writeLine(QString("\t\t\t<tile index=\"%1\" direction=\"%2\" visualPlane=\"%3\" "
+                                     "solidityA=\"%4\" solidityB=\"%5\"> </tile>")
+                                 .arg(tile.tileIndex)
+                                 .arg(directions[tile.direction])
+                                 .arg(tile.visualPlane ? "High" : "Low")
+                                 .arg(solidities[tile.solidityA])
+                                 .arg(solidities[tile.solidityB]));
+        }
+    }
+
+    writeXMLIndentation(writer, indentPos);
+    writer.writeLine("\t\t</chunk>");
+    writer.writeLine();
+}
+
+void SceneEditor::writeXMLScene(Writer &writer)
+{
+    int indentPos = 0;
+
+    writer.writeLine("<scene>");
+
+    QList<QString> types = { "uint8", "uint16", "uint32", "int8",    "int16",   "int32",
+                             "enum",  "bool",   "string", "vector2", "unknown", "colour" };
+
+    indentPos++;
+    {
+        uint bgClr1 = (viewer->bgColour.r << 16) | (viewer->bgColour.g << 8) | (viewer->bgColour.b << 0)
+                      | (0xFF << 24);
+        uint bgClr2 = (viewer->altBGColour.r << 16) | (viewer->altBGColour.g << 8)
+                      | (viewer->altBGColour.b << 0) | (0xFF << 24);
+        writer.writeLine(
+            QString("\t<metadata bgColour=\"%1\" "
+                    "altBgColour=\"%2\" title=\"%3\" layerMidpoint=\"%4\" activeLayer0=\"%5\" "
+                    "activeLayer1=\"%6\" activeLayer2=\"%7\" activeLayer3=\"%8\" musicID=\"%9\" "
+                    "backgroundID=\"%10\" playerX=\"%11\" playerY=\"%12\"> </metadata>")
+                .arg(bgClr1)
+                .arg(bgClr2)
+                .arg(viewer->scene.title)
+                .arg(viewer->scene.midpoint)
+                .arg(viewer->scene.activeLayer[0])
+                .arg(viewer->scene.activeLayer[1])
+                .arg(viewer->scene.activeLayer[2])
+                .arg(viewer->scene.activeLayer[3])
+                .arg(viewer->scene.musicID)
+                .arg(viewer->scene.backgroundID)
+                .arg(viewer->scene.playerX)
+                .arg(viewer->scene.playerY));
+    }
+    indentPos--;
+
+    indentPos++;
+    {
+        writer.writeLine();
+        writeXMLIndentation(writer, indentPos);
+        writer.writeLine("<layers>");
+
+        writeXMLLayer(writer, 0, indentPos + 1);
+
+        int id = 0;
+        for (auto &layer : viewer->background.layers) {
+            ++id;
+            if (layer.width == 0 || layer.height == 0)
+                continue;
+
+            writeXMLLayer(writer, id, indentPos + 1);
+        }
+
+        writeXMLIndentation(writer, indentPos);
+        writer.writeLine("<layers>");
+    }
+    indentPos--;
+
+    indentPos++;
+    if (viewer->objects.count()) {
+        writer.writeLine();
+        writeXMLIndentation(writer, indentPos);
+        writer.writeLine("<objects>");
+
+        for (int o = 0; o < viewer->objects.count(); ++o) writeXMLObject(writer, o, indentPos + 1);
+
+        writeXMLIndentation(writer, indentPos);
+        writer.writeLine("</objects>");
+        writer.writeLine();
+    }
+    indentPos--;
+
+    indentPos++;
+    if (viewer->objects.count() && viewer->entities.count()) {
+        writer.writeLine();
+        writeXMLIndentation(writer, indentPos);
+        writer.writeLine("<entities>");
+
+        for (int e = 0; e < viewer->entities.count(); ++e) writeXMLEntity(writer, e, indentPos + 1);
+
+        writeXMLIndentation(writer, indentPos);
+        writer.writeLine("</entities>");
+        writer.writeLine();
+    }
+    indentPos--;
+
+    indentPos++;
+    {
+        writer.writeLine();
+        writeXMLIndentation(writer, indentPos);
+        writer.writeLine("<chunks>");
+
+        for (int c = 0; c < (viewer->gameType == ENGINE_v1 ? 0x100 : 0x200); ++c)
+            writeXMLChunk(writer, c, indentPos + 1);
+
+        writeXMLIndentation(writer, indentPos);
+        writer.writeLine("</chunks>");
+        writer.writeLine();
+    }
+    indentPos--;
+
+    writer.writeLine("</scene>");
 }
 
 #include "moc_sceneeditor.cpp"

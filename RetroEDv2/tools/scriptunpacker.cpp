@@ -155,7 +155,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     printLog("Loading Global Bytecode: " + globalPath);
 
                     for (int cat = 0; cat < 4; ++cat) {
-                        auto &c = gcf.categories[cat];
+                        auto &c = gcf.stageLists[cat];
                         for (int scn = 0; scn < c.scenes.count(); ++scn) {
                             auto &s = c.scenes[scn];
 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>636</width>
-    <height>379</height>
+    <height>382</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,12 +19,20 @@
      <property name="text">
       <string>U</string>
      </property>
+     <property name="icon">
+      <iconset resource="../../resources.qrc">
+       <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
+     </property>
     </widget>
    </item>
    <item row="3" column="2">
     <widget class="QToolButton" name="downTile">
      <property name="text">
       <string>D</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources.qrc">
+       <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
      </property>
     </widget>
    </item>
@@ -122,6 +130,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

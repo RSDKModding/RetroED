@@ -207,9 +207,8 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
             varGroup.append(group);
         }
 
-        Property *vars = new Property("Variables");
-        vars->setSubProperties(varGroup);
-        entityGroup.append(vars);
+        entityGroup.append(new Property("Variables"));
+        entityGroup[2]->setSubProperties(varGroup);
     }
 
     for (int v = 0; v < entity->customVars.count(); ++v) {

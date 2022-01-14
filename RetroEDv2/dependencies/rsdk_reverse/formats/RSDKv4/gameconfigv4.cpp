@@ -56,9 +56,9 @@ void RSDKv4::GameConfig::read(Reader &reader)
     }
 
     // Categories
-    categories.clear();
+    stageLists.clear();
     for (int c = 0; c < 4; ++c) {
-        categories.append(Category(reader));
+        stageLists.append(Category(reader));
     }
 }
 
@@ -106,7 +106,7 @@ void RSDKv4::GameConfig::write(Writer &writer)
 
     // Categories
     for (int c = 0; c < 4; ++c) {
-        categories[c].write(writer);
+        stageLists[c].write(writer);
     }
 
     writer.flush();

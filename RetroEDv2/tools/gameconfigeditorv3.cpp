@@ -1,8 +1,8 @@
 #include "includes.hpp"
 #include "ui_gameconfigeditorv3.h"
 
-GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
-    : QWidget(parent), ui(new Ui::GameconfigEditorv3)
+GameConfigEditorv3::GameConfigEditorv3(QString path, QWidget *parent)
+    : QWidget(parent), ui(new Ui::GameConfigEditorv3)
 {
     ui->setupUi(this);
 
@@ -11,30 +11,30 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
     ui->sectionList->blockSignals(false);
     ui->sectionList->setCurrentRow(0);
 
-    ui->addObj->setIcon(icon_add);
-    ui->upObj->setIcon(icon_up);
-    ui->downObj->setIcon(icon_down);
-    ui->rmObj->setIcon(icon_rm);
+    connect(ui->sectionList, &QListWidget::currentRowChanged, [this](int v) {
+        ui->objList->blockSignals(true);
+        ui->objList->setCurrentRow(0);
+        ui->objList->blockSignals(false);
+        ui->objList->setCurrentRow(-1);
 
-    ui->addSfx->setIcon(icon_add);
-    ui->upSfx->setIcon(icon_up);
-    ui->downSfx->setIcon(icon_down);
-    ui->rmSfx->setIcon(icon_rm);
+        ui->sfxList->blockSignals(true);
+        ui->sfxList->setCurrentRow(0);
+        ui->sfxList->blockSignals(false);
+        ui->sfxList->setCurrentRow(-1);
 
-    ui->addVar->setIcon(icon_add);
-    ui->upVar->setIcon(icon_up);
-    ui->downVar->setIcon(icon_down);
-    ui->rmVar->setIcon(icon_rm);
+        ui->varList->blockSignals(true);
+        ui->varList->setCurrentRow(0);
+        ui->varList->blockSignals(false);
+        ui->varList->setCurrentRow(-1);
 
-    ui->addPlr->setIcon(icon_add);
-    ui->upPlr->setIcon(icon_up);
-    ui->downPlr->setIcon(icon_down);
-    ui->rmPlr->setIcon(icon_rm);
+        ui->plrList->blockSignals(true);
+        ui->plrList->setCurrentRow(0);
+        ui->plrList->blockSignals(false);
+        ui->plrList->setCurrentRow(-1);
 
-    ui->addScn->setIcon(icon_add);
-    ui->upScn->setIcon(icon_up);
-    ui->downScn->setIcon(icon_down);
-    ui->rmScn->setIcon(icon_rm);
+        ui->detailsWidget->setCurrentIndex(v);
+        ui->sectionLabel->setText(ui->sectionList->item(v)->text());
+    });
 
     // ----------------
     // DETAILS
@@ -42,16 +42,11 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
 
     connect(ui->gameName, &QLineEdit::textEdited, [this](QString s) {
         gameConfig.gameWindowText = s;
-        updateTitle(true);
+        doAction("Changed Game Title");
     });
     connect(ui->gameDescription, &QPlainTextEdit::textChanged, [this] {
         gameConfig.gameDescriptionText = ui->gameDescription->toPlainText();
-        updateTitle(true);
-    });
-
-    connect(ui->sectionList, &QListWidget::currentRowChanged, [this](int v) {
-        ui->detailsWidget->setCurrentIndex(v);
-        ui->sectionLabel->setText(ui->sectionList->item(v)->text());
+        doAction("Changed Game Description");
     });
 
     // ----------------
@@ -97,7 +92,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->objList->setCurrentItem(item);
-        updateTitle(true);
+        doAction("Added Object");
     });
 
     connect(ui->upObj, &QToolButton::clicked, [this] {
@@ -106,7 +101,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         gameConfig.objects.move(c, c - 1);
         ui->objList->insertItem(c - 1, item);
         ui->objList->setCurrentRow(c - 1);
-        updateTitle(true);
+        doAction("Moved Object Up");
     });
 
     connect(ui->downObj, &QToolButton::clicked, [this] {
@@ -115,7 +110,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         gameConfig.objects.move(c, c + 1);
         ui->objList->insertItem(c + 1, item);
         ui->objList->setCurrentRow(c + 1);
-        updateTitle(true);
+        doAction("Moved Object Down");
     });
 
     connect(ui->rmObj, &QToolButton::clicked, [this] {
@@ -126,7 +121,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         ui->objList->blockSignals(true);
         ui->objList->setCurrentRow(n);
         ui->objList->blockSignals(false);
-        updateTitle(true);
+        doAction("Removed Object");
     });
 
     connect(ui->objList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -135,7 +130,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         ui->objName->blockSignals(true);
         ui->objName->setText(gameConfig.objects[ui->objList->row(item)].name);
         ui->objName->blockSignals(false);
-        updateTitle(true);
+        doAction("Changed Object Name");
     });
 
     connect(ui->objName, &QLineEdit::textEdited, [this](QString s) {
@@ -143,11 +138,11 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
 
         ui->objList->item(ui->objList->currentRow())
             ->setText(gameConfig.objects[ui->objList->currentRow()].name);
-        updateTitle(true);
+        doAction("Changed Object Name");
     });
     connect(ui->objScript, &QLineEdit::textEdited, [this](QString s) {
         gameConfig.objects[ui->objList->currentRow()].script = s;
-        updateTitle(true);
+        doAction("Changed Object Script");
     });
 
     // ----------------
@@ -189,7 +184,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->sfxList->setCurrentItem(item);
-        updateTitle(true);
+        doAction("Added Sfx");
     });
 
     connect(ui->upSfx, &QToolButton::clicked, [this] {
@@ -198,7 +193,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         gameConfig.soundFX.move(c, c - 1);
         ui->sfxList->insertItem(c - 1, item);
         ui->sfxList->setCurrentRow(c - 1);
-        updateTitle(true);
+        doAction("Moved Sfx Up");
     });
 
     connect(ui->downSfx, &QToolButton::clicked, [this] {
@@ -207,7 +202,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         gameConfig.soundFX.move(c, c + 1);
         ui->sfxList->insertItem(c + 1, item);
         ui->sfxList->setCurrentRow(c + 1);
-        updateTitle(true);
+        doAction("Moved Sfx Down");
     });
 
     connect(ui->rmSfx, &QToolButton::clicked, [this] {
@@ -218,7 +213,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         ui->sfxList->blockSignals(true);
         ui->sfxList->setCurrentRow(n);
         ui->sfxList->blockSignals(false);
-        updateTitle(true);
+        doAction("Removed Sfx");
     });
 
     connect(ui->sfxList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -227,7 +222,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         ui->sfxName->blockSignals(true);
         ui->sfxName->setText(gameConfig.soundFX[ui->sfxList->row(item)]);
         ui->sfxName->blockSignals(false);
-        updateTitle(true);
+        doAction("Changed Sfx Path");
     });
 
     connect(ui->sfxName, &QLineEdit::textEdited, [this](QString s) {
@@ -235,7 +230,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
 
         ui->sfxList->item(ui->sfxList->currentRow())
             ->setText(gameConfig.soundFX[ui->sfxList->currentRow()]);
-        updateTitle(true);
+        doAction("Changed Sfx Path");
     });
 
     // ----------------
@@ -279,7 +274,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->varList->setCurrentItem(item);
-        updateTitle(true);
+        doAction("Added Variable");
     });
 
     connect(ui->upVar, &QToolButton::clicked, [this] {
@@ -288,7 +283,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         gameConfig.globalVariables.move(c, c - 1);
         ui->varList->insertItem(c - 1, item);
         ui->varList->setCurrentRow(c - 1);
-        updateTitle(true);
+        doAction("Moved Variable Up");
     });
 
     connect(ui->downVar, &QToolButton::clicked, [this] {
@@ -297,7 +292,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         gameConfig.globalVariables.move(c, c + 1);
         ui->varList->insertItem(c + 1, item);
         ui->varList->setCurrentRow(c + 1);
-        updateTitle(true);
+        doAction("Moved Variable Down");
     });
 
     connect(ui->rmVar, &QToolButton::clicked, [this] {
@@ -308,7 +303,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         ui->varList->blockSignals(true);
         ui->varList->setCurrentRow(n);
         ui->varList->blockSignals(false);
-        updateTitle(true);
+        doAction("Removed Variable");
     });
 
     connect(ui->varList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -317,7 +312,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         ui->varName->blockSignals(true);
         ui->varName->setText(gameConfig.globalVariables[ui->varList->row(item)].name);
         ui->varName->blockSignals(false);
-        updateTitle(true);
+        doAction("Changed Variable Name");
     });
 
     connect(ui->varName, &QLineEdit::textEdited, [this](QString s) {
@@ -325,12 +320,12 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
 
         ui->varList->item(ui->varList->currentRow())
             ->setText(gameConfig.globalVariables[ui->varList->currentRow()].name);
-        updateTitle(true);
+        doAction("Changed Variable Name");
     });
 
     connect(ui->varValue, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
         gameConfig.globalVariables[ui->varList->currentRow()].value = v;
-        updateTitle(true);
+        doAction("Changed Variable Value");
     });
 
     // ----------------
@@ -368,7 +363,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->plrList->setCurrentItem(item);
-        updateTitle(true);
+        doAction("Added Player");
     });
 
     connect(ui->upPlr, &QToolButton::clicked, [this] {
@@ -377,7 +372,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         gameConfig.players.move(c, c - 1);
         ui->plrList->insertItem(c - 1, item);
         ui->plrList->setCurrentRow(c - 1);
-        updateTitle(true);
+        doAction("Moved Player Up");
     });
 
     connect(ui->downPlr, &QToolButton::clicked, [this] {
@@ -386,7 +381,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         gameConfig.players.move(c, c + 1);
         ui->plrList->insertItem(c + 1, item);
         ui->plrList->setCurrentRow(c + 1);
-        updateTitle(true);
+        doAction("Moved Player Down");
     });
 
     connect(ui->rmPlr, &QToolButton::clicked, [this] {
@@ -397,7 +392,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         ui->plrList->blockSignals(true);
         ui->plrList->setCurrentRow(n);
         ui->plrList->blockSignals(false);
-        updateTitle(true);
+        doAction("Removed Player");
     });
 
     connect(ui->plrList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -406,7 +401,7 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         ui->plrName->blockSignals(true);
         ui->plrName->setText(gameConfig.players[ui->plrList->row(item)]);
         ui->plrName->blockSignals(false);
-        updateTitle(true);
+        doAction("Changed Player Name");
     });
 
     connect(ui->plrName, &QLineEdit::textEdited, [this](QString s) {
@@ -414,25 +409,25 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
 
         ui->plrList->item(ui->plrList->currentRow())
             ->setText(gameConfig.players[ui->plrList->currentRow()]);
-        updateTitle(true);
+        doAction("Changed Player Name");
     });
 
     // ----------------
     // SCENES
     // ----------------
-    if (m_sceneModel) {
-        delete m_sceneModel;
-        m_sceneModel = nullptr;
+    if (sceneModel) {
+        delete sceneModel;
+        sceneModel = nullptr;
     }
-    m_sceneModel = new QStandardItemModel(ui->scnTree);
+    sceneModel = new QStandardItemModel(ui->scnTree);
 
-    connect(m_sceneModel, &QStandardItemModel::itemChanged, [this](QStandardItem *item) {
-        const QModelIndex &index = m_sceneModel->indexFromItem(item);
+    connect(sceneModel, &QStandardItemModel::itemChanged, [this](QStandardItem *item) {
+        const QModelIndex &index = sceneModel->indexFromItem(item);
         if (index.parent().isValid()) { // Scene
             gameConfig.stageLists[index.parent().row()].scenes[index.row()].name = item->text();
+            doAction("Changed Scene Name");
             return;
         }
-        // m_gameconfig.m_categories[index.row()].m_name = item->text();
     });
 
     connect(ui->addScn, &QToolButton::clicked, [this] {
@@ -446,12 +441,12 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         gameConfig.stageLists[cat].scenes.insert(scn, RSDKv3::GameConfig::SceneInfo());
         auto *scnItem = new QStandardItem(gameConfig.stageLists[cat].scenes[scn].name);
         if (scnSelected)
-            m_sceneModel->itemFromIndex(index.parent())->insertRow(scn, scnItem);
+            sceneModel->itemFromIndex(index.parent())->insertRow(scn, scnItem);
         else
-            m_sceneModel->itemFromIndex(index)->insertRow(scn, scnItem);
+            sceneModel->itemFromIndex(index)->insertRow(scn, scnItem);
         scnItem->setFlags(scnItem->flags() | Qt::ItemIsEditable);
-        ui->scnTree->setCurrentIndex(m_sceneModel->indexFromItem(scnItem));
-        updateTitle(true);
+        ui->scnTree->setCurrentIndex(sceneModel->indexFromItem(scnItem));
+        doAction("Added Scene");
     });
 
     connect(ui->rmScn, &QToolButton::clicked, [this] {
@@ -459,8 +454,8 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
 
         if (index.parent().isValid()) { // Scene
             gameConfig.stageLists[index.parent().row()].scenes.removeAt(index.row());
-            m_sceneModel->itemFromIndex(index.parent())->removeRow(index.row());
-            updateTitle(true);
+            sceneModel->itemFromIndex(index.parent())->removeRow(index.row());
+            doAction("Removed Scene");
             return;
         }
     });
@@ -472,22 +467,21 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
         if (isScn) {
             gameConfig.stageLists[ui->scnTree->currentIndex().parent().row()].scenes.move(
                 c, c + translation);
-            QStandardItem *parentItem =
-                m_sceneModel->itemFromIndex(ui->scnTree->currentIndex().parent());
-            item = parentItem->takeRow(c);
+            QStandardItem *parentItem = sceneModel->itemFromIndex(ui->scnTree->currentIndex().parent());
+            item                      = parentItem->takeRow(c);
             parentItem->insertRow(c + translation, item);
-            updateTitle(true);
+            doAction("Moved Scene");
         }
         else
             return;
-        ui->scnTree->setCurrentIndex(m_sceneModel->indexFromItem(item.first()));
+        ui->scnTree->setCurrentIndex(sceneModel->indexFromItem(item.first()));
     };
 
     connect(ui->upScn, &QToolButton::clicked, [moveScn] { moveScn(-1); });
 
     connect(ui->downScn, &QToolButton::clicked, [moveScn] { moveScn(1); });
 
-    ui->scnTree->setModel(m_sceneModel);
+    ui->scnTree->setModel(sceneModel);
 
     connect(
         ui->scnTree->selectionModel(), &QItemSelectionModel::currentChanged,
@@ -537,22 +531,22 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
                     gameConfig.stageLists[c.parent().row()].scenes[c.row()].name = s;
 
                     // TODO: edit text
-                    updateTitle(true);
+                    doAction("Changed Scene Name");
                 });
 
                 connect(ui->scnFolder, &QLineEdit::textEdited, [this, c](QString s) {
                     gameConfig.stageLists[c.parent().row()].scenes[c.row()].folder = s;
-                    updateTitle(true);
+                    doAction("Changed Scene Folder");
                 });
 
                 connect(ui->scnID, &QLineEdit::textEdited, [this, c](QString s) {
-                    gameConfig.stageLists[c.parent().row()].scenes[c.row()].folder = s;
-                    updateTitle(true);
+                    gameConfig.stageLists[c.parent().row()].scenes[c.row()].id = s;
+                    doAction("Changed Scene ID");
                 });
 
                 connect(ui->scnHighlighted, &QCheckBox::toggled, [this, c](bool v) {
                     gameConfig.stageLists[c.parent().row()].scenes[c.row()].highlighted = v;
-                    updateTitle(true);
+                    doAction("Changed Scene Highlight");
                 });
             }
 
@@ -566,40 +560,59 @@ GameconfigEditorv3::GameconfigEditorv3(QString path, QWidget *parent)
     load(path);
 }
 
-GameconfigEditorv3::~GameconfigEditorv3() { delete ui; }
+GameConfigEditorv3::~GameConfigEditorv3() { delete ui; }
 
-void GameconfigEditorv3::load(QString filename)
+void GameConfigEditorv3::load(QString filename)
 {
-    ui->sectionList->blockSignals(true);
-    ui->sectionList->setCurrentRow(-1);
-    ui->sectionList->blockSignals(false);
-    ui->sectionList->setCurrentRow(0);
-
     if (filename != "") {
         Reader reader = Reader(filename);
         gameConfig.read(reader);
         tabTitle = Utils::getFilenameAndFolder(gameConfig.filePath);
+        appConfig.addRecentFile(ENGINE_v3, TOOL_GAMECONFIGEDITOR, filename, QList<QString>{ /**/ });
     }
     else {
         gameConfig = RSDKv3::GameConfig();
         tabTitle   = "GameConfig Editor";
     }
-    updateTitle(false);
+    clearActions();
+
+    setupUI();
+}
+
+void GameConfigEditorv3::setupUI(bool allowRowChange)
+{
+    if (allowRowChange) {
+        ui->sectionList->blockSignals(true);
+        ui->sectionList->setCurrentRow(-1);
+        ui->sectionList->blockSignals(false);
+        ui->sectionList->setCurrentRow(0);
+    }
+
+    ui->gameName->blockSignals(true);
+    ui->gameDescription->blockSignals(true);
+    ui->objList->blockSignals(true);
+    ui->sfxList->blockSignals(true);
+    ui->varList->blockSignals(true);
+    ui->plrList->blockSignals(true);
 
     ui->gameName->setText(gameConfig.gameWindowText);
     ui->gameDescription->setPlainText(gameConfig.gameDescriptionText);
 
+    int prevIndex = ui->objList->currentRow();
     ui->objList->setCurrentRow(0);
-    ui->objList->setCurrentRow(-1);
+    ui->objList->setCurrentRow(prevIndex >= ui->objList->count() ? -1 : prevIndex);
 
+    prevIndex = ui->sfxList->currentRow();
     ui->sfxList->setCurrentRow(0);
-    ui->sfxList->setCurrentRow(-1);
+    ui->sfxList->setCurrentRow(prevIndex >= ui->sfxList->count() ? -1 : prevIndex);
 
+    prevIndex = ui->varList->currentRow();
     ui->varList->setCurrentRow(0);
-    ui->varList->setCurrentRow(-1);
+    ui->varList->setCurrentRow(prevIndex >= ui->varList->count() ? -1 : prevIndex);
 
+    prevIndex = ui->plrList->currentRow();
     ui->plrList->setCurrentRow(0);
-    ui->plrList->setCurrentRow(-1);
+    ui->plrList->setCurrentRow(prevIndex >= ui->plrList->count() ? -1 : prevIndex);
 
     ui->objList->clear();
     int id = 0;
@@ -633,7 +646,7 @@ void GameconfigEditorv3::load(QString filename)
         id++;
     }
 
-    m_sceneModel->clear();
+    sceneModel->clear();
     QList<QString> names = {
         "Presentation Stages",
         "Regular Stages",
@@ -651,366 +664,39 @@ void GameconfigEditorv3::load(QString filename)
         }
 
         catItem->setFlags(catItem->flags() & ~Qt::ItemIsEditable);
-        m_sceneModel->appendRow(catItem);
+        sceneModel->appendRow(catItem);
     }
+
+    ui->gameName->blockSignals(false);
+    ui->gameDescription->blockSignals(false);
+    ui->objList->blockSignals(false);
+    ui->sfxList->blockSignals(false);
+    ui->varList->blockSignals(false);
+    ui->plrList->blockSignals(false);
 }
 
-bool GameconfigEditorv3::event(QEvent *event)
+bool GameConfigEditorv3::event(QEvent *event)
 {
-    if (event->type() == (QEvent::Type)RE_EVENT_NEW) {
-        load("");
-        return true;
-    }
-    if (event->type() == (QEvent::Type)RE_EVENT_OPEN) {
-        QFileDialog filedialog(this, tr("Open GameConfig"), "",
-                               tr("RSDKv3 GameConfig files (GameConfig*.bin)"));
-        filedialog.setAcceptMode(QFileDialog::AcceptOpen);
-        if (filedialog.exec() == QDialog::Accepted) {
-            QString basePath = filedialog.selectedFiles()[0].replace(
-                QFileInfo(filedialog.selectedFiles()[0]).fileName(), "");
-            load(filedialog.selectedFiles()[0]);
 
-            appConfig.addRecentFile(ENGINE_v3, TOOL_GAMECONFIGEDITOR, filedialog.selectedFiles()[0],
-                                    QList<QString>{ /**/ });
-            setStatus("Loading GameConfig: " + QFileInfo(filedialog.selectedFiles()[0]).fileName());
-
-            return true;
-        }
-    }
-
-    if (event->type() == (QEvent::Type)RE_EVENT_SAVE) {
-        if (!QFile(gameConfig.filePath).exists()) {
+    switch ((int)event->type()) {
+        default: break;
+        case RE_EVENT_NEW: load(""); return true;
+        case RE_EVENT_OPEN: {
             QFileDialog filedialog(this, tr("Open GameConfig"), "",
                                    tr("RSDKv3 GameConfig files (GameConfig*.bin)"));
-            filedialog.setAcceptMode(QFileDialog::AcceptSave);
+            filedialog.setAcceptMode(QFileDialog::AcceptOpen);
             if (filedialog.exec() == QDialog::Accepted) {
+                QString basePath = filedialog.selectedFiles()[0].replace(
+                    QFileInfo(filedialog.selectedFiles()[0]).fileName(), "");
+                load(filedialog.selectedFiles()[0]);
 
-                setStatus("Saving GameConfig: " + filedialog.selectedFiles()[0]);
-
-                appConfig.addRecentFile(ENGINE_v3, TOOL_GAMECONFIGEDITOR, filedialog.selectedFiles()[0],
-                                        QList<QString>{ /**/ });
-                Writer writer(filedialog.selectedFiles()[0]);
-                gameConfig.write(writer);
-                updateTitle(false);
+                setStatus("Loading GameConfig: " + QFileInfo(filedialog.selectedFiles()[0]).fileName());
 
                 return true;
             }
+            break;
         }
-        else {
-            gameConfig.write("");
-            updateTitle(false);
-            return true;
-        }
-    }
-
-    if (event->type() == (QEvent::Type)RE_EVENT_SAVE_AS) {
-        QList<QString> types = {
-            "RSDKv3 GameConfig files (GameConfig*.bin)",
-            "RSDKv2 GameConfig files (GameConfig*.bin)",
-            "RSDKv4 GameConfig files (GameConfig*.bin)",
-            "RSDKv5 rev02 (plus) GameConfig files (GameConfig*.bin)",
-            "RSDKv5 rev01 (pre-plus) GameConfig files (GameConfig*.bin)",
-            "RSDK Game XMLs (Game*.xml)",
-        };
-        QFileDialog filedialog(this, tr("Save GameConfig"), "",
-                               tr(QString("%1;;%2;;%3;;%4;;%5;;%6")
-                                      .arg(types[0])
-                                      .arg(types[1])
-                                      .arg(types[2])
-                                      .arg(types[3])
-                                      .arg(types[4])
-                                      .arg(types[5])
-                                      .toStdString()
-                                      .c_str()));
-        filedialog.setAcceptMode(QFileDialog::AcceptSave);
-        if (filedialog.exec() == QDialog::Accepted) {
-            int filter = types.indexOf(filedialog.selectedNameFilter());
-
-            switch (filter) {
-                case 0: {
-                    setStatus("Saving GameConfig: " + filedialog.selectedFiles()[0]);
-
-                    appConfig.addRecentFile(ENGINE_v4, TOOL_GAMECONFIGEDITOR,
-                                            filedialog.selectedFiles()[0], QList<QString>{ /**/ });
-
-                    gameConfig.write(filedialog.selectedFiles()[0]);
-                    break;
-                }
-                case 1: {
-                    setStatus("Saving (v2) GameConfig: " + filedialog.selectedFiles()[0]);
-                    RSDKv2::Gameconfig config;
-
-                    config.gameWindowText      = gameConfig.gameWindowText;
-                    config.gameDescriptionText = gameConfig.gameDescriptionText;
-
-                    config.globalVariables.clear();
-                    for (auto &var : gameConfig.globalVariables) {
-                        RSDKv2::Gameconfig::GlobalVariable variable;
-                        variable.name  = var.name;
-                        variable.value = var.value;
-                        config.globalVariables.append(variable);
-                    }
-
-                    config.scripts.clear();
-                    for (auto &obj : gameConfig.objects) {
-                        config.scripts.append(obj.script);
-                    }
-
-                    config.soundFX.clear();
-                    for (auto &sfx : gameConfig.soundFX) {
-                        config.soundFX.append(sfx);
-                    }
-
-                    config.players.clear();
-                    for (auto &plr : gameConfig.players) {
-                        RSDKv2::Gameconfig::PlayerInfo player;
-                        player.name = plr;
-                        config.players.append(player);
-                    }
-
-                    config.stageLists.clear();
-                    for (auto &cat : gameConfig.stageLists) {
-                        RSDKv2::Gameconfig::Category category;
-                        category.scenes.clear();
-
-                        for (auto &scn : cat.scenes) {
-                            RSDKv2::Gameconfig::SceneInfo scene;
-                            scene.name        = scn.name;
-                            scene.folder      = scn.folder;
-                            scene.id          = scn.id;
-                            scene.highlighted = scn.highlighted;
-                            category.scenes.append(scene);
-                        }
-                        config.stageLists.append(category);
-                    }
-
-                    appConfig.addRecentFile(ENGINE_v2, TOOL_GAMECONFIGEDITOR,
-                                            filedialog.selectedFiles()[0], QList<QString>{ /**/ });
-                    config.write(filedialog.selectedFiles()[0]);
-                    break;
-                }
-                case 2: {
-                    setStatus("Saving (v4) GameConfig: " + filedialog.selectedFiles()[0]);
-                    RSDKv4::GameConfig config;
-
-                    config.gameWindowText      = gameConfig.gameWindowText;
-                    config.gameDescriptionText = gameConfig.gameDescriptionText;
-
-                    config.globalVariables.clear();
-                    for (auto &var : gameConfig.globalVariables) {
-                        RSDKv4::GameConfig::GlobalVariable variable;
-                        variable.name  = var.name;
-                        variable.value = var.value;
-                        config.globalVariables.append(variable);
-                    }
-
-                    config.objects.clear();
-                    for (auto &obj : gameConfig.objects) {
-                        RSDKv4::GameConfig::ObjectInfo object;
-                        object.name   = obj.name;
-                        object.script = obj.script;
-                        config.objects.append(object);
-                    }
-
-                    config.soundFX.clear();
-                    for (auto &sfx : gameConfig.soundFX) {
-                        RSDKv4::GameConfig::SoundInfo soundFX;
-                        soundFX.name = QFileInfo(sfx).baseName();
-                        soundFX.path = sfx;
-                        config.soundFX.append(soundFX);
-                    }
-
-                    config.players.clear();
-                    for (auto &plr : gameConfig.players) {
-                        config.players.append(plr);
-                    }
-
-                    config.palette.colours.clear();
-                    for (int i = 0; i < 96; ++i) {
-                        config.palette.colours.append(Colour(0x00, 0x00, 0x00));
-                    }
-
-                    config.categories.clear();
-                    for (auto &cat : gameConfig.stageLists) {
-                        RSDKv4::GameConfig::Category category;
-                        category.scenes.clear();
-
-                        for (auto &scn : cat.scenes) {
-                            RSDKv4::GameConfig::SceneInfo scene;
-                            scene.name        = scn.name;
-                            scene.folder      = scn.folder;
-                            scene.id          = scn.id;
-                            scene.highlighted = scn.highlighted;
-                            category.scenes.append(scene);
-                        }
-                        config.categories.append(category);
-                    }
-
-                    appConfig.addRecentFile(ENGINE_v4, TOOL_GAMECONFIGEDITOR,
-                                            filedialog.selectedFiles()[0], QList<QString>{ /**/ });
-                    config.write(filedialog.selectedFiles()[0]);
-                    break;
-                }
-                case 3:
-                case 4: {
-                    setStatus("Saving (v5) GameConfig: " + filedialog.selectedFiles()[0]);
-                    RSDKv5::GameConfig config;
-                    RSDKv5::RSDKConfig rsdkConfig;
-
-                    config.gameTitle  = gameConfig.gameWindowText;
-                    config.readFilter = true;
-
-                    config.globalVariables.clear();
-                    rsdkConfig.variables.clear();
-                    int varID = 0;
-                    for (auto &var : gameConfig.globalVariables) {
-                        RSDKv5::GameConfig::GlobalVariable variable;
-                        RSDKv5::RSDKConfig::Variable rsdkVar;
-
-                        rsdkVar.name = var.name;
-                        rsdkVar.name.replace(".", "_");
-                        rsdkVar.type   = "int";
-                        rsdkVar.value  = "-";
-                        variable.index = varID;
-                        if (var.value) {
-                            variable.values.append(var.value);
-                            rsdkVar.value = QString::number(var.value);
-                        }
-                        config.globalVariables.append(variable);
-                        rsdkConfig.variables.append(rsdkVar);
-                        ++varID;
-                    }
-
-                    config.objects.clear();
-                    for (auto &obj : gameConfig.objects) {
-                        QString name = obj.name;
-                        config.objects.append(name.replace(" ", ""));
-                    }
-
-                    config.soundFX.clear();
-                    for (auto &sfx : gameConfig.soundFX) {
-                        RSDKv5::GameConfig::SoundInfo soundFX;
-                        soundFX.path              = sfx;
-                        soundFX.maxConcurrentPlay = 1;
-                        config.soundFX.append(soundFX);
-                    }
-
-                    for (int i = 0; i < 8; ++i) {
-                        for (int r = 0; r < 16; ++r) config.palettes[i].activeRows[r] = false;
-                    }
-
-                    config.categories.clear();
-                    QList<QString> catNames = { "Presentation", "Regular Stages", "Bonus Stages",
-                                                "Special Stages" };
-                    int catID               = 0;
-                    for (auto &cat : gameConfig.stageLists) {
-                        RSDKv5::GameConfig::Category category;
-                        category.name = catNames[catID];
-                        category.scenes.clear();
-
-                        for (auto &scn : cat.scenes) {
-                            RSDKv5::GameConfig::SceneInfo scene;
-                            scene.name   = scn.name;
-                            scene.folder = scn.folder;
-                            scene.id     = scn.id;
-                            scene.filter = 0;
-                            category.scenes.append(scene);
-                        }
-                        config.categories.append(category);
-                        ++catID;
-                    }
-
-                    config.readFilter = filter == 3;
-                    appConfig.addRecentFile(
-                        ENGINE_v5, TOOL_GAMECONFIGEDITOR, filedialog.selectedFiles()[0],
-                        QList<QString>{ "GameConfig", filter == 4 ? "rev01" : "rev02" });
-                    config.write(filedialog.selectedFiles()[0]);
-                    rsdkConfig.write(
-                        filedialog.selectedFiles()[0].toLower().replace("gameconfig", "rsdkconfig"));
-                    break;
-                }
-                case 5: {
-                    setStatus("Saving Game.xml: " + filedialog.selectedFiles()[0]);
-                    Writer writer(filedialog.selectedFiles()[0]);
-
-                    writer.writeLine("<?xml version=\"1.0\"?>");
-
-                    writer.writeLine();
-                    writer.writeLine("<game>");
-                    if (gameConfig.globalVariables.count()) {
-                        writer.writeLine();
-                        writer.writeLine("\t<variables>");
-                        for (auto &var : gameConfig.globalVariables) {
-                            writer.writeLine(
-                                QString("\t\t<variable name=\"%1\" value=\"%2\"> </variable>")
-                                    .arg(var.name)
-                                    .arg(var.value));
-                        }
-                        writer.writeLine("\t</variables>");
-                    }
-
-                    if (gameConfig.objects.count()) {
-                        writer.writeLine();
-                        writer.writeLine("\t<objects>");
-                        for (auto &obj : gameConfig.objects) {
-                            writer.writeLine(QString("\t<object name=\"%1\" script=\"%2\" "
-                                                     "forceLoad=\"false\"> </object>")
-                                                 .arg(obj.name)
-                                                 .arg(obj.script));
-                        }
-                        writer.writeLine("\t</objects>");
-                    }
-
-                    if (gameConfig.soundFX.count()) {
-                        writer.writeLine();
-                        writer.writeLine("\t<sounds>");
-                        for (auto &sfx : gameConfig.soundFX) {
-                            writer.writeLine(QString("\t\t<soundfx path=\"%1\"> </soundfx>").arg(sfx));
-                        }
-                        writer.writeLine("\t</sounds>");
-                    }
-
-                    if (gameConfig.players.count()) {
-                        writer.writeLine();
-                        writer.writeLine("\t<players>");
-                        for (auto &plr : gameConfig.players) {
-                            writer.writeLine(QString("\t\t<player name=\"%1\"> </player>").arg(plr));
-                        }
-                        writer.writeLine("\t</players>");
-                    }
-
-                    QString elementNames[] = { "presentationStages", "regularStages", "specialStages",
-                                               "bonusStages" };
-                    for (int i = 0; i < 4; ++i) {
-                        if (gameConfig.stageLists[i].scenes.count()) {
-                            writer.writeLine();
-                            writer.writeLine(QString("\t<%1>").arg(elementNames[i]));
-                            for (auto &stg : gameConfig.stageLists[i].scenes) {
-                                writer.writeLine(QString("\t\t<stage name=\"%1\" folder=\"%2\" "
-                                                         "id=\"%3\" highlight=\"%4\"> </stage>")
-                                                     .arg(stg.name)
-                                                     .arg(stg.folder)
-                                                     .arg(stg.id)
-                                                     .arg(stg.highlighted ? "true" : "false"));
-                            }
-                            writer.writeLine(QString("\t</%1>").arg(elementNames[i]));
-                        }
-                    }
-                    writer.writeLine("</game>");
-
-                    writer.flush();
-                    break;
-                }
-            }
-
-            updateTitle(false);
-            return true;
-        }
-    }
-
-    if (event->type() == QEvent::Close && modified) {
-        bool cancelled = false;
-        if (MainWindow::showCloseWarning(this, &cancelled)) {
+        case RE_EVENT_SAVE:
             if (!QFile(gameConfig.filePath).exists()) {
                 QFileDialog filedialog(this, tr("Open GameConfig"), "",
                                        tr("RSDKv3 GameConfig files (GameConfig*.bin)"));
@@ -1023,21 +709,444 @@ bool GameconfigEditorv3::event(QEvent *event)
                                             filedialog.selectedFiles()[0], QList<QString>{ /**/ });
                     Writer writer(filedialog.selectedFiles()[0]);
                     gameConfig.write(writer);
-                    updateTitle(false);
+                    clearActions();
+
+                    return true;
                 }
             }
             else {
                 gameConfig.write("");
-                updateTitle(false);
+                clearActions();
+                return true;
             }
+            break;
+        case RE_EVENT_SAVE_AS: {
+            QList<QString> types = {
+                "RSDKv3 GameConfig files (GameConfig*.bin)",
+                "RSDKv2 GameConfig files (GameConfig*.bin)",
+                "RSDKv4 GameConfig files (GameConfig*.bin)",
+                "RSDKv5 rev02 (plus) GameConfig files (GameConfig*.bin)",
+                "RSDKv5 rev01 (pre-plus) GameConfig files (GameConfig*.bin)",
+                "RSDK Game XMLs (Game*.xml)",
+            };
+            QFileDialog filedialog(this, tr("Save GameConfig"), "",
+                                   tr(QString("%1;;%2;;%3;;%4;;%5;;%6")
+                                          .arg(types[0])
+                                          .arg(types[1])
+                                          .arg(types[2])
+                                          .arg(types[3])
+                                          .arg(types[4])
+                                          .arg(types[5])
+                                          .toStdString()
+                                          .c_str()));
+            filedialog.setAcceptMode(QFileDialog::AcceptSave);
+            if (filedialog.exec() == QDialog::Accepted) {
+                int filter = types.indexOf(filedialog.selectedNameFilter());
+
+                switch (filter) {
+                    case 0: {
+                        setStatus("Saving GameConfig: " + filedialog.selectedFiles()[0]);
+
+                        appConfig.addRecentFile(ENGINE_v4, TOOL_GAMECONFIGEDITOR,
+                                                filedialog.selectedFiles()[0], QList<QString>{ /**/ });
+
+                        gameConfig.write(filedialog.selectedFiles()[0]);
+                        break;
+                    }
+                    case 1: {
+                        setStatus("Saving (v2) GameConfig: " + filedialog.selectedFiles()[0]);
+                        RSDKv2::GameConfig config;
+
+                        config.gameWindowText      = gameConfig.gameWindowText;
+                        config.gameDescriptionText = gameConfig.gameDescriptionText;
+
+                        config.globalVariables.clear();
+                        for (auto &var : gameConfig.globalVariables) {
+                            RSDKv2::GameConfig::GlobalVariable variable;
+                            variable.name  = var.name;
+                            variable.value = var.value;
+                            config.globalVariables.append(variable);
+                        }
+
+                        config.objects.clear();
+                        for (auto &obj : gameConfig.objects) {
+                            config.objects.append(obj.script);
+                        }
+
+                        config.soundFX.clear();
+                        for (auto &sfx : gameConfig.soundFX) {
+                            config.soundFX.append(sfx);
+                        }
+
+                        config.players.clear();
+                        for (auto &plr : gameConfig.players) {
+                            RSDKv2::GameConfig::PlayerInfo player;
+                            player.name = plr;
+                            config.players.append(player);
+                        }
+
+                        config.stageLists.clear();
+                        for (auto &cat : gameConfig.stageLists) {
+                            RSDKv2::GameConfig::Category category;
+                            category.scenes.clear();
+
+                            for (auto &scn : cat.scenes) {
+                                RSDKv2::GameConfig::SceneInfo scene;
+                                scene.name        = scn.name;
+                                scene.folder      = scn.folder;
+                                scene.id          = scn.id;
+                                scene.highlighted = scn.highlighted;
+                                category.scenes.append(scene);
+                            }
+                            config.stageLists.append(category);
+                        }
+
+                        appConfig.addRecentFile(ENGINE_v2, TOOL_GAMECONFIGEDITOR,
+                                                filedialog.selectedFiles()[0], QList<QString>{ /**/ });
+                        config.write(filedialog.selectedFiles()[0]);
+                        break;
+                    }
+                    case 2: {
+                        setStatus("Saving (v4) GameConfig: " + filedialog.selectedFiles()[0]);
+                        RSDKv4::GameConfig config;
+
+                        config.gameWindowText      = gameConfig.gameWindowText;
+                        config.gameDescriptionText = gameConfig.gameDescriptionText;
+
+                        config.globalVariables.clear();
+                        for (auto &var : gameConfig.globalVariables) {
+                            RSDKv4::GameConfig::GlobalVariable variable;
+                            variable.name  = var.name;
+                            variable.value = var.value;
+                            config.globalVariables.append(variable);
+                        }
+
+                        config.objects.clear();
+                        for (auto &obj : gameConfig.objects) {
+                            RSDKv4::GameConfig::ObjectInfo object;
+                            object.name   = obj.name;
+                            object.script = obj.script;
+                            config.objects.append(object);
+                        }
+
+                        config.soundFX.clear();
+                        for (auto &sfx : gameConfig.soundFX) {
+                            RSDKv4::GameConfig::SoundInfo soundFX;
+                            soundFX.name = QFileInfo(sfx).baseName();
+                            soundFX.path = sfx;
+                            config.soundFX.append(soundFX);
+                        }
+
+                        config.players.clear();
+                        for (auto &plr : gameConfig.players) {
+                            config.players.append(plr);
+                        }
+
+                        config.palette.colours.clear();
+                        for (int i = 0; i < 96; ++i) {
+                            config.palette.colours.append(Colour(0x00, 0x00, 0x00));
+                        }
+
+                        config.stageLists.clear();
+                        for (auto &cat : gameConfig.stageLists) {
+                            RSDKv4::GameConfig::Category category;
+                            category.scenes.clear();
+
+                            for (auto &scn : cat.scenes) {
+                                RSDKv4::GameConfig::SceneInfo scene;
+                                scene.name        = scn.name;
+                                scene.folder      = scn.folder;
+                                scene.id          = scn.id;
+                                scene.highlighted = scn.highlighted;
+                                category.scenes.append(scene);
+                            }
+                            config.stageLists.append(category);
+                        }
+
+                        appConfig.addRecentFile(ENGINE_v4, TOOL_GAMECONFIGEDITOR,
+                                                filedialog.selectedFiles()[0], QList<QString>{ /**/ });
+                        config.write(filedialog.selectedFiles()[0]);
+                        break;
+                    }
+                    case 3:
+                    case 4: {
+                        setStatus("Saving (v5) GameConfig: " + filedialog.selectedFiles()[0]);
+                        RSDKv5::GameConfig config;
+                        RSDKv5::RSDKConfig rsdkConfig;
+
+                        config.gameTitle  = gameConfig.gameWindowText;
+                        config.readFilter = true;
+
+                        config.globalVariables.clear();
+                        rsdkConfig.variables.clear();
+                        int varID = 0;
+                        for (auto &var : gameConfig.globalVariables) {
+                            RSDKv5::GameConfig::GlobalVariable variable;
+                            RSDKv5::RSDKConfig::Variable rsdkVar;
+
+                            rsdkVar.name = var.name;
+                            rsdkVar.name.replace(".", "_");
+                            rsdkVar.type   = "int";
+                            rsdkVar.value  = "-";
+                            variable.index = varID;
+                            if (var.value) {
+                                variable.values.append(var.value);
+                                rsdkVar.value = QString::number(var.value);
+                            }
+                            config.globalVariables.append(variable);
+                            rsdkConfig.variables.append(rsdkVar);
+                            ++varID;
+                        }
+
+                        config.objects.clear();
+                        for (auto &obj : gameConfig.objects) {
+                            QString name = obj.name;
+                            config.objects.append(name.replace(" ", ""));
+                        }
+
+                        config.soundFX.clear();
+                        for (auto &sfx : gameConfig.soundFX) {
+                            RSDKv5::GameConfig::SoundInfo soundFX;
+                            soundFX.path              = sfx;
+                            soundFX.maxConcurrentPlay = 1;
+                            config.soundFX.append(soundFX);
+                        }
+
+                        for (int i = 0; i < 8; ++i) {
+                            for (int r = 0; r < 16; ++r) config.palettes[i].activeRows[r] = false;
+                        }
+
+                        config.categories.clear();
+                        QList<QString> catNames = { "Presentation", "Regular Stages", "Bonus Stages",
+                                                    "Special Stages" };
+                        int catID               = 0;
+                        for (auto &cat : gameConfig.stageLists) {
+                            RSDKv5::GameConfig::Category category;
+                            category.name = catNames[catID];
+                            category.scenes.clear();
+
+                            for (auto &scn : cat.scenes) {
+                                RSDKv5::GameConfig::SceneInfo scene;
+                                scene.name   = scn.name;
+                                scene.folder = scn.folder;
+                                scene.id     = scn.id;
+                                scene.filter = 0;
+                                category.scenes.append(scene);
+                            }
+                            config.categories.append(category);
+                            ++catID;
+                        }
+
+                        config.readFilter = filter == 3;
+                        appConfig.addRecentFile(
+                            ENGINE_v5, TOOL_GAMECONFIGEDITOR, filedialog.selectedFiles()[0],
+                            QList<QString>{ "GameConfig", filter == 4 ? "rev01" : "rev02" });
+                        config.write(filedialog.selectedFiles()[0]);
+                        rsdkConfig.write(filedialog.selectedFiles()[0].toLower().replace("gameconfig",
+                                                                                         "rsdkconfig"));
+                        break;
+                    }
+                    case 5: {
+                        setStatus("Saving Game.xml: " + filedialog.selectedFiles()[0]);
+                        Writer writer(filedialog.selectedFiles()[0]);
+
+                        writer.writeLine("<?xml version=\"1.0\"?>");
+
+                        writer.writeLine();
+                        writer.writeLine("<game>");
+                        if (gameConfig.globalVariables.count()) {
+                            writer.writeLine();
+                            writer.writeLine("\t<variables>");
+                            for (auto &var : gameConfig.globalVariables) {
+                                writer.writeLine(
+                                    QString("\t\t<variable name=\"%1\" value=\"%2\"> </variable>")
+                                        .arg(var.name)
+                                        .arg(var.value));
+                            }
+                            writer.writeLine("\t</variables>");
+                        }
+
+                        if (gameConfig.objects.count()) {
+                            writer.writeLine();
+                            writer.writeLine("\t<objects>");
+                            for (auto &obj : gameConfig.objects) {
+                                writer.writeLine(QString("\t<object name=\"%1\" script=\"%2\" "
+                                                         "forceLoad=\"false\"> </object>")
+                                                     .arg(obj.name)
+                                                     .arg(obj.script));
+                            }
+                            writer.writeLine("\t</objects>");
+                        }
+
+                        if (gameConfig.soundFX.count()) {
+                            writer.writeLine();
+                            writer.writeLine("\t<sounds>");
+                            for (auto &sfx : gameConfig.soundFX) {
+                                writer.writeLine(
+                                    QString("\t\t<soundfx path=\"%1\"> </soundfx>").arg(sfx));
+                            }
+                            writer.writeLine("\t</sounds>");
+                        }
+
+                        if (gameConfig.players.count()) {
+                            writer.writeLine();
+                            writer.writeLine("\t<players>");
+                            for (auto &plr : gameConfig.players) {
+                                writer.writeLine(
+                                    QString("\t\t<player name=\"%1\"> </player>").arg(plr));
+                            }
+                            writer.writeLine("\t</players>");
+                        }
+
+                        QString elementNames[] = { "presentationStages", "regularStages",
+                                                   "specialStages", "bonusStages" };
+                        for (int i = 0; i < 4; ++i) {
+                            if (gameConfig.stageLists[i].scenes.count()) {
+                                writer.writeLine();
+                                writer.writeLine(QString("\t<%1>").arg(elementNames[i]));
+                                for (auto &stg : gameConfig.stageLists[i].scenes) {
+                                    writer.writeLine(QString("\t\t<stage name=\"%1\" folder=\"%2\" "
+                                                             "id=\"%3\" highlight=\"%4\"> </stage>")
+                                                         .arg(stg.name)
+                                                         .arg(stg.folder)
+                                                         .arg(stg.id)
+                                                         .arg(stg.highlighted ? "true" : "false"));
+                                }
+                                writer.writeLine(QString("\t</%1>").arg(elementNames[i]));
+                            }
+                        }
+                        writer.writeLine("</game>");
+
+                        writer.flush();
+                        break;
+                    }
+                }
+
+                clearActions();
+                return true;
+            }
+            break;
         }
-        else if (cancelled) {
-            event->ignore();
-            return true;
-        }
+        case RE_EVENT_UNDO: undoAction(); break;
+        case RE_EVENT_REDO: redoAction(); break;
+        case QEvent::Close:
+            if (modified) {
+                bool cancelled = false;
+                if (MainWindow::showCloseWarning(this, &cancelled)) {
+                    if (!QFile(gameConfig.filePath).exists()) {
+                        QFileDialog filedialog(this, tr("Open GameConfig"), "",
+                                               tr("RSDKv3 GameConfig files (GameConfig*.bin)"));
+                        filedialog.setAcceptMode(QFileDialog::AcceptSave);
+                        if (filedialog.exec() == QDialog::Accepted) {
+
+                            setStatus("Saving GameConfig: " + filedialog.selectedFiles()[0]);
+
+                            appConfig.addRecentFile(ENGINE_v3, TOOL_GAMECONFIGEDITOR,
+                                                    filedialog.selectedFiles()[0],
+                                                    QList<QString>{ /**/ });
+                            Writer writer(filedialog.selectedFiles()[0]);
+                            gameConfig.write(writer);
+                            clearActions();
+                        }
+                    }
+                    else {
+                        gameConfig.write("");
+                        clearActions();
+                    }
+                }
+                else if (cancelled) {
+                    event->ignore();
+                    return true;
+                }
+            }
+            break;
     }
 
     return QWidget::event(event);
+}
+
+void GameConfigEditorv3::undoAction()
+{
+    if (actionIndex > 0) {
+        // setStatus("Undid Action: " + actions[actionIndex].name);
+        actionIndex--;
+        resetAction();
+    }
+}
+void GameConfigEditorv3::redoAction()
+{
+    if (actionIndex + 1 < actions.count()) {
+        // setStatus("Redid Action: " + actions[actionIndex].name);
+        actionIndex++;
+        resetAction();
+    }
+}
+void GameConfigEditorv3::resetAction()
+{
+    copyConfig(NULL, &actions[actionIndex]);
+
+    setupUI(false);
+
+    updateTitle(actionIndex > 0);
+}
+void GameConfigEditorv3::doAction(QString name, bool setModified)
+{
+    ActionState action;
+
+    action.name = name;
+
+    copyConfig(&action, NULL);
+
+    // Actions
+    for (int i = actions.count() - 1; i > actionIndex; --i) {
+        actions.removeAt(i);
+    }
+
+    actions.append(action);
+    actionIndex = actions.count() - 1;
+
+    updateTitle(setModified);
+
+    // setStatus("Did Action: " + name);
+}
+void GameConfigEditorv3::clearActions()
+{
+    actions.clear();
+    actionIndex = 0;
+    doAction("Action Setup", false); // first action, cant be undone
+}
+
+void GameConfigEditorv3::copyConfig(ActionState *stateDst, ActionState *stateSrc)
+{
+    RSDKv3::GameConfig *src = stateSrc ? &stateSrc->gameConfig : &gameConfig;
+    RSDKv3::GameConfig *dst = stateDst ? &stateDst->gameConfig : &gameConfig;
+
+    dst->filePath = src->filePath;
+
+    dst->gameWindowText      = src->gameWindowText;
+    dst->gameDescriptionText = src->gameDescriptionText;
+    dst->unknown             = src->unknown;
+
+    dst->objects.clear();
+    for (auto obj : src->objects) dst->objects.append(obj);
+
+    dst->soundFX.clear();
+    for (auto sfx : src->soundFX) dst->soundFX.append(sfx);
+
+    dst->globalVariables.clear();
+    for (auto var : src->globalVariables) dst->globalVariables.append(var);
+
+    dst->players.clear();
+    for (auto plr : src->players) dst->players.append(plr);
+
+    dst->stageLists.clear();
+    for (auto cat : src->stageLists) {
+        RSDKv3::GameConfig::Category category;
+
+        category.scenes.clear();
+        for (auto scn : cat.scenes) category.scenes.append(scn);
+        dst->stageLists.append(category);
+    }
 }
 
 #include "moc_gameconfigeditorv3.cpp"
