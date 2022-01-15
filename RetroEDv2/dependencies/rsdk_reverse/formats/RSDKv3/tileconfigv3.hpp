@@ -73,9 +73,9 @@ public:
         bool flipY      = false;
         byte behaviour  = 0;
         byte floorAngle = 0x00;
-        byte rWallAngle = 0xC0;
-        byte lWallAngle = 0x40;
+        byte lWallAngle = 0xC0;
         byte roofAngle  = 0x80;
+        byte rWallAngle = 0x40;
     };
 
     TileConfig() {}

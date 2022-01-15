@@ -2445,34 +2445,65 @@ bool AnimationEditor::event(QEvent *event)
                                  "RSDKv4/RSDKv3 Animation Files (*.ani)",
                                  "RSDKv2 Animation Files (*.ani)", "RSDKv1 Animation Files (*.ani)" };
 
-    if (event->type() == (QEvent::Type)RE_EVENT_NEW) {
-        animFile = FormatHelpers::Animation();
-        tabTitle = "Animation Editor";
-        clearActions();
-        hitboxVisible.clear();
-        setupUI();
-        return true;
-    }
+    switch ((int)event->type()) {
+        default: break;
 
-    if (event->type() == (QEvent::Type)RE_EVENT_OPEN) {
-        QFileDialog filedialog(this, tr("Open Animation"), "",
-                               tr(types.join(";;").toStdString().c_str()));
-        filedialog.setAcceptMode(QFileDialog::AcceptOpen);
-        if (filedialog.exec() == QDialog::Accepted) {
-            setStatus("Opening Animation \""
-                      + Utils::getFilenameAndFolder(filedialog.selectedFiles()[0]) + "\"");
-
-            QString filepath = filedialog.selectedFiles()[0];
-            aniType          = typesList.indexOf(filedialog.selectedNameFilter());
-            loadAnim(filepath, aniType);
+        case RE_EVENT_NEW:
+            animFile = FormatHelpers::Animation();
+            tabTitle = "Animation Editor";
+            clearActions();
+            hitboxVisible.clear();
+            setupUI();
             return true;
-        }
-    }
 
-    if (event->type() == (QEvent::Type)RE_EVENT_SAVE) {
-        if (!QFile::exists(animFile.filePath)) {
-            QFileDialog filedialog(this, tr("Save Animation"), "",
+        case RE_EVENT_OPEN: {
+            QFileDialog filedialog(this, tr("Open Animation"), "",
                                    tr(types.join(";;").toStdString().c_str()));
+            filedialog.setAcceptMode(QFileDialog::AcceptOpen);
+            if (filedialog.exec() == QDialog::Accepted) {
+                setStatus("Opening Animation \""
+                          + Utils::getFilenameAndFolder(filedialog.selectedFiles()[0]) + "\"");
+
+                QString filepath = filedialog.selectedFiles()[0];
+                aniType          = typesList.indexOf(filedialog.selectedNameFilter());
+                loadAnim(filepath, aniType);
+                return true;
+            }
+            break;
+        }
+
+        case RE_EVENT_SAVE:
+            if (!QFile::exists(animFile.filePath)) {
+                QFileDialog filedialog(this, tr("Save Animation"), "",
+                                       tr(types.join(";;").toStdString().c_str()));
+                filedialog.setAcceptMode(QFileDialog::AcceptSave);
+                if (filedialog.exec() == QDialog::Accepted) {
+                    setStatus("Saving animation...");
+
+                    QString filepath = filedialog.selectedFiles()[0];
+                    aniType          = typesList.indexOf(filedialog.selectedNameFilter());
+                    animFile.write(aniType, filepath);
+                    appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
+                    clearActions();
+                    return true;
+                }
+            }
+            else {
+                setStatus("Saving animation...");
+
+                QString filepath = animFile.filePath;
+                animFile.write(aniType, filepath);
+                appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
+                clearActions();
+                return true;
+            }
+            break;
+
+        case RE_EVENT_SAVE_AS: {
+            QFileDialog filedialog(
+                this, tr("Save Animation"),
+                QFile::exists(animFile.filePath) ? QFileInfo(animFile.filePath).absolutePath() : "",
+                tr(types.join(";;").toStdString().c_str()));
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
                 setStatus("Saving animation...");
@@ -2484,46 +2515,13 @@ bool AnimationEditor::event(QEvent *event)
                 clearActions();
                 return true;
             }
+            break;
         }
-        else {
-            setStatus("Saving animation...");
 
-            QString filepath = animFile.filePath;
-            animFile.write(aniType, filepath);
-            appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
-            clearActions();
-            return true;
-        }
-    }
-    if (event->type() == (QEvent::Type)RE_EVENT_SAVE_AS) {
-        QFileDialog filedialog(
-            this, tr("Save Animation"),
-            QFile::exists(animFile.filePath) ? QFileInfo(animFile.filePath).absolutePath() : "",
-            tr(types.join(";;").toStdString().c_str()));
-        filedialog.setAcceptMode(QFileDialog::AcceptSave);
-        if (filedialog.exec() == QDialog::Accepted) {
-            setStatus("Saving animation...");
+        case RE_EVENT_UNDO: undoAction(); return true;
 
-            QString filepath = filedialog.selectedFiles()[0];
-            aniType          = typesList.indexOf(filedialog.selectedNameFilter());
-            animFile.write(aniType, filepath);
-            appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
-            clearActions();
-            return true;
-        }
-    }
+        case RE_EVENT_REDO: redoAction(); return true;
 
-    if (event->type() == (QEvent::Type)RE_EVENT_UNDO) {
-        undoAction();
-        return true;
-    }
-    if (event->type() == (QEvent::Type)RE_EVENT_REDO) {
-        redoAction();
-        return true;
-    }
-
-    switch (event->type()) {
-        default: break;
         case QEvent::MouseButtonPress: {
             QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
             reference           = mEvent->pos();
@@ -2582,27 +2580,32 @@ bool AnimationEditor::event(QEvent *event)
 
         case QEvent::Wheel: {
             QWheelEvent *wEvent = static_cast<QWheelEvent *>(event);
+            QPoint mousePos =
+                ui->viewerFrame->mapFrom(this, QPoint(wEvent->position().x(), wEvent->position().y()));
 
-            if (wEvent->modifiers() & Qt::ControlModifier) {
-                if (wEvent->angleDelta().y() > 0 && zoom < 20)
-                    zoom += 1;
-                else if (wEvent->angleDelta().y() < 0 && zoom > 1.5)
-                    zoom -= 1;
+            if (ui->viewerFrame->rect().contains(mousePos.x(), mousePos.y())) {
+                if (wEvent->modifiers() & Qt::ControlModifier) {
+                    if (wEvent->angleDelta().y() > 0 && zoom < 20)
+                        zoom += 1;
+                    else if (wEvent->angleDelta().y() < 0 && zoom > 1.5)
+                        zoom -= 1;
 
-                // round to nearest whole number
-                zoom = (int)zoom;
-                if (zoom < 1)
-                    zoom = 1;
+                    // round to nearest whole number
+                    zoom = (int)zoom;
+                    if (zoom < 1)
+                        zoom = 1;
+                }
+                else {
+                    if (wEvent->angleDelta().y() > 0 && zoom < 20)
+                        zoom *= 1.1f;
+                    else if (wEvent->angleDelta().y() < 0 && zoom > 0.5)
+                        zoom /= 1.1f;
+                }
+                ui->zoomLabel->setText(QString("Zoom: %1%").arg(zoom * 100));
+                updateView();
+                return true;
             }
-            else {
-                if (wEvent->angleDelta().y() > 0 && zoom < 20)
-                    zoom *= 1.1f;
-                else if (wEvent->angleDelta().y() < 0 && zoom > 0.5)
-                    zoom /= 1.1f;
-            }
-            ui->zoomLabel->setText(QString("Zoom: %1%").arg(zoom * 100));
-            updateView();
-            return true;
+            break;
         }
         case QEvent::Resize: updateView(); break;
         case QEvent::Close:

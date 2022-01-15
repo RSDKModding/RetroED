@@ -27,8 +27,8 @@ public:
             for (int i = 0; i < 0x10; ++i) collision[i].solid = buf[i];
             flipY      = reader.read<bool>();
             floorAngle = reader.read<byte>();
-            rWallAngle = reader.read<byte>();
             lWallAngle = reader.read<byte>();
+            rWallAngle = reader.read<byte>();
             roofAngle  = reader.read<byte>();
             behaviour  = reader.read<byte>();
         }
@@ -40,19 +40,20 @@ public:
 
             writer.write(flipY);
             writer.write(floorAngle);
-            writer.write(rWallAngle);
             writer.write(lWallAngle);
+            writer.write(rWallAngle);
             writer.write(roofAngle);
             writer.write(behaviour);
         }
 
         HeightMask collision[16];
-        byte floorAngle = 0x00;
-        byte rWallAngle = 0xC0;
-        byte lWallAngle = 0x40;
-        byte roofAngle  = 0x80;
-        byte behaviour  = 0;
+
         bool flipY      = false;
+        byte behaviour  = 0;
+        byte floorAngle = 0x00;
+        byte lWallAngle = 0xC0;
+        byte roofAngle  = 0x80;
+        byte rWallAngle = 0x40;
     };
 
     TileConfig() {}

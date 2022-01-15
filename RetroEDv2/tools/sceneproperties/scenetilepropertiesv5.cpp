@@ -99,7 +99,7 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
 
     connect(ui->calcAngleF, &QPushButton::clicked, [this] {
         byte angle = 0;
-        Vector2<int> start(-1, -1), end(-1, -1);
+        Vector2<float> start(-1, -1), end(-1, -1);
 
         if (!cmask[collisionLyr]->flipY) // Ceiling Tile
         {
@@ -131,7 +131,7 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
 
     connect(ui->calcAngleC, &QPushButton::clicked, [this] {
         byte angle = 0;
-        Vector2<int> start(-1, -1), end(-1, -1);
+        Vector2<float> start(-1, -1), end(-1, -1);
 
         if (cmask[collisionLyr]->flipY) // Ceiling Tile
         {
@@ -216,21 +216,21 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
         }
 
         byte angle = 0;
-        Vector2<int> start(-1, -1), end(-1, -1);
+        Vector2<float> start(-1, -1), end(-1, -1);
 
-        for (int x = 0; x < 16; ++x) {
+        for (int x = 15; x >= 0; --x) {
             if (mask.collision[x].solid) {
-                if (start.y == -1) {
-                    start.y = x;
-                    start.x = mask.collision[x].height;
+                if (start.x == -1) {
+                    start.x = x;
+                    start.y = mask.collision[x].height;
                 }
 
-                end.y = x;
-                end.x = mask.collision[x].height;
+                end.x = x;
+                end.y = mask.collision[x].height;
             }
         }
 
-        double angleF = atan2(end.y - start.y, end.x - start.x);
+        double angleF = atan2(end.x - start.x, end.y - start.y);
         angle         = (int)(angleF * 40.764331) & 0xFC;
 
         cmask[collisionLyr]->lWallAngle = angle;
@@ -294,21 +294,21 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
         }
 
         byte angle = 0;
-        Vector2<int> start(-1, -1), end(-1, -1);
+        Vector2<float> start(-1, -1), end(-1, -1);
 
-        for (int x = 15; x >= 0; --x) {
+        for (int x = 0; x < 16; ++x) {
             if (mask.collision[x].solid) {
-                if (start.y == -1) {
-                    start.y = x;
-                    start.x = mask.collision[x].height;
+                if (start.x == -1) {
+                    start.x = x;
+                    start.y = mask.collision[x].height;
                 }
 
-                end.y = x;
-                end.x = mask.collision[x].height;
+                end.x = x;
+                end.y = mask.collision[x].height;
             }
         }
 
-        double angleF = atan2(end.y - start.y, end.x - start.x);
+        double angleF = atan2(end.x - start.x, end.y - start.y);
         angle         = (int)(angleF * 40.764331) & 0xFC;
 
         cmask[collisionLyr]->rWallAngle = angle;
