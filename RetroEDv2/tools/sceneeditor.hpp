@@ -62,7 +62,6 @@ public:
         // Camera
         Vector3<float> camPos = Vector3<float>(0.0f, 0.0f, 0.0f);
 
-        bool showPixelGrid = false;
         bool showChunkGrid = false;
         bool showTileGrid  = false;
     };

@@ -205,6 +205,12 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         doAction();
     });
 
+    connect(ui->objectList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
+        int c = ui->objectList->row(item);
+        if ((uint)c < (uint)viewer->objects.count())
+            viewer->objects[c].visible = item->checkState() == Qt::Checked;
+    });
+
     connect(ui->entityList, &QListWidget::currentRowChanged, [this](int c) {
         // m_uo->setDisabled(c == -1);
         // m_do->setDisabled(c == -1);
@@ -431,9 +437,14 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             }
         }
 
+        ui->objectList->blockSignals(true);
         ui->objectList->clear();
-        for (int o = 0; o < viewer->objects.count(); ++o)
-            ui->objectList->addItem(viewer->objects[o].name);
+        for (int o = 0; o < viewer->objects.count(); ++o) {
+            QListWidgetItem *item = new QListWidgetItem(viewer->objects[o].name, ui->objectList);
+            item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+            item->setCheckState(viewer->objects[o].visible ? Qt::Checked : Qt::Unchecked);
+        }
+        ui->objectList->blockSignals(false);
 
         createEntityList();
         doAction();
@@ -447,7 +458,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(scnProp->editTIL, &QPushButton::clicked, [this] {
         if (chunkEdit == nullptr) {
             chunkEdit = new ChunkEditor(&viewer->chunkset, viewer->chunks, viewer->tiles,
-                                        viewer->gameType == ENGINE_v1, this);
+                                        viewer->gameType, this);
             chunkEdit->show();
         }
 
@@ -601,9 +612,14 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             }
         }
 
+        ui->objectList->blockSignals(true);
         ui->objectList->clear();
-        for (int o = 0; o < viewer->objects.count(); ++o)
-            ui->objectList->addItem(viewer->objects[o].name);
+        for (int o = 0; o < viewer->objects.count(); ++o) {
+            QListWidgetItem *item = new QListWidgetItem(viewer->objects[o].name, ui->objectList);
+            item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+            item->setCheckState(viewer->objects[o].visible ? Qt::Checked : Qt::Unchecked);
+        }
+        ui->objectList->blockSignals(false);
 
         createEntityList();
 
@@ -1594,8 +1610,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
     for (int i = 0; i < 9; ++i) viewer->visibleLayers[i] = true;
 
-    ui->layerList->clear();
     ui->layerList->blockSignals(true);
+    ui->layerList->clear();
     QListWidgetItem *itemFG = new QListWidgetItem("Foreground", ui->layerList);
     itemFG->setFlags(itemFG->flags() | Qt::ItemIsUserCheckable);
     itemFG->setCheckState(viewer->visibleLayers[0] ? Qt::Checked : Qt::Unchecked);
@@ -1608,8 +1624,14 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     }
     ui->layerList->blockSignals(false);
 
+    ui->objectList->blockSignals(true);
     ui->objectList->clear();
-    for (int o = 0; o < viewer->objects.count(); ++o) ui->objectList->addItem(viewer->objects[o].name);
+    for (int o = 0; o < viewer->objects.count(); ++o) {
+        QListWidgetItem *item = new QListWidgetItem(viewer->objects[o].name, ui->objectList);
+        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+        item->setCheckState(viewer->objects[o].visible ? Qt::Checked : Qt::Unchecked);
+    }
+    ui->objectList->blockSignals(false);
 
     createEntityList();
 
@@ -2376,7 +2398,6 @@ void SceneEditor::resetAction()
     // Camera
     viewer->cam.pos = actions[actionIndex].camPos;
 
-    viewer->showPixelGrid = actions[actionIndex].showPixelGrid;
     viewer->showChunkGrid = actions[actionIndex].showChunkGrid;
     viewer->showTileGrid  = actions[actionIndex].showTileGrid;
 
@@ -2459,7 +2480,6 @@ void SceneEditor::doAction(QString name, bool setModified)
     // Camera
     action.camPos = viewer->cam.pos;
 
-    action.showPixelGrid = viewer->showPixelGrid;
     action.showChunkGrid = viewer->showChunkGrid;
     action.showTileGrid  = viewer->showTileGrid;
 

@@ -18,6 +18,8 @@ public:
     {
     }
 
+    Vector2<int> offset = Vector2<int>(0, 0);
+
 signals:
     void tileDrawn(float mx, float my);
     void tileCopy(float mx, float my);
@@ -25,8 +27,9 @@ signals:
 
 protected:
     bool event(QEvent *e) override;
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
     void paintEvent(QPaintEvent *event) override;
 
 private:
@@ -35,6 +38,12 @@ private:
     int index;
 
     float zoom = 1.0f;
+
+    QPoint reference;
+
+    bool mouseDownL = false;
+    bool mouseDownM = false;
+    bool mouseDownR = false;
 
     QList<QImage> tiles;
     FormatHelpers::Chunks *chunks = nullptr;
@@ -46,13 +55,18 @@ class ChunkEditor : public QDialog
 
 public:
     explicit ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunks, QList<QImage> &tiles,
-                         bool v1 = false, QWidget *parent = nullptr);
+                         byte gameVer, QWidget *parent = nullptr);
     ~ChunkEditor();
 
     int selectedChunk         = -1;
     int copiedChunk           = -1;
     Vector2<int> selectedTile = Vector2<int>(0, 0);
+
+    byte defaultVisualPlane   = 0;
+    Vector2<bool> defaultFlip = Vector2<bool>(false, false);
     int selectedDrawTile      = -1;
+    byte defaultSolidA        = 3;
+    byte defaultSolidB        = 3;
 
     QList<bool> changedChunks;
 

@@ -2,7 +2,7 @@
 #include "ui_chunkeditor.h"
 
 ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, QList<QImage> &tiles,
-                         bool v1, QWidget *parent)
+                         byte gameVer, QWidget *parent)
     : chunks(chk), tileList(tiles), chunkImgList(chunkList), QDialog(parent), ui(new Ui::ChunkEditor)
 {
     setWindowFlag(Qt::WindowStaysOnTopHint);
@@ -19,7 +19,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
     ui->viewerFrame->layout()->addWidget(viewer);
 
     ui->chunkList->clear();
-    for (int c = 0; c < (v1 ? 0x100 : 0x200); ++c) {
+    for (int c = 0; c < (gameVer == ENGINE_v1 ? 0x100 : 0x200); ++c) {
         auto *item = new QListWidgetItem(QString::number(c), ui->chunkList);
         item->setIcon(QPixmap::fromImage(chunkList[c]));
     }
@@ -30,9 +30,35 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         item->setIcon(QPixmap::fromImage(tiles[t]));
     }
 
-    for (int c = 0; c < (v1 ? 0x100 : 0x200); ++c) {
+    for (int c = 0; c < (gameVer == ENGINE_v1 ? 0x100 : 0x200); ++c) {
         changedChunks.append(false);
     }
+
+    QList<QString> solidityv3 = { "Solid (All)", "Solid (Top Only)", "Solid (All Except Top)",
+                                  "Not Solid" };
+    QList<QString> solidityv4 = { "Solid (All)", "Solid (Top Only, Grippable)",
+                                  "Solid (All Except Top)", "Not Solid",
+                                  "Solid (Top Only, Not Grippable)" };
+
+    ui->defSolidA->clear();
+    ui->defSolidB->clear();
+    ui->solidityA->clear();
+    ui->solidityB->clear();
+
+    if (gameVer == ENGINE_v4) {
+        ui->defSolidA->addItems(solidityv4);
+        ui->defSolidB->addItems(solidityv4);
+        ui->solidityA->addItems(solidityv4);
+        ui->solidityB->addItems(solidityv4);
+    }
+    else {
+        ui->defSolidA->addItems(solidityv3);
+        ui->defSolidB->addItems(solidityv3);
+        ui->solidityA->addItems(solidityv3);
+        ui->solidityB->addItems(solidityv3);
+    }
+    ui->defSolidA->setCurrentIndex(3);
+    ui->defSolidB->setCurrentIndex(3);
 
     auto chunkRowChanged = [this](int c) {
         ui->flipX->setDisabled(c == -1);
@@ -43,6 +69,9 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         ui->solidityB->setDisabled(c == -1);
 
         selectedChunk = c;
+
+        viewer->offset.x = 0;
+        viewer->offset.y = 0;
 
         if (c == -1)
             return;
@@ -129,17 +158,24 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         selectedTile.x = mx / 16;
         selectedTile.y = my / 16;
 
-        if (selectedTile.x > 0x80)
+        if (selectedTile.x >= 8 || selectedTile.x < 0)
             selectedTile.x = -1;
 
-        if (selectedTile.y > 0x80)
+        if (selectedTile.y >= 8 || selectedTile.y < 0)
             selectedTile.y = -1;
 
         if (selectedChunk < 0 || selectedTile.x == -1 || selectedTile.y == -1 || selectedDrawTile == -1)
             return;
 
+        chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].visualPlane =
+            defaultVisualPlane;
+        chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].direction =
+            (byte)defaultFlip.x | ((byte)defaultFlip.y << 1);
         chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].tileIndex =
             (ushort)selectedDrawTile;
+        chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].solidityA = defaultSolidA;
+        chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].solidityB = defaultSolidB;
+
         viewer->repaint();
 
         chunkImgList[selectedChunk] = chunks->chunks[selectedChunk].getImage(tiles);
@@ -152,10 +188,10 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         selectedTile.x = mx / 16;
         selectedTile.y = my / 16;
 
-        if (selectedTile.x > 0x80)
+        if (selectedTile.x >= 8 || selectedTile.x < 0)
             selectedTile.x = -1;
 
-        if (selectedTile.y > 0x80)
+        if (selectedTile.y >= 8 || selectedTile.y < 0)
             selectedTile.y = -1;
 
         if (selectedChunk < 0 || selectedTile.x == -1 || selectedTile.y == -1)
@@ -230,6 +266,18 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         viewer->repaint();
     });
 
+    connect(ui->defFlipX, &QCheckBox::toggled, [this, tiles](bool v) { defaultFlip.x = v; });
+    connect(ui->defFlipY, &QCheckBox::toggled, [this, tiles](bool v) { defaultFlip.y = v; });
+
+    connect(ui->defVisPlane, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [this](int v) { defaultVisualPlane = v; });
+
+    connect(ui->defSolidA, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [this](int v) { defaultSolidA = v; });
+
+    connect(ui->defSolidB, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [this](int v) { defaultSolidB = v; });
+
     connect(ui->exportImg, &QPushButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Select folder to place images"), "", "");
         filedialog.setFileMode(QFileDialog::Directory);
@@ -263,21 +311,66 @@ bool ChunkViewer::event(QEvent *e)
 {
     switch (e->type()) {
         default: break;
+
         case QEvent::MouseButtonPress: mousePressEvent((QMouseEvent *)e); break;
+
         case QEvent::MouseMove: mouseMoveEvent((QMouseEvent *)e); break;
+
+        case QEvent::MouseButtonRelease: mouseReleaseEvent((QMouseEvent *)e); break;
+
         case QEvent::Paint: paintEvent((QPaintEvent *)e); break;
+
+        case QEvent::Wheel: {
+            QWheelEvent *wEvent = static_cast<QWheelEvent *>(e);
+            if (wEvent->modifiers() & Qt::ControlModifier) {
+                if (wEvent->angleDelta().y() > 0 && zoom < 20)
+                    zoom += 1;
+                else if (wEvent->angleDelta().y() < 0 && zoom > 1.5)
+                    zoom -= 1;
+
+                // round to nearest whole number
+                zoom = (int)zoom;
+                if (zoom < 1)
+                    zoom = 1;
+            }
+            else {
+                if (wEvent->angleDelta().y() > 0 && zoom < 20)
+                    zoom *= 1.1f;
+                else if (wEvent->angleDelta().y() < 0 && zoom > 0.5)
+                    zoom /= 1.1f;
+            }
+            // ui->zoomLabel->setText(QString("Zoom: %1%").arg(zoom * 100));
+            // updateView();
+            update();
+            return true;
+        }
     }
     return QWidget::event(e);
 }
 
 void ChunkViewer::mousePressEvent(QMouseEvent *event)
 {
-    float mousePosX = event->pos().x();
-    float mousePosY = event->pos().y();
+    float w = this->width(), h = this->height();
+    float originX = w / 2, originY = h / 2;
+    originX -= offset.x;
+    originY -= offset.y;
+    originX -= (4 * 16);
+    originY -= (4 * 16);
 
-    bool mouseDownL = false;
-    bool mouseDownM = false;
-    bool mouseDownR = false;
+    float chunkPosX = event->pos().x() - originX;
+    float chunkPosY = event->pos().y() - originY;
+
+    chunkPosX *= (1.0f / zoom);
+    chunkPosY *= (1.0f / zoom);
+
+    printLog(QString("pos(%1, %2), origin(%3, %4), mousePos(%5, %6)")
+                 .arg(chunkPosX)
+                 .arg(chunkPosY)
+                 .arg(originX)
+                 .arg(originY)
+                 .arg(event->pos().x())
+                 .arg(event->pos().y()));
+
     if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
         mouseDownL = true;
     if ((event->button() & Qt::MiddleButton) == Qt::MiddleButton)
@@ -285,14 +378,16 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
     if ((event->button() & Qt::RightButton) == Qt::RightButton)
         mouseDownR = true;
 
-    if (mouseDownR) {
-        selection->x = (mousePosX * zoom) / 16;
-        selection->y = (mousePosY * zoom) / 16;
+    reference = event->pos();
 
-        if (selection->x > 0x80)
+    if (mouseDownR) {
+        selection->x = chunkPosX / 16;
+        selection->y = chunkPosY / 16;
+
+        if (selection->x >= 8 || selection->x < 0)
             selection->x = -1;
 
-        if (selection->y > 0x80)
+        if (selection->y >= 8 || selection->y < 0)
             selection->y = -1;
 
         emit tileChanged();
@@ -300,38 +395,49 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
         repaint();
     }
 
-    if (mouseDownM) {
-        emit tileCopy(mousePosX * zoom, mousePosY * zoom);
-    }
+    // if (mouseDownM)
+    //     setCursor(Qt::ClosedHandCursor);
+
+    // if (mouseDownM) {
+    //     emit tileCopy(chunkPosX, chunkPosY);
+    // }
 
     if (mouseDownL) {
-        emit tileDrawn(mousePosX * zoom, mousePosY * zoom);
+        emit tileDrawn(chunkPosX, chunkPosY);
     }
 }
 
 void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
 {
-    float mousePosX = event->pos().x();
-    float mousePosY = event->pos().y();
+    float w = this->width(), h = this->height();
+    float originX = w / 2, originY = h / 2;
+    originX -= offset.x;
+    originY -= offset.y;
+    originX -= (4 * 16);
+    originY -= (4 * 16);
 
-    bool mouseDownL = false;
-    bool mouseDownM = false;
-    bool mouseDownR = false;
-    if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
-        mouseDownL = true;
-    if ((event->button() & Qt::MiddleButton) == Qt::MiddleButton)
-        mouseDownM = true;
-    if ((event->button() & Qt::RightButton) == Qt::RightButton)
-        mouseDownR = true;
+    float chunkPosX = event->pos().x() - originX;
+    float chunkPosY = event->pos().y() - originY;
+
+    chunkPosX *= (1.0f / zoom);
+    chunkPosY *= (1.0f / zoom);
+
+    if (mouseDownM) {
+        offset.x -= event->pos().x() - reference.x();
+        offset.y -= event->pos().y() - reference.y();
+        reference = event->pos();
+
+        repaint();
+    }
 
     if (mouseDownR) {
-        selection->x = (mousePosX * zoom) / 16;
-        selection->y = (mousePosY * zoom) / 16;
+        selection->x = chunkPosX / 16;
+        selection->y = chunkPosY / 16;
 
-        if (selection->x > 0x80)
+        if (selection->x >= 8 || selection->x < 0)
             selection->x = -1;
 
-        if (selection->y > 0x80)
+        if (selection->y >= 8 || selection->y < 0)
             selection->y = -1;
 
         emit tileChanged();
@@ -339,13 +445,23 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
         repaint();
     }
 
-    if (mouseDownM) {
-        emit tileCopy(mousePosX * zoom, mousePosY * zoom);
-    }
+    // if (mouseDownM) {
+    //     emit tileCopy(chunkPosX, chunkPosY);
+    // }
 
     if (mouseDownL) {
-        emit tileDrawn(mousePosX * zoom, mousePosY * zoom);
+        emit tileDrawn(chunkPosX, chunkPosY);
     }
+}
+
+void ChunkViewer::mouseReleaseEvent(QMouseEvent *event)
+{
+    if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
+        mouseDownL = false;
+    if ((event->button() & Qt::MiddleButton) == Qt::MiddleButton)
+        mouseDownM = false;
+    if ((event->button() & Qt::RightButton) == Qt::RightButton)
+        mouseDownR = false;
 }
 
 void ChunkViewer::paintEvent(QPaintEvent *event)
@@ -354,6 +470,16 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
     QPainter p(this);
     p.scale(zoom, zoom);
 
+    float w = this->width(), h = this->height();
+    float originX = w / 2, originY = h / 2;
+    originX -= offset.x;
+    originY -= offset.y;
+    originX -= (4 * 16);
+    originY -= (4 * 16);
+
+    originX *= (1.0f / zoom);
+    originY *= (1.0f / zoom);
+
     const QBrush brush = p.brush();
     for (int y = 0; y < 8; ++y) {
         for (int x = 0; x < 8; ++x) {
@@ -361,25 +487,24 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
 
             bool fx = (tile.direction & 1) == 1;
             bool fy = (tile.direction & 2) == 2;
-            p.drawImage(x * 0x10, y * 0x10, tiles[tile.tileIndex].mirrored(fx, fy));
+            p.drawImage(QPointF(originX + x * 0x10, originY + y * 0x10),
+                        tiles[tile.tileIndex].mirrored(fx, fy));
 
             if (y == selection->y && x == selection->x) {
                 p.setBrush(qApp->palette().highlight());
                 p.setOpacity(0.5);
-                p.drawRect(QRect(x * 0x10, y * 0x10, 0x10, 0x10));
+                p.drawRect(QRectF(originX + x * 0x10, originY + y * 0x10, 0x10, 0x10));
                 p.setBrush(brush);
                 p.setOpacity(1.0);
             }
         }
     }
 
-    for (int y = 0; y < 8; ++y) {
-        p.drawLine(0, y * 0x10, 8 * 0x10, y * 0x10);
-    }
+    for (int y = 0; y < 8; ++y)
+        p.drawLine(QLineF(originX + 0, originY + y * 0x10, originX + 8 * 0x10, originY + y * 0x10));
 
-    for (int x = 0; x < 8; ++x) {
-        p.drawLine(x * 0x10, 0, x * 0x10, 8 * 0x10);
-    }
+    for (int x = 0; x < 8; ++x)
+        p.drawLine(QLineF(originX + x * 0x10, originY + 0, originX + x * 0x10, originY + 8 * 0x10));
 }
 
 void ChunkEditor::keyPressEvent(QKeyEvent *event)

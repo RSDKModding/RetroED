@@ -63,6 +63,7 @@ public:
     {
     public:
         QString name = "";
+        bool visible = true;
         QList<VariableInfo> variables;
         QString variablesAliases[VAR_ALIAS_COUNT] = { "PropertyValue", "Value0", "Value1", "Value2",
                                                       "Value3" };
@@ -160,7 +161,6 @@ public:
     QList<QImage> chunks;
     QImage missingObj;
 
-    bool showPixelGrid = false;
     bool showChunkGrid = false;
     bool showTileGrid  = false;
 

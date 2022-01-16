@@ -200,6 +200,11 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
                 else
                     *valuesB[v] = entity->variables[v].value;
 
+                // if (RSDKv4::objectVariableNames[v] == "scale")
+                //     entity->variables[v].active = entity->variables[v].value != 0x200;
+                // else if (RSDKv4::objectVariableNames[v] == "drawOrder")
+                //     entity->variables[v].active = entity->variables[v].value != 3;
+                // else
                 entity->variables[v].active = entity->variables[v].value != 0;
             });
 

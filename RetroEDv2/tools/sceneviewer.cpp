@@ -725,6 +725,9 @@ void SceneViewer::drawScene()
         entities[o].box  = Rect<int>(0, 0, 0, 0);
         activeDrawEntity = &entities[o];
 
+        if (!objects[entities[o].type].visible)
+            continue;
+
         if (objectsLoaded)
             callGameEvent(EVENT_RSDKDRAW, o);
 
@@ -993,52 +996,6 @@ void SceneViewer::drawScene()
                      (((camY + storedH * invZoom())) - camY) * zoom, 15.6f, 1.0f,
                      Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
         }
-    }
-
-    if (showPixelGrid && zoom >= 4.0f) {
-        // f->glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
-        rectVAO.bind();
-        QList<QVector3D> verts;
-        primitiveShader.use();
-        primitiveShader.setValue("colour", QVector4D(1.0f, 1.0f, 1.0f, 1.0f));
-
-        float camX = cam.pos.x;
-        float camY = cam.pos.y;
-
-        for (int y = camY; y < (camY + storedH) * (zoom < 1.0f ? invZoom() : 1.0f); ++y) {
-            verts.append(QVector3D((camX - camX) * zoom, (y - camY) * zoom, 15.6f));
-            verts.append(
-                QVector3D((((camX + storedW * invZoom())) - camX) * zoom, (y - camY) * zoom, 15.6f));
-        }
-
-        for (int x = camX; x < (camX + storedW) * (zoom < 1.0f ? invZoom() : 1.0f); ++x) {
-            verts.append(QVector3D((x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom,
-                                   (camY - camY) * zoom, 15.6f));
-            verts.append(QVector3D((x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom,
-                                   (((camY + storedH * invZoom())) - camY) * zoom, 15.6f));
-        }
-
-        QVector3D *vertsPtr = new QVector3D[(uint)verts.count()];
-        for (int v = 0; v < verts.count(); ++v) vertsPtr[v] = verts[v];
-
-        QOpenGLVertexArrayObject gridVAO;
-        gridVAO.create();
-        gridVAO.bind();
-
-        QOpenGLBuffer gridVBO;
-        gridVBO.create();
-        gridVBO.setUsagePattern(QOpenGLBuffer::StaticDraw);
-        gridVBO.bind();
-        gridVBO.allocate(vertsPtr, verts.count() * sizeof(QVector3D));
-        primitiveShader.enableAttributeArray(0);
-        primitiveShader.setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
-
-        f->glDrawArrays(GL_LINES, 0, verts.count());
-
-        delete[] vertsPtr;
-
-        gridVAO.release();
-        gridVBO.release();
     }
 }
 

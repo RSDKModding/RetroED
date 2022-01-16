@@ -1,9 +1,9 @@
 #include "rsdkreverse.hpp"
 
-QList<QString> RSDKv4::objectVariableNames = { "State",          "Direction", "Scale",     "Rotation",
-                                               "DrawOrder",      "Priority",  "Alpha",     "Animation",
-                                               "AnimationSpeed", "Frame",     "InkEffect", "Value0",
-                                               "Value1",         "Value2",    "Value3" };
+QList<QString> RSDKv4::objectVariableNames = { "state",          "direction", "scale",     "rotation",
+                                               "drawOrder",      "priority",  "alpha",     "animation",
+                                               "animationSpeed", "frame",     "inkEffect", "value0",
+                                               "value1",         "value2",    "value3" };
 
 QList<QString> RSDKv4::objectVariableTypes = { "int",   "uint8", "int",   "int", "uint8",
                                                "uint8", "uint8", "uint8", "int", "uint8",
