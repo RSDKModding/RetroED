@@ -22,13 +22,13 @@ public:
 
         void read(Reader &reader)
         {
-            byte flags = reader.read<byte>();
-            flipY      = (flags >> 4) != 0;
-            behaviour  = (byte)(flags & 0xF);
-            floorAngle = reader.read<byte>();
-            lWallAngle = reader.read<byte>();
-            rWallAngle = reader.read<byte>();
-            roofAngle  = reader.read<byte>();
+            byte flags  = reader.read<byte>();
+            direction   = (flags >> 4) != 0;
+            this->flags = (byte)(flags & 0xF);
+            floorAngle  = reader.read<byte>();
+            lWallAngle  = reader.read<byte>();
+            rWallAngle  = reader.read<byte>();
+            roofAngle   = reader.read<byte>();
 
             QByteArray collisionBytes = reader.readByteArray(8);
 
@@ -46,7 +46,7 @@ public:
         }
         void write(Writer &writer)
         {
-            writer.write((byte)(((byte)flipY & 0xF) << 4 | (behaviour & 0xF)));
+            writer.write((byte)(((byte)direction & 0xF) << 4 | (flags & 0xF)));
             writer.write(floorAngle);
             writer.write(lWallAngle);
             writer.write(rWallAngle);
@@ -70,8 +70,8 @@ public:
 
         HeightMask collision[16];
 
-        bool flipY      = false;
-        byte behaviour  = 0;
+        byte direction  = 0; // 0 = up, 1 down
+        byte flags      = 0;
         byte floorAngle = 0x00;
         byte lWallAngle = 0xC0;
         byte roofAngle  = 0x80;

@@ -25,12 +25,12 @@ public:
             for (int i = 0; i < 0x10; ++i) collision[i].height = buf[i];
             buf = reader.readByteArray(0x10);
             for (int i = 0; i < 0x10; ++i) collision[i].solid = buf[i];
-            flipY      = reader.read<bool>();
+            direction  = reader.read<byte>();
             floorAngle = reader.read<byte>();
             lWallAngle = reader.read<byte>();
             rWallAngle = reader.read<byte>();
             roofAngle  = reader.read<byte>();
-            behaviour  = reader.read<byte>();
+            flags      = reader.read<byte>();
         }
 
         void write(Writer &writer)
@@ -38,18 +38,18 @@ public:
             for (int i = 0; i < 0x10; ++i) writer.write(collision[i].height);
             for (int i = 0; i < 0x10; ++i) writer.write(collision[i].solid);
 
-            writer.write(flipY);
+            writer.write(direction);
             writer.write(floorAngle);
             writer.write(lWallAngle);
             writer.write(rWallAngle);
             writer.write(roofAngle);
-            writer.write(behaviour);
+            writer.write(flags);
         }
 
         HeightMask collision[16];
 
-        bool flipY      = false;
-        byte behaviour  = 0;
+        byte direction  = 0; // 0 = up, 1 down
+        byte flags      = 0;
         byte floorAngle = 0x00;
         byte lWallAngle = 0xC0;
         byte roofAngle  = 0x80;

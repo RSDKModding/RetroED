@@ -625,15 +625,15 @@ void SceneViewer::drawScene()
 
                                         byte cy = cmask.collision[hm].height;
                                         byte ch = 16 - cy;
-                                        if (Utils::getBit(tile.direction, 1) && !cmask.flipY) {
+                                        if (Utils::getBit(tile.direction, 1) && !cmask.direction) {
                                             cy = 0;
                                             ch = 16 - cmask.collision[hm].height;
                                         }
-                                        else if (!Utils::getBit(tile.direction, 1) && cmask.flipY) {
+                                        else if (!Utils::getBit(tile.direction, 1) && cmask.direction) {
                                             cy = 0;
                                             ch = cmask.collision[hm].height + 1;
                                         }
-                                        else if (Utils::getBit(tile.direction, 1) && cmask.flipY) {
+                                        else if (Utils::getBit(tile.direction, 1) && cmask.direction) {
                                             cy = 15 - cmask.collision[hm].height;
                                             ch = cmask.collision[hm].height + 1;
                                         }

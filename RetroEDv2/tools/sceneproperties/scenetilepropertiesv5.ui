@@ -7,22 +7,102 @@
     <x>0</x>
     <y>0</y>
     <width>227</width>
-    <height>473</height>
+    <height>467</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="0">
-    <widget class="QCheckBox" name="solidTopA">
+   <item row="2" column="1">
+    <widget class="QCheckBox" name="solidLRBA">
      <property name="text">
-      <string>Solid A (Top)</string>
+      <string>Solid A (All but top)</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="1">
-    <widget class="QSpinBox" name="roofAngle">
+   <item row="9" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Floor Angle</string>
+     </property>
+    </widget>
+   </item>
+   <item row="17" column="0" colspan="2">
+    <widget class="QPushButton" name="calcAngleL">
+     <property name="text">
+      <string>Calculate LWall Angle</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="2">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>Tile Collision Plane</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QCheckBox" name="flipY">
+     <property name="text">
+      <string>Flip Y</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="tID">
+     <property name="text">
+      <string>Tile:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="solidTopB">
+     <property name="text">
+      <string>Solid B (Top)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QRadioButton" name="colPlaneB">
+     <property name="text">
+      <string>Plane B</string>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0">
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>RWall Angle</string>
+     </property>
+    </widget>
+   </item>
+   <item row="15" column="0" colspan="2">
+    <widget class="QPushButton" name="calcAngleF">
+     <property name="text">
+      <string>Calculate Floor Angle</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QCheckBox" name="solidLRBB">
+     <property name="text">
+      <string>Solid B (All but top)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="1">
+    <widget class="QSpinBox" name="lWallAngle">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The collision mask's angle while on CMODE_LWALL&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="maximum">
       <number>255</number>
      </property>
@@ -40,12 +120,59 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Behaviour</string>
+      <string>Flags</string>
      </property>
     </widget>
    </item>
-   <item row="11" column="1">
-    <widget class="QSpinBox" name="lWallAngle">
+   <item row="9" column="1">
+    <widget class="QSpinBox" name="floorAngle">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The collision mask's angle while on CMODE_FLOOR&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+     <property name="displayIntegerBase">
+      <number>16</number>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QComboBox" name="maskDir">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The direction the collision mask is facing&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>Up</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Down</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Roof Angle</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Mask Direction</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="1">
+    <widget class="QSpinBox" name="roofAngle">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The collision mask's angle while on CMODE_ROOF&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="maximum">
       <number>255</number>
      </property>
@@ -61,39 +188,24 @@
      </property>
     </widget>
    </item>
-   <item row="14" column="0" colspan="2">
-    <widget class="QPushButton" name="editCollision">
-     <property name="text">
-      <string>Edit Collision</string>
+   <item row="12" column="1">
+    <widget class="QSpinBox" name="rWallAngle">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The collision mask's angle while on CMODE_RWALL&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+     <property name="displayIntegerBase">
+      <number>16</number>
      </property>
     </widget>
    </item>
-   <item row="12" column="0">
-    <widget class="QLabel" name="label_8">
+   <item row="16" column="0" colspan="2">
+    <widget class="QPushButton" name="calcAngleC">
      <property name="text">
-      <string>RWall Angle</string>
+      <string>Calculate Roof Angle</string>
      </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QCheckBox" name="solidTopB">
-     <property name="text">
-      <string>Solid B (Top)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="0" colspan="2">
-    <widget class="QComboBox" name="cLayer">
-     <item>
-      <property name="text">
-       <string>Collision Layer A</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Collision Layer B</string>
-      </property>
-     </item>
     </widget>
    </item>
    <item row="11" column="0">
@@ -103,55 +215,41 @@
      </property>
     </widget>
    </item>
-   <item row="10" column="0">
-    <widget class="QLabel" name="label_5">
+   <item row="7" column="0">
+    <widget class="QRadioButton" name="colPlaneA">
      <property name="text">
-      <string>Roof Angle</string>
+      <string>Plane A</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="0" colspan="2">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <item row="2" column="0">
+    <widget class="QCheckBox" name="solidTopA">
+     <property name="text">
+      <string>Solid A (Top)</string>
      </property>
     </widget>
    </item>
-   <item row="9" column="1">
-    <widget class="QSpinBox" name="floorAngle">
+   <item row="14" column="0" colspan="2">
+    <widget class="QPushButton" name="editCollision">
+     <property name="text">
+      <string>Edit Collision</string>
+     </property>
+    </widget>
+   </item>
+   <item row="18" column="0" colspan="2">
+    <widget class="QPushButton" name="calcAngleR">
+     <property name="text">
+      <string>Calculate RWall Angle</string>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="1">
+    <widget class="QSpinBox" name="behaviour">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;General-purpose flags value, has no defined values. Used often to determine the behaviour of the tile. Lava tiles or conveyor tiles would set this value to indicate that they are special tiles to the manager object&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="maximum">
       <number>255</number>
-     </property>
-     <property name="displayIntegerBase">
-      <number>16</number>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="label_9">
-     <property name="text">
-      <string>Collision Layer</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QCheckBox" name="flipY">
-     <property name="text">
-      <string>Flip Y</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="tID">
-     <property name="text">
-      <string>Tile:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QCheckBox" name="solidLRBA">
-     <property name="text">
-      <string>Solid A (All but top)</string>
      </property>
     </widget>
    </item>
@@ -167,75 +265,6 @@
       </size>
      </property>
     </spacer>
-   </item>
-   <item row="9" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Floor Angle</string>
-     </property>
-    </widget>
-   </item>
-   <item row="13" column="1">
-    <widget class="QSpinBox" name="behaviour">
-     <property name="toolTip">
-      <string>Behaviour of the tile</string>
-     </property>
-     <property name="maximum">
-      <number>255</number>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QCheckBox" name="solidLRBB">
-     <property name="text">
-      <string>Solid B (All but top)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0">
-    <widget class="QCheckBox" name="colYFlip">
-     <property name="text">
-      <string>Flip Collision</string>
-     </property>
-    </widget>
-   </item>
-   <item row="12" column="1">
-    <widget class="QSpinBox" name="rWallAngle">
-     <property name="maximum">
-      <number>255</number>
-     </property>
-     <property name="displayIntegerBase">
-      <number>16</number>
-     </property>
-    </widget>
-   </item>
-   <item row="15" column="0" colspan="2">
-    <widget class="QPushButton" name="calcAngleF">
-     <property name="text">
-      <string>Calculate Floor Angle</string>
-     </property>
-    </widget>
-   </item>
-   <item row="16" column="0" colspan="2">
-    <widget class="QPushButton" name="calcAngleC">
-     <property name="text">
-      <string>Calculate Roof Angle</string>
-     </property>
-    </widget>
-   </item>
-   <item row="17" column="0" colspan="2">
-    <widget class="QPushButton" name="calcAngleL">
-     <property name="text">
-      <string>Calculate LWall Angle</string>
-     </property>
-    </widget>
-   </item>
-   <item row="18" column="0" colspan="2">
-    <widget class="QPushButton" name="calcAngleR">
-     <property name="text">
-      <string>Calculate RWall Angle</string>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

@@ -694,7 +694,7 @@ void SceneViewerv5::drawScene()
                                 bool flipX = (tile >> 10) & 1;
                                 bool flipY = (tile >> 11) & 1;
 
-                                byte flipmode = flipY | (cmask.flipY << 1);
+                                byte flipmode = flipY | (cmask.direction << 1);
 
                                 for (byte cx = 0; cx < 16; ++cx) {
                                     int hm = cx;

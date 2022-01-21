@@ -25,12 +25,12 @@ protected:
     void leaveEvent(QEvent *) override;
 
 private:
-    short m_selection = -1;
-    short m_highlight = -1;
+    short selection = -1;
+    short highlight = -1;
 
-    bool m_pressedL = false;
-    bool m_pressedR = false;
-    bool m_enabling = false;
+    bool pressedL = false;
+    bool pressedR = false;
+    bool enabling = false;
 };
 
 class SceneTilePropertiesv5 : public QWidget

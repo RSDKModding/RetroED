@@ -14,8 +14,8 @@ class TileCollisionWidget : public QDialog
     Q_OBJECT
 public:
     explicit TileCollisionWidget(QWidget *parent = nullptr);
-    RSDKv4::TileConfig::CollisionMask *m_cmask = nullptr;
-    QImage m_tileImg;
+    RSDKv4::TileConfig::CollisionMask *cmask = nullptr;
+    QImage tileImg;
 
 protected:
     void paintEvent(QPaintEvent *) override;
@@ -25,12 +25,12 @@ protected:
     void leaveEvent(QEvent *) override;
 
 private:
-    short m_selection = -1;
-    short m_highlight = -1;
+    short selection = -1;
+    short highlight = -1;
 
-    bool m_pressedL = false;
-    bool m_pressedR = false;
-    bool m_enabling = false;
+    bool pressedL = false;
+    bool pressedR = false;
+    bool enabling = false;
 };
 
 class SceneTileProperties : public QWidget
@@ -47,10 +47,10 @@ public:
 
 private:
     Ui::SceneTileProperties *ui;
-    QImage m_tileImg;
-    int m_collisionLyr = 0;
+    QImage tileImg;
+    int collisionLyr = 0;
 
-    RSDKv4::TileConfig::CollisionMask *m_cmask[2] = { nullptr, nullptr };
+    RSDKv4::TileConfig::CollisionMask *cmask[2] = { nullptr, nullptr };
 };
 
 #endif // SCENETILEPROPERTIES_H
