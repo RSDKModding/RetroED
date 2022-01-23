@@ -20,81 +20,93 @@ void FormatHelpers::Chunks::read(byte ver, QString filename)
     switch (ver) {
         default: break;
         case ENGINE_v1: {
-            RSDKv1::Chunks engineChunks(reader);
+            RSDKv1::Chunks *engineChunks = new RSDKv1::Chunks(reader);
             for (int c = 0; c < 0x100; ++c) {
                 for (int y = 0; y < 8; ++y) {
                     for (int x = 0; x < 8; ++x) {
                         chunks[c].tiles[y][x].direction =
-                            engineChunks.chunkList[c].tiles[y][x].direction;
+                            engineChunks->chunkList[c].tiles[y][x].direction;
                         chunks[c].tiles[y][x].visualPlane =
-                            engineChunks.chunkList[c].tiles[y][x].visualPlane;
+                            engineChunks->chunkList[c].tiles[y][x].visualPlane;
                         chunks[c].tiles[y][x].tileIndex =
-                            engineChunks.chunkList[c].tiles[y][x].tileIndex;
+                            engineChunks->chunkList[c].tiles[y][x].tileIndex;
                         chunks[c].tiles[y][x].solidityA =
-                            engineChunks.chunkList[c].tiles[y][x].solidityA;
+                            engineChunks->chunkList[c].tiles[y][x].solidityA;
                         chunks[c].tiles[y][x].solidityB =
-                            engineChunks.chunkList[c].tiles[y][x].solidityB;
+                            engineChunks->chunkList[c].tiles[y][x].solidityB;
                     }
                 }
             }
-        } break;
+
+            delete engineChunks;
+            break;
+        }
         case ENGINE_v2: {
-            RSDKv2::Chunks engineChunks(reader);
+            RSDKv2::Chunks *engineChunks = new RSDKv2::Chunks(reader);
             for (int c = 0; c < 0x200; ++c) {
                 for (int y = 0; y < 8; ++y) {
                     for (int x = 0; x < 8; ++x) {
                         chunks[c].tiles[y][x].direction =
-                            engineChunks.chunkList[c].tiles[y][x].direction;
+                            engineChunks->chunkList[c].tiles[y][x].direction;
                         chunks[c].tiles[y][x].visualPlane =
-                            engineChunks.chunkList[c].tiles[y][x].visualPlane;
+                            engineChunks->chunkList[c].tiles[y][x].visualPlane;
                         chunks[c].tiles[y][x].tileIndex =
-                            engineChunks.chunkList[c].tiles[y][x].tileIndex;
+                            engineChunks->chunkList[c].tiles[y][x].tileIndex;
                         chunks[c].tiles[y][x].solidityA =
-                            engineChunks.chunkList[c].tiles[y][x].solidityA;
+                            engineChunks->chunkList[c].tiles[y][x].solidityA;
                         chunks[c].tiles[y][x].solidityB =
-                            engineChunks.chunkList[c].tiles[y][x].solidityB;
+                            engineChunks->chunkList[c].tiles[y][x].solidityB;
                     }
                 }
             }
-        } break;
+
+            delete engineChunks;
+            break;
+        }
         case ENGINE_v3: {
-            RSDKv3::Chunks engineChunks(reader);
+            RSDKv3::Chunks *engineChunks = new RSDKv3::Chunks(reader);
             for (int c = 0; c < 0x200; ++c) {
                 for (int y = 0; y < 8; ++y) {
                     for (int x = 0; x < 8; ++x) {
                         chunks[c].tiles[y][x].direction =
-                            engineChunks.chunkList[c].tiles[y][x].direction;
+                            engineChunks->chunkList[c].tiles[y][x].direction;
                         chunks[c].tiles[y][x].visualPlane =
-                            engineChunks.chunkList[c].tiles[y][x].visualPlane;
+                            engineChunks->chunkList[c].tiles[y][x].visualPlane;
                         chunks[c].tiles[y][x].tileIndex =
-                            engineChunks.chunkList[c].tiles[y][x].tileIndex;
+                            engineChunks->chunkList[c].tiles[y][x].tileIndex;
                         chunks[c].tiles[y][x].solidityA =
-                            engineChunks.chunkList[c].tiles[y][x].solidityA;
+                            engineChunks->chunkList[c].tiles[y][x].solidityA;
                         chunks[c].tiles[y][x].solidityB =
-                            engineChunks.chunkList[c].tiles[y][x].solidityB;
+                            engineChunks->chunkList[c].tiles[y][x].solidityB;
                     }
                 }
             }
-        } break;
+
+            delete engineChunks;
+            break;
+        }
         case ENGINE_v4: {
-            RSDKv4::Chunks engineChunks(reader);
+            RSDKv4::Chunks *engineChunks = new RSDKv4::Chunks(reader);
             for (int c = 0; c < 0x200; ++c) {
                 for (int y = 0; y < 8; ++y) {
                     for (int x = 0; x < 8; ++x) {
                         chunks[c].tiles[y][x].direction =
-                            engineChunks.chunkList[c].tiles[y][x].direction;
+                            engineChunks->chunkList[c].tiles[y][x].direction;
                         chunks[c].tiles[y][x].visualPlane =
-                            engineChunks.chunkList[c].tiles[y][x].visualPlane;
+                            engineChunks->chunkList[c].tiles[y][x].visualPlane;
                         chunks[c].tiles[y][x].tileIndex =
-                            engineChunks.chunkList[c].tiles[y][x].tileIndex;
+                            engineChunks->chunkList[c].tiles[y][x].tileIndex;
                         chunks[c].tiles[y][x].solidityA =
-                            engineChunks.chunkList[c].tiles[y][x].solidityA;
+                            engineChunks->chunkList[c].tiles[y][x].solidityA;
                         chunks[c].tiles[y][x].solidityB =
-                            engineChunks.chunkList[c].tiles[y][x].solidityB;
+                            engineChunks->chunkList[c].tiles[y][x].solidityB;
                     }
                 }
             }
-        } break;
+
+            delete engineChunks;
+            break;
+        }
     }
 }
 
@@ -110,100 +122,112 @@ void FormatHelpers::Chunks::write(byte ver, QString filename)
     switch (ver) {
         default: break;
         case ENGINE_v1: {
-            RSDKv1::Chunks engineChunks;
+            RSDKv1::Chunks *engineChunks = new RSDKv1::Chunks;
             for (int c = 0; c < 0x100; ++c) {
                 for (int y = 0; y < 8; ++y) {
                     for (int x = 0; x < 8; ++x) {
-                        engineChunks.chunkList[c].tiles[y][x].direction =
+                        engineChunks->chunkList[c].tiles[y][x].direction =
                             chunks[c].tiles[y][x].direction;
-                        engineChunks.chunkList[c].tiles[y][x].visualPlane =
+                        engineChunks->chunkList[c].tiles[y][x].visualPlane =
                             chunks[c].tiles[y][x].visualPlane;
-                        engineChunks.chunkList[c].tiles[y][x].tileIndex =
+                        engineChunks->chunkList[c].tiles[y][x].tileIndex =
                             chunks[c].tiles[y][x].tileIndex;
-                        engineChunks.chunkList[c].tiles[y][x].solidityA =
+                        engineChunks->chunkList[c].tiles[y][x].solidityA =
                             chunks[c].tiles[y][x].solidityA;
-                        engineChunks.chunkList[c].tiles[y][x].solidityB =
+                        engineChunks->chunkList[c].tiles[y][x].solidityB =
                             chunks[c].tiles[y][x].solidityB;
 
-                        if (engineChunks.chunkList[c].tiles[y][x].solidityA == 4)
-                            engineChunks.chunkList[c].tiles[y][x].solidityA = 1;
-                        if (engineChunks.chunkList[c].tiles[y][x].solidityB == 4)
-                            engineChunks.chunkList[c].tiles[y][x].solidityB = 1;
+                        if (engineChunks->chunkList[c].tiles[y][x].solidityA == 4)
+                            engineChunks->chunkList[c].tiles[y][x].solidityA = 1;
+                        if (engineChunks->chunkList[c].tiles[y][x].solidityB == 4)
+                            engineChunks->chunkList[c].tiles[y][x].solidityB = 1;
                     }
                 }
             }
-            engineChunks.write(writer);
-        } break;
+            engineChunks->write(writer);
+
+            delete engineChunks;
+            break;
+        }
         case ENGINE_v2: {
-            RSDKv2::Chunks engineChunks;
+            RSDKv2::Chunks *engineChunks = new RSDKv2::Chunks;
             for (int c = 0; c < 0x200; ++c) {
                 for (int y = 0; y < 8; ++y) {
                     for (int x = 0; x < 8; ++x) {
-                        engineChunks.chunkList[c].tiles[y][x].direction =
+                        engineChunks->chunkList[c].tiles[y][x].direction =
                             chunks[c].tiles[y][x].direction;
-                        engineChunks.chunkList[c].tiles[y][x].visualPlane =
+                        engineChunks->chunkList[c].tiles[y][x].visualPlane =
                             chunks[c].tiles[y][x].visualPlane;
-                        engineChunks.chunkList[c].tiles[y][x].tileIndex =
+                        engineChunks->chunkList[c].tiles[y][x].tileIndex =
                             chunks[c].tiles[y][x].tileIndex;
-                        engineChunks.chunkList[c].tiles[y][x].solidityA =
+                        engineChunks->chunkList[c].tiles[y][x].solidityA =
                             chunks[c].tiles[y][x].solidityA;
-                        engineChunks.chunkList[c].tiles[y][x].solidityB =
+                        engineChunks->chunkList[c].tiles[y][x].solidityB =
                             chunks[c].tiles[y][x].solidityB;
 
-                        if (engineChunks.chunkList[c].tiles[y][x].solidityA == 4)
-                            engineChunks.chunkList[c].tiles[y][x].solidityA = 1;
-                        if (engineChunks.chunkList[c].tiles[y][x].solidityB == 4)
-                            engineChunks.chunkList[c].tiles[y][x].solidityB = 1;
+                        if (engineChunks->chunkList[c].tiles[y][x].solidityA == 4)
+                            engineChunks->chunkList[c].tiles[y][x].solidityA = 1;
+                        if (engineChunks->chunkList[c].tiles[y][x].solidityB == 4)
+                            engineChunks->chunkList[c].tiles[y][x].solidityB = 1;
                     }
                 }
             }
-            engineChunks.write(writer);
-        } break;
+            engineChunks->write(writer);
+
+            delete engineChunks;
+            break;
+        }
         case ENGINE_v3: {
-            RSDKv3::Chunks engineChunks;
+            RSDKv3::Chunks *engineChunks = new RSDKv3::Chunks;
             for (int c = 0; c < 0x200; ++c) {
                 for (int y = 0; y < 8; ++y) {
                     for (int x = 0; x < 8; ++x) {
-                        engineChunks.chunkList[c].tiles[y][x].direction =
+                        engineChunks->chunkList[c].tiles[y][x].direction =
                             chunks[c].tiles[y][x].direction;
-                        engineChunks.chunkList[c].tiles[y][x].visualPlane =
+                        engineChunks->chunkList[c].tiles[y][x].visualPlane =
                             chunks[c].tiles[y][x].visualPlane;
-                        engineChunks.chunkList[c].tiles[y][x].tileIndex =
+                        engineChunks->chunkList[c].tiles[y][x].tileIndex =
                             chunks[c].tiles[y][x].tileIndex;
-                        engineChunks.chunkList[c].tiles[y][x].solidityA =
+                        engineChunks->chunkList[c].tiles[y][x].solidityA =
                             chunks[c].tiles[y][x].solidityA;
-                        engineChunks.chunkList[c].tiles[y][x].solidityB =
+                        engineChunks->chunkList[c].tiles[y][x].solidityB =
                             chunks[c].tiles[y][x].solidityB;
 
-                        if (engineChunks.chunkList[c].tiles[y][x].solidityA == 4)
-                            engineChunks.chunkList[c].tiles[y][x].solidityA = 1;
-                        if (engineChunks.chunkList[c].tiles[y][x].solidityB == 4)
-                            engineChunks.chunkList[c].tiles[y][x].solidityB = 1;
+                        if (engineChunks->chunkList[c].tiles[y][x].solidityA == 4)
+                            engineChunks->chunkList[c].tiles[y][x].solidityA = 1;
+                        if (engineChunks->chunkList[c].tiles[y][x].solidityB == 4)
+                            engineChunks->chunkList[c].tiles[y][x].solidityB = 1;
                     }
                 }
             }
-            engineChunks.write(writer);
-        } break;
+            engineChunks->write(writer);
+
+            delete engineChunks;
+            break;
+        }
         case ENGINE_v4: {
-            RSDKv4::Chunks engineChunks;
+            RSDKv4::Chunks *engineChunks = new RSDKv4::Chunks;
             for (int c = 0; c < 0x200; ++c) {
                 for (int y = 0; y < 8; ++y) {
                     for (int x = 0; x < 8; ++x) {
-                        engineChunks.chunkList[c].tiles[y][x].direction =
+                        engineChunks->chunkList[c].tiles[y][x].direction =
                             chunks[c].tiles[y][x].direction;
-                        engineChunks.chunkList[c].tiles[y][x].visualPlane =
+                        engineChunks->chunkList[c].tiles[y][x].visualPlane =
                             chunks[c].tiles[y][x].visualPlane;
-                        engineChunks.chunkList[c].tiles[y][x].tileIndex =
+                        engineChunks->chunkList[c].tiles[y][x].tileIndex =
                             chunks[c].tiles[y][x].tileIndex;
-                        engineChunks.chunkList[c].tiles[y][x].solidityA =
+                        engineChunks->chunkList[c].tiles[y][x].solidityA =
                             chunks[c].tiles[y][x].solidityA;
-                        engineChunks.chunkList[c].tiles[y][x].solidityB =
+                        engineChunks->chunkList[c].tiles[y][x].solidityB =
                             chunks[c].tiles[y][x].solidityB;
                     }
                 }
             }
-            engineChunks.write(writer);
-        } break;
+            engineChunks->write(writer);
+
+            delete engineChunks;
+            break;
+        }
     }
 }
 

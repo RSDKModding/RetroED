@@ -721,88 +721,69 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         QFileDialog filedialog(this, tr("Save Image"), "", tr("PNG Files (*.png)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
-            SceneExportImgOptions *dlg = new SceneExportImgOptions(this);
-            if (dlg->exec() == QDialog::Accepted) {
-                int w = 0;
-                int h = 0;
+            int w = 0;
+            int h = 0;
 
-                if (dlg->exportFG[0] || dlg->exportFG[1]) {
-                    if (viewer->scene.width > w)
-                        w = viewer->scene.width;
-                    if (viewer->scene.width > h)
-                        h = viewer->scene.height;
+            if (viewer->visibleLayers[0]) {
+                if (viewer->scene.width > w)
+                    w = viewer->scene.width;
+                if (viewer->scene.width > h)
+                    h = viewer->scene.height;
+            }
+
+            for (int i = 0; i < viewer->background.layers.count(); ++i) {
+                if (viewer->visibleLayers[i + 1]) {
+                    if (viewer->background.layers[i].width > w)
+                        w = viewer->background.layers[i].width;
+                    if (viewer->background.layers[i].height > h)
+                        h = viewer->background.layers[i].height;
                 }
+            }
 
-                for (int i = 0; i < viewer->background.layers.count(); ++i) {
-                    if (dlg->exportBG[i][0] || dlg->exportBG[i][1]) {
-                        if (viewer->background.layers[i].width > w)
-                            w = viewer->background.layers[i].width;
-                        if (viewer->background.layers[i].height > h)
-                            h = viewer->background.layers[i].height;
-                    }
-                }
+            QImage image(w * 0x80, h * 0x80, QImage::Format_ARGB32);
+            image.fill(0xFF00FF);
+            QPainter painter(&image);
 
-                QImage image(w * 0x80, h * 0x80, QImage::Format_ARGB32);
-                image.fill(0xFF00FF);
-                QPainter painter(&image);
-
-                for (int i = 0; i < 8; ++i) {
-                    if (dlg->exportBG[i][0] || dlg->exportBG[i][1]) {
-                        for (int y = 0; y < viewer->background.layers[i].height; ++y) {
-                            for (int x = 0; x < viewer->background.layers[i].width; ++x) {
-                                ushort chunk     = viewer->background.layers[i].layout[y][x];
-                                QImage &chunkImg = viewer->chunks[chunk];
-
-                                painter.drawImage(x * 0x80, y * 0x80, chunkImg);
-                            }
-                        }
-                    }
-                }
-
-                if (dlg->exportFG[0] || dlg->exportFG[1]) {
-                    for (int y = 0; y < viewer->scene.height; ++y) {
-                        for (int x = 0; x < viewer->scene.width; ++x) {
-                            ushort chunk     = viewer->scene.layout[y][x];
+            for (int i = 0; i < 8; ++i) {
+                if (viewer->visibleLayers[i + 1]) {
+                    for (int y = 0; y < viewer->background.layers[i].height; ++y) {
+                        for (int x = 0; x < viewer->background.layers[i].width; ++x) {
+                            ushort chunk     = viewer->background.layers[i].layout[y][x];
                             QImage &chunkImg = viewer->chunks[chunk];
 
                             painter.drawImage(x * 0x80, y * 0x80, chunkImg);
                         }
                     }
                 }
+            }
 
-                if (dlg->exportObjects) {
-                    for (int o = 0; o < viewer->entities.count(); ++o) {
-                        SceneViewer::EntityInfo &obj = viewer->entities[o];
+            if (viewer->visibleLayers[0]) {
+                for (int y = 0; y < viewer->scene.height; ++y) {
+                    for (int x = 0; x < viewer->scene.width; ++x) {
+                        ushort chunk     = viewer->scene.layout[y][x];
+                        QImage &chunkImg = viewer->chunks[chunk];
 
-                        QString name = viewer->objects[obj.type].name;
-
-                        painter.drawText(obj.pos.x, obj.pos.y, name);
-                        // painter.drawImage(obj.getX(), obj.getY(), m_mainView->m_missingObj);
-
-                        if (dlg->exportObjInfo) {
-                            painter.drawText(obj.pos.x, obj.pos.y + 8,
-                                             "st: " + QString::number(obj.propertyValue));
-                            int offset = 16;
-
-                            QList<QString> attribNames = { "ste",  "flip", "scl",  "rot",  "lyr",
-                                                           "prio", "alph", "anim", "aspd", "frm",
-                                                           "ink",  "v0",   "v2",   "v2",   "v3" };
-
-                            for (int i = 0; i < 0x0F && viewer->gameType == ENGINE_v4; ++i) {
-                                if (obj.variables[i].active) {
-                                    painter.drawText(obj.pos.x, obj.pos.y + offset,
-                                                     attribNames[i] + ": "
-                                                         + QString::number(obj.propertyValue));
-                                    offset += 8;
-                                }
-                            }
-                        }
+                        painter.drawImage(x * 0x80, y * 0x80, chunkImg);
                     }
                 }
-
-                image.save(filedialog.selectedFiles()[0]);
-                setStatus("Scene exported to image sucessfully!");
             }
+
+            if (true) {
+                for (int o = 0; o < viewer->entities.count(); ++o) {
+                    SceneViewer::EntityInfo &obj = viewer->entities[o];
+
+                    if (!viewer->objects[obj.type].visible)
+                        continue;
+
+                    QString name = viewer->objects[obj.type].name;
+
+                    // painter.drawText(obj.pos.x, obj.pos.y, name);
+                    painter.drawImage(obj.pos.x, obj.pos.y, viewer->missingObj);
+                }
+            }
+
+            image.save(filedialog.selectedFiles()[0]);
+            setStatus("Scene exported to image sucessfully!");
         }
     });
 
@@ -2096,9 +2077,11 @@ bool SceneEditor::saveScene(bool forceSaveAs)
             tileconfigRS.write(basePath + "Zone.tcf");
             viewer->stageConfig.write(viewer->gameType, basePath + "Zone.zcf");
 
-            RSDKv1::GFX gfx;
-            gfx.importImage(tileset);
-            gfx.write(basePath + "16x16Tiles.gfx");
+            RSDKv1::GFX *gfx = new RSDKv1::GFX;
+            gfx->importImage(tileset);
+            gfx->write(basePath + "Zone.gfx");
+
+            delete gfx;
         }
 
         setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));
@@ -2120,36 +2103,60 @@ bool SceneEditor::saveScene(bool forceSaveAs)
                                       .arg(types[3])
                                       .toStdString()
                                       .c_str()));
+        filedialog.selectNameFilter(types[viewer->gameType - 1]);
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
+
         if (filedialog.exec() == QDialog::Accepted) {
-            /*int filter = types.indexOf(filedialog.selectedNameFilter());
+            int saveVer = types.indexOf(filedialog.selectedNameFilter()) + ENGINE_v4;
 
             setStatus("Saving Scene...");
             QString path     = filedialog.selectedFiles()[0];
             QString basePath = path.replace(QFileInfo(path).fileName(), "");
 
+            FormatHelpers::Gif tileset(16, 0x400 * 16);
+
+            int c = 0;
+            for (PaletteColour &col : viewer->tilePalette) tileset.palette[c++] = col.toQColor();
+
+            int pos = 0;
+            for (int i = 0; i < 0x400; ++i) {
+                uchar *src = viewer->tiles[i].bits();
+                for (int y = 0; y < 16; ++y) {
+                    for (int x = 0; x < 16; ++x) tileset.pixels[pos++] = *src++;
+                }
+            }
+
             RSDKv1::TileConfig tileconfigRS;
 
             // TODO: port data
 
-            switch (filter + 1) {
+            switch (saveVer) {
+                default: break;
                 case ENGINE_v4:
                 case ENGINE_v3:
                 case ENGINE_v2:
-                    viewer->scene.write(filter + 1, filedialog.selectedFiles()[0]);
-                    viewer->background.write(filter + 1, basePath + "Backgrounds.bin");
-                    viewer->chunkset.write(filter + 1, basePath + "128x128Tiles.bin");
+                    viewer->scene.write(saveVer, filedialog.selectedFiles()[0]);
+                    viewer->background.write(saveVer, basePath + "Backgrounds.bin");
+                    viewer->chunkset.write(saveVer, basePath + "128x128Tiles.bin");
                     viewer->tileconfig.write(basePath + "CollisionMasks.bin");
-                    viewer->stageConfig.write(filter + 1, basePath + "StageConfig.bin");
+                    viewer->stageConfig.write(saveVer, basePath + "StageConfig.bin");
+                    tileset.write(basePath + "16x16Tiles.gif");
                     break;
-                case ENGINE_v1:
-                    viewer->scene.write(filter + 1, filedialog.selectedFiles()[0]);
-                    viewer->background.write(filter + 1, basePath + "ZoneBG.map");
-                    viewer->chunkset.write(filter + 1, basePath + "Zone.til");
+                case ENGINE_v1: {
+                    viewer->scene.write(saveVer, filedialog.selectedFiles()[0]);
+                    viewer->background.write(saveVer, basePath + "ZoneBG.map");
+                    viewer->chunkset.write(saveVer, basePath + "Zone.til");
                     tileconfigRS.write(basePath + "Zone.tcf");
-                    viewer->stageConfig.write(filter + 1, basePath + "Zone.zcf");
+                    viewer->stageConfig.write(saveVer, basePath + "Zone.zcf");
+
+                    RSDKv1::GFX *gfx = new RSDKv1::GFX;
+                    gfx->importImage(tileset);
+                    gfx->write(basePath + "Zone.gfx");
+
+                    delete gfx;
                     break;
-            }*/
+                }
+            }
 
             appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR, filedialog.selectedFiles()[0],
                                     QList<QString>{ viewer->gameConfig.filePath });

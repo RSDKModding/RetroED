@@ -57,7 +57,6 @@ SOURCES += \
     tools/sceneeditorv5.cpp \
     tools/sceneproperties/chunkeditor.cpp \
     tools/sceneproperties/objectselector.cpp \
-    tools/sceneproperties/sceneexportimgoptions.cpp \
     tools/sceneproperties/scenelayerproperties.cpp \
     tools/sceneproperties/scenelayerpropertiesv5.cpp \
     tools/sceneproperties/sceneobjectproperties.cpp \
@@ -121,7 +120,6 @@ HEADERS += \
     tools/sceneeditorv5.hpp \
     tools/sceneproperties/chunkeditor.hpp \
     tools/sceneproperties/objectselector.hpp \
-    tools/sceneproperties/sceneexportimgoptions.hpp \
     tools/sceneproperties/scenelayerproperties.hpp \
     tools/sceneproperties/scenelayerpropertiesv5.hpp \
     tools/sceneproperties/sceneobjectproperties.hpp \
@@ -171,7 +169,6 @@ FORMS += \
     tools/sceneeditorv5.ui \
     tools/sceneproperties/chunkeditor.ui \
     tools/sceneproperties/objectselector.ui \
-    tools/sceneproperties/sceneexportimgoptions.ui \
     tools/sceneproperties/scenelayerproperties.ui \
     tools/sceneproperties/scenelayerpropertiesv5.ui \
     tools/sceneproperties/sceneobjectproperties.ui \

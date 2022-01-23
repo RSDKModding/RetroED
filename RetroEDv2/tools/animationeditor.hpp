@@ -55,7 +55,7 @@ private:
 
     FormatHelpers::Animation animFile;
     QList<bool> hitboxVisible;
-    int aniType = 0xFF;
+    int aniType = ENGINE_v5;
 
     ushort currentAnim    = -1;
     ushort currentFrame   = -1;

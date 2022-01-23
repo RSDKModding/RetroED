@@ -108,7 +108,7 @@ public:
     float zoom = 1.0f;
     inline float invZoom() { return 1.0f / zoom; }
 
-    byte gameType = ENGINE_NONE;
+    byte gameType = ENGINE_v4;
 
     QString dataPath = "";
     FormatHelpers::GameConfig gameConfig;

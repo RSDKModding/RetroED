@@ -95,7 +95,6 @@ public:
 #include "tools/sceneproperties/sceneobjectproperties.hpp"
 #include "tools/sceneproperties/scenescrollproperties.hpp"
 #include "tools/sceneproperties/scenetileproperties.hpp"
-#include "tools/sceneproperties/sceneexportimgoptions.hpp"
 
 #include "tools/sceneproperties/scenepropertiesv5.hpp"
 #include "tools/sceneproperties/scenelayerpropertiesv5.hpp"

@@ -2271,21 +2271,59 @@ void AnimationEditor::updateView()
 void AnimationEditor::processAnimation()
 {
     bool changed = false;
+
     if (currentAnim < animCount() && currentFrame < frameCount()) {
-        animTimer += animFile.animations[currentAnim].speed;
-        int duration = animFile.animations[currentAnim].frames[currentFrame].duration;
-        while (animTimer > duration) {
-            animTimer -= duration;
-            ++currentFrame;
+        int duration = 0;
+        switch (aniType) {
+            case ENGINE_v5:
+                animTimer += animFile.animations[currentAnim].speed;
+                duration = animFile.animations[currentAnim].frames[currentFrame].duration;
+                while (animTimer > duration) {
+                    animTimer -= duration;
+                    ++currentFrame;
 
-            int frameCount = animFile.animations[currentAnim].frames.count();
-            if (animFile.animations[currentAnim].rotationStyle == 3)
-                frameCount >>= 1;
+                    int frameCount = animFile.animations[currentAnim].frames.count();
+                    if (animFile.animations[currentAnim].rotationStyle == 3)
+                        frameCount >>= 1;
 
-            if (currentFrame >= frameCount)
-                currentFrame = animFile.animations[currentAnim].loopIndex;
-            duration = animFile.animations[currentAnim].frames[currentFrame].duration;
-            changed  = true;
+                    if (currentFrame >= frameCount)
+                        currentFrame = animFile.animations[currentAnim].loopIndex;
+                    duration = animFile.animations[currentAnim].frames[currentFrame].duration;
+                    changed  = true;
+                }
+                break;
+            case ENGINE_v4:
+            case ENGINE_v3:
+            case ENGINE_v2:
+                animTimer += animFile.animations[currentAnim].speed;
+                while (animTimer > 0xF0) {
+                    animTimer -= 0xF0;
+                    ++currentFrame;
+
+                    int frameCount = animFile.animations[currentAnim].frames.count();
+                    if (animFile.animations[currentAnim].rotationStyle == 3)
+                        frameCount >>= 1;
+
+                    if (currentFrame >= frameCount)
+                        currentFrame = animFile.animations[currentAnim].loopIndex;
+                    changed = true;
+                }
+                break;
+            case ENGINE_v1:
+                animTimer += animFile.animations[currentAnim].speed;
+                while (animTimer > 60) {
+                    animTimer -= 60;
+                    ++currentFrame;
+
+                    int frameCount = animFile.animations[currentAnim].frames.count();
+                    if (animFile.animations[currentAnim].rotationStyle == 3)
+                        frameCount >>= 1;
+
+                    if (currentFrame >= frameCount)
+                        currentFrame = animFile.animations[currentAnim].loopIndex;
+                    changed = true;
+                }
+                break;
         }
     }
 
@@ -2476,12 +2514,20 @@ bool AnimationEditor::event(QEvent *event)
             if (!QFile::exists(animFile.filePath)) {
                 QFileDialog filedialog(this, tr("Save Animation"), "",
                                        tr(types.join(";;").toStdString().c_str()));
+                filedialog.selectNameFilter(types[aniType]);
                 filedialog.setAcceptMode(QFileDialog::AcceptSave);
                 if (filedialog.exec() == QDialog::Accepted) {
                     setStatus("Saving animation...");
 
                     QString filepath = filedialog.selectedFiles()[0];
-                    aniType          = typesList.indexOf(filedialog.selectedNameFilter());
+                    int type         = typesList.indexOf(filedialog.selectedNameFilter());
+                    switch (type) {
+                        default:
+                        case 0: aniType = ENGINE_v5; break;
+                        case 1: aniType = ENGINE_v4; break;
+                        case 2: aniType = ENGINE_v2; break;
+                        case 3: aniType = ENGINE_v1; break;
+                    }
                     animFile.write(aniType, filepath);
                     appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
                     clearActions();
@@ -2504,12 +2550,31 @@ bool AnimationEditor::event(QEvent *event)
                 this, tr("Save Animation"),
                 QFile::exists(animFile.filePath) ? QFileInfo(animFile.filePath).absolutePath() : "",
                 tr(types.join(";;").toStdString().c_str()));
+
+            switch (aniType) {
+                default:
+                case ENGINE_v5: filedialog.selectNameFilter(types[0]); break;
+                case ENGINE_v4:
+                case ENGINE_v3: filedialog.selectNameFilter(types[1]); break;
+                case ENGINE_v2: filedialog.selectNameFilter(types[2]); break;
+                case ENGINE_v1: filedialog.selectNameFilter(types[3]); break;
+            }
+
+            filedialog.selectNameFilter(types[aniType]);
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
                 setStatus("Saving animation...");
 
                 QString filepath = filedialog.selectedFiles()[0];
-                aniType          = typesList.indexOf(filedialog.selectedNameFilter());
+                int type         = typesList.indexOf(filedialog.selectedNameFilter());
+                switch (type) {
+                    default:
+                    case 0: aniType = ENGINE_v5; break;
+                    case 1: aniType = ENGINE_v4; break;
+                    case 2: aniType = ENGINE_v2; break;
+                    case 3: aniType = ENGINE_v1; break;
+                }
+
                 animFile.write(aniType, filepath);
                 appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
                 clearActions();
