@@ -102,6 +102,9 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     ui->toolBox->setCurrentIndex(0);
     ui->propertiesBox->setCurrentIndex(0);
 
+    scnProp->gridX->setValue(viewer->gridSize.x);
+    scnProp->gridY->setValue(viewer->gridSize.y);
+
     connect(ui->horizontalScrollBar, &QScrollBar::valueChanged,
             [this](int v) { viewer->cam.pos.x = v; });
 
@@ -401,14 +404,16 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         doAction();
     });
 
-    connect(ui->showChunkGrid, &QPushButton::clicked, [this] {
-        viewer->showChunkGrid ^= 1;
-        doAction();
-    });
     connect(ui->showTileGrid, &QPushButton::clicked, [this] {
-        viewer->showTileGrid ^= 1;
+        viewer->showGrid ^= 1;
         doAction();
     });
+
+    connect(scnProp->gridX, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { viewer->gridSize.x = v; });
+
+    connect(scnProp->gridY, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { viewer->gridSize.y = v; });
 
     connect(scnProp->loadGlobalCB, &QCheckBox::toggled, [this](bool b) {
         viewer->stageConfig.loadGlobalScripts = b;
@@ -1608,7 +1613,12 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
     viewer->loadScene(scnPath, gameType);
 
-    for (int i = 0; i < 9; ++i) viewer->visibleLayers[i] = true;
+    for (int i = 0; i < 9; ++i) viewer->visibleLayers[i] = false;
+    for (int a = 0; a < 4; ++a) {
+        byte id = viewer->scene.activeLayer[a];
+        if (id < 9)
+            viewer->visibleLayers[id] = true;
+    }
 
     ui->layerList->blockSignals(true);
     ui->layerList->clear();
@@ -2398,20 +2408,15 @@ void SceneEditor::resetAction()
     // Camera
     viewer->cam.pos = actions[actionIndex].camPos;
 
-    viewer->showChunkGrid = actions[actionIndex].showChunkGrid;
-    viewer->showTileGrid  = actions[actionIndex].showTileGrid;
+    viewer->showGrid = actions[actionIndex].showTileGrid;
 
     // viewer->compilerv2 = actions[actionIndex].compilerv2;
     // viewer->compilerv3 = actions[actionIndex].compilerv3;
     // viewer->compilerv4 = actions[actionIndex].compilerv4;
 
     // updating UI
-    ui->showChunkGrid->blockSignals(true);
-    ui->showChunkGrid->setDown(viewer->showChunkGrid);
-    ui->showChunkGrid->blockSignals(false);
-
     ui->showTileGrid->blockSignals(true);
-    ui->showTileGrid->setDown(viewer->showTileGrid);
+    ui->showTileGrid->setDown(viewer->showGrid);
     ui->showTileGrid->blockSignals(false);
 
     ui->showCollisionA->blockSignals(true);
@@ -2480,8 +2485,7 @@ void SceneEditor::doAction(QString name, bool setModified)
     // Camera
     action.camPos = viewer->cam.pos;
 
-    action.showChunkGrid = viewer->showChunkGrid;
-    action.showTileGrid  = viewer->showTileGrid;
+    action.showTileGrid = viewer->showGrid;
 
     // action.compilerv2 = viewer->compilerv2;
     // action.compilerv3 = viewer->compilerv3;
@@ -2932,29 +2936,28 @@ void SceneEditor::writeXMLEntity(Writer &writer, int entityID, int indentPos)
         }
     }
 
-    int id = 0;
-    if (entity.customVars.count()) {
-        for (auto &variable : entity.customVars) {
-            writeXMLIndentation(writer, indentPos + 1);
-            writer.writeText(QString("<variable name=\"%1\" type=\"%2\">")
-                                 .arg(viewer->objects[entity.type].variables[id++].name)
-                                 .arg(types[variable.type]));
+    for (int v = 0; v < viewer->objects[entity.type].variables.count(); ++v) {
+        int value = objProp->callRSDKEdit(viewer, true, entityID, v, 0);
 
-            // TODO: these aren't set
+        writeXMLIndentation(writer, indentPos + 1);
+        writer.writeText(QString("<variable name=\"%1\" type=\"%2\">")
+                             .arg(viewer->objects[entity.type].variables[v].name)
+                             .arg("enum"));
 
-            switch (variable.type) {
-                default: break;
-                case VAR_UINT8: writer.writeText(QString::number(variable.value_uint8)); break;
-                case VAR_UINT16: writer.writeText(QString::number(variable.value_uint16)); break;
-                case VAR_UINT32: writer.writeText(QString::number(variable.value_uint32)); break;
-                case VAR_INT8: writer.writeText(QString::number(variable.value_int8)); break;
-                case VAR_INT16: writer.writeText(QString::number(variable.value_int16)); break;
-                case VAR_INT32: writer.writeText(QString::number(variable.value_int32)); break;
-                case VAR_ENUM: writer.writeText(QString::number(variable.value_enum)); break;
-                case VAR_BOOL: writer.writeText(QString::number(variable.value_bool)); break;
-            }
-            writer.writeLine(QString("</variable>"));
+        if (!viewer->objects[entity.type].variables[v].values.count()) {
+            writer.writeText(QString::number(value));
         }
+        else {
+            QString valStr = "UNKNOWN";
+            for (auto &val : viewer->objects[entity.type].variables[v].values) {
+                if (val.value == value) {
+                    valStr = val.name;
+                    break;
+                }
+            }
+            writer.writeText(valStr);
+        }
+        writer.writeLine(QString("</variable>"));
     }
     writeXMLIndentation(writer, indentPos);
     writer.writeLine("</entity>");

@@ -192,21 +192,69 @@ Property::Property(QString name, QList<PropertyValue> valueList, void *value, by
     typeManager              = m;
     p                        = m->addProperty(name);
     m->setEnumNames(p, names);
+
+    int index = 0;
     switch (type) {
         default: break;
-        case BYTE_MANAGER: m->setValue(p, *(byte *)value); break;
-        case SBYTE_MANAGER: m->setValue(p, *(sbyte *)value); break;
-        case SHORT_MANAGER: m->setValue(p, *(short *)value); break;
-        case USHORT_MANAGER: m->setValue(p, *(ushort *)value); break;
-        case INT_MANAGER: m->setValue(p, *(int *)value); break;
-        case UINT_MANAGER:
-            m->setValue(p, *(uint *)value);
+        case BYTE_MANAGER: {
+            byte v = *(byte *)value;
+            for (PropertyValue &val : valueList) {
+                if (val.value.toUInt() == v)
+                    break;
+                index++;
+            }
             break;
-            // case BOOL_MANAGER: m->setValue(p, *(bool *)value); break;
-            // case STRING_MANAGER: m->setValue(p, *(QString *)value); break;
-            // case FLOAT_MANAGER: m->setValue(p, *(float *)value); break;
-            // case COLOR_MANAGER: m->setValue(p, ((Colour *)value)->toUInt()); break;
+        }
+        case SBYTE_MANAGER: {
+            sbyte v = *(sbyte *)value;
+            for (PropertyValue &val : valueList) {
+                if (val.value.toInt() == v)
+                    break;
+                index++;
+            }
+            break;
+        }
+        case SHORT_MANAGER: {
+            short v = *(short *)value;
+            for (PropertyValue &val : valueList) {
+                if (val.value.toInt() == v)
+                    break;
+                index++;
+            }
+            break;
+        }
+        case USHORT_MANAGER: {
+            ushort v = *(ushort *)value;
+            for (PropertyValue &val : valueList) {
+                if (val.value.toUInt() == v)
+                    break;
+                index++;
+            }
+            break;
+        }
+        case INT_MANAGER: {
+            int v = *(int *)value;
+            for (PropertyValue &val : valueList) {
+                if (val.value.toInt() == v)
+                    break;
+                index++;
+            }
+            break;
+        }
+        case UINT_MANAGER: {
+            uint v = *(uint *)value;
+            for (PropertyValue &val : valueList) {
+                if (val.value.toUInt() == v)
+                    break;
+                index++;
+            }
+            break;
+        }
     }
+    if (index == valueList.count())
+        index = 0;
+    m->setValue(p, index);
+
     this->type    = ENUM_MANAGER;
     this->varType = type;
     valuePtr      = value;
@@ -380,79 +428,57 @@ void Property::updateValue()
     switch (type) {
         case BYTE_MANAGER: {
             QtIntPropertyManager *m = static_cast<QtIntPropertyManager *>(typeManager);
-            m->blockSignals(true);
             m->setValue(p, *static_cast<unsigned char *>(valuePtr));
-            m->blockSignals(false);
             break;
         }
         case SBYTE_MANAGER: {
             QtIntPropertyManager *m = static_cast<QtIntPropertyManager *>(typeManager);
-            m->blockSignals(true);
             m->setValue(p, *static_cast<signed char *>(valuePtr));
-            m->blockSignals(false);
             break;
         }
         case INT_MANAGER: {
             QtIntPropertyManager *m = static_cast<QtIntPropertyManager *>(typeManager);
-            m->blockSignals(true);
             m->setValue(p, *static_cast<int *>(valuePtr));
-            m->blockSignals(false);
             break;
         }
         case UINT_MANAGER: {
             QtIntPropertyManager *m = static_cast<QtIntPropertyManager *>(typeManager);
-            m->blockSignals(true);
             m->setValue(p, *static_cast<uint *>(valuePtr));
-            m->blockSignals(false);
             break;
         }
         case SHORT_MANAGER: {
             QtIntPropertyManager *m = static_cast<QtIntPropertyManager *>(typeManager);
-            m->blockSignals(true);
             m->setValue(p, *static_cast<short *>(valuePtr));
-            m->blockSignals(false);
             break;
         }
         case FLOAT_MANAGER: {
             QtDoublePropertyManager *m = static_cast<QtDoublePropertyManager *>(typeManager);
-            m->blockSignals(true);
             m->setValue(p, *static_cast<float *>(valuePtr));
-            m->blockSignals(false);
             break;
         }
         case USHORT_MANAGER: {
             QtIntPropertyManager *m = static_cast<QtIntPropertyManager *>(typeManager);
-            m->blockSignals(true);
             m->setValue(p, *static_cast<ushort *>(valuePtr));
-            m->blockSignals(false);
             break;
         }
         case BOOL_MANAGER: {
             QtBoolPropertyManager *m = static_cast<QtBoolPropertyManager *>(typeManager);
-            m->blockSignals(true);
             m->setValue(p, *static_cast<bool *>(valuePtr));
-            m->blockSignals(false);
             break;
         }
         case STRING_MANAGER: {
             QtStringPropertyManager *m = static_cast<QtStringPropertyManager *>(typeManager);
-            m->blockSignals(true);
             m->setValue(p, *static_cast<QString *>(valuePtr));
-            m->blockSignals(false);
             break;
         }
         case ENUM_MANAGER: {
             QtEnumPropertyManager *m = static_cast<QtEnumPropertyManager *>(typeManager);
-            m->blockSignals(true);
             m->setValue(p, *static_cast<int *>(valuePtr));
-            m->blockSignals(false);
             break;
         }
         case COLOR_MANAGER: {
             QtColorPropertyManager *m = static_cast<QtColorPropertyManager *>(typeManager);
-            m->blockSignals(true);
             m->setValue(p, *static_cast<QColor *>(valuePtr));
-            m->blockSignals(false);
         } break;
     }
 }

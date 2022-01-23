@@ -29,7 +29,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>-34</y>
         <width>219</width>
         <height>793</height>
        </rect>
@@ -38,7 +38,7 @@
        <item row="9" column="1">
         <widget class="QComboBox" name="layerMidpoint">
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Minimum activr layer for tiles with &amp;quot;High&amp;quot; Visual Layer to be drawn on (tiles with &amp;quot;Low&amp;quot; Visual Layer wont be drawn)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Minimum active layer for tiles with &amp;quot;High&amp;quot; Visual Layer to be drawn on (tiles with &amp;quot;Low&amp;quot; Visual Layer wont be drawn)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <item>
           <property name="text">
@@ -123,7 +123,7 @@
        <item row="6" column="1">
         <widget class="QComboBox" name="activeLayer1">
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1st Active Layer (Draws on Layer 2)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;2nd Active Layer (Draws on Layer 2)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <item>
           <property name="text">
@@ -220,15 +220,27 @@
           </item>
           <item row="0" column="1">
            <widget class="QSpinBox" name="gridX">
+            <property name="minimum">
+             <number>1</number>
+            </property>
             <property name="maximum">
              <number>1024</number>
+            </property>
+            <property name="value">
+             <number>128</number>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
            <widget class="QSpinBox" name="gridY">
+            <property name="minimum">
+             <number>1</number>
+            </property>
             <property name="maximum">
              <number>1024</number>
+            </property>
+            <property name="value">
+             <number>128</number>
             </property>
            </widget>
           </item>
@@ -251,7 +263,7 @@
        <item row="8" column="1">
         <widget class="QComboBox" name="activeLayer3">
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1st Active Layer (Draws on Layer 5)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;4th Active Layer (Draws on Layer 5)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <item>
           <property name="text">
@@ -580,7 +592,7 @@
        <item row="7" column="1">
         <widget class="QComboBox" name="activeLayer2">
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1st Active Layer (Draws on Layer 3)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;3rd Active Layer (Draws on Layer 3)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <item>
           <property name="text">

@@ -954,47 +954,50 @@ void SceneViewer::drawScene()
                  primitiveShader, true);
     }
 
-    if (showChunkGrid) {
+    if (showGrid) {
         rectVAO.bind();
 
-        float camX = qMax(cam.pos.x, 0.0f);
-        float camY = qMax(cam.pos.y, 0.0f);
+        float camX = cam.pos.x;
+        float camY = cam.pos.y;
 
-        for (int y = camY - ((int)camY % 0x80); y < (camY + storedH) * (zoom < 1.0f ? invZoom() : 1.0f);
-             y += 0x80) {
-            drawLine((camX - camX) * zoom, (y - camY) * zoom, 15.6f,
-                     (((camX + storedW * invZoom())) - camX) * zoom, (y - camY) * zoom, 15.6f, 1.0f,
-                     Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
+        int x = camX;
+        int y = camY;
+        int w = (camX + storedW) * (zoom < 1.0f ? invZoom() : 1.0f);
+        int h = (camY + storedH) * (zoom < 1.0f ? invZoom() : 1.0f);
+        if (cam.pos.x < 0)
+            x += abs(cam.pos.x);
+        else
+            x -= ((int)camX % gridSize.x);
+
+        if (cam.pos.y < 0)
+            y += abs(cam.pos.y);
+        else
+            y -= ((int)camY % gridSize.y);
+
+        for (; y < h; y += gridSize.y) {
+            float dy = (y - camY);
+
+            float x1 = 0;
+            float x2 = (((camX + storedW * invZoom())) - camX);
+            if (cam.pos.x < 0) {
+                x1 += abs(cam.pos.x);
+            }
+
+            drawLine(x1, dy, 15.6f, x2, dy, 15.6f, zoom, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
+                     primitiveShader);
         }
 
-        for (int x = camX - ((int)camX % 0x80); x < (camX + storedW) * (zoom < 1.0f ? invZoom() : 1.0f);
-             x += 0x80) {
-            drawLine((x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom, (camY - camY) * zoom, 15.6f,
-                     (x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom,
-                     (((camY + storedH * invZoom())) - camY) * zoom, 15.6f, 1.0f,
-                     Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
-        }
-    }
+        for (; x < w; x += gridSize.x) {
+            float dx = (x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX);
 
-    if (showTileGrid) {
-        rectVAO.bind();
+            float y1 = 0;
+            float y2 = (((camY + storedH * invZoom())) - camY);
+            if (cam.pos.y < 0) {
+                y1 += abs(cam.pos.y);
+            }
 
-        float camX = qMax(cam.pos.x, 0.0f);
-        float camY = qMax(cam.pos.y, 0.0f);
-
-        for (int y = camY - qMax(((int)camY % 0x10), 0);
-             y < (camY + storedH) * (zoom < 1.0f ? invZoom() : 1.0f); y += 0x10) {
-            drawLine((camX - camX) * zoom, (y - camY) * zoom, 15.6f,
-                     (((camX + storedW * invZoom())) - camX) * zoom, (y - camY) * zoom, 15.6f, 1.0f,
-                     Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
-        }
-
-        for (int x = camX - qMax(((int)camX % 0x10), 0);
-             x < (camX + storedW) * (zoom < 1.0f ? invZoom() : 1.0f); x += 0x10) {
-            drawLine((x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom, (camY - camY) * zoom, 15.6f,
-                     (x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX) * zoom,
-                     (((camY + storedH * invZoom())) - camY) * zoom, 15.6f, 1.0f,
-                     Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), primitiveShader);
+            drawLine(dx, y1, 15.6f, dx, y2, 15.6f, zoom, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
+                     primitiveShader);
         }
     }
 }

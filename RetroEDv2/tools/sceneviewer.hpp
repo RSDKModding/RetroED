@@ -161,8 +161,8 @@ public:
     QList<QImage> chunks;
     QImage missingObj;
 
-    bool showChunkGrid = false;
-    bool showTileGrid  = false;
+    bool showGrid         = false;
+    Vector2<int> gridSize = Vector2<int>(0x80, 0x80);
 
     Compilerv2 compilerv2;
     Compilerv3 compilerv3;

@@ -236,15 +236,27 @@
           </item>
           <item row="0" column="1">
            <widget class="QSpinBox" name="gridX">
+            <property name="minimum">
+             <number>1</number>
+            </property>
             <property name="maximum">
              <number>1024</number>
+            </property>
+            <property name="value">
+             <number>16</number>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
            <widget class="QSpinBox" name="gridY">
+            <property name="minimum">
+             <number>1</number>
+            </property>
             <property name="maximum">
              <number>1024</number>
+            </property>
+            <property name="value">
+             <number>16</number>
             </property>
            </widget>
           </item>

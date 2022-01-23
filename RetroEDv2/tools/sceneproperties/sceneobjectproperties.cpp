@@ -219,14 +219,14 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
     for (int v = 0; v < entity->customVars.count(); ++v) {
         auto &var = entity->customVars[v];
 
-        SceneViewer::ObjectInfo *object = &scnEditor->viewer->objects[entity->type];
-        QString varName                 = scnEditor->viewer->objects[entity->type].variables[v].name;
-        Property *group                 = new Property(varName);
+        SceneViewer::ObjectInfo *object    = &scnEditor->viewer->objects[entity->type];
+        SceneViewer::VariableInfo &varInfo = scnEditor->viewer->objects[entity->type].variables[v];
+        Property *group                    = new Property(varInfo.name);
         QList<Property *> valGroup;
 
         QList<PropertyValue> aliases;
         if (object) {
-            for (auto &value : object->variables[v].values) {
+            for (auto &value : varInfo.values) {
                 PropertyValue val;
                 val.name  = value.name;
                 val.value = value.value;
@@ -234,13 +234,7 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
             }
         }
 
-        scnEditor->viewer->variableID                       = v; // var
-        scnEditor->viewer->variableValue                    = 0;
-        scnEditor->viewer->returnVariable                   = true;
-        scnEditor->viewer->compilerv4.scriptEng.checkResult = -1;
-        scnEditor->viewer->callGameEvent(SceneViewer::EVENT_RSDKEDIT, entityID);
-        var.value_int32                   = scnEditor->viewer->compilerv4.scriptEng.checkResult;
-        scnEditor->viewer->returnVariable = false;
+        var.value_int32 = callRSDKEdit(scnEditor->viewer, true, entityID, v, 0);
 
         if (aliases.count()) {
             valGroup.append(new Property("enum", aliases, &var.value_int32, Property::INT_MANAGER));
@@ -252,11 +246,8 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
         Property *prop = valGroup.last();
         disconnect(prop, nullptr, nullptr, nullptr);
         connect(prop, &Property::changed,
-                [prop, &var, entityID, v, infoGroup, entity, entityv2, entityv3, entityv4, ver] {
-                    var.value_int32                   = *(byte *)prop->valuePtr;
-                    scnEditor->viewer->variableID     = v;
-                    scnEditor->viewer->variableValue  = var.value_int32;
-                    scnEditor->viewer->returnVariable = false;
+                [this, prop, &var, entityID, v, infoGroup, entity, entityv2, entityv3, entityv4, ver] {
+                    var.value_int32 = *(byte *)prop->valuePtr;
 
                     if (entityv2)
                         entityv2->propertyValue = entity->propertyValue;
@@ -265,7 +256,7 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
                     if (entityv4)
                         entityv4->propertyValue = entity->propertyValue;
 
-                    scnEditor->viewer->callGameEvent(SceneViewer::EVENT_RSDKEDIT, entityID);
+                    callRSDKEdit(scnEditor->viewer, false, entityID, v, var.value_int32);
 
                     switch (ver) {
                         case ENGINE_v2: entity->propertyValue = entityv2->propertyValue; break;
@@ -297,6 +288,18 @@ void SceneObjectProperties::updateUI()
 {
     if (!entityPtr)
         return;
+}
+
+int SceneObjectProperties::callRSDKEdit(SceneViewer *viewer, bool shouldReturnVal, int entityID,
+                                        int variableID, int variableValue)
+{
+    viewer->variableID                       = variableID;
+    viewer->variableValue                    = variableValue;
+    viewer->returnVariable                   = shouldReturnVal;
+    viewer->compilerv4.scriptEng.checkResult = -1;
+    viewer->callGameEvent(SceneViewer::EVENT_RSDKEDIT, entityID);
+    viewer->returnVariable = false;
+    return viewer->compilerv4.scriptEng.checkResult;
 }
 
 #include "moc_sceneobjectproperties.cpp"

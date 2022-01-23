@@ -22,6 +22,9 @@ public:
 
     void updateUI();
 
+    int callRSDKEdit(SceneViewer *viewer, bool shouldReturnVal, int entityID, int variableID,
+                     int variableValue);
+
     PropertyBrowser *properties = nullptr;
 
 private:

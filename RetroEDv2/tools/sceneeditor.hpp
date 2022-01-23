@@ -62,8 +62,7 @@ public:
         // Camera
         Vector3<float> camPos = Vector3<float>(0.0f, 0.0f, 0.0f);
 
-        bool showChunkGrid = false;
-        bool showTileGrid  = false;
+        bool showTileGrid = false;
     };
 
     explicit SceneEditor(QWidget *parent = nullptr);
