@@ -1,6 +1,6 @@
 #include "includes.hpp"
 
-#define COMMONALIAS_COUNT_v4 (0x5B + 6)
+#define COMMONALIAS_COUNT_v4 (0x5B + 7)
 #define ALIAS_COUNT_TRIM_v4  (0xE0)
 #define ALIAS_COUNT_v4       (COMMONALIAS_COUNT_v4 + ALIAS_COUNT_TRIM_v4)
 
@@ -585,6 +585,7 @@ AliasInfov4 publicAliases[ALIAS_COUNT_v4] = {
     AliasInfov4("TILELAYER_3DSKY", "4"),
     AliasInfov4("GROUP_ALL", "0"),
     // EDITOR-ONLY
+    AliasInfov4("EDIT_VAR_PROPVAL", "-1"),
     AliasInfov4("ALIAS_VAR_PROPVAL", "0"),
     AliasInfov4("ALIAS_VAR_VAL0", "1"),
     AliasInfov4("ALIAS_VAR_VAL1", "2"),

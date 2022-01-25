@@ -96,8 +96,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     viewer->sbHorizontal = ui->horizontalScrollBar;
     viewer->sbVertical   = ui->verticalScrollBar;
     viewer->statusLabel  = ui->statusLabel;
-
-    snapSize = Vector2<int>(0x10, 0x10);
+    viewer->objProp      = objProp;
 
     ui->toolBox->setCurrentIndex(0);
     ui->propertiesBox->setCurrentIndex(0);
@@ -1353,8 +1352,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                             entity.pos.y -= selectionOffset.y;
 
                             if (ctrlDownL) {
-                                entity.pos.x = (entity.pos.x - fmodf(entity.pos.x, snapSize.x));
-                                entity.pos.y = (entity.pos.y - fmodf(entity.pos.y, snapSize.y));
+                                entity.pos.x = (entity.pos.x - fmodf(entity.pos.x, viewer->gridSize.x));
+                                entity.pos.y = (entity.pos.y - fmodf(entity.pos.y, viewer->gridSize.y));
                             }
 
                             int id                                       = viewer->selectedEntity;
@@ -1908,13 +1907,6 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                     viewer->compilerv3.objectScriptList[scrID - 1].subRSDKEdit.jumpTablePtr  = -1;
                 }
             }
-
-            viewer->compilerv3.objectLoop = ENTITY_COUNT - 1;
-            for (int o = 0; o < OBJECT_COUNT; ++o) {
-                viewer->activeVarObj = o;
-                viewer->callGameEvent(SceneViewer::EVENT_RSDKLOAD, o);
-            }
-            viewer->activeVarObj = -1;
             break;
         }
         case ENGINE_v4: { // compile RSDKDraw & RSDKLoad and draw via those
@@ -2006,16 +1998,17 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                     viewer->compilerv4.objectScriptList[scrID - 1].eventRSDKEdit.jumpTablePtr  = -1;
                 }
             }
-
-            viewer->compilerv4.objectEntityPos = ENTITY_COUNT - 1;
-            for (int o = 0; o < OBJECT_COUNT; ++o) {
-                viewer->activeVarObj = o;
-                viewer->callGameEvent(SceneViewer::EVENT_RSDKLOAD, o);
-            }
-            viewer->activeVarObj = -1;
             break;
         }
     }
+
+    viewer->compilerv3.objectLoop      = ENTITY_COUNT - 1;
+    viewer->compilerv4.objectEntityPos = ENTITY_COUNT - 1;
+    for (int o = 0; o < viewer->objects.count(); ++o) {
+        viewer->activeVarObj = o;
+        viewer->callGameEvent(SceneViewer::EVENT_RSDKLOAD, o);
+    }
+    viewer->activeVarObj = -1;
 
     for (int e = 0; e < viewer->entities.count(); ++e) {
         viewer->entities[e].customVars.clear();
@@ -2024,6 +2017,33 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
             val.type        = VAR_UINT8;
             val.value_uint8 = 0;
             viewer->entities[e].customVars.append(val);
+        }
+    }
+
+    // Initial property value check (used for capping the value & etc)
+    for (int e = 0; e < viewer->entities.count(); ++e) {
+        auto *entity   = &viewer->entities[e];
+        auto *entityv2 = &viewer->compilerv2.objectEntityList[viewer->selectedEntity];
+        auto *entityv3 = &viewer->compilerv3.objectEntityList[viewer->selectedEntity];
+        auto *entityv4 = &viewer->compilerv4.objectEntityList[viewer->selectedEntity];
+
+        if (entityv2)
+            entityv2->propertyValue = entity->propertyValue;
+        if (entityv3)
+            entityv3->propertyValue = entity->propertyValue;
+        if (entityv4)
+            entityv4->propertyValue = entity->propertyValue;
+
+        bool called  = false;
+        byte propVal = objProp->callRSDKEdit(scnEditor->viewer, true, e, -1, 0, &called);
+        if (called) {
+            entity->propertyValue = propVal;
+            if (entityv2)
+                entityv2->propertyValue = propVal;
+            if (entityv3)
+                entityv3->propertyValue = propVal;
+            if (entityv4)
+                entityv4->propertyValue = propVal;
         }
     }
 

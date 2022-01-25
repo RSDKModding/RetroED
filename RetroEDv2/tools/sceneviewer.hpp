@@ -172,6 +172,7 @@ public:
     QLabel *statusLabel      = nullptr;
     QScrollBar *sbHorizontal = nullptr;
     QScrollBar *sbVertical   = nullptr;
+    void *objProp            = nullptr;
 
     Colour bgColour    = Colour(0x20, 0x20, 0x20);
     Colour altBGColour = Colour(0x30, 0x30, 0x30);
@@ -347,7 +348,7 @@ public:
     void drawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY,
                                       int alpha, int sheetID);
 
-    void callGameEvent(byte eventID, int entityID);
+    bool callGameEvent(byte eventID, int entityID);
 
     bool objectsLoaded  = false;
     int activeVar       = -1;

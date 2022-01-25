@@ -6,10 +6,6 @@ SceneObjectPropertiesv5::SceneObjectPropertiesv5(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, QOverload<>::of(&SceneObjectPropertiesv5::updateUI));
-    timer->start(1000.0f / 60.0f);
-
     properties = new PropertyBrowser;
     ui->gridLayout->addWidget(properties);
 }

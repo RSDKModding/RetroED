@@ -180,9 +180,10 @@ public:
     Vector2<int> gridSize = Vector2<int>(0x10, 0x10);
 
     // passed from main
-    QLabel *statusLabel        = nullptr;
-    QScrollBar *m_sbHorizontal = nullptr;
-    QScrollBar *m_sbVertical   = nullptr;
+    QLabel *statusLabel              = nullptr;
+    QScrollBar *sbHorizontal         = nullptr;
+    QScrollBar *sbVertical           = nullptr;
+    SceneObjectPropertiesv5 *objProp = nullptr;
 
     Colour bgColour    = Colour(0x20, 0x20, 0x20);
     Colour altBGColour = Colour(0x30, 0x30, 0x30);

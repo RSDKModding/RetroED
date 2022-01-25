@@ -89,6 +89,7 @@ public:
 // Form Utils
 #include "tools/utils/propertygrid.hpp"
 
+// Scene Tools
 #include "tools/sceneviewer.hpp"
 #include "tools/sceneproperties/sceneproperties.hpp"
 #include "tools/sceneproperties/scenelayerproperties.hpp"
@@ -96,6 +97,7 @@ public:
 #include "tools/sceneproperties/scenescrollproperties.hpp"
 #include "tools/sceneproperties/scenetileproperties.hpp"
 
+// Scene Tools (v5)
 #include "tools/sceneproperties/scenepropertiesv5.hpp"
 #include "tools/sceneproperties/scenelayerpropertiesv5.hpp"
 #include "tools/sceneproperties/sceneobjectpropertiesv5.hpp"

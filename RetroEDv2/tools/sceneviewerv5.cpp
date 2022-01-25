@@ -347,6 +347,8 @@ void SceneViewerv5::updateScene()
 {
     this->repaint();
 
+    objProp->updateUI();
+
     if (statusLabel) {
         int mx = (int)((mousePos.x * invZoom()) + cam.pos.x);
         int my = (int)((mousePos.y * invZoom()) + cam.pos.y);

@@ -70,7 +70,6 @@ public:
     bool altDownL   = false;
     bool shiftDownL = false;
 
-    Vector2<int> snapSize          = Vector2<int>(0, 0);
     Vector2<float> selectionOffset = Vector2<float>(0.0f, 0.0f);
 
     SceneViewerv5 *viewer             = nullptr;

@@ -6,10 +6,6 @@ SceneObjectProperties::SceneObjectProperties(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, QOverload<>::of(&SceneObjectProperties::updateUI));
-    timer->start(1000.0f / 60.0f);
-
     properties = new PropertyBrowser;
     ui->gridLayout->addWidget(properties);
 }
@@ -76,9 +72,22 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
         }
     });
     connect(infoGroup[2], &Property::changed,
-            [infoGroup, entity, entityv2, entityv3, entityv4, entityID] {
-                byte propVal          = *(byte *)infoGroup[2]->valuePtr;
+            [this, infoGroup, entity, entityv2, entityv3, entityv4, entityID, ver] {
+                byte propVal = *(byte *)infoGroup[2]->valuePtr;
+
+                // we set propertyValue via this so the game can run logic on it
+                bool called = false;
+                callRSDKEdit(scnEditor->viewer, false, entityID, -1, propVal, &called);
+
+                if (called) {
+                    if (ver == ENGINE_v3)
+                        propVal = entityv3->propertyValue;
+                    if (ver == ENGINE_v4)
+                        propVal = entityv4->propertyValue;
+                }
+
                 entity->propertyValue = propVal;
+
                 if (entityv2)
                     entityv2->propertyValue = propVal;
                 if (entityv3)
@@ -86,9 +95,7 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
                 if (entityv4)
                     entityv4->propertyValue = propVal;
 
-                scnEditor->viewer->variableID    = -1;      // prop val
-                scnEditor->viewer->variableValue = propVal; // prop val
-                scnEditor->viewer->callGameEvent(SceneViewer::EVENT_RSDKEDIT, entityID);
+                infoGroup[2]->updateValue(); // in case it changed
             });
 
     QList<Property *> posGroup = { new Property("x", &entity->pos.x),
@@ -291,14 +298,22 @@ void SceneObjectProperties::updateUI()
 }
 
 int SceneObjectProperties::callRSDKEdit(SceneViewer *viewer, bool shouldReturnVal, int entityID,
-                                        int variableID, int variableValue)
+                                        int variableID, int variableValue, bool *called)
 {
     viewer->variableID                       = variableID;
     viewer->variableValue                    = variableValue;
     viewer->returnVariable                   = shouldReturnVal;
     viewer->compilerv4.scriptEng.checkResult = -1;
-    viewer->callGameEvent(SceneViewer::EVENT_RSDKEDIT, entityID);
+    bool c                 = viewer->callGameEvent(SceneViewer::EVENT_RSDKEDIT, entityID);
     viewer->returnVariable = false;
+
+    if (called) {
+        *called = c;
+
+        if (variableID == -1 && shouldReturnVal)
+            *called = c && viewer->compilerv4.scriptEng.checkResult >= 0;
+    }
+
     return viewer->compilerv4.scriptEng.checkResult;
 }
 

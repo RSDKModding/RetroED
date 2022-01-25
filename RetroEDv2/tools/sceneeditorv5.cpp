@@ -85,11 +85,10 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     ui->tilesPage->layout()->addWidget(tileSel);
     tileSel->show();
 
-    viewer->m_sbHorizontal = ui->horizontalScrollBar;
-    viewer->m_sbVertical   = ui->verticalScrollBar;
-    viewer->statusLabel    = ui->statusLabel;
-
-    snapSize = Vector2<int>(0x10, 0x10);
+    viewer->sbHorizontal = ui->horizontalScrollBar;
+    viewer->sbVertical   = ui->verticalScrollBar;
+    viewer->statusLabel  = ui->statusLabel;
+    viewer->objProp      = objProp;
 
     ui->showParallax->setIcon(Utils::getColouredIcon(":/icons/ic_horizontal_split_48px.svg"));
     ui->showTileGrid->setIcon(Utils::getColouredIcon(":/icons/ic_grid_48px.svg"));
@@ -2057,8 +2056,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                             entity.pos.y -= selectionOffset.y;
 
                             if (ctrlDownL) {
-                                entity.pos.x = entity.pos.x - fmodf(entity.pos.x, snapSize.x);
-                                entity.pos.y = entity.pos.y - fmodf(entity.pos.y, snapSize.y);
+                                entity.pos.x = entity.pos.x - fmodf(entity.pos.x, viewer->gridSize.x);
+                                entity.pos.y = entity.pos.y - fmodf(entity.pos.y, viewer->gridSize.y);
                             }
                         }
                         break;

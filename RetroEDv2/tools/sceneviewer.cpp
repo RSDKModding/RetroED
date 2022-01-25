@@ -267,6 +267,8 @@ void SceneViewer::updateScene()
 {
     this->repaint();
 
+    ((SceneObjectProperties *)objProp)->updateUI();
+
     if (statusLabel) {
         int mx = (int)((mousePos.x * invZoom()) + cam.pos.x);
         int my = (int)((mousePos.y * invZoom()) + cam.pos.y);
@@ -2318,8 +2320,9 @@ void SceneViewer::drawSubtractiveBlendedSprite(int XPos, int YPos, int width, in
     validDraw = true;
 }
 
-void SceneViewer::callGameEvent(byte eventID, int id)
+bool SceneViewer::callGameEvent(byte eventID, int id)
 {
+    bool called = false;
     switch (gameType) {
         case ENGINE_v3:
             switch (eventID) {
@@ -2333,6 +2336,7 @@ void SceneViewer::callGameEvent(byte eventID, int id)
                     if (curSub.scriptCodePtr != SCRIPTDATA_COUNT - 1) {
                         compilerv3.processScript(curSub.scriptCodePtr, curSub.jumpTablePtr,
                                                  Compilerv3::SUB_RSDKLOAD);
+                        called = true;
                     }
                     curObj.spriteFrameCount = compilerv3.scriptFrameCount - curObj.frameListOffset;
                     break;
@@ -2346,6 +2350,7 @@ void SceneViewer::callGameEvent(byte eventID, int id)
                         compilerv3.processScript(curObj.subRSDKDraw.scriptCodePtr,
                                                  curObj.subRSDKDraw.jumpTablePtr,
                                                  Compilerv3::SUB_RSDKDRAW);
+                        called = true;
                     }
                     break;
                 }
@@ -2360,6 +2365,7 @@ void SceneViewer::callGameEvent(byte eventID, int id)
                         compilerv3.processScript(curObj.subRSDKEdit.scriptCodePtr,
                                                  curObj.subRSDKEdit.jumpTablePtr,
                                                  Compilerv3::SUB_RSDKEDIT);
+                        called = true;
                     }
                     break;
                 }
@@ -2377,6 +2383,7 @@ void SceneViewer::callGameEvent(byte eventID, int id)
                     if (curSub.scriptCodePtr != SCRIPTDATA_COUNT - 1) {
                         compilerv4.processScript(curSub.scriptCodePtr, curSub.jumpTablePtr,
                                                  Compilerv4::EVENT_RSDKLOAD);
+                        called = true;
                     }
                     curObj.spriteFrameCount = compilerv4.scriptFrameCount - curObj.frameListOffset;
                     break;
@@ -2390,6 +2397,7 @@ void SceneViewer::callGameEvent(byte eventID, int id)
                         compilerv4.processScript(curObj.eventRSDKDraw.scriptCodePtr,
                                                  curObj.eventRSDKDraw.jumpTablePtr,
                                                  Compilerv4::EVENT_RSDKDRAW);
+                        called = true;
                     }
                     break;
                 }
@@ -2404,12 +2412,14 @@ void SceneViewer::callGameEvent(byte eventID, int id)
                         compilerv4.processScript(curObj.eventRSDKEdit.scriptCodePtr,
                                                  curObj.eventRSDKEdit.jumpTablePtr,
                                                  Compilerv4::EVENT_RSDKEDIT);
+                        called = true;
                     }
                     break;
                 }
             }
             break;
     }
+    return called;
 }
 
 void SceneViewer::addEditorVariable(QString name)
