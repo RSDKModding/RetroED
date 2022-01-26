@@ -34,8 +34,9 @@ public:
     QSpinBox *gridX = nullptr;
     QSpinBox *gridY = nullptr;
 
-    QPushButton *syncGC = nullptr;
-    QPushButton *syncSC = nullptr;
+    QPushButton *syncGC     = nullptr;
+    QPushButton *syncSC     = nullptr;
+    QPushButton *reloadLink = nullptr;
 
 private:
     Ui::SceneProperties *ui;

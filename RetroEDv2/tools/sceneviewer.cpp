@@ -22,7 +22,6 @@ SceneViewer::SceneViewer(QWidget *parent)
 
     updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, QOverload<>::of(&SceneViewer::updateScene));
-    updateTimer->start(1000.0f / 60.0f);
 }
 
 SceneViewer::~SceneViewer()

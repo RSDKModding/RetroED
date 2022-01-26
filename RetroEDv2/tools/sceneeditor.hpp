@@ -89,6 +89,11 @@ public:
     void loadScene(QString scnPath, QString gcfPath, byte gameType);
     bool saveScene(bool forceSaveAs = false);
 
+    void initGameLink();
+
+    void startUpdates();
+    void stopUpdates();
+
     inline void updateTitle(bool modified)
     {
         this->modified = modified;

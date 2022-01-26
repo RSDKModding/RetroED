@@ -62,6 +62,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     viewer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->viewerFrame->layout()->addWidget(viewer);
     viewer->show();
+    startUpdates();
 
     scnProp = new SceneProperties(this);
     scnProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -714,6 +715,21 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         // if (dlg->exec() == QDialog::Accepted) {
         // exportRSDKv5(dlg);
         // }
+    });
+
+    connect(scnProp->syncGC, &QPushButton::clicked, [this] {});
+    scnProp->syncGC->setDisabled(true);
+
+    connect(scnProp->syncSC, &QPushButton::clicked, [this] {});
+
+    connect(scnProp->reloadLink, &QPushButton::clicked, [this] {
+        setStatus("Reloading Game Link... Please Wait...");
+        stopUpdates();
+
+        initGameLink();
+
+        startUpdates();
+        setStatus("Game Link Reloaded Successfully!");
     });
 
     connect(ui->exportSceneImg, &QPushButton::clicked, [this] {
@@ -1665,6 +1681,154 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     objProp->unsetUI();
     scrProp->unsetUI();
 
+    initGameLink();
+
+    ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
+
+    tabTitle = Utils::getFilenameAndFolder(scnPath);
+
+    viewer->objectsLoaded = true;
+    clearActions();
+    appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR, scnPath, QList<QString>{ gcfPath });
+    setStatus("Loaded Scene: " + QFileInfo(scnPath).fileName());
+}
+
+bool SceneEditor::saveScene(bool forceSaveAs)
+{
+    QString path = viewer->scene.filepath;
+
+    if (!forceSaveAs && QFile::exists(path)) {
+        setStatus("Saving Scene...");
+        QString basePath = path.replace(QFileInfo(path).fileName(), "");
+
+        FormatHelpers::Gif tileset(16, 0x400 * 16);
+
+        int c = 0;
+        for (PaletteColour &col : viewer->tilePalette) tileset.palette[c++] = col.toQColor();
+
+        int pos = 0;
+        for (int i = 0; i < 0x400; ++i) {
+            uchar *src = viewer->tiles[i].bits();
+            for (int y = 0; y < 16; ++y) {
+                for (int x = 0; x < 16; ++x) tileset.pixels[pos++] = *src++;
+            }
+        }
+
+        if (viewer->gameType != ENGINE_v1) {
+            viewer->scene.write(viewer->gameType, viewer->scene.filepath);
+            viewer->background.write(viewer->gameType, basePath + "Backgrounds.bin");
+            viewer->chunkset.write(viewer->gameType, basePath + "128x128Tiles.bin");
+            viewer->tileconfig.write(basePath + "CollisionMasks.bin");
+            viewer->stageConfig.write(viewer->gameType, basePath + "StageConfig.bin");
+            tileset.write(basePath + "16x16Tiles.gif");
+        }
+        else {
+            RSDKv1::TileConfig tileconfigRS;
+
+            // TODO: port data
+
+            viewer->scene.write(viewer->gameType, viewer->scene.filepath);
+            viewer->background.write(viewer->gameType, basePath + "ZoneBG.map");
+            viewer->chunkset.write(viewer->gameType, basePath + "Zone.til");
+            tileconfigRS.write(basePath + "Zone.tcf");
+            viewer->stageConfig.write(viewer->gameType, basePath + "Zone.zcf");
+
+            RSDKv1::GFX *gfx = new RSDKv1::GFX;
+            gfx->importImage(tileset);
+            gfx->write(basePath + "Zone.gfx");
+
+            delete gfx;
+        }
+
+        setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));
+        return true;
+    }
+    else {
+        QList<QString> types = {
+            "RSDKv4 Scenes (Act*.bin)",
+            "RSDKv3 Scenes (Act*.bin)",
+            "RSDKv2 Scenes (Act*.bin)",
+            "RSDKv1 Scenes (Act*.map)",
+        };
+
+        QFileDialog filedialog(this, tr("Save Scene"), "",
+                               tr(QString("%1;;%2;;%3;;%4")
+                                      .arg(types[0])
+                                      .arg(types[1])
+                                      .arg(types[2])
+                                      .arg(types[3])
+                                      .toStdString()
+                                      .c_str()));
+        filedialog.selectNameFilter(types[viewer->gameType - 1]);
+        filedialog.setAcceptMode(QFileDialog::AcceptSave);
+
+        if (filedialog.exec() == QDialog::Accepted) {
+            int saveVer = types.indexOf(filedialog.selectedNameFilter()) + ENGINE_v4;
+
+            setStatus("Saving Scene...");
+            QString path     = filedialog.selectedFiles()[0];
+            QString basePath = path.replace(QFileInfo(path).fileName(), "");
+
+            FormatHelpers::Gif tileset(16, 0x400 * 16);
+
+            int c = 0;
+            for (PaletteColour &col : viewer->tilePalette) tileset.palette[c++] = col.toQColor();
+
+            int pos = 0;
+            for (int i = 0; i < 0x400; ++i) {
+                uchar *src = viewer->tiles[i].bits();
+                for (int y = 0; y < 16; ++y) {
+                    for (int x = 0; x < 16; ++x) tileset.pixels[pos++] = *src++;
+                }
+            }
+
+            RSDKv1::TileConfig tileconfigRS;
+
+            // TODO: port data
+
+            switch (saveVer) {
+                default: break;
+                case ENGINE_v4:
+                case ENGINE_v3:
+                case ENGINE_v2:
+                    viewer->scene.write(saveVer, filedialog.selectedFiles()[0]);
+                    viewer->background.write(saveVer, basePath + "Backgrounds.bin");
+                    viewer->chunkset.write(saveVer, basePath + "128x128Tiles.bin");
+                    viewer->tileconfig.write(basePath + "CollisionMasks.bin");
+                    viewer->stageConfig.write(saveVer, basePath + "StageConfig.bin");
+                    tileset.write(basePath + "16x16Tiles.gif");
+                    break;
+                case ENGINE_v1: {
+                    viewer->scene.write(saveVer, filedialog.selectedFiles()[0]);
+                    viewer->background.write(saveVer, basePath + "ZoneBG.map");
+                    viewer->chunkset.write(saveVer, basePath + "Zone.til");
+                    tileconfigRS.write(basePath + "Zone.tcf");
+                    viewer->stageConfig.write(saveVer, basePath + "Zone.zcf");
+
+                    RSDKv1::GFX *gfx = new RSDKv1::GFX;
+                    gfx->importImage(tileset);
+                    gfx->write(basePath + "Zone.gfx");
+
+                    delete gfx;
+                    break;
+                }
+            }
+
+            appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR, filedialog.selectedFiles()[0],
+                                    QList<QString>{ viewer->gameConfig.filePath });
+            setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));
+            return true;
+        }
+    }
+    return false;
+}
+
+void SceneEditor::initGameLink()
+{
+    viewer->compilerv2.clearScriptData();
+    viewer->compilerv3.clearScriptData();
+    viewer->compilerv4.clearScriptData();
+
     for (int i = 0; i < ENTITY_COUNT; ++i) {
         memset(&viewer->compilerv2.objectEntityList[i], 0,
                sizeof(viewer->compilerv2.objectEntityList[i]));
@@ -1763,7 +1927,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
         viewer->compilerv4.globalVariables.append(viewer->gameConfig.globalVariables[v].name);
     }
 
-    switch (gameType) {
+    switch (viewer->gameType) {
         case ENGINE_v1: break; // read the editor stuff from this somehow (idk how to parse it lol)
         case ENGINE_v2: {      // parse the RSDK sub and use that data to know what to draw
             int scrID                 = 1;
@@ -2005,6 +2169,13 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     viewer->compilerv3.objectLoop      = ENTITY_COUNT - 1;
     viewer->compilerv4.objectEntityPos = ENTITY_COUNT - 1;
     for (int o = 0; o < viewer->objects.count(); ++o) {
+        viewer->objects[o].variables.clear();
+        viewer->objects[o].variablesAliases[SceneViewer::VAR_ALIAS_PROPVAL] = "PropertyValue";
+        viewer->objects[o].variablesAliases[SceneViewer::VAR_ALIAS_VAL0]    = "Value0";
+        viewer->objects[o].variablesAliases[SceneViewer::VAR_ALIAS_VAL1]    = "Value1";
+        viewer->objects[o].variablesAliases[SceneViewer::VAR_ALIAS_VAL2]    = "Value2";
+        viewer->objects[o].variablesAliases[SceneViewer::VAR_ALIAS_VAL3]    = "Value3";
+
         viewer->activeVarObj = o;
         viewer->callGameEvent(SceneViewer::EVENT_RSDKLOAD, o);
     }
@@ -2046,146 +2217,10 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
                 entityv4->propertyValue = propVal;
         }
     }
-
-    ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
-
-    tabTitle = Utils::getFilenameAndFolder(scnPath);
-
-    viewer->objectsLoaded = true;
-    clearActions();
-    appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR, scnPath, QList<QString>{ gcfPath });
-    setStatus("Loaded Scene: " + QFileInfo(scnPath).fileName());
 }
 
-bool SceneEditor::saveScene(bool forceSaveAs)
-{
-    QString path = viewer->scene.filepath;
-
-    if (!forceSaveAs && QFile::exists(path)) {
-        setStatus("Saving Scene...");
-        QString basePath = path.replace(QFileInfo(path).fileName(), "");
-
-        FormatHelpers::Gif tileset(16, 0x400 * 16);
-
-        int c = 0;
-        for (PaletteColour &col : viewer->tilePalette) tileset.palette[c++] = col.toQColor();
-
-        int pos = 0;
-        for (int i = 0; i < 0x400; ++i) {
-            uchar *src = viewer->tiles[i].bits();
-            for (int y = 0; y < 16; ++y) {
-                for (int x = 0; x < 16; ++x) tileset.pixels[pos++] = *src++;
-            }
-        }
-
-        if (viewer->gameType != ENGINE_v1) {
-            viewer->scene.write(viewer->gameType, viewer->scene.filepath);
-            viewer->background.write(viewer->gameType, basePath + "Backgrounds.bin");
-            viewer->chunkset.write(viewer->gameType, basePath + "128x128Tiles.bin");
-            viewer->tileconfig.write(basePath + "CollisionMasks.bin");
-            viewer->stageConfig.write(viewer->gameType, basePath + "StageConfig.bin");
-            tileset.write(basePath + "16x16Tiles.gif");
-        }
-        else {
-            RSDKv1::TileConfig tileconfigRS;
-
-            // TODO: port data
-
-            viewer->scene.write(viewer->gameType, viewer->scene.filepath);
-            viewer->background.write(viewer->gameType, basePath + "ZoneBG.map");
-            viewer->chunkset.write(viewer->gameType, basePath + "Zone.til");
-            tileconfigRS.write(basePath + "Zone.tcf");
-            viewer->stageConfig.write(viewer->gameType, basePath + "Zone.zcf");
-
-            RSDKv1::GFX *gfx = new RSDKv1::GFX;
-            gfx->importImage(tileset);
-            gfx->write(basePath + "Zone.gfx");
-
-            delete gfx;
-        }
-
-        setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));
-        return true;
-    }
-    else {
-        QList<QString> types = {
-            "RSDKv4 Scenes (Act*.bin)",
-            "RSDKv3 Scenes (Act*.bin)",
-            "RSDKv2 Scenes (Act*.bin)",
-            "RSDKv1 Scenes (Act*.map)",
-        };
-
-        QFileDialog filedialog(this, tr("Save Scene"), "",
-                               tr(QString("%1;;%2;;%3;;%4")
-                                      .arg(types[0])
-                                      .arg(types[1])
-                                      .arg(types[2])
-                                      .arg(types[3])
-                                      .toStdString()
-                                      .c_str()));
-        filedialog.selectNameFilter(types[viewer->gameType - 1]);
-        filedialog.setAcceptMode(QFileDialog::AcceptSave);
-
-        if (filedialog.exec() == QDialog::Accepted) {
-            int saveVer = types.indexOf(filedialog.selectedNameFilter()) + ENGINE_v4;
-
-            setStatus("Saving Scene...");
-            QString path     = filedialog.selectedFiles()[0];
-            QString basePath = path.replace(QFileInfo(path).fileName(), "");
-
-            FormatHelpers::Gif tileset(16, 0x400 * 16);
-
-            int c = 0;
-            for (PaletteColour &col : viewer->tilePalette) tileset.palette[c++] = col.toQColor();
-
-            int pos = 0;
-            for (int i = 0; i < 0x400; ++i) {
-                uchar *src = viewer->tiles[i].bits();
-                for (int y = 0; y < 16; ++y) {
-                    for (int x = 0; x < 16; ++x) tileset.pixels[pos++] = *src++;
-                }
-            }
-
-            RSDKv1::TileConfig tileconfigRS;
-
-            // TODO: port data
-
-            switch (saveVer) {
-                default: break;
-                case ENGINE_v4:
-                case ENGINE_v3:
-                case ENGINE_v2:
-                    viewer->scene.write(saveVer, filedialog.selectedFiles()[0]);
-                    viewer->background.write(saveVer, basePath + "Backgrounds.bin");
-                    viewer->chunkset.write(saveVer, basePath + "128x128Tiles.bin");
-                    viewer->tileconfig.write(basePath + "CollisionMasks.bin");
-                    viewer->stageConfig.write(saveVer, basePath + "StageConfig.bin");
-                    tileset.write(basePath + "16x16Tiles.gif");
-                    break;
-                case ENGINE_v1: {
-                    viewer->scene.write(saveVer, filedialog.selectedFiles()[0]);
-                    viewer->background.write(saveVer, basePath + "ZoneBG.map");
-                    viewer->chunkset.write(saveVer, basePath + "Zone.til");
-                    tileconfigRS.write(basePath + "Zone.tcf");
-                    viewer->stageConfig.write(saveVer, basePath + "Zone.zcf");
-
-                    RSDKv1::GFX *gfx = new RSDKv1::GFX;
-                    gfx->importImage(tileset);
-                    gfx->write(basePath + "Zone.gfx");
-
-                    delete gfx;
-                    break;
-                }
-            }
-
-            appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR, filedialog.selectedFiles()[0],
-                                    QList<QString>{ viewer->gameConfig.filePath });
-            setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));
-            return true;
-        }
-    }
-    return false;
-}
+void SceneEditor::startUpdates() { viewer->updateTimer->start(1000.0f / 60.0f); }
+void SceneEditor::stopUpdates() { viewer->updateTimer->stop(); }
 
 void SceneEditor::createEntityList()
 {

@@ -25,8 +25,9 @@ ScenePropertiesv5::ScenePropertiesv5(QWidget *parent) : QWidget(parent), ui(new 
     gridX = ui->gridX;
     gridY = ui->gridY;
 
-    syncGC = ui->syncGC;
-    syncSC = ui->syncSC;
+    syncGC     = ui->syncGC;
+    syncSC     = ui->syncSC;
+    reloadLink = ui->reloadLink;
 }
 
 ScenePropertiesv5::~ScenePropertiesv5() { delete ui; }

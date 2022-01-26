@@ -1009,6 +1009,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
     connect(scnProp->syncSC, &QPushButton::clicked, [this] {});
 
+    connect(scnProp->reloadLink, &QPushButton::clicked, [this] {});
+
     connect(ui->exportSceneImg, &QPushButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Save Image"), "", tr("PNG Files (*.png)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);

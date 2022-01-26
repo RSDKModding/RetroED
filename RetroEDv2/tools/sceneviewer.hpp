@@ -364,6 +364,8 @@ public:
 
     void refreshResize();
 
+    QTimer *updateTimer = nullptr;
+
 protected:
     void initializeGL();
     void resizeGL(int w, int h);
@@ -376,8 +378,6 @@ private:
     QList<TextureInfo> objectSprites;
 
     QOpenGLTexture *rsPlayerSprite = nullptr;
-
-    QTimer *updateTimer = nullptr;
 
     QMatrix4x4 matView;
 
