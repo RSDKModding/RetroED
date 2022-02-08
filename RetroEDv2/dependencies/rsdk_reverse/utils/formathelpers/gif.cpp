@@ -1,5 +1,11 @@
 #include "rsdkreverse.hpp"
 
+const int FormatHelpers::Gif::codeMasks[16] = {
+    0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095
+};
+const int FormatHelpers::Gif::initialRows[4] = { 0, 4, 2, 1 };
+const int FormatHelpers::Gif::rowInc[4]      = { 8, 8, 4, 2 };
+
 void FormatHelpers::Gif::read(Reader &reader, bool skipHeader, int clrCnt)
 {
     filePath = reader.filePath;

@@ -48,19 +48,19 @@ public:
 
 private:
     // DECLARATIONS
-    const int PARSING_IMAGE  = 0;
-    const int PARSE_COMPLETE = 1;
-    const int LZ_MAX_CODE    = 4095;
-    const int LZ_BITS        = 12;
-    const int FIRST_CODE     = 4097;
-    const int NO_SUCH_CODE   = 4098;
+    const static int PARSING_IMAGE  = 0;
+    const static int PARSE_COMPLETE  = 1;
+    const static int LZ_MAX_CODE     = 4095;
+    const static int LZ_BITS         = 12;
+    const static int FIRST_CODE      = 4097;
+    const static int NO_SUCH_CODE    = 4098;
 
-    const int HT_SIZE     = 8192;
-    const int HT_KEY_MASK = 0x1FFF;
+    const static int HT_SIZE = 8192;
+    const static int HT_KEY_MASK = 0x1FFF;
 
-    const int codeMasks[16]  = { 0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095 };
-    const int initialRows[4] = { 0, 4, 2, 1 };
-    const int rowInc[4]      = { 8, 8, 4, 2 };
+    const static int codeMasks[16];
+    const static int initialRows[4];
+    const static int rowInc[4];
 
     class Decoder
     {
