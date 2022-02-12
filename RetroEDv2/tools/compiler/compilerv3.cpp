@@ -3953,7 +3953,9 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                         break;
                         // EDITOR-ONLY
                     case VAR_EDITORVARIABLEID: break;
-                    case VAR_EDITORVARIABLEVAL: break;
+                    case VAR_EDITORVARIABLEVAL:
+                        scnEditor->viewer->variableValue = scriptEng.operands[i];
+                        break;
                     case VAR_EDITORRETURNVAR: break;
                 }
             }

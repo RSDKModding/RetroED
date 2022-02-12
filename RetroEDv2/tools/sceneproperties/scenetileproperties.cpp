@@ -21,6 +21,8 @@ void SceneTileProperties::setupUI(RSDKv4::TileConfig::CollisionMask *cmA,
 
     tileImg = tileImgRef;
 
+    collisionLyr = 0;
+
     ui->colPlaneA->setChecked(true);
 
     ui->maskDir->setCurrentIndex(cmask[collisionLyr]->direction);
@@ -53,14 +55,14 @@ void SceneTileProperties::setupUI(RSDKv4::TileConfig::CollisionMask *cmA,
         ui->lWallAngle->setValue(cmask[collisionLyr]->lWallAngle);
         ui->rWallAngle->setValue(cmask[collisionLyr]->rWallAngle);
 
-        ui->colPlaneB->blockSignals(true);
-
         ui->maskDir->blockSignals(false);
         ui->behaviour->blockSignals(false);
         ui->floorAngle->blockSignals(false);
         ui->roofAngle->blockSignals(false);
         ui->lWallAngle->blockSignals(false);
         ui->rWallAngle->blockSignals(false);
+
+        ui->colPlaneB->blockSignals(false);
     });
 
     connect(ui->colPlaneB, &QRadioButton::toggled, [this] {
@@ -89,6 +91,8 @@ void SceneTileProperties::setupUI(RSDKv4::TileConfig::CollisionMask *cmA,
         ui->roofAngle->blockSignals(false);
         ui->lWallAngle->blockSignals(false);
         ui->rWallAngle->blockSignals(false);
+
+        ui->colPlaneA->blockSignals(false);
     });
 
     connect(ui->maskDir, &QComboBox::currentIndexChanged,

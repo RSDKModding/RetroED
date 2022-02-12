@@ -497,13 +497,14 @@ void SceneViewer::drawScene()
 
         int countX = width * 0x80 > sw ? (sw / 0x80) : width;
         int countY = height * 0x80 > sh ? (sh / 0x80) : height;
-        countX     = qMin(basedX + countX + 2, width);
-        countY     = qMin(basedY + countY + 2, height);
+
+        countX = qMin(basedX + countX + 2, width);
+        countY = qMin(basedY + countY + 2, height);
 
         for (int y = basedY; y < countY; ++y) {
             for (int x = basedX; x < countX; ++x) {
                 ushort chunkID = layout[y][x];
-                if (chunkID != 0x0) {
+                if (chunkID != 0x0 && chunkID < 0x200) {
                     for (int ty = 0; ty < 8; ++ty) {
                         for (int tx = 0; tx < 8; ++tx) {
                             FormatHelpers::Chunks::Tile &tile = chunkset.chunks[chunkID].tiles[ty][tx];

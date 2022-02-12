@@ -344,6 +344,7 @@ Data/SoundFX/Global/BubbleShield.ogg
 Data/SoundFX/Global/Catch.ogg
 Data/SoundFX/Global/Charge.ogg
 Data/SoundFX/Global/Continue.ogg
+Data/SoundFX/Global/Continue.wav
 Data/SoundFX/Global/Destroy.ogg
 Data/SoundFX/Global/Event.ogg
 Data/SoundFX/Global/Explosion.ogg
@@ -367,6 +368,7 @@ Data/SoundFX/Global/ScoreTotal.ogg
 Data/SoundFX/Global/Select.ogg
 Data/SoundFX/Global/SignPost.ogg
 Data/SoundFX/Global/SignPost2P.ogg
+Data/SoundFX/Global/SignPost2P.wav
 Data/SoundFX/Global/Skidding.ogg
 Data/SoundFX/Global/Sliding.ogg
 Data/SoundFX/Global/SpecialRing.ogg
@@ -375,7 +377,9 @@ Data/SoundFX/Global/Spike.ogg
 Data/SoundFX/Global/SpikesMove.ogg
 Data/SoundFX/Global/Spring.ogg
 Data/SoundFX/Global/StarPost.ogg
+Data/SoundFX/Global/StarPost.wav
 Data/SoundFX/Global/Teleport.ogg
+Data/SoundFX/Global/Teleport.wav
 Data/SoundFX/Global/Tired.ogg
 Data/SoundFX/Global/Transform.ogg
 Data/SoundFX/Stage/ArrowHit.wav

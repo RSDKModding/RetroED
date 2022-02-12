@@ -52,7 +52,6 @@ void RSDKv4::Datafile::write(Writer &writer)
 
 void RSDKv4::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, int cnt)
 {
-    QByteArray hash;
     for (int y = 0; y < 16; y += 4) {
         hash[y + 3] = reader.read<byte>();
         hash[y + 2] = reader.read<byte>();
@@ -60,9 +59,7 @@ void RSDKv4::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, i
         hash[y + 0] = reader.read<byte>();
     }
 
-    for (int i = 0; i < 16; ++i) hash.append(hash[i]);
-
-    filenameHash = hash.toHex();
+    filenameHash = QByteArray((const char *)hash, 0x10).toHex();
     fileName     = QString::number(cnt + 1) + ".bin"; // Make a base name
 
     for (int i = 0; i < fileList.count(); ++i) {

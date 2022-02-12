@@ -179,7 +179,8 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
 
         ui->filename->setText(files[c].filename);
         QString fname = files[c].filename;
-        ui->filenameHash->setText(Utils::getMd5HashString(fname.replace("\\", "/").toLower()));
+        ui->filenameHash->setText(
+            Utils::getMd5HashString(QByteArray((const char *)files[c].hash, 0x10)));
         ui->filesize->setText(QString("File Size: %1 bytes").arg(QString::number(files[c].fileSize)));
 
         ui->encrypted->blockSignals(true);
@@ -224,7 +225,7 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
 
 RSDKUnpacker::~RSDKUnpacker() { delete ui; }
 
-void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
+void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
 {
     Reader reader(filepath);
 
@@ -233,12 +234,12 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
 
     ui->fileList->blockSignals(true);
 
-    m_fileList.clear();
-    if (QFile(fileList).exists()) {
-        QFile file(fileList);
+    fileList.clear();
+    if (QFile(fileNameList).exists()) {
+        QFile file(fileNameList);
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             QTextStream txtreader(&file);
-            while (!txtreader.atEnd()) m_fileList.append(txtreader.readLine());
+            while (!txtreader.atEnd()) fileList.append(txtreader.readLine());
 
             file.close();
         }
@@ -249,7 +250,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
     switch (gameVer) {
         case ENGINE_v5: // RSDKv5
         {
-            RSDKv5::Datafile datafilev5(reader, m_fileList);
+            RSDKv5::Datafile datafilev5(reader, fileList);
 
             for (RSDKv5::Datafile::FileInfo &file : datafilev5.files) {
                 FileInfo info;
@@ -257,6 +258,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
                 info.fileSize  = file.fileSize;
                 info.fileData  = file.fileData;
                 info.encrypted = file.encrypted;
+                memcpy(info.hash, file.hash, sizeof(info.hash));
                 files.append(info);
 
                 ui->fileList->addItem(file.fileName);
@@ -265,7 +267,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
         }
         case ENGINE_v4: // RSDKv4
         {
-            RSDKv4::Datafile datafilev4(reader, m_fileList);
+            RSDKv4::Datafile datafilev4(reader, fileList);
 
             for (RSDKv4::Datafile::FileInfo &file : datafilev4.files) {
                 FileInfo info;
@@ -273,6 +275,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
                 info.fileSize  = file.fileSize;
                 info.fileData  = file.fileData;
                 info.encrypted = file.encrypted;
+                memcpy(info.hash, file.hash, sizeof(info.hash));
                 files.append(info);
 
                 ui->fileList->addItem(file.fileName);
@@ -289,6 +292,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileList)
                 info.fileSize  = file.fileSize;
                 info.fileData  = file.fileData;
                 info.encrypted = false;
+                memset(info.hash, 0, sizeof(info.hash));
                 files.append(info);
 
                 ui->fileList->addItem(file.fullFileName);
@@ -447,7 +451,7 @@ void RSDKUnpacker::savePack(QString filepath, byte ver)
                 info.fileName = QFileInfo(file.filename).fileName();
                 info.fileSize = file.fileSize;
                 info.fileData = file.fileData;
-                info.dirID  = dirID;
+                info.dirID    = dirID;
                 datafile.files.append(info);
             }
 

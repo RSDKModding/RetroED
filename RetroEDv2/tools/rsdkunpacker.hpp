@@ -35,14 +35,15 @@ private:
         FileInfo() {}
 
         QString filename = "File.ext";
-        uint fileSize    = 0;
-        bool encrypted   = false;
+        byte hash[0x10];
+        uint fileSize  = 0;
+        bool encrypted = false;
         QByteArray fileData;
     };
 
     QList<FileInfo> files;
 
-    QList<QString> m_fileList;
+    QList<QString> fileList;
 
     char gameVer = -1;
 };

@@ -33,9 +33,9 @@ public:
         bool encrypted  = false;
         QByteArray fileData;
 
-    private:
         byte hash[0x10];
 
+    private:
         inline QString getMd5Hash(QString input)
         {
             return QCryptographicHash::hash(input.toLatin1(), QCryptographicHash::Md5).toHex();

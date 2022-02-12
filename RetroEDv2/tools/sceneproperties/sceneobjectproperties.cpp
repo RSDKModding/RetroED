@@ -171,16 +171,18 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
 
         // Variables
         for (int v = 0; v < 0xF; ++v) {
-            Property *group = new Property(RSDKv4::objectVariableNames[v]);
+            QString name = RSDKv4::objectVariableNames[v];
+            if (v >= 11)
+                name = object.variablesAliases[SceneViewer::VAR_ALIAS_VAL0 + (v - 11)];
+
+            Property *group = new Property(name);
 
             Property *variable = NULL;
 
             switch (v) {
                 default: {
-                    QString name = RSDKv4::objectVariableTypes[v];
-                    if (v >= 11)
-                        name = object.variablesAliases[SceneViewer::VAR_ALIAS_VAL0 + (v - 11)];
-                    variable = new Property(name, &entity->variables[v].value);
+                    variable =
+                        new Property(RSDKv4::objectVariableTypes[v], &entity->variables[v].value);
                     break;
                 }
                 case 1:

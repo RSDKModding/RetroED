@@ -1,6 +1,6 @@
 #include "includes.hpp"
 
-#define COMMONALIAS_COUNT_v4 (0x5B + 7)
+#define COMMONALIAS_COUNT_v4 (0x64 + 7)
 #define ALIAS_COUNT_TRIM_v4  (0xE0)
 #define ALIAS_COUNT_v4       (COMMONALIAS_COUNT_v4 + ALIAS_COUNT_TRIM_v4)
 
@@ -523,6 +523,15 @@ AliasInfov4 publicAliases[ALIAS_COUNT_v4] = {
     AliasInfov4("STAGE_PAUSED", "2"),
     AliasInfov4("STAGE_FROZEN", "3"),
     AliasInfov4("STAGE_2P", "4"),
+    AliasInfov4("ENGINE_DEVMENU", "0"),
+    AliasInfov4("ENGINE_MAINGAME", "1"),
+    AliasInfov4("ENGINE_INITDEVMENU", "2"),
+    AliasInfov4("ENGINE_WAIT", "3"),
+    AliasInfov4("ENGINE_SCRIPTERROR", "4"),
+    AliasInfov4("ENGINE_INITPAUSE", "5"),
+    AliasInfov4("ENGINE_EXITPAUSE", "6"),
+    AliasInfov4("ENGINE_ENDGAME", "7"),
+    AliasInfov4("ENGINE_RESETGAME", "8"),
     AliasInfov4("RESET_GAME", "2"),
     AliasInfov4("RETRO_STANDARD", "0"),
     AliasInfov4("RETRO_MOBILE", "1"),
@@ -1534,7 +1543,7 @@ void Compilerv4::convertFunctionText(QString &text)
             }
 
             int value = 0;
-            // Eg: TempValue0 = FX_SCALE
+            // Eg: temp0 = FX_SCALE
             // Private (this script only)
             for (int a = 0; a < privateAliasCount; ++a) {
                 if (funcName == privateAliases[a].name) {
@@ -1567,7 +1576,7 @@ void Compilerv4::convertFunctionText(QString &text)
                 }
             }
 
-            // Eg: TempValue0 = value0
+            // Eg: temp0 = value0
             // Private (this script only)
             for (int s = 0; s < privateStaticVarCount; ++s) {
                 if (funcName == privateStaticVariables[s].name) {
@@ -1599,7 +1608,7 @@ void Compilerv4::convertFunctionText(QString &text)
                 }
             }
 
-            // Eg: TempValue0 = Game.Variable
+            // Eg: temp0 = Game.Variable
             for (int v = 0; v < globalVariables.count(); ++v) {
                 if (funcName == globalVariables[v]) {
                     funcName = "global";
@@ -1607,14 +1616,14 @@ void Compilerv4::convertFunctionText(QString &text)
                     appendIntegerToString(arrayStr, v);
                 }
             }
-            // Eg: TempValue0 = Function1
+            // Eg: temp0 = Function1
             for (int f = 0; f < functionCount; ++f) {
                 if (funcName == functionNames[f]) {
                     funcName = "";
                     appendIntegerToString(funcName, f);
                 }
             }
-            // Eg: TempValue0 = TypeName[PlayerObject]
+            // Eg: temp0 = TypeName[PlayerObject]
             if (funcName == "TypeName") {
                 funcName = "";
                 appendIntegerToString(funcName, 0);
@@ -1626,7 +1635,7 @@ void Compilerv4::convertFunctionText(QString &text)
                 }
             }
 
-            // Eg: TempValue0 = SfxName[Jump]
+            // Eg: temp0 = SfxName[Jump]
             if (funcName == "SfxName") {
                 funcName = "";
                 appendIntegerToString(funcName, 0);
@@ -1644,14 +1653,32 @@ void Compilerv4::convertFunctionText(QString &text)
                 }
             }
 
-            // Eg: TempValue0 = AchievementName[Ring King]
+            // Eg: temp0 = VarName[player.lives]
+            if (funcName == "VarName") {
+                funcName = "";
+                appendIntegerToString(funcName, 0);
+                int v = 0;
+                for (; v < globalVariables.count(); ++v) {
+                    if (arrayStr == globalVariables[v]) {
+                        funcName = "";
+                        appendIntegerToString(funcName, v);
+                        break;
+                    }
+                }
+
+                if (v == globalVariables.count()) {
+                    // printLog("WARNING: Unknown varName \"%s\", on line %d", arrayStr, lineID);
+                }
+            }
+
+            // Eg: temp0 = AchievementName[Ring King]
             if (funcName == "AchievementName") {
                 funcName = "";
                 appendIntegerToString(funcName, 0);
                 // default to 0, we don't know what these are
             }
 
-            // Eg: TempValue0 = PlayerName[SONIC]
+            // Eg: temp0 = PlayerName[SONIC]
             if (funcName == "PlayerName") {
                 funcName = "";
                 appendIntegerToString(funcName, 0);
@@ -1692,7 +1719,7 @@ void Compilerv4::convertFunctionText(QString &text)
                 }
             }
 
-            // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
+            // Eg: temp0 = StageName[GREEN HILL ZONE 1]
             if (funcName == "StageName") {
                 funcName = "";
                 int s    = -1;
@@ -1875,7 +1902,7 @@ void Compilerv4::checkCaseNumber(QString &text)
             }
         }
 
-        // Eg: TempValue0 = TypeName[PlayerObject]
+        // Eg: temp0 = TypeName[PlayerObject]
         if (caseValue == "TypeName") {
             caseValue = "";
             appendIntegerToString(caseValue, 0);
@@ -1887,7 +1914,7 @@ void Compilerv4::checkCaseNumber(QString &text)
             }
         }
 
-        // Eg: TempValue0 = SfxName[Jump]
+        // Eg: temp0 = SfxName[Jump]
         if (caseValue == "SfxName") {
             caseValue = "";
             appendIntegerToString(caseValue, 0);
@@ -1905,14 +1932,32 @@ void Compilerv4::checkCaseNumber(QString &text)
             }
         }
 
-        // Eg: TempValue0 = AchievementName[Ring King]
+        // Eg: temp0 = VarName[player.lives]
+        if (caseValue == "VarName") {
+            caseValue = "";
+            appendIntegerToString(caseValue, 0);
+            int v = 0;
+            for (; v < globalVariables.count(); ++v) {
+                if (arrayStr == globalVariables[v]) {
+                    caseValue = "";
+                    appendIntegerToString(caseValue, v);
+                    break;
+                }
+            }
+
+            if (v == globalVariables.count()) {
+                // printLog("WARNING: Unknown varName \"%s\", on line %d", arrayStr, lineID);
+            }
+        }
+
+        // Eg: temp0 = AchievementName[Ring King]
         if (caseValue == "AchievementName") {
             caseValue = "";
             appendIntegerToString(caseValue, 0);
             // default to 0, we don't know what these are
         }
 
-        // Eg: TempValue0 = PlayerName[SONIC]
+        // Eg: temp0 = PlayerName[SONIC]
         if (caseValue == "PlayerName") {
             caseValue = "";
             appendIntegerToString(caseValue, 0);
@@ -1953,7 +1998,7 @@ void Compilerv4::checkCaseNumber(QString &text)
             }
         }
 
-        // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
+        // Eg: temp0 = StageName[GREEN HILL ZONE 1]
         if (caseValue == "StageName") {
             caseValue = "";
             int s     = -1;
@@ -2084,7 +2129,7 @@ bool Compilerv4::readSwitchCase(QString &text)
                 }
             }
 
-            // Eg: TempValue0 = TypeName[PlayerObject]
+            // Eg: temp0 = TypeName[PlayerObject]
             if (caseValue == "TypeName") {
                 caseValue = "";
                 appendIntegerToString(caseValue, 0);
@@ -2096,7 +2141,7 @@ bool Compilerv4::readSwitchCase(QString &text)
                 }
             }
 
-            // Eg: TempValue0 = SfxName[Jump]
+            // Eg: temp0 = SfxName[Jump]
             if (caseValue == "SfxName") {
                 caseValue = "";
                 appendIntegerToString(caseValue, 0);
@@ -2114,14 +2159,32 @@ bool Compilerv4::readSwitchCase(QString &text)
                 }
             }
 
-            // Eg: TempValue0 = AchievementName[Ring King]
+            // Eg: temp0 = VarName[player.lives]
+            if (caseValue == "VarName") {
+                caseValue = "";
+                appendIntegerToString(caseValue, 0);
+                int v = 0;
+                for (; v < globalVariables.count(); ++v) {
+                    if (arrayStr == globalVariables[v]) {
+                        caseValue = "";
+                        appendIntegerToString(caseValue, v);
+                        break;
+                    }
+                }
+
+                if (v == globalVariables.count()) {
+                    // printLog("WARNING: Unknown varName \"%s\", on line %d", arrayStr, lineID);
+                }
+            }
+
+            // Eg: temp0 = AchievementName[Ring King]
             if (caseValue == "AchievementName") {
                 caseValue = "";
                 appendIntegerToString(caseValue, 0);
                 // default to 0, we don't know what these are
             }
 
-            // Eg: TempValue0 = PlayerName[SONIC]
+            // Eg: temp0 = PlayerName[SONIC]
             if (caseValue == "PlayerName") {
                 caseValue = "";
                 appendIntegerToString(caseValue, 0);
@@ -2162,7 +2225,7 @@ bool Compilerv4::readSwitchCase(QString &text)
                 }
             }
 
-            // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
+            // Eg: temp0 = StageName[GREEN HILL ZONE 1]
             if (caseValue == "StageName") {
                 caseValue = "";
                 int s     = -1;
@@ -2294,20 +2357,21 @@ bool Compilerv4::convertStringToInteger(QString &text, int *value)
         text.remove(0, 1);
     }
 
+    // using toLongLong will handle uint values (they'll be negatives, but the bits will be correct)
     if (text.startsWith("0x") || text.startsWith("0X")) {
         text.remove(0, 2);
-        *value = text.toInt(&ok, 0x10);
+        *value = text.toLongLong(&ok, 0x10);
     }
     else if (text.startsWith("0b") || text.startsWith("0B")) {
         text.remove(0, 2);
-        *value = text.toInt(&ok, 0b10);
+        *value = text.toLongLong(&ok, 0b10);
     }
     else if (text.startsWith("0o") || text.startsWith("0O")) {
         text.remove(0, 2);
-        *value = text.toInt(&ok, 0010);
+        *value = text.toLongLong(&ok, 0010);
     }
     else {
-        *value = text.toInt(&ok, 10);
+        *value = text.toLongLong(&ok, 10);
     }
 
     if (negative)
@@ -4832,7 +4896,9 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                         break;
                         // EDITOR-ONLY
                     case VAR_EDITORVARIABLEID: break;
-                    case VAR_EDITORVARIABLEVAL: break;
+                    case VAR_EDITORVARIABLEVAL:
+                        scnEditor->viewer->variableValue = scriptEng.operands[i];
+                        break;
                     case VAR_EDITORRETURNVAR: break;
                 }
             }

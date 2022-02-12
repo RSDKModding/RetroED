@@ -310,7 +310,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     decompilerv4.staticVars.clear();
                     decompilerv4.tables.clear();
 
-                    decompilerv4.globalScriptCount = b ? globalScriptCount : 0;
+                    decompilerv4.globalScriptCount = b ? globalScriptCount : 1;
 
                     // Add Global Info
                     if (b && bytecodeList[b].loadGlobals) {

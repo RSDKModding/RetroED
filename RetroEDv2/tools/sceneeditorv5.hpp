@@ -98,6 +98,12 @@ public:
     // Game Data Storage
     DataStorage dataStorage[DATASET_MAX];
 
+    void undoAction();
+    void redoAction();
+    void resetAction();
+    void doAction(QString name = "Action", bool setModified = true);
+    void clearActions();
+
 signals:
     void titleChanged(QString title);
 
@@ -121,12 +127,6 @@ private:
     void createScrollList();
 
     void parseGameXML(QString path);
-
-    void undoAction();
-    void redoAction();
-    void resetAction();
-    void doAction(QString name = "Action", bool setModified = true);
-    void clearActions();
 
     Ui::SceneEditorv5 *ui;
 

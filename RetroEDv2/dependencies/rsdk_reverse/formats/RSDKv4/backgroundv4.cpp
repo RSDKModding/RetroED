@@ -50,8 +50,9 @@ void RSDKv4::Background::Layer::read(Reader &reader)
     lineIndexes.reserve(height * 128);
 
     byte buf[3];
-    while (true) {
-        while (true) {
+    // prevent infinite loops
+    while (reader.tell() < reader.filesize) {
+        while (reader.tell() < reader.filesize) {
             buf[0] = reader.read<byte>();
             if (buf[0] == 0xFF)
                 break;

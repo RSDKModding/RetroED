@@ -18,6 +18,16 @@ public:
         pixels.resize(w * h);
     }
 
+    Gif operator=(const Gif &other)
+    {
+        filePath = other.filePath;
+
+        width  = other.width;
+        height = other.height;
+        pixels = other.pixels;
+        for (int i = 0; i < 0x100; ++i) palette[i] = other.palette[i];
+    }
+
     inline void read(QString filename, bool skipHeader = false, int clrCnt = 0x80)
     {
         Reader reader(filename);
@@ -49,13 +59,13 @@ public:
 private:
     // DECLARATIONS
     const static int PARSING_IMAGE  = 0;
-    const static int PARSE_COMPLETE  = 1;
-    const static int LZ_MAX_CODE     = 4095;
-    const static int LZ_BITS         = 12;
-    const static int FIRST_CODE      = 4097;
-    const static int NO_SUCH_CODE    = 4098;
+    const static int PARSE_COMPLETE = 1;
+    const static int LZ_MAX_CODE    = 4095;
+    const static int LZ_BITS        = 12;
+    const static int FIRST_CODE     = 4097;
+    const static int NO_SUCH_CODE   = 4098;
 
-    const static int HT_SIZE = 8192;
+    const static int HT_SIZE     = 8192;
     const static int HT_KEY_MASK = 0x1FFF;
 
     const static int codeMasks[16];

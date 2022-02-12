@@ -103,6 +103,12 @@ public:
             emit titleChanged(tabTitle);
     }
 
+    void undoAction();
+    void redoAction();
+    void resetAction();
+    void doAction(QString name = "Action", bool setModified = true);
+    void clearActions();
+
 signals:
     void titleChanged(QString title);
 
@@ -124,12 +130,6 @@ private:
 
     void createEntityList();
     void createScrollList();
-
-    void undoAction();
-    void redoAction();
-    void resetAction();
-    void doAction(QString name = "Action", bool setModified = true);
-    void clearActions();
 
     // XML Management
     void parseGameXML(byte gameType, QString path);

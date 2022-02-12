@@ -383,17 +383,13 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     };
 
     connect(ui->selToolBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [resetTools, this](int v) {
-                resetTools(v);
-                doAction();
-            });
+            [resetTools](int v) { resetTools(v); });
 
     connect(ui->showCollisionA, &QPushButton::clicked, [this] {
         viewer->showPlaneA ^= 1;
         viewer->showPlaneB = false;
         ui->showCollisionA->setChecked(viewer->showPlaneA);
         ui->showCollisionB->setChecked(viewer->showPlaneB);
-        doAction();
     });
 
     connect(ui->showCollisionB, &QPushButton::clicked, [this] {
@@ -401,13 +397,9 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         viewer->showPlaneB ^= 1;
         ui->showCollisionA->setChecked(viewer->showPlaneA);
         ui->showCollisionB->setChecked(viewer->showPlaneB);
-        doAction();
     });
 
-    connect(ui->showTileGrid, &QPushButton::clicked, [this] {
-        viewer->showGrid ^= 1;
-        doAction();
-    });
+    connect(ui->showTileGrid, &QPushButton::clicked, [this] { viewer->showGrid ^= 1; });
 
     connect(scnProp->gridX, QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int v) { viewer->gridSize.x = v; });
@@ -455,10 +447,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         doAction();
     });
 
-    connect(ui->showParallax, &QPushButton::clicked, [this] {
-        viewer->showParallax ^= 1;
-        doAction();
-    });
+    connect(ui->showParallax, &QPushButton::clicked, [this] { viewer->showParallax ^= 1; });
 
     connect(scnProp->editTIL, &QPushButton::clicked, [this] {
         if (chunkEdit == nullptr) {
