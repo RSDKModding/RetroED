@@ -19,6 +19,10 @@ public:
         programID = new QOpenGLShaderProgram();
     }
 
+    std::function<void(Shader *, void *)> argsCB = [](Shader*, void*){};
+
+    inline void setArgs(void *state) { argsCB(this, state); }
+
     inline bool loadShader(QString path, QOpenGLShader::ShaderType type)
     {
         if (!programID)

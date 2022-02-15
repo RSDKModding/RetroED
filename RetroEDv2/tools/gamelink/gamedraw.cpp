@@ -448,7 +448,6 @@ void FunctionTable::drawLine(int x1, int y1, int x2, int y2, uint color, int alp
         case INK_UNMASKED: alpha = 0xFF; break;
     }
 
-    float z               = v5Editor->viewer->incZ();
     Vector4<float> rcolor = { ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f,
                               (color & 0xFF) / 255.0f, alpha / 255.0f };
 
@@ -486,21 +485,8 @@ void FunctionTable::drawLine(int x1, int y1, int x2, int y2, uint color, int alp
         y1p = y1 / (float)(1 << 16) - v5Editor->viewer->cam.pos.y;
         y2p = y2 / (float)(1 << 16) - v5Editor->viewer->cam.pos.y;
     }
-    x1p -= .5f;
-    x2p += .5f;
-    y1p -= .5f;
-    y2p += .5f;
-    Vector2<int> vecs[4];
-    vecs[0].x = (x1p + 0) * (1 << 16);
-    vecs[0].y = (y1p + 0) * (1 << 16);
-    vecs[1].x = (x1p + 1) * (1 << 16);
-    vecs[1].y = (y1p + 1) * (1 << 16);
-    vecs[2].x = (x2p + 1) * (1 << 16);
-    vecs[2].y = (y2p + 1) * (1 << 16);
-    vecs[3].x = (x2p + 0) * (1 << 16);
-    vecs[3].y = (y2p + 0) * (1 << 16);
 
-    drawFace(vecs, 4, rcolor.x * 255, rcolor.y * 255, rcolor.z * 255, alpha, inkEffect);
+    v5Editor->viewer->drawLine(x1p, y1p, x2p, y2p, rcolor, alpha, inkEffect);
 }
 
 void FunctionTable::drawRect(int x, int y, int width, int height, uint color, int alpha,
@@ -549,23 +535,21 @@ void FunctionTable::drawRect(int x, int y, int width, int height, uint color, in
         heightf /= (float)(1 << 16);
     }
 
-    float invZoom = v5Editor->viewer->invZoom();
-
     float startX = xf;
     float startY = yf;
 
-    if (widthf + xf > v5Editor->viewer->screens->clipBound_X2 * invZoom)
-        widthf = v5Editor->viewer->screens->clipBound_X2 * invZoom - xf;
-    if (xf < v5Editor->viewer->screens->clipBound_X1 * invZoom) {
-        widthf += xf - v5Editor->viewer->screens->clipBound_X1 * invZoom;
-        xf = v5Editor->viewer->screens->clipBound_X1 * invZoom;
+    if (widthf + xf > v5Editor->viewer->screens->clipBound_X2)
+        widthf = v5Editor->viewer->screens->clipBound_X2 - xf;
+    if (xf < v5Editor->viewer->screens->clipBound_X1) {
+        widthf += xf - v5Editor->viewer->screens->clipBound_X1;
+        xf = v5Editor->viewer->screens->clipBound_X1;
     }
 
-    if (heightf + yf > v5Editor->viewer->screens->clipBound_Y2 * invZoom)
-        heightf = v5Editor->viewer->screens->clipBound_Y2 * invZoom - yf;
-    if (yf < v5Editor->viewer->screens->clipBound_Y1 * invZoom) {
-        heightf += yf - v5Editor->viewer->screens->clipBound_Y1 * invZoom;
-        yf = v5Editor->viewer->screens->clipBound_Y1 * invZoom;
+    if (heightf + yf > v5Editor->viewer->screens->clipBound_Y2)
+        heightf = v5Editor->viewer->screens->clipBound_Y2 - yf;
+    if (yf < v5Editor->viewer->screens->clipBound_Y1) {
+        heightf += yf - v5Editor->viewer->screens->clipBound_Y1;
+        yf = v5Editor->viewer->screens->clipBound_Y1;
     }
 
     if (widthf <= 0 || heightf <= 0)
@@ -593,14 +577,7 @@ void FunctionTable::drawRect(int x, int y, int width, int height, uint color, in
         v5Editor->viewer->activeDrawEntity->box.h = boxBottom - entY;
     }
 
-    v5Editor->viewer->addRenderState(inkEffect, 4, 6, -1, alpha, &v5Editor->viewer->primitiveShader);
-
-    color |= alpha << 24;
-
-    v5Editor->viewer->addPoly(xf, yf, 0, 0, color);
-    v5Editor->viewer->addPoly(xf + widthf, yf, 0, 0, color);
-    v5Editor->viewer->addPoly(xf, yf + heightf, 0, 0, color);
-    v5Editor->viewer->addPoly(xf + widthf, yf + heightf, 0, 0, color);
+    v5Editor->viewer->drawRect(xf, yf, widthf, heightf, rcolor, false, alpha, inkEffect);
 }
 
 void FunctionTable::drawCircle(int x, int y, int radius, uint color, int alpha, InkEffects inkEffect,
@@ -608,25 +585,48 @@ void FunctionTable::drawCircle(int x, int y, int radius, uint color, int alpha, 
 {
     if (!v5Editor)
         return;
+
+    float xf      = x;
+    float yf      = y;
+
+    if (!screenRelative) {
+        xf = (x / (float)(1 << 16)) - v5Editor->viewer->cam.pos.x;
+        yf = (y / (float)(1 << 16)) - v5Editor->viewer->cam.pos.y;
+    }
     Vector4<float> rcolor = { ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f,
                               (color & 0xFF) / 255.0f, alpha / 255.0f };
-    float zoom            = v5Editor->viewer->zoom;
-    v5Editor->viewer->drawCircle(x * zoom, y * zoom, v5Editor->viewer->incZ(), radius, rcolor,
-                                 v5Editor->viewer->primitiveShader);
+    v5Editor->viewer->drawCircle(xf, yf, 0, radius, rcolor,
+                                 alpha, inkEffect);
 }
 void FunctionTable::drawCircleOutline(int x, int y, int innerRadius, int outerRadius, uint color,
                                       int alpha, InkEffects inkEffect, bool32 screenRelative)
 {
+    if (!v5Editor)
+        return;
+
+    float xf = x;
+    float yf = y;
+
+    if (!screenRelative) {
+        xf = (x / (float)(1 << 16)) - v5Editor->viewer->cam.pos.x;
+        yf = (y / (float)(1 << 16)) - v5Editor->viewer->cam.pos.y;
+    }
+    Vector4<float> rcolor = { ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f,
+                              (color & 0xFF) / 255.0f, alpha / 255.0f };
+    v5Editor->viewer->drawCircle(xf, yf, innerRadius, outerRadius, rcolor, alpha, inkEffect);
 }
 
 void FunctionTable::drawFace(Vector2<int> *vertices, int vertCount, int r, int g, int b, int alpha,
                              InkEffects inkEffect)
 {
+    if (!v5Editor) return;
     v5Editor->viewer->drawFace(vertices, vertCount, r, g, b, alpha, inkEffect);
 }
 void FunctionTable::drawBlendedFace(Vector2<int> *vertices, uint *colors, int vertCount, int alpha,
                                     InkEffects inkEffect)
 {
+    if (!v5Editor)
+        return; 
     v5Editor->viewer->drawBlendedFace(vertices, colors, vertCount, alpha, inkEffect);
 }
 
@@ -827,21 +827,23 @@ void FunctionTable::drawSprite(Animator *animator, Vector2<int> *position, bool3
 void FunctionTable::drawTile(ushort *tileInfo, int countX, int countY, GameEntity *entityPtr,
                              Vector2<int> *position, bool32 screenRelative)
 {
+    if (!v5Editor)
+        return;
 }
 
 void FunctionTable::drawText(Animator *animator, Vector2<int> *position, TextInfo *info, int startFrame,
                              int endFrame, byte align, int spacing, int a8, Vector2<int> *charOffsets,
                              bool32 screenRelative)
 {
-    if (animator && info && animator->framePtrs) {
+    if (animator && info && animator->framePtrs && v5Editor) {
         SceneInfo &sceneInfo = v5Editor->viewer->sceneInfo;
 
         if (!position)
             position = &sceneInfo.entity->position;
         GameEntity *entity = sceneInfo.entity;
 
-        int x = 0;
-        int y = 0;
+        float x = 0;
+        float y = 0;
 
         if (!position) {
             x = Utils::fixedToFloat(sceneInfo.entity->position.x);

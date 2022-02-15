@@ -32,7 +32,7 @@ public:
     struct DrawVertex {
         DrawVertex() {}
 
-        QVector3D pos;
+        QVector2D pos;
         QVector2D uv;
         QVector4D colour;
     };
@@ -40,15 +40,18 @@ public:
     struct RenderState {
         RenderState() {}
 
-        Shader *shader = nullptr;
+        Shader *shader    = nullptr;
+        Shader *fbShader  = nullptr;
+        Shader *fbShader2 = nullptr;
 
         byte blendMode = INK_NONE;
         byte alpha     = 0xFF;
 
         ushort indexCount = 0;
-        ushort indecies[0x800 * 6];
+        ushort indecies[0x8000 * 6];
 
-        ushort sheetID = 0;
+        byte argBuffer[0x20];
+        byte fsArgs[0x20];
 
         ScreenInfo *screen;
         Vector2<int> clipRectTL;
@@ -194,22 +197,14 @@ public:
 
     QImage *colTex = nullptr;
 
-    DrawVertex vertexList[0x800];
-    ushort baseIndexList[0x800 * 6];
+    DrawVertex vertexList[0x8000];
+    ushort baseIndexList[0x8000 * 6];
 
     QList<RenderState> renderStates;
 
     sbyte renderStateIndex = -1;
     ushort renderCount     = 0;
     ushort lastRenderCount = 0;
-
-    inline float incZ()
-    {
-        float c = currZ;
-        currZ += 0.0001f;
-        return c;
-    }
-    float currZ = 16;
 
     int prevSprite = -1;
 
@@ -230,103 +225,13 @@ public:
 
     int addGraphicsFile(QString sheetPath, int sheetID, byte scope);
     void removeGraphicsFile(QString sheetPath, int slot);
-    inline void getTileVerts(QVector2D *arr, int index, int tileIndex, byte direction)
+
+    ushort tileUVArray[0x400 * 4 * 4];
+
+    inline QOpenGLTexture *
+    createTexture(QImage src, QOpenGLTexture::Target target = QOpenGLTexture::Target::Target2D)
     {
-        float w = tilesetTexture->width(), h = tilesetTexture->height();
-
-        float tx = 0.0f;
-        float ty = tileIndex / h;
-        float tw = 0x10 / w;
-        float th = 0x10 / h;
-
-        switch (direction) {
-            case 0:
-            default: {
-                arr[index + 0].setX(tx);
-                arr[index + 0].setY(ty);
-
-                arr[index + 1].setX(tx + tw);
-                arr[index + 1].setY(ty);
-
-                arr[index + 2].setX(tx + tw);
-                arr[index + 2].setY(ty + th);
-
-                arr[index + 3].setX(tx + tw);
-                arr[index + 3].setY(ty + th);
-
-                arr[index + 4].setX(tx);
-                arr[index + 4].setY(ty + th);
-
-                arr[index + 5].setX(tx);
-                arr[index + 5].setY(ty);
-                break;
-            }
-            case 1: {
-                arr[index + 0].setX(tx + tw);
-                arr[index + 0].setY(ty);
-
-                arr[index + 1].setX(tx);
-                arr[index + 1].setY(ty);
-
-                arr[index + 2].setX(tx);
-                arr[index + 2].setY(ty + th);
-
-                arr[index + 3].setX(tx);
-                arr[index + 3].setY(ty + th);
-
-                arr[index + 4].setX(tx + tw);
-                arr[index + 4].setY(ty + th);
-
-                arr[index + 5].setX(tx + tw);
-                arr[index + 5].setY(ty);
-                break;
-            }
-            case 2: {
-                arr[index + 0].setX(tx);
-                arr[index + 0].setY(ty + th);
-
-                arr[index + 1].setX(tx + tw);
-                arr[index + 1].setY(ty + th);
-
-                arr[index + 2].setX(tx + tw);
-                arr[index + 2].setY(ty);
-
-                arr[index + 3].setX(tx + tw);
-                arr[index + 3].setY(ty);
-
-                arr[index + 4].setX(tx);
-                arr[index + 4].setY(ty);
-
-                arr[index + 5].setX(tx);
-                arr[index + 5].setY(ty + th);
-                break;
-            }
-            case 3: {
-                arr[index + 0].setX(tx + tw);
-                arr[index + 0].setY(ty + th);
-
-                arr[index + 1].setX(tx);
-                arr[index + 1].setY(ty + th);
-
-                arr[index + 2].setX(tx);
-                arr[index + 2].setY(ty);
-
-                arr[index + 3].setX(tx);
-                arr[index + 3].setY(ty);
-
-                arr[index + 4].setX(tx + tw);
-                arr[index + 4].setY(ty);
-
-                arr[index + 5].setX(tx + tw);
-                arr[index + 5].setY(ty + th);
-                break;
-            }
-        }
-    }
-
-    inline QOpenGLTexture *createTexture(QImage src)
-    {
-        QOpenGLTexture *tex = new QOpenGLTexture(QOpenGLTexture::Target::Target2D);
+        QOpenGLTexture *tex = new QOpenGLTexture(target);
         tex->create();
         tex->bind();
         tex->setWrapMode(QOpenGLTexture::DirectionS, QOpenGLTexture::WrapMode::Repeat);
@@ -334,52 +239,68 @@ public:
         tex->setMinMagFilters(QOpenGLTexture::Nearest, QOpenGLTexture::Nearest);
         tex->setFormat(QOpenGLTexture::RGBA8_UNorm);
         tex->setSize(src.width(), src.height());
-        tex->setData(src, QOpenGLTexture::MipMapGeneration::GenerateMipMaps);
+        tex->setData(src, target == QOpenGLTexture::Target2D
+                              ? QOpenGLTexture::MipMapGeneration::GenerateMipMaps
+                              : QOpenGLTexture::MipMapGeneration::DontGenerateMipMaps);
         return tex;
     }
 
-    Shader primitiveShader = Shader("Primitive");
-    Shader spriteShader    = Shader("Sprite");
-    QOpenGLVertexArrayObject screenVAO, rectVAO;
+    Shader placeShader  = Shader("Place");
+    Shader circleShader = Shader("Circle");
+    Shader tileShader   = Shader("Tile");
+    // the... Impostor... you may say...
+    Shader lineShader = Shader("Place");
 
-    QOpenGLBuffer VBO;
-    uint indexVBO = 0;
+    Shader passthroughFBShader = Shader("PassthroughFB");
+    Shader tileFBShader        = Shader("TileFB");
+    Shader finalFBShader       = Shader("FinalFB");
+
+    QOpenGLVertexArrayObject *VAO = nullptr, *fbpVAO = nullptr;
+    QOpenGLBuffer *attribVBO = nullptr, *indexVBO = nullptr, *fbpVBO = nullptr, *fbiVBO = nullptr;
+    QOpenGLFramebufferObject *outFB = nullptr, *tFB = nullptr, *t2FB = nullptr;
+    QOpenGLTexture *outFBT = nullptr, *tFBT = nullptr, *t2FBT = nullptr;
 
     QOpenGLTexture *tilesetTexture = nullptr;
 
+    QOpenGLFunctions *glFuncs = nullptr;
+
     QTimer *updateTimer = nullptr;
 
-    void drawTile(float XPos, float YPos, float ZPos, int tileX, int tileY, byte direction);
+    void drawTile(float XPos, float YPos, int tileX, int tileY, byte direction);
 
     void drawSpriteFlipped(float XPos, float YPos, float width, float height, float sprX, float sprY,
-                           int direction, int inkEffect, int alpha, int sheetID);
+                           int direction, InkEffects inkEffect, int alpha, int sheetID);
     void drawSpriteRotozoom(float x, float y, float pivotX, float pivotY, float width, float height,
                             float sprX, float sprY, int scaleX, int scaleY, int direction,
-                            short rotation, int inkEffect, int alpha, int sheetID);
+                            short rotation, InkEffects inkEffect, int alpha, int sheetID);
 
-    void drawLine(float x1, float y1, float z1, float x2, float y2, float z2, float scale,
-                  Vector4<float> colour, Shader &shader);
+    void drawLine(float x1, float y1, float x2, float y2, Vector4<float> colour, int alpha = 0xFF,
+                  InkEffects inkEffect = INK_NONE);
 
-    void drawRect(float x, float y, float z, float w, float h, Vector4<float> colour, Shader &shader,
-                  bool outline = false);
+    void drawRect(float x, float y, float w, float h, Vector4<float> colour, bool outline = false,
+                  int alpha = 0xFF, InkEffects inkEffect = INK_NONE);
 
-    void drawCircle(float x, float y, float z, float r, Vector4<float> colour, Shader &shader,
-                    bool outline = false);
+    void drawCircle(float x, float y, float innerR, float outerR, Vector4<float> colour,
+                    int alpha = 0xFF, InkEffects inkEffect = INK_NONE);
 
-    void drawFace(Vector2<int> *vertices, int vertCount, int r, int g, int b, int alpha,
-                  InkEffects inkEffect);
-    void drawBlendedFace(Vector2<int> *vertices, uint *colors, int vertCount, int alpha,
-                         InkEffects inkEffect);
+    void drawFace(Vector2<int> *vertices, int vertCount, int r, int g, int b, int alpha = 0xFF,
+                  InkEffects inkEffect = INK_NONE);
+    void drawBlendedFace(Vector2<int> *vertices, uint *colors, int vertCount, int alpha = 0xFF,
+                         InkEffects inkEffect = INK_NONE);
 
-    inline void addPoly(float x, float y, float z, float u, float v, uint color = 0,
-                        GFXSurface *surface = NULL);
     inline void addPoly(float x, float y, float u, float v, uint color = 0, GFXSurface *surface = NULL)
     {
-        addPoly(x, y, incZ(), u, v, color, surface);
-    }
+        Vector4<float> rcolor = { ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f,
+                                  (color & 0xFF) / 255.0f, ((color >> 24) & 0xFF) / 255.0f };
 
-    void addRenderState(int blendMode, ushort vertCount, ushort indexCount, int sheetID = -1,
+        addPoly(x, y, u, v, rcolor, surface);
+    };
+
+    void addPoly(float x, float y, float u, float v, Vector4<float> color, GFXSurface *surface = NULL);
+
+    void addRenderState(int blendMode, ushort vertCount, ushort indexCount, void *args = nullptr,
                         byte alpha = 0xFF, Shader *shader = nullptr, ushort *altIndex = nullptr,
+                        Shader *fbShader = nullptr, Shader *fbShader2 = nullptr,
                         Vector2<int> *clipRect = nullptr);
     void renderRenderStates();
 
@@ -401,7 +322,7 @@ private:
     {
         QMatrix4x4 matWorld;
         cam.m_aspectRatio = storedW / (float)storedH;
-        matWorld.ortho(0.0f, (float)storedW, (float)storedH, 0.0f, -16.0f, 16.0f);
+        matWorld.ortho(0.0f, (float)storedW, (float)storedH, 0.0f, -1.0f, 1.0f);
         return matWorld;
     }
 
