@@ -29,7 +29,7 @@ void FunctionTable::registerObject(GameObject **structPtr, const char *name, uin
     info.editorLoad   = editorLoad;
     info.serialize    = serialize;
     info.name         = name;
-    v5Editor->viewer->gameLinks.last().gameObjectList.append(info);
+    v5Editor->gameLinks.last().gameObjectList.append(info);
 }
 
 void FunctionTable::registerObjectContainer(GameObject **structPtr, const char *name, uint objectSize)
@@ -59,7 +59,7 @@ void FunctionTable::registerObjectContainer(GameObject **structPtr, const char *
     info.editorLoad   = NULL;
     info.serialize    = NULL;
     info.name         = name;
-    v5Editor->viewer->gameLinks.last().gameObjectList.append(info);
+    v5Editor->gameLinks.last().gameObjectList.append(info);
 }
 
 void FunctionTable::setEditableVar(byte type, const char *name, byte object, int offset)
@@ -179,7 +179,7 @@ ushort FunctionTable::getObjectByName(const char *name)
     memcpy(hash, data, 0x10 * sizeof(byte));
 
     for (int o = 0; o < v5Editor->viewer->objects.count(); ++o) {
-        GameObjectInfo *info = v5Editor->viewer->GetObjectInfo(name);
+        GameObjectInfo *info = v5Editor->GetObjectInfo(name);
         if (info) {
             if (info->type && *info->type) {
                 return o;
@@ -243,7 +243,7 @@ void FunctionTable::resetEntityPtr(GameEntity *entity, ushort type, void *data)
         return;
 
     if (entity) {
-        GameObjectInfo *info = v5Editor->viewer->GetObjectInfo(v5Editor->viewer->objects[type].name);
+        GameObjectInfo *info = v5Editor->GetObjectInfo(v5Editor->viewer->objects[type].name);
         if (!info)
             return;
         memset(entity, 0, info->entitySize);
@@ -265,7 +265,7 @@ void FunctionTable::resetEntitySlot(ushort slotID, ushort type, void *data)
         return;
 
     short slot              = ENTITY_COUNT - 1;
-    GameObjectInfo *objInfo = v5Editor->viewer->GetObjectInfo(v5Editor->viewer->objects[type].name);
+    GameObjectInfo *objInfo = v5Editor->GetObjectInfo(v5Editor->viewer->objects[type].name);
     if (!objInfo)
         return;
     if (slotID < ENTITY_COUNT)
@@ -290,7 +290,7 @@ void FunctionTable::createEntity(ushort type, void *data, int x, int y)
     if (!v5Editor)
         return;
 
-    GameObjectInfo *objInfo = v5Editor->viewer->GetObjectInfo(v5Editor->viewer->objects[type].name);
+    GameObjectInfo *objInfo = v5Editor->GetObjectInfo(v5Editor->viewer->objects[type].name);
     if (!objInfo)
         return;
     GameEntity *entityPtr = &v5Editor->viewer->gameEntityList[v5Editor->viewer->sceneInfo.createSlot];

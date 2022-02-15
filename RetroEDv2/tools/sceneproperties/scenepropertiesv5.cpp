@@ -28,9 +28,26 @@ ScenePropertiesv5::ScenePropertiesv5(QWidget *parent) : QWidget(parent), ui(new 
     syncGC     = ui->syncGC;
     syncSC     = ui->syncSC;
     reloadLink = ui->reloadLink;
+
+    bgSel = new color_widgets::ColorPreview(this);
+    ui->bgClrLayout->addWidget(bgSel);
+
+    altBGSel = new color_widgets::ColorPreview(this);
+    ui->altBGClrLayout->addWidget(altBGSel);
 }
 
-ScenePropertiesv5::~ScenePropertiesv5() { delete ui; }
+ScenePropertiesv5::~ScenePropertiesv5()
+{
+    delete ui;
+
+    if (bgSel)
+        delete bgSel;
+    bgSel = nullptr;
+
+    if (altBGSel)
+        delete altBGSel;
+    altBGSel = nullptr;
+}
 
 void ScenePropertiesv5::setupUI(RSDKv5::Scene *scn, RSDKv5::StageConfig *config)
 {
@@ -43,9 +60,9 @@ void ScenePropertiesv5::setupUI(RSDKv5::Scene *scn, RSDKv5::StageConfig *config)
     ui->loadGlobals->setChecked(config->loadGlobalObjects);
     ui->loadGlobals->blockSignals(false);
 
-    ui->stampName->blockSignals(true);
-    ui->stampName->setText(scn->editorMetadata.stampName);
-    ui->stampName->blockSignals(false);
+    // ui->stampName->blockSignals(true);
+    // ui->stampName->setText(scn->editorMetadata.stampName);
+    // ui->stampName->blockSignals(false);
 }
 
 void ScenePropertiesv5::unsetUI() {}

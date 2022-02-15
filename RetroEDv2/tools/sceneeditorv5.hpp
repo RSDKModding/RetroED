@@ -72,6 +72,14 @@ public:
 
     Vector2<float> selectionOffset = Vector2<float>(0.0f, 0.0f);
 
+    // The thingos
+    RSDKv5::GameConfig gameConfig;
+    RSDKv5::Scene scene;
+    RSDKv5::StageConfig stageConfig;
+    RSDKv5::Stamps stamps;
+
+    RSDKv5::TileConfig tileconfig;
+
     SceneViewerv5 *viewer             = nullptr;
     ScenePropertiesv5 *scnProp        = nullptr;
     SceneLayerPropertiesv5 *lyrProp   = nullptr;
@@ -83,6 +91,16 @@ public:
     TilesetEditor *tsetEdit           = nullptr;
 
     void loadScene(QString scnPath, QString gcfPath, byte gameType);
+    void saveScene(QString path);
+
+    void setTile(float x, float y);
+    void resetTools(byte tool);
+
+    bool handleKeyPress(QKeyEvent *event);
+    bool handleKeyRelease(QKeyEvent *event);
+
+    QList<GameLink> gameLinks;
+    GameObjectInfo *GetObjectInfo(QString name);
 
     inline void updateTitle(bool modified)
     {
@@ -125,6 +143,13 @@ private:
 
     void createEntityList();
     void createScrollList();
+    void setupObjects();
+
+    void unloadGameLinks();
+    void loadGameLinks();
+    void initGameLink();
+
+    void callGameEvent(QString objName, byte eventID, SceneEntity *entity);
 
     void parseGameXML(QString path);
 

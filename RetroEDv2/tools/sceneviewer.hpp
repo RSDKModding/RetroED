@@ -91,6 +91,8 @@ public:
     SceneViewer(QWidget *parent);
     ~SceneViewer();
 
+    void dispose();
+
     struct TextureInfo {
         TextureInfo() {}
 
@@ -169,10 +171,8 @@ public:
     Compilerv4 compilerv4;
 
     // passed from main
-    QLabel *statusLabel      = nullptr;
-    QScrollBar *sbHorizontal = nullptr;
-    QScrollBar *sbVertical   = nullptr;
-    void *objProp            = nullptr;
+    QLabel *statusLabel = nullptr;
+    void *objProp       = nullptr;
 
     Colour bgColour    = Colour(0x20, 0x20, 0x20);
     Colour altBGColour = Colour(0x30, 0x30, 0x30);
@@ -365,6 +365,9 @@ public:
     void refreshResize();
 
     QTimer *updateTimer = nullptr;
+
+    void startTimer();
+    void stopTimer();
 
 protected:
     void initializeGL();

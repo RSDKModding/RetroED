@@ -15,10 +15,10 @@ public:
 
         void read(Reader &reader)
         {
-            parallaxFactor |= (short)reader.read<byte>();
-            parallaxFactor = (short)(reader.read<byte>() << 8);
-            scrollSpeed    = reader.read<byte>();
-            deform         = reader.read<byte>();
+            parallaxFactor = (short)reader.read<byte>();
+            parallaxFactor |= (short)(reader.read<byte>() << 8);
+            scrollSpeed = reader.read<byte>();
+            deform      = reader.read<byte>();
         }
         void write(Writer &writer)
         {

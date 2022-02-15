@@ -32,6 +32,8 @@
 #include <QMetaType>
 #include <QDomElement>
 
+#include "dependencies/qtcolorwidgets/color_preview.hpp"
+
 typedef signed char sbyte;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -47,6 +49,8 @@ enum Event {
     RE_EVENT_SAVE_AS,
     RE_EVENT_UNDO,
     RE_EVENT_REDO,
+    RE_EVENT_TAB_GAIN_FOCUS,
+    RE_EVENT_TAB_LOSE_FOCUS,
 };
 
 class REAppEvent : public QEvent
@@ -98,6 +102,7 @@ public:
 #include "tools/sceneproperties/scenetileproperties.hpp"
 
 // Scene Tools (v5)
+#include "tools/sceneproperties/sceneincludesv5.hpp"
 #include "tools/sceneproperties/scenepropertiesv5.hpp"
 #include "tools/sceneproperties/scenelayerpropertiesv5.hpp"
 #include "tools/sceneproperties/sceneobjectpropertiesv5.hpp"

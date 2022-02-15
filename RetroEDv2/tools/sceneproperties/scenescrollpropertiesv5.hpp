@@ -1,5 +1,5 @@
-#ifndef SCENESCROLLPROPERTIES_V5_HPP
-#define SCENESCROLLPROPERTIES_V5_HPP
+#ifndef SCENESCROLLPROPERTIES_V5_H
+#define SCENESCROLLPROPERTIES_V5_H
 
 #include <QWidget>
 
@@ -16,11 +16,12 @@ public:
     explicit SceneScrollPropertiesv5(QWidget *parent = nullptr);
     ~SceneScrollPropertiesv5();
 
-    void setupUI(RSDKv5::Scene::ScrollIndexInfo *info, QList<RSDKv5::Scene::ScrollIndexInfo> &infos);
+    void setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *info,
+                 QList<SceneHelpers::TileLayer::ScrollIndexInfo> &infos);
     void unsetUI();
 
 private:
     Ui::SceneScrollPropertiesv5 *ui;
 };
 
-#endif // SCENESCROLLPROPERTIES_V5_HPP
+#endif // SCENESCROLLPROPERTIES_V5_H

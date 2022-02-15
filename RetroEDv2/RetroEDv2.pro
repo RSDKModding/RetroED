@@ -120,6 +120,7 @@ HEADERS += \
     tools/sceneeditorv5.hpp \
     tools/sceneproperties/chunkeditor.hpp \
     tools/sceneproperties/objectselector.hpp \
+    tools/sceneproperties/sceneincludesv5.hpp \
     tools/sceneproperties/scenelayerproperties.hpp \
     tools/sceneproperties/scenelayerpropertiesv5.hpp \
     tools/sceneproperties/sceneobjectproperties.hpp \

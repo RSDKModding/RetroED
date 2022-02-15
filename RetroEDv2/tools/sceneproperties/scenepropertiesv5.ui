@@ -291,6 +291,12 @@
          </property>
         </widget>
        </item>
+       <item row="7" column="1">
+        <layout class="QGridLayout" name="bgClrLayout"/>
+       </item>
+       <item row="8" column="1">
+        <layout class="QGridLayout" name="altBGClrLayout"/>
+       </item>
       </layout>
      </widget>
     </widget>

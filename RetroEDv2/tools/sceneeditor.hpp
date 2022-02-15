@@ -91,8 +91,12 @@ public:
 
     void initGameLink();
 
-    void startUpdates();
-    void stopUpdates();
+    // Event Handlers
+    void setTile(float x, float y);
+    void resetTools(byte tool);
+
+    bool handleKeyPress(QKeyEvent *event);
+    bool handleKeyRelease(QKeyEvent *event);
 
     inline void updateTitle(bool modified)
     {
@@ -130,6 +134,8 @@ private:
 
     void createEntityList();
     void createScrollList();
+
+    bool callGameEvent(byte eventID, int id);
 
     // XML Management
     void parseGameXML(byte gameType, QString path);

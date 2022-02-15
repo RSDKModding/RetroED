@@ -26,8 +26,8 @@ public:
     {
     public:
         byte unknown1           = 3; // usually 2,3 or 4
-        QColor backgroundColor1 = QColor(0xFF, 0, 0xFF);
-        QColor backgroundColor2 = QColor(0, 0xFF, 0);
+        QColor backgroundColor1 = QColor(0x20, 0x20, 0x20);
+        QColor backgroundColor2 = QColor(0x30, 0x30, 0x30);
         byte unknown2           = 1;
         byte unknown3           = 1;
         byte unknown4           = 4;

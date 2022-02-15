@@ -33,6 +33,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     connect(ui->toolTabs, &QTabWidget::tabCloseRequested, removeTab);
 
+    auto focusChangeEvent = [this](int index) {
+        for (int w = 0; w < ui->toolTabs->count(); ++w) {
+            QWidget *widget = ui->toolTabs->widget(w);
+
+            REAppEvent e = REAppEvent(RE_EVENT_TAB_LOSE_FOCUS);
+            QApplication::sendEvent(widget, &e);
+        }
+
+        if (index != -1) {
+            QWidget *widget = ui->toolTabs->widget(index);
+
+            REAppEvent e = REAppEvent(RE_EVENT_TAB_GAIN_FOCUS);
+            QApplication::sendEvent(widget, &e);
+        }
+    };
+    connect(ui->toolTabs, &QTabWidget::currentChanged, focusChangeEvent);
+
     QMenu *file    = new QMenu("File");
     auto newAction = [this] {
         if (!ui->toolTabs->currentWidget())
@@ -131,7 +148,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                                     SceneEditorv5 *tool = new SceneEditorv5();
                                     tool->installEventFilter(this);
                                     addTab(tool, "Scene Editor (v5)");
-                                    tool->loadScene(r.path, r.extra[0], r.gameVer);
+                                    tool->loadScene(r.path, r.extra[0],
+                                                    r.extra.count() >= 2 && r.extra[1] == "1");
                                 }
                                 else
                                     appConfig.recentFiles.removeOne(r);

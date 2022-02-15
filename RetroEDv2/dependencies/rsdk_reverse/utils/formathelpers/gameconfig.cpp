@@ -28,7 +28,7 @@ void FormatHelpers::GameConfig::read(byte ver, QString filename)
 
             for (QString &obj : gameconfig.objects) {
                 ObjectInfo o;
-                o.m_name = QFileInfo(obj).baseName();
+                o.name = QFileInfo(obj).baseName();
                 o.script = obj;
 
                 objects.append(o);
@@ -80,7 +80,7 @@ void FormatHelpers::GameConfig::read(byte ver, QString filename)
 
             for (RSDKv3::GameConfig::ObjectInfo &obj : gameconfig.objects) {
                 ObjectInfo o;
-                o.m_name = obj.name;
+                o.name = obj.name;
                 o.script = obj.script;
 
                 objects.append(o);
@@ -132,7 +132,7 @@ void FormatHelpers::GameConfig::read(byte ver, QString filename)
 
             for (RSDKv4::GameConfig::ObjectInfo &obj : gameconfig.objects) {
                 ObjectInfo o;
-                o.m_name = obj.name;
+                o.name = obj.name;
                 o.script = obj.script;
 
                 objects.append(o);
@@ -239,7 +239,7 @@ void FormatHelpers::GameConfig::write(byte ver, QString filename)
 
             for (ObjectInfo &obj : objects) {
                 RSDKv3::GameConfig::ObjectInfo o;
-                o.name   = obj.m_name;
+                o.name   = obj.name;
                 o.script = obj.script;
 
                 gameconfig.objects.append(o);
@@ -278,7 +278,7 @@ void FormatHelpers::GameConfig::write(byte ver, QString filename)
 
             for (ObjectInfo &obj : objects) {
                 RSDKv4::GameConfig::ObjectInfo o;
-                o.name   = obj.m_name;
+                o.name   = obj.name;
                 o.script = obj.script;
 
                 gameconfig.objects.append(o);

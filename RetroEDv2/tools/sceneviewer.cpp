@@ -22,15 +22,35 @@ SceneViewer::SceneViewer(QWidget *parent)
 
     updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, QOverload<>::of(&SceneViewer::updateScene));
+    startTimer();
 }
 
-SceneViewer::~SceneViewer()
+SceneViewer::~SceneViewer() { dispose(); }
+
+void SceneViewer::startTimer()
+{
+    if (updateTimer) {
+        stopTimer();
+
+        updateTimer->start(1000.0f / 60.0f);
+    }
+}
+
+void SceneViewer::stopTimer()
+{
+    if (updateTimer) {
+        if (updateTimer->isActive())
+            updateTimer->stop();
+    }
+}
+
+void SceneViewer::dispose()
 {
     unloadScene();
 
     if (updateTimer) {
         disconnect(updateTimer, nullptr, nullptr, nullptr);
-        updateTimer->stop();
+        stopTimer();
         delete updateTimer;
     }
 
@@ -110,7 +130,7 @@ void SceneViewer::loadScene(QString path, byte ver)
                 scene.objectTypeNames.append("Player");
 
             for (FormatHelpers::GameConfig::ObjectInfo &obj : gameConfig.objects) {
-                scene.objectTypeNames.append(obj.m_name);
+                scene.objectTypeNames.append(obj.name);
             }
         }
 

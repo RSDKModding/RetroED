@@ -1,21 +1,10 @@
 #ifndef SCENEVIEWER_V5_H
 #define SCENEVIEWER_V5_H
 
-class SceneCamerav5
-{
-public:
-    float m_near = 0.01f;
-    float m_far  = 1000.0f;
-
-    Vector2<float> pos = Vector2<float>(0.0f, 0.0f);
-
-    Vector2<float> lastMousePos = Vector2<float>(0.0f, 0.0f);
-
-    float m_aspectRatio = 0.0f;
-};
-
 class SceneViewerv5 : public QOpenGLWidget
 {
+    Q_OBJECT
+
 public:
     enum SceneManagerTool {
         TOOL_MOUSE,
@@ -27,7 +16,7 @@ public:
         TOOL_PARALLAX,
     };
 
-    enum EventTypes { EVENT_LOAD, EVENT_CREATE, EVENT_UPDATE, EVENT_DRAW, EVENT_SERIALIZE };
+    enum EventTypes { EVENT_LOAD, EVENT_CREATE, EVENT_UPDATE, EVENT_DRAW, EVENT_SERIALIZE, EVENT_EDIT };
 
     struct DrawVertex {
         DrawVertex() {}
@@ -58,13 +47,10 @@ public:
         Vector2<int> clipRectBR;
     };
 
-    SceneViewerv5(QWidget *parent);
+    SceneViewerv5(byte gameType, QWidget *parent);
     ~SceneViewerv5();
 
-    void startTimer();
-
-    void loadScene(QString path);
-    void saveScene(QString path);
+    void initScene(QImage tileset);
 
     void updateScene();
     void drawScene();
@@ -79,19 +65,19 @@ public:
     inline float invZoom() { return 1.0f / zoom; }
     bool disableObjects = true;
 
+    byte gameType = ENGINE_v5;
+
     QString dataPath = "";
-    RSDKv5::GameConfig gameConfig;
 
-    RSDKv5::Scene scene;
-    RSDKv5::StageConfig stageConfig;
+    RSDKv5::Scene::SceneEditorMetadata metadata;
     RSDKv5::Stamps stamps;
-
     RSDKv5::TileConfig tileconfig;
+
+    byte tileSize = 0x10;
+    QList<SceneHelpers::TileLayer> layers;
 
     QList<SceneObject> objects;
     QList<SceneEntity> entities;
-
-    QList<GameLink> gameLinks;
 
     // Stuff for game link
     SceneInfo sceneInfo;
@@ -162,10 +148,6 @@ public:
 
     SceneEntity *activeDrawEntity = nullptr;
 
-    // For Variable Aliases
-    int activeVar    = -1;
-    int activeVarObj = -1;
-
     int sceneFilter = 0xFF;
 
     // Parallax Editing
@@ -173,10 +155,11 @@ public:
     int selectedScrollInfo = -1;
 
     // Camera
-    SceneCamerav5 cam;
+    Vector2<float> cameraPos = Vector2<float>(0.0f, 0.0f);
 
     QList<PaletteColour> tilePalette;
     QList<QImage> tiles;
+    QList<QImage> chunks;
     QImage missingObj;
 
     bool showGrid         = false;
@@ -184,12 +167,7 @@ public:
 
     // passed from main
     QLabel *statusLabel              = nullptr;
-    QScrollBar *sbHorizontal         = nullptr;
-    QScrollBar *sbVertical           = nullptr;
     SceneObjectPropertiesv5 *objProp = nullptr;
-
-    Colour bgColour    = Colour(0x20, 0x20, 0x20);
-    Colour altBGColour = Colour(0x30, 0x30, 0x30);
 
     int prevStoredW = -1, prevStoredH = -1;
     int storedW, storedH;
@@ -217,8 +195,6 @@ public:
     TypeGroupList typeGroups[TYPEGROUP_COUNT];
 
     DrawList drawLayers[v5_DRAWLAYER_COUNT];
-
-    void callGameEvent(GameObjectInfo *info, byte eventID, SceneEntity *entity);
 
     SpriteAnimation spriteAnimationList[v5_SPRFILE_COUNT];
     GFXSurface gfxSurface[v5_SURFACE_MAX];
@@ -266,6 +242,9 @@ public:
 
     QTimer *updateTimer = nullptr;
 
+    void startTimer();
+    void stopTimer();
+
     void drawTile(float XPos, float YPos, int tileX, int tileY, byte direction);
 
     void drawSpriteFlipped(float XPos, float YPos, float width, float height, float sprX, float sprY,
@@ -308,6 +287,23 @@ public:
 
     GameObjectInfo *GetObjectInfo(QString name);
 
+    // For Variable Aliases & Stuff
+    bool objectsLoaded  = false;
+    int activeVar       = -1;
+    int activeVarObj    = -1;
+    int variableID      = -1;
+    int variableValue   = -1;
+    bool returnVariable = false;
+
+    void addEditorVariable(QString name);
+    void setActiveVariable(QString name);
+    void addEnumVariable(QString name, int value);
+    void setVariableAlias(int varID, QString alias);
+
+signals:
+    void callGameEvent(byte eventID, int entityID);
+    void callGameEventv5(QString objName, byte eventID, SceneEntity *entity);
+
 protected:
     void initializeGL();
     void resizeGL(int w, int h);
@@ -316,12 +312,9 @@ protected:
     QSize sizeHint() const { return QSize(0, 0); }
 
 private:
-    QMatrix4x4 m_matView;
-
     inline QMatrix4x4 getProjectionMatrix()
     {
         QMatrix4x4 matWorld;
-        cam.m_aspectRatio = storedW / (float)storedH;
         matWorld.ortho(0.0f, (float)storedW, (float)storedH, 0.0f, -1.0f, 1.0f);
         return matWorld;
     }

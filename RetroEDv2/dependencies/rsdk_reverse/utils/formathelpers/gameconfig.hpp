@@ -40,7 +40,7 @@ public:
     public:
         ObjectInfo() {}
 
-        QString m_name = "Object";
+        QString name = "Object";
         QString script = "Folder/Script.txt";
     };
 

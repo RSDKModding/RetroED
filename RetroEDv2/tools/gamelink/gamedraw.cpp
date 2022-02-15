@@ -453,14 +453,14 @@ void FunctionTable::drawLine(int x1, int y1, int x2, int y2, uint color, int alp
 
     float x1f = x1, y1f = y1, x2f = x2, y2f = y2;
     if (!screenRelative) {
-        x1f = (x1 >> 16) - v5Editor->viewer->cam.pos.x;
-        y1f = (y1 >> 16) - v5Editor->viewer->cam.pos.y;
-        x2f = (x2 >> 16) - v5Editor->viewer->cam.pos.x;
-        y2f = (y2 >> 16) - v5Editor->viewer->cam.pos.y;
+        x1f = (x1 >> 16) - v5Editor->viewer->cameraPos.x;
+        y1f = (y1 >> 16) - v5Editor->viewer->cameraPos.y;
+        x2f = (x2 >> 16) - v5Editor->viewer->cameraPos.x;
+        y2f = (y2 >> 16) - v5Editor->viewer->cameraPos.y;
     }
 
-    float entX      = v5Editor->viewer->activeDrawEntity->pos.x - v5Editor->viewer->cam.pos.x;
-    float entY      = v5Editor->viewer->activeDrawEntity->pos.y - v5Editor->viewer->cam.pos.y;
+    float entX      = v5Editor->viewer->activeDrawEntity->pos.x - v5Editor->viewer->cameraPos.x;
+    float entY      = v5Editor->viewer->activeDrawEntity->pos.y - v5Editor->viewer->cameraPos.y;
     float boxLeft   = x1f < x2f ? x1f : x2f;
     float boxTop    = y1f < y2f ? y1f : y2f;
     float boxRight  = x1f > x2f ? x1f : x2f;
@@ -480,10 +480,10 @@ void FunctionTable::drawLine(int x1, int y1, int x2, int y2, uint color, int alp
     }
     float x1p = x1, x2p = x2, y1p = y1, y2p = y2;
     if (!screenRelative) {
-        x1p = x1 / (float)(1 << 16) - v5Editor->viewer->cam.pos.x;
-        x2p = x2 / (float)(1 << 16) - v5Editor->viewer->cam.pos.x;
-        y1p = y1 / (float)(1 << 16) - v5Editor->viewer->cam.pos.y;
-        y2p = y2 / (float)(1 << 16) - v5Editor->viewer->cam.pos.y;
+        x1p = x1 / (float)(1 << 16) - v5Editor->viewer->cameraPos.x;
+        x2p = x2 / (float)(1 << 16) - v5Editor->viewer->cameraPos.x;
+        y1p = y1 / (float)(1 << 16) - v5Editor->viewer->cameraPos.y;
+        y2p = y2 / (float)(1 << 16) - v5Editor->viewer->cameraPos.y;
     }
 
     v5Editor->viewer->drawLine(x1p, y1p, x2p, y2p, rcolor, alpha, inkEffect);
@@ -529,8 +529,8 @@ void FunctionTable::drawRect(int x, int y, int width, int height, uint color, in
     float heightf = height;
 
     if (!screenRelative) {
-        xf = (x / (float)(1 << 16)) - v5Editor->viewer->cam.pos.x;
-        yf = (y / (float)(1 << 16)) - v5Editor->viewer->cam.pos.y;
+        xf = (x / (float)(1 << 16)) - v5Editor->viewer->cameraPos.x;
+        yf = (y / (float)(1 << 16)) - v5Editor->viewer->cameraPos.y;
         widthf /= (float)(1 << 16);
         heightf /= (float)(1 << 16);
     }
@@ -558,8 +558,8 @@ void FunctionTable::drawRect(int x, int y, int width, int height, uint color, in
     xf += widthf / 2;
     yf += heightf / 2;
 
-    float entX      = v5Editor->viewer->activeDrawEntity->pos.x - v5Editor->viewer->cam.pos.x;
-    float entY      = v5Editor->viewer->activeDrawEntity->pos.y - v5Editor->viewer->cam.pos.y;
+    float entX      = v5Editor->viewer->activeDrawEntity->pos.x - v5Editor->viewer->cameraPos.x;
+    float entY      = v5Editor->viewer->activeDrawEntity->pos.y - v5Editor->viewer->cameraPos.y;
     float boxLeft   = startX;
     float boxTop    = startY;
     float boxRight  = startX + width;
@@ -586,17 +586,16 @@ void FunctionTable::drawCircle(int x, int y, int radius, uint color, int alpha, 
     if (!v5Editor)
         return;
 
-    float xf      = x;
-    float yf      = y;
+    float xf = x;
+    float yf = y;
 
     if (!screenRelative) {
-        xf = (x / (float)(1 << 16)) - v5Editor->viewer->cam.pos.x;
-        yf = (y / (float)(1 << 16)) - v5Editor->viewer->cam.pos.y;
+        xf = (x / (float)(1 << 16)) - v5Editor->viewer->cameraPos.x;
+        yf = (y / (float)(1 << 16)) - v5Editor->viewer->cameraPos.y;
     }
     Vector4<float> rcolor = { ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f,
                               (color & 0xFF) / 255.0f, alpha / 255.0f };
-    v5Editor->viewer->drawCircle(xf, yf, 0, radius, rcolor,
-                                 alpha, inkEffect);
+    v5Editor->viewer->drawCircle(xf, yf, 0, radius, rcolor, alpha, inkEffect);
 }
 void FunctionTable::drawCircleOutline(int x, int y, int innerRadius, int outerRadius, uint color,
                                       int alpha, InkEffects inkEffect, bool32 screenRelative)
@@ -608,8 +607,8 @@ void FunctionTable::drawCircleOutline(int x, int y, int innerRadius, int outerRa
     float yf = y;
 
     if (!screenRelative) {
-        xf = (x / (float)(1 << 16)) - v5Editor->viewer->cam.pos.x;
-        yf = (y / (float)(1 << 16)) - v5Editor->viewer->cam.pos.y;
+        xf = (x / (float)(1 << 16)) - v5Editor->viewer->cameraPos.x;
+        yf = (y / (float)(1 << 16)) - v5Editor->viewer->cameraPos.y;
     }
     Vector4<float> rcolor = { ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f,
                               (color & 0xFF) / 255.0f, alpha / 255.0f };
@@ -619,14 +618,15 @@ void FunctionTable::drawCircleOutline(int x, int y, int innerRadius, int outerRa
 void FunctionTable::drawFace(Vector2<int> *vertices, int vertCount, int r, int g, int b, int alpha,
                              InkEffects inkEffect)
 {
-    if (!v5Editor) return;
+    if (!v5Editor)
+        return;
     v5Editor->viewer->drawFace(vertices, vertCount, r, g, b, alpha, inkEffect);
 }
 void FunctionTable::drawBlendedFace(Vector2<int> *vertices, uint *colors, int vertCount, int alpha,
                                     InkEffects inkEffect)
 {
     if (!v5Editor)
-        return; 
+        return;
     v5Editor->viewer->drawBlendedFace(vertices, colors, vertCount, alpha, inkEffect);
 }
 
@@ -648,8 +648,8 @@ void FunctionTable::drawSprite(Animator *animator, Vector2<int> *position, bool3
         }
 
         if (!screenRelative) {
-            pos.x -= v5Editor->viewer->cam.pos.x;
-            pos.y -= v5Editor->viewer->cam.pos.y;
+            pos.x -= v5Editor->viewer->cameraPos.x;
+            pos.y -= v5Editor->viewer->cameraPos.y;
         }
 
         SceneInfo &sceneInfo = v5Editor->viewer->sceneInfo;
@@ -855,8 +855,8 @@ void FunctionTable::drawText(Animator *animator, Vector2<int> *position, TextInf
         }
 
         if (!screenRelative) {
-            x -= v5Editor->viewer->cam.pos.x;
-            y -= v5Editor->viewer->cam.pos.y;
+            x -= v5Editor->viewer->cameraPos.x;
+            y -= v5Editor->viewer->cameraPos.y;
         }
 
         if (startFrame >= 0) {
@@ -947,5 +947,5 @@ int FunctionTable::checkStageFolder(const char *folder)
 {
     if (!v5Editor)
         return 0;
-    return Utils::getFilenameAndFolder(v5Editor->viewer->scene.filepath).split("/")[0] == folder;
+    return Utils::getFilenameAndFolder(v5Editor->scene.filepath).split("/")[0] == folder;
 }

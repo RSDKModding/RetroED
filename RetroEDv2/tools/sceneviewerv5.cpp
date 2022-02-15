@@ -28,8 +28,11 @@ union CircleArgs {
     };
 };
 
-SceneViewerv5::SceneViewerv5(QWidget *)
+SceneViewerv5::SceneViewerv5(byte gameType, QWidget *)
 {
+    this->gameType = gameType;
+    tileSize       = gameType == ENGINE_v5 ? 0x10 : 0x80;
+
     setMouseTracking(true);
 
     this->setFocusPolicy(Qt::WheelFocus);
@@ -39,7 +42,7 @@ SceneViewerv5::SceneViewerv5(QWidget *)
 
     updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, QOverload<>::of(&SceneViewerv5::updateScene));
-    updateTimer->start(1000.0f / 60.0f);
+    startTimer();
 
     for (int a = 0; a < v5_SPRFILE_COUNT; ++a) {
         spriteAnimationList[a].scope = SCOPE_NONE;
@@ -128,10 +131,17 @@ SceneViewerv5::~SceneViewerv5() { dispose(); }
 void SceneViewerv5::startTimer()
 {
     if (updateTimer) {
-        if (updateTimer->isActive())
-            updateTimer->stop();
+        stopTimer();
 
         updateTimer->start(1000.0f / 60.0f);
+    }
+}
+
+void SceneViewerv5::stopTimer()
+{
+    if (updateTimer) {
+        if (updateTimer->isActive())
+            updateTimer->stop();
     }
 }
 
@@ -149,251 +159,57 @@ void SceneViewerv5::dispose()
     fbpVAO->destroy();
 }
 
-void SceneViewerv5::loadScene(QString path)
+void SceneViewerv5::initScene(QImage tileset)
 {
     // unloading
     unloadScene();
 
-    QDirIterator it(dataPath + "/../", QStringList() << "*", QDir::Files,
-                    QDirIterator::NoIteratorFlags);
-    while (it.hasNext()) {
-        QString filePath = it.next();
+    // Get Tiles (for tile list & tileset editing)
+    for (int i = 0; i < 0x400; ++i) {
+        int tx         = ((i % (tileset.width() / 0x10)) * 0x10);
+        int ty         = ((i / (tileset.width() / 0x10)) * 0x10);
+        QImage tileTex = tileset.copy(tx, ty, 0x10, 0x10);
 
-        if (QLibrary::isLibrary(filePath)) {
-            GameLink link;
-            gameLinks.append(link);
-            gameLinks.last().LinkGameObjects(filePath);
-        }
+        tiles.append(tileTex);
     }
-    // loading
-    QString pth      = path;
-    QString basePath = pth.replace(QFileInfo(pth).fileName(), "");
+
+    // Get Tile Palette (for tileset editing)
+    auto pal = tileset.colorTable();
+    tilePalette.clear();
+    for (QRgb &col : pal) {
+        tilePalette.append(PaletteColour(col));
+    }
 
     // Tile Texture
-    if (QFile::exists(basePath + "16x16Tiles.gif")) {
-        // setup tileset texture from png
-        QGifImage tilesetGif(basePath + "16x16Tiles.gif");
-        QImage tileset = tilesetGif.frame(0);
+    GLint active, a;
+    glFuncs->glGetIntegerv(GL_ACTIVE_TEXTURE, &active);
+    gfxSurface[0].scope      = SCOPE_STAGE;
+    gfxSurface[0].name       = "Tileset";
+    gfxSurface[0].width      = tileset.width();
+    gfxSurface[0].height     = tileset.height();
+    gfxSurface[0].texturePtr = createTexture(tileset, QOpenGLTexture::Target2D);
 
-        GLint active, a;
-        glFuncs->glGetIntegerv(GL_ACTIVE_TEXTURE, &active);
-        gfxSurface[0].scope      = SCOPE_STAGE;
-        gfxSurface[0].name       = "Tileset";
-        gfxSurface[0].width      = tileset.width();
-        gfxSurface[0].height     = tileset.height();
-        gfxSurface[0].texturePtr = createTexture(tileset, QOpenGLTexture::Target2D);
+    glFuncs->glActiveTexture(GL_TEXTURE30);
+    glFuncs->glBindTexture(GL_TEXTURE_RECTANGLE, gfxSurface[0].texturePtr->textureId());
+    glFuncs->glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE, &a);
+    printLog(QString::number(a));
+    glFuncs->glActiveTexture(active);
 
-        glFuncs->glActiveTexture(GL_TEXTURE30);
-        glFuncs->glBindTexture(GL_TEXTURE_RECTANGLE, gfxSurface[0].texturePtr->textureId());
-        glFuncs->glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE, &a);
-        printLog(QString::number(a));
-        glFuncs->glActiveTexture(active);
-
-        auto pal = tileset.colorTable();
-        tilePalette.clear();
-        for (QRgb &col : pal) {
-            tilePalette.append(PaletteColour(col));
-        }
-
-        gfxSurface[0].transClr = tilePalette[0].toQColor();
-    }
+    gfxSurface[0].transClr = tilePalette[0].toQColor();
 
     // Default Texture
     if (gfxSurface[1].scope == SCOPE_NONE) {
-        gfxSurface[1].scope      = SCOPE_GLOBAL;
-        gfxSurface[1].name       = ":/icons/missingV5.png";
-        missingObj               = QImage(gfxSurface[1].name);
+        gfxSurface[1].scope = SCOPE_GLOBAL;
+        gfxSurface[1].name  = gameType == ENGINE_v5 ? ":/icons/missingV5.png" : ":/icons/missing.png";
+        missingObj          = QImage(gfxSurface[1].name);
         gfxSurface[1].texturePtr = createTexture(missingObj);
         Utils::getHashInt(gfxSurface[1].name, gfxSurface[1].hash);
-    }
-
-    currentFolder = QDir(basePath).dirName();
-
-    scene.read(path);
-
-    QString pathTCF = WorkingDirManager::GetPath("Stages/" + currentFolder + "/TileConfig.bin",
-                                                 basePath + "TileConfig.bin");
-    QString pathSCF = WorkingDirManager::GetPath("Stages/" + currentFolder + "/StageConfig.bin",
-                                                 basePath + "StageConfig.bin");
-
-    tileconfig.read(pathTCF);
-    stageConfig.read(pathSCF);
-
-    if (scene.editorMetadata.stampName == "")
-        scene.editorMetadata.stampName = "StampList.bin";
-
-    QString pathSTP =
-        WorkingDirManager::GetPath("Stages/" + currentFolder + "/" + scene.editorMetadata.stampName,
-                                   basePath + scene.editorMetadata.stampName);
-
-    if (QFile::exists(pathSTP)) {
-        stamps.read(pathSTP);
-    }
-    else {
-        stamps = RSDKv5::Stamps();
-    }
-
-    bgColour    = Colour(scene.editorMetadata.backgroundColor1.red(),
-                      scene.editorMetadata.backgroundColor1.green(),
-                      scene.editorMetadata.backgroundColor1.blue());
-    altBGColour = Colour(scene.editorMetadata.backgroundColor2.red(),
-                         scene.editorMetadata.backgroundColor2.green(),
-                         scene.editorMetadata.backgroundColor2.blue());
-
-    objects.clear();
-    entities.clear();
-
-    QList<QString> objNames;
-    objNames.append("Blank Object");
-    objNames.append("Dev Output");
-
-    if (stageConfig.loadGlobalObjects) {
-        for (QString &obj : gameConfig.objects) {
-            objNames.append(obj);
-        }
-    }
-
-    for (QString &obj : stageConfig.objects) {
-        objNames.append(obj);
-    }
-
-    int type = 0;
-    for (RSDKv5::Scene::SceneObject &obj : scene.objects) {
-        SceneObject object;
-        object.name = obj.name.hashString();
-
-        bool foundName = false;
-        for (int i = 0; i < objNames.count(); ++i) {
-            if (Utils::getMd5HashByteArray(objNames[i]) == obj.name.hash) {
-                object.name = objNames[i];
-                foundName   = true;
-                break;
-            }
-        }
-
-        // if we haven't found the name, as a last resort, try looking through any linked objects
-        if (!foundName) {
-            for (GameLink &link : gameLinks) {
-                for (int i = 0; i < link.gameObjectList.count(); ++i) {
-                    if (Utils::getMd5HashByteArray(QString(link.gameObjectList[i].name))
-                        == obj.name.hash) {
-                        object.name = link.gameObjectList[i].name;
-                        foundName   = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        // Add our variables (names are filled in via SetEditableVar() calls)
-        for (int v = 0; v < obj.variables.count(); ++v) {
-            auto &var = obj.variables[v];
-            VariableInfo variable;
-            variable.name = var.name.hashString();
-            variable.hash = var.name.hash;
-            variable.type = var.type;
-
-            object.variables.append(variable);
-        }
-
-        for (RSDKv5::Scene::SceneEntity &ent : obj.entities) {
-            SceneEntity entity;
-            entity.slotID   = ent.slotID;
-            entity.prevSlot = entity.slotID;
-            entity.type     = type;
-            entity.pos.x    = Utils::fixedToFloat(ent.position.x);
-            entity.pos.y    = Utils::fixedToFloat(ent.position.y);
-
-            for (int v = 0; v < ent.variables.count(); ++v) {
-                entity.variables.append(ent.variables[v]);
-            }
-
-            entities.append(entity);
-        }
-        objects.append(object);
-        ++type;
-    }
-
-    bool blankFlag = false;
-    for (SceneObject &obj : objects) {
-        if (obj.name == "Blank Object") {
-            blankFlag = true;
-            break;
-        }
-    }
-
-    // obj type 0 is always blank obj
-    if (!blankFlag) {
-        SceneObject blankObj;
-        blankObj.name = "Blank Object";
-        objects.insert(0, blankObj);
-        for (SceneEntity &ent : entities) {
-            ent.type++;
-        }
+        gfxSurface[1].width    = missingObj.width();
+        gfxSurface[1].height   = missingObj.height();
+        gfxSurface[1].transClr = QColor(0xFFFF00FF);
     }
 
     disableObjects = false;
-}
-
-void SceneViewerv5::saveScene(QString path)
-{
-    // saving
-    QString pth      = path;
-    QString basePath = pth.replace(QFileInfo(pth).fileName(), "");
-
-    scene.objects.clear();
-    for (SceneObject &obj : objects) {
-        RSDKv5::Scene::SceneObject object;
-        object.name = RSDKv5::Scene::NameIdentifier(obj.name);
-        for (int v = 0; v < obj.variables.count(); ++v) {
-            RSDKv5::Scene::VariableInfo variable;
-            variable.name = RSDKv5::Scene::NameIdentifier(obj.variables[v].name);
-            variable.type = (RSDKv5::VariableTypes)obj.variables[v].type;
-            object.variables.append(variable);
-        }
-        scene.objects.append(object);
-    }
-
-    for (SceneEntity &entity : entities) {
-        if (entity.type >= 0 && entity.type < objects.count()) {
-            RSDKv5::Scene::SceneEntity ent;
-            ent.slotID     = entity.slotID;
-            ent.position.x = entity.pos.x * 65536.0f;
-            ent.position.y = entity.pos.y * 65536.0f;
-
-            ent.variables.clear();
-            int v = 0;
-            for (; v < entity.variables.count(); ++v) {
-                ent.variables.append(entity.variables[v]);
-            }
-
-            ent.parent = &scene.objects[entity.type];
-            scene.objects[entity.type].entities.append(ent);
-        }
-        else {
-            // what happened here???
-        }
-    }
-
-    FormatHelpers::Gif tileset(16, 0x400 * 16);
-
-    int c = 0;
-    for (PaletteColour &col : tilePalette) tileset.palette[c++] = col.toQColor();
-
-    int pos = 0;
-    for (int i = 0; i < 0x400; ++i) {
-        uchar *src = tiles[i].bits();
-        for (int y = 0; y < 16; ++y) {
-            for (int x = 0; x < 16; ++x) tileset.pixels[pos++] = *src++;
-        }
-    }
-
-    scene.write(path);
-
-    tileconfig.write(basePath + "TileConfig.bin");
-    stageConfig.write(basePath + "StageConfig.bin");
-    stamps.write(basePath + scene.editorMetadata.stampName);
-    tileset.write(basePath + "16x16Tiles.gif");
 }
 
 void SceneViewerv5::updateScene()
@@ -403,21 +219,22 @@ void SceneViewerv5::updateScene()
     objProp->updateUI();
 
     if (statusLabel) {
-        int mx = (int)((mousePos.x * invZoom()) + cam.pos.x);
-        int my = (int)((mousePos.y * invZoom()) + cam.pos.y);
+        // printLog("Running: " + QString::number(entities.count()));
+
+        int mx = (int)((mousePos.x * invZoom()) + cameraPos.x);
+        int my = (int)((mousePos.y * invZoom()) + cameraPos.y);
         statusLabel->setText(
             QString("Zoom: %1%, Mouse Position: (%2, %3), Tile Position: (%4, %5), Selected Tile: "
                     "%6, Selected Layer: %7 (%8), Selected Object: %9")
                 .arg(zoom * 100)
                 .arg(mx)
                 .arg(my)
-                .arg((int)mx / 0x10)
-                .arg((int)my / 0x10)
+                .arg((int)mx / tileSize)
+                .arg((int)my / tileSize)
                 .arg(selectedTile)
                 .arg(selectedLayer)
-                .arg(selectedLayer >= 0 && selectedLayer < scene.layers.count()
-                         ? scene.layers[selectedLayer].name
-                         : "")
+                .arg(selectedLayer >= 0 && selectedLayer < layers.count() ? layers[selectedLayer].name
+                                                                          : "")
                 .arg(selectedObject >= 0 && selectedObject < objects.count()
                          ? objects[selectedObject].name
                          : ""));
@@ -443,7 +260,7 @@ void SceneViewerv5::updateScene()
             }
 
             v5Editor->scnProp->layerCnt->setText(
-                QString("Tile Layer Count: %1 Layers").arg(scene.layers.count()));
+                QString("Tile Layer Count: %1 Layers").arg(layers.count()));
             v5Editor->scnProp->objCnt->setText(
                 QString("Object Count: %1 Objects").arg(objects.count()));
             v5Editor->scnProp->entCntTot->setText(
@@ -496,11 +313,11 @@ void SceneViewerv5::drawScene()
     int sceneW = 0;
     int sceneH = 0;
 
-    for (int i = 0; i < scene.layers.count(); ++i) {
-        if (scene.layers[i].width > sceneW)
-            sceneW = scene.layers[i].width;
-        if (scene.layers[i].height > sceneH)
-            sceneH = scene.layers[i].height;
+    for (int i = 0; i < layers.count(); ++i) {
+        if (layers[i].width > sceneW)
+            sceneW = layers[i].width;
+        if (layers[i].height > sceneH)
+            sceneH = layers[i].height;
     }
 
     if (sceneW != sceneWidth || sceneH != sceneHeight) {
@@ -509,26 +326,29 @@ void SceneViewerv5::drawScene()
     }
 
     // pre-render
-    if (cam.pos.x + storedW > (sceneWidth * 0x10))
-        cam.pos.x = ((sceneWidth * 0x10) - storedW);
+    if (cameraPos.x + storedW > (sceneWidth * tileSize))
+        cameraPos.x = ((sceneWidth * tileSize) - storedW);
 
-    if (cam.pos.y + storedH > (sceneHeight * 0x10))
-        cam.pos.y = ((sceneHeight * 0x10) - storedH);
+    if (cameraPos.y + storedH > (sceneHeight * tileSize))
+        cameraPos.y = ((sceneHeight * tileSize) - storedH);
 
-    if (cam.pos.x < -64)
-        cam.pos.x = -64;
+    if (cameraPos.x < -64)
+        cameraPos.x = -64;
 
-    if (cam.pos.y < -64)
-        cam.pos.y = -64;
+    if (cameraPos.y < -64)
+        cameraPos.y = -64;
 
-    screens[0].position.x = cam.pos.x;
-    screens[0].position.y = cam.pos.y;
+    screens[0].position.x = cameraPos.x;
+    screens[0].position.y = cameraPos.y;
 
     float bgOffsetY  = 0;
-    Vector4<float> c = { altBGColour.r / 255.f, altBGColour.g / 255.f, altBGColour.b / 255.f, 1.f };
-    bgOffsetY -= fmod(cam.pos.y, 0x200 * invZoom());
+    Vector4<float> c = { metadata.backgroundColor2.red() / 255.f,
+                         metadata.backgroundColor2.green() / 255.f,
+                         metadata.backgroundColor2.blue() / 255.f, 1.f };
+    bgOffsetY -= fmod(cameraPos.y, 0x200 * invZoom());
     for (float y = bgOffsetY; y < (storedH + 0x80); y += 0x100 * invZoom()) {
-        float bgOffsetX = ((fmod((y - bgOffsetY), 0x200 * invZoom()) == 0) ? 0x100 : 0x00) - fmod(cam.pos.x, 0x200 * invZoom());
+        float bgOffsetX = ((fmod((y - bgOffsetY), 0x200 * invZoom()) == 0) ? 0x100 : 0x00)
+                          - fmod(cameraPos.x, 0x200 * invZoom());
         for (float x = bgOffsetX; x < (storedW + 0x80); x += 0x200 * invZoom()) {
             drawRect(x, y, 0x100 * invZoom(), 0x100 * invZoom(), c);
         }
@@ -540,31 +360,31 @@ void SceneViewerv5::drawScene()
         drawLayers[l].layerDrawList.clear();
     }
 
-    for (int t = 0; t < scene.layers.count(); ++t) {
-        byte drawOrder = scene.layers[t].drawOrder;
+    for (int t = 0; t < layers.count(); ++t) {
+        byte drawOrder = layers[t].drawOrder;
         if (drawOrder < v5_DRAWLAYER_COUNT)
             drawLayers[drawOrder].layerDrawList.append(t);
     }
 
     // LAYERS
     for (int p = 0; p < v5_DRAWLAYER_COUNT; ++p) {
-        for (int l = scene.layers.count() - 1; l >= 0; --l) {
-            if (scene.layers[l].drawOrder != p && !(p == 15 && scene.layers[l].drawOrder >= 16)) {
+        for (int l = layers.count() - 1; l >= 0; --l) {
+            if (layers[l].drawOrder != p && !(p == 15 && layers[l].drawOrder >= 16)) {
                 if (!(selectedLayer == l && p == 15))
                     continue;
             }
-            if (!scene.layers[l].visible)
+            if (!layers[l].visible)
                 continue;
 
             // TILE LAYERS
-            QVector<QVector<ushort>> layout = scene.layers[l].layout;
-            int width                       = scene.layers[l].width;
-            int height                      = scene.layers[l].height;
+            QList<QList<ushort>> layout = layers[l].layout;
+            int width                   = layers[l].width;
+            int height                  = layers[l].height;
 
             int vertCnt = 0;
 
-            int camX = cam.pos.x;
-            int camY = cam.pos.y;
+            int camX = cameraPos.x;
+            int camY = cameraPos.y;
             camX     = qMax(camX, 0);
             camY     = qMax(camY, 0);
 
@@ -588,8 +408,8 @@ void SceneViewerv5::drawScene()
                     ushort tile = layout[y][x];
                     if (tile != 0xFFFF) {
                         ++count;
-                        float xp = (x * 0x10) - cam.pos.x;
-                        float yp = (y * 0x10) - cam.pos.y;
+                        float xp = (x * 0x10) - cameraPos.x;
+                        float yp = (y * 0x10) - cameraPos.y;
 
                         ushort t     = (tile & 0x3FF);
                         byte f       = (tile >> 10) & 3;
@@ -726,45 +546,46 @@ void SceneViewerv5::drawScene()
                         }
                     }
 
-                    float x = cam.pos.x;
-                    float y = cam.pos.y;
-
-                    auto tileGL = createTexture(colTex->copy(x, y, storedW / zoom, storedH / zoom));
+                    // float x = cameraPos.x;
+                    // float y = cameraPos.y;
+                    //
+                    // auto tileGL = createTexture(colTex->copy(x, y, storedW / zoom, storedH / zoom));
                 }
             }
 
             // PARALLAX
             if (l == selectedLayer && l >= 0) {
-                if (scene.layers[l].type == 0 || scene.layers[l].type == 1) {
+                if (layers[l].type == SceneHelpers::TileLayer::LAYER_HSCROLL
+                    || layers[l].type == SceneHelpers::TileLayer::LAYER_VSCROLL) {
 
                     QList<QVector3D> verts;
                     if (showParallax) {
                         int id = 0;
-                        for (RSDKv5::Scene::ScrollIndexInfo &info : scene.layers[l].scrollInfos) {
+                        for (SceneHelpers::TileLayer::ScrollIndexInfo &info : layers[l].scrollInfos) {
                             bool isSelected = selectedScrollInfo == id;
 
                             Vector4<float> clr(1.0f, 1.0f, 0.0f, 1.0f);
                             if (isSelected)
                                 clr = Vector4<float>(0.0f, 0.0f, 1.0f, 1.0f);
-                            float zpos = (isSelected ? 15.55f : 15.5f);
+                            // float zpos = (isSelected ? 15.55f : 15.5f);
 
-                            if (scene.layers[l].type == 0) {
-                                int w = (width * 0x10);
-                                drawLine(0.0f, info.startLine - cam.pos.y, (w - cam.pos.x),
-                                         (info.startLine - cam.pos.y), clr);
+                            if (layers[l].type == SceneHelpers::TileLayer::LAYER_HSCROLL) {
+                                int w = (width * tileSize);
+                                drawLine(0.0f, info.startLine - cameraPos.y, (w - cameraPos.x),
+                                         (info.startLine - cameraPos.y), clr);
 
-                                drawLine(0.0f, ((info.startLine + info.length) - cam.pos.y),
-                                         (w - cam.pos.x), ((info.startLine + info.length) - cam.pos.y),
-                                         clr);
+                                drawLine(0.0f, ((info.startLine + info.length) - cameraPos.y),
+                                         (w - cameraPos.x),
+                                         ((info.startLine + info.length) - cameraPos.y), clr);
                             }
-                            else if (scene.layers[l].type == 1) {
-                                int h = (height * 0x10);
-                                drawLine((info.startLine - cam.pos.x), 0.0f,
-                                         (info.startLine - cam.pos.x), (h - cam.pos.y), clr);
+                            else if (layers[l].type == SceneHelpers::TileLayer::LAYER_VSCROLL) {
+                                int h = (height * tileSize);
+                                drawLine((info.startLine - cameraPos.x), 0.0f,
+                                         (info.startLine - cameraPos.x), (h - cameraPos.y), clr);
 
-                                drawLine(((info.startLine + info.length) - cam.pos.x), 0.0f,
-                                         ((info.startLine + info.length) - cam.pos.x), (h - cam.pos.y),
-                                         clr);
+                                drawLine(((info.startLine + info.length) - cameraPos.x), 0.0f,
+                                         ((info.startLine + info.length) - cameraPos.x),
+                                         (h - cameraPos.y), clr);
                             }
 
                             ++id;
@@ -804,19 +625,23 @@ void SceneViewerv5::drawScene()
                 entity->gameEntity->position.y = Utils::floatToFixed(entity->pos.y);
             }
 
-            if (entity->type != 0)
-                callGameEvent(GetObjectInfo(objects[entity->type].name), EVENT_DRAW, entity);
+            if (entity->type != 0) {
+                if (gameType == ENGINE_v5)
+                    emit callGameEventv5(objects[entity->type].name, EVENT_DRAW, entity);
+                else
+                    emit callGameEvent(EVENT_DRAW, drawLayers[p].entries[o]);
+            }
 
             // Draw Default Object Sprite if invalid
-            // TODO: probably draw text intead
             if (!validDraw) {
                 entity->box = Rect<int>(-0x10, -0x10, 0x10, 0x10);
 
-                float xpos = entity->pos.x - (cam.pos.x);
-                float ypos = entity->pos.y - (cam.pos.y);
+                float xpos = entity->pos.x - (cameraPos.x);
+                float ypos = entity->pos.y - (cameraPos.y);
 
-                drawSpriteFlipped(xpos, ypos, gfxSurface[1].width, gfxSurface[1].height, 0, 0,
-                                  FLIP_NONE, INK_NONE, 0xFF, 1);
+                drawSpriteFlipped(xpos - (gfxSurface[1].width >> 1), ypos - (gfxSurface[1].height >> 1),
+                                  gfxSurface[1].width, gfxSurface[1].height, 0, 0, FLIP_NONE, INK_NONE,
+                                  0xFF, 1);
             }
         }
     }
@@ -826,19 +651,19 @@ void SceneViewerv5::drawScene()
         float tx = tilePos.x;
         float ty = tilePos.y;
 
-        float tx2 = tx + fmodf(cam.pos.x, 0x10);
-        float ty2 = ty + fmodf(cam.pos.y, 0x10);
+        float tx2 = tx + fmodf(cameraPos.x, 0x10);
+        float ty2 = ty + fmodf(cameraPos.y, 0x10);
 
         // clip to grid
         tx -= fmodf(tx2, 0x10);
         ty -= fmodf(ty2, 0x10);
 
         // Draw Selected Tile Preview
-        float xpos = tx + cam.pos.x;
-        float ypos = ty + cam.pos.y;
+        float xpos = tx + cameraPos.x;
+        float ypos = ty + cameraPos.y;
 
-        xpos -= cam.pos.x;
-        ypos -= cam.pos.y;
+        xpos -= cameraPos.x;
+        ypos -= cameraPos.y;
 
         addRenderState(INK_BLEND, 4, 6, nullptr, 0xFF, &placeShader);
 
@@ -861,20 +686,23 @@ void SceneViewerv5::drawScene()
         ey *= invZoom();
 
         validDraw                   = false;
-        createGameEntity.position.x = (ex + cam.pos.x) * 65536.0f;
-        createGameEntity.position.y = (ey + cam.pos.y) * 65536.0f;
+        createGameEntity.position.x = (ex + cameraPos.x) * 65536.0f;
+        createGameEntity.position.y = (ey + cameraPos.y) * 65536.0f;
         createGameEntity.objectID   = selectedObject;
 
         createTempEntity.type       = selectedObject;
-        createTempEntity.pos.x      = (ex + cam.pos.x) * 65536.0f;
-        createTempEntity.pos.y      = (ey + cam.pos.y) * 65536.0f;
+        createTempEntity.pos.x      = (ex + cameraPos.x) * 65536.0f;
+        createTempEntity.pos.y      = (ey + cameraPos.y) * 65536.0f;
         createTempEntity.slotID     = 0xFFFF;
         createTempEntity.gameEntity = &createGameEntity;
         createTempEntity.box        = Rect<int>(0, 0, 0, 0);
 
         activeDrawEntity = &createTempEntity;
         if (selectedObject != 0) {
-            callGameEvent(GetObjectInfo(objects[selectedObject].name), EVENT_DRAW, &createTempEntity);
+            if (gameType == ENGINE_v5)
+                emit callGameEventv5(objects[selectedObject].name, EVENT_DRAW, &createTempEntity);
+            else
+                emit callGameEvent(EVENT_DRAW, -1);
         }
 
         if (!validDraw) {
@@ -888,20 +716,20 @@ void SceneViewerv5::drawScene()
     }
 
     if (showGrid) {
-        float camX = cam.pos.x;
-        float camY = cam.pos.y;
+        float camX = cameraPos.x;
+        float camY = cameraPos.y;
 
         int x = camX;
         int y = camY;
         int w = (camX + storedW) * (zoom < 1.0f ? invZoom() : 1.0f);
         int h = (camY + storedH) * (zoom < 1.0f ? invZoom() : 1.0f);
-        if (cam.pos.x < 0)
-            x += abs(cam.pos.x);
+        if (cameraPos.x < 0)
+            x += abs(cameraPos.x);
         else
             x -= ((int)camX % gridSize.x);
 
-        if (cam.pos.y < 0)
-            y += abs(cam.pos.y);
+        if (cameraPos.y < 0)
+            y += abs(cameraPos.y);
         else
             y -= ((int)camY % gridSize.y);
 
@@ -910,8 +738,8 @@ void SceneViewerv5::drawScene()
 
             float x1 = 0;
             float x2 = (((camX + storedW * invZoom())) - camX);
-            if (cam.pos.x < 0) {
-                x1 += abs(cam.pos.x);
+            if (cameraPos.x < 0) {
+                x1 += abs(cameraPos.x);
             }
 
             drawLine(x1, dy, x2, dy, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f));
@@ -922,8 +750,8 @@ void SceneViewerv5::drawScene()
 
             float y1 = 0;
             float y2 = (((camY + storedH * invZoom())) - camY);
-            if (cam.pos.y < 0) {
-                y1 += abs(cam.pos.y);
+            if (cameraPos.y < 0) {
+                y1 += abs(cameraPos.y);
             }
 
             drawLine(dx, y1, dx, y2, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f));
@@ -940,8 +768,10 @@ void SceneViewerv5::drawScene()
 
         float w = fabsf(right - left), h = fabsf(bottom - top);
 
-        drawRect(left - cam.pos.x, top - cam.pos.y, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), false, 0x40, INK_ALPHA);
-        drawRect(left - cam.pos.x, top - cam.pos.y, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), true);
+        drawRect(left - cameraPos.x, top - cameraPos.y, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
+                 false, 0x40, INK_ALPHA);
+        drawRect(left - cameraPos.x, top - cameraPos.y, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
+                 true);
     }
 
     // Selected Stamp Box
@@ -956,20 +786,22 @@ void SceneViewerv5::drawScene()
         float w = fabsf(right - left), h = fabsf(bottom - top);
         gfxSurface[0].texturePtr->bind();
 
-        drawRect(left - cam.pos.x, top - cam.pos.y, w, h, Vector4<float>(1.0f, 0.0f, 0.0f, 1.0f), false,
-                 0x40, INK_ALPHA);
-        drawRect(left - cam.pos.x, top - cam.pos.y, w, h, Vector4<float>(1.0f, 0.0f, 0.0f, 1.0f), true);
+        drawRect(left - cameraPos.x, top - cameraPos.y, w, h, Vector4<float>(1.0f, 0.0f, 0.0f, 1.0f),
+                 false, 0x40, INK_ALPHA);
+        drawRect(left - cameraPos.x, top - cameraPos.y, w, h, Vector4<float>(1.0f, 0.0f, 0.0f, 1.0f),
+                 true);
     }
 
     // Selection Box
     if (curTool == TOOL_SELECT && (isSelecting || (selectSize.x && selectSize.y))) {
 
-        drawRect(selectPos.x - cam.pos.x, selectPos.y - cam.pos.y, selectSize.x, selectSize.y,
-                 Vector4<float>(0.0f, 0.0f, 1.0f, 1.f), true);
+        if (isSelecting) {
+            drawRect(selectPos.x - cameraPos.x, selectPos.y - cameraPos.y, selectSize.x, selectSize.y,
+                     Vector4<float>(0.0f, 0.0f, 1.0f, 1.f), true);
 
-        drawRect(selectPos.x - cam.pos.x, selectPos.y - cam.pos.y, selectSize.x, selectSize.y,
-                 Vector4<float>(0.0f, 0.0f, 1.0f, 1.f), false, 0x40, INK_ALPHA);
-
+            drawRect(selectPos.x - cameraPos.x, selectPos.y - cameraPos.y, selectSize.x, selectSize.y,
+                     Vector4<float>(0.0f, 0.0f, 1.0f, 1.f), false, 0x40, INK_ALPHA);
+        }
 
         for (auto &id : selectedEntities) {
             SceneEntity &entity = entities[id];
@@ -981,10 +813,10 @@ void SceneViewerv5::drawScene()
 
             float w = fabsf(right - left), h = fabsf(bottom - top);
 
-            drawRect(left - cam.pos.x, top - cam.pos.y, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
-                     false, 0x40, INK_ALPHA);
-            drawRect(left - cam.pos.x, top - cam.pos.y, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
-                     true);
+            drawRect(left - cameraPos.x, top - cameraPos.y, w, h,
+                     Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), false, 0x40, INK_ALPHA);
+            drawRect(left - cameraPos.x, top - cameraPos.y, w, h,
+                     Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), true);
         }
     }
 
@@ -994,11 +826,6 @@ void SceneViewerv5::drawScene()
 void SceneViewerv5::unloadScene()
 {
     disableObjects = true;
-
-    for (int l = 0; l < gameLinks.count(); ++l) {
-        gameLinks[l].unload();
-    }
-    gameLinks.clear();
 
     // QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
@@ -1017,7 +844,8 @@ void SceneViewerv5::unloadScene()
         spriteAnimationList[a].scope = SCOPE_NONE;
     }
 
-    cam                = SceneCamerav5();
+    cameraPos.x        = 0;
+    cameraPos.y        = 0;
     selectedTile       = -1;
     selectedEntity     = -1;
     selectedLayer      = -1;
@@ -1108,7 +936,7 @@ void SceneViewerv5::processObjects()
             }
 
             if (sceneInfo.entity->inBounds) {
-                // callGameEvent(gameLink.GetObjectInfo(objects[entities[e].type].name),
+                // emit callGameEvent(gameLink.GetObjectInfo(objects[entities[e].type].name),
                 // EVENT_UPDATE,
                 //              &entities[e]);
 
@@ -1143,147 +971,6 @@ void SceneViewerv5::processObjects()
     for (int e = 0; e < entities.count(); ++e) {
         if (entities[e].gameEntity)
             entities[e].gameEntity->activeScreens = 0;
-    }
-}
-
-void SceneViewerv5::callGameEvent(GameObjectInfo *info, byte eventID, SceneEntity *entity)
-{
-    if (!info || (!entity && (eventID != EVENT_LOAD && eventID != EVENT_SERIALIZE)))
-        return;
-
-    foreachStackPtr = foreachStackList;
-    switch (eventID) {
-        default: break;
-        case EVENT_LOAD:
-            if (info->editorLoad)
-                info->editorLoad();
-            break;
-        case EVENT_CREATE: {
-            GameEntity *entityPtr =
-                entity->slotID == 0xFFFF ? entity->gameEntity : &gameEntityList[entity->slotID];
-            memset(entityPtr, 0, sizeof(GameEntityBase));
-            entityPtr->position.x    = Utils::floatToFixed(entity->pos.x);
-            entityPtr->position.y    = Utils::floatToFixed(entity->pos.y);
-            entityPtr->interaction   = true;
-            entityPtr->active        = ACTIVE_BOUNDS;
-            entityPtr->updateRange.x = 0x800000;
-            entityPtr->updateRange.y = 0x800000;
-            entityPtr->scale.x       = 0x200;
-            entityPtr->scale.y       = 0x200;
-            entityPtr->objectID      = entity->type;
-
-            for (int o = 0; o < entity->variables.length(); o++) {
-                auto var    = objects[entity->type].variables[o];
-                auto val    = entity->variables[o];
-                auto offset = &((byte *)entityPtr)[var.offset];
-                switch (var.type) {
-                    case VAR_UINT8: memcpy(offset, &val.value_uint8, sizeof(byte)); break;
-                    case VAR_INT8: memcpy(offset, &val.value_int8, sizeof(sbyte)); break;
-                    case VAR_UINT16: memcpy(offset, &val.value_uint16, sizeof(ushort)); break;
-                    case VAR_INT16: memcpy(offset, &val.value_int16, sizeof(short)); break;
-                    case VAR_UINT32: memcpy(offset, &val.value_uint32, sizeof(uint)); break;
-                    case VAR_INT32: memcpy(offset, &val.value_int32, sizeof(int)); break;
-                    case VAR_ENUM: memcpy(offset, &val.value_enum, sizeof(int)); break;
-                    case VAR_STRING: {
-                        FunctionTable::setText((TextInfo *)offset,
-                                               (char *)val.value_string.toStdString().c_str(), false);
-                        break;
-                    }
-                    // i'm cheating w this 1
-                    case VAR_VECTOR2: memcpy(offset, &val.value_vector2.x, sizeof(Vector2<int>)); break;
-                    case VAR_UNKNOWN: // :urarakaconfuse:
-                        memcpy(offset, &val.value_unknown, sizeof(int));
-                        break;
-                    case VAR_BOOL: {
-                        bool32 value = val.value_bool;
-                        memcpy(offset, &value, sizeof(bool32));
-                        break;
-                    }
-                    case VAR_COLOUR: {
-                        auto c   = val.value_color;
-                        uint clr = (c.red() << 16) | (c.green() << 8) | (c.blue());
-                        memcpy(offset, &clr, sizeof(uint));
-                        break;
-                    }
-                }
-            }
-            entity->gameEntity = entityPtr;
-
-            sceneInfo.entity     = entity->gameEntity;
-            sceneInfo.entitySlot = entity->slotID;
-            if (info->create && entity->gameEntity)
-                info->create(NULL);
-            sceneInfo.entity     = NULL;
-            sceneInfo.entitySlot = 0;
-
-            // editor defaults!
-            for (int o = 0; o < entity->variables.length(); o++) {
-                auto var    = objects[entity->type].variables[o];
-                auto &val   = entity->variables[o];
-                auto offset = &((byte *)entityPtr)[var.offset];
-                switch (var.type) {
-                    case VAR_UINT8: memcpy(&val.value_uint8, offset, sizeof(byte)); break;
-                    case VAR_INT8: memcpy(&val.value_int8, offset, sizeof(sbyte)); break;
-                    case VAR_UINT16: memcpy(&val.value_uint16, offset, sizeof(ushort)); break;
-                    case VAR_INT16: memcpy(&val.value_int16, offset, sizeof(short)); break;
-                    case VAR_UINT32: memcpy(&val.value_uint32, offset, sizeof(uint)); break;
-                    case VAR_INT32: memcpy(&val.value_int32, offset, sizeof(int)); break;
-                    case VAR_ENUM: memcpy(&val.value_enum, offset, sizeof(int)); break;
-                    case VAR_STRING: {
-                        char buffer[0x100];
-                        FunctionTable::getCString(buffer, (TextInfo *)offset);
-                        val.value_string = buffer;
-                        break;
-                    }
-                    case VAR_VECTOR2:
-                        memcpy(&val.value_vector2.x, offset, sizeof(Vector2<int>));
-                        val.value_vector2f.x = Utils::fixedToFloat(val.value_vector2.x);
-                        val.value_vector2f.y = Utils::fixedToFloat(val.value_vector2.y);
-                        break;
-                    case VAR_UNKNOWN: // :urarakaconfuse:
-                        memcpy(&val.value_unknown, offset, sizeof(int));
-                        break;
-                    case VAR_BOOL: {
-                        bool32 value = false;
-                        memcpy(&value, offset, sizeof(bool32));
-                        val.value_bool = value;
-                        break;
-                    }
-                    case VAR_COLOUR: {
-                        auto c   = val.value_color;
-                        uint clr = 0;
-                        memcpy(&clr, offset, sizeof(uint));
-                        val.value_color = QColor(clr);
-                        break;
-                    }
-                }
-            }
-            break;
-        }
-        case EVENT_UPDATE:
-            // TODO: that(?)
-            sceneInfo.entity     = entity->gameEntity;
-            sceneInfo.entitySlot = entity->slotID;
-            if (info->update && entity->gameEntity)
-                info->update();
-            sceneInfo.entity     = NULL;
-            sceneInfo.entitySlot = 0;
-            break;
-        case EVENT_DRAW:
-            sceneInfo.currentScreenID  = 0;
-            sceneInfo.currentDrawGroup = 0; // TODO
-
-            sceneInfo.entity     = entity->gameEntity;
-            sceneInfo.entitySlot = entity->slotID;
-            if (info->editorDraw && entity->gameEntity)
-                info->editorDraw();
-            sceneInfo.entity     = NULL;
-            sceneInfo.entitySlot = 0;
-            break;
-        case EVENT_SERIALIZE:
-            if (info->serialize)
-                info->serialize();
-            break;
     }
 }
 
@@ -1333,7 +1020,7 @@ void SceneViewerv5::initializeGL()
     placeShader.link();
     placeShader.argsCB = [this](Shader *self, void *state) {
         PlaceArgs *args = (PlaceArgs *)((RenderState *)state)->argBuffer;
-        if (args->texID != -1) {
+        if (args->texID != (uint)-1) {
             self->setValue("useColor", false);
             glFuncs->glActiveTexture(GL_TEXTURE0);
             glFuncs->glBindTexture(GL_TEXTURE_2D, gfxSurface[args->texID].texturePtr->textureId());
@@ -1453,13 +1140,16 @@ void SceneViewerv5::resizeGL(int w, int h)
     storedH = h;
     refreshResize();
 
+    QMatrix4x4 projection = getProjectionMatrix();
+    QMatrix4x4 view       = QMatrix4x4();
+
     passthroughFBShader.use();
-    passthroughFBShader.setValue("projection", getProjectionMatrix());
-    passthroughFBShader.setValue("view", QMatrix4x4());
+    passthroughFBShader.setValue("projection", projection);
+    passthroughFBShader.setValue("view", view);
 
     finalFBShader.use();
-    finalFBShader.setValue("projection", getProjectionMatrix());
-    finalFBShader.setValue("view", QMatrix4x4());
+    finalFBShader.setValue("projection", projection);
+    finalFBShader.setValue("view", view);
 
     glFuncs->glViewport(0, 0, w, h);
 
@@ -1487,7 +1177,9 @@ void SceneViewerv5::paintGL()
     glFuncs = context()->functions();
 
     outFB->bind();
-    glFuncs->glClearColor(bgColour.r / 255.0f, bgColour.g / 255.0f, bgColour.b / 255.0f, 1.0f);
+    glFuncs->glClearColor(metadata.backgroundColor1.red() / 255.0f,
+                          metadata.backgroundColor1.green() / 255.0f,
+                          metadata.backgroundColor1.blue() / 255.0f, 1.0f);
     glFuncs->glClear(GL_COLOR_BUFFER_BIT);
 
     if (!disableObjects)
@@ -1598,8 +1290,8 @@ void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, float width, float
     if (width <= 0 || height <= 0)
         return;
 
-    float entX      = activeDrawEntity->pos.x - cam.pos.x;
-    float entY      = activeDrawEntity->pos.y - cam.pos.y;
+    float entX      = activeDrawEntity->pos.x - cameraPos.x;
+    float entY      = activeDrawEntity->pos.y - cameraPos.y;
     float boxLeft   = startX;
     float boxTop    = startY;
     float boxRight  = startX + startW;
@@ -1745,8 +1437,8 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, float pivotX, flo
         posX[3] = xpos + ((x * cos + y * sin)) * sX;
         posY[3] = ypos + ((y * cos - x * sin)) * sY;
     }
-    float entX = activeDrawEntity->pos.x - cam.pos.x;
-    float entY = activeDrawEntity->pos.y - cam.pos.y;
+    float entX = activeDrawEntity->pos.x - cameraPos.x;
+    float entY = activeDrawEntity->pos.y - cameraPos.y;
     float left = screens->pitch;
     for (int i = 0; i < 4; ++i) {
         if (posX[i] < left)
@@ -2083,6 +1775,43 @@ void SceneViewerv5::renderRenderStates()
     renderStates.clear();
 }
 
+void SceneViewerv5::addEditorVariable(QString name)
+{
+    // VariableInfo var;
+    // var.name = name;
+    // objects[activeVarObj].variables.append(var);
+}
+void SceneViewerv5::setActiveVariable(QString name)
+{
+    // activeVar = -1;
+    //
+    // int v = 0;
+    // for (auto &var : objects[activeVarObj].variables) {
+    //     if (var.name == name) {
+    //         activeVar = v;
+    //         break;
+    //     }
+    //     ++v;
+    // }
+}
+void SceneViewerv5::addEnumVariable(QString name, int value)
+{
+    // if (activeVarObj >= 0) {
+    //     VariableValue var;
+    //     var.name  = name;
+    //     var.value = value;
+    //
+    //     objects[activeVarObj].variables[activeVar].values.append(var);
+    // }
+}
+
+void SceneViewerv5::setVariableAlias(int varID, QString alias)
+{
+    // if (activeVarObj >= 0) {
+    //     objects[activeVarObj].variablesAliases[varID] = alias;
+    // }
+}
+
 void SceneViewerv5::refreshResize()
 {
     if (storedW == prevStoredW && storedH == prevStoredH)
@@ -2099,27 +1828,10 @@ void SceneViewerv5::refreshResize()
     screens[0].pitch        = storedW;
     screens[0].waterDrawPos = storedH;
 
-    refreshScnEditorVerts(storedW >> 2, storedH >> 2);
+    // refreshScnEditorVerts(storedW >> 2, storedH >> 2);
 
     prevStoredW = storedW;
     prevStoredH = storedH;
 }
 
-GameObjectInfo *SceneViewerv5::GetObjectInfo(QString name)
-{
-    QByteArray hashData = Utils::getMd5HashByteArray(name);
-    byte data[0x10];
-    for (int i = 0; i < 0x10; ++i) data[i] = hashData[i];
-
-    uint hash[4];
-    memcpy(hash, data, 0x10 * sizeof(byte));
-
-    for (auto &link : gameLinks) {
-        for (int i = 0; i < link.gameObjectList.count(); ++i) {
-            if (memcmp(hash, link.gameObjectList[i].hash, 0x10 * sizeof(byte)) == 0) {
-                return &link.gameObjectList[i];
-            }
-        }
-    }
-    return NULL;
-}
+#include "moc_sceneviewerv5.cpp"
