@@ -8,8 +8,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
     ui->setupUi(this);
 
-    statusLabel = ui->status;
-    toolTabs    = ui->toolTabs;
+    statusLabel    = ui->status;
+    statusProgress = ui->statusProgress;
+    toolTabs       = ui->toolTabs;
 
     connect(ui->toolTabs, &QTabWidget::currentChanged, [this](int) {
         scnEditor = qobject_cast<SceneEditor *>(ui->toolTabs->currentWidget());
@@ -393,7 +394,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 MainWindow::~MainWindow()
 {
-    statusLabel = nullptr;
+    statusLabel    = nullptr;
+    statusProgress = nullptr;
     delete ui;
 }
 

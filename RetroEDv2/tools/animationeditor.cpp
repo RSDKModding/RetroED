@@ -2447,10 +2447,15 @@ QString AnimationEditor::getBaseDir()
 
 void AnimationEditor::loadAnim(QString filepath, int aniType)
 {
+    // prolly dont need to do this since its so quick but if you see this loading then hello to all slow
+    // PC users out there how do you live with that speed
+    setStatus("Loading Animation File...", true);
+
     appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
 
     this->aniType = aniType;
     animFile      = FormatHelpers::Animation(aniType, filepath);
+    addStatusProgress(0.33); // finished loading animation
 
     int id = 0;
     for (auto &sheet : animFile.sheets) {
@@ -2458,6 +2463,7 @@ void AnimationEditor::loadAnim(QString filepath, int aniType)
 
         loadSheet(sheet, id++, false);
     }
+    addStatusProgress(0.33); // finished loading sheets
 
     hitboxVisible.clear();
     for (int h = 0; h < animFile.hitboxTypes.count(); ++h) {
@@ -2472,6 +2478,8 @@ void AnimationEditor::loadAnim(QString filepath, int aniType)
     tabTitle = Utils::getFilenameAndFolder(animFile.filePath);
     clearActions();
     setupUI();
+
+    setStatus("Loaded Animation File: " + tabTitle); // done!
 }
 
 bool AnimationEditor::event(QEvent *event)

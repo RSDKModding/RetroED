@@ -75,6 +75,7 @@ public:
 
     byte tileSize = 0x10;
     QList<SceneHelpers::TileLayer> layers;
+    FormatHelpers::Chunks chunkset;
 
     QList<SceneObject> objects;
     QList<SceneEntity> entities;
@@ -283,8 +284,9 @@ public:
                         Vector2<int> *clipRect = nullptr);
     void renderRenderStates();
 
-    inline void queueRender(QString filename) {
-        fileRender = 1;
+    inline void queueRender(QString filename)
+    {
+        fileRender     = 1;
         renderFilename = filename;
     }
     byte fileRender = 0;

@@ -4,7 +4,8 @@ QString homeDir     = "";
 QString appDir      = "";
 AppConfig appConfig = AppConfig();
 
-QLabel *statusLabel = nullptr;
+QLabel *statusLabel          = nullptr;
+QProgressBar *statusProgress = nullptr;
 
 QVector3D *vertsPtr  = nullptr;
 QVector2D *tVertsPtr = nullptr;
@@ -38,14 +39,30 @@ void printLog(QString msg)
 #endif
 }
 
-void setStatus(QString status)
+void setStatus(QString status, bool useStatus)
 {
     if (!statusLabel)
         return;
 
     printLog("Set Status to: " + status);
     statusLabel->setText(status);
-    statusLabel->repaint();
+    // statusLabel->repaint();
+
+    if (!statusProgress)
+        return;
+
+    statusProgress->setValue(useStatus ? 0 : 100);
+    // statusProgress->repaint();
+}
+
+void addStatusProgress(float percent)
+{
+    if (!statusProgress)
+        return;
+    percent *= statusProgress->maximum();
+
+    statusProgress->setValue(statusProgress->value() + percent);
+    // statusProgress->repaint();
 }
 
 void refreshScnEditorVerts(int w, int h)

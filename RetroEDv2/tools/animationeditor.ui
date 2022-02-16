@@ -165,9 +165,8 @@
         <string>&lt;</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normalon>:/icons/warning.svg</normalon>
-        </iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/icons/ic_navigate_before_48px.svg</normaloff>:/icons/ic_navigate_before_48px.svg</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -202,9 +201,8 @@
         <string>P</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normalon>:/icons/play.svg</normalon>
-        </iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/icons/ic_play_arrow_48px.svg</normaloff>:/icons/ic_play_arrow_48px.svg</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -226,9 +224,8 @@
         <string>&gt;</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normalon>:/icons/warning.svg</normalon>
-        </iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/icons/ic_navigate_next_48px.svg</normaloff>:/icons/ic_navigate_next_48px.svg</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -250,9 +247,8 @@
         <string>&lt;&lt;</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normalon>:/icons/skip_back.svg</normalon>
-        </iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/icons/ic_skip_previous_48px.svg</normaloff>:/icons/ic_skip_previous_48px.svg</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -274,9 +270,8 @@
         <string>&gt;&gt;</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normalon>:/icons/skip_forward.svg</normalon>
-        </iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/icons/ic_skip_next_48px.svg</normaloff>:/icons/ic_skip_next_48px.svg</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -400,8 +395,7 @@
        </property>
        <property name="icon">
         <iconset resource="../resources.qrc">
-         <normaloff>:/icons/ic_redo_48px.svg</normaloff>
-         <normalon>:/icons/export.svg</normalon>:/icons/ic_redo_48px.svg</iconset>
+         <normaloff>:/icons/ic_redo_48px.svg</normaloff>:/icons/ic_redo_48px.svg</iconset>
        </property>
       </widget>
      </item>
@@ -414,9 +408,8 @@
         <string>I</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>:/icons/ic_undo_48px.svg</normaloff>
-         <normalon>:/icons/import.svg</normalon>:/icons/ic_undo_48px.svg</iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/icons/ic_undo_48px.svg</normaloff>:/icons/ic_undo_48px.svg</iconset>
        </property>
       </widget>
      </item>
@@ -429,9 +422,8 @@
         <string>C</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normalon>:/icons/copy.svg</normalon>
-        </iconset>
+        <iconset resource="../resources.qrc">
+         <normaloff>:/icons/ic_copy_48px.svg</normaloff>:/icons/ic_copy_48px.svg</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -587,9 +579,8 @@
            <string>I</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normaloff>:/icons/ic_undo_48px.svg</normaloff>
-            <normalon>:/icons/import.svg</normalon>:/icons/ic_undo_48px.svg</iconset>
+           <iconset resource="../resources.qrc">
+            <normaloff>:/icons/ic_undo_48px.svg</normaloff>:/icons/ic_undo_48px.svg</iconset>
           </property>
          </widget>
         </item>
@@ -615,9 +606,8 @@
            <string>C</string>
           </property>
           <property name="icon">
-           <iconset>
-            <normalon>:/icons/copy.svg</normalon>
-           </iconset>
+           <iconset resource="../resources.qrc">
+            <normaloff>:/icons/ic_copy_48px.svg</normaloff>:/icons/ic_copy_48px.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -650,8 +640,7 @@
           </property>
           <property name="icon">
            <iconset resource="../resources.qrc">
-            <normaloff>:/icons/ic_redo_48px.svg</normaloff>
-            <normalon>:/icons/export.svg</normalon>:/icons/ic_redo_48px.svg</iconset>
+            <normaloff>:/icons/ic_redo_48px.svg</normaloff>:/icons/ic_redo_48px.svg</iconset>
           </property>
          </widget>
         </item>
@@ -759,7 +748,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>292</height>
+        <height>286</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1459,7 +1448,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>292</height>
+        <height>286</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1578,7 +1567,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>292</height>
+        <height>286</height>
        </rect>
       </property>
       <attribute name="label">

@@ -148,6 +148,7 @@ extern QString appDir;
 extern AppConfig appConfig;
 
 extern QLabel *statusLabel;
+extern QProgressBar *statusProgress;
 
 extern QVector3D *vertsPtr;
 extern QVector2D *tVertsPtr;
@@ -156,7 +157,8 @@ extern SceneEditor *scnEditor;
 extern SceneEditorv5 *v5Editor;
 
 void printLog(QString msg);
-void setStatus(QString status);
+void setStatus(QString status, bool useStatus = false);
+void addStatusProgress(float percent);
 
 void refreshScnEditorVerts(int w, int h);
 

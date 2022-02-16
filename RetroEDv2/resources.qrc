@@ -20,7 +20,6 @@
         <file>icons/ic_cancel_48px.svg</file>
         <file>icons/ic_grid_48px.svg</file>
         <file>icons/ic_horizontal_split_48px.svg</file>
-        <file>icons/ic_folder_48px.svg</file>
         <file>icons/ic_redo_48px.svg</file>
         <file>icons/ic_save_48px.svg</file>
         <file>fonts/CONSOLA.TTF</file>
@@ -29,5 +28,18 @@
         <file>fonts/consolaz.ttf</file>
         <file>icons/ic_help_48px.svg</file>
         <file>icons/missingV5.png</file>
+        <file>icons/ic_first_page_48px.svg</file>
+        <file>icons/ic_last_page_48px.svg</file>
+        <file>icons/ic_copy_48px.svg</file>
+        <file>icons/ic_navigate_before_48px.svg</file>
+        <file>icons/ic_navigate_next_48px.svg</file>
+        <file>icons/ic_paste_48px.svg</file>
+        <file>icons/ic_image_48px.svg</file>
+        <file>icons/ic_info_48px.svg</file>
+        <file>icons/ic_play_arrow_48px.svg</file>
+        <file>icons/ic_skip_next_48px.svg</file>
+        <file>icons/ic_skip_previous_48px.svg</file>
+        <file>icons/ic_stop_48px.svg</file>
+        <file>icons/ic_undo_48px.svg</file>
     </qresource>
 </RCC>

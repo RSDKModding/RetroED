@@ -145,11 +145,16 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         lyrProp->setupUI(&scene, viewer->selectedLayer);
         ui->propertiesBox->setCurrentWidget(ui->layerPropPage);
 
+        bool disabled = true;
+        if (c != -1)
+            disabled = viewer->layers[c].type == SceneHelpers::TileLayer::LAYER_HSCROLL
+                       || viewer->layers[c].type == SceneHelpers::TileLayer::LAYER_VSCROLL;
+
         createScrollList();
-        ui->addScr->setDisabled(c == -1);
-        ui->rmScr->setDisabled(c == -1);
-        ui->impScr->setDisabled(c == -1);
-        ui->expScr->setDisabled(c == -1);
+        ui->addScr->setDisabled(disabled);
+        ui->rmScr->setDisabled(disabled);
+        ui->impScr->setDisabled(disabled);
+        ui->expScr->setDisabled(disabled);
     });
 
     connect(ui->addLayer, &QToolButton::clicked, [this] {
@@ -592,7 +597,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->scrollList->blockSignals(true);
         ui->scrollList->setCurrentRow(n);
         ui->scrollList->blockSignals(false);
-        doAction("Remov Scroll Info: " + QString::number(c));
+        doAction("Remove Scroll Info: " + QString::number(c));
     });
 
     connect(ui->impScr, &QToolButton::clicked, [this] {
@@ -780,16 +785,15 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         edit->setWindowTitle("Edit Tileset");
         edit->exec();
 
-        setStatus("Rebuilding tiles...");
+        setStatus("Rebuilding tiles...", true);
         viewer->tilesetTexture = nullptr;
 
         QImage tileset(0x10, 0x400 * 0x10, QImage::Format_Indexed8);
 
         QVector<QRgb> pal;
-        for (PaletteColour &col : viewer->tilePalette) {
-            pal.append(col.toQColor().rgb());
-        }
+        for (PaletteColour &col : viewer->tilePalette) pal.append(col.toQColor().rgb());
         tileset.setColorTable(pal);
+        addStatusProgress(0.25); // finished setup
 
         uchar *pixels = tileset.bits();
         for (int i = 0; i < 0x400; ++i) {
@@ -800,6 +804,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 }
             }
         }
+        addStatusProgress(0.25); // finished copying tiles
 
         viewer->tilesetTexture = viewer->createTexture(tileset);
 
@@ -813,6 +818,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 }
             }
         }
+        addStatusProgress(0.25); // finished updating layout
 
         RSDKv5::TileConfig configStore = tileconfig;
         for (int i = 0; i < 0x400; ++i) {
@@ -822,7 +828,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         }
 
         doAction("Edited Tiles");
-        setStatus("Finished rebuilding tiles!");
+        setStatus("Finished rebuilding tiles!"); // done !
     });
 
     connect(scnProp->editPAL, &QPushButton::clicked, [this] {
@@ -998,7 +1004,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         QFileDialog filedialog(this, tr("Save Image"), "", tr("PNG Files (*.png)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
-
+            setStatus("Rendering Output Image...", true);
             viewer->queueRender(filedialog.selectedFiles()[0]);
         }
     });
@@ -1990,13 +1996,14 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
 
 void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
 {
-    setStatus("Loading Scene...");
+    setStatus("Loading Scene...", true);
 
     viewer->stopTimer();
     viewer->unloadScene();
 
     releaseStorage(dataStorage);
     initStorage(dataStorage);
+    addStatusProgress(0.2); // finish unloading
 
     if (gcfPath != gameConfig.filePath) {
         if (QFileInfo(gcfPath).suffix().toLower().contains("xml"))
@@ -2016,6 +2023,8 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     QString basePath = pth.replace(QFileInfo(pth).fileName(), "");
 
     viewer->currentFolder = QDir(basePath).dirName();
+
+    addStatusProgress(0.2); // finish initial setup
 
     scene.read(scnPath);
     viewer->metadata = scene.editorMetadata;
@@ -2083,6 +2092,8 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     else
         stamps = RSDKv5::Stamps();
 
+    addStatusProgress(0.2); // finish scene loading
+
     // Tile Texture
     QImage tileset(16, 0x400 * 16, QImage::Format_Indexed8);
     if (QFile::exists(basePath + "16x16Tiles.gif")) {
@@ -2090,6 +2101,8 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
         tileset = tilesetGif.frame(0);
     }
     viewer->initScene(tileset);
+
+    addStatusProgress(0.2); // finish tileset loading
 
     loadGameLinks();
 
@@ -2199,7 +2212,7 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     clearActions();
     appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, scnPath,
                             QList<QString>{ gcfPath, gameConfig.readFilter ? "2" : "1" });
-    setStatus("Loaded Scene: " + QFileInfo(scnPath).fileName());
+    setStatus("Loaded Scene: " + QFileInfo(scnPath).fileName()); // done!
 
     viewer->startTimer();
 }

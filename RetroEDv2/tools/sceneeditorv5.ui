@@ -357,6 +357,10 @@
         <property name="text">
          <string>Img</string>
         </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_image_48px.svg</normaloff>:/icons/ic_image_48px.svg</iconset>
+        </property>
        </widget>
       </item>
       <item row="0" column="16">
@@ -521,7 +525,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>5</number>
      </property>
      <widget class="QWidget" name="layerPage">
       <property name="geometry">
@@ -863,6 +867,10 @@
         <widget class="QToolButton" name="impScr">
          <property name="text">
           <string>I</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_undo_48px.svg</normaloff>:/icons/ic_undo_48px.svg</iconset>
          </property>
         </widget>
        </item>

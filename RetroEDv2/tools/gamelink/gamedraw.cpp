@@ -555,15 +555,12 @@ void FunctionTable::drawRect(int x, int y, int width, int height, uint color, in
     if (widthf <= 0 || heightf <= 0)
         return;
 
-    xf += widthf / 2;
-    yf += heightf / 2;
-
     float entX      = v5Editor->viewer->activeDrawEntity->pos.x - v5Editor->viewer->cameraPos.x;
     float entY      = v5Editor->viewer->activeDrawEntity->pos.y - v5Editor->viewer->cameraPos.y;
     float boxLeft   = startX;
     float boxTop    = startY;
-    float boxRight  = startX + width;
-    float boxBottom = startY + height;
+    float boxRight  = startX + widthf;
+    float boxBottom = startY + heightf;
     if (boxLeft < entX + v5Editor->viewer->activeDrawEntity->box.x) {
         v5Editor->viewer->activeDrawEntity->box.x = boxLeft - entX;
     }

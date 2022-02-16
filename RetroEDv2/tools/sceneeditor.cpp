@@ -107,6 +107,9 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     connect(ui->verticalScrollBar, &QScrollBar::valueChanged, [this](int v) { viewer->cam.pos.y = v; });
 
+    connect(ui->useGizmos, &QCheckBox::toggled,
+            [this](bool c) { /*viewer->sceneInfo.effectGizmo = c;*/ });
+
     connect(ui->layerList, &QListWidget::currentRowChanged, [this](int c) {
         // m_uo->setDisabled(c == -1);
         // m_do->setDisabled(c == -1);
@@ -637,7 +640,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         edit->setWindowTitle("Edit Tileset");
         edit->exec();
 
-        setStatus("Rebuilding tiles...");
+        setStatus("Rebuilding tiles...", true);
         viewer->tilesetTexture = nullptr;
 
         QImage tileset(0x10, 0x400 * 0x10, QImage::Format_Indexed8);
@@ -645,6 +648,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         QVector<QRgb> pal;
         for (PaletteColour &col : viewer->tilePalette) pal.append(col.toQColor().rgb());
         tileset.setColorTable(pal);
+        addStatusProgress(0.2); // finished setup
 
         uchar *pixels = tileset.bits();
         for (int i = 0; i < 0x400; ++i) {
@@ -655,6 +659,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 }
             }
         }
+        addStatusProgress(0.2); // finished copying tiles
 
         viewer->tilesetTexture = viewer->createTexture(tileset);
 
@@ -666,6 +671,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 }
             }
         }
+        addStatusProgress(0.2); // finished updating layout
 
         RSDKv4::TileConfig configStore = viewer->tileconfig;
         for (int i = 0; i < 0x400; ++i) {
@@ -673,6 +679,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             viewer->tileconfig.collisionPaths[0][id] = configStore.collisionPaths[0][i];
             viewer->tileconfig.collisionPaths[1][id] = configStore.collisionPaths[1][i];
         }
+        addStatusProgress(0.2); // finished updating collision masks
 
         viewer->chunks.clear();
         for (FormatHelpers::Chunks::Chunk &c : viewer->chunkset.chunks)
@@ -680,8 +687,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         chkProp->refreshList();
 
-        doAction();
-        setStatus("Finished rebuilding tiles!");
+        doAction("Edited Tiles");
+        setStatus("Finished rebuilding tiles!"); // done!
     });
 
     connect(scnProp->editPAL, &QPushButton::clicked, [this] {
@@ -1409,7 +1416,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
 void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 {
-    setStatus("Loading Scene...");
+    setStatus("Loading Scene...", true);
 
     viewer->objectsLoaded = false;
 
@@ -1425,6 +1432,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     viewer->dataPath = dir.path();
 
     viewer->gameType = gameType;
+
+    addStatusProgress(0.2); // finish initial setup
 
     viewer->loadScene(scnPath, gameType);
 
@@ -1509,7 +1518,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     viewer->objectsLoaded = true;
     clearActions();
     appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR, scnPath, QList<QString>{ gcfPath });
-    setStatus("Loaded Scene: " + QFileInfo(scnPath).fileName());
+    setStatus("Loaded Scene: " + QFileInfo(scnPath).fileName()); // done!
 }
 
 bool SceneEditor::saveScene(bool forceSaveAs)
