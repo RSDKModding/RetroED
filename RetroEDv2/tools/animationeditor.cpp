@@ -58,6 +58,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     frameModel = new QStandardItemModel;
     missingImg = QPixmap(":/icons/missing.png");
 
+    ui->play->setIcon(playPauseIco[0]);
+
     if (updateTimer)
         delete updateTimer;
 
@@ -1968,17 +1970,18 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         if (currentAnim < animCount()) {
             if (!playingAnim) {
                 startAnim();
+                ui->play->setIcon(playPauseIco[1]);
             }
             else {
                 stopAnim();
                 ui->frameList->setCurrentIndex(frameModel->index(currentFrame, 0));
+                ui->play->setIcon(playPauseIco[0]);
             }
 
             if (currentFrame >= frameCount()) {
                 currentFrame = 0;
             }
         }
-        // ui->play->setIcon(playPauseIco[playingAnim]);
     });
 
     connect(ui->prevFrame, &QToolButton::clicked, [this] {
@@ -2061,6 +2064,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     }
 
     stopAnim();
+    ui->play->setIcon(playPauseIco[0]);
+
     setupUI();
 }
 

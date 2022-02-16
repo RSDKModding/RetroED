@@ -156,6 +156,8 @@ extern QVector2D *tVertsPtr;
 extern SceneEditor *scnEditor;
 extern SceneEditorv5 *v5Editor;
 
+extern QIcon playPauseIco[2];
+
 void printLog(QString msg);
 void setStatus(QString status, bool useStatus = false);
 void addStatusProgress(float percent);

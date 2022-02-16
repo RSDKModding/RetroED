@@ -4,6 +4,8 @@
 SceneEditor *scnEditor  = nullptr;
 SceneEditorv5 *v5Editor = nullptr;
 
+QIcon playPauseIco[2];
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -11,6 +13,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     statusLabel    = ui->status;
     statusProgress = ui->statusProgress;
     toolTabs       = ui->toolTabs;
+
+    playPauseIco[0] = QIcon(":/icons/ic_play_arrow_48px.svg");
+    playPauseIco[1] = QIcon(":/icons/ic_stop_48px.svg");
 
     connect(ui->toolTabs, &QTabWidget::currentChanged, [this](int) {
         scnEditor = qobject_cast<SceneEditor *>(ui->toolTabs->currentWidget());
