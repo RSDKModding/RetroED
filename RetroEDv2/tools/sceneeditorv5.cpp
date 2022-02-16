@@ -999,133 +999,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
 
-            int width = 0, height = 0;
-
-            for (auto &layer : viewer->layers) {
-                if (!layer.visible || layer.drawOrder >= 16)
-                    continue;
-
-                if (layer.width > width)
-                    width = layer.width;
-                if (layer.height > height)
-                    height = layer.height;
-            }
-
-            QImage image(width * 0x10, height * 0x10, QImage::Format_ARGB32);
-            image.fill(0xFFFF00FF);
-            QPainter painter(&image);
-
-            for (auto &layer : viewer->layers) {
-                if (!layer.visible || layer.drawOrder >= 16)
-                    continue;
-
-                for (int y = 0; y < layer.height; ++y) {
-                    for (int x = 0; x < layer.width; ++x) {
-                        ushort tile = layer.layout[y][x];
-                        if (tile != 0xFFFF) {
-                            QImage tileImg = viewer->tiles[tile & 0x3FF].copy().mirrored(
-                                (tile >> 10) & 1, (tile >> 11) & 1);
-                            tileImg.setColor(0, 0x00000000);
-
-                            painter.drawImage(x * 0x10, y * 0x10, tileImg);
-                        }
-                    }
-                }
-            }
-
-            painter.beginNativePainting();
-
-            /*QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-            f->glEnable(GL_DEPTH_TEST);
-            f->glDepthFunc(GL_LESS);
-            f->glEnable(GL_BLEND);
-            f->glEnable(GL_MULTISAMPLE);
-            f->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            QMatrix4x4 matWorld;
-            matWorld.ortho(0.0f, (float)width, (float)height, 0.0f, -16.0f, 16.0f);
-
-            viewer->primitiveShader.use();
-            viewer->primitiveShader.setValue("projection", matWorld);
-            viewer->primitiveShader.setValue("view", QMatrix4x4());
-            viewer->primitiveShader.setValue("useAlpha", false);
-            viewer->primitiveShader.setValue("alpha", 1.0f);
-
-            viewer->drawRect(0, 0, 0, 0x40, 0x40, Vector4<float>(0, 0, 0, 1.0), viewer->primitiveShader,
-                             false);
-
-            viewer->spriteShader.use();
-            viewer->rectVAO.bind();
-            viewer->spriteShader.setValue("flipX", false);
-            viewer->spriteShader.setValue("flipY", false);
-            viewer->spriteShader.setValue("useAlpha", false);
-            viewer->spriteShader.setValue("alpha", 1.0f);
-
-            for (auto &entity : viewer->entities) {
-                viewer->activeDrawEntity = NULL;
-
-                validDraw = false;
-
-                if (!viewer->objects[entity.type].visible)
-                    continue;
-
-                int filter = 0xFF;
-                for (int v = 0; v < viewer->objects[entity.type].variables.count(); ++v) {
-                    if (viewer->objects[entity.type].variables[v].name == "filter") {
-                        if (v < entity.variables.count())
-                            filter = entity.variables[v].value_uint8;
-                        break;
-                    }
-                }
-
-                if (!(filter & viewer->sceneFilter) && filter)
-                    continue;
-
-                if (entity.gameEntity) {
-                    entity.gameEntity->position.x = Utils::floatToFixed(entity.pos.x);
-                    entity.gameEntity->position.y = Utils::floatToFixed(entity.pos.y);
-                }
-
-                // if (entity->type != 0)
-                // callGameEvent(viewer->objects[entity->type].name,
-                //    EVENT_DRAW, entity);
-
-                // Draw Default Object Sprite if invalid
-                // if (!validDraw) {
-                //     entity->box = Rect<int>(-0x10, -0x10, 0x10, 0x10);
-                //     viewer->spriteShader.use();
-                //     viewer->rectVAO.bind();
-                //
-                //     float xpos = entity->pos.x;
-                //     float ypos = entity->pos.y;
-                //     float zpos = viewer->incZ();
-                //
-                //     int w = viewer->gfxSurface[0].texturePtr->width(),
-                //         h = viewer->gfxSurface[0].texturePtr->height();
-                //     if (viewer->prevSprite) {
-                //         viewer->gfxSurface[0].texturePtr->bind();
-                //         viewer->spriteShader.setValue("transparentColour", QVector3D(1.0f,
-            0.0f, 1.0f));
-                //         viewer->spriteShader.setValue("useAlpha", true);
-                //         viewer->spriteShader.setValue("alpha", 1.0f);
-                //         viewer->prevSprite = 0;
-                //     }
-                //
-                //     QMatrix4x4 matModel;
-                //     matModel.scale(w * viewer->zoom, h * viewer->zoom, 1.0f);
-                //
-                //     matModel.translate(xpos / (float)w, ypos / (float)h, zpos);
-                //     viewer->spriteShader.setValue("model", matModel);
-                //
-                //     f->glDrawArrays(GL_TRIANGLES, 0, 6);
-                // }
-            }*/
-
-            painter.endNativePainting();
-            painter.end();
-
-            image.save(filedialog.selectedFiles()[0]);
-            setStatus("Scene exported to image sucessfully!");
+            viewer->queueRender(filedialog.selectedFiles()[0]);
         }
     });
 
@@ -2066,7 +1940,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
         case QEvent::Wheel: {
             QWheelEvent *wEvent = static_cast<QWheelEvent *>(event);
 
-            if (wEvent->modifiers() & Qt::ControlModifier) {
+            if (ctrlDownL) {
                 if (wEvent->angleDelta().y() > 0 && viewer->zoom < 20)
                     viewer->zoom *= 2;
                 else if (wEvent->angleDelta().y() < 0 && viewer->zoom > 0.5)
@@ -2077,8 +1951,14 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                                   - viewer->storedH / viewer->zoom);
                 return true;
             }
-            viewer->cameraPos.y -= wEvent->angleDelta().y() / 8;
-            viewer->cameraPos.x -= wEvent->angleDelta().x() / 8;
+            if (shiftDownL) {
+                viewer->cameraPos.y -= wEvent->angleDelta().x() / 8;
+                viewer->cameraPos.x -= wEvent->angleDelta().y() / 8;
+            }
+            else {
+                viewer->cameraPos.y -= wEvent->angleDelta().y() / 8;
+                viewer->cameraPos.x -= wEvent->angleDelta().x() / 8;
+            }
 
             ui->horizontalScrollBar->blockSignals(true);
             ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x10)

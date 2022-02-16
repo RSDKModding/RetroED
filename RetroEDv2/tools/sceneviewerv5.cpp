@@ -310,37 +310,6 @@ void SceneViewerv5::placeCol(int x, int y, sbyte h, int sol, int w)
 
 void SceneViewerv5::drawScene()
 {
-    int sceneW = 0;
-    int sceneH = 0;
-
-    for (int i = 0; i < layers.count(); ++i) {
-        if (layers[i].width > sceneW)
-            sceneW = layers[i].width;
-        if (layers[i].height > sceneH)
-            sceneH = layers[i].height;
-    }
-
-    if (sceneW != sceneWidth || sceneH != sceneHeight) {
-        sceneWidth  = sceneW;
-        sceneHeight = sceneH;
-    }
-
-    // pre-render
-    if (cameraPos.x + storedW > (sceneWidth * tileSize))
-        cameraPos.x = ((sceneWidth * tileSize) - storedW);
-
-    if (cameraPos.y + storedH > (sceneHeight * tileSize))
-        cameraPos.y = ((sceneHeight * tileSize) - storedH);
-
-    if (cameraPos.x < -64)
-        cameraPos.x = -64;
-
-    if (cameraPos.y < -64)
-        cameraPos.y = -64;
-
-    screens[0].position.x = cameraPos.x;
-    screens[0].position.y = cameraPos.y;
-
     float bgOffsetY  = 0;
     Vector4<float> c = { metadata.backgroundColor2.red() / 255.f,
                          metadata.backgroundColor2.green() / 255.f,
@@ -377,9 +346,9 @@ void SceneViewerv5::drawScene()
                 continue;
 
             // TILE LAYERS
-            QList<QList<ushort>> layout = layers[l].layout;
-            int width                   = layers[l].width;
-            int height                  = layers[l].height;
+            QList<QList<ushort>> *layout = &layers[l].layout;
+            int width                    = layers[l].width;
+            int height                   = layers[l].height;
 
             int vertCnt = 0;
 
@@ -404,8 +373,9 @@ void SceneViewerv5::drawScene()
 
             int count = 0;
             for (int y = basedY; y < countY; ++y) {
+                const QList<ushort> *row = &layout->at(y);
                 for (int x = basedX; x < countX; ++x) {
-                    ushort tile = layout[y][x];
+                    ushort tile = row->at(x);
                     if (tile != 0xFFFF) {
                         ++count;
                         float xp = (x * 0x10) - cameraPos.x;
@@ -427,8 +397,8 @@ void SceneViewerv5::drawScene()
                             renderCount -= count * 4;
                             PlaceArgs args;
                             args.texID = 0;
-                            addRenderState(selectedLayer == l ? INK_NONE : INK_BLEND, count * 4,
-                                           count * 6, &args, 0xFF, &placeShader);
+                            addRenderState((selectedLayer == l || fileRender) ? INK_NONE : INK_BLEND,
+                                           count * 4, count * 6, &args, 0xFF, &placeShader);
                             renderCount += count * 4;
                             renderRenderStates();
                             count = 0;
@@ -439,10 +409,13 @@ void SceneViewerv5::drawScene()
             renderCount -= count * 4;
             PlaceArgs args;
             args.texID = 0;
-            addRenderState(selectedLayer == l ? INK_NONE : INK_BLEND, count * 4, count * 6, &args, 0xFF,
-                           &placeShader);
+            addRenderState((selectedLayer == l || fileRender) ? INK_NONE : INK_BLEND, count * 4,
+                           count * 6, &args, 0xFF, &placeShader);
             renderCount += count * 4;
             renderRenderStates();
+
+            if (fileRender)
+                continue;
 
             // welcome to the magic of rmg code. dangerous-looking code ahead
             // there's definitely better ways to do this, but for now this is what we gotta do
@@ -454,8 +427,9 @@ void SceneViewerv5::drawScene()
                 if (showCLayers[c]) {
                     cleanCol(basedX * 16, basedY * 16, (countX - basedX) * 16, (countY - basedY) * 16);
                     for (int y = countY - 1; y >= basedY; --y) {
+                        const QList<ushort> *row = &layout->at(y);
                         for (int x = basedX; x < countX; ++x) {
-                            ushort tile = layout[y][x];
+                            ushort tile = row->at(x);
                             if (tile != 0xFFFF) {
                                 // draw pixel collision
                                 float xpos = (x * 0x10);
@@ -645,6 +619,9 @@ void SceneViewerv5::drawScene()
             }
         }
     }
+
+    if (fileRender)
+        return renderRenderStates();
 
     // TILE PREVIEW
     if (selectedTile >= 0 && selectedLayer >= 0 && isSelecting && curTool == TOOL_PENCIL) {
@@ -1121,18 +1098,19 @@ void SceneViewerv5::resizeGL(int w, int h)
 
     // clang-format off
     int pos[] = {     // POSITIONS
-                      0, 0, 
-                      w, 0, 
-                      0, h, 
+                      0, 0,
+                      w, 0,
+                      0, h,
                       w, h,
                       // UVS
-                      0, 0, 
-                      1, 0, 
-                      0, 1, 
+                      0, 0,
+                      1, 0,
+                      0, 1,
                       1, 1
     };
     // clang-format on
 
+    fbpVAO->bind();
     fbpVBO->bind();
     fbpVBO->write(0, pos, sizeof(int) * 16);
 
@@ -1140,15 +1118,18 @@ void SceneViewerv5::resizeGL(int w, int h)
     storedH = h;
     refreshResize();
 
-    QMatrix4x4 projection = getProjectionMatrix();
+    matWorld.setToIdentity();
+    matWorld.ortho(0.0f, (float)storedW, (float)storedH, 0.0f, -1.0f, 1.0f);
+
+    QMatrix4x4 projection = matWorld;
     QMatrix4x4 view       = QMatrix4x4();
 
     passthroughFBShader.use();
-    passthroughFBShader.setValue("projection", projection);
+    passthroughFBShader.setValue("projection", matWorld);
     passthroughFBShader.setValue("view", view);
 
     finalFBShader.use();
-    finalFBShader.setValue("projection", projection);
+    finalFBShader.setValue("projection", matWorld);
     finalFBShader.setValue("view", view);
 
     glFuncs->glViewport(0, 0, w, h);
@@ -1175,6 +1156,97 @@ void SceneViewerv5::resizeGL(int w, int h)
 void SceneViewerv5::paintGL()
 {
     glFuncs = context()->functions();
+
+    int sceneW = 0;
+    int sceneH = 0;
+
+    for (int i = 0; i < layers.count(); ++i) {
+        if (layers[i].width > sceneW)
+            sceneW = layers[i].width;
+        if (layers[i].height > sceneH)
+            sceneH = layers[i].height;
+    }
+
+    if (sceneW != sceneWidth || sceneH != sceneHeight) {
+        sceneWidth  = sceneW;
+        sceneHeight = sceneH;
+    }
+
+    if (fileRender == 0) {
+        // pre-render
+        if (cameraPos.x + storedW > (sceneWidth * tileSize))
+            cameraPos.x = ((sceneWidth * tileSize) - storedW);
+
+        if (cameraPos.y + storedH > (sceneHeight * tileSize))
+            cameraPos.y = ((sceneHeight * tileSize) - storedH);
+
+        if (cameraPos.x < -64)
+            cameraPos.x = -64;
+
+        if (cameraPos.y < -64)
+            cameraPos.y = -64;
+
+        screens[0].position.x = cameraPos.x;
+        screens[0].position.y = cameraPos.y;
+    }
+    else if (fileRender == 1) {
+        auto preCam = cameraPos;
+        float pz    = zoom;
+        int preW = storedW, preH = storedH;
+
+        QOpenGLFramebufferObject *oOFB = outFB, *oTFB = tFB, *oTFB2 = t2FB;
+        outFB = nullptr;
+        tFB   = nullptr;
+        t2FB  = nullptr;
+        resizeGL(sceneW * 0x10, sceneH * 0x10);
+
+        cameraPos = { 0, 0 };
+        zoom      = 1;
+        matView.setToIdentity();
+
+        outFB->bind();
+        glFuncs->glClearColor(metadata.backgroundColor1.red() / 255.0f,
+                              metadata.backgroundColor1.green() / 255.0f,
+                              metadata.backgroundColor1.blue() / 255.0f, 1.0f);
+        glFuncs->glClear(GL_COLOR_BUFFER_BIT);
+
+        if (!disableObjects)
+            processObjects();
+        drawScene();
+
+        outFB->toImage(false)
+            .convertToFormat(QImage::Format_ARGB32)
+            .convertToFormat(QImage::Format_RGB888)
+            .save(renderFilename);
+        // setStatus("Rendering final PNG...");
+        fileRender = 0;
+        zoom       = pz;
+        cameraPos  = preCam;
+        resizeGL(preW, preH);
+
+        delete outFB;
+        delete tFB;
+        delete t2FB;
+
+        glFuncs->glActiveTexture(GL_TEXTURE20);
+        tFB = oTFB;
+        glFuncs->glBindTexture(GL_TEXTURE_2D, tFB->texture());
+
+        glFuncs->glActiveTexture(GL_TEXTURE20 + 1);
+        t2FB = oTFB2;
+        glFuncs->glBindTexture(GL_TEXTURE_2D, t2FB->texture());
+
+        glFuncs->glActiveTexture(GL_TEXTURE20 + 2);
+        outFB = oOFB;
+        glFuncs->glBindTexture(GL_TEXTURE_2D, outFB->texture());
+
+        setStatus("Rendered scene to image!");
+    }
+
+    matView.setToIdentity();
+    matView.translate(zoom, -zoom);
+    matView.scale(zoom, zoom);
+    matView.translate(-invZoom(), invZoom());
 
     outFB->bind();
     glFuncs->glClearColor(metadata.backgroundColor1.red() / 255.0f,
@@ -1707,12 +1779,7 @@ void SceneViewerv5::renderRenderStates()
             t2FB->bind();
         }
 
-        renderState.shader->setValue("projection", getProjectionMatrix());
-        QMatrix4x4 matView;
-        matView.translate(zoom, -zoom);
-        matView.scale(zoom, zoom);
-        matView.translate(-invZoom(), invZoom());
-
+        renderState.shader->setValue("projection", matWorld);
         renderState.shader->setValue("view", matView);
 
         indexVBO->write(0, renderState.indecies, renderState.indexCount * sizeof(ushort));
@@ -1724,12 +1791,14 @@ void SceneViewerv5::renderRenderStates()
         fbiVBO->bind();
 
         switch (renderState.blendMode) {
+            case INK_NONE:
             case INK_MASKED:
             case INK_UNMASKED:
-            case INK_NONE:
             case INK_SUB:
             case INK_BLEND:
-            case INK_ALPHA: glFuncs->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); break;
+            case INK_ALPHA:
+                glFuncs->glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+                break;
             case INK_ADD: glFuncs->glBlendFunc(GL_SRC_ALPHA, GL_ONE); break;
         }
 

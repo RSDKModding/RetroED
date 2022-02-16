@@ -283,6 +283,13 @@ public:
                         Vector2<int> *clipRect = nullptr);
     void renderRenderStates();
 
+    inline void queueRender(QString filename) {
+        fileRender = 1;
+        renderFilename = filename;
+    }
+    byte fileRender = 0;
+    QString renderFilename;
+
     void refreshResize();
 
     GameObjectInfo *GetObjectInfo(QString name);
@@ -312,16 +319,13 @@ protected:
     QSize sizeHint() const { return QSize(0, 0); }
 
 private:
-    inline QMatrix4x4 getProjectionMatrix()
-    {
-        QMatrix4x4 matWorld;
-        matWorld.ortho(0.0f, (float)storedW, (float)storedH, 0.0f, -1.0f, 1.0f);
-        return matWorld;
-    }
+    QMatrix4x4 matWorld;
+    QMatrix4x4 matView;
 
     void placeCol(int x, int y, sbyte h, int sol, int w = 1);
 
     inline void cleanCol(int x, int y, int w, int h);
+    friend class SceneEditorv5;
 };
 
 #endif // SCENEVIEWER_V5_H

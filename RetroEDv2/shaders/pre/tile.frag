@@ -3,9 +3,6 @@ in vec2 ex_UV;
 in vec4 ex_color;
 out vec4 out_color;
 
-uniform vec2 screenSize;
-uniform vec2 viewportSize;
-
 uniform sampler2DRect tiles;
 
 void main()
