@@ -49,6 +49,7 @@ jobs:
         move $Qt5_Dir/plugins/platforms/qminimal.dll artifacts/platforms
         
     - name: Upload artifacts
+      uses: actions/upload-artifact@v2.3.1
       with:
         name: retroED-win
         path: artifacts
