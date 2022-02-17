@@ -2658,8 +2658,13 @@ bool AnimationEditor::event(QEvent *event)
 
         case QEvent::Wheel: {
             QWheelEvent *wEvent = static_cast<QWheelEvent *>(event);
+
+#if QT_DEPRECATED_SINCE(5, 15)
+            QPoint mousePos = ui->viewerFrame->mapFrom(this, QPoint(wEvent->x(), wEvent->y()));
+#else
             QPoint mousePos =
                 ui->viewerFrame->mapFrom(this, QPoint(wEvent->position().x(), wEvent->position().y()));
+#endif
 
             if (ui->viewerFrame->rect().contains(mousePos.x(), mousePos.y())) {
                 if (wEvent->modifiers() & Qt::ControlModifier) {
