@@ -1764,11 +1764,10 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         for (int a = 0; a < animCount(); ++a) {
             for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
-                int sheet                              = animFile.animations[a].frames[f].sheet;
-                int p                                  = ui->sourceList->currentRow();
-                animFile.animations[a].frames[f].sheet = sheet < p    ? sheet
-                                                         : sheet >= p ? (sheet + 1)
-                                                                      : 0;
+                int sheet = animFile.animations[a].frames[f].sheet;
+                int p     = ui->sourceList->currentRow();
+                animFile.animations[a].frames[f].sheet =
+                    sheet < p ? sheet : sheet >= p ? (sheet + 1) : 0;
             }
         }
 
@@ -1788,10 +1787,9 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         removeSheet(c);
         for (int a = 0; a < animCount(); ++a) {
             for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
-                int sheet                              = animFile.animations[a].frames[f].sheet;
-                animFile.animations[a].frames[f].sheet = sheet < c   ? sheet
-                                                         : sheet > c ? (sheet - 1)
-                                                                     : 0;
+                int sheet = animFile.animations[a].frames[f].sheet;
+                animFile.animations[a].frames[f].sheet =
+                    sheet < c ? sheet : sheet > c ? (sheet - 1) : 0;
             }
         }
 
@@ -2045,6 +2043,20 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                 FormatHelpers::Animation::Frame frame =
                     animFile.animations[currentAnim].frames[currentFrame];
                 animFile.animations[currentAnim].frames.insert(c, frame);
+
+                QRect boundingRect;
+                boundingRect.setX(frame.sprX);
+                boundingRect.setY(frame.sprY);
+                boundingRect.setWidth(frame.width);
+                boundingRect.setHeight(frame.height);
+
+                auto *item = new QStandardItem();
+                item->setData((frame.width == 0 || frame.height == 0)
+                                  ? missingImg
+                                  : QPixmap::fromImage(sheets[frame.sheet].copy(boundingRect)),
+                              ROLE_PIXMAP);
+                frameModel->insertRow(c, item);
+
                 doAction("Copied frame", true);
             }
         }
@@ -2659,7 +2671,7 @@ bool AnimationEditor::event(QEvent *event)
         case QEvent::Wheel: {
             QWheelEvent *wEvent = static_cast<QWheelEvent *>(event);
 
-#if QT_DEPRECATED_SINCE(5, 15)
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
             QPoint mousePos = ui->viewerFrame->mapFrom(this, QPoint(wEvent->x(), wEvent->y()));
 #else
             QPoint mousePos =

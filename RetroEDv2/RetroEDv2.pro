@@ -205,13 +205,18 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 #windows
 win32 {
     RC_ICONS = icons/win.ico
-    VERSION = 2.0.0
     QMAKE_TARGET_COMPANY = Rubberduckycooly
     QMAKE_TARGET_DESCRIPTION = RetroED
     QMAKE_TARGET_COPYRIGHT = Rubberduckycooly
 }
 
+#mac
+mac {
+    ICON = icons/mac.icns
+}
+
 TARGET = RetroED
+VERSION = 2.0.0
 
 RESOURCES += \
     resources.qrc

@@ -95,7 +95,7 @@ void SceneTileProperties::setupUI(RSDKv4::TileConfig::CollisionMask *cmA,
         ui->colPlaneA->blockSignals(false);
     });
 
-    connect(ui->maskDir, &QComboBox::currentIndexChanged,
+    connect(ui->maskDir, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int i) { cmask[collisionLyr]->direction = i != 0; });
 
     connect(ui->behaviour, QOverload<int>::of(&QSpinBox::valueChanged),

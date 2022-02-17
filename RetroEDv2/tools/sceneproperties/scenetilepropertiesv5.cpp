@@ -106,7 +106,7 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
     connect(ui->solidTopB, &QCheckBox::toggled, [tile](bool c) { Utils::setBit(*tile, c, 14); });
     connect(ui->solidLRBB, &QCheckBox::toggled, [tile](bool c) { Utils::setBit(*tile, c, 15); });
 
-    connect(ui->maskDir, &QComboBox::currentIndexChanged,
+    connect(ui->maskDir, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int i) { cmask[collisionLyr]->direction = i != 0; });
 
     connect(ui->behaviour, QOverload<int>::of(&QSpinBox::valueChanged),
