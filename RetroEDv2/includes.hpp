@@ -141,6 +141,7 @@ public:
 #include "tools/userdbmanager.hpp"
 #include "tools/rsvtool.hpp"
 
+#include "aboutwindow.hpp"
 #include "mainwindow.hpp"
 
 extern QString homeDir;
@@ -161,6 +162,7 @@ extern QIcon playPauseIco[2];
 void printLog(QString msg);
 void setStatus(QString status, bool useStatus = false);
 void addStatusProgress(float percent);
+void setStatusProgress(float percent);
 
 void refreshScnEditorVerts(int w, int h);
 

@@ -24,6 +24,7 @@ INCLUDEPATH += \
     utils/
 
 SOURCES += \
+    aboutwindow.cpp \
     includes.cpp \
     mainwindow.cpp \
     tools/animationeditor.cpp \
@@ -88,6 +89,7 @@ SOURCES += \
     utils/workingdirmanager.cpp
 
 HEADERS += \
+    aboutwindow.hpp \
     mainwindow.hpp \
     tools/animationeditor.hpp \
     tools/animationeditor/animsheetselector.hpp \
@@ -152,6 +154,7 @@ HEADERS += \
     utils/workingdirmanager.hpp
 
 FORMS += \
+    aboutwindow.ui \
     mainwindow.ui \
     tools/animationeditor.ui \
     tools/animationeditor/animsheetselector.ui \

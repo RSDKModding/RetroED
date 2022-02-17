@@ -840,7 +840,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
     connect(scnProp->loadStamps, &QPushButton::clicked, [this] {
         if (QFile::exists(viewer->metadata.stampName)) {
-            setStatus("Loading Stamps...");
+            setStatus("Loading stamps...");
 
             stamps = RSDKv5::Stamps(viewer->metadata.stampName);
 
@@ -849,7 +849,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             ui->stampList->blockSignals(false);
             ui->stampList->setCurrentRow(-1);
 
-            setStatus("Loaded Stamps: " + QFile(stamps.filePath).fileName());
+            setStatus("Loaded stamps from " + QFile(stamps.filePath).fileName());
         }
         else {
             setStatus("Unable to load stamps! file does not exist...");
@@ -860,21 +860,21 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         QString path = stamps.filePath;
 
         if (QFile::exists(path)) {
-            setStatus("Saving Stamps...");
+            setStatus("Saving stamps...");
 
             stamps.write(path);
 
-            setStatus("Saved Stamps: " + QFile(stamps.filePath).fileName());
+            setStatus("Saved stamps to " + QFile(stamps.filePath).fileName());
         }
         else {
             QFileDialog filedialog(this, tr("Save Stamps"), "", tr("RSDKv5 Stamps (*.bin)"));
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
-                setStatus("Saving Stamps...");
+                setStatus("Saving stamps...");
                 QString path = filedialog.selectedFiles()[0];
 
                 stamps.write(path);
-                setStatus("Saved Stamps: " + QFile(stamps.filePath).fileName());
+                setStatus("Saved stamps to " + QFile(stamps.filePath).fileName());
             }
         }
     });
@@ -990,21 +990,21 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     connect(scnProp->syncSC, &QPushButton::clicked, [this] {});
 
     connect(scnProp->reloadLink, &QPushButton::clicked, [this] {
-        setStatus("Reloading Game Link... Please Wait...");
+        setStatus("Reloading Game Link...");
         viewer->stopTimer();
 
         loadGameLinks();
         initGameLink();
 
         viewer->startTimer();
-        setStatus("Game Link Reloaded Successfully!");
+        setStatus("Game Link reloaded successfully!");
     });
 
     connect(ui->exportSceneImg, &QPushButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Save Image"), "", tr("PNG Files (*.png)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
-            setStatus("Rendering Output Image...", true);
+            setStatus("Rendering image...", true);
             viewer->queueRender(filedialog.selectedFiles()[0]);
         }
     });
@@ -1250,22 +1250,15 @@ bool SceneEditorv5::event(QEvent *event)
 
         case RE_EVENT_SAVE:
             if (QFile::exists(scene.filepath)) {
-                setStatus("Saving Scene...");
-
                 saveScene(scene.filepath);
                 return true;
             }
             else {
-                QList<QString> types = {
-                    "RSDKv5 Scenes (Scene*.bin)",
-                };
-
                 QFileDialog filedialog(
                     this, tr("Save Scene"), "",
-                    tr(QString("%1;;%2;;%3;;%4").arg(types[0]).toStdString().c_str()));
+                    tr("RSDKv5 Scenes (Scene*.bin)"));
                 filedialog.setAcceptMode(QFileDialog::AcceptSave);
                 if (filedialog.exec() == QDialog::Accepted) {
-                    setStatus("Saving Scene...");
                     QString path = filedialog.selectedFiles()[0];
 
                     saveScene(path);
@@ -1275,15 +1268,10 @@ bool SceneEditorv5::event(QEvent *event)
             break;
 
         case RE_EVENT_SAVE_AS: {
-            QList<QString> types = {
-                "RSDKv5 Scenes (Scene*.bin)",
-            };
-
             QFileDialog filedialog(this, tr("Save Scene"), "",
-                                   tr(QString("%1;;%2;;%3;;%4").arg(types[0]).toStdString().c_str()));
+                                   tr("RSDKv5 Scenes (Scene*.bin)"));
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
-                setStatus("Saving Scene...");
                 QString path = filedialog.selectedFiles()[0];
 
                 saveScene(path);
@@ -1308,8 +1296,6 @@ bool SceneEditorv5::event(QEvent *event)
                     QString path = scene.filepath;
 
                     if (QFile::exists(path)) {
-                        setStatus("Saving Scene...");
-
                         saveScene(path);
                         return true;
                     }
@@ -1323,7 +1309,6 @@ bool SceneEditorv5::event(QEvent *event)
                             tr(QString("%1;;%2;;%3;;%4").arg(types[0]).toStdString().c_str()));
                         filedialog.setAcceptMode(QFileDialog::AcceptSave);
                         if (filedialog.exec() == QDialog::Accepted) {
-                            setStatus("Saving Scene...");
                             QString path = filedialog.selectedFiles()[0];
 
                             saveScene(path);
@@ -2212,7 +2197,7 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     clearActions();
     appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, scnPath,
                             QList<QString>{ gcfPath, gameConfig.readFilter ? "2" : "1" });
-    setStatus("Loaded Scene: " + QFileInfo(scnPath).fileName()); // done!
+    setStatus("Loaded scene " + QFileInfo(scnPath).fileName()); // done!
 
     viewer->startTimer();
 }
@@ -2220,6 +2205,7 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
 void SceneEditorv5::saveScene(QString path)
 {
     // saving
+    setStatus("Saving scene...");
     QString pth      = path;
     QString basePath = pth.replace(QFileInfo(pth).fileName(), "");
 
@@ -2267,6 +2253,7 @@ void SceneEditorv5::saveScene(QString path)
 
         scene.layers.append(layer);
     }
+    addStatusProgress(1.f / 6);
 
     scene.objects.clear();
     for (SceneObject &obj : viewer->objects) {
@@ -2280,6 +2267,7 @@ void SceneEditorv5::saveScene(QString path)
         }
         scene.objects.append(object);
     }
+    addStatusProgress(1.f / 6);
 
     for (SceneEntity &entity : viewer->entities) {
         if (entity.type >= 0 && entity.type < viewer->objects.count()) {
@@ -2301,6 +2289,7 @@ void SceneEditorv5::saveScene(QString path)
             // what happened here???
         }
     }
+    addStatusProgress(1.f / 6);
 
     FormatHelpers::Gif tileset(16, 0x400 * 16);
 
@@ -2314,8 +2303,10 @@ void SceneEditorv5::saveScene(QString path)
             for (int x = 0; x < 16; ++x) tileset.pixels[pos++] = *src++;
         }
     }
+    addStatusProgress(1.f / 6);
 
     scene.write(path);
+    addStatusProgress(1.f / 6);
 
     tileconfig.write(basePath + "TileConfig.bin");
     stageConfig.write(basePath + "StageConfig.bin");
@@ -2324,8 +2315,9 @@ void SceneEditorv5::saveScene(QString path)
 
     tabTitle = Utils::getFilenameAndFolder(path);
     clearActions();
+    //TODO:  ??? why is this gcf /gen
     appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, path, QList<QString>{ gameConfig.filePath });
-    setStatus("Saved Scene: " + Utils::getFilenameAndFolder(scene.filepath));
+    setStatus("Saved scene to " + Utils::getFilenameAndFolder(scene.filepath));
 }
 
 void SceneEditorv5::createEntityList()
@@ -3177,7 +3169,7 @@ void SceneEditorv5::resetAction()
 
     updateTitle(actionIndex > 0);
 
-    setStatus("redid Action: " + actions[actionIndex].name);
+    //setStatus("redid Action: " + actions[actionIndex].name);
 }
 
 void SceneEditorv5::doAction(QString name, bool setModified)
@@ -3231,7 +3223,7 @@ void SceneEditorv5::doAction(QString name, bool setModified)
 
     updateTitle(setModified);
 
-    setStatus("Did Action: " + name);
+    //setStatus("Did Action: " + name);
 }
 void SceneEditorv5::clearActions()
 {

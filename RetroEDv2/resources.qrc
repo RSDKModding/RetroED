@@ -4,6 +4,7 @@
         <file>resources/RSDKv4FileList.txt</file>
         <file>icons/missing.png</file>
         <file>icons/missing2.png</file>
+        <file>icons/icon.svg</file>
         <file>icons/win.ico</file>
         <file>shaders/pre/default.vert</file>
         <file>shaders/pre/place.frag</file>

@@ -226,7 +226,7 @@ void PaletteEditor::switchBank(int id)
 void PaletteEditor::undoAction()
 {
     if (actionIndex > 0) {
-        setStatus("Undid Action: " + actions[actionIndex].name);
+        //setStatus("Undid Action: " + actions[actionIndex].name);
         actionIndex--;
         resetAction();
     }
@@ -234,7 +234,7 @@ void PaletteEditor::undoAction()
 void PaletteEditor::redoAction()
 {
     if (actionIndex + 1 < actions.count()) {
-        setStatus("Redid Action: " + actions[actionIndex].name);
+        //setStatus("Redid Action: " + actions[actionIndex].name);
         actionIndex++;
         resetAction();
     }
@@ -281,7 +281,7 @@ void PaletteEditor::doAction(QString name, bool setModified)
 
     updateTitle(setModified);
 
-    setStatus("Did Action: " + name);
+    //setStatus("Did Action: " + name);
 }
 void PaletteEditor::clearActions()
 {
@@ -435,13 +435,14 @@ bool PaletteEditor::event(QEvent *event)
                                tr(types.join(";;").toStdString().c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
-            setStatus("Opening palette \"" + Utils::getFilenameAndFolder(filedialog.selectedFiles()[0])
-                      + "\"");
             reinit();
 
+            setStatus("Loading palette...", true);
             QString filepath = filedialog.selectedFiles()[0];
+            tabTitle = Utils::getFilenameAndFolder(filepath);
             int type         = typesList.indexOf(filedialog.selectedNameFilter());
             load(filepath, type);
+            setStatus("Loaded palette from " + tabTitle);
 
             appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
             return true;
@@ -454,7 +455,8 @@ bool PaletteEditor::event(QEvent *event)
                                    tr(typesList[palType].toStdString().c_str()));
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
-                setStatus("Saving palette...");
+                setStatus("Saving palette...", true);
+                //TODO: fuck this rdc can do this later what the fuck
 
                 QString filepath = filedialog.selectedFiles()[0];
                 switch (palType) {

@@ -44,14 +44,21 @@ void setStatus(QString status, bool useStatus)
     if (!statusLabel)
         return;
 
-    printLog("Set Status to: " + status);
+    if (statusProgress && statusProgress->value() != statusProgress->maximum()) {
+        addStatusProgress(1);
+    }
+
+    printLog(status + (useStatus ? "   0%" : ""));
     statusLabel->setText(status);
     // statusLabel->repaint();
 
     if (!statusProgress)
         return;
 
-    statusProgress->setValue(useStatus ? 0 : 100);
+    if (useStatus) {
+        statusProgress->show();
+        statusProgress->setValue(0);
+    }
     // statusProgress->repaint();
 }
 
@@ -60,9 +67,40 @@ void addStatusProgress(float percent)
     if (!statusProgress)
         return;
     percent *= statusProgress->maximum();
+    int v = statusProgress->value() + percent;
+    if (v > statusProgress->maximum())
+        v = statusProgress->maximum();
+    statusProgress->setValue(v);
 
-    statusProgress->setValue(statusProgress->value() + percent);
+    if (statusProgress->value() == statusProgress->maximum())
+        statusProgress->hide();
+
+    if (!statusLabel)
+        return;
+
+    printLog(QString(" ").repeated(statusLabel->text().length()) + QString(" %1").arg(v, 3) + "%");
     // statusProgress->repaint();
+}
+
+void setStatusProgress(float percent)
+{
+    if (!statusProgress)
+        return;
+    percent *= statusProgress->maximum();
+    if (percent > statusProgress->maximum())
+        percent = statusProgress->maximum();
+    if ((int)percent == statusProgress->value())
+        return;
+    statusProgress->setValue(percent);
+
+    if (statusProgress->value() == statusProgress->maximum())
+        statusProgress->hide();
+
+    if (!statusLabel)
+        return;
+
+    printLog(QString(" ").repeated(statusLabel->text().length()) + QString(" %1").arg((int)percent, 3)
+             + "%");
 }
 
 void refreshScnEditorVerts(int w, int h)

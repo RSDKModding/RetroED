@@ -137,7 +137,7 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     bytecodeName = dir.dirName();
                 }
 
-                setStatus("Compiling " + bytecodeName + ".bin...");
+                setStatus("Compiling " + bytecodeName + ".bin...", true);
 
                 compilerv4.clearScriptData();
                 compilerv4.gamePlatform      = "STANDARD";
@@ -237,6 +237,7 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                             hasError = true;
                             break;
                         }
+                        setStatusProgress(((float)i + 1 / gameConfig.objects.count()) / 2);
                     }
                 }
                 int globalScriptCodePos = compilerv4.scriptDataPos;
@@ -288,6 +289,7 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                         hasError = true;
                         break;
                     }
+                    setStatusProgress(((float)i + 1 / stageConfig.objects.count()) / 2 + .5);
                 }
                 int scriptCodePos = compilerv4.scriptDataPos;
                 int jumpTablePos  = compilerv4.jumpTableDataPos;
@@ -340,15 +342,16 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 
                     bytecode.write(outputFolder + bytecodeName + ".bin");
 
-                    setStatus(bytecodeName + ".bin Compiled Successfully!");
+                    setStatus(bytecodeName + ".bin compiled successfully!");
                     QMessageBox msgBox(QMessageBox::Information, "RetroED",
-                                       QString(bytecodeName + ".bin Compiled Successfully!"),
+                                       QString(bytecodeName + ".bin compiled successfully!"),
                                        QMessageBox::Ok);
                     msgBox.exec();
                 }
                 else {
-                    setStatus(bytecodeName + ".bin Compilation failed...");
+                    setStatus(bytecodeName + ".bin compilation failed...");
                 }
+
                 break;
             }
             case ENGINE_v3: {
@@ -367,7 +370,7 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     bytecodeName = dir.dirName();
                 }
 
-                setStatus("Compiling " + bytecodeName + ".bin...");
+                setStatus("Compiling " + bytecodeName + ".bin...", true);
 
                 compilerv3.clearScriptData();
                 compilerv3.gamePlatform      = "Standard";
@@ -446,6 +449,7 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                             hasError = true;
                             break;
                         }
+                        setStatusProgress(((float)i + 1 / gameConfig.objects.count()) / 2);
                     }
                 }
                 int globalScriptCodePos = compilerv3.scriptDataPos;
@@ -485,6 +489,7 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                         hasError = true;
                         break;
                     }
+                    setStatusProgress(((float)i + 1 / stageConfig.objects.count()) / 2 + .5);
                 }
                 int scriptCodePos = compilerv3.scriptDataPos;
                 int jumpTablePos  = compilerv3.jumpTableDataPos;
@@ -544,20 +549,20 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 
                     bytecode.write(outputFolder + bytecodeName + ".bin");
 
-                    setStatus(bytecodeName + ".bin Compiled Successfully!");
+                    setStatus(bytecodeName + ".bin compiled successfully!");
                     QMessageBox msgBox(QMessageBox::Information, "RetroED",
-                                       QString(bytecodeName + ".bin Compiled Successfully!"),
+                                       QString(bytecodeName + ".bin compiled successfully!"),
                                        QMessageBox::Ok);
                     msgBox.exec();
                 }
                 else {
-                    setStatus(bytecodeName + ".bin Compilation failed...");
+                    setStatus(bytecodeName + ".bin compilation failed...");
                 }
                 break;
             }
             case ENGINE_v1: {
                 QString scrName = Utils::getFilenameAndFolder(ui->trScript->text());
-                setStatus("Compiling " + scrName + "...");
+                setStatus("Compiling " + scrName + "...", true);
                 compilerv1.parseScriptFile(ui->trScript->text());
 
                 if (compilerv1.scriptError) {
@@ -587,6 +592,7 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     break;
                 }
                 else {
+                    setStatus(scrName + " compiled successfully");
                     compilerv1.script.write(ui->trBytecodePath->text());
                 }
 

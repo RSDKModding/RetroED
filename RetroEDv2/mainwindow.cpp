@@ -236,7 +236,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     QMenu *tools = new QMenu("Tools");
     tools->addAction("RSDK Unpacker", [this] {
-        setStatus("Opening RSDK Unpacker...");
+        setStatus("Opening RSDK unpacker...");
         RSDKUnpacker *tool = new RSDKUnpacker;
         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "RSDK Unpacker"));
     });
@@ -248,7 +248,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         SceneEditor *tool = new SceneEditor();
         tool->installEventFilter(this);
         addTab(tool, "Scene Editor");
-        setStatus("Opening Scene Editor");
     });
 
     scn->addAction("v5 (Sonic Mania)", [this] {
@@ -256,7 +255,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         SceneEditorv5 *tool = new SceneEditorv5();
         tool->installEventFilter(this);
         addTab(tool, "Scene Editor (v5)");
-        setStatus("Opening Scene Editor");
     });
     tools->addMenu(scn);
 

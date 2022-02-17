@@ -44,7 +44,9 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
             QString baseDir = filedialog.selectedFiles()[0];
-            setStatus("Unpacking Datafile...");
+            setStatus("Unpacking Datafile...", true);
+            float total = files.count();
+            int count   = 0;
 
             for (FileInfo &file : files) {
                 QString fDir = file.filename;
@@ -58,9 +60,10 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
                 f.open(QIODevice::WriteOnly);
                 f.write(file.fileData);
                 f.close();
+                setStatusProgress(++count / total);
             }
 
-            setStatus("Datafile unpacked to: " + baseDir);
+            setStatus("Datafile unpacked to " + baseDir);
         }
     });
 
@@ -69,7 +72,7 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
         filedialog.setFileMode(QFileDialog::Directory);
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
-            setStatus("Creating Datafile...");
+            setStatus("Creating Datafile...", true);
             QString dir  = filedialog.selectedFiles()[0] + "/";
             QDir dirInfo = QDir(dir);
             dirInfo.cdUp();
@@ -245,12 +248,15 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
         }
     }
 
-    setStatus("Loading Datafile...");
+    setStatus("Loading Datafile...", true);
+    // TODO: segment this somehow
     files.clear();
     switch (gameVer) {
         case ENGINE_v5: // RSDKv5
         {
             RSDKv5::Datafile datafilev5(reader, fileList);
+            int count   = 0;
+            float total = datafilev5.files.count();
 
             for (RSDKv5::Datafile::FileInfo &file : datafilev5.files) {
                 FileInfo info;
@@ -262,12 +268,15 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
                 files.append(info);
 
                 ui->fileList->addItem(file.fileName);
+                setStatusProgress(++count / total);
             }
             break;
         }
         case ENGINE_v4: // RSDKv4
         {
             RSDKv4::Datafile datafilev4(reader, fileList);
+            int count   = 0;
+            float total = datafilev4.files.count();
 
             for (RSDKv4::Datafile::FileInfo &file : datafilev4.files) {
                 FileInfo info;
@@ -279,12 +288,15 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
                 files.append(info);
 
                 ui->fileList->addItem(file.fileName);
+                setStatusProgress(++count / total);
             }
             break;
         }
         case ENGINE_v3: // RSDKv3
         {
             RSDKv3::Datafile datafilev3(reader);
+            int count   = 0;
+            float total = datafilev3.files.count();
 
             for (RSDKv3::Datafile::FileInfo &file : datafilev3.files) {
                 FileInfo info;
@@ -296,12 +308,15 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
                 files.append(info);
 
                 ui->fileList->addItem(file.fullFileName);
+                setStatusProgress(++count / total);
             }
             break;
         }
         case ENGINE_v2: // RSDKv2
         {
             RSDKv2::Datafile datafilev2(reader);
+            int count   = 0;
+            float total = datafilev2.files.count();
 
             for (RSDKv2::Datafile::FileInfo &file : datafilev2.files) {
                 FileInfo info;
@@ -312,12 +327,15 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
                 files.append(info);
 
                 ui->fileList->addItem(file.fullFileName);
+                setStatusProgress(++count / total);
             }
             break;
         }
         case ENGINE_v1: // RSDKv1
         {
             RSDKv1::Datafile datafilev1(reader);
+            int count   = 0;
+            float total = datafilev1.files.count();
 
             for (RSDKv1::Datafile::FileInfo &file : datafilev1.files) {
                 FileInfo info;
@@ -328,6 +346,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
                 files.append(info);
 
                 ui->fileList->addItem(file.fullFilename);
+                setStatusProgress(++count / total);
             }
             break;
         }
@@ -335,6 +354,8 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
             + 1: // ARC
         {
             RSDKv3::ArcContainer arcContainer(reader);
+            int count   = 0;
+            float total = arcContainer.files.count();
 
             for (RSDKv3::ArcContainer::FileInfo &file : arcContainer.files) {
                 FileInfo info;
@@ -345,6 +366,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
                 files.append(info);
 
                 ui->fileList->addItem(file.fileName);
+                setStatusProgress(++count / total);
             }
             break;
         }

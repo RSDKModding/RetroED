@@ -724,13 +724,13 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(scnProp->syncSC, &QPushButton::clicked, [this] {});
 
     connect(scnProp->reloadLink, &QPushButton::clicked, [this] {
-        setStatus("Reloading Game Link... Please Wait...");
+        setStatus("Reloading Game Link...", true);
         viewer->stopTimer();
 
         initGameLink();
 
         viewer->startTimer();
-        setStatus("Game Link Reloaded Successfully!");
+        setStatus("Game Link reloaded successfully!");
     });
 
     connect(ui->exportSceneImg, &QPushButton::clicked, [this] {
@@ -1416,7 +1416,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
 void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 {
-    setStatus("Loading Scene...", true);
+    setStatus("Loading scene...", true);
 
     viewer->objectsLoaded = false;
 
@@ -1518,7 +1518,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     viewer->objectsLoaded = true;
     clearActions();
     appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR, scnPath, QList<QString>{ gcfPath });
-    setStatus("Loaded Scene: " + QFileInfo(scnPath).fileName()); // done!
+    setStatus("Loaded scene " + QFileInfo(scnPath).fileName()); // done!
 }
 
 bool SceneEditor::saveScene(bool forceSaveAs)
@@ -1526,7 +1526,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
     QString path = viewer->scene.filepath;
 
     if (!forceSaveAs && QFile::exists(path)) {
-        setStatus("Saving Scene...");
+        setStatus("Saving scene...", true);
         QString basePath = path.replace(QFileInfo(path).fileName(), "");
 
         FormatHelpers::Gif tileset(16, 0x400 * 16);
@@ -1541,9 +1541,10 @@ bool SceneEditor::saveScene(bool forceSaveAs)
                 for (int x = 0; x < 16; ++x) tileset.pixels[pos++] = *src++;
             }
         }
-
         viewer->scene.objects.clear();
         viewer->scene.objectTypeNames.clear();
+        
+        addStatusProgress(1.f / 5);
 
         int globalObjCount = 0;
         if (viewer->stageConfig.loadGlobalScripts) {
@@ -1552,6 +1553,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
 
             globalObjCount += viewer->gameConfig.objects.count();
         }
+        addStatusProgress(1.f / 5);
 
         int objID = 0;
         for (auto &obj : viewer->objects) {
@@ -1560,6 +1562,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
 
             objID++;
         }
+        addStatusProgress(1.f / 5);
 
         for (auto &ent : viewer->entities) {
             FormatHelpers::Scene::Object entity;
@@ -1576,6 +1579,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
 
             viewer->scene.objects.append(entity);
         }
+        addStatusProgress(1.f / 5);
 
         if (viewer->gameType != ENGINE_v1) {
             viewer->scene.write(viewer->gameType, viewer->scene.filepath);
@@ -1605,7 +1609,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
 
         tabTitle = Utils::getFilenameAndFolder(path);
         clearActions();
-        setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));
+        setStatus("Saved scene to" + Utils::getFilenameAndFolder(viewer->scene.filepath));
         return true;
     }
     else {
@@ -1630,7 +1634,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
         if (filedialog.exec() == QDialog::Accepted) {
             int saveVer = types.indexOf(filedialog.selectedNameFilter()) + ENGINE_v4;
 
-            setStatus("Saving Scene...");
+            setStatus("Saving scene...", true);
             QString path     = filedialog.selectedFiles()[0];
             QString basePath = path.replace(QFileInfo(path).fileName(), "");
 
@@ -1638,6 +1642,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
 
             int c = 0;
             for (PaletteColour &col : viewer->tilePalette) tileset.palette[c++] = col.toQColor();
+            addStatusProgress(1.f / 3);
 
             int pos = 0;
             for (int i = 0; i < 0x400; ++i) {
@@ -1646,6 +1651,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
                     for (int x = 0; x < 16; ++x) tileset.pixels[pos++] = *src++;
                 }
             }
+            addStatusProgress(1.f / 3);
 
             RSDKv1::TileConfig tileconfigRS;
 
@@ -1684,7 +1690,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
 
             tabTitle = Utils::getFilenameAndFolder(path);
             clearActions();
-            setStatus("Saved Scene: " + Utils::getFilenameAndFolder(viewer->scene.filepath));
+            setStatus("Saved scene to " + Utils::getFilenameAndFolder(viewer->scene.filepath));
             return true;
         }
     }
@@ -2741,7 +2747,7 @@ void SceneEditor::doAction(QString name, bool setModified)
 
     updateTitle(setModified);
 
-    setStatus("Did Action: " + name);
+    //setStatus("Did Action: " + name);
 }
 void SceneEditor::clearActions()
 {

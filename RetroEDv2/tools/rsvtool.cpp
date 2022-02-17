@@ -23,13 +23,15 @@ RSVTool::RSVTool(QWidget *parent) : QWidget(parent), ui(new Ui::RSVTool)
         if (filedialog.exec() == QDialog::Accepted) {
             QString path = filedialog.selectedFiles()[0];
             QDir(QDir::tempPath()).mkpath(path + "/Frames/");
-            setStatus("Loading RSV...");
+            setStatus("Loading RSV...", true);
             RSDKv3::Video rsv(rsvPath);
 
             int id = 0;
-            setStatus("Extracting Frames...");
-            for (auto &f : rsv.frames)
+            setStatus("Extracting Frames...", true);
+            for (auto &f : rsv.frames) {
                 f.write(QString(path + "/Frames/Frame%1.gif").arg(id++, 6, 10, QLatin1Char('0')));
+                setStatusProgress((float)id / rsv.frames.count());
+            }
             setStatus(QString("Extracted %1 Frames to: %2/Frames/").arg(rsv.frames.count()).arg(path));
         }
     });
@@ -61,7 +63,7 @@ RSVTool::RSVTool(QWidget *parent) : QWidget(parent), ui(new Ui::RSVTool)
             std::sort(framePaths.begin(), framePaths.end(),
                       [](const QString &a, const QString &b) -> bool { return a < b; });
 
-            setStatus("Importing Frames...");
+            setStatus("Importing Frames...", true);
             RSDKv3::Video rsv;
             int w = -1, h = -1;
 
@@ -84,7 +86,7 @@ RSVTool::RSVTool(QWidget *parent) : QWidget(parent), ui(new Ui::RSVTool)
                 rsv.frames.append(frame);
             }
 
-            setStatus("Saving RSV...");
+            setStatus("Saving RSV...", true);
             rsv.write(savePath);
             setStatus(QString("Saved RSV %1").arg(savePath));
         }

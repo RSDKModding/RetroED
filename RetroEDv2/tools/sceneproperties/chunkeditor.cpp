@@ -284,10 +284,12 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         if (filedialog.exec() == QDialog::Accepted) {
             QString path = filedialog.selectedFiles()[0];
             int id       = 0;
-            setStatus("Exporting Chunks As Images...");
-            for (int c = 0; c < 0x200; ++c)
+            setStatus("Exporting chunks as images...");
+            for (int c = 0; c < 0x200; ++c) {
                 chunks->chunks[c].getImage(tileList).save(QString(path + "/Chunk %1.png").arg(id++));
-            setStatus(QString("Exported Chunks to: %2/").arg(path));
+                setStatusProgress(c / (float)0x200);
+            }
+            setStatus(QString("Exported chunks to %2/").arg(path));
         }
     });
 

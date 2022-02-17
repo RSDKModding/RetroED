@@ -86,7 +86,7 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColour> &pal,
             int filter = types.indexOf(filedialog.selectedNameFilter());
             QImage img;
 
-            setStatus("Finished Importing Tile(s)...");
+            setStatus("Importing tiles...");
 
             if (!filter) {
                 QGifImage gif(filedialog.selectedFiles()[0]);
@@ -158,7 +158,7 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColour> &pal,
                 ui->tileList->item(p)->setIcon(QPixmap::fromImage(tileList.at(p)));
             }
 
-            setStatus("Finished Importing Tile(s)!");
+            setStatus("Finished importing tiles!");
         }
     });
 }

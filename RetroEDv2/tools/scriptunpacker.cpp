@@ -29,7 +29,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     globalPath = dataPath + "/Scripts/Bytecode/GlobalCode.bin";
                     mobileVer  = true;
                     if (!QFile::exists(globalPath)) {
-                        setStatus("no global bytecode found in folder! aborting extraction!");
+                        setStatus("No global bytecode found in folder! Aborting extraction!");
                         return;
                     }
                 }
@@ -38,7 +38,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                 variableNames.clear();
 
                 if (!QFile::exists(dataPath + "/Game/GameConfig.bin")) {
-                    setStatus("no gameconfig found in folder! aborting extraction!");
+                    setStatus("No GameConfig found in folder! Aborting extraction!");
                     return;
                 }
                 else {
@@ -68,7 +68,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 
                     for (auto &v : gcf.globalVariables) variableNames.append(v.name);
 
-                    printLog("Loading Global Bytecode: " + globalPath);
+                    printLog("Loading global bytecode: " + globalPath);
 
                     QList<QString> categoryChars = { "PS", "RS", "SS", "BS" };
                     for (int cat = 0; cat < 4; ++cat) {
@@ -103,18 +103,18 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                             stageInfo.loadGlobals = scf.loadGlobalScripts;
                             bytecodeList.append(stageInfo);
 
-                            printLog("Loading Stage Bytecode: " + s.name + " (" + stageInfo.path + ")");
+                            printLog("Loading stage bytecode " + s.name + " (" + stageInfo.path + ")");
                         }
                     }
 
-                    setStatus(QString("loaded %1 bytecode files!").arg(bytecodeList.count()));
+                    setStatus(QString("Loaded %1 bytecode files!").arg(bytecodeList.count()));
                 }
             }
             else if (ui->selEngineType->currentIndex() == 1) {
                 QString globalPath = dataPath + "/../Bytecode/GlobalCode.bin";
                 mobileVer          = true;
                 if (!QFile::exists(globalPath)) {
-                    setStatus("no global bytecode found in folder! aborting extraction!");
+                    setStatus("No global bytecode found in folder! Aborting extraction!");
                     return;
                 }
 
@@ -122,7 +122,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                 variableNames.clear();
 
                 if (!QFile::exists(dataPath + "/Game/GameConfig.bin")) {
-                    setStatus("no gameconfig found in folder! aborting extraction!");
+                    setStatus("No GameConfig found in folder! Aborting extraction!");
                     return;
                 }
                 else {
@@ -152,7 +152,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 
                     for (auto &v : gcf.globalVariables) variableNames.append(v.name);
 
-                    printLog("Loading Global Bytecode: " + globalPath);
+                    printLog("Loading global bytecode " + globalPath);
 
                     for (int cat = 0; cat < 4; ++cat) {
                         auto &c = gcf.stageLists[cat];
@@ -175,11 +175,11 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                             stageInfo.loadGlobals = scf.loadGlobalScripts;
                             bytecodeList.append(stageInfo);
 
-                            printLog("Loading Stage Bytecode: " + s.name + " (" + stageInfo.path + ")");
+                            printLog("Loading stage bytecode " + s.name + " (" + stageInfo.path + ")");
                         }
                     }
 
-                    setStatus(QString("loaded %1 bytecode files!").arg(bytecodeList.count()));
+                    setStatus(QString("Loaded %1 bytecode files!").arg(bytecodeList.count()));
                 }
             }
         }
@@ -191,6 +191,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
             QString outputPath = filedialog.selectedFiles()[0];
+            setStatus("Decompiling scripts...", true);
 
             if (ui->selEngineType->currentIndex() == 0) {
                 decompilerv3.seperateFolders  = ui->sepFolders->isChecked();
@@ -282,8 +283,8 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                         globalFunctionScripts.clear();
                         for (auto &n : decompilerv3.functionNames) globalFunctionNames.append(n);
                     }
+                    setStatusProgress((float)b + 1 / bytecodeList.count());
                 }
-                setStatus("finished decompiling scripts!");
             }
             else if (ui->selEngineType->currentIndex() == 1) {
                 decompilerv4.seperateFolders  = ui->sepFolders->isChecked();
@@ -396,12 +397,14 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                         for (auto &n : decompilerv4.staticVars) globalConstants.append(n);
                         for (auto &n : decompilerv4.tables) globalArrays.append(n);
                     }
+                    setStatusProgress((float)b + 1 / bytecodeList.count());
                 }
-                setStatus("finished decompiling scripts!");
             }
+            setStatus("Finished decompiling scripts!");
         }
     });
 
+    //TODO: idk what to do here for status
     connect(ui->loadTRBytecode, &QPushButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Open Retro-Sonic Bytecode"), "",
                                tr("Retro-Sonic Bytecode files (*.rsf)"));

@@ -370,9 +370,8 @@ bool GameConfigEditorv1::event(QEvent *event)
             if (filedialog.exec() == QDialog::Accepted) {
                 QString basePath = filedialog.selectedFiles()[0].replace(
                     QFileInfo(filedialog.selectedFiles()[0]).fileName(), "");
+                setStatus("Loading game configuration...");
                 load(filedialog.selectedFiles()[0]);
-
-                setStatus("Loading GameConfig: " + QFileInfo(filedialog.selectedFiles()[0]).fileName());
 
                 return true;
             }
@@ -385,20 +384,24 @@ bool GameConfigEditorv1::event(QEvent *event)
                 filedialog.setAcceptMode(QFileDialog::AcceptSave);
                 if (filedialog.exec() == QDialog::Accepted) {
 
-                    setStatus("Saving Game Configuration: " + filedialog.selectedFiles()[0]);
+                    setStatus("Saving game configuration...", true);
 
                     appConfig.addRecentFile(ENGINE_v1, TOOL_GAMECONFIGEDITOR,
                                             filedialog.selectedFiles()[0], QList<QString>{ /**/ });
                     Writer writer(filedialog.selectedFiles()[0]);
                     characters.write(writer);
+                    addStatusProgress(.2);
 
                     QString baseDir = filedialog.selectedFiles()[0];
                     baseDir         = baseDir.replace(QFileInfo(baseDir).fileName(), "");
                     for (int l = 0; l < 4; ++l) {
                         stageList[l].write(baseDir + "/" + listFileNames[l]);
+                        addStatusProgress(.2);
                     }
 
                     clearActions();
+
+                    setStatus("Saved game configuration");
 
                     return true;
                 }
@@ -428,18 +431,22 @@ bool GameConfigEditorv1::event(QEvent *event)
 
                 switch (filter) {
                     case 0: {
-                        setStatus("Saving Game Configuration: " + filedialog.selectedFiles()[0]);
+                        setStatus("Saving game configuration...", true);
 
                         appConfig.addRecentFile(ENGINE_v1, TOOL_GAMECONFIGEDITOR,
                                                 filedialog.selectedFiles()[0], QList<QString>{ /**/ });
 
                         characters.write(filedialog.selectedFiles()[0]);
+                        addStatusProgress(.2);
 
                         QString baseDir = filedialog.selectedFiles()[0];
                         baseDir         = baseDir.replace(QFileInfo(baseDir).fileName(), "");
                         for (int l = 0; l < 4; ++l) {
                             stageList[l].write(baseDir + "/" + listFileNames[l]);
+                            addStatusProgress(.2);
                         }
+
+                        setStatus("Saved game configuration");
 
                         break;
                     }
@@ -461,8 +468,8 @@ bool GameConfigEditorv1::event(QEvent *event)
                                                tr("RSDKv1 Character List files (Characters*.mdf)"));
                         filedialog.setAcceptMode(QFileDialog::AcceptSave);
                         if (filedialog.exec() == QDialog::Accepted) {
-
-                            setStatus("Saving Game Configuration: " + filedialog.selectedFiles()[0]);
+                            // TODO: you don't save properly here dumbfuck
+                            setStatus("Saving game configuration...");
 
                             appConfig.addRecentFile(ENGINE_v1, TOOL_GAMECONFIGEDITOR,
                                                     filedialog.selectedFiles()[0],

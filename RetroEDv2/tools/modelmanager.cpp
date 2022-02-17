@@ -66,9 +66,11 @@ bool ModelManager::event(QEvent *event)
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
             if (filedialog.selectedNameFilter() == "RSDKv5 Model Files (*.bin)") {
+                setStatus("Loading model...", true);
                 mdlFormat = 0;
                 modelv5.read(filedialog.selectedFiles()[0]);
                 tabTitle = Utils::getFilenameAndFolder(modelv5.filePath);
+                setStatus("Loaded model " + tabTitle);
             }
             else {
                 mdlFormat = 1;
@@ -84,49 +86,56 @@ bool ModelManager::event(QEvent *event)
         switch (mdlFormat) {
             default: break;
             case 0: {
-                if (!QFile::exists(modelv5.filePath)) {
+                if (modelv5.filePath.isEmpty()) {
                     QFileDialog filedialog(this, tr("Save RSDK Model"), "",
                                            tr("RSDKv5 Model Files (*.bin)"));
                     filedialog.setAcceptMode(QFileDialog::AcceptSave);
                     if (filedialog.exec() == QDialog::Accepted) {
-                        setStatus("Saving model...");
+                        setStatus("Saving model...", true);
 
                         QString filepath = filedialog.selectedFiles()[0];
 
                         modelv5.write(filepath);
+                        setStatus("Saved model to " + filepath);
                         updateTitle(false);
                         return true;
                     }
                 }
                 else {
-                    setStatus("Saving model...");
+                    setStatus("Saving model...", true);
 
                     modelv5.write();
+                    setStatus("Saved model to " + modelv5.filePath);
+
                     updateTitle(false);
                     return true;
                 }
                 break;
             }
             case 1: {
-                if (!QFile::exists(modelv4.filePath)) {
+                if (modelv4.filePath.isEmpty()) {
                     QFileDialog filedialog(this, tr("Save RSDK Model"), "",
                                            tr("RSDKv4 Model Files (*.bin)"));
                     filedialog.setAcceptMode(QFileDialog::AcceptSave);
                     if (filedialog.exec() == QDialog::Accepted) {
-                        setStatus("Saving model...");
+                        setStatus("Saving model...", true);
 
                         QString filepath = filedialog.selectedFiles()[0];
 
                         modelv4.write(filepath);
+                        setStatus("Saved model to " + filepath);
+
                         updateTitle(false);
                         return true;
                     }
                 }
                 else {
-                    setStatus("Saving model...");
+                    setStatus("Saving model...", true);
 
                     modelv4.write();
                     updateTitle(false);
+                    setStatus("Saved model to " + modelv5.filePath);
+
                     return true;
                 }
                 break;
@@ -141,11 +150,13 @@ bool ModelManager::event(QEvent *event)
                 QFileDialog filedialog(this, tr("Save Model"), "", tr("RSDKv5 Model Files (*.bin)"));
                 filedialog.setAcceptMode(QFileDialog::AcceptSave);
                 if (filedialog.exec() == QDialog::Accepted) {
-                    setStatus("Saving model...");
+                    setStatus("Saving model...", true);
 
                     QString filepath = filedialog.selectedFiles()[0];
 
                     modelv5.write(filepath);
+                    setStatus("Saved model to " + filepath);
+
                     updateTitle(false);
                     return true;
                 }
@@ -155,11 +166,13 @@ bool ModelManager::event(QEvent *event)
                 QFileDialog filedialog(this, tr("Save Model"), "", tr("RSDKv4 Model Files (*.bin)"));
                 filedialog.setAcceptMode(QFileDialog::AcceptSave);
                 if (filedialog.exec() == QDialog::Accepted) {
-                    setStatus("Saving model...");
+                    setStatus("Saving model...", true);
 
                     QString filepath = filedialog.selectedFiles()[0];
 
                     modelv4.write(filepath);
+                    setStatus("Saved model to " + filepath);
+
                     updateTitle(false);
                     return true;
                 }

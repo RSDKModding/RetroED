@@ -2454,7 +2454,7 @@ void AnimationEditor::loadAnim(QString filepath, int aniType)
 {
     // prolly dont need to do this since its so quick but if you see this loading then hello to all slow
     // PC users out there how do you live with that speed
-    setStatus("Loading Animation File...", true);
+    setStatus("Loading animation file...", true);
 
     appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
 
@@ -2484,7 +2484,7 @@ void AnimationEditor::loadAnim(QString filepath, int aniType)
     clearActions();
     setupUI();
 
-    setStatus("Loaded Animation File: " + tabTitle); // done!
+    setStatus("Loaded animation file " + tabTitle); // done!
 }
 
 bool AnimationEditor::event(QEvent *event)
@@ -2512,7 +2512,7 @@ bool AnimationEditor::event(QEvent *event)
                                    tr(types.join(";;").toStdString().c_str()));
             filedialog.setAcceptMode(QFileDialog::AcceptOpen);
             if (filedialog.exec() == QDialog::Accepted) {
-                setStatus("Opening Animation \""
+                setStatus("Opening animation \""
                           + Utils::getFilenameAndFolder(filedialog.selectedFiles()[0]) + "\"");
 
                 QString filepath = filedialog.selectedFiles()[0];

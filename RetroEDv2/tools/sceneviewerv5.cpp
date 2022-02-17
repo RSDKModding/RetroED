@@ -1639,9 +1639,27 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, float pivotX, flo
 void SceneViewerv5::drawLine(float x1, float y1, float x2, float y2, Vector4<float> colour, int alpha,
                              InkEffects ink)
 {
-    addRenderState(ink, 2, 2, nullptr, alpha, &lineShader);
-    addPoly(x1, y1, 0, 0, colour);
-    addPoly(x2, y2, 0, 0, colour);
+    for (int i = 0; i < zoom; ++i) {
+        addRenderState(ink, 2, 2, nullptr, alpha, &lineShader);
+        addPoly(x1, y1, 0, 0, colour);
+        addPoly(x2, y2, 0, 0, colour);
+        if (x1 > x2) {
+            y1 -= invZoom();
+            y2 -= invZoom();
+        }
+        else if (x1 < x2) {
+            y1 += invZoom();
+            y2 += invZoom();
+        }
+        if (y1 > y2) {
+            x1 += invZoom();
+            x2 += invZoom();
+        }
+        else if (y1 < y2) {
+            x1 -= invZoom();
+            x2 -= invZoom();
+        }
+    }
 
     validDraw = true;
 }
@@ -1655,7 +1673,7 @@ void SceneViewerv5::drawRect(float x, float y, float w, float h, Vector4<float> 
         // bottom
         drawLine(x, y + h, x + w, y + h, colour);
         // left
-        drawLine(x, y, x, y + h, colour);
+        drawLine(x, y, x, y + h + 1, colour);
         // right
         drawLine(x + w, y, x + w, y + h, colour);
     }
