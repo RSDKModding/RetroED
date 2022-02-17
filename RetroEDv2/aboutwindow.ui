@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>420</width>
-    <height>169</height>
+    <height>181</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -23,7 +23,7 @@
    <property name="geometry">
     <rect>
      <x>220</x>
-     <y>130</y>
+     <y>140</y>
      <width>166</width>
      <height>24</height>
     </rect>
@@ -32,14 +32,14 @@
     <enum>Qt::Horizontal</enum>
    </property>
    <property name="standardButtons">
-    <set>QDialogButtonBox::Ok</set>
+    <set>QDialogButtonBox::Ok|QDialogButtonBox::Open</set>
    </property>
   </widget>
   <widget class="QLabel" name="icon">
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>30</y>
+     <y>20</y>
      <width>90</width>
      <height>90</height>
     </rect>
@@ -55,7 +55,7 @@
    <property name="geometry">
     <rect>
      <x>130</x>
-     <y>40</y>
+     <y>30</y>
      <width>241</width>
      <height>21</height>
     </rect>
@@ -63,7 +63,6 @@
    <property name="font">
     <font>
      <pointsize>16</pointsize>
-     <weight>75</weight>
      <bold>true</bold>
     </font>
    </property>
@@ -75,7 +74,7 @@
    <property name="geometry">
     <rect>
      <x>130</x>
-     <y>59</y>
+     <y>50</y>
      <width>111</width>
      <height>20</height>
     </rect>
@@ -94,7 +93,7 @@
    <property name="geometry">
     <rect>
      <x>130</x>
-     <y>80</y>
+     <y>70</y>
      <width>281</width>
      <height>16</height>
     </rect>
@@ -107,7 +106,7 @@
    <property name="geometry">
     <rect>
      <x>130</x>
-     <y>100</y>
+     <y>90</y>
      <width>281</width>
      <height>16</height>
     </rect>
@@ -119,6 +118,25 @@
    </property>
    <property name="text">
     <string>By Rubberduckycooly &amp; RMGRich</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="autobuildLabel">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>112</y>
+     <width>381</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <italic>true</italic>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>THIS IS AN AUTOBUILD! Things may be broken.</string>
    </property>
   </widget>
  </widget>

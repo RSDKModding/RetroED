@@ -10,6 +10,9 @@ AboutWindow::AboutWindow(QWidget *parent) : QDialog(parent), ui(new Ui::AboutWin
     this->setFixedSize(QSize(this->width(), this->height()));
 
     ui->versionLabel->setText(RE_VERSION);
+#if RE_BUILD_TYPE != (2)
+    ui->autobuildLabel->hide();
+#endif
 }
 
 AboutWindow::~AboutWindow() { delete ui; }
