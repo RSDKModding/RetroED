@@ -15,13 +15,13 @@ jobs:
       uses: jurplel/install-qt-action@v2.14.0
     - name: Download and install Jom 
       run: |
-        Invoke-WebRequest -Uri "http://download.qt.io/official_releases/jom/jom.zip" -OutFile "jom.zip"
-        Expand-Archive -Path SDL2.zip -DestinationPath $Qt5_Dir/bin
+        Invoke-WebRequest http://download.qt.io/official_releases/jom/jom.zip -OutFile "jom.zip"
+        Expand-Archive -Path jom.zip -DestinationPath $Qt5_Dir/bin
     - name: Run versiongen
       working-directory: RetroEDv2
       run: |
         py -m pip install pytz
-        py versiongen.py $GITHUB_SHA
+        py ./versiongen.py $GITHUB_SHA
         mkdir ../build
     - name: Build RetroED
       working-directory: build
