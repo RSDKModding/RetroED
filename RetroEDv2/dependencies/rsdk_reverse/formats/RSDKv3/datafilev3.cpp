@@ -92,14 +92,12 @@ void RSDKv3::Datafile::write(Writer &writer)
     int dir                      = 0;
     directories[dir].startOffset = 0;
     for (int i = 0; i < files.count(); ++i) {
-        if (files[i].dirID == dir) {
-            files[i].write(writer);
-        }
-        else {
+        if (files[i].dirID != dir) {
             ++dir;
             directories[dir].startOffset = (int)writer.tell() - dirHeaderSize;
-            files[i].write(writer);
         }
+
+        files[i].write(writer);
     }
 
     // 2nd pass
@@ -114,13 +112,10 @@ void RSDKv3::Datafile::write(Writer &writer)
 
     dir = 0;
     for (int i = 0; i < files.count(); ++i) {
-        if (files[i].dirID == dir) {
-            files[i].write(writer);
-        }
-        else {
+        if (files[i].dirID != dir)
             ++dir;
-            files[i].write(writer);
-        }
+
+        files[i].write(writer);
     }
 
     writer.flush();

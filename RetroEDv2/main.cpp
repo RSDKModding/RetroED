@@ -55,7 +55,7 @@ void initConsole()
 
 int main(int argc, char *argv[])
 {
-    initConsole();
+    // initConsole();
 
     QSurfaceFormat format;
     format.setDepthBufferSize(24);
@@ -131,6 +131,10 @@ int main(int argc, char *argv[])
         writer.write(bytes);
         writer.flush();
     }
+
+    printLog("====================================================");
+    printLog("New RetroED instance: " + QDateTime::currentDateTime().toString());
+    printLog("====================================================");
 
     GameLink::Setup();
 

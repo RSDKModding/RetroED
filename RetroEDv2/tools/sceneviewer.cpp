@@ -1082,8 +1082,6 @@ void SceneViewer::initializeGL()
 
     QOpenGLContext *glContext = QOpenGLContext::currentContext();
     QSurfaceFormat fmt        = glContext->format();
-    printLog("Widget Using OpenGL " + QString::number(fmt.majorVersion()) + "."
-             + QString::number(fmt.minorVersion()));
 
     const unsigned char *vendor     = f->glGetString(GL_VENDOR);
     const unsigned char *renderer   = f->glGetString(GL_RENDERER);
@@ -1097,14 +1095,17 @@ void SceneViewer::initializeGL()
     QString sdrVersionStr = reinterpret_cast<const char *>(sdrVersion);
     QString extensionsStr = reinterpret_cast<const char *>(extensions);
 
-    printLog("OpenGL Details");
+    printLog("SceneViewer OpenGL Details");
+    printLog("GL Version:   " + QString::number(fmt.majorVersion()) + "."
+             + QString::number(fmt.minorVersion()));
     printLog("Vendor:       " + vendorStr);
     printLog("Renderer:     " + rendererStr);
     printLog("Version:      " + versionStr);
     printLog("GLSL version: " + sdrVersionStr);
-    printLog("Extensions:   " + extensionsStr);
-    printLog((QOpenGLContext::currentContext()->isOpenGLES() ? "Using OpenGLES" : "Using OpenGL"));
-    printLog((QOpenGLContext::currentContext()->isValid() ? "Is valid" : "Not valid"));
+    printLog("Extensions:   " + (extensionsStr == "" ? "None" : extensionsStr));
+    printLog("GLType:       "
+             + QString(QOpenGLContext::currentContext()->isOpenGLES() ? "OpenGLES" : "OpenGL"));
+    printLog("Valid:        " + QString(QOpenGLContext::currentContext()->isValid() ? "Yes" : "No"));
 
     f->glEnable(GL_DEPTH_TEST);
     f->glDepthFunc(GL_LESS);

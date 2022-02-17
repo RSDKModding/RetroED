@@ -80,6 +80,7 @@ SOURCES += \
     tools/scriptcompiler.cpp \
     tools/scriptunpacker.cpp \
     tools/userdbmanager.cpp \
+    tools/utils/modelviewer.cpp \
     tools/utils/propertygrid.cpp \
     utils/appconfig.cpp \
     utils/retroedutils.cpp \
@@ -145,13 +146,15 @@ HEADERS += \
     tools/scriptcompiler.hpp \
     tools/scriptunpacker.hpp \
     tools/userdbmanager.hpp \
+    tools/utils/modelviewer.hpp \
     tools/utils/propertygrid.hpp \
     utils/appconfig.hpp \
     utils/retroedutils.hpp \
     utils/shaders.hpp \
     includes.hpp \
     utils/staticobjectinfo.hpp \
-    utils/workingdirmanager.hpp
+    utils/workingdirmanager.hpp \
+    version.hpp
 
 FORMS += \
     aboutwindow.ui \

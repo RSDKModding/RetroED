@@ -107,57 +107,52 @@ void PaletteEditor::load(QString path, byte type)
             palette = pal;
             break;
         }
+
         case PALTYPE_GAMECONFIGv5:
-        case PALTYPE_GAMECONFIGv5_rev01: {
-            gameConfigv5 = RSDKv5::GameConfig(path, type == PALTYPE_GAMECONFIGv5_rev01);
-            switchBank(0);
-            bankSwitches[0]->setDown(true);
-            for (int b = 0; b < 8; ++b) bankSwitches[b]->setDisabled(false);
-            break;
-        }
+        case PALTYPE_GAMECONFIGv5_rev01:
         case PALTYPE_STAGECONFIGv5: {
-            stageConfigv5 = RSDKv5::StageConfig(path);
+            if (palType == PALTYPE_STAGECONFIGv5)
+                stageConfigv5 = RSDKv5::StageConfig(path);
+            else
+                gameConfigv5 = RSDKv5::GameConfig(path, type == PALTYPE_GAMECONFIGv5_rev01);
+
             switchBank(0);
             bankSwitches[0]->setDown(true);
             for (int b = 0; b < 8; ++b) bankSwitches[b]->setDisabled(false);
             break;
         }
-        case PALTYPE_GAMECONFIGv4: {
-            gameConfigv4 = RSDKv4::GameConfig(path);
-            palette.clear();
-            for (auto &c : gameConfigv4.palette.colours) {
-                palette.append(PaletteColour(c.r, c.g, c.b));
-            }
-            break;
-        }
-        case PALTYPE_STAGECONFIGv4: {
-            stageConfigv4 = RSDKv4::StageConfig(path);
-            palette.clear();
-            for (auto &c : stageConfigv4.palette.colours) {
-                palette.append(PaletteColour(c.r, c.g, c.b));
-            }
-            break;
-        }
-        case PALTYPE_STAGECONFIGv3: {
-            stageConfigv3 = RSDKv3::StageConfig(path);
-            palette.clear();
-            for (auto &c : stageConfigv3.palette.colours) {
-                palette.append(PaletteColour(c.r, c.g, c.b));
-            }
-            break;
-        }
-        case PALTYPE_STAGECONFIGv2: {
-            stageConfigv2 = RSDKv2::StageConfig(path);
-            palette.clear();
-            for (auto &c : stageConfigv2.palette.colours) {
-                palette.append(PaletteColour(c.r, c.g, c.b));
-            }
-            break;
-        }
+
+        case PALTYPE_GAMECONFIGv4:
+        case PALTYPE_STAGECONFIGv4:
+        case PALTYPE_STAGECONFIGv3:
+        case PALTYPE_STAGECONFIGv2:
         case PALTYPE_STAGECONFIGv1: {
-            stageConfigv1 = RSDKv1::StageConfig(path);
+            Palette *configPal = nullptr;
+            switch (palType) {
+                case PALTYPE_GAMECONFIGv4:
+                    gameConfigv4 = RSDKv4::GameConfig(path);
+                    configPal    = &gameConfigv4.palette;
+                    break;
+                case PALTYPE_STAGECONFIGv4:
+                    stageConfigv4 = RSDKv4::StageConfig(path);
+                    configPal     = &stageConfigv4.palette;
+                    break;
+                case PALTYPE_STAGECONFIGv3:
+                    stageConfigv3 = RSDKv3::StageConfig(path);
+                    configPal     = &stageConfigv3.palette;
+                    break;
+                case PALTYPE_STAGECONFIGv2:
+                    stageConfigv2 = RSDKv2::StageConfig(path);
+                    configPal     = &stageConfigv2.palette;
+                    break;
+                case PALTYPE_STAGECONFIGv1:
+                    stageConfigv1 = RSDKv1::StageConfig(path);
+                    configPal     = &stageConfigv1.palette;
+                    break;
+            }
+
             palette.clear();
-            for (auto &c : stageConfigv1.palette.colours) {
+            for (auto &c : configPal->colours) {
                 palette.append(PaletteColour(c.r, c.g, c.b));
             }
             break;
@@ -180,40 +175,26 @@ void PaletteEditor::switchBank(int id)
     switch (palType) {
         default: bankID = 0; break;
         case PALTYPE_GAMECONFIGv5:
-        case PALTYPE_GAMECONFIGv5_rev01: {
-            palette.clear();
-            for (int r = 0; r < 16; ++r) {
-                if (gameConfigv5.palettes[0].activeRows[r]) {
-                    for (int c = 0; c < 16; ++c) {
-                        palette.append(
-                            PaletteColour(gameConfigv5.palettes[bankID].colours[r][c].red(),
-                                          gameConfigv5.palettes[bankID].colours[r][c].green(),
-                                          gameConfigv5.palettes[bankID].colours[r][c].blue()));
-                    }
-                }
-                else {
-                    for (int c = 0; c < 16; ++c) {
-                        palette.append(PaletteColour(0xFF, 0x00, 0xFF));
-                    }
-                }
-            }
-            break;
-        }
+        case PALTYPE_GAMECONFIGv5_rev01:
         case PALTYPE_STAGECONFIGv5: {
             palette.clear();
+
+            RSDKv5::Palette *configPal = nullptr;
+            if (palType == PALTYPE_STAGECONFIGv5)
+                configPal = &stageConfigv5.palettes[bankID];
+            else
+                configPal = &gameConfigv5.palettes[bankID];
+
             for (int r = 0; r < 16; ++r) {
-                if (stageConfigv5.palettes[0].activeRows[r]) {
+                if (configPal->activeRows[r]) {
                     for (int c = 0; c < 16; ++c) {
-                        palette.append(
-                            PaletteColour(stageConfigv5.palettes[bankID].colours[r][c].red(),
-                                          stageConfigv5.palettes[bankID].colours[r][c].green(),
-                                          stageConfigv5.palettes[bankID].colours[r][c].blue()));
+                        palette.append(PaletteColour(configPal->colours[r][c].red(),
+                                                     configPal->colours[r][c].green(),
+                                                     configPal->colours[r][c].blue()));
                     }
                 }
                 else {
-                    for (int c = 0; c < 16; ++c) {
-                        palette.append(PaletteColour(0xFF, 0x00, 0xFF));
-                    }
+                    for (int c = 0; c < 16; ++c) palette.append(PaletteColour(0xFF, 0x00, 0xFF));
                 }
             }
             break;
@@ -226,7 +207,7 @@ void PaletteEditor::switchBank(int id)
 void PaletteEditor::undoAction()
 {
     if (actionIndex > 0) {
-        //setStatus("Undid Action: " + actions[actionIndex].name);
+        // setStatus("Undid Action: " + actions[actionIndex].name);
         actionIndex--;
         resetAction();
     }
@@ -234,7 +215,7 @@ void PaletteEditor::undoAction()
 void PaletteEditor::redoAction()
 {
     if (actionIndex + 1 < actions.count()) {
-        //setStatus("Redid Action: " + actions[actionIndex].name);
+        // setStatus("Redid Action: " + actions[actionIndex].name);
         actionIndex++;
         resetAction();
     }
@@ -281,7 +262,7 @@ void PaletteEditor::doAction(QString name, bool setModified)
 
     updateTitle(setModified);
 
-    //setStatus("Did Action: " + name);
+    // setStatus("Did Action: " + name);
 }
 void PaletteEditor::clearActions()
 {
@@ -439,7 +420,7 @@ bool PaletteEditor::event(QEvent *event)
 
             setStatus("Loading palette...", true);
             QString filepath = filedialog.selectedFiles()[0];
-            tabTitle = Utils::getFilenameAndFolder(filepath);
+            tabTitle         = Utils::getFilenameAndFolder(filepath);
             int type         = typesList.indexOf(filedialog.selectedNameFilter());
             load(filepath, type);
             setStatus("Loaded palette from " + tabTitle);
@@ -455,120 +436,8 @@ bool PaletteEditor::event(QEvent *event)
                                    tr(typesList[palType].toStdString().c_str()));
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
-                setStatus("Saving palette...", true);
-                //TODO: fuck this rdc can do this later what the fuck
-
                 QString filepath = filedialog.selectedFiles()[0];
-                switch (palType) {
-                    case PALTYPE_ACT: {
-                        Writer writer(filepath);
-                        for (auto &c : palette) {
-                            c.write(writer);
-                        }
-                        writer.flush();
-                        break;
-                    }
-                    case PALTYPE_GAMECONFIGv5:
-                    case PALTYPE_GAMECONFIGv5_rev01: {
-                        for (int r = 0; r < 16; ++r) {
-                            if (true) {
-                                for (int c = 0; c < 16; ++c) {
-                                    for (int c = 0; c < 16; ++c) {
-                                        gameConfigv5.palettes[0].colours[r][c] =
-                                            QColor(palette[c].r, palette[c].g, palette[c].b);
-                                    }
-                                }
-                            }
-                            else {
-                                for (int c = 0; c < 16; ++c) {
-                                    gameConfigv5.palettes[0].colours[r][c] = QColor(0xFF, 0x00, 0xFF);
-                                }
-                            }
-                        }
-                        gameConfigv5.readFilter = palType != PALTYPE_GAMECONFIGv5_rev01;
-                        gameConfigv5.write(filepath);
-                        break;
-                    }
-                    case PALTYPE_STAGECONFIGv5: {
-                        for (int r = 0; r < 16; ++r) {
-                            if (true) {
-                                for (int c = 0; c < 16; ++c) {
-                                    for (int c = 0; c < 16; ++c) {
-                                        stageConfigv5.palettes[0].colours[r][c] =
-                                            QColor(palette[c].r, palette[c].g, palette[c].b);
-                                    }
-                                }
-                            }
-                            else {
-                                for (int c = 0; c < 16; ++c) {
-                                    stageConfigv5.palettes[0].colours[r][c] = QColor(0xFF, 0x00, 0xFF);
-                                }
-                            }
-                        }
-                        stageConfigv5.write(filepath);
-                        break;
-                    }
-                    case PALTYPE_GAMECONFIGv4: {
-                        gameConfigv4.palette.colours.clear();
-                        for (int c = 0; c < 96; ++c) {
-                            if (c < palette.count())
-                                gameConfigv4.palette.colours.append(
-                                    Colour(palette[c].r, palette[c].g, palette[c].b));
-                            else
-                                gameConfigv4.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                        }
-                        gameConfigv4.write(filepath);
-                        break;
-                    }
-                    case PALTYPE_STAGECONFIGv4: {
-                        stageConfigv4.palette.colours.clear();
-                        for (int c = 0; c < 32; ++c) {
-                            if (c < palette.count())
-                                stageConfigv4.palette.colours.append(
-                                    Colour(palette[c].r, palette[c].g, palette[c].b));
-                            else
-                                stageConfigv4.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                        }
-                        stageConfigv4.write(filepath);
-                        break;
-                    }
-                    case PALTYPE_STAGECONFIGv3: {
-                        stageConfigv3.palette.colours.clear();
-                        for (int c = 0; c < 32; ++c) {
-                            if (c < palette.count())
-                                stageConfigv3.palette.colours.append(
-                                    Colour(palette[c].r, palette[c].g, palette[c].b));
-                            else
-                                stageConfigv3.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                        }
-                        stageConfigv3.write(filepath);
-                        break;
-                    }
-                    case PALTYPE_STAGECONFIGv2: {
-                        stageConfigv2.palette.colours.clear();
-                        for (int c = 0; c < 32; ++c) {
-                            if (c < palette.count())
-                                stageConfigv2.palette.colours.append(
-                                    Colour(palette[c].r, palette[c].g, palette[c].b));
-                            else
-                                stageConfigv2.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                        }
-                        stageConfigv2.write(filepath);
-                        break;
-                    }
-                    case PALTYPE_STAGECONFIGv1: {
-                        stageConfigv1.palette.colours.clear();
-                        for (int c = 0; c < 32; ++c) {
-                            if (c < palette.count())
-                                stageConfigv1.palette.colours.append(
-                                    Colour(palette[c].r, palette[c].g, palette[c].b));
-                            else
-                                stageConfigv1.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                        }
-                        stageConfigv1.write(filepath);
-                        break;
-                    }
-                }
+                savePalette(filepath);
 
                 clearActions();
                 appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
@@ -576,119 +445,8 @@ bool PaletteEditor::event(QEvent *event)
             }
         }
         else {
-            setStatus("Saving palette...");
-
             QString filepath = filePath;
-            switch (palType) {
-                case PALTYPE_ACT: {
-                    Writer writer(filepath);
-                    for (auto &c : palette) {
-                        c.write(writer);
-                    }
-                    writer.flush();
-                    break;
-                }
-                case PALTYPE_GAMECONFIGv5:
-                case PALTYPE_GAMECONFIGv5_rev01: {
-                    for (int r = 0; r < 16; ++r) {
-                        if (true) {
-                            for (int c = 0; c < 16; ++c) {
-                                for (int c = 0; c < 16; ++c) {
-                                    gameConfigv5.palettes[0].colours[r][c] =
-                                        QColor(palette[c].r, palette[c].g, palette[c].b);
-                                }
-                            }
-                        }
-                        else {
-                            for (int c = 0; c < 16; ++c) {
-                                gameConfigv5.palettes[0].colours[r][c] = QColor(0xFF, 0x00, 0xFF);
-                            }
-                        }
-                    }
-                    gameConfigv5.readFilter = palType != PALTYPE_GAMECONFIGv5_rev01;
-                    gameConfigv5.write(filepath);
-                    break;
-                }
-                case PALTYPE_STAGECONFIGv5: {
-                    for (int r = 0; r < 16; ++r) {
-                        if (true) {
-                            for (int c = 0; c < 16; ++c) {
-                                for (int c = 0; c < 16; ++c) {
-                                    stageConfigv5.palettes[0].colours[r][c] =
-                                        QColor(palette[c].r, palette[c].g, palette[c].b);
-                                }
-                            }
-                        }
-                        else {
-                            for (int c = 0; c < 16; ++c) {
-                                stageConfigv5.palettes[0].colours[r][c] = QColor(0xFF, 0x00, 0xFF);
-                            }
-                        }
-                    }
-                    stageConfigv5.write(filepath);
-                    break;
-                }
-                case PALTYPE_GAMECONFIGv4: {
-                    gameConfigv4.palette.colours.clear();
-                    for (int c = 0; c < 96; ++c) {
-                        if (c < palette.count())
-                            gameConfigv4.palette.colours.append(
-                                Colour(palette[c].r, palette[c].g, palette[c].b));
-                        else
-                            gameConfigv4.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                    }
-                    gameConfigv4.write(filepath);
-                    break;
-                }
-                case PALTYPE_STAGECONFIGv4: {
-                    stageConfigv4.palette.colours.clear();
-                    for (int c = 0; c < 32; ++c) {
-                        if (c < palette.count())
-                            stageConfigv4.palette.colours.append(
-                                Colour(palette[c].r, palette[c].g, palette[c].b));
-                        else
-                            stageConfigv4.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                    }
-                    stageConfigv4.write(filepath);
-                    break;
-                }
-                case PALTYPE_STAGECONFIGv3: {
-                    stageConfigv3.palette.colours.clear();
-                    for (int c = 0; c < 32; ++c) {
-                        if (c < palette.count())
-                            stageConfigv3.palette.colours.append(
-                                Colour(palette[c].r, palette[c].g, palette[c].b));
-                        else
-                            stageConfigv3.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                    }
-                    stageConfigv3.write(filepath);
-                    break;
-                }
-                case PALTYPE_STAGECONFIGv2: {
-                    stageConfigv2.palette.colours.clear();
-                    for (int c = 0; c < 32; ++c) {
-                        if (c < palette.count())
-                            stageConfigv2.palette.colours.append(
-                                Colour(palette[c].r, palette[c].g, palette[c].b));
-                        else
-                            stageConfigv2.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                    }
-                    stageConfigv2.write(filepath);
-                    break;
-                }
-                case PALTYPE_STAGECONFIGv1: {
-                    stageConfigv1.palette.colours.clear();
-                    for (int c = 0; c < 32; ++c) {
-                        if (c < palette.count())
-                            stageConfigv1.palette.colours.append(
-                                Colour(palette[c].r, palette[c].g, palette[c].b));
-                        else
-                            stageConfigv1.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                    }
-                    stageConfigv1.write(filepath);
-                    break;
-                }
-            }
+            savePalette(filepath);
 
             clearActions();
             appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
@@ -711,119 +469,9 @@ bool PaletteEditor::event(QEvent *event)
                                tr(typesList[palType].toStdString().c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
-            setStatus("Saving palette...");
 
             QString filepath = filedialog.selectedFiles()[0];
-            switch (palType) {
-                case 0: { //.act
-                    Writer writer(filepath);
-                    for (auto &c : palette) {
-                        c.write(writer);
-                    }
-                    writer.flush();
-                    break;
-                }
-                case PALTYPE_GAMECONFIGv5:
-                case PALTYPE_GAMECONFIGv5_rev01: {
-                    for (int r = 0; r < 16; ++r) {
-                        if (true) {
-                            for (int c = 0; c < 16; ++c) {
-                                for (int c = 0; c < 16; ++c) {
-                                    gameConfigv5.palettes[0].colours[r][c] =
-                                        QColor(palette[c].r, palette[c].g, palette[c].b);
-                                }
-                            }
-                        }
-                        else {
-                            for (int c = 0; c < 16; ++c) {
-                                gameConfigv5.palettes[0].colours[r][c] = QColor(0xFF, 0x00, 0xFF);
-                            }
-                        }
-                    }
-                    gameConfigv5.readFilter = palType != PALTYPE_GAMECONFIGv5_rev01;
-                    gameConfigv5.write(filepath);
-                    break;
-                }
-                case PALTYPE_STAGECONFIGv5: {
-                    for (int r = 0; r < 16; ++r) {
-                        if (true) {
-                            for (int c = 0; c < 16; ++c) {
-                                for (int c = 0; c < 16; ++c) {
-                                    stageConfigv5.palettes[0].colours[r][c] =
-                                        QColor(palette[c].r, palette[c].g, palette[c].b);
-                                }
-                            }
-                        }
-                        else {
-                            for (int c = 0; c < 16; ++c) {
-                                stageConfigv5.palettes[0].colours[r][c] = QColor(0xFF, 0x00, 0xFF);
-                            }
-                        }
-                    }
-                    stageConfigv5.write(filepath);
-                    break;
-                }
-                case PALTYPE_GAMECONFIGv4: {
-                    gameConfigv4.palette.colours.clear();
-                    for (int c = 0; c < 96; ++c) {
-                        if (c < palette.count())
-                            gameConfigv4.palette.colours.append(
-                                Colour(palette[c].r, palette[c].g, palette[c].b));
-                        else
-                            gameConfigv4.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                    }
-                    gameConfigv4.write(filepath);
-                    break;
-                }
-                case PALTYPE_STAGECONFIGv4: {
-                    stageConfigv4.palette.colours.clear();
-                    for (int c = 0; c < 32; ++c) {
-                        if (c < palette.count())
-                            stageConfigv4.palette.colours.append(
-                                Colour(palette[c].r, palette[c].g, palette[c].b));
-                        else
-                            stageConfigv4.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                    }
-                    stageConfigv4.write(filepath);
-                    break;
-                }
-                case PALTYPE_STAGECONFIGv3: {
-                    stageConfigv3.palette.colours.clear();
-                    for (int c = 0; c < 32; ++c) {
-                        if (c < palette.count())
-                            stageConfigv3.palette.colours.append(
-                                Colour(palette[c].r, palette[c].g, palette[c].b));
-                        else
-                            stageConfigv3.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                    }
-                    stageConfigv3.write(filepath);
-                    break;
-                }
-                case PALTYPE_STAGECONFIGv2: {
-                    stageConfigv2.palette.colours.clear();
-                    for (int c = 0; c < 32; ++c) {
-                        if (c < palette.count())
-                            stageConfigv2.palette.colours.append(
-                                Colour(palette[c].r, palette[c].g, palette[c].b));
-                        else
-                            stageConfigv2.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                    }
-                    stageConfigv2.write(filepath);
-                    break;
-                }
-                case PALTYPE_STAGECONFIGv1: {
-                    stageConfigv1.palette.colours.clear();
-                    for (int c = 0; c < 32; ++c) {
-                        if (c < palette.count())
-                            stageConfigv1.palette.colours.append(
-                                Colour(palette[c].r, palette[c].g, palette[c].b));
-                        else
-                            stageConfigv1.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                    }
-                    stageConfigv1.write(filepath);
-                    break;
-                }
-            }
+            savePalette(filepath);
 
             clearActions();
             appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
@@ -851,126 +499,8 @@ bool PaletteEditor::event(QEvent *event)
                                                tr(typesList[palType].toStdString().c_str()));
                         filedialog.setAcceptMode(QFileDialog::AcceptSave);
                         if (filedialog.exec() == QDialog::Accepted) {
-                            setStatus("Saving palette...");
-
                             QString filepath = filedialog.selectedFiles()[0];
-                            switch (palType) {
-                                case PALTYPE_ACT: {
-                                    Writer writer(filepath);
-                                    for (auto &c : palette) {
-                                        c.write(writer);
-                                    }
-                                    writer.flush();
-                                    break;
-                                }
-                                case PALTYPE_GAMECONFIGv5:
-                                case PALTYPE_GAMECONFIGv5_rev01: {
-                                    for (int r = 0; r < 16; ++r) {
-                                        if (true) {
-                                            for (int c = 0; c < 16; ++c) {
-                                                for (int c = 0; c < 16; ++c) {
-                                                    gameConfigv5.palettes[0].colours[r][c] = QColor(
-                                                        palette[c].r, palette[c].g, palette[c].b);
-                                                }
-                                            }
-                                        }
-                                        else {
-                                            for (int c = 0; c < 16; ++c) {
-                                                gameConfigv5.palettes[0].colours[r][c] =
-                                                    QColor(0xFF, 0x00, 0xFF);
-                                            }
-                                        }
-                                    }
-                                    gameConfigv5.readFilter = palType != PALTYPE_GAMECONFIGv5_rev01;
-                                    gameConfigv5.write(filepath);
-                                    break;
-                                }
-                                case PALTYPE_STAGECONFIGv5: {
-                                    for (int r = 0; r < 16; ++r) {
-                                        if (true) {
-                                            for (int c = 0; c < 16; ++c) {
-                                                for (int c = 0; c < 16; ++c) {
-                                                    stageConfigv5.palettes[0].colours[r][c] = QColor(
-                                                        palette[c].r, palette[c].g, palette[c].b);
-                                                }
-                                            }
-                                        }
-                                        else {
-                                            for (int c = 0; c < 16; ++c) {
-                                                stageConfigv5.palettes[0].colours[r][c] =
-                                                    QColor(0xFF, 0x00, 0xFF);
-                                            }
-                                        }
-                                    }
-                                    stageConfigv5.write(filepath);
-                                    break;
-                                }
-                                case PALTYPE_GAMECONFIGv4: {
-                                    gameConfigv4.palette.colours.clear();
-                                    for (int c = 0; c < 96; ++c) {
-                                        if (c < palette.count())
-                                            gameConfigv4.palette.colours.append(
-                                                Colour(palette[c].r, palette[c].g, palette[c].b));
-                                        else
-                                            gameConfigv4.palette.colours.append(
-                                                Colour(0xFF, 0x00, 0xFF));
-                                    }
-                                    gameConfigv4.write(filepath);
-                                    break;
-                                }
-                                case PALTYPE_STAGECONFIGv4: {
-                                    stageConfigv4.palette.colours.clear();
-                                    for (int c = 0; c < 32; ++c) {
-                                        if (c < palette.count())
-                                            stageConfigv4.palette.colours.append(
-                                                Colour(palette[c].r, palette[c].g, palette[c].b));
-                                        else
-                                            stageConfigv4.palette.colours.append(
-                                                Colour(0xFF, 0x00, 0xFF));
-                                    }
-                                    stageConfigv4.write(filepath);
-                                    break;
-                                }
-                                case PALTYPE_STAGECONFIGv3: {
-                                    stageConfigv3.palette.colours.clear();
-                                    for (int c = 0; c < 32; ++c) {
-                                        if (c < palette.count())
-                                            stageConfigv3.palette.colours.append(
-                                                Colour(palette[c].r, palette[c].g, palette[c].b));
-                                        else
-                                            stageConfigv3.palette.colours.append(
-                                                Colour(0xFF, 0x00, 0xFF));
-                                    }
-                                    stageConfigv3.write(filepath);
-                                    break;
-                                }
-                                case PALTYPE_STAGECONFIGv2: {
-                                    stageConfigv2.palette.colours.clear();
-                                    for (int c = 0; c < 32; ++c) {
-                                        if (c < palette.count())
-                                            stageConfigv2.palette.colours.append(
-                                                Colour(palette[c].r, palette[c].g, palette[c].b));
-                                        else
-                                            stageConfigv2.palette.colours.append(
-                                                Colour(0xFF, 0x00, 0xFF));
-                                    }
-                                    stageConfigv2.write(filepath);
-                                    break;
-                                }
-                                case PALTYPE_STAGECONFIGv1: {
-                                    stageConfigv1.palette.colours.clear();
-                                    for (int c = 0; c < 32; ++c) {
-                                        if (c < palette.count())
-                                            stageConfigv1.palette.colours.append(
-                                                Colour(palette[c].r, palette[c].g, palette[c].b));
-                                        else
-                                            stageConfigv1.palette.colours.append(
-                                                Colour(0xFF, 0x00, 0xFF));
-                                    }
-                                    stageConfigv1.write(filepath);
-                                    break;
-                                }
-                            }
+                            savePalette(filepath);
 
                             clearActions();
                             appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath,
@@ -979,121 +509,8 @@ bool PaletteEditor::event(QEvent *event)
                         }
                     }
                     else {
-                        setStatus("Saving palette...");
-
                         QString filepath = filePath;
-                        switch (palType) {
-                            case PALTYPE_ACT: {
-                                Writer writer(filepath);
-                                for (auto &c : palette) {
-                                    c.write(writer);
-                                }
-                                writer.flush();
-                                break;
-                            }
-                            case PALTYPE_GAMECONFIGv5:
-                            case PALTYPE_GAMECONFIGv5_rev01: {
-                                for (int r = 0; r < 16; ++r) {
-                                    if (true) {
-                                        for (int c = 0; c < 16; ++c) {
-                                            for (int c = 0; c < 16; ++c) {
-                                                gameConfigv5.palettes[0].colours[r][c] =
-                                                    QColor(palette[c].r, palette[c].g, palette[c].b);
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        for (int c = 0; c < 16; ++c) {
-                                            gameConfigv5.palettes[0].colours[r][c] =
-                                                QColor(0xFF, 0x00, 0xFF);
-                                        }
-                                    }
-                                }
-                                gameConfigv5.readFilter = palType != PALTYPE_GAMECONFIGv5_rev01;
-                                gameConfigv5.write(filepath);
-                                break;
-                            }
-                            case PALTYPE_STAGECONFIGv5: {
-                                for (int r = 0; r < 16; ++r) {
-                                    if (true) {
-                                        for (int c = 0; c < 16; ++c) {
-                                            for (int c = 0; c < 16; ++c) {
-                                                stageConfigv5.palettes[0].colours[r][c] =
-                                                    QColor(palette[c].r, palette[c].g, palette[c].b);
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        for (int c = 0; c < 16; ++c) {
-                                            stageConfigv5.palettes[0].colours[r][c] =
-                                                QColor(0xFF, 0x00, 0xFF);
-                                        }
-                                    }
-                                }
-                                stageConfigv5.write(filepath);
-                                break;
-                            }
-                            case PALTYPE_GAMECONFIGv4: {
-                                gameConfigv4.palette.colours.clear();
-                                for (int c = 0; c < 96; ++c) {
-                                    if (c < palette.count())
-                                        gameConfigv4.palette.colours.append(
-                                            Colour(palette[c].r, palette[c].g, palette[c].b));
-                                    else
-                                        gameConfigv4.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                                }
-                                gameConfigv4.write(filepath);
-                                break;
-                            }
-                            case PALTYPE_STAGECONFIGv4: {
-                                stageConfigv4.palette.colours.clear();
-                                for (int c = 0; c < 32; ++c) {
-                                    if (c < palette.count())
-                                        stageConfigv4.palette.colours.append(
-                                            Colour(palette[c].r, palette[c].g, palette[c].b));
-                                    else
-                                        stageConfigv4.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                                }
-                                stageConfigv4.write(filepath);
-                                break;
-                            }
-                            case PALTYPE_STAGECONFIGv3: {
-                                stageConfigv3.palette.colours.clear();
-                                for (int c = 0; c < 32; ++c) {
-                                    if (c < palette.count())
-                                        stageConfigv3.palette.colours.append(
-                                            Colour(palette[c].r, palette[c].g, palette[c].b));
-                                    else
-                                        stageConfigv3.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                                }
-                                stageConfigv3.write(filepath);
-                                break;
-                            }
-                            case PALTYPE_STAGECONFIGv2: {
-                                stageConfigv2.palette.colours.clear();
-                                for (int c = 0; c < 32; ++c) {
-                                    if (c < palette.count())
-                                        stageConfigv2.palette.colours.append(
-                                            Colour(palette[c].r, palette[c].g, palette[c].b));
-                                    else
-                                        stageConfigv2.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                                }
-                                stageConfigv2.write(filepath);
-                                break;
-                            }
-                            case PALTYPE_STAGECONFIGv1: {
-                                stageConfigv1.palette.colours.clear();
-                                for (int c = 0; c < 32; ++c) {
-                                    if (c < palette.count())
-                                        stageConfigv1.palette.colours.append(
-                                            Colour(palette[c].r, palette[c].g, palette[c].b));
-                                    else
-                                        stageConfigv1.palette.colours.append(Colour(0xFF, 0x00, 0xFF));
-                                }
-                                stageConfigv1.write(filepath);
-                                break;
-                            }
-                        }
+                        savePalette(filepath);
 
                         clearActions();
                         appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
@@ -1109,6 +526,103 @@ bool PaletteEditor::event(QEvent *event)
     }
 
     return QWidget::event(event);
+}
+
+void PaletteEditor::savePalette(QString filepath)
+{
+    setStatus("Saving palette...", true);
+    switch (palType) {
+        case PALTYPE_ACT: {
+            float total = palette.count();
+
+            Writer writer(filepath);
+            for (auto &c : palette) {
+                c.write(writer);
+
+                addStatusProgress(1.0 / total);
+            }
+
+            writer.flush();
+            break;
+        }
+
+        case PALTYPE_GAMECONFIGv5:
+        case PALTYPE_GAMECONFIGv5_rev01:
+        case PALTYPE_STAGECONFIGv5: {
+            RSDKv5::Palette *configPal = nullptr;
+            if (palType == PALTYPE_STAGECONFIGv5)
+                configPal = &stageConfigv5.palettes[0];
+            else
+                configPal = &gameConfigv5.palettes[0];
+
+            for (int r = 0; r < 16; ++r) {
+                if (configPal->activeRows[r]) {
+                    for (int c = 0; c < 16; ++c) {
+                        for (int c = 0; c < 16; ++c) {
+                            configPal->colours[r][c] =
+                                QColor(palette[(r << 4) + c].r, palette[(r << 4) + c].g,
+                                       palette[(r << 4) + c].b);
+
+                            addStatusProgress(1.0 / 256);
+                        }
+                    }
+                }
+                else {
+                    for (int c = 0; c < 16; ++c) configPal->colours[r][c] = QColor(0xFF, 0x00, 0xFF);
+
+                    addStatusProgress(16.0 / 256);
+                }
+            }
+
+            if (palType == PALTYPE_STAGECONFIGv5) {
+                stageConfigv5.write(filepath);
+            }
+            else {
+                gameConfigv5.readFilter = palType != PALTYPE_GAMECONFIGv5_rev01;
+                gameConfigv5.write(filepath);
+            }
+            break;
+        }
+
+        case PALTYPE_GAMECONFIGv4:
+        case PALTYPE_STAGECONFIGv4:
+        case PALTYPE_STAGECONFIGv3:
+        case PALTYPE_STAGECONFIGv2:
+        case PALTYPE_STAGECONFIGv1: {
+            Palette *configPal = nullptr;
+
+            switch (palType) {
+                case PALTYPE_GAMECONFIGv4: configPal = &gameConfigv4.palette; break;
+                case PALTYPE_STAGECONFIGv4: configPal = &stageConfigv4.palette; break;
+                case PALTYPE_STAGECONFIGv3: configPal = &stageConfigv3.palette; break;
+                case PALTYPE_STAGECONFIGv2: configPal = &stageConfigv2.palette; break;
+                case PALTYPE_STAGECONFIGv1: configPal = &stageConfigv1.palette; break;
+            }
+
+            configPal->colours.clear();
+            int colourCount = PALTYPE_GAMECONFIGv4 ? 96 : 32;
+            for (int c = 0; c < colourCount; ++c) {
+                if (c < palette.count())
+                    configPal->colours.append(Colour(palette[c].r, palette[c].g, palette[c].b));
+                else
+                    configPal->colours.append(Colour(0xFF, 0x00, 0xFF));
+
+                addStatusProgress(1.0 / colourCount);
+            }
+
+            switch (palType) {
+                case PALTYPE_GAMECONFIGv4: gameConfigv4.write(filepath); break;
+                case PALTYPE_STAGECONFIGv4: stageConfigv4.write(filepath); break;
+                case PALTYPE_STAGECONFIGv3: stageConfigv3.write(filepath); break;
+                case PALTYPE_STAGECONFIGv2: stageConfigv2.write(filepath); break;
+                case PALTYPE_STAGECONFIGv1: stageConfigv1.write(filepath); break;
+            }
+
+            break;
+        }
+    }
+
+    setStatus("Saved Palette to " + filepath);
 }
 
 #include "moc_paletteeditor.cpp"

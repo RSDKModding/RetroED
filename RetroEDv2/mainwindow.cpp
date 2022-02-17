@@ -14,6 +14,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     statusProgress = ui->statusProgress;
     toolTabs       = ui->toolTabs;
 
+    statusProgress->hide();
+
     playPauseIco[0] = QIcon(":/icons/ic_play_arrow_48px.svg");
     playPauseIco[1] = QIcon(":/icons/ic_stop_48px.svg");
 
@@ -298,7 +300,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         addTab(tool, "Palette Editor");
     });
 
-#if RETROED_DEBUG
+#if !RE_BUILD_TYPE
     tools->addAction("Script Unpacker", [this] {
         setStatus("Opening Script Unpacker...");
         ScriptUnpacker *tool = new ScriptUnpacker();
@@ -384,13 +386,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     QMenu *about = new QMenu("About");
     about->addAction("About RetroED", [] {
-        QMessageBox msgBox(QMessageBox::Information, "RetroED",
-                           QString("RetroED - Retro Engine Editor v2.0\n"
-                                   "General Purpose Editor for RSDK Files\n"
-                                   "\n"
-                                   "Created by: Rubberduckycooly"),
-                           QMessageBox::NoButton);
-        msgBox.exec();
+        AboutWindow *about = new AboutWindow;
+        about->exec();
+        delete about;
     });
     ui->menubar->addMenu(about);
 }

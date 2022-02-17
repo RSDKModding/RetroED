@@ -55,17 +55,15 @@ void RSDKv1::Datafile::write(Writer &writer)
     //    return a.dirID < b.dirID && a.filename < b.filename;
     //});
 
-    int dir                 = 0;
+    int dir                      = 0;
     directories[dir].startOffset = 0;
     for (int i = 0; i < files.count(); ++i) {
-        if (files[i].dirID == dir) {
-            files[i].write(writer);
-        }
-        else {
+        if (files[i].dirID != dir) {
             ++dir;
             directories[dir].startOffset = (int)writer.tell() - dirHeaderSize;
-            files[i].write(writer);
         }
+
+        files[i].write(writer);
     }
 
     // 2nd pass
@@ -80,13 +78,10 @@ void RSDKv1::Datafile::write(Writer &writer)
 
     dir = 0;
     for (int i = 0; i < files.count(); ++i) {
-        if (files[i].dirID == dir) {
-            files[i].write(writer);
-        }
-        else {
+        if (files[i].dirID != dir)
             ++dir;
-            files[i].write(writer);
-        }
+
+        files[i].write(writer);
     }
 
     writer.flush();
@@ -110,8 +105,8 @@ void RSDKv1::Datafile::FileInfo::write(Writer &writer)
 
 void RSDKv1::Datafile::DirInfo::read(Reader &reader)
 {
-    directory = reader.readString();
-    startOffset    = reader.read<int>();
+    directory   = reader.readString();
+    startOffset = reader.read<int>();
 }
 
 void RSDKv1::Datafile::DirInfo::write(Writer &writer)

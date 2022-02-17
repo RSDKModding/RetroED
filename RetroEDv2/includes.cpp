@@ -25,6 +25,7 @@ void printLog(QString msg)
 #endif
 
     printf("%s", QString("RETROED: " + msg + "\n").toStdString().c_str());
+    qDebug() << QString("RETROED: " + msg + "\n");
 
 #ifdef _WIN32
     {
@@ -37,6 +38,19 @@ void printLog(QString msg)
         }
     }
 #endif
+
+    if (!QFile(homeDir + "RetroED.log").exists()) {
+        Writer writer(homeDir + "RetroED.log");
+        writer.flush();
+    }
+
+    QFile f(homeDir + "RetroED.log");
+    if (f.open(QIODevice::WriteOnly | QIODevice::Append)) {
+        QString fMsg = msg + "\n";
+        f.write(fMsg.toStdString().c_str(), fMsg.length());
+
+        f.close();
+    }
 }
 
 void setStatus(QString status, bool useStatus)

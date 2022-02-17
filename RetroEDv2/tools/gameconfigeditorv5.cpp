@@ -950,8 +950,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                     appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR,
                                             filedialog.selectedFiles()[0],
                                             QList<QString>{ "GameConfig", oldVer ? "rev01" : "rev02" });
-                    setStatus("Loaded GameConfig "
-                              + tabTitle);
+                    setStatus("Loaded GameConfig " + tabTitle);
                 }
                 else {
                     ui->stackedWidget->setCurrentIndex(1);
@@ -1367,8 +1366,10 @@ bool GameConfigEditorv5::event(QEvent *event)
                 }
             }
             break;
+
         case RE_EVENT_UNDO: undoAction(); break;
         case RE_EVENT_REDO: redoAction(); break;
+
         case QEvent::Close:
             if (modified) {
                 bool cancelled = false;

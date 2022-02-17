@@ -181,7 +181,7 @@ void SceneViewerv5::initScene(QImage tileset)
     }
 
     // Tile Texture
-    GLint active, a;
+    GLint active;
     glFuncs->glGetIntegerv(GL_ACTIVE_TEXTURE, &active);
     gfxSurface[0].scope      = SCOPE_STAGE;
     gfxSurface[0].name       = "Tileset";
@@ -191,8 +191,6 @@ void SceneViewerv5::initScene(QImage tileset)
 
     glFuncs->glActiveTexture(GL_TEXTURE30);
     glFuncs->glBindTexture(GL_TEXTURE_RECTANGLE, gfxSurface[0].texturePtr->textureId());
-    glFuncs->glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE, &a);
-    printLog(QString::number(a));
     glFuncs->glActiveTexture(active);
 
     gfxSurface[0].transClr = tilePalette[0].toQColor();
@@ -1031,8 +1029,6 @@ void SceneViewerv5::initializeGL()
     glFuncs = context()->functions();
 
     QSurfaceFormat fmt = context()->format();
-    printLog("Widget Using OpenGL " + QString::number(fmt.majorVersion()) + "."
-             + QString::number(fmt.minorVersion()));
 
     const unsigned char *vendor     = glFuncs->glGetString(GL_VENDOR);
     const unsigned char *renderer   = glFuncs->glGetString(GL_RENDERER);
@@ -1046,14 +1042,17 @@ void SceneViewerv5::initializeGL()
     QString sdrVersionStr = reinterpret_cast<const char *>(sdrVersion);
     QString extensionsStr = reinterpret_cast<const char *>(extensions);
 
-    printLog("OpenGL Details");
+    printLog("SceneViewer OpenGL Details");
+    printLog("GL Version:   " + QString::number(fmt.majorVersion()) + "."
+             + QString::number(fmt.minorVersion()));
     printLog("Vendor:       " + vendorStr);
     printLog("Renderer:     " + rendererStr);
     printLog("Version:      " + versionStr);
     printLog("GLSL version: " + sdrVersionStr);
-    printLog("Extensions:   " + extensionsStr);
-    printLog(context()->isOpenGLES() ? "Using OpenGLES" : "Using OpenGL");
-    printLog(context()->isValid() ? "Is valid" : "Not valid");
+    printLog("Extensions:   " + (extensionsStr == "" ? "None" : extensionsStr));
+    printLog("GLType:       "
+             + QString(QOpenGLContext::currentContext()->isOpenGLES() ? "OpenGLES" : "OpenGL"));
+    printLog("Valid:        " + QString(QOpenGLContext::currentContext()->isValid() ? "Yes" : "No"));
 
     glFuncs->glDisable(GL_DEPTH_TEST);
     glFuncs->glDisable(GL_DITHER);

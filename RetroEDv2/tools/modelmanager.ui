@@ -21,31 +21,35 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
+   <item row="0" column="0" rowspan="5">
+    <widget class="QListWidget" name="frameList">
+     <property name="minimumSize">
       <size>
-       <width>40</width>
-       <height>20</height>
+       <width>0</width>
+       <height>250</height>
       </size>
      </property>
-    </spacer>
+     <property name="maximumSize">
+      <size>
+       <width>120</width>
+       <height>16777215</height>
+      </size>
+     </property>
+    </widget>
    </item>
-   <item row="3" column="1">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="exportCurFrame">
+     <property name="text">
+      <string>Export Current Frame</string>
      </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QPushButton" name="importMdl">
+     <property name="text">
+      <string>Import Model</string>
      </property>
-    </spacer>
+    </widget>
    </item>
    <item row="5" column="0">
     <layout class="QGridLayout" name="gridLayout_9">
@@ -95,28 +99,15 @@
      </item>
     </layout>
    </item>
-   <item row="0" column="0" rowspan="5">
-    <widget class="QListWidget" name="frameList">
-     <property name="maximumSize">
-      <size>
-       <width>120</width>
-       <height>16777215</height>
-      </size>
+   <item row="3" column="1" rowspan="3">
+    <widget class="QFrame" name="viewerFrame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
      </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QPushButton" name="exportCurFrame">
-     <property name="text">
-      <string>Export Current Frame</string>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
      </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QPushButton" name="importMdl">
-     <property name="text">
-      <string>Import Model</string>
-     </property>
+     <layout class="QGridLayout" name="gridLayout_2"/>
     </widget>
    </item>
   </layout>

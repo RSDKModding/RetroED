@@ -1,8 +1,7 @@
 #ifndef INCLUDES_H
 #define INCLUDES_H
 
-#define RETROED_VER   (0x100)
-#define RETROED_DEBUG (1)
+#include "version.hpp"
 
 // QT
 #include <QtCore>
@@ -121,6 +120,9 @@ public:
 #include "tools/sceneproperties/tileseteditor.hpp"
 
 #include "tools/animationeditor/animsheetselector.hpp"
+
+// Model Manager Utils
+#include "tools/utils/modelviewer.hpp"
 
 // Forms
 #include "tools/gameconfigeditorv1.hpp"

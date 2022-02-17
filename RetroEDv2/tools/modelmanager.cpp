@@ -5,6 +5,11 @@ ModelManager::ModelManager(QWidget *parent) : QWidget(parent), ui(new Ui::ModelM
 {
     ui->setupUi(this);
 
+    ModelViewer *viewer = new ModelViewer(this);
+    viewer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->viewerFrame->layout()->addWidget(viewer);
+    viewer->show();
+
     connect(ui->exportFrames, &QPushButton::pressed, [this] {
         QFileDialog filedialog(this, tr("Save Model Frames"), "",
                                tr(QString("OBJ Models (*.obj)").toStdString().c_str()));

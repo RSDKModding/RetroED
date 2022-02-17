@@ -38,6 +38,8 @@ private:
     RSDKv5::Model modelv5;
     RSDKv4::Model modelv4;
 
+    ModelViewer *viewer = nullptr;
+
     Ui::ModelManager *ui;
 
     bool modified    = false;

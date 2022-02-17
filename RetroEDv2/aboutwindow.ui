@@ -10,8 +10,14 @@
     <height>169</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>About</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
@@ -26,10 +32,10 @@
     <enum>Qt::Horizontal</enum>
    </property>
    <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+    <set>QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QGraphicsView" name="icon">
+  <widget class="QLabel" name="icon">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -37,6 +43,12 @@
      <width>90</width>
      <height>90</height>
     </rect>
+   </property>
+   <property name="pixmap">
+    <pixmap resource="resources.qrc">:/icons/icon.svg</pixmap>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QLabel" name="titleLabel">
@@ -51,6 +63,7 @@
    <property name="font">
     <font>
      <pointsize>16</pointsize>
+     <weight>75</weight>
      <bold>true</bold>
     </font>
    </property>
@@ -109,7 +122,9 @@
    </property>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

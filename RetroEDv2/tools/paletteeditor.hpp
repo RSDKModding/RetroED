@@ -68,6 +68,8 @@ public:
     explicit PaletteEditor(QString filepath = "", byte type = 0xFF, QWidget *parent = nullptr);
     ~PaletteEditor();
 
+    void savePalette(QString filepath);
+
     bool event(QEvent *event) override;
 
     inline void updateTitle(bool modified)

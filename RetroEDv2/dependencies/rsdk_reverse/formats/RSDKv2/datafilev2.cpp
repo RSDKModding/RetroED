@@ -16,7 +16,7 @@ void RSDKv2::Datafile::read(Reader &reader)
     for (int d = 0; d < dircount; ++d) {
         if ((d + 1) < directories.count()) {
             while (reader.tell() - headerSize < directories[d + 1].startOffset) {
-                FileInfo f       = FileInfo(reader);
+                FileInfo f     = FileInfo(reader);
                 f.fullFileName = directories[d].directory + f.fileName;
                 f.dirID        = d;
                 files.append(f);
@@ -24,7 +24,7 @@ void RSDKv2::Datafile::read(Reader &reader)
         }
         else {
             while (!reader.isEOF()) {
-                FileInfo f       = FileInfo(reader);
+                FileInfo f     = FileInfo(reader);
                 f.fullFileName = directories[d].directory + f.fileName;
                 f.dirID        = d;
                 files.append(f);
@@ -58,14 +58,11 @@ void RSDKv2::Datafile::write(Writer &writer)
     int dir                      = 0;
     directories[dir].startOffset = 0;
     for (int i = 0; i < files.count(); ++i) {
-        if (files[i].dirID == dir) {
-            files[i].write(writer);
-        }
-        else {
+        if (files[i].dirID != dir) {
             ++dir;
             directories[dir].startOffset = (int)writer.tell() - dirHeaderSize;
-            files[i].write(writer);
         }
+        files[i].write(writer);
     }
 
     // 2nd pass
@@ -80,13 +77,10 @@ void RSDKv2::Datafile::write(Writer &writer)
 
     dir = 0;
     for (int i = 0; i < files.count(); ++i) {
-        if (files[i].dirID == dir) {
-            files[i].write(writer);
-        }
-        else {
+        if (files[i].dirID != dir)
             ++dir;
-            files[i].write(writer);
-        }
+
+        files[i].write(writer);
     }
 
     writer.flush();
@@ -119,8 +113,8 @@ void RSDKv2::Datafile::FileInfo::write(Writer &writer)
 
 void RSDKv2::Datafile::DirInfo::read(Reader &reader)
 {
-    directory = reader.readString();
-    startOffset   = reader.read<int>();
+    directory   = reader.readString();
+    startOffset = reader.read<int>();
 }
 
 void RSDKv2::Datafile::DirInfo::write(Writer &writer)
