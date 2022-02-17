@@ -18,13 +18,13 @@ jobs:
     - name: Download and install Jom 
       run: |
         Invoke-WebRequest http://qt.mirror.constant.com/official_releases/jom/jom_1_1_3.zip -OutFile "jom.zip"
-        Expand-Archive -Path jom.zip -DestinationPath $Qt5_Dir/bin
+        mkdir build
+        Expand-Archive -Path jom.zip -DestinationPath build
     - name: Run versiongen
       working-directory: RetroEDv2
       run: |
         py -m pip install pytz
         py versiongen.py $GITHUB_SHA
-        mkdir ../build
     - name: Build RetroED
       working-directory: build
       run: |
