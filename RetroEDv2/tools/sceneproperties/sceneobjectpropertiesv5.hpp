@@ -34,11 +34,11 @@ public:
 };
 
 struct SceneEntity {
-    ushort slotID          = 0;
-    ushort prevSlot        = 0;
-    byte type              = 0;
-    Vector2<float> pos     = Vector2<float>(0, 0);
-    GameEntity *gameEntity = NULL;
+    ushort slotID              = 0;
+    ushort prevSlot            = 0;
+    byte type                  = 0;
+    Vector2<float> pos         = Vector2<float>(0, 0);
+    GameEntityBase *gameEntity = nullptr;
     QList<RSDKv5::Scene::VariableValue> variables;
     Rect<int> box = Rect<int>(-0x10, -0x10, 0x10, 0x10); // selection box
 

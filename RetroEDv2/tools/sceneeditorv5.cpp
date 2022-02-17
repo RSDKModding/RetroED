@@ -269,21 +269,21 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         viewer->selectedObject = c;
 
-        memset(&viewer->createGameEntity, 0, sizeof(GameEntityBase));
-        viewer->createGameEntity.position.x = 0;
-        viewer->createGameEntity.position.y = 0;
-        viewer->createGameEntity.objectID   = viewer->selectedObject;
+        memset(&createGameEntity, 0, sizeof(GameEntityBase));
+        createGameEntity.position.x = 0;
+        createGameEntity.position.y = 0;
+        createGameEntity.objectID   = viewer->selectedObject;
 
-        viewer->createTempEntity.type       = viewer->selectedObject;
-        viewer->createTempEntity.pos.x      = 0;
-        viewer->createTempEntity.pos.y      = 0;
-        viewer->createTempEntity.slotID     = 0xFFFF;
-        viewer->createTempEntity.gameEntity = &viewer->createGameEntity;
-        viewer->createTempEntity.box        = Rect<int>(0, 0, 0, 0);
+        createTempEntity.type       = viewer->selectedObject;
+        createTempEntity.pos.x      = 0;
+        createTempEntity.pos.y      = 0;
+        createTempEntity.slotID     = 0xFFFF;
+        createTempEntity.gameEntity = &createGameEntity;
+        createTempEntity.box        = Rect<int>(0, 0, 0, 0);
 
-        viewer->activeDrawEntity = &viewer->createTempEntity;
+        viewer->activeDrawEntity = &createTempEntity;
         callGameEvent(viewer->objects[viewer->selectedObject].name, SceneViewerv5::EVENT_CREATE,
-                      &viewer->createTempEntity);
+                      &createTempEntity);
 
         ui->rmObj->setDisabled(c == -1 || global);
     });
@@ -303,7 +303,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             }
 
             for (int i = 0; i < viewer->objects.count(); ++i) {
-                GameObjectInfo *info = GetObjectInfo(viewer->objects[i].name);
+                GameObjectInfo *info = getObjectInfo(viewer->objects[i].name);
                 if (info && info->type) {
                     GameObject *obj = *info->type;
                     if (obj) {
@@ -349,7 +349,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         }
 
         for (int i = 0; i < viewer->objects.count(); ++i) {
-            GameObjectInfo *info = GetObjectInfo(viewer->objects[i].name);
+            GameObjectInfo *info = getObjectInfo(viewer->objects[i].name);
             if (info && info->type) {
                 GameObject *obj = *info->type;
                 if (obj) {
@@ -419,7 +419,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         int n = ui->objectList->currentRow() == ui->objectList->count() - 1 ? c - 1 : c;
         delete ui->objectList->item(c);
 
-        unlinkGameObject(c, GetObjectInfo(viewer->objects[c].name));
+        unlinkGameObject(c, getObjectInfo(viewer->objects[c].name));
 
         int globalCount = 1;
         if (stageConfig.loadGlobalObjects)
@@ -946,7 +946,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         id = 1;
         for (int i = 1; i < viewer->objects.count(); ++i) {
-            GameObjectInfo *info = GetObjectInfo(viewer->objects[i].name);
+            GameObjectInfo *info = getObjectInfo(viewer->objects[i].name);
             if (info && info->type) {
                 GameObject *obj = *info->type;
                 if (obj) {
@@ -958,7 +958,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         // load assets for new objects
         for (int i = 1; i <= gameConfig.objects.count(); ++i) {
-            linkGameObject(i, GetObjectInfo(viewer->objects[i].name), true, false);
+            linkGameObject(i, getObjectInfo(viewer->objects[i].name), true, false);
 
             // clean up and remove unused vars
             for (int v = viewer->objects[i].variables.count() - 1; v >= 0; --v) {
@@ -1254,9 +1254,7 @@ bool SceneEditorv5::event(QEvent *event)
                 return true;
             }
             else {
-                QFileDialog filedialog(
-                    this, tr("Save Scene"), "",
-                    tr("RSDKv5 Scenes (Scene*.bin)"));
+                QFileDialog filedialog(this, tr("Save Scene"), "", tr("RSDKv5 Scenes (Scene*.bin)"));
                 filedialog.setAcceptMode(QFileDialog::AcceptSave);
                 if (filedialog.exec() == QDialog::Accepted) {
                     QString path = filedialog.selectedFiles()[0];
@@ -1268,8 +1266,7 @@ bool SceneEditorv5::event(QEvent *event)
             break;
 
         case RE_EVENT_SAVE_AS: {
-            QFileDialog filedialog(this, tr("Save Scene"), "",
-                                   tr("RSDKv5 Scenes (Scene*.bin)"));
+            QFileDialog filedialog(this, tr("Save Scene"), "", tr("RSDKv5 Scenes (Scene*.bin)"));
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
                 QString path = filedialog.selectedFiles()[0];
@@ -1283,8 +1280,15 @@ bool SceneEditorv5::event(QEvent *event)
         case RE_EVENT_UNDO: undoAction(); return true;
         case RE_EVENT_REDO: redoAction(); return true;
 
-        case RE_EVENT_TAB_GAIN_FOCUS: viewer->startTimer(); break;
-        case RE_EVENT_TAB_LOSE_FOCUS: viewer->stopTimer(); break;
+        case RE_EVENT_TAB_GAIN_FOCUS:
+            viewer->startTimer();
+            loadGameLinks();
+            initGameLink();
+            break;
+        case RE_EVENT_TAB_LOSE_FOCUS:
+            viewer->stopTimer();
+            unloadGameLinks();
+            break;
 
         case QEvent::KeyPress: handleKeyPress(static_cast<QKeyEvent *>(event)); break;
         case QEvent::KeyRelease: handleKeyRelease(static_cast<QKeyEvent *>(event)); break;
@@ -1337,7 +1341,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
     if (object != viewer)
         return false;
 
-    switch (event->type()) {
+    switch ((int)event->type()) {
         case QEvent::MouseButtonPress: {
             QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
             viewer->reference   = mEvent->pos();
@@ -2059,8 +2063,8 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
 
     QString pathTCF = WorkingDirManager::GetPath("Stages/" + viewer->currentFolder + "/TileConfig.bin",
                                                  basePath + "TileConfig.bin");
-    QString pathSCF = WorkingDirManager::GetPath("Stages/" + viewer->currentFolder + "/TileConfig.bin",
-                                                 basePath + "TileConfig.bin");
+    QString pathSCF = WorkingDirManager::GetPath("Stages/" + viewer->currentFolder + "/StageConfig.bin",
+                                                 basePath + "StageConfig.bin");
 
     tileconfig.read(pathTCF);
     stageConfig.read(pathSCF);
@@ -2315,7 +2319,7 @@ void SceneEditorv5::saveScene(QString path)
 
     tabTitle = Utils::getFilenameAndFolder(path);
     clearActions();
-    //TODO:  ??? why is this gcf /gen
+    // TODO:  ??? why is this gcf /gen
     appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, path, QList<QString>{ gameConfig.filePath });
     setStatus("Saved scene to " + Utils::getFilenameAndFolder(scene.filepath));
 }
@@ -2475,7 +2479,7 @@ void SceneEditorv5::loadGameLinks()
 void SceneEditorv5::initGameLink()
 {
     for (int i = 0; i < viewer->objects.count(); ++i) {
-        GameObjectInfo *info = GetObjectInfo(viewer->objects[i].name);
+        GameObjectInfo *info = getObjectInfo(viewer->objects[i].name);
         if (info) {
             allocateStorage(dataStorage, info->objectSize, (void **)info->type, DATASET_STG, true);
 
@@ -2815,7 +2819,7 @@ bool SceneEditorv5::handleKeyRelease(QKeyEvent *event)
     return false;
 }
 
-GameObjectInfo *SceneEditorv5::GetObjectInfo(QString name)
+GameObjectInfo *SceneEditorv5::getObjectInfo(QString name)
 {
     QByteArray hashData = Utils::getMd5HashByteArray(name);
     byte data[0x10];
@@ -2836,21 +2840,24 @@ GameObjectInfo *SceneEditorv5::GetObjectInfo(QString name)
 
 void SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *entity)
 {
-    GameObjectInfo *info = GetObjectInfo(objName);
+    GameObjectInfo *info = getObjectInfo(objName);
 
-    if (!info
-        || (!entity
-            && (eventID != SceneViewerv5::EVENT_LOAD && eventID != SceneViewerv5::EVENT_SERIALIZE)))
+    if (!info)
         return;
 
     viewer->foreachStackPtr = viewer->foreachStackList;
     switch (eventID) {
         default: break;
+
         case SceneViewerv5::EVENT_LOAD:
             if (info->editorLoad)
                 info->editorLoad();
             break;
+
         case SceneViewerv5::EVENT_CREATE: {
+            if (!entity)
+                return;
+
             GameEntity *entityPtr =
                 entity->slotID == 0xFFFF ? entity->gameEntity : &viewer->gameEntityList[entity->slotID];
             memset(entityPtr, 0, sizeof(GameEntityBase));
@@ -2899,7 +2906,7 @@ void SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                     }
                 }
             }
-            entity->gameEntity = entityPtr;
+            entity->gameEntity = (GameEntityBase *)entityPtr;
 
             viewer->sceneInfo.entity     = entity->gameEntity;
             viewer->sceneInfo.entitySlot = entity->slotID;
@@ -2942,7 +2949,6 @@ void SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                         break;
                     }
                     case VAR_COLOUR: {
-                        auto c   = val.value_color;
                         uint clr = 0;
                         memcpy(&clr, offset, sizeof(uint));
                         val.value_color = QColor(clr);
@@ -2952,7 +2958,11 @@ void SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
             }
             break;
         }
+
         case SceneViewerv5::EVENT_UPDATE:
+            if (!entity)
+                return;
+
             // TODO: that(?)
             viewer->sceneInfo.entity     = entity->gameEntity;
             viewer->sceneInfo.entitySlot = entity->slotID;
@@ -2961,7 +2971,32 @@ void SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
             viewer->sceneInfo.entity     = NULL;
             viewer->sceneInfo.entitySlot = 0;
             break;
+
         case SceneViewerv5::EVENT_DRAW:
+            if (!entity) {
+                float ex = viewer->tilePos.x;
+                float ey = viewer->tilePos.y;
+
+                ex *= viewer->invZoom();
+                ey *= viewer->invZoom();
+
+                validDraw                   = false;
+                createGameEntity.position.x = (ex + viewer->cameraPos.x) * 65536.0f;
+                createGameEntity.position.y = (ey + viewer->cameraPos.y) * 65536.0f;
+                createGameEntity.objectID   = viewer->selectedObject;
+
+                createTempEntity.type       = viewer->selectedObject;
+                createTempEntity.pos.x      = (ex + viewer->cameraPos.x) * 65536.0f;
+                createTempEntity.pos.y      = (ey + viewer->cameraPos.y) * 65536.0f;
+                createTempEntity.slotID     = 0xFFFF;
+                createTempEntity.gameEntity = &createGameEntity;
+                createTempEntity.box        = Rect<int>(0, 0, 0, 0);
+
+                viewer->activeDrawEntity = &createTempEntity;
+
+                entity = &createTempEntity;
+            }
+
             viewer->sceneInfo.currentScreenID  = 0;
             viewer->sceneInfo.currentDrawGroup = 0; // TODO
 
@@ -2972,6 +3007,7 @@ void SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
             viewer->sceneInfo.entity     = NULL;
             viewer->sceneInfo.entitySlot = 0;
             break;
+
         case SceneViewerv5::EVENT_SERIALIZE:
             if (info->serialize)
                 info->serialize();
@@ -3169,7 +3205,7 @@ void SceneEditorv5::resetAction()
 
     updateTitle(actionIndex > 0);
 
-    //setStatus("redid Action: " + actions[actionIndex].name);
+    // setStatus("redid Action: " + actions[actionIndex].name);
 }
 
 void SceneEditorv5::doAction(QString name, bool setModified)
@@ -3223,7 +3259,7 @@ void SceneEditorv5::doAction(QString name, bool setModified)
 
     updateTitle(setModified);
 
-    //setStatus("Did Action: " + name);
+    // setStatus("Did Action: " + name);
 }
 void SceneEditorv5::clearActions()
 {

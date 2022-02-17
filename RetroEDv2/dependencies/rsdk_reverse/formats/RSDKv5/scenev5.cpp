@@ -155,32 +155,31 @@ void RSDKv5::Scene::SceneLayer::scrollInfoFromIndices()
 
     int prev  = lineIndexes.count() > 0 ? lineIndexes[0] : 0;
     int start = 0;
-    int h     = 1;
+    int l     = 1;
 
-    for (; h < lineIndexes.count(); ++h) {
-        if ((byte)lineIndexes[h] != prev) {
+    for (; l < lineIndexes.count(); ++l) {
+        if ((byte)lineIndexes[l] != prev) {
             ScrollIndexInfo info;
 
             info.startLine      = start;
-            info.length         = (h - start);
+            info.length         = l - start;
             info.parallaxFactor = infos[prev].parallaxFactor / 256.0f;
             info.scrollSpeed    = infos[prev].scrollSpeed / 256.0f;
-            info.scrollPos      = 0.0f;
             info.deform         = infos[prev].deform;
             info.unknown        = infos[prev].unknown;
 
             scrollInfos.append(info);
-            start = h;
+            start = l;
         }
 
-        prev = (byte)lineIndexes[h];
+        prev = (byte)lineIndexes[l];
     }
 
-    {
+    if (l != start) {
         ScrollIndexInfo info;
 
         info.startLine      = start;
-        info.length         = (h - start);
+        info.length         = l - start;
         info.parallaxFactor = infos[prev].parallaxFactor / 256.0f;
         info.scrollSpeed    = infos[prev].scrollSpeed / 256.0f;
         info.scrollPos      = 0.0f;
@@ -215,15 +214,15 @@ void RSDKv5::Scene::SceneLayer::scrollIndicesFromInfo()
     for (ScrollIndexInfo &info : scrollInfos) {
         int infoID = id;
         ScrollInfo sInfo;
-        sInfo.unknown        = info.unknown;
-        sInfo.deform         = info.deform;
         sInfo.parallaxFactor = info.parallaxFactor * 256;
         sInfo.scrollSpeed    = info.scrollSpeed * 256;
+        sInfo.deform         = info.deform;
+        sInfo.unknown        = info.unknown;
 
         int scrollID = 0;
         for (ScrollInfo &info : scrollingInfo) {
             if (info.parallaxFactor == sInfo.parallaxFactor && info.scrollSpeed == sInfo.scrollSpeed
-                && info.deform == sInfo.deform) {
+                && info.deform == sInfo.deform && info.unknown == sInfo.unknown) {
                 infoID = scrollID;
                 break;
             }

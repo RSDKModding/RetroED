@@ -732,22 +732,9 @@ void SceneViewerv5::drawScene()
         ex *= iZoom;
         ey *= iZoom;
 
-        validDraw                   = false;
-        createGameEntity.position.x = (ex + cameraPos.x) * 65536.0f;
-        createGameEntity.position.y = (ey + cameraPos.y) * 65536.0f;
-        createGameEntity.objectID   = selectedObject;
-
-        createTempEntity.type       = selectedObject;
-        createTempEntity.pos.x      = (ex + cameraPos.x) * 65536.0f;
-        createTempEntity.pos.y      = (ey + cameraPos.y) * 65536.0f;
-        createTempEntity.slotID     = 0xFFFF;
-        createTempEntity.gameEntity = &createGameEntity;
-        createTempEntity.box        = Rect<int>(0, 0, 0, 0);
-
-        activeDrawEntity = &createTempEntity;
         if (selectedObject != 0) {
             if (gameType == ENGINE_v5)
-                emit callGameEventv5(objects[selectedObject].name, EVENT_DRAW, &createTempEntity);
+                emit callGameEventv5(objects[selectedObject].name, EVENT_DRAW, NULL);
             else
                 emit callGameEvent(EVENT_DRAW, -1);
         }

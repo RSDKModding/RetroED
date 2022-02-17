@@ -144,9 +144,6 @@ public:
     int selectedObject = -1; // placing
     int selectedEntity = -1; // viewing
 
-    GameEntityBase createGameEntity;
-    SceneEntity createTempEntity;
-
     SceneEntity *activeDrawEntity = nullptr;
 
     int sceneFilter = 0xFF;

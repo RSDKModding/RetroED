@@ -1543,7 +1543,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
         }
         viewer->scene.objects.clear();
         viewer->scene.objectTypeNames.clear();
-        
+
         addStatusProgress(1.f / 5);
 
         int globalObjCount = 0;
@@ -1607,9 +1607,9 @@ bool SceneEditor::saveScene(bool forceSaveAs)
             delete gfx;
         }
 
-        tabTitle = Utils::getFilenameAndFolder(path);
+        tabTitle = Utils::getFilenameAndFolder(viewer->scene.filepath);
         clearActions();
-        setStatus("Saved scene to" + Utils::getFilenameAndFolder(viewer->scene.filepath));
+        setStatus("Saved scene to " + Utils::getFilenameAndFolder(viewer->scene.filepath));
         return true;
     }
     else {
@@ -1688,7 +1688,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
             appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR, filedialog.selectedFiles()[0],
                                     QList<QString>{ viewer->gameConfig.filePath });
 
-            tabTitle = Utils::getFilenameAndFolder(path);
+            tabTitle = Utils::getFilenameAndFolder(viewer->scene.filepath);
             clearActions();
             setStatus("Saved scene to " + Utils::getFilenameAndFolder(viewer->scene.filepath));
             return true;
@@ -2747,7 +2747,7 @@ void SceneEditor::doAction(QString name, bool setModified)
 
     updateTitle(setModified);
 
-    //setStatus("Did Action: " + name);
+    // setStatus("Did Action: " + name);
 }
 void SceneEditor::clearActions()
 {

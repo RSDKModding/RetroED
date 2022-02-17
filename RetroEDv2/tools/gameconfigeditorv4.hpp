@@ -25,6 +25,7 @@ public:
     ~GameConfigEditorv4();
 
     void load(QString filename);
+    bool saveGameConfig(bool forceSaveAs = false);
 
     void setupUI(bool allowRowChange = true);
 

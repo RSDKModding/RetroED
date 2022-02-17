@@ -53,6 +53,7 @@ void FormatHelpers::Background::read(byte ver, QString filename)
             }
             break;
         }
+
         case ENGINE_v2: {
             RSDKv2::Background bg(reader);
 
@@ -95,6 +96,7 @@ void FormatHelpers::Background::read(byte ver, QString filename)
             }
             break;
         }
+
         case ENGINE_v3: {
             RSDKv3::Background bg(reader);
 
@@ -137,6 +139,7 @@ void FormatHelpers::Background::read(byte ver, QString filename)
             }
             break;
         }
+
         case ENGINE_v4: {
             RSDKv4::Background bg(reader);
 
@@ -244,6 +247,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
             bg.write(writer);
             break;
         }
+
         case ENGINE_v2: {
             RSDKv2::Background bg;
 
@@ -291,6 +295,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
             bg.write(writer);
             break;
         }
+
         case ENGINE_v3: {
             RSDKv3::Background bg;
 
@@ -335,6 +340,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
             bg.write(writer);
             break;
         }
+
         case ENGINE_v4: {
             RSDKv4::Background bg;
 
@@ -396,31 +402,31 @@ void FormatHelpers::Background::scrollInfoFromIndices()
 
         int prev  = layer.lineIndexes.count() > 0 ? layer.lineIndexes[0] : -1;
         int start = 0;
-        int h     = 0;
+        int l     = 0;
 
-        for (; h < layer.lineIndexes.count(); ++h) {
-            if ((byte)layer.lineIndexes[h] != prev) {
+        for (; l < layer.lineIndexes.count(); ++l) {
+            if ((byte)layer.lineIndexes[l] != prev) {
                 ScrollIndexInfo info;
 
                 info.startLine      = start;
-                info.length         = (h - start);
+                info.length         = l - start;
                 info.parallaxFactor = infos[prev].parallaxFactor;
                 info.scrollSpeed    = infos[prev].scrollSpeed;
                 info.scrollPos      = 0.0f;
                 info.deform         = infos[prev].deform;
 
                 layer.scrollInfos.append(info);
-                start = h;
+                start = l;
             }
 
-            prev = (byte)layer.lineIndexes[h];
+            prev = (byte)layer.lineIndexes[l];
         }
 
         {
             ScrollIndexInfo info;
 
             info.startLine      = start;
-            info.length         = (h - start);
+            info.length         = l - start;
             info.parallaxFactor = infos[0].parallaxFactor;
             info.scrollSpeed    = infos[0].scrollSpeed;
             info.scrollPos      = 0.0f;

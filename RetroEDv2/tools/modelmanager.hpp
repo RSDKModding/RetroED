@@ -32,6 +32,7 @@ signals:
 
 protected:
     bool event(QEvent *event);
+    bool eventFilter(QObject *object, QEvent *event);
 
 private:
     int mdlFormat = -1;

@@ -90,6 +90,9 @@ public:
     TileSelector *tileSel             = nullptr;
     TilesetEditor *tsetEdit           = nullptr;
 
+    GameEntityBase createGameEntity;
+    SceneEntity createTempEntity;
+
     void loadScene(QString scnPath, QString gcfPath, byte gameType);
     void saveScene(QString path);
 
@@ -100,7 +103,7 @@ public:
     bool handleKeyRelease(QKeyEvent *event);
 
     QList<GameLink> gameLinks;
-    GameObjectInfo *GetObjectInfo(QString name);
+    GameObjectInfo *getObjectInfo(QString name);
 
     inline void updateTitle(bool modified)
     {
