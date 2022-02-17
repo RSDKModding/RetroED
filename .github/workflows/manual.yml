@@ -24,7 +24,7 @@ jobs:
       working-directory: RetroEDv2
       run: |
         py -m pip install pytz
-        py versiongen.py $GITHUB_SHA
+        py versiongen.py $Env:GITHUB_SHA
     - name: Build RetroED
       working-directory: build
       run: |
@@ -37,16 +37,16 @@ jobs:
         mkdir artifacts/platforms/
         move build/release/RetroED.exe artifacts
         
-        move $Qt5_Dir/bin/Qt5Core.dll artifacts
-        move $Qt5_Dir/bin/Qt5Widgets.dll artifacts
-        move $Qt5_Dir/bin/Qt5Svg.dll artifacts
-        move $Qt5_Dir/bin/Qt5Xml.dll artifacts
-        move $Qt5_Dir/bin/Qt5Gui.dll artifacts
+        move $Env:Qt5_Dir/bin/Qt5Core.dll artifacts
+        move $Env:Qt5_Dir/bin/Qt5Widgets.dll artifacts
+        move $Env:Qt5_Dir/bin/Qt5Svg.dll artifacts
+        move $Env:Qt5_Dir/bin/Qt5Xml.dll artifacts
+        move $Env:Qt5_Dir/bin/Qt5Gui.dll artifacts
         
-        move $Qt5_Dir/plugins/platforms/qwindows.dll artifacts/platforms
-        move $Qt5_Dir/plugins/platforms/qoffscreen.dll artifacts/platforms
-        move $Qt5_Dir/plugins/platforms/qdirect2d.dll artifacts/platforms
-        move $Qt5_Dir/plugins/platforms/qminimal.dll artifacts/platforms
+        move $Env:Qt5_Dir/plugins/platforms/qwindows.dll artifacts/platforms
+        move $Env:Qt5_Dir/plugins/platforms/qoffscreen.dll artifacts/platforms
+        move $Env:Qt5_Dir/plugins/platforms/qdirect2d.dll artifacts/platforms
+        move $Env:Qt5_Dir/plugins/platforms/qminimal.dll artifacts/platforms
         
     - name: Upload artifacts
       uses: actions/upload-artifact@v2.3.1
