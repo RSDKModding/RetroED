@@ -35,6 +35,8 @@ jobs:
       run: |
         mkdir artifacts
         mkdir artifacts/platforms/
+        mkdir artifacts/imageformats/
+
         move build/release/RetroED.exe artifacts
         
         move $Env:Qt5_Dir/bin/Qt5Core.dll artifacts
@@ -47,6 +49,8 @@ jobs:
         move $Env:Qt5_Dir/plugins/platforms/qoffscreen.dll artifacts/platforms
         move $Env:Qt5_Dir/plugins/platforms/qdirect2d.dll artifacts/platforms
         move $Env:Qt5_Dir/plugins/platforms/qminimal.dll artifacts/platforms
+        
+        move $Env:Qt5_Dir/plugins/imageformats/qsvg.dll artifacts/imageformats
         
     - name: Upload artifacts
       uses: actions/upload-artifact@v2.3.1

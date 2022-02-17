@@ -134,6 +134,7 @@ int main(int argc, char *argv[])
 
     printLog("====================================================");
     printLog("New RetroED instance: " + QDateTime::currentDateTime().toString());
+    printLog(QString("Version: ") + RE_VERSION);
     printLog("====================================================");
 
     GameLink::Setup();

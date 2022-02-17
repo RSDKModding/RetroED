@@ -60,7 +60,7 @@ public:
                                              | (collision[(i * 2) + 1].height & 0xF)));
 
             for (int c = 0; c < 16; ++c)
-                collisionSolid ^= (-(bool)collision[c].solid ^ collisionSolid) & (1 << c);
+                collisionSolid ^= (-(ushort)collision[c].solid ^ collisionSolid) & (1 << c);
 
             writer.write(collisionBytes); // Write Collision Data
 

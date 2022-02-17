@@ -104,14 +104,14 @@ public:
 
     inline void readBytes(void *buffer, qint64 len)
     {
-        stream->readRawData((char *)buffer, sizeof(byte) * len);
+        stream->readRawData((char *)buffer, (int)(sizeof(byte) * len));
     }
 
     inline QByteArray readByteArray(qint64 len, bool compressed = false)
     {
         QByteArray result;
         char *buffer = new char[sizeof(byte) * len];
-        stream->readRawData(buffer, sizeof(byte) * len);
+        stream->readRawData(buffer, (int)(sizeof(byte) * len));
         result.append(buffer, len);
         delete[] buffer;
 

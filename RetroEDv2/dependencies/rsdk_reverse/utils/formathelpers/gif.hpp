@@ -31,7 +31,7 @@ public:
     inline void read(QString filename, bool skipHeader = false, int clrCnt = 0x80)
     {
         Reader reader(filename);
-        read(reader);
+        read(reader, skipHeader, clrCnt);
     }
     void read(Reader &reader, bool skipHeader = false, int clrCnt = 0x80);
 
@@ -42,7 +42,7 @@ public:
         if (filename == "")
             return;
         Writer writer(filename);
-        write(writer);
+        write(writer, skipHeader, useLocal);
     }
     void write(Writer &writer, bool skipHeader = false, bool useLocal = false);
 
