@@ -1,0 +1,32 @@
+name: Build RetroED
+
+on: workflow_dispatch
+
+jobs:
+  win-build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.4.0
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2.14.0
+      with:
+        setup-python: false
+    - name: Download and install Jom 
+      run: |
+        Invoke-WebRequest http://qt.mirror.constant.com/official_releases/jom/jom_1_1_3.zip -OutFile "jom.zip"
+        Expand-Archive -Path jom.zip -DestinationPath $Qt5_Dir/bin
+    - name: Run versiongen
+      working-directory: RetroEDv2
+      run: |
+        py -m pip install pytz
+        py versiongen.py $GITHUB_SHA
+        mkdir ../build
+    - name: Build RetroED
+      working-directory: build
+      run: |
+        qmake ../RetroEDv2/RetroEDv2.pro -spec win32-msvc "CONFIG+=qtquickcompiler"
+        jom qmake_all
+        jom -f Makefile.release
+        
