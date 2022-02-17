@@ -21,7 +21,7 @@ jobs:
       working-directory: RetroEDv2
       run: |
         py -m pip install pytz
-        py ./versiongen.py $GITHUB_SHA
+        py versiongen.py $GITHUB_SHA
         mkdir ../build
     - name: Build RetroED
       working-directory: build
