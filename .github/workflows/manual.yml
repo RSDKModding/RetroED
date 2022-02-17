@@ -7,6 +7,8 @@ jobs:
     runs-on: windows-latest
 
     steps:
+    - name: Checkout
+      uses: actions/checkout@v2.4.0
     - name: Install Qt
       # You may pin to the exact commit or the version.
       # uses: jurplel/install-qt-action@c04feedfdfd6dbe64db62deda57fb0971a1bf440
@@ -15,7 +17,7 @@ jobs:
       working-directory: RetroEDv2
       run: |
         py -m pip install pytz
-        py versiongen.py
+        py versiongen.py $GITHUB_SHA
         mkdir ../build
     - name: Build RetroED
       working-directory: build
