@@ -135,22 +135,22 @@ void ModelViewer::initializeGL()
     vertVBO->create();
     vertVBO->bind();
     vertVBO->setUsagePattern(QOpenGLBuffer::DynamicDraw);
-    shader.setAttributeBuffer("in_pos", GL_FLOAT, 0, 3);
-    shader.enableAttributeArray("in_pos");
+    glFuncs->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    shader.enableAttributeArray(0);
 
     colorVBO = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
     colorVBO->create();
     colorVBO->bind();
     colorVBO->setUsagePattern(QOpenGLBuffer::StaticDraw);
     shader.setAttributeBuffer("in_color", GL_UNSIGNED_BYTE, 0, 4);
-    shader.enableAttributeArray("in_color");
+    shader.enableAttributeArray(1);
 
     texVBO = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
     texVBO->create();
     texVBO->bind();
     texVBO->setUsagePattern(QOpenGLBuffer::StaticDraw);
-    shader.setAttributeBuffer("in_uv", GL_FLOAT, 0, 2);
-    shader.enableAttributeArray("in_uv");
+    glFuncs->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    shader.enableAttributeArray(2);
 
     indexVBO = new QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
     indexVBO->create();
@@ -191,7 +191,7 @@ void ModelViewer::paintGL()
         // 0 3 5 turned to 3:   0 3 5
         // 0 3 5 4 turned to 3: 0 3 5 5 4 0
         // etc
-        int count    = 3 * model.faceVerticiesCount - 3;
+        int count    = 3 * model.faceVerticiesCount - 6;
         int total    = count * (model.indices.count() / model.faceVerticiesCount);
         auto indices = new ushort[total];
         ushort* current = indices;
@@ -200,23 +200,24 @@ void ModelViewer::paintGL()
         model.indices.append(model.indices[model.indices.count() - 2]);
 
         for (; i < model.indices.count() - 1; i += model.faceVerticiesCount) {
-            for (int j = 0; j < model.faceVerticiesCount - 1; ++j) {
+            for (int j = 0; j < model.faceVerticiesCount - 2; ++j) {
                 current[j * 3 + 0] = model.indices[i + j];
                 current[j * 3 + 1] = model.indices[i + j + 1];
                 current[j * 3 + 2] = model.indices[i + j + 2];
             }
-            current[count - 1] = model.indices[i];
+            if (model.faceVerticiesCount != 3) current[count - 1] = model.indices[i];
             current = &current[count];
         }
 
         vertVBO->bind();
-        vertVBO->allocate(sizeof(vert));
+        //vertVBO data allocation here is temp
+        vertVBO->allocate(vert, curFrame->vertices.count() * sizeof(RSDKv5::Model::Frame::Vertex));
         colorVBO->bind();
-        colorVBO->allocate(colors, sizeof(colors));
+        colorVBO->allocate(colors, ic * sizeof(RSDKv5::Model::Colour));
         texVBO->bind();
-        texVBO->allocate(uvs, sizeof(uvs));
+        texVBO->allocate(uvs, ic * sizeof(RSDKv5::Model::TexCoord));
         indexVBO->bind();
-        indexVBO->allocate(indices, sizeof(indices));
+        indexVBO->allocate(indices, total);
 
         shader.setValue("useColor", model.hasColours);
         shader.setValue("useTextures", model.hasTextures);
@@ -246,7 +247,7 @@ void ModelViewer::paintGL()
     shader.setValue("view", matView);
     shader.setValue("model", matModel);
 
-    glFuncs->glDrawElements(GL_TRIANGLES, indexVBO->size(), GL_UNSIGNED_SHORT, 0);
+    glFuncs->glDrawElements(GL_TRIANGLES, indexVBO->size() / sizeof(ushort), GL_UNSIGNED_SHORT, 0);
 }
 
 #include "moc_modelviewer.cpp"

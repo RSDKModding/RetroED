@@ -1,7 +1,7 @@
 #version 330 core
-in vec3 in_pos;
-in vec4 in_color;
-in vec2 in_UV;
+layout(location = 0) in vec3 in_pos;
+layout(location = 1) in vec4 in_color;
+layout(location = 2) in vec2 in_UV;
 
 out vec4 ex_color;
 out vec2 ex_UV;
