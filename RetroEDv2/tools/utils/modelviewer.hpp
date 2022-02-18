@@ -25,6 +25,8 @@ public:
     QString texFile = "";
     bool reload     = false;
 
+    QTimer* renderTimer;
+
 protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;

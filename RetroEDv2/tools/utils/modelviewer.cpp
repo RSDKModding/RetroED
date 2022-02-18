@@ -7,9 +7,16 @@ ModelViewer::ModelViewer(QWidget *parent) : QOpenGLWidget(parent)
     this->setFocusPolicy(Qt::WheelFocus);
 
     model = RSDKv5::Model();
+
+    renderTimer = new QTimer(this);
+    connect(renderTimer, &QTimer::timeout, this, [this]{ this->repaint(); });
+    renderTimer->start(1000 / 60.f);
 }
 
-ModelViewer::~ModelViewer() {}
+ModelViewer::~ModelViewer() {
+    curFrame = nullptr;
+    nextFrame = nullptr;
+}
 
 void ModelViewer::setModel(RSDKv5::Model m, QString tex)
 {
@@ -132,22 +139,29 @@ void ModelViewer::initializeGL()
     vertVBO->create();
     vertVBO->bind();
     vertVBO->setUsagePattern(QOpenGLBuffer::DynamicDraw);
-    glFuncs->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    shader.enableAttributeArray(0);
+    shader.setAttributeBuffer("in_pos", GL_FLOAT, 0, 3);
+    shader.enableAttributeArray("in_pos");
+
+    normalVBO = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+    normalVBO->create();
+    normalVBO->bind();
+    normalVBO->setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    shader.setAttributeBuffer("in_norm", GL_FLOAT, 0, 3);
+    shader.enableAttributeArray("in_norm");
 
     colorVBO = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
     colorVBO->create();
     colorVBO->bind();
     colorVBO->setUsagePattern(QOpenGLBuffer::StaticDraw);
     shader.setAttributeBuffer("in_color", GL_UNSIGNED_BYTE, 0, 4);
-    shader.enableAttributeArray(1);
+    shader.enableAttributeArray("in_color");
 
     texVBO = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
     texVBO->create();
     texVBO->bind();
     texVBO->setUsagePattern(QOpenGLBuffer::StaticDraw);
-    glFuncs->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    shader.enableAttributeArray(2);
+    shader.setAttributeBuffer("in_UV", GL_FLOAT, 0, 2);
+    shader.enableAttributeArray("in_UV");
 
     indexVBO = new QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
     indexVBO->create();
@@ -172,14 +186,26 @@ void ModelViewer::paintGL()
 
     if (reload) {
         reload      = false;
-        auto vert   = new RSDKv5::Model::Frame::Vertex[curFrame->vertices.count()];
+        int vc = curFrame->vertices.count();
+        auto vert   = new float[vc * 3];
+        auto norm   = new float[vc * 3];
         int ic      = model.indices.count();
         auto colors = new RSDKv5::Model::Colour[ic];
         auto uvs    = new RSDKv5::Model::TexCoord[ic];
 
         int i = 0;
-        for (auto &v : curFrame->vertices) vert[i++] = v;
+        for (auto &v : curFrame->vertices) {
+            vert[i++] = v.x;
+            vert[i++] = v.y;
+            vert[i++] = v.z;
+        }
         i = 0;
+        for (auto &v : curFrame->vertices) {
+            norm[i++] = v.nx;
+            norm[i++] = v.ny;
+            norm[i++] = v.nz;
+        }
+
         for (auto &c : model.colours) colors[i++] = c;
         i = 0;
         for (auto &uv : model.texCoords) uvs[i++] = uv;
@@ -188,38 +214,44 @@ void ModelViewer::paintGL()
         // 0 3 5 turned to 3:   0 3 5
         // 0 3 5 4 turned to 3: 0 3 5 5 4 0
         // etc
-        int count       = 3 * model.faceVerticiesCount - 6;
+        int count       = 3 * model.faceVerticiesCount - 3;
         int total       = count * (model.indices.count() / model.faceVerticiesCount);
         auto indices    = new ushort[total];
         ushort *current = indices;
 
-        // hack, avoids a crash
-        model.indices.append(model.indices[model.indices.count() - 2]);
-
         for (; i < model.indices.count() - 1; i += model.faceVerticiesCount) {
-            for (int j = 0; j < model.faceVerticiesCount - 2; ++j) {
+            for (int j = 0; j < model.faceVerticiesCount - 1; ++j) {
                 current[j * 3 + 0] = model.indices[i + j];
                 current[j * 3 + 1] = model.indices[i + j + 1];
-                current[j * 3 + 2] = model.indices[i + j + 2];
+                if (j + 3 < model.faceVerticiesCount)
+                    current[j * 3 + 2] = model.indices[i + j + 2];
             }
-            if (model.faceVerticiesCount != 3)
+            //if (model.faceVerticiesCount != 3)
                 current[count - 1] = model.indices[i];
             current = &current[count];
         }
 
         vertVBO->bind();
         // vertVBO data allocation here is temp
-        vertVBO->allocate(vert, curFrame->vertices.count() * sizeof(RSDKv5::Model::Frame::Vertex));
+        vertVBO->allocate(vert, vc * sizeof(float) * 3);
+        normalVBO->bind();
+        // normalVBO data allocation here is temp
+        normalVBO->allocate(norm, vc * sizeof(float) * 3);
         colorVBO->bind();
         colorVBO->allocate(colors, ic * sizeof(RSDKv5::Model::Colour));
         texVBO->bind();
         texVBO->allocate(uvs, ic * sizeof(RSDKv5::Model::TexCoord));
         indexVBO->bind();
-        indexVBO->allocate(indices, total);
+        indexVBO->allocate(indices, total * sizeof(ushort));
 
         shader.setValue("useColor", model.hasColours);
         shader.setValue("useTextures", model.hasTextures);
         shader.setValue("useNormals", model.hasNormals);
+
+        delete vert;
+        delete norm;
+        delete colors;
+        delete uvs;
     }
 
     if (texFile != curTex) {

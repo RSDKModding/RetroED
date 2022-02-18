@@ -1,4 +1,6 @@
 #version 330 core
+
+in vec3 ex_norm;
 in vec4 ex_color;
 in vec2 ex_UV;
 out vec4 out_color;
