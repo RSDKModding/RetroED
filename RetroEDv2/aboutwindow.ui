@@ -63,6 +63,7 @@
    <property name="font">
     <font>
      <pointsize>16</pointsize>
+     <weight>75</weight>
      <bold>true</bold>
     </font>
    </property>
@@ -99,7 +100,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>A general purpose editor for managing all of RSDK.</string>
+    <string>A general purpose tool suite for the Retro Engine.</string>
    </property>
   </widget>
   <widget class="QLabel" name="authorLabel">
@@ -131,6 +132,7 @@
    </property>
    <property name="font">
     <font>
+     <weight>75</weight>
      <italic>true</italic>
      <bold>true</bold>
     </font>

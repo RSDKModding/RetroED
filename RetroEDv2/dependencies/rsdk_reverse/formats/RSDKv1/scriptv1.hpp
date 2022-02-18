@@ -51,7 +51,7 @@ public:
 
         QString name()
         {
-            if (opcode >= 0 && opcode < opcodeList.count())
+            if (opcode < opcodeList.count())
                 return opcodeList[opcode].name;
             else
                 return QString("Unknown Opcode %1").arg(opcode);
@@ -59,7 +59,7 @@ public:
 
         int paramCount()
         {
-            if (opcode >= 0 && opcode < opcodeList.count())
+            if (opcode < opcodeList.count())
                 return opcodeList[opcode].paramCount;
             else
                 return 0;

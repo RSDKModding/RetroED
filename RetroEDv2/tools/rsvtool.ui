@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>RSVTool</class>
- <widget class="QWidget" name="RSVTool">
+ <widget class="QDialog" name="RSVTool">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>RSV Manager</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="5" column="0">

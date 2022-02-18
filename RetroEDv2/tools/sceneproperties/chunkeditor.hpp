@@ -14,7 +14,7 @@ class ChunkViewer : public QLabel
 public:
     ChunkViewer(int *cSel, Vector2<int> *sel, FormatHelpers::Chunks *chk, QList<QImage> tiles,
                 QWidget *parent = nullptr)
-        : QLabel(parent), cSel(cSel), selection(sel), chunks(chk), tiles(tiles)
+        : QLabel(parent), cSel(cSel), selection(sel), tiles(tiles), chunks(chk)
     {
     }
 

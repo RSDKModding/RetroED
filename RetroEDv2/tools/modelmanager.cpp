@@ -5,12 +5,12 @@ ModelManager::ModelManager(QWidget *parent) : QWidget(parent), ui(new Ui::ModelM
 {
     ui->setupUi(this);
 
-    ModelViewer *viewer = new ModelViewer(this);
+    viewer = new ModelViewer(this);
     viewer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->viewerFrame->layout()->addWidget(viewer);
     viewer->show();
 
-    connect(ui->exportFrames, &QPushButton::pressed, [this] {
+    connect(ui->expMDL, &QPushButton::pressed, [this] {
         QFileDialog filedialog(this, tr("Save Model Frames"), "",
                                tr(QString("OBJ Models (*.obj)").toStdString().c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
@@ -25,7 +25,7 @@ ModelManager::ModelManager(QWidget *parent) : QWidget(parent), ui(new Ui::ModelM
         }
     });
 
-    connect(ui->exportCurFrame, &QPushButton::pressed, [this] {
+    /*connect(ui->exportCurFrame, &QPushButton::pressed, [this] {
         QFileDialog filedialog(this, tr("Save Model Frame"), "",
                                tr(QString("OBJ Models (*.obj)").toStdString().c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
@@ -38,13 +38,26 @@ ModelManager::ModelManager(QWidget *parent) : QWidget(parent), ui(new Ui::ModelM
                 case 1: modelv4.writeAsOBJ(selFile, -1); break;
             }
         }
+    });*/
+
+    connect(ui->loopIndex, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { viewer->loopIndex = v; });
+
+    connect(ui->animSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+            [this](double v) { viewer->animSpeed = v; });
+
+    ui->frameList->setCurrentRow(0);
+    connect(ui->frameList, &QListWidget::currentRowChanged, [this](int r) {
+        ui->animSpeed->setDisabled(r == -1);
+        ui->loopIndex->setDisabled(r == -1);
+
+        viewer->setFrame(r);
     });
+    ui->frameList->setCurrentRow(-1);
 
     for (QWidget *w : findChildren<QWidget *>()) {
         w->installEventFilter(this);
     }
-
-    //this->viewer = viewer;
 }
 
 ModelManager::~ModelManager() { delete ui; }
@@ -201,7 +214,7 @@ bool ModelManager::eventFilter(QObject *object, QEvent *event)
         default: break;
     }
 
-    return true;
+    return false;
 }
 
 void ModelManager::setupUI()
@@ -215,13 +228,39 @@ void ModelManager::setupUI()
             for (int f = 0; f < modelv5.frames.count(); ++f)
                 ui->frameList->addItem("Frame " + QString::number(f));
 
-            // holy fucking shit
-            ((ModelViewer*)ui->viewerFrame->layout()->itemAt(0)->widget())->setModel(modelv5);
+            ui->animSpeed->blockSignals(true);
+            ui->animSpeed->setValue(0);
+            viewer->animSpeed = 0;
+            ui->animSpeed->blockSignals(false);
+
+            ui->loopIndex->blockSignals(true);
+            ui->loopIndex->setValue(0);
+            viewer->loopIndex = 0;
+            ui->loopIndex->blockSignals(false);
+
+            ui->frameList->setCurrentRow(-1);
+
+            viewer->setModel(modelv5);
             break;
         }
+
         case 1: {
             for (int f = 0; f < modelv4.frames.count(); ++f)
                 ui->frameList->addItem("Frame " + QString::number(f));
+
+            ui->animSpeed->blockSignals(true);
+            ui->animSpeed->setValue(0);
+            viewer->animSpeed = 0;
+            ui->animSpeed->blockSignals(false);
+
+            ui->loopIndex->blockSignals(true);
+            ui->loopIndex->setValue(0);
+            viewer->loopIndex = 0;
+            ui->loopIndex->blockSignals(false);
+
+            ui->frameList->setCurrentRow(-1);
+
+            viewer->setModel(modelv4);
             break;
         }
     }

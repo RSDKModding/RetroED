@@ -1,14 +1,14 @@
 #ifndef SCRIPTUNPACKER_H
 #define SCRIPTUNPACKER_H
 
-#include <QWidget>
+#include <QDialog>
 
 namespace Ui
 {
 class ScriptUnpacker;
 }
 
-class ScriptUnpacker : public QWidget
+class ScriptUnpacker : public QDialog
 {
     Q_OBJECT
 

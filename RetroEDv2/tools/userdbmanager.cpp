@@ -5,9 +5,13 @@
 #include <iomanip>
 #include <sstream>
 
-UserDBManager::UserDBManager(QWidget *parent) : QWidget(parent), ui(new Ui::UserDBManager)
+UserDBManager::UserDBManager(QWidget *parent) : QDialog(parent), ui(new Ui::UserDBManager)
 {
     ui->setupUi(this);
+
+    // remove question mark from the title bar & disable resizing
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    this->setFixedSize(QSize(this->width(), this->height()));
 
     connect(ui->exportCSV, &QPushButton::pressed, [this] {
         QFileDialog filedialog(this, tr("Open UserDB file"), "", tr("RSDKv5 UserDB files (*.bin)"));

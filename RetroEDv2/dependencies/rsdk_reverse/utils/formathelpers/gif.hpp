@@ -18,7 +18,7 @@ public:
         pixels.resize(w * h);
     }
 
-    Gif operator=(const Gif &other)
+    Gif(const Gif &other)
     {
         filePath = other.filePath;
 

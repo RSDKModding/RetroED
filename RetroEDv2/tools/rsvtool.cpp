@@ -1,9 +1,13 @@
 #include "includes.hpp"
 #include "ui_rsvtool.h"
 
-RSVTool::RSVTool(QWidget *parent) : QWidget(parent), ui(new Ui::RSVTool)
+RSVTool::RSVTool(QWidget *parent) : QDialog(parent), ui(new Ui::RSVTool)
 {
     ui->setupUi(this);
+
+    // remove question mark from the title bar & disable resizing
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    this->setFixedSize(QSize(this->width(), this->height()));
 
     ui->selExtractFolder->setDisabled(true);
     ui->saveRSV->setDisabled(true);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>GFXTool</class>
- <widget class="QWidget" name="GFXTool">
+ <widget class="QDialog" name="GFXTool">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>GFX Manager</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="7" column="0" colspan="2">

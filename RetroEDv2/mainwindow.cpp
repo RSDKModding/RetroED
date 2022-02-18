@@ -301,10 +301,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     });
 
 #if !RE_BUILD_TYPE
-    tools->addAction("Script Unpacker", [this] {
-        setStatus("Opening Script Unpacker...");
+    tools->addAction("Script Decompiler", [] {
+        setStatus("Opening Script Decompiler...");
         ScriptUnpacker *tool = new ScriptUnpacker();
-        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Script Unpacker"));
+        tool->exec();
     });
 #endif
 
@@ -317,25 +317,26 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     tools->addAction("Model Manager", [this] {
         setStatus("Opening Model Manager...");
         ModelManager *tool = new ModelManager();
+        tool->installEventFilter(this);
         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Model Manager"));
     });
 
-    tools->addAction("GFX Tool", [this] {
-        setStatus("Opening GFX Tool...");
+    tools->addAction("GFX Manager", [] {
+        setStatus("Opening GFX Manager...");
         GFXTool *tool = new GFXTool();
-        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "GFX Tool"));
+        tool->exec();
     });
 
-    tools->addAction("UserDB Tool", [this] {
-        setStatus("Opening UserDB Tool...");
+    tools->addAction("UserDB Manager", [] {
+        setStatus("Opening UserDB Manager...");
         UserDBManager *tool = new UserDBManager();
-        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "UserDB Tool"));
+        tool->exec();
     });
 
-    tools->addAction("RSV Tool", [this] {
-        setStatus("Opening RSV Tool...");
+    tools->addAction("RSV Manager", [] {
+        setStatus("Opening RSV Manager...");
         RSVTool *tool = new RSVTool();
-        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "RSV Tool"));
+        tool->exec();
     });
 
     ui->menubar->addMenu(tools);

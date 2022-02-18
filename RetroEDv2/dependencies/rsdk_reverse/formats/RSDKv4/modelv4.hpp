@@ -1,5 +1,5 @@
-#ifndef MODEL_V5_HPP
-#define MODEL_V5_HPP
+#ifndef MODEL_V4_H
+#define MODEL_V4_H
 
 namespace RSDKv4
 {
@@ -7,30 +7,6 @@ namespace RSDKv4
 class Model
 {
 public:
-    class Colour
-    {
-    public:
-        byte r, g, b, a;
-        Colour() {}
-        Colour(Reader &reader) { read(reader); }
-
-        void read(Reader &reader)
-        {
-            b = reader.read<byte>();
-            g = reader.read<byte>();
-            r = reader.read<byte>();
-            a = reader.read<byte>();
-        }
-
-        void write(Writer &writer)
-        {
-            writer.write(b);
-            writer.write(g);
-            writer.write(r);
-            writer.write(a);
-        }
-    };
-
     class TexCoord
     {
     public:
@@ -101,7 +77,6 @@ public:
     byte signature[4] = { 'R', '3', 'D', 0 };
 
     QList<TexCoord> texCoords;
-    QList<Colour> colours;
     QList<Frame> frames;
     QList<ushort> indices;
 
@@ -110,4 +85,4 @@ public:
 
 } // namespace RSDKv4
 
-#endif // MODEL_HPP
+#endif // MODEL_V4_H

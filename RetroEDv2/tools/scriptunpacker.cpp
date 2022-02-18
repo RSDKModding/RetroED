@@ -1,9 +1,13 @@
 #include "includes.hpp"
 #include "ui_scriptunpacker.h"
 
-ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::ScriptUnpacker)
+ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::ScriptUnpacker)
 {
     ui->setupUi(this);
+
+    // remove question mark from the title bar & disable resizing
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    this->setFixedSize(QSize(this->width(), this->height()));
 
     connect(ui->selEngineType, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int i) {
         if (i >= 0)
@@ -404,7 +408,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
         }
     });
 
-    //TODO: idk what to do here for status
+    // TODO: idk what to do here for status
     connect(ui->loadTRBytecode, &QPushButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Open Retro-Sonic Bytecode"), "",
                                tr("Retro-Sonic Bytecode files (*.rsf)"));

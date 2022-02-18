@@ -398,8 +398,8 @@ private:
         return matWorld;
     }
 
-    inline void drawLine(float x1, float y1, float z1, float x2, float y2, float z2, float scale,
-                         Vector4<float> colour, Shader &shader);
+    void drawLine(float x1, float y1, float z1, float x2, float y2, float z2, float scale,
+                  Vector4<float> colour, Shader &shader);
 
     inline void drawRect(float x, float y, float z, float w, float h, Vector4<float> colour,
                          Shader &shader, bool outline = false)

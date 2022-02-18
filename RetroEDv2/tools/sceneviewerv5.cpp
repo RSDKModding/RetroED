@@ -2,16 +2,6 @@
 #include <cmath>
 #include "qgifimage.h"
 
-static QVector3D rectVerticesv5[] = {
-    QVector3D(-0.5f, -0.5f, -0.5f), QVector3D(0.5f, -0.5f, -0.5f), QVector3D(0.5f, 0.5f, -0.5f),
-    QVector3D(0.5f, 0.5f, -0.5f),   QVector3D(-0.5f, 0.5f, -0.5f), QVector3D(-0.5f, -0.5f, -0.5f),
-};
-
-static QVector2D rectTexCoordsv5[] = {
-    QVector2D(0.0f, 0.0f), QVector2D(1.0f, 0.0f), QVector2D(1.0f, 1.0f),
-    QVector2D(1.0f, 1.0f), QVector2D(0.0f, 1.0f), QVector2D(0.0f, 0.0f),
-};
-
 union PlaceArgs {
     byte size[0x80];
     struct {
@@ -28,7 +18,7 @@ union CircleArgs {
     };
 };
 
-SceneViewerv5::SceneViewerv5(byte gameType, QWidget *)
+SceneViewerv5::SceneViewerv5(byte gameType, QWidget *parent) : QOpenGLWidget(parent)
 {
     this->gameType = gameType;
     tileSize       = gameType == ENGINE_v5 ? 0x10 : 0x80;
@@ -75,14 +65,13 @@ SceneViewerv5::SceneViewerv5(byte gameType, QWidget *)
     sceneInfo.minutes          = 0;
 
     sprintf(gameInfo.gameTitle, "%s", "RetroED");
-    sprintf(gameInfo.gameSubname, "%s",
-            "General Purpose Editor for RSDK Files\n\nCreated by: Rubberduckycooly");
-    sprintf(gameInfo.version, "%s", "2.0");
+    sprintf(gameInfo.gameSubname, "%s", "RetroED");
+    sprintf(gameInfo.version, "%s", RE_VERSION);
 
     skuInfo.platform = 0xFF;
 
     int vID = 0;
-    for (int i = 0; i < 0x8000; i++) {
+    for (int i = 0; i < vertexListLimit; i++) {
         baseIndexList[vID++] = (i << 2) + 0;
         baseIndexList[vID++] = (i << 2) + 1;
         baseIndexList[vID++] = (i << 2) + 2;
@@ -412,7 +401,7 @@ void SceneViewerv5::drawScene()
                                     tileUVArray[point + 3], 0, gfxSurface);
 
                             // safety pass
-                            if (renderCount >= 0x8000 - 8) {
+                            if (renderCount >= vertexListLimit - 8) {
                                 renderCount -= count * 4;
                                 PlaceArgs args;
                                 args.texID = 0;
@@ -454,7 +443,7 @@ void SceneViewerv5::drawScene()
                                             tileUVArray[point + 3], 0, gfxSurface);
 
                                     // safety pass
-                                    if (renderCount >= 0x8000 - 8) {
+                                    if (renderCount >= vertexListLimit - 8) {
                                         renderCount -= count * 4;
                                         PlaceArgs args;
                                         args.texID = 0;
@@ -1111,7 +1100,7 @@ void SceneViewerv5::initializeGL()
     attribVBO->create();
     attribVBO->bind();
     attribVBO->setUsagePattern(QOpenGLBuffer::DynamicDraw);
-    attribVBO->allocate(0x8000 * sizeof(DrawVertex));
+    attribVBO->allocate(vertexListLimit * sizeof(DrawVertex));
     // we have to do this directly bc for whatever reason it's normally per program ??????
     glFuncs->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(DrawVertex), 0);
     glFuncs->glEnableVertexAttribArray(0);
@@ -1124,7 +1113,7 @@ void SceneViewerv5::initializeGL()
     indexVBO = new QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
     indexVBO->create();
     indexVBO->bind();
-    indexVBO->allocate(0x8000 * 6 * sizeof(ushort));
+    indexVBO->allocate(vertexListLimit * 6 * sizeof(ushort));
 
     fbpVAO = new QOpenGLVertexArrayObject;
     fbpVAO->create();
@@ -1807,9 +1796,9 @@ void SceneViewerv5::addRenderState(int blendMode, ushort vertCount, ushort index
     if (!altIndex)
         altIndex = baseIndexList;
 
-    if (renderStates.count() && vertCount + renderCount < 0x8000) {
+    if (renderStates.count() && vertCount + renderCount < vertexListLimit) {
         RenderState &last = renderStates.last();
-        if (last.indexCount + indexCount < (0x8000 * 6) && statesCompatible(last, newState)) {
+        if (last.indexCount + indexCount < (vertexListLimit * 6) && statesCompatible(last, newState)) {
             // merge em and we'll be on our way
             memcpy(&last.indecies[last.indexCount], altIndex, indexCount * sizeof(ushort));
             for (int i = 0; i < indexCount; ++i) last.indecies[i + last.indexCount] += renderCount;
@@ -1817,7 +1806,7 @@ void SceneViewerv5::addRenderState(int blendMode, ushort vertCount, ushort index
             return;
         }
     }
-    if (vertCount + renderCount >= 0x8000) {
+    if (vertCount + renderCount >= vertexListLimit) {
         renderRenderStates(); // you should render NOW!
     }
 

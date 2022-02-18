@@ -1,14 +1,14 @@
 #ifndef RSVUNPACKER_H
 #define RSVUNPACKER_H
 
-#include <QWidget>
+#include <QDialog>
 
 namespace Ui
 {
 class RSVTool;
 }
 
-class RSVTool : public QWidget
+class RSVTool : public QDialog
 {
     Q_OBJECT
 

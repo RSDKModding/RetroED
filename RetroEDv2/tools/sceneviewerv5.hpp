@@ -173,8 +173,10 @@ public:
 
     QImage *colTex = nullptr;
 
-    DrawVertex vertexList[0x8000];
-    ushort baseIndexList[0x8000 * 6];
+    static const int vertexListLimit = 0x8000;
+
+    DrawVertex vertexList[vertexListLimit];
+    ushort baseIndexList[vertexListLimit * 6];
 
     QList<RenderState> renderStates;
 
@@ -290,8 +292,6 @@ public:
     QString renderFilename;
 
     void refreshResize();
-
-    GameObjectInfo *GetObjectInfo(QString name);
 
     // For Variable Aliases & Stuff
     bool objectsLoaded  = false;

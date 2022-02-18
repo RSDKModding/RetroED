@@ -1,14 +1,14 @@
 #ifndef USERDBMANAGER_HPP
 #define USERDBMANAGER_HPP
 
-#include <QWidget>
+#include <QDialog>
 
 namespace Ui
 {
 class UserDBManager;
 }
 
-class UserDBManager : public QWidget
+class UserDBManager : public QDialog
 {
     Q_OBJECT
 

@@ -43,7 +43,6 @@ TileSelector::TileSelector(QWidget *parent) : QWidget(parent), parentPtr((SceneE
 
 SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEditorv5)
 {
-    this->setWindowTitle("?");
     ui->setupUi(this);
 
     viewer = new SceneViewerv5(ENGINE_v5, this);
@@ -1374,6 +1373,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                         viewer->selectSize.y = 0;
                         viewer->selectedEntities.clear();
                         break;
+
                     case SceneViewerv5::TOOL_PENCIL: {
                         if (viewer->selectedTile >= 0 && viewer->isSelecting) {
                             setTile(mEvent->pos().x(), mEvent->pos().y());
@@ -1405,6 +1405,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                         }
                         break;
                     }
+
                     case SceneViewerv5::TOOL_ERASER: {
                         if (viewer->isSelecting) {
                             int sel              = viewer->selectedTile;
@@ -1980,7 +1981,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
         default: return false;
     }
 
-    return true;
+    return false;
 }
 
 void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
@@ -2257,12 +2258,14 @@ void SceneEditorv5::saveScene(QString path)
 
         scene.layers.append(layer);
     }
-    addStatusProgress(1.f / 6);
+    addStatusProgress(1.f / 6); // created tile layers
 
     scene.objects.clear();
     for (SceneObject &obj : viewer->objects) {
         RSDKv5::Scene::SceneObject object;
         object.name = RSDKv5::Scene::NameIdentifier(obj.name);
+        object.variables.clear();
+        object.entities.clear();
         for (int v = 0; v < obj.variables.count(); ++v) {
             RSDKv5::Scene::VariableInfo variable;
             variable.name = RSDKv5::Scene::NameIdentifier(obj.variables[v].name);
@@ -2271,7 +2274,7 @@ void SceneEditorv5::saveScene(QString path)
         }
         scene.objects.append(object);
     }
-    addStatusProgress(1.f / 6);
+    addStatusProgress(1.f / 6); // created object definitions
 
     for (SceneEntity &entity : viewer->entities) {
         if (entity.type >= 0 && entity.type < viewer->objects.count()) {
@@ -2281,8 +2284,7 @@ void SceneEditorv5::saveScene(QString path)
             ent.position.y = entity.pos.y * 65536.0f;
 
             ent.variables.clear();
-            int v = 0;
-            for (; v < entity.variables.count(); ++v) {
+            for (int v = 0; v < entity.variables.count(); ++v) {
                 ent.variables.append(entity.variables[v]);
             }
 
@@ -2290,10 +2292,10 @@ void SceneEditorv5::saveScene(QString path)
             scene.objects[entity.type].entities.append(ent);
         }
         else {
-            // what happened here???
+            // what...?
         }
     }
-    addStatusProgress(1.f / 6);
+    addStatusProgress(1.f / 6); // created entity list
 
     FormatHelpers::Gif tileset(16, 0x400 * 16);
 
@@ -2307,10 +2309,10 @@ void SceneEditorv5::saveScene(QString path)
             for (int x = 0; x < 16; ++x) tileset.pixels[pos++] = *src++;
         }
     }
-    addStatusProgress(1.f / 6);
+    addStatusProgress(1.f / 6); // generated tileset
 
     scene.write(path);
-    addStatusProgress(1.f / 6);
+    addStatusProgress(1.f / 6); // written scene
 
     tileconfig.write(basePath + "TileConfig.bin");
     stageConfig.write(basePath + "StageConfig.bin");
@@ -2319,7 +2321,6 @@ void SceneEditorv5::saveScene(QString path)
 
     tabTitle = Utils::getFilenameAndFolder(path);
     clearActions();
-    // TODO:  ??? why is this gcf /gen
     appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, path, QList<QString>{ gameConfig.filePath });
     setStatus("Saved scene to " + Utils::getFilenameAndFolder(scene.filepath));
 }

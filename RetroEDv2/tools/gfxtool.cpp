@@ -3,9 +3,13 @@
 
 #include "dependencies/qtgifimage/src/gifimage/qgifimage.h"
 
-GFXTool::GFXTool(QWidget *parent) : QWidget(parent), ui(new Ui::GFXTool)
+GFXTool::GFXTool(QWidget *parent) : QDialog(parent), ui(new Ui::GFXTool)
 {
     ui->setupUi(this);
+
+    // remove question mark from the title bar & disable resizing
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    this->setFixedSize(QSize(this->width(), this->height()));
 
     QList<QString> imgTypes = { "GIF Images (*.gif)", "BMP Images (*.bmp)", "PNG Images (*.png)" };
 
