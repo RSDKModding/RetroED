@@ -43,6 +43,8 @@ ModelManager::ModelManager(QWidget *parent) : QWidget(parent), ui(new Ui::ModelM
     for (QWidget *w : findChildren<QWidget *>()) {
         w->installEventFilter(this);
     }
+
+    //this->viewer = viewer;
 }
 
 ModelManager::~ModelManager() { delete ui; }
@@ -213,8 +215,8 @@ void ModelManager::setupUI()
             for (int f = 0; f < modelv5.frames.count(); ++f)
                 ui->frameList->addItem("Frame " + QString::number(f));
 
-            viewer->model = modelv5;
-            viewer->repaint();
+            // holy fucking shit
+            ((ModelViewer*)ui->viewerFrame->layout()->itemAt(0)->widget())->setModel(modelv5);
             break;
         }
         case 1: {

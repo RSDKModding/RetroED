@@ -17,6 +17,7 @@ public:
     ~ModelManager();
 
     void setupUI();
+    ModelViewer *viewer = nullptr;
 
     inline void updateTitle(bool modified)
     {
@@ -39,7 +40,6 @@ private:
     RSDKv5::Model modelv5;
     RSDKv4::Model modelv4;
 
-    ModelViewer *viewer = nullptr;
 
     Ui::ModelManager *ui;
 

@@ -13,6 +13,8 @@
         <file>shaders/fb/passthrough.frag</file>
         <file>shaders/fb/passthrough.vert</file>
         <file>shaders/fb/final.frag</file>
+        <file>shaders/3d/default.vert</file>
+        <file>shaders/3d/default.frag</file>
         <file>icons/player_v1.png</file>
         <file>icons/ic_add_circle_48px.svg</file>
         <file>icons/ic_apps_48px.svg</file>
