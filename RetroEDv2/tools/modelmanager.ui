@@ -457,7 +457,7 @@
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>16</height>
+          <height>24</height>
          </size>
         </property>
         <property name="frameShape">
@@ -466,7 +466,23 @@
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout"/>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+        </layout>
        </widget>
       </item>
       <item row="7" column="0" colspan="2">

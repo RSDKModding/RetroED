@@ -12,13 +12,13 @@ SceneObjectProperties::SceneObjectProperties(QWidget *parent)
 
 SceneObjectProperties::~SceneObjectProperties() { delete ui; }
 
-void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityID,
-                                    Compilerv2::Entity *entityv2, Compilerv3::Entity *entityv3,
-                                    Compilerv4::Entity *entityv4, byte ver)
+void SceneObjectProperties::setupUI(SceneEntity *entity, int entityID, Compilerv2::Entity *entityv2,
+                                    Compilerv3::Entity *entityv3, Compilerv4::Entity *entityv4,
+                                    byte ver)
 {
     unsetUI();
 
-    SceneViewer::ObjectInfo &object = scnEditor->viewer->objects[entity->type];
+    SceneObject &object = scnEditor->viewer->objects[entity->type];
 
     QList<PropertyValue> objNames;
     for (int o = 0; o < scnEditor->viewer->objects.count(); ++o) {
@@ -36,7 +36,7 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
     QList<Property *> infoGroup = {
         new Property("type", objNames, &entity->type, Property::BYTE_MANAGER),
         new Property("slot", &entity->slotID),
-        new Property(object.variablesAliases[SceneViewer::VAR_ALIAS_PROPVAL], &entity->propertyValue),
+        new Property(object.variablesAliases[VAR_ALIAS_PROPVAL], &entity->propertyValue),
     };
 
     connect(infoGroup[0], &Property::changed, [infoGroup, entity, entityv2, entityv3, entityv4] {
@@ -51,7 +51,7 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
     });
     connect(infoGroup[1], &Property::changed, [this, entity, infoGroup] {
         bool flag = false;
-        if (entity->slotID != entity->prevSlotID) {
+        if (entity->slotID != entity->prevSlot) {
             for (auto &entityRef : scnEditor->viewer->entities) {
                 if (entity->slotID == entityRef.slotID) {
                     msgBox = new QMessageBox(
@@ -59,7 +59,7 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
                         QString("An entity already exists with slotID %1.").arg(entity->slotID),
                         QMessageBox::NoButton, this);
                     msgBox->open();
-                    entity->slotID = entity->prevSlotID;
+                    entity->slotID = entity->prevSlot;
                     flag           = true;
 
                     infoGroup[1]->updateValue();
@@ -67,8 +67,9 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
                 }
             }
         }
+
         if (!flag) {
-            entity->prevSlotID = entity->slotID;
+            entity->prevSlot = entity->slotID;
         }
     });
     connect(infoGroup[2], &Property::changed,
@@ -77,7 +78,7 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
 
                 // we set propertyValue via this so the game can run logic on it
                 bool called = false;
-                callRSDKEdit(scnEditor->viewer, false, entityID, -1, propVal, &called);
+                callRSDKEdit(scnEditor, false, entityID, -1, propVal, &called);
 
                 if (called) {
                     if (ver == ENGINE_v3)
@@ -173,7 +174,7 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
         for (int v = 0; v < 0xF; ++v) {
             QString name = RSDKv4::objectVariableNames[v];
             if (v >= 11)
-                name = object.variablesAliases[SceneViewer::VAR_ALIAS_VAL0 + (v - 11)];
+                name = object.variablesAliases[VAR_ALIAS_VAL0 + (v - 11)];
 
             Property *group = new Property(name);
 
@@ -182,20 +183,20 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
             switch (v) {
                 default: {
                     variable =
-                        new Property(RSDKv4::objectVariableTypes[v], &entity->variables[v].value);
+                        new Property(RSDKv4::objectVariableTypes[v], &entity->sceneVariables[v].value);
                     break;
                 }
                 case 1:
                     variable = new Property(RSDKv4::objectVariableTypes[v], flipFlags,
-                                            &entity->variables[v].value, Property::BYTE_MANAGER);
+                                            &entity->sceneVariables[v].value, Property::BYTE_MANAGER);
                     break;
                 case 5:
                     variable = new Property(RSDKv4::objectVariableTypes[v], priorityFlags,
-                                            &entity->variables[v].value, Property::BYTE_MANAGER);
+                                            &entity->sceneVariables[v].value, Property::BYTE_MANAGER);
                     break;
                 case 10:
                     variable = new Property(RSDKv4::objectVariableTypes[v], inkEffects,
-                                            &entity->variables[v].value, Property::BYTE_MANAGER);
+                                            &entity->sceneVariables[v].value, Property::BYTE_MANAGER);
                     break;
             }
 
@@ -203,18 +204,18 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
 
             disconnect(variable, nullptr, nullptr, nullptr);
             connect(variable, &Property::changed, [=] {
-                entity->variables[v].value = *(int *)variable->valuePtr;
+                entity->sceneVariables[v].value = *(int *)variable->valuePtr;
                 if (values[v])
-                    *values[v] = entity->variables[v].value;
+                    *values[v] = entity->sceneVariables[v].value;
                 else
-                    *valuesB[v] = entity->variables[v].value;
+                    *valuesB[v] = entity->sceneVariables[v].value;
 
                 // if (RSDKv4::objectVariableNames[v] == "scale")
                 //     entity->variables[v].active = entity->variables[v].value != 0x200;
                 // else if (RSDKv4::objectVariableNames[v] == "drawOrder")
                 //     entity->variables[v].active = entity->variables[v].value != 3;
                 // else
-                entity->variables[v].active = entity->variables[v].value != 0;
+                entity->sceneVariables[v].active = entity->sceneVariables[v].value != 0;
             });
 
             group->setSubProperties(valGroup);
@@ -225,12 +226,12 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
         entityGroup[2]->setSubProperties(varGroup);
     }
 
-    for (int v = 0; v < entity->customVars.count(); ++v) {
-        auto &var = entity->customVars[v];
+    for (int v = 0; v < entity->variables.count(); ++v) {
+        auto &var = entity->variables[v];
 
-        SceneViewer::ObjectInfo *object    = &scnEditor->viewer->objects[entity->type];
-        SceneViewer::VariableInfo &varInfo = scnEditor->viewer->objects[entity->type].variables[v];
-        Property *group                    = new Property(varInfo.name);
+        SceneObject *object   = &scnEditor->viewer->objects[entity->type];
+        VariableInfo &varInfo = scnEditor->viewer->objects[entity->type].variables[v];
+        Property *group       = new Property(varInfo.name);
         QList<Property *> valGroup;
 
         QList<PropertyValue> aliases;
@@ -243,7 +244,7 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
             }
         }
 
-        var.value_int32 = callRSDKEdit(scnEditor->viewer, true, entityID, v, 0);
+        var.value_int32 = callRSDKEdit(scnEditor, true, entityID, v, 0);
 
         if (aliases.count()) {
             valGroup.append(new Property("enum", aliases, &var.value_int32, Property::INT_MANAGER));
@@ -265,7 +266,7 @@ void SceneObjectProperties::setupUI(SceneViewer::EntityInfo *entity, int entityI
                     if (entityv4)
                         entityv4->propertyValue = entity->propertyValue;
 
-                    callRSDKEdit(scnEditor->viewer, false, entityID, v, var.value_int32);
+                    callRSDKEdit(scnEditor, false, entityID, v, var.value_int32);
 
                     switch (ver) {
                         case ENGINE_v2: entity->propertyValue = entityv2->propertyValue; break;
@@ -299,24 +300,26 @@ void SceneObjectProperties::updateUI()
         return;
 }
 
-int SceneObjectProperties::callRSDKEdit(SceneViewer *viewer, bool shouldReturnVal, int entityID,
-                                        int variableID, int variableValue, bool *called)
+int SceneObjectProperties::callRSDKEdit(void *e, bool shouldReturnVal, int entityID, int variableID,
+                                        int variableValue, bool *called)
 {
-    viewer->variableID                       = variableID;
-    viewer->variableValue                    = variableValue;
-    viewer->returnVariable                   = shouldReturnVal;
-    viewer->compilerv4.scriptEng.checkResult = -1;
-    bool c                 = viewer->callGameEvent(SceneViewer::EVENT_RSDKEDIT, entityID);
-    viewer->returnVariable = false;
+    SceneEditor *editor = (SceneEditor *)e;
+
+    editor->viewer->variableID                = variableID;
+    editor->viewer->variableValue             = variableValue;
+    editor->viewer->returnVariable            = shouldReturnVal;
+    editor->compilerv4->scriptEng.checkResult = -1;
+    bool c                         = editor->callGameEvent(SceneViewerv5::EVENT_EDIT, entityID);
+    editor->viewer->returnVariable = false;
 
     if (called) {
         *called = c;
 
         if (variableID == -1 && shouldReturnVal)
-            *called = c && viewer->compilerv4.scriptEng.checkResult >= 0;
+            *called = c && editor->compilerv4->scriptEng.checkResult >= 0;
     }
 
-    return viewer->compilerv4.scriptEng.checkResult;
+    return editor->compilerv4->scriptEng.checkResult;
 }
 
 #include "moc_sceneobjectproperties.cpp"

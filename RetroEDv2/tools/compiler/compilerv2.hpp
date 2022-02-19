@@ -65,7 +65,6 @@ public:
         byte hitboxID;
     };
     enum FlipFlags { FLIP_NONE, FLIP_X, FLIP_Y, FLIP_XY };
-    enum InkFlags { INK_NONE, INK_BLEND };
     enum DrawFXFlags { FX_SCALE, FX_ROTATE, FX_INK, FX_TINT };
 
     enum ScriptSubs { SUB_RSDK };
@@ -132,7 +131,7 @@ public:
     int xScrollOffset = 0;
     int yScrollOffset = 0;
 
-    void *viewer = nullptr;
+    void *editor = nullptr;
 
     void processScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub);
 

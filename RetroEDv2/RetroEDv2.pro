@@ -75,7 +75,6 @@ SOURCES += \
     tools/sceneproperties/stageconfigeditorv1.cpp \
     tools/sceneproperties/stageconfigeditorv5.cpp \
     tools/sceneproperties/tileseteditor.cpp \
-    tools/sceneviewer.cpp \
     tools/sceneviewerv5.cpp \
     tools/scriptcompiler.cpp \
     tools/scriptunpacker.cpp \
@@ -141,7 +140,6 @@ HEADERS += \
     tools/sceneproperties/stageconfigeditorv1.hpp \
     tools/sceneproperties/stageconfigeditorv5.hpp \
     tools/sceneproperties/tileseteditor.hpp \
-    tools/sceneviewer.hpp \
     tools/sceneviewerv5.hpp \
     tools/scriptcompiler.hpp \
     tools/scriptunpacker.hpp \

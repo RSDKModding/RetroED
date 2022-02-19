@@ -281,11 +281,11 @@ public:
 
     RSDKv5::Model model;
 
-    RSDKv5::Model::Frame *curFrame;
-    RSDKv5::Model::Frame *nextFrame;
-    int loopIndex;
-    float animSpeed = 0.1f;
-    float animTimer = 0;
+    RSDKv5::Model::Frame *curFrame  = nullptr;
+    RSDKv5::Model::Frame *nextFrame = nullptr;
+    int loopIndex                   = 0;
+    float animSpeed                 = 0.1f;
+    float animTimer                 = 0;
 
     Camera camera;
 

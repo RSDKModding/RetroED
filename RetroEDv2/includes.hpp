@@ -92,14 +92,6 @@ public:
 // Form Utils
 #include "tools/utils/propertygrid.hpp"
 
-// Scene Tools
-#include "tools/sceneviewer.hpp"
-#include "tools/sceneproperties/sceneproperties.hpp"
-#include "tools/sceneproperties/scenelayerproperties.hpp"
-#include "tools/sceneproperties/sceneobjectproperties.hpp"
-#include "tools/sceneproperties/scenescrollproperties.hpp"
-#include "tools/sceneproperties/scenetileproperties.hpp"
-
 // Scene Tools (v5)
 #include "tools/sceneproperties/sceneincludesv5.hpp"
 #include "tools/sceneproperties/scenepropertiesv5.hpp"
@@ -110,6 +102,13 @@ public:
 #include "tools/sceneproperties/scenestamppropertiesv5.hpp"
 #include "tools/sceneproperties/objectselector.hpp"
 #include "tools/sceneviewerv5.hpp"
+
+// Scene Tools
+#include "tools/sceneproperties/sceneproperties.hpp"
+#include "tools/sceneproperties/scenelayerproperties.hpp"
+#include "tools/sceneproperties/sceneobjectproperties.hpp"
+#include "tools/sceneproperties/scenescrollproperties.hpp"
+#include "tools/sceneproperties/scenetileproperties.hpp"
 
 #include "tools/sceneproperties/stageconfigeditorv1.hpp"
 #include "tools/sceneproperties/stageconfigeditorv2.hpp"

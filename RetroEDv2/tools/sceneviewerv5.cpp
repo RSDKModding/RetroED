@@ -154,6 +154,7 @@ void SceneViewerv5::initScene(QImage tileset)
     unloadScene();
 
     // Get Tiles (for tile list & tileset editing)
+    tiles.clear();
     for (int i = 0; i < 0x400; ++i) {
         int tx         = ((i % (tileset.width() / 0x10)) * 0x10);
         int ty         = ((i / (tileset.width() / 0x10)) * 0x10);
@@ -169,6 +170,13 @@ void SceneViewerv5::initScene(QImage tileset)
         tilePalette.append(PaletteColour(col));
     }
 
+    chunks.clear();
+    if (gameType != ENGINE_v5) {
+        for (FormatHelpers::Chunks::Chunk &c : chunkset.chunks) {
+            chunks.append(c.getImage(tiles));
+        }
+    }
+
     // Tile Texture
     GLint active;
     glFuncs->glGetIntegerv(GL_ACTIVE_TEXTURE, &active);
@@ -177,12 +185,11 @@ void SceneViewerv5::initScene(QImage tileset)
     gfxSurface[0].width      = tileset.width();
     gfxSurface[0].height     = tileset.height();
     gfxSurface[0].texturePtr = createTexture(tileset, QOpenGLTexture::Target2D);
+    gfxSurface[0].transClr   = tilePalette[0].toQColor();
 
     glFuncs->glActiveTexture(GL_TEXTURE30);
     glFuncs->glBindTexture(GL_TEXTURE_RECTANGLE, gfxSurface[0].texturePtr->textureId());
     glFuncs->glActiveTexture(active);
-
-    gfxSurface[0].transClr = tilePalette[0].toQColor();
 
     // Default Texture
     if (gfxSurface[1].scope == SCOPE_NONE) {
@@ -196,6 +203,18 @@ void SceneViewerv5::initScene(QImage tileset)
         gfxSurface[1].transClr = QColor(0xFFFF00FF);
     }
 
+    // Default Texture
+    if (gameType == ENGINE_v1 && gfxSurface[2].scope == SCOPE_NONE) {
+        gfxSurface[2].scope      = SCOPE_GLOBAL;
+        gfxSurface[2].name       = ":/icons/player_v1.png";
+        missingObj               = QImage(gfxSurface[2].name);
+        gfxSurface[2].texturePtr = createTexture(missingObj);
+        Utils::getHashInt(gfxSurface[2].name, gfxSurface[2].hash);
+        gfxSurface[2].width    = missingObj.width();
+        gfxSurface[2].height   = missingObj.height();
+        gfxSurface[2].transClr = QColor(0xFF000000);
+    }
+
     disableObjects = false;
 }
 
@@ -203,7 +222,7 @@ void SceneViewerv5::updateScene()
 {
     this->repaint();
 
-    objProp->updateUI();
+    // objProp->updateUI();
 
     if (statusLabel) {
         // printLog("Running: " + QString::number(entities.count()));
@@ -429,8 +448,8 @@ void SceneViewerv5::drawScene()
                                         chunkset.chunks[chunkID].tiles[ty][tx];
 
                                     ++count;
-                                    float xp = (x * 0x10) - cameraPos.x;
-                                    float yp = (y * 0x10) - cameraPos.y;
+                                    float xp = ((x * tileSize) + (tx * 0x10)) - cameraPos.x;
+                                    float yp = ((y * tileSize) + (ty * 0x10)) - cameraPos.y;
 
                                     ushort point = (info.tileIndex << 2) | (info.direction << 12);
                                     addPoly(xp, yp, tileUVArray[point], tileUVArray[point + 1], 0,
@@ -899,101 +918,205 @@ void SceneViewerv5::processObjects()
     sceneInfo.entitySlot = 0;
     int centerX          = screens->centerX * invZoom();
     int centerY          = screens->centerY * invZoom();
-    for (int e = 0; e < entities.count(); ++e) {
-        if (!entities[e].gameEntity || !entities[e].type) {
-            drawLayers[15].entries.append(sceneInfo.entitySlot++);
-            continue;
-        }
 
-        sceneInfo.entity = entities[e].gameEntity;
-        if (entities[e].type) {
-            sceneInfo.entity->inBounds = false;
-
-            int rangeX = sceneInfo.entity->updateRange.x;
-            int rangeY = sceneInfo.entity->updateRange.y;
-
-            switch (sceneInfo.entity->active) {
-                case ACTIVE_NEVER:
-                case ACTIVE_PAUSED:
-                case ACTIVE_ALWAYS:
-                case ACTIVE_NORMAL: sceneInfo.entity->inBounds = true; break;
-                case ACTIVE_BOUNDS: {
-                    int sx =
-                        abs(sceneInfo.entity->position.x - ((screens->position.x + centerX) << 16));
-                    int sy =
-                        abs(sceneInfo.entity->position.y - ((screens->position.y + centerY) << 16));
-                    if (sx <= rangeX + (centerX << 16) && sy <= rangeY + (centerY << 16)) {
-                        sceneInfo.entity->inBounds = true;
-                    }
-                    break;
-                }
-                case ACTIVE_XBOUNDS: {
-                    int sx =
-                        abs(sceneInfo.entity->position.x - ((screens->position.x + centerX) << 16));
-                    if (sx <= rangeX + (centerX << 16)) {
-                        sceneInfo.entity->inBounds = true;
-                        break;
-                    }
-                    break;
-                }
-                case ACTIVE_YBOUNDS: {
-                    int sy =
-                        abs(sceneInfo.entity->position.y - ((screens->position.y + centerY) << 16));
-                    if (sy <= rangeY + (centerY << 16)) {
-                        sceneInfo.entity->inBounds = true;
-                        break;
-                    }
-                    break;
-                }
-                case ACTIVE_RBOUNDS: {
-                    int sx = abs(sceneInfo.entity->position.x - ((screens->position.x + centerX) << 16))
-                             >> 16;
-                    int sy = abs(sceneInfo.entity->position.y - ((screens->position.y + centerY) << 16))
-                             >> 16;
-                    if (sx * sx + sy * sy <= rangeX + (centerX << 16)) {
-                        sceneInfo.entity->inBounds = true;
-                        break;
-                    }
-                    break;
-                }
+    if (gameType == ENGINE_v5) {
+        for (int e = 0; e < entities.count(); ++e) {
+            if (!entities[e].gameEntity || !entities[e].type) {
+                drawLayers[15].entries.append(sceneInfo.entitySlot++);
+                continue;
             }
 
-            if (sceneInfo.entity->inBounds) {
-                // emit callGameEvent(gameLink.GetObjectInfo(objects[entities[e].type].name),
-                // EVENT_UPDATE,
-                //              &entities[e]);
+            sceneInfo.entity = entities[e].gameEntity;
+            if (entities[e].type) {
+                sceneInfo.entity->inBounds = false;
 
-                if (sceneInfo.entity->drawOrder < v5_DRAWLAYER_COUNT)
-                    drawLayers[sceneInfo.entity->drawOrder].entries.append(sceneInfo.entitySlot);
+                int rangeX = sceneInfo.entity->updateRange.x;
+                int rangeY = sceneInfo.entity->updateRange.y;
+
+                switch (sceneInfo.entity->active) {
+                    case ACTIVE_NEVER:
+                    case ACTIVE_PAUSED:
+                    case ACTIVE_ALWAYS:
+                    case ACTIVE_NORMAL: sceneInfo.entity->inBounds = true; break;
+                    case ACTIVE_BOUNDS: {
+                        int sx =
+                            abs(sceneInfo.entity->position.x - ((screens->position.x + centerX) << 16));
+                        int sy =
+                            abs(sceneInfo.entity->position.y - ((screens->position.y + centerY) << 16));
+                        if (sx <= rangeX + (centerX << 16) && sy <= rangeY + (centerY << 16)) {
+                            sceneInfo.entity->inBounds = true;
+                        }
+                        break;
+                    }
+                    case ACTIVE_XBOUNDS: {
+                        int sx =
+                            abs(sceneInfo.entity->position.x - ((screens->position.x + centerX) << 16));
+                        if (sx <= rangeX + (centerX << 16)) {
+                            sceneInfo.entity->inBounds = true;
+                            break;
+                        }
+                        break;
+                    }
+                    case ACTIVE_YBOUNDS: {
+                        int sy =
+                            abs(sceneInfo.entity->position.y - ((screens->position.y + centerY) << 16));
+                        if (sy <= rangeY + (centerY << 16)) {
+                            sceneInfo.entity->inBounds = true;
+                            break;
+                        }
+                        break;
+                    }
+                    case ACTIVE_RBOUNDS: {
+                        int sx =
+                            abs(sceneInfo.entity->position.x - ((screens->position.x + centerX) << 16))
+                            >> 16;
+                        int sy =
+                            abs(sceneInfo.entity->position.y - ((screens->position.y + centerY) << 16))
+                            >> 16;
+                        if (sx * sx + sy * sy <= rangeX + (centerX << 16)) {
+                            sceneInfo.entity->inBounds = true;
+                            break;
+                        }
+                        break;
+                    }
+                }
+
+                if (sceneInfo.entity->inBounds) {
+                    // emit callGameEvent(gameLink.GetObjectInfo(objects[entities[e].type].name),
+                    // EVENT_UPDATE,
+                    //              &entities[e]);
+
+                    if (sceneInfo.entity->drawOrder < v5_DRAWLAYER_COUNT)
+                        drawLayers[sceneInfo.entity->drawOrder].entries.append(sceneInfo.entitySlot);
+                }
             }
-        }
-        else {
-            sceneInfo.entity->inBounds = false;
-        }
-        sceneInfo.entitySlot++;
-    }
-
-    for (int i = 0; i < TYPEGROUP_COUNT; ++i) {
-        typeGroups[i].entries.clear();
-    }
-
-    sceneInfo.entitySlot = 0;
-    for (int e = 0; e < entities.count(); ++e) {
-        sceneInfo.entity = entities[e].gameEntity;
-        if (sceneInfo.entity && sceneInfo.entity->inBounds && sceneInfo.entity->interaction) {
-            typeGroups[0].entries.append(e);                          // All active objects
-            typeGroups[sceneInfo.entity->objectID].entries.append(e); // type-based slots
-            if (sceneInfo.entity->group >= TYPE_COUNT) {
-                typeGroups[sceneInfo.entity->group].entries.append(e); // extra slots
+            else {
+                sceneInfo.entity->inBounds = false;
             }
+            sceneInfo.entitySlot++;
         }
-        sceneInfo.entitySlot++;
-    }
 
-    sceneInfo.entitySlot = 0;
-    for (int e = 0; e < entities.count(); ++e) {
-        if (entities[e].gameEntity)
-            entities[e].gameEntity->activeScreens = 0;
+        for (int i = 0; i < TYPEGROUP_COUNT; ++i) {
+            typeGroups[i].entries.clear();
+        }
+
+        sceneInfo.entitySlot = 0;
+        for (int e = 0; e < entities.count(); ++e) {
+            sceneInfo.entity = entities[e].gameEntity;
+            if (sceneInfo.entity && sceneInfo.entity->inBounds && sceneInfo.entity->interaction) {
+                typeGroups[0].entries.append(e);                          // All active objects
+                typeGroups[sceneInfo.entity->objectID].entries.append(e); // type-based slots
+                if (sceneInfo.entity->group >= TYPE_COUNT) {
+                    typeGroups[sceneInfo.entity->group].entries.append(e); // extra slots
+                }
+            }
+            sceneInfo.entitySlot++;
+        }
+
+        sceneInfo.entitySlot = 0;
+        for (int e = 0; e < entities.count(); ++e) {
+            if (entities[e].gameEntity)
+                entities[e].gameEntity->activeScreens = 0;
+        }
+    }
+    else {
+        for (int e = 0; e < entities.count(); ++e) {
+            if (!entities[e].type) {
+                drawLayers[15].entries.append(sceneInfo.entitySlot++);
+                continue;
+            }
+
+            if (entities[e].type) {
+                bool inBounds   = false;
+                byte activeType = ACTIVE_NEVER;
+                byte drawOrder  = 0;
+
+                switch (gameType) {
+                    case ENGINE_v2:
+                        activeType = scnEditor->compilerv2->objectEntityList[selectedEntity].priority;
+                        drawOrder  = scnEditor->compilerv2->objectEntityList[selectedEntity].drawOrder;
+                        break;
+                    case ENGINE_v3:
+                        activeType = scnEditor->compilerv3->objectEntityList[selectedEntity].priority;
+                        drawOrder  = scnEditor->compilerv3->objectEntityList[selectedEntity].drawOrder;
+                        break;
+                    case ENGINE_v4:
+                        activeType = scnEditor->compilerv4->objectEntityList[selectedEntity].priority;
+                        drawOrder  = scnEditor->compilerv4->objectEntityList[selectedEntity].drawOrder;
+                        break;
+                }
+
+                int posX   = entities[e].pos.x * 65536;
+                int posY   = entities[e].pos.y * 65536;
+                int rangeX = 0x800000;
+                int rangeY = 0x800000;
+
+                switch (activeType) {
+                    case 0: activeType = ACTIVE_BOUNDS; break;
+                    case 1: activeType = ACTIVE_NORMAL; break;
+                    case 2: activeType = ACTIVE_PAUSED; break;
+                    case 3: activeType = ACTIVE_XBOUNDS; break;
+                    case 4: activeType = ACTIVE_XBOUNDS; break;
+                    case 5: activeType = ACTIVE_NEVER; break;
+                    case 6:
+                        activeType = ACTIVE_BOUNDS;
+                        rangeX     = 0x200000;
+                        rangeY     = 0x200000;
+                        break;
+                    case 7: activeType = ACTIVE_NORMAL; break;
+                }
+
+                switch (activeType) {
+                    case ACTIVE_NEVER:
+                    case ACTIVE_PAUSED:
+                    case ACTIVE_ALWAYS:
+                    case ACTIVE_NORMAL: inBounds = true; break;
+                    case ACTIVE_BOUNDS: {
+                        int sx = abs(posX - ((screens->position.x + centerX) << 16));
+                        int sy = abs(posY - ((screens->position.y + centerY) << 16));
+                        if (sx <= rangeX + (centerX << 16) && sy <= rangeY + (centerY << 16)) {
+                            inBounds = true;
+                        }
+                        break;
+                    }
+                    case ACTIVE_XBOUNDS: {
+                        int sx = abs(posX - ((screens->position.x + centerX) << 16));
+                        if (sx <= rangeX + (centerX << 16)) {
+                            inBounds = true;
+                            break;
+                        }
+                        break;
+                    }
+                }
+
+                if (inBounds) {
+                    // emit callGameEvent(gameLink.GetObjectInfo(objects[entities[e].type].name),
+                    // EVENT_UPDATE,
+                    //              &entities[e]);
+
+                    if (drawOrder < v5_DRAWLAYER_COUNT)
+                        drawLayers[drawOrder].entries.append(sceneInfo.entitySlot);
+                }
+            }
+            sceneInfo.entitySlot++;
+        }
+
+        for (int i = 0; i < TYPEGROUP_COUNT; ++i) {
+            typeGroups[i].entries.clear();
+        }
+
+        // sceneInfo.entitySlot = 0;
+        // for (int e = 0; e < entities.count(); ++e) {
+        //     sceneInfo.entity = entities[e].gameEntity;
+        //     if (sceneInfo.entity && sceneInfo.entity->inBounds && sceneInfo.entity->interaction) {
+        //         typeGroups[0].entries.append(e);                          // All active objects
+        //         typeGroups[sceneInfo.entity->objectID].entries.append(e); // type-based slots
+        //         if (sceneInfo.entity->group >= TYPE_COUNT) {
+        //             typeGroups[sceneInfo.entity->group].entries.append(e); // extra slots
+        //         }
+        //     }
+        //     sceneInfo.entitySlot++;
+        // }
     }
 }
 
@@ -1925,39 +2048,39 @@ void SceneViewerv5::renderRenderStates()
 
 void SceneViewerv5::addEditorVariable(QString name)
 {
-    // VariableInfo var;
-    // var.name = name;
-    // objects[activeVarObj].variables.append(var);
+    VariableInfo var;
+    var.name = name;
+    objects[activeVarObj].variables.append(var);
 }
 void SceneViewerv5::setActiveVariable(QString name)
 {
-    // activeVar = -1;
-    //
-    // int v = 0;
-    // for (auto &var : objects[activeVarObj].variables) {
-    //     if (var.name == name) {
-    //         activeVar = v;
-    //         break;
-    //     }
-    //     ++v;
-    // }
+    activeVar = -1;
+
+    int v = 0;
+    for (auto &var : objects[activeVarObj].variables) {
+        if (var.name == name) {
+            activeVar = v;
+            break;
+        }
+        ++v;
+    }
 }
 void SceneViewerv5::addEnumVariable(QString name, int value)
 {
-    // if (activeVarObj >= 0) {
-    //     VariableValue var;
-    //     var.name  = name;
-    //     var.value = value;
-    //
-    //     objects[activeVarObj].variables[activeVar].values.append(var);
-    // }
+    if (activeVarObj >= 0) {
+        VariableValue var;
+        var.name  = name;
+        var.value = value;
+
+        objects[activeVarObj].variables[activeVar].values.append(var);
+    }
 }
 
 void SceneViewerv5::setVariableAlias(int varID, QString alias)
 {
-    // if (activeVarObj >= 0) {
-    //     objects[activeVarObj].variablesAliases[varID] = alias;
-    // }
+    if (activeVarObj >= 0) {
+        objects[activeVarObj].variablesAliases[varID] = alias;
+    }
 }
 
 void SceneViewerv5::refreshResize()

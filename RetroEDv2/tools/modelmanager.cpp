@@ -395,7 +395,7 @@ bool ModelManager::eventFilter(QObject *object, QEvent *event)
                 float sensitivity = 0.5f;
 
                 if (ctrlDownL) {
-                    viewer->camera.orbit(moveX * sensitivity, moveY * sensitivity, { 0, 0, 0 });
+                    viewer->camera.orbit(moveX * sensitivity, moveY * sensitivity, { 0, 0, -128 });
                 }
                 else {
                     viewer->camera.rotateAxisUp(moveX);

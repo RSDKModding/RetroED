@@ -31,20 +31,20 @@ public:
         FormatHelpers::Chunks chunkset;
         FormatHelpers::StageConfig stageConfig;
 
-        RSDKv4::TileConfig tileconfig;
+        RSDKv5::TileConfig tileconfig;
 
-        QList<SceneViewer::ObjectInfo> objects;
-        QList<SceneViewer::EntityInfo> entities;
+        QList<SceneObject> objects;
+        QList<SceneEntity> entities;
 
         // General Editing
-        byte curTool            = SceneViewer::TOOL_MOUSE;
+        byte curTool            = SceneViewerv5::TOOL_MOUSE;
         bool selecting          = false;
         Vector2<float> mousePos = Vector2<float>(0.0f, 0.0f);
 
         // Layer Editing
         Vector2<float> tilePos = Vector2<float>(0.0f, 0.0f);
         Vector2<bool> tileFlip = Vector2<bool>(false, false);
-        int selectedChunk      = -1;
+        int selectedTile       = -1;
         int selectedLayer      = -1;
 
         // Collision
@@ -60,7 +60,7 @@ public:
         int selectedScrollInfo = -1;
 
         // Camera
-        Vector3<float> camPos = Vector3<float>(0.0f, 0.0f, 0.0f);
+        Vector2<float> camPos = Vector2<float>(0.0f, 0.0f);
 
         bool showTileGrid = false;
     };
@@ -77,7 +77,7 @@ public:
 
     Vector2<float> selectionOffset = Vector2<float>(0.0f, 0.0f);
 
-    SceneViewer *viewer            = nullptr;
+    SceneViewerv5 *viewer          = nullptr;
     SceneProperties *scnProp       = nullptr;
     SceneLayerProperties *lyrProp  = nullptr;
     SceneTileProperties *tileProp  = nullptr;
@@ -86,10 +86,30 @@ public:
     ChunkSelector *chkProp         = nullptr;
     TilesetEditor *tsetEdit        = nullptr;
 
+    FormatHelpers::GameConfig gameConfig;
+
+    FormatHelpers::Scene scene;
+    FormatHelpers::Background background;
+    FormatHelpers::Chunks chunkset;
+    FormatHelpers::StageConfig stageConfig;
+
     void loadScene(QString scnPath, QString gcfPath, byte gameType);
     bool saveScene(bool forceSaveAs = false);
 
     void initGameLink();
+
+    bool callGameEvent(byte eventID, int id);
+    ushort loadSpriteSheet(QString filename);
+    void drawSpriteFlipped(float XPos, float YPos, float width, float height, float sprX, float sprY,
+                           int direction, InkEffects inkEffect, int alpha, int sheetID,
+                           bool screenRelative);
+    void drawSpriteRotozoom(float XPos, float YPos, float pivotX, float pivotY, float width,
+                            float height, float sprX, float sprY, int scaleX, int scaleY, int direction,
+                            short rotation, InkEffects inkEffect, int alpha, int sheetID,
+                            bool screenRelative);
+    Compilerv2 *compilerv2 = nullptr;
+    Compilerv3 *compilerv3 = nullptr;
+    Compilerv4 *compilerv4 = nullptr;
 
     // Event Handlers
     void setTile(float x, float y);
@@ -134,8 +154,6 @@ private:
 
     void createEntityList();
     void createScrollList();
-
-    bool callGameEvent(byte eventID, int id);
 
     // XML Management
     void parseGameXML(byte gameType, QString path);

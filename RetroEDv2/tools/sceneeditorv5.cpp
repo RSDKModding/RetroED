@@ -1774,7 +1774,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                 viewer->tilePos.y = viewer->mousePos.y;
 
                 if (ctrlDownL) {
-                    if (viewer->curTool == SceneViewer::TOOL_PENCIL) {
+                    if (viewer->curTool == SceneViewerv5::TOOL_PENCIL) {
                         viewer->tilePos.x -= fmodf(viewer->tilePos.x + (0x10 / 2), 0x10);
                         viewer->tilePos.y -= fmodf(viewer->tilePos.y + (0x10 / 2), 0x10);
                     }

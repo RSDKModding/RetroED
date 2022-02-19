@@ -9,8 +9,8 @@ SceneTileProperties::SceneTileProperties(QWidget *parent)
 
 SceneTileProperties::~SceneTileProperties() { delete ui; }
 
-void SceneTileProperties::setupUI(RSDKv4::TileConfig::CollisionMask *cmA,
-                                  RSDKv4::TileConfig::CollisionMask *cmB, ushort tid, QImage tileImgRef)
+void SceneTileProperties::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
+                                  RSDKv5::TileConfig::CollisionMask *cmB, ushort tid, QImage tileImgRef)
 {
     unsetUI();
 
@@ -121,7 +121,7 @@ void SceneTileProperties::setupUI(RSDKv4::TileConfig::CollisionMask *cmA,
         edit->exec();
     });
 
-    auto calcFloorAngle = [](RSDKv4::TileConfig::CollisionMask *mask) {
+    auto calcFloorAngle = [](RSDKv5::TileConfig::CollisionMask *mask) {
         byte angle = 0;
         Vector2<float> start(-1, -1), end(-1, -1);
 
@@ -149,7 +149,7 @@ void SceneTileProperties::setupUI(RSDKv4::TileConfig::CollisionMask *cmA,
         return angle;
     };
 
-    auto calcRoofAngle = [](RSDKv4::TileConfig::CollisionMask *mask) {
+    auto calcRoofAngle = [](RSDKv5::TileConfig::CollisionMask *mask) {
         byte angle = 0;
         Vector2<float> start(-1, -1), end(-1, -1);
 
@@ -192,7 +192,7 @@ void SceneTileProperties::setupUI(RSDKv4::TileConfig::CollisionMask *cmA,
     });
 
     connect(ui->calcAngleL, &QPushButton::clicked, [this, calcFloorAngle, calcRoofAngle] {
-        RSDKv4::TileConfig::CollisionMask rotMask = *cmask[collisionLyr];
+        RSDKv5::TileConfig::CollisionMask rotMask = *cmask[collisionLyr];
 
         if (cmask[collisionLyr]->direction) { // Ceiling Tile
             cmask[collisionLyr]->lWallAngle = calcRoofAngle(cmask[collisionLyr]);
@@ -266,7 +266,7 @@ void SceneTileProperties::setupUI(RSDKv4::TileConfig::CollisionMask *cmA,
     });
 
     connect(ui->calcAngleR, &QPushButton::clicked, [this, calcFloorAngle, calcRoofAngle] {
-        RSDKv4::TileConfig::CollisionMask rotMask = *cmask[collisionLyr];
+        RSDKv5::TileConfig::CollisionMask rotMask = *cmask[collisionLyr];
 
         if (cmask[collisionLyr]->direction) { // Ceiling Tile
             cmask[collisionLyr]->rWallAngle = calcRoofAngle(cmask[collisionLyr]);

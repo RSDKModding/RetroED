@@ -3,69 +3,6 @@
 
 #include <QWidget>
 
-class VariableValue
-{
-public:
-    QString name = "Variable";
-    int value    = 0;
-
-    VariableValue() {}
-};
-
-class VariableInfo
-{
-public:
-    QString name = "Variable";
-    byte type    = 0;
-    int offset   = -1;
-    QByteArray hash;
-    QList<VariableValue> values;
-
-    VariableInfo()
-    {
-        hash = Utils::getMd5HashByteArray(name);
-        values.clear();
-    }
-    VariableInfo(QString n, byte t, int o) : name(n), type(t), offset(o)
-    {
-        hash = Utils::getMd5HashByteArray(name);
-        values.clear();
-    }
-};
-
-struct SceneEntity {
-    ushort slotID              = 0;
-    ushort prevSlot            = 0;
-    byte type                  = 0;
-    Vector2<float> pos         = Vector2<float>(0, 0);
-    GameEntityBase *gameEntity = nullptr;
-    QList<RSDKv5::Scene::VariableValue> variables;
-    Rect<int> box = Rect<int>(-0x10, -0x10, 0x10, 0x10); // selection box
-
-    SceneEntity() {}
-
-    bool operator==(const SceneEntity &other) const
-    {
-        return slotID == other.slotID && type == other.type && pos.x == other.pos.x
-               && pos.y == other.pos.y /*&& variables == other.variables*/;
-    }
-};
-
-struct SceneObject {
-    QString name = "";
-    QList<VariableInfo> variables;
-
-    // EDITOR ONLY
-    bool visible = true;
-
-    SceneObject() {}
-
-    bool operator==(const SceneObject &other) const
-    {
-        return name == other.name /*&& variables == other.variables*/;
-    }
-};
-
 namespace Ui
 {
 class SceneObjectPropertiesv5;
