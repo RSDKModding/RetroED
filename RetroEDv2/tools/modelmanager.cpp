@@ -21,6 +21,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
             [this](double v) { viewer->animSpeed = v; });
 
     connect(ui->useWireframe, &QCheckBox::toggled, [this](bool c) { viewer->setWireframe(c); });
+    connect(ui->showNormals, &QCheckBox::toggled, [this](bool c) { viewer->setNormalsVisible(c); });
 
     connect(ui->loadTexture, &QPushButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Open Texture"), "", tr("PNG Files (*.png)"));
@@ -235,7 +236,13 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
         if (dlg.exec() == QDialog::Accepted) {
             viewer->modelColour = dlg.colour().toQColor();
             mdlClrSel->setColor(viewer->modelColour);
+            viewer->repaint();
         }
+    });
+
+    connect(ui->resetCam, &QPushButton::pressed, [this] {
+        viewer->resetCamera();
+        viewer->repaint();
     });
 
     for (QWidget *w : findChildren<QWidget *>()) {
@@ -307,18 +314,6 @@ bool ModelManager::event(QEvent *event)
                 }
             }
             break;
-
-        case QEvent::Wheel: {
-            QWheelEvent *wEvent = static_cast<QWheelEvent *>(event);
-
-            if (wEvent->angleDelta().y() > 0 && viewer->zoom < 20)
-                viewer->zoom *= 2;
-            else if (wEvent->angleDelta().y() < 0 && viewer->zoom > 0.5)
-                viewer->zoom /= 2;
-
-            viewer->setZoom(viewer->zoom);
-            return true;
-        }
     }
 
     return QWidget::event(event);
@@ -336,6 +331,121 @@ bool ModelManager::eventFilter(QObject *object, QEvent *event)
 
     switch ((int)event->type()) {
         default: break;
+
+        case QEvent::Wheel: {
+            QWheelEvent *wEvent = static_cast<QWheelEvent *>(event);
+
+            if (wEvent->angleDelta().y() > 0 && viewer->zoom < 20)
+                viewer->zoom *= 2;
+            else if (wEvent->angleDelta().y() < 0 && viewer->zoom > 0.05)
+                viewer->zoom /= 2;
+
+            viewer->setZoom(viewer->zoom);
+            return true;
+        }
+
+        case QEvent::MouseButtonPress: {
+            QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
+
+            if ((mEvent->button() & Qt::LeftButton) == Qt::LeftButton)
+                mouseDownL = true;
+            if ((mEvent->button() & Qt::MiddleButton) == Qt::MiddleButton)
+                mouseDownM = true;
+            if ((mEvent->button() & Qt::RightButton) == Qt::RightButton)
+                mouseDownR = true;
+
+            lastMousePos = mEvent->localPos();
+            break;
+        }
+
+        case QEvent::MouseMove: {
+            QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
+
+            bool shouldRepaint = false;
+            if (mouseDownL || mouseDownM) {
+                bool useCursorPos = false;
+
+                QPoint cursorPos = viewer->mapFromGlobal(QCursor::pos());
+                if (!viewer->rect().contains(cursorPos)) {
+                    if (cursorPos.x() < viewer->x()) {
+                        cursorPos.setX(cursorPos.x() + (viewer->x() + viewer->width()));
+                        lastMousePos.setX(lastMousePos.x() + (viewer->x() + viewer->width()));
+                    }
+
+                    if (cursorPos.x() > viewer->x() + viewer->width()) {
+                        cursorPos.setX(cursorPos.x() - (viewer->x() + viewer->width()));
+                        lastMousePos.setX(lastMousePos.x() - (viewer->x() + viewer->width()));
+                    }
+
+                    if (cursorPos.y() < viewer->y()) {
+                        cursorPos.setY(cursorPos.y() + (viewer->y() + viewer->height()));
+                        lastMousePos.setY(lastMousePos.y() + (viewer->y() + viewer->height()));
+                    }
+
+                    if (cursorPos.y() > viewer->y() + viewer->height()) {
+                        cursorPos.setY(cursorPos.y() - (viewer->y() + viewer->height()));
+                        lastMousePos.setY(lastMousePos.y() - (viewer->y() + viewer->height()));
+                    }
+
+                    useCursorPos = true;
+                }
+
+                float moveX       = (lastMousePos - cursorPos).x();
+                float moveY       = (lastMousePos - cursorPos).y();
+                float sensitivity = 0.5f;
+
+                if (ctrlDownL) {
+                    viewer->camera.orbit(moveX * sensitivity, moveY * sensitivity, { 0, 0, 0 });
+                }
+                else {
+                    viewer->camera.rotateAxisUp(moveX);
+                    viewer->camera.rotateAxisLeft(moveY);
+                }
+                shouldRepaint = true;
+
+                if (useCursorPos) {
+                    lastMousePos = cursorPos;
+                    QCursor::setPos(viewer->mapToGlobal(cursorPos));
+                }
+                else {
+                    lastMousePos = mEvent->localPos();
+                }
+            }
+
+            if (shouldRepaint)
+                viewer->repaint();
+            break;
+        }
+
+        case QEvent::MouseButtonRelease: {
+            QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
+
+            if ((mEvent->button() & Qt::LeftButton) == Qt::LeftButton)
+                mouseDownL = false;
+            if ((mEvent->button() & Qt::MiddleButton) == Qt::MiddleButton)
+                mouseDownM = false;
+            if ((mEvent->button() & Qt::RightButton) == Qt::RightButton)
+                mouseDownR = false;
+
+            lastMousePos = mEvent->localPos();
+            break;
+        }
+
+        case QEvent::KeyPress: {
+            QKeyEvent *kEvent = static_cast<QKeyEvent *>(event);
+
+            if (kEvent->key() == Qt::Key_Control)
+                ctrlDownL = true;
+            break;
+        }
+
+        case QEvent::KeyRelease: {
+            QKeyEvent *kEvent = static_cast<QKeyEvent *>(event);
+
+            if (kEvent->key() == Qt::Key_Control)
+                ctrlDownL = false;
+            break;
+        }
     }
 
     return false;

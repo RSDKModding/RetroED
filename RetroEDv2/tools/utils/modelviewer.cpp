@@ -31,7 +31,7 @@ void ModelViewer::setModel(RSDKv5::Model m, QString tex)
 void ModelViewer::setModel(RSDKv4::Model m, QString tex)
 {
     model.faceVerticesCount = 3;
-    model.indices            = m.indices;
+    model.indices           = m.indices;
 
     model.colours.clear();
     model.hasColours = false;
@@ -91,9 +91,15 @@ void ModelViewer::setFrame(int frameID)
     repaint();
 }
 
-void ModelViewer::setWireframe(bool wireframe) { 
+void ModelViewer::setWireframe(bool wireframe)
+{
     this->wireframe = wireframe;
-    repaint(); 
+    repaint();
+}
+void ModelViewer::setNormalsVisible(bool show)
+{
+    showNormals = show;
+    repaint();
 }
 
 void ModelViewer::setZoom(float zoom)
@@ -190,15 +196,16 @@ void ModelViewer::initializeGL()
     indexVBO->bind();
     indexVBO->setUsagePattern(QOpenGLBuffer::StaticDraw);
 
-    resetMatrices();
+    resetCamera();
 }
 
-void ModelViewer::resetMatrices() {
+void ModelViewer::resetCamera()
+{
     matModel.setToIdentity();
-    matView.setToIdentity();
-    matView.translate(0, -16, -128);
-    matView.rotate(-15, -16, 0, 0);
-    matView.rotate(-(180 - 45), 0, -16, 0);
+
+    zoom = 1.0f;
+    camera.reset();
+    camera.translate(0, 0, -128);
 }
 
 void ModelViewer::resizeGL(int w, int h)
@@ -224,8 +231,8 @@ void ModelViewer::paintGL()
     if (reload) {
         reload      = false;
         int vc      = curFrame->vertices.count();
-        vertBuf   = new float[vc * 3];
-        normBuf   = new float[vc * 3];
+        vertBuf     = new float[vc * 3];
+        normBuf     = new float[vc * 3];
         auto colors = new RSDKv5::Model::Colour[vc];
         auto uvs    = new RSDKv5::Model::TexCoord[vc];
 
@@ -294,10 +301,10 @@ void ModelViewer::paintGL()
     // handle interpolation, set vertVBO properly using vertVBO->write
 
     for (int i = 0; i < curFrame->vertices.count(); ++i) {
-        auto &cv = curFrame->vertices.at(i);
-        auto &nv = nextFrame->vertices.at(i);
-        float interp = 1 - animTimer;
-        float interp2 =  animTimer;
+        auto &cv           = curFrame->vertices.at(i);
+        auto &nv           = nextFrame->vertices.at(i);
+        float interp       = 1 - animTimer;
+        float interp2      = animTimer;
         vertBuf[i * 3 + 0] = cv.x * interp + nv.x * interp2;
         vertBuf[i * 3 + 1] = cv.y * interp + nv.y * interp2;
         vertBuf[i * 3 + 2] = cv.z * interp + nv.z * interp2;
@@ -310,13 +317,18 @@ void ModelViewer::paintGL()
     normalVBO->bind();
     normalVBO->write(0, normBuf, curFrame->vertices.count() * sizeof(float) * 3);
 
-    matView.rotate(-2, 0, 128, 0);
+    matModel.setToIdentity();
+    matModel.scale(zoom, zoom, zoom);
+
+    shader.setValue("default_color", QVector4D(modelColour.redF(), modelColour.greenF(),
+                                               modelColour.blueF(), modelColour.alphaF()));
 
     shader.setValue("projection", matWorld);
-    shader.setValue("view", matView);
+    shader.setValue("view", camera.toMatrix());
     shader.setValue("model", matModel);
 
-    glFuncs->glDrawElements(wireframe ? GL_LINES : GL_TRIANGLES, indexVBO->size() / sizeof(ushort), GL_UNSIGNED_SHORT, 0);
+    glFuncs->glDrawElements(wireframe ? GL_LINES : GL_TRIANGLES, indexVBO->size() / sizeof(ushort),
+                            GL_UNSIGNED_SHORT, 0);
 }
 
 #include "moc_modelviewer.cpp"

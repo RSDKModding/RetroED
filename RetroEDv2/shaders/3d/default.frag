@@ -10,6 +10,8 @@ uniform bool useColor;
 uniform bool useNormals;
 uniform bool useTextures;
 
+uniform vec4 default_color;
+
 uniform sampler2D tex;
 
 void main()
@@ -20,7 +22,7 @@ void main()
     else if (useColor)
         color = ex_color.rgb;
     else
-        color = vec3(0.5, 0.5, 0.5);
+        color = default_color.xyz;
 
     // vec3 result = (ambient + diffuse) * color;
     vec3 result = color;

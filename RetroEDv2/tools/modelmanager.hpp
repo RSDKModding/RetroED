@@ -58,6 +58,12 @@ private:
     int prevFrame       = 0;
     QTimer *updateTimer = nullptr;
 
+    QPointF lastMousePos;
+    bool ctrlDownL  = false;
+    bool mouseDownL = false;
+    bool mouseDownM = false;
+    bool mouseDownR = false;
+
     bool modified    = false;
     QString tabTitle = "Model Manager";
 };
