@@ -1,14 +1,14 @@
 #include "includes.hpp"
 #include "ui_paletteeditor.h"
 
-PaletteEditor::PaletteEditor(QString filepath, byte type, QWidget *parent)
+PaletteEditor::PaletteEditor(QString filePath, byte type, QWidget *parent)
     : QDialog(parent), widget(new PaletteWidget(this)), ui(new Ui::PaletteEditor)
 {
     ui->setupUi(this);
     init();
 
-    if (QFile::exists(filepath)) {
-        load(filepath, type);
+    if (QFile::exists(filePath)) {
+        load(filePath, type);
     }
 }
 

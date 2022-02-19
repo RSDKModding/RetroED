@@ -13,11 +13,14 @@ class ModelManager : public QWidget
     Q_OBJECT
 
 public:
-    explicit ModelManager(QWidget *parent = nullptr);
+    explicit ModelManager(QString filePath = "", bool usev5Format = true, QWidget *parent = nullptr);
     ~ModelManager();
 
     void setupUI();
     ModelViewer *viewer = nullptr;
+
+    void loadModel(QString filePath, bool usev5Format);
+    bool saveModel(bool forceSaveAs = false);
 
     inline void updateTitle(bool modified)
     {
@@ -39,7 +42,6 @@ private:
     int mdlFormat = -1;
     RSDKv5::Model modelv5;
     RSDKv4::Model modelv4;
-
 
     Ui::ModelManager *ui;
 

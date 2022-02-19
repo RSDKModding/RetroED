@@ -187,7 +187,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                             addTab(tool, "Palette Editor");
                             break;
                         }
-                        case TOOL_MODELMANAGER: break;
+                        case TOOL_MODELMANAGER: {
+                            ModelManager *tool = new ModelManager(r.path, r.gameVer == ENGINE_v5);
+                            addTab(tool, "Model Manager");
+                            break;
+                        }
                         case TOOL_GAMECONFIGEDITOR:
                             switch (r.gameVer) {
                                 case ENGINE_v1: {
@@ -300,6 +304,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         addTab(tool, "Palette Editor");
     });
 
+    tools->addAction("Model Manager", [this] {
+        setStatus("Opening Model Manager...");
+        ModelManager *tool = new ModelManager;
+        tool->installEventFilter(this);
+        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Model Manager"));
+    });
+
 #if !RE_BUILD_TYPE
     tools->addAction("Script Decompiler", [] {
         setStatus("Opening Script Decompiler...");
@@ -312,13 +323,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         setStatus("Opening Script Compiler...");
         ScriptCompiler *tool = new ScriptCompiler();
         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Script Compiler"));
-    });
-
-    tools->addAction("Model Manager", [this] {
-        setStatus("Opening Model Manager...");
-        ModelManager *tool = new ModelManager();
-        tool->installEventFilter(this);
-        ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Model Manager"));
     });
 
     tools->addAction("GFX Manager", [] {

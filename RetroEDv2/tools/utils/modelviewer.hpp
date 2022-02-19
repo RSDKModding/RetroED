@@ -20,12 +20,15 @@ public:
     void setModel(RSDKv5::Model m, QString tex = "");
     void setModel(RSDKv4::Model m, QString tex = "");
 
+    void loadTexture(QString texturePath);
+
     void setFrame(int frameID);
+    void setWireframe(bool wireframe);
 
     QString texFile = "";
     bool reload     = false;
 
-    QTimer* renderTimer;
+    QTimer *renderTimer;
 
 protected:
     void initializeGL() override;

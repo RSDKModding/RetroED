@@ -1,7 +1,8 @@
 #include "includes.hpp"
 #include "ui_modelmanager.h"
 
-ModelManager::ModelManager(QWidget *parent) : QWidget(parent), ui(new Ui::ModelManager)
+ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
+    : QWidget(parent), ui(new Ui::ModelManager)
 {
     ui->setupUi(this);
 
@@ -9,6 +10,17 @@ ModelManager::ModelManager(QWidget *parent) : QWidget(parent), ui(new Ui::ModelM
     viewer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->viewerFrame->layout()->addWidget(viewer);
     viewer->show();
+
+    connect(ui->impMDL, &QPushButton::pressed, [this] {
+        QFileDialog filedialog(this, tr("Load Model Frame"), "",
+                               tr(QString("OBJ Models (*.obj)").toStdString().c_str()));
+        filedialog.setAcceptMode(QFileDialog::AcceptSave);
+        if (filedialog.exec() == QDialog::Accepted) {
+            QString selFile = filedialog.selectedFiles()[0];
+
+            // Load Obj file :smile:
+        }
+    });
 
     connect(ui->expMDL, &QPushButton::pressed, [this] {
         QFileDialog filedialog(this, tr("Save Model Frames"), "",
@@ -46,6 +58,17 @@ ModelManager::ModelManager(QWidget *parent) : QWidget(parent), ui(new Ui::ModelM
     connect(ui->animSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             [this](double v) { viewer->animSpeed = v; });
 
+    connect(ui->useWireframe, &QCheckBox::toggled, [this](bool c) { viewer->setWireframe(c); });
+
+    connect(ui->loadTexture, &QPushButton::clicked, [this] {
+        QFileDialog filedialog(this, tr("Open Texture"), "", tr("PNG Files (*.png)"));
+        filedialog.setAcceptMode(QFileDialog::AcceptOpen);
+        if (filedialog.exec() == QDialog::Accepted) {
+            viewer->loadTexture(filedialog.selectedFiles()[0]);
+            ui->texPath->setText(filedialog.selectedFiles()[0]);
+        }
+    });
+
     ui->frameList->setCurrentRow(0);
     connect(ui->frameList, &QListWidget::currentRowChanged, [this](int r) {
         ui->animSpeed->setDisabled(r == -1);
@@ -58,6 +81,9 @@ ModelManager::ModelManager(QWidget *parent) : QWidget(parent), ui(new Ui::ModelM
     for (QWidget *w : findChildren<QWidget *>()) {
         w->installEventFilter(this);
     }
+
+    if (QFile::exists(filePath))
+        loadModel(filePath, usev5Format);
 }
 
 ModelManager::~ModelManager() { delete ui; }
@@ -78,122 +104,21 @@ bool ModelManager::event(QEvent *event)
             QFileDialog filedialog(this, tr("Open RSDK Model"), "", tr(filters.toStdString().c_str()));
             filedialog.setAcceptMode(QFileDialog::AcceptOpen);
             if (filedialog.exec() == QDialog::Accepted) {
-                if (filedialog.selectedNameFilter() == "RSDKv5 Model Files (*.bin)") {
-                    setStatus("Loading model...", true);
-                    mdlFormat = 0;
-                    modelv5.read(filedialog.selectedFiles()[0]);
-                    tabTitle = Utils::getFilenameAndFolder(modelv5.filePath);
-                    setStatus("Loaded model " + tabTitle);
-                }
-                else {
-                    mdlFormat = 1;
-                    modelv4.read(filedialog.selectedFiles()[0]);
-                    tabTitle = Utils::getFilenameAndFolder(modelv4.filePath);
-                }
-                setupUI();
+                loadModel(filedialog.selectedFiles()[0],
+                          filedialog.selectedNameFilter() == "RSDKv5 Model Files (*.bin)");
+                return true;
             }
-            return true;
+            break;
         }
 
         case RE_EVENT_SAVE:
-            switch (mdlFormat) {
-                default: break;
-                case 0: {
-                    if (modelv5.filePath.isEmpty()) {
-                        QFileDialog filedialog(this, tr("Save RSDK Model"), "",
-                                               tr("RSDKv5 Model Files (*.bin)"));
-                        filedialog.setAcceptMode(QFileDialog::AcceptSave);
-                        if (filedialog.exec() == QDialog::Accepted) {
-                            setStatus("Saving model...", true);
-
-                            QString filepath = filedialog.selectedFiles()[0];
-
-                            modelv5.write(filepath);
-                            setStatus("Saved model to " + filepath);
-                            updateTitle(false);
-                            return true;
-                        }
-                    }
-                    else {
-                        setStatus("Saving model...", true);
-
-                        modelv5.write();
-                        setStatus("Saved model to " + modelv5.filePath);
-
-                        updateTitle(false);
-                        return true;
-                    }
-                    break;
-                }
-                case 1: {
-                    if (modelv4.filePath.isEmpty()) {
-                        QFileDialog filedialog(this, tr("Save RSDK Model"), "",
-                                               tr("RSDKv4 Model Files (*.bin)"));
-                        filedialog.setAcceptMode(QFileDialog::AcceptSave);
-                        if (filedialog.exec() == QDialog::Accepted) {
-                            setStatus("Saving model...", true);
-
-                            QString filepath = filedialog.selectedFiles()[0];
-
-                            modelv4.write(filepath);
-                            setStatus("Saved model to " + filepath);
-
-                            updateTitle(false);
-                            return true;
-                        }
-                    }
-                    else {
-                        setStatus("Saving model...", true);
-
-                        modelv4.write();
-                        updateTitle(false);
-                        setStatus("Saved model to " + modelv5.filePath);
-
-                        return true;
-                    }
-                    break;
-                }
-            }
+            if (saveModel())
+                return true;
             break;
 
         case RE_EVENT_SAVE_AS:
-            switch (mdlFormat) {
-                default: break;
-                case 0: {
-                    QFileDialog filedialog(this, tr("Save Model"), "",
-                                           tr("RSDKv5 Model Files (*.bin)"));
-                    filedialog.setAcceptMode(QFileDialog::AcceptSave);
-                    if (filedialog.exec() == QDialog::Accepted) {
-                        setStatus("Saving model...", true);
-
-                        QString filepath = filedialog.selectedFiles()[0];
-
-                        modelv5.write(filepath);
-                        setStatus("Saved model to " + filepath);
-
-                        updateTitle(false);
-                        return true;
-                    }
-                    break;
-                }
-                case 1: {
-                    QFileDialog filedialog(this, tr("Save Model"), "",
-                                           tr("RSDKv4 Model Files (*.bin)"));
-                    filedialog.setAcceptMode(QFileDialog::AcceptSave);
-                    if (filedialog.exec() == QDialog::Accepted) {
-                        setStatus("Saving model...", true);
-
-                        QString filepath = filedialog.selectedFiles()[0];
-
-                        modelv4.write(filepath);
-                        setStatus("Saved model to " + filepath);
-
-                        updateTitle(false);
-                        return true;
-                    }
-                    break;
-                }
-            }
+            if (saveModel(true))
+                return true;
             break;
     }
 
@@ -266,6 +191,101 @@ void ModelManager::setupUI()
     }
 
     ui->frameList->blockSignals(false);
+}
+
+void ModelManager::loadModel(QString filePath, bool usev5Format)
+{
+    setStatus("Loading model...", true);
+    if (usev5Format) {
+        mdlFormat = 0;
+        modelv5.read(filePath);
+        tabTitle = Utils::getFilenameAndFolder(modelv5.filePath);
+    }
+    else {
+        mdlFormat = 1;
+        modelv4.read(filePath);
+        tabTitle = Utils::getFilenameAndFolder(modelv4.filePath);
+    }
+    setStatus("Loaded model " + tabTitle);
+
+    appConfig.addRecentFile(mdlFormat == 0 ? ENGINE_v5 : ENGINE_v4, TOOL_MODELMANAGER, filePath,
+                            QList<QString>{});
+    setupUI();
+}
+
+bool ModelManager::saveModel(bool forceSaveAs)
+{
+    switch (mdlFormat) {
+        default: break;
+        case 0: {
+            if (forceSaveAs || modelv5.filePath.isEmpty()) {
+                QFileDialog filedialog(this, tr("Save RSDK Model"), "",
+                                       tr("RSDKv5 Model Files (*.bin)"));
+                filedialog.setAcceptMode(QFileDialog::AcceptSave);
+                if (filedialog.exec() == QDialog::Accepted) {
+                    setStatus("Saving model...", true);
+
+                    QString filepath = filedialog.selectedFiles()[0];
+
+                    modelv5.write(filepath);
+                    setStatus("Saved model to " + filepath);
+
+                    appConfig.addRecentFile(mdlFormat == 0 ? ENGINE_v5 : ENGINE_v4, TOOL_MODELMANAGER,
+                                            filepath, QList<QString>{});
+                    updateTitle(false);
+                    return true;
+                }
+            }
+            else {
+                setStatus("Saving model...", true);
+
+                modelv5.write();
+                setStatus("Saved model to " + modelv5.filePath);
+
+                appConfig.addRecentFile(mdlFormat == 0 ? ENGINE_v5 : ENGINE_v4, TOOL_MODELMANAGER,
+                                        modelv5.filePath, QList<QString>{});
+                updateTitle(false);
+                return true;
+            }
+            break;
+        }
+
+        case 1: {
+            if (forceSaveAs || modelv4.filePath.isEmpty()) {
+                QFileDialog filedialog(this, tr("Save RSDK Model"), "",
+                                       tr("RSDKv4 Model Files (*.bin)"));
+                filedialog.setAcceptMode(QFileDialog::AcceptSave);
+                if (filedialog.exec() == QDialog::Accepted) {
+                    setStatus("Saving model...", true);
+
+                    QString filepath = filedialog.selectedFiles()[0];
+
+                    modelv4.write(filepath);
+                    setStatus("Saved model to " + filepath);
+
+                    appConfig.addRecentFile(mdlFormat == 0 ? ENGINE_v5 : ENGINE_v4, TOOL_MODELMANAGER,
+                                            filepath, QList<QString>{});
+                    updateTitle(false);
+                    return true;
+                }
+            }
+            else {
+                setStatus("Saving model...", true);
+
+                modelv4.write();
+
+                appConfig.addRecentFile(mdlFormat == 0 ? ENGINE_v5 : ENGINE_v4, TOOL_MODELMANAGER,
+                                        modelv4.filePath, QList<QString>{});
+                updateTitle(false);
+                setStatus("Saved model to " + modelv5.filePath);
+
+                return true;
+            }
+            break;
+        }
+    }
+
+    return false;
 }
 
 #include "moc_modelmanager.cpp"

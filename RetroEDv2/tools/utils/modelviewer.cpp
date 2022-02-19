@@ -10,7 +10,7 @@ ModelViewer::ModelViewer(QWidget *parent) : QOpenGLWidget(parent)
 
     model = RSDKv5::Model();
 
-    model.indices = {0, 1, 2};
+    model.indices            = { 0, 1, 2 };
     model.faceVerticiesCount = 3;
     RSDKv5::Model::Frame f;
     f.vertices = {};
@@ -29,7 +29,7 @@ ModelViewer::~ModelViewer()
 
 void ModelViewer::setModel(RSDKv5::Model m, QString tex)
 {
-    model = m;
+    model   = m;
     texFile = tex;
     reload  = true;
 
@@ -71,9 +71,16 @@ void ModelViewer::setModel(RSDKv4::Model m, QString tex)
     model.hasNormals = true;
 
     texFile = tex;
-    reload  = true;
 
     setFrame(0);
+}
+
+void ModelViewer::loadTexture(QString texturePath)
+{
+    texFile = texturePath;
+    reload  = true;
+
+    repaint();
 }
 
 void ModelViewer::setFrame(int frameID)
@@ -87,8 +94,12 @@ void ModelViewer::setFrame(int frameID)
     else
         nextFrame = &model.frames[frameID + 1];
 
+    reload = true;
+
     repaint();
 }
+
+void ModelViewer::setWireframe(bool wireframe) { repaint(); }
 
 void ModelViewer::initializeGL()
 {
@@ -124,12 +135,12 @@ void ModelViewer::initializeGL()
     glFuncs->glEnable(GL_DEPTH_TEST);
     glFuncs->glDisable(GL_DITHER);
 
-
     glFuncs->glEnable(GL_BLEND);
     glFuncs->glDisable(GL_SCISSOR_TEST);
     glFuncs->glDisable(GL_CULL_FACE);
 
     glFuncs->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glFuncs->glDepthFunc(GL_LESS);
     glFuncs->glDepthFunc(GL_GREATER);
     glFuncs->glDepthRangef(0.1f, 256);
 
@@ -179,10 +190,8 @@ void ModelViewer::initializeGL()
     indexVBO->bind();
     indexVBO->setUsagePattern(QOpenGLBuffer::StaticDraw);
 
-    //matModel.scale(1 / 256.f);
-    //matView.scale(4.f);
     matView.translate(0, 0, -128);
-    //matView.scale(0, 0, );
+    // matView.scale(0, 0, );
 }
 void ModelViewer::resizeGL(int w, int h)
 {
@@ -244,7 +253,7 @@ void ModelViewer::paintGL()
                 if (j + 1 < model.faceVerticiesCount - 1)
                     current[j * 3 + 2] = model.indices[i + j + 2];
             }
-            //if (model.faceVerticiesCount != 3)
+            // if (model.faceVerticiesCount != 3)
             current[count - 1] = model.indices[i];
             current            = &current[count];
         }
