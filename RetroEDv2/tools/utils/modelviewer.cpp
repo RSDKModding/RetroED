@@ -1,7 +1,5 @@
 #include "includes.hpp"
 
-int timer = 0;
-
 ModelViewer::ModelViewer(QWidget *parent) : QOpenGLWidget(parent)
 {
     setMouseTracking(true);
@@ -9,12 +7,6 @@ ModelViewer::ModelViewer(QWidget *parent) : QOpenGLWidget(parent)
     this->setFocusPolicy(Qt::WheelFocus);
 
     model = RSDKv5::Model();
-
-    model.indices            = { 0, 1, 2 };
-    model.faceVerticiesCount = 3;
-    RSDKv5::Model::Frame f;
-    f.vertices = {};
-    model.frames.append(f);
 
     // renderTimer = new QTimer(this);
     // connect(renderTimer, &QTimer::timeout, this, [this] { this->repaint(); });
@@ -38,7 +30,7 @@ void ModelViewer::setModel(RSDKv5::Model m, QString tex)
 
 void ModelViewer::setModel(RSDKv4::Model m, QString tex)
 {
-    model.faceVerticiesCount = 3;
+    model.faceVerticesCount = 3;
     model.indices            = m.indices;
 
     model.colours.clear();
@@ -99,7 +91,10 @@ void ModelViewer::setFrame(int frameID)
     repaint();
 }
 
-void ModelViewer::setWireframe(bool wireframe) { repaint(); }
+void ModelViewer::setWireframe(bool wireframe) { 
+    this->wireframe = wireframe;
+    repaint(); 
+}
 
 void ModelViewer::setZoom(float zoom)
 {
@@ -148,6 +143,7 @@ void ModelViewer::initializeGL()
 
     glFuncs->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glFuncs->glDepthFunc(GL_LESS);
+    glFuncs->glDepthRangef(0.1f, 256);
 
     glFuncs->glClearColor(23 / 255.f, 23 / 255.f, 23 / 255.f, 1.0f);
 
@@ -194,9 +190,17 @@ void ModelViewer::initializeGL()
     indexVBO->bind();
     indexVBO->setUsagePattern(QOpenGLBuffer::StaticDraw);
 
-    matView.translate(0, 0, -128);
-    // matView.scale(0, 0, );
+    resetMatrices();
 }
+
+void ModelViewer::resetMatrices() {
+    matModel.setToIdentity();
+    matView.setToIdentity();
+    matView.translate(0, -16, -128);
+    matView.rotate(-15, -16, 0, 0);
+    matView.rotate(-(180 - 45), 0, -16, 0);
+}
+
 void ModelViewer::resizeGL(int w, int h)
 {
     glFuncs = context()->functions();
@@ -220,26 +224,12 @@ void ModelViewer::paintGL()
     if (reload) {
         reload      = false;
         int vc      = curFrame->vertices.count();
-        auto vert   = new float[vc * 3];
-        auto norm   = new float[vc * 3];
+        vertBuf   = new float[vc * 3];
+        normBuf   = new float[vc * 3];
         auto colors = new RSDKv5::Model::Colour[vc];
         auto uvs    = new RSDKv5::Model::TexCoord[vc];
 
         int i = 0;
-        for (auto &v : curFrame->vertices) {
-            vert[i++] = v.x;
-            vert[i++] = v.y;
-            vert[i++] = v.z;
-        }
-
-        i = 0;
-        for (auto &v : curFrame->vertices) {
-            norm[i++] = v.nx;
-            norm[i++] = v.ny;
-            norm[i++] = v.nz;
-        }
-
-        i = 0;
         for (auto &c : model.colours) colors[i++] = c;
 
         i = 0;
@@ -248,30 +238,28 @@ void ModelViewer::paintGL()
         // 0 3 5 turned to 3:   0 3 5
         // 0 3 5 4 turned to 3: 0 3 5 5 4 0
         // etc
-        int count       = 3 * model.faceVerticiesCount - 3;
-        int total       = count * (model.indices.count() / model.faceVerticiesCount);
+        int count       = 3 * model.faceVerticesCount - 3;
+        int total       = count * (model.indices.count() / model.faceVerticesCount);
         auto indices    = new ushort[total];
         ushort *current = indices;
 
         i = 0;
-        for (; i < model.indices.count() - 1; i += model.faceVerticiesCount) {
-            for (int j = 0; j < model.faceVerticiesCount - 1; ++j) {
+        for (; i < model.indices.count() - 1; i += model.faceVerticesCount) {
+            for (int j = 0; j < model.faceVerticesCount - 1; ++j) {
                 current[j * 3 + 0] = model.indices[i + j];
                 current[j * 3 + 1] = model.indices[i + j + 1];
-                if (j + 1 < model.faceVerticiesCount - 1)
+                if (j + 1 < model.faceVerticesCount - 1)
                     current[j * 3 + 2] = model.indices[i + j + 2];
             }
-            // if (model.faceVerticiesCount != 3)
+            // if (model.faceVerticesCount != 3)
             current[count - 1] = model.indices[i];
             current            = &current[count];
         }
 
         vertVBO->bind();
-        // vertVBO data allocation here is temp
-        vertVBO->allocate(vert, vc * sizeof(float) * 3);
+        vertVBO->allocate(vc * sizeof(float) * 3);
         normalVBO->bind();
-        // normalVBO data allocation here is temp
-        normalVBO->allocate(norm, vc * sizeof(float) * 3);
+        normalVBO->allocate(vc * sizeof(float) * 3);
         colorVBO->bind();
         colorVBO->allocate(colors, vc * sizeof(RSDKv5::Model::Colour));
         texVBO->bind();
@@ -283,8 +271,6 @@ void ModelViewer::paintGL()
         shader.setValue("useTextures", model.hasTextures);
         shader.setValue("useNormals", model.hasNormals);
 
-        delete[] vert;
-        delete[] norm;
         delete[] colors;
         delete[] uvs;
     }
@@ -307,13 +293,30 @@ void ModelViewer::paintGL()
 
     // handle interpolation, set vertVBO properly using vertVBO->write
 
-    matView.rotate(5, 0, 128, 0);
+    for (int i = 0; i < curFrame->vertices.count(); ++i) {
+        auto &cv = curFrame->vertices.at(i);
+        auto &nv = nextFrame->vertices.at(i);
+        float interp = 1 - animTimer;
+        float interp2 =  animTimer;
+        vertBuf[i * 3 + 0] = cv.x * interp + nv.x * interp2;
+        vertBuf[i * 3 + 1] = cv.y * interp + nv.y * interp2;
+        vertBuf[i * 3 + 2] = cv.z * interp + nv.z * interp2;
+        normBuf[i * 3 + 0] = cv.nx * interp + nv.nx * interp2;
+        normBuf[i * 3 + 1] = cv.ny * interp + nv.ny * interp2;
+        normBuf[i * 3 + 2] = cv.nz * interp + nv.nz * interp2;
+    }
+    vertVBO->bind();
+    vertVBO->write(0, vertBuf, curFrame->vertices.count() * sizeof(float) * 3);
+    normalVBO->bind();
+    normalVBO->write(0, normBuf, curFrame->vertices.count() * sizeof(float) * 3);
+
+    matView.rotate(-2, 0, 128, 0);
 
     shader.setValue("projection", matWorld);
     shader.setValue("view", matView);
     shader.setValue("model", matModel);
 
-    glFuncs->glDrawElements(GL_TRIANGLES, indexVBO->size() / sizeof(ushort), GL_UNSIGNED_SHORT, 0);
+    glFuncs->glDrawElements(wireframe ? GL_LINES : GL_TRIANGLES, indexVBO->size() / sizeof(ushort), GL_UNSIGNED_SHORT, 0);
 }
 
 #include "moc_modelviewer.cpp"

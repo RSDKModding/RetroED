@@ -12,7 +12,7 @@ void RSDKv5::Model::read(Reader &reader)
     hasTextures = Utils::getBit(flags, 1);
     hasColours  = Utils::getBit(flags, 2);
 
-    faceVerticiesCount = reader.read<byte>();
+    faceVerticesCount = reader.read<byte>();
 
     ushort vertCount  = reader.read<ushort>();
     ushort frameCount = reader.read<ushort>();
@@ -62,7 +62,7 @@ void RSDKv5::Model::write(Writer &writer)
     Utils::setBit(flags, hasColours, 2);
     writer.write(flags);
 
-    writer.write(faceVerticiesCount);
+    writer.write(faceVerticesCount);
 
     int vertCount = frames.count() ? frames[0].vertices.count() : 0;
     writer.write((ushort)vertCount);
@@ -137,13 +137,13 @@ void RSDKv5::Model::writeAsOBJ(QString filePath, int exportFrame)
                 writer.writeLine(QString("vt %1 %2").arg(texCoords[v].x).arg(texCoords[v].y));
         }
 
-        for (int v = 0; v < indices.count(); v += faceVerticiesCount) {
+        for (int v = 0; v < indices.count(); v += faceVerticesCount) {
             QList<ushort> verts;
-            for (int ii = 0; ii < faceVerticiesCount; ++ii) verts.append(indices[v + ii]);
+            for (int ii = 0; ii < faceVerticesCount; ++ii) verts.append(indices[v + ii]);
             writer.writeLine(QString("usemtl RSDKModelv5.Colour.%1").arg(indices[v]));
             writer.writeLine(
                 QString("f %1 %2 %3").arg(verts[0] + 1).arg(verts[1] + 1).arg(verts[2] + 1));
-            if (faceVerticiesCount == 4)
+            if (faceVerticesCount == 4)
                 writer.writeLine(
                     QString("f %1 %2 %3").arg(verts[0] + 1).arg(verts[2] + 1).arg(verts[3] + 1));
         }

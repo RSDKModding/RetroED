@@ -378,8 +378,7 @@ void ModelManager::processAnimation()
     }
 
     viewer->setFrame(currentFrame);
-    if (changed)
-        viewer->repaint();
+    viewer->repaint();
 }
 
 void ModelManager::setupUI(bool initialSetup)

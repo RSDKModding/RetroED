@@ -32,7 +32,10 @@ public:
     QString texFile = "";
     bool reload     = false;
 
-    QTimer *renderTimer;
+    float *vertBuf;
+    float *normBuf;
+
+    bool wireframe = false;
 
 protected:
     void initializeGL() override;
@@ -46,15 +49,7 @@ private:
     QMatrix4x4 matWorld;
     QMatrix4x4 matView;
 
-    void resetMatrices(int w, int h)
-    {
-        matModel.setToIdentity();
-        matWorld.setToIdentity();
-        matWorld.perspective(30, w / (float)h, -16, 16);
-        matView.setToIdentity();
-        matView.translate(1, 1, 1);
-        matView.rotate(45, 0, 0, 1);
-    }
+    void resetMatrices();
 
     QOpenGLFramebufferObject *outFB = nullptr;
     QOpenGLBuffer *vertVBO, *colorVBO, *normalVBO, *texVBO, *indexVBO;

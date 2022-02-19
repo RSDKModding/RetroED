@@ -107,7 +107,7 @@ public:
     bool hasNormals         = true;
     bool hasTextures        = false;
     bool hasColours         = true;
-    byte faceVerticiesCount = 3;
+    byte faceVerticesCount = 3;
     QList<TexCoord> texCoords;
     QList<Colour> colours;
     QList<Frame> frames;
