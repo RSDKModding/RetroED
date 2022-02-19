@@ -85,16 +85,16 @@ void ModelViewer::loadTexture(QString texturePath)
 
 void ModelViewer::setFrame(int frameID)
 {
-    if (frameID < 0 || frameID >= model.frames.count())
-        return;
+    curFrame = nullptr;
+    if (frameID >= 0 && frameID < model.frames.count()) {
+        curFrame = &model.frames[frameID];
+        if (frameID + 1 >= model.frames.count())
+            nextFrame = &model.frames[loopIndex];
+        else
+            nextFrame = &model.frames[frameID + 1];
 
-    curFrame = &model.frames[frameID];
-    if (frameID + 1 >= model.frames.count())
-        nextFrame = &model.frames[loopIndex];
-    else
-        nextFrame = &model.frames[frameID + 1];
-
-    reload = true;
+        reload = true;
+    }
 
     repaint();
 }
@@ -211,6 +211,10 @@ void ModelViewer::paintGL()
 {
     glFuncs = context()->functions();
     glFuncs->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    if (!curFrame || !curFrame->vertices.count())
+        return;
+
     shader.use();
 
     if (reload) {

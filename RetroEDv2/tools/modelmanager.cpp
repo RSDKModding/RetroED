@@ -14,6 +14,130 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
     updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, QOverload<>::of(&ModelManager::processAnimation));
 
+    connect(ui->loopIndex, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { viewer->loopIndex = v; });
+
+    connect(ui->animSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+            [this](double v) { viewer->animSpeed = v; });
+
+    connect(ui->useWireframe, &QCheckBox::toggled, [this](bool c) { viewer->setWireframe(c); });
+
+    connect(ui->loadTexture, &QPushButton::clicked, [this] {
+        QFileDialog filedialog(this, tr("Open Texture"), "", tr("PNG Files (*.png)"));
+        filedialog.setAcceptMode(QFileDialog::AcceptOpen);
+        if (filedialog.exec() == QDialog::Accepted) {
+            viewer->loadTexture(filedialog.selectedFiles()[0]);
+            ui->texPath->setText(filedialog.selectedFiles()[0]);
+        }
+    });
+
+    ui->frameList->setCurrentRow(0);
+    connect(ui->frameList, &QListWidget::currentRowChanged, [this](int r) {
+        ui->animSpeed->setDisabled(r == -1);
+        ui->loopIndex->setDisabled(r == -1);
+
+        ui->upFrame->setDisabled(r == -1 || r - 1 < 0 || viewer->model.frames.count() <= 1);
+        ui->downFrame->setDisabled(r == -1 || r + 1 >= viewer->model.frames.count()
+                                   || viewer->model.frames.count() <= 1);
+        ui->rmFrame->setDisabled(r == -1 || !viewer->model.frames.count());
+
+        currentFrame = r;
+        viewer->setFrame(r);
+    });
+    ui->frameList->setCurrentRow(-1);
+
+    connect(ui->addFrame, &QToolButton::clicked, [this] {
+        ui->frameList->blockSignals(true);
+        uint c = ui->frameList->currentRow() + 1;
+        int n  = ui->frameList->currentRow() == ui->frameList->count() - 1 ? c - 1 : c;
+
+        switch (mdlFormat) {
+            case 0: modelv5.frames.insert(c, RSDKv5::Model::Frame()); break;
+            case 1: modelv4.frames.insert(c, RSDKv4::Model::Frame()); break;
+        }
+
+        viewer->model.frames.insert(c, RSDKv5::Model::Frame());
+
+        setupUI(false);
+
+        ui->frameList->blockSignals(true);
+        ui->frameList->setCurrentRow(n);
+        ui->frameList->blockSignals(false);
+
+        viewer->repaint();
+        // doAction("Added animation", true);
+    });
+
+    connect(ui->rmFrame, &QToolButton::clicked, [this] {
+        int c = ui->frameList->currentRow();
+        int n = ui->frameList->currentRow() == ui->frameList->count() - 1 ? c - 1 : c;
+        delete ui->frameList->item(c);
+
+        switch (mdlFormat) {
+            case 0: modelv5.frames.removeAt(c); break;
+            case 1: modelv4.frames.removeAt(c); break;
+        }
+
+        viewer->model.frames.removeAt(c);
+        setupUI(false);
+
+        ui->rmFrame->setDisabled(viewer->model.frames.count() <= 0);
+
+        viewer->repaint();
+        // doAction("Removed frame", true);
+
+        ui->frameList->blockSignals(true);
+        ui->frameList->setCurrentRow(n);
+        ui->frameList->blockSignals(false);
+    });
+
+    auto moveFrame = [this](char translation) {
+        uint c = ui->frameList->currentRow();
+        uint n = ui->frameList->currentRow() + translation;
+        if (n >= (uint)viewer->model.frames.count())
+            return;
+
+        switch (mdlFormat) {
+            case 0: modelv5.frames.move(c, n); break;
+            case 1: modelv4.frames.move(c, n); break;
+        }
+
+        viewer->model.frames.move(c, n);
+
+        setupUI(false);
+
+        viewer->repaint();
+        // doAction("Moved frame", true);
+
+        ui->frameList->setCurrentRow(n);
+    };
+
+    connect(ui->upFrame, &QToolButton::clicked, [moveFrame] { moveFrame(-1); });
+
+    connect(ui->downFrame, &QToolButton::clicked, [moveFrame] { moveFrame(1); });
+
+    connect(ui->copyFrame, &QToolButton::clicked, [this] {
+        int c = ui->frameList->currentRow() + 1;
+        if (currentFrame < viewer->model.frames.count()) {
+            ui->frameList->blockSignals(true);
+
+            viewer->model.frames.insert(c, viewer->model.frames[currentFrame]);
+
+            switch (mdlFormat) {
+                case 0: modelv5.frames.insert(c, modelv5.frames[currentFrame]); break;
+                case 1: modelv4.frames.insert(c, modelv4.frames[currentFrame]); break;
+            }
+
+            setupUI(false);
+
+            ui->frameList->blockSignals(true);
+            ui->frameList->setCurrentRow(c);
+            ui->frameList->blockSignals(false);
+
+            // doAction("Copied frame", true);
+        }
+    });
+
     connect(ui->impMDL, &QPushButton::pressed, [this] {
         QFileDialog filedialog(this, tr("Load Model Frame"), "",
                                tr(QString("OBJ Models (*.obj)").toStdString().c_str()));
@@ -54,32 +178,6 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
             }
         }
     });*/
-
-    connect(ui->loopIndex, QOverload<int>::of(&QSpinBox::valueChanged),
-            [this](int v) { viewer->loopIndex = v; });
-
-    connect(ui->animSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            [this](double v) { viewer->animSpeed = v; });
-
-    connect(ui->useWireframe, &QCheckBox::toggled, [this](bool c) { viewer->setWireframe(c); });
-
-    connect(ui->loadTexture, &QPushButton::clicked, [this] {
-        QFileDialog filedialog(this, tr("Open Texture"), "", tr("PNG Files (*.png)"));
-        filedialog.setAcceptMode(QFileDialog::AcceptOpen);
-        if (filedialog.exec() == QDialog::Accepted) {
-            viewer->loadTexture(filedialog.selectedFiles()[0]);
-            ui->texPath->setText(filedialog.selectedFiles()[0]);
-        }
-    });
-
-    ui->frameList->setCurrentRow(0);
-    connect(ui->frameList, &QListWidget::currentRowChanged, [this](int r) {
-        ui->animSpeed->setDisabled(r == -1);
-        ui->loopIndex->setDisabled(r == -1);
-
-        viewer->setFrame(r);
-    });
-    ui->frameList->setCurrentRow(-1);
 
     ui->play->setIcon(playPauseIco[0]);
     connect(ui->play, &QToolButton::clicked, [this] {
@@ -284,7 +382,7 @@ void ModelManager::processAnimation()
         viewer->repaint();
 }
 
-void ModelManager::setupUI()
+void ModelManager::setupUI(bool initialSetup)
 {
     ui->frameList->blockSignals(true);
 
@@ -295,19 +393,21 @@ void ModelManager::setupUI()
             for (int f = 0; f < modelv5.frames.count(); ++f)
                 ui->frameList->addItem("Frame " + QString::number(f));
 
-            ui->animSpeed->blockSignals(true);
-            ui->animSpeed->setValue(0.1);
-            viewer->animSpeed = 0.1f;
-            ui->animSpeed->blockSignals(false);
+            if (initialSetup) {
+                ui->animSpeed->blockSignals(true);
+                ui->animSpeed->setValue(0.1);
+                viewer->animSpeed = 0.1f;
+                ui->animSpeed->blockSignals(false);
 
-            ui->loopIndex->blockSignals(true);
-            ui->loopIndex->setValue(0);
-            viewer->loopIndex = 0;
-            ui->loopIndex->blockSignals(false);
+                ui->loopIndex->blockSignals(true);
+                ui->loopIndex->setValue(0);
+                viewer->loopIndex = 0;
+                ui->loopIndex->blockSignals(false);
 
-            ui->frameList->setCurrentRow(-1);
+                ui->frameList->setCurrentRow(-1);
 
-            viewer->setModel(modelv5);
+                viewer->setModel(modelv5);
+            }
             break;
         }
 
@@ -315,19 +415,21 @@ void ModelManager::setupUI()
             for (int f = 0; f < modelv4.frames.count(); ++f)
                 ui->frameList->addItem("Frame " + QString::number(f));
 
-            ui->animSpeed->blockSignals(true);
-            ui->animSpeed->setValue(0.1);
-            viewer->animSpeed = 0.1f;
-            ui->animSpeed->blockSignals(false);
+            if (initialSetup) {
+                ui->animSpeed->blockSignals(true);
+                ui->animSpeed->setValue(0.1);
+                viewer->animSpeed = 0.1f;
+                ui->animSpeed->blockSignals(false);
 
-            ui->loopIndex->blockSignals(true);
-            ui->loopIndex->setValue(0);
-            viewer->loopIndex = 0;
-            ui->loopIndex->blockSignals(false);
+                ui->loopIndex->blockSignals(true);
+                ui->loopIndex->setValue(0);
+                viewer->loopIndex = 0;
+                ui->loopIndex->blockSignals(false);
 
-            ui->frameList->setCurrentRow(-1);
+                ui->frameList->setCurrentRow(-1);
 
-            viewer->setModel(modelv4);
+                viewer->setModel(modelv4);
+            }
             break;
         }
     }

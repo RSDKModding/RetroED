@@ -16,7 +16,7 @@ public:
     explicit ModelManager(QString filePath = "", bool usev5Format = true, QWidget *parent = nullptr);
     ~ModelManager();
 
-    void setupUI();
+    void setupUI(bool initialSetup = true);
     ModelViewer *viewer = nullptr;
 
     void loadModel(QString filePath, bool usev5Format);
