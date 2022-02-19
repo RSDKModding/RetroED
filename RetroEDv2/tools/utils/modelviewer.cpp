@@ -147,12 +147,9 @@ void ModelViewer::initializeGL()
     glFuncs->glDisable(GL_CULL_FACE);
 
     glFuncs->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // glFuncs->glDepthFunc(GL_LESS);
-    glFuncs->glDepthFunc(GL_GREATER);
-    glFuncs->glDepthRangef(0.1f, 256);
+    glFuncs->glDepthFunc(GL_LESS);
 
     glFuncs->glClearColor(23 / 255.f, 23 / 255.f, 23 / 255.f, 1.0f);
-    glFuncs->glClearDepthf(0);
 
     shader.loadShader(":/shaders/3d/default.vert", QOpenGLShader::Vertex);
     shader.loadShader(":/shaders/3d/default.frag", QOpenGLShader::Fragment);
