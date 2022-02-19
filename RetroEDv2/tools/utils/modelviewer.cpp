@@ -1,5 +1,7 @@
 #include "includes.hpp"
 
+int timer = 0;
+
 ModelViewer::ModelViewer(QWidget *parent) : QOpenGLWidget(parent)
 {
     setMouseTracking(true);
@@ -128,9 +130,11 @@ void ModelViewer::initializeGL()
     glFuncs->glDisable(GL_CULL_FACE);
 
     glFuncs->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glFuncs->glDepthFunc(GL_ALWAYS);
+    glFuncs->glDepthFunc(GL_GREATER);
+    glFuncs->glDepthRangef(0.1f, 256);
 
     glFuncs->glClearColor(23 / 255.f, 23 / 255.f, 23 / 255.f, 1.0f);
+    glFuncs->glClearDepthf(0);
 
     shader.loadShader(":/shaders/3d/default.vert", QOpenGLShader::Vertex);
     shader.loadShader(":/shaders/3d/default.frag", QOpenGLShader::Fragment);
@@ -178,6 +182,7 @@ void ModelViewer::initializeGL()
     //matModel.scale(1 / 256.f);
     //matView.scale(4.f);
     matView.translate(0, 0, -128);
+    //matView.scale(0, 0, );
 }
 void ModelViewer::resizeGL(int w, int h)
 {
@@ -186,7 +191,7 @@ void ModelViewer::resizeGL(int w, int h)
     glFuncs->glViewport(0, 0, w, h);
 
     matWorld.setToIdentity();
-    matWorld.perspective(45, w / (float)h, 0, 256);
+    matWorld.perspective(45, w / (float)h, 0.1f, 256);
 }
 
 void ModelViewer::paintGL()
@@ -284,6 +289,8 @@ void ModelViewer::paintGL()
     }
 
     // handle interpolation, set vertVBO properly using vertVBO->write
+
+    matView.rotate(5, 0, 128, 0);
 
     shader.setValue("projection", matWorld);
     shader.setValue("view", matView);
