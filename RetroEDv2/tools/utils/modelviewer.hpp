@@ -14,8 +14,10 @@ public:
     RSDKv5::Model::Frame *curFrame;
     RSDKv5::Model::Frame *nextFrame;
     int loopIndex;
-    float animSpeed = 0;
+    float animSpeed = 0.1f;
     float animTimer = 0;
+
+    float zoom = 1.0f;
 
     void setModel(RSDKv5::Model m, QString tex = "");
     void setModel(RSDKv4::Model m, QString tex = "");
@@ -24,6 +26,7 @@ public:
 
     void setFrame(int frameID);
     void setWireframe(bool wireframe);
+    void setZoom(float zoom);
 
     QString texFile = "";
     bool reload     = false;

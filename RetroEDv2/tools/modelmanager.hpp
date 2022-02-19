@@ -45,6 +45,17 @@ private:
 
     Ui::ModelManager *ui;
 
+    void startAnim();
+    void stopAnim();
+
+    void processAnimation();
+
+    ushort currentFrame = -1;
+    bool playingAnim    = false;
+    bool animFinished   = false;
+    int prevFrame       = 0;
+    QTimer *updateTimer = nullptr;
+
     bool modified    = false;
     QString tabTitle = "Model Manager";
 };

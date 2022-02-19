@@ -11,6 +11,9 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
     ui->viewerFrame->layout()->addWidget(viewer);
     viewer->show();
 
+    updateTimer = new QTimer(this);
+    connect(updateTimer, &QTimer::timeout, this, QOverload<>::of(&ModelManager::processAnimation));
+
     connect(ui->impMDL, &QPushButton::pressed, [this] {
         QFileDialog filedialog(this, tr("Load Model Frame"), "",
                                tr(QString("OBJ Models (*.obj)").toStdString().c_str()));
@@ -78,6 +81,53 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
     });
     ui->frameList->setCurrentRow(-1);
 
+    ui->play->setIcon(playPauseIco[0]);
+    connect(ui->play, &QToolButton::clicked, [this] {
+        if (!playingAnim) {
+            startAnim();
+            ui->play->setIcon(playPauseIco[1]);
+        }
+        else {
+            stopAnim();
+            ui->frameList->setCurrentRow(currentFrame);
+            ui->play->setIcon(playPauseIco[0]);
+        }
+
+        if (currentFrame >= viewer->model.frames.count()) {
+            currentFrame = 0;
+        }
+    });
+
+    connect(ui->prevFrame, &QToolButton::clicked, [this] {
+        if (currentFrame > 0) {
+            --currentFrame;
+        }
+        else {
+            currentFrame = viewer->model.frames.count() - 1;
+        }
+        ui->frameList->setCurrentRow(currentFrame);
+    });
+
+    connect(ui->nextFrame, &QToolButton::clicked, [this] {
+        if (currentFrame < viewer->model.frames.count() - 1) {
+            ++currentFrame;
+        }
+        else {
+            currentFrame = 0;
+        }
+        ui->frameList->setCurrentRow(currentFrame);
+    });
+
+    connect(ui->skipStart, &QToolButton::clicked, [this] {
+        currentFrame = 0;
+        ui->frameList->setCurrentRow(currentFrame);
+    });
+
+    connect(ui->skipEnd, &QToolButton::clicked, [this] {
+        currentFrame = viewer->model.frames.count() - 1;
+        ui->frameList->setCurrentRow(currentFrame);
+    });
+
     for (QWidget *w : findChildren<QWidget *>()) {
         w->installEventFilter(this);
     }
@@ -86,7 +136,16 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
         loadModel(filePath, usev5Format);
 }
 
-ModelManager::~ModelManager() { delete ui; }
+ModelManager::~ModelManager()
+{
+    delete ui;
+
+    if (updateTimer) {
+        updateTimer->stop();
+        delete updateTimer;
+        updateTimer = nullptr;
+    }
+}
 
 bool ModelManager::event(QEvent *event)
 {
@@ -120,6 +179,32 @@ bool ModelManager::event(QEvent *event)
             if (saveModel(true))
                 return true;
             break;
+
+        case QEvent::Close:
+            if (modified) {
+                bool cancelled = false;
+                if (MainWindow::showCloseWarning(this, &cancelled)) {
+                    if (saveModel())
+                        return true;
+                }
+                else if (cancelled) {
+                    event->ignore();
+                    return true;
+                }
+            }
+            break;
+
+        case QEvent::Wheel: {
+            QWheelEvent *wEvent = static_cast<QWheelEvent *>(event);
+
+            if (wEvent->angleDelta().y() > 0 && viewer->zoom < 20)
+                viewer->zoom *= 2;
+            else if (wEvent->angleDelta().y() < 0 && viewer->zoom > 0.5)
+                viewer->zoom /= 2;
+
+            viewer->setZoom(viewer->zoom);
+            return true;
+        }
     }
 
     return QWidget::event(event);
@@ -142,6 +227,47 @@ bool ModelManager::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
+void ModelManager::startAnim()
+{
+    playingAnim       = true;
+    animFinished      = false;
+    viewer->animTimer = 0;
+    prevFrame         = 0;
+    updateTimer->start(1000.0f / 60.0f);
+}
+
+void ModelManager::stopAnim()
+{
+    playingAnim       = false;
+    animFinished      = false;
+    viewer->animTimer = 0;
+    prevFrame         = 0;
+
+    updateTimer->stop();
+}
+
+void ModelManager::processAnimation()
+{
+    bool changed = false;
+
+    if (currentFrame < viewer->model.frames.count()) {
+        viewer->animTimer += viewer->animSpeed;
+        while (viewer->animTimer > 1.0) {
+            viewer->animTimer -= 1.0;
+            ++currentFrame;
+
+            if (currentFrame >= viewer->model.frames.count())
+                currentFrame = viewer->loopIndex;
+
+            changed = true;
+        }
+    }
+
+    viewer->setFrame(currentFrame);
+    if (changed)
+        viewer->repaint();
+}
+
 void ModelManager::setupUI()
 {
     ui->frameList->blockSignals(true);
@@ -154,8 +280,8 @@ void ModelManager::setupUI()
                 ui->frameList->addItem("Frame " + QString::number(f));
 
             ui->animSpeed->blockSignals(true);
-            ui->animSpeed->setValue(0);
-            viewer->animSpeed = 0;
+            ui->animSpeed->setValue(0.1);
+            viewer->animSpeed = 0.1f;
             ui->animSpeed->blockSignals(false);
 
             ui->loopIndex->blockSignals(true);
@@ -174,8 +300,8 @@ void ModelManager::setupUI()
                 ui->frameList->addItem("Frame " + QString::number(f));
 
             ui->animSpeed->blockSignals(true);
-            ui->animSpeed->setValue(0);
-            viewer->animSpeed = 0;
+            ui->animSpeed->setValue(0.1);
+            viewer->animSpeed = 0.1f;
             ui->animSpeed->blockSignals(false);
 
             ui->loopIndex->blockSignals(true);

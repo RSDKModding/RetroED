@@ -16,9 +16,9 @@ ModelViewer::ModelViewer(QWidget *parent) : QOpenGLWidget(parent)
     f.vertices = {};
     model.frames.append(f);
 
-    renderTimer = new QTimer(this);
-    connect(renderTimer, &QTimer::timeout, this, [this] { this->repaint(); });
-    renderTimer->start(1000 / 60.f);
+    // renderTimer = new QTimer(this);
+    // connect(renderTimer, &QTimer::timeout, this, [this] { this->repaint(); });
+    // renderTimer->start(1000 / 60.f);
 }
 
 ModelViewer::~ModelViewer()
@@ -100,6 +100,13 @@ void ModelViewer::setFrame(int frameID)
 }
 
 void ModelViewer::setWireframe(bool wireframe) { repaint(); }
+
+void ModelViewer::setZoom(float zoom)
+{
+    this->zoom = zoom;
+
+    repaint();
+}
 
 void ModelViewer::initializeGL()
 {
