@@ -17,7 +17,8 @@ public:
     float animSpeed = 0.1f;
     float animTimer = 0;
 
-    float zoom = 1.0f;
+    float zoom         = 1.0f;
+    QColor modelColour = QColor(0xFFFFFFFF);
 
     void setModel(RSDKv5::Model m, QString tex = "");
     void setModel(RSDKv4::Model m, QString tex = "");

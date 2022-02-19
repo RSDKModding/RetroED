@@ -128,6 +128,18 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
         ui->frameList->setCurrentRow(currentFrame);
     });
 
+    mdlClrSel = new color_widgets::ColorPreview(this);
+    ui->mdlClrFrame->layout()->addWidget(mdlClrSel);
+
+    mdlClrSel->setColor(viewer->modelColour);
+    connect(mdlClrSel, &color_widgets::ColorPreview::clicked, [this] {
+        ColourDialog dlg(viewer->modelColour);
+        if (dlg.exec() == QDialog::Accepted) {
+            viewer->modelColour = dlg.colour().toQColor();
+            mdlClrSel->setColor(viewer->modelColour);
+        }
+    });
+
     for (QWidget *w : findChildren<QWidget *>()) {
         w->installEventFilter(this);
     }
@@ -140,11 +152,15 @@ ModelManager::~ModelManager()
 {
     delete ui;
 
+    if (mdlClrSel)
+        delete mdlClrSel;
+    mdlClrSel = nullptr;
+
     if (updateTimer) {
         updateTimer->stop();
         delete updateTimer;
-        updateTimer = nullptr;
     }
+    updateTimer = nullptr;
 }
 
 bool ModelManager::event(QEvent *event)
@@ -332,6 +348,7 @@ void ModelManager::loadModel(QString filePath, bool usev5Format)
         modelv4.read(filePath);
         tabTitle = Utils::getFilenameAndFolder(modelv4.filePath);
     }
+    updateTitle(false);
     setStatus("Loaded model " + tabTitle);
 
     appConfig.addRecentFile(mdlFormat == 0 ? ENGINE_v5 : ENGINE_v4, TOOL_MODELMANAGER, filePath,
@@ -349,10 +366,9 @@ bool ModelManager::saveModel(bool forceSaveAs)
                                        tr("RSDKv5 Model Files (*.bin)"));
                 filedialog.setAcceptMode(QFileDialog::AcceptSave);
                 if (filedialog.exec() == QDialog::Accepted) {
-                    setStatus("Saving model...", true);
-
                     QString filepath = filedialog.selectedFiles()[0];
 
+                    setStatus("Saving model...", true);
                     modelv5.write(filepath);
                     setStatus("Saved model to " + filepath);
 
@@ -364,7 +380,6 @@ bool ModelManager::saveModel(bool forceSaveAs)
             }
             else {
                 setStatus("Saving model...", true);
-
                 modelv5.write();
                 setStatus("Saved model to " + modelv5.filePath);
 
@@ -382,10 +397,9 @@ bool ModelManager::saveModel(bool forceSaveAs)
                                        tr("RSDKv4 Model Files (*.bin)"));
                 filedialog.setAcceptMode(QFileDialog::AcceptSave);
                 if (filedialog.exec() == QDialog::Accepted) {
-                    setStatus("Saving model...", true);
-
                     QString filepath = filedialog.selectedFiles()[0];
 
+                    setStatus("Saving model...", true);
                     modelv4.write(filepath);
                     setStatus("Saved model to " + filepath);
 
@@ -397,13 +411,12 @@ bool ModelManager::saveModel(bool forceSaveAs)
             }
             else {
                 setStatus("Saving model...", true);
-
                 modelv4.write();
+                setStatus("Saved model to " + modelv5.filePath);
 
                 appConfig.addRecentFile(mdlFormat == 0 ? ENGINE_v5 : ENGINE_v4, TOOL_MODELMANAGER,
                                         modelv4.filePath, QList<QString>{});
                 updateTitle(false);
-                setStatus("Saved model to " + modelv5.filePath);
 
                 return true;
             }

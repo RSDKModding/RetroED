@@ -353,26 +353,6 @@
       <string>Model Properties</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="3" column="0" colspan="2">
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_15">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Loop Index</string>
-        </property>
-       </widget>
-      </item>
       <item row="6" column="0" colspan="2">
        <widget class="QPushButton" name="loadTexture">
         <property name="text">
@@ -380,24 +360,17 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="2">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Viewing Properties</string>
+      <item row="3" column="0" colspan="2">
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QSpinBox" name="loopIndex">
-        <property name="toolTip">
-         <string>What frame to loop back to</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" colspan="2">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Animation Properties</string>
+      <item row="8" column="0" colspan="2">
+       <widget class="QLineEdit" name="texPath">
+        <property name="readOnly">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -424,6 +397,13 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="0" colspan="2">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Animation Properties</string>
+        </property>
+       </widget>
+      </item>
       <item row="7" column="0" colspan="2">
        <widget class="QLabel" name="label_3">
         <property name="text">
@@ -431,7 +411,41 @@
         </property>
        </widget>
       </item>
-      <item row="9" column="0">
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_18">
+        <property name="text">
+         <string>Speed</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="2">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Viewing Properties</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="loopIndex">
+        <property name="toolTip">
+         <string>What frame to loop back to</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_15">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Loop Index</string>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="0">
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -444,17 +458,27 @@
         </property>
        </spacer>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_18">
-        <property name="text">
-         <string>Speed</string>
+      <item row="12" column="0" colspan="2">
+       <widget class="QFrame" name="mdlClrFrame">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>16</height>
+         </size>
         </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout"/>
        </widget>
       </item>
-      <item row="8" column="0" colspan="2">
-       <widget class="QLineEdit" name="texPath">
-        <property name="readOnly">
-         <bool>true</bool>
+      <item row="9" column="0" colspan="2">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Mesh Colour</string>
         </property>
        </widget>
       </item>

@@ -2141,9 +2141,6 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
 
     scnProp->setupUI(&scene, &stageConfig);
 
-    scnProp->bgSel->setColor(viewer->metadata.backgroundColor1);
-    scnProp->altBGSel->setColor(viewer->metadata.backgroundColor2);
-
     scnProp->loadGlobalCB->blockSignals(true);
     scnProp->loadGlobalCB->setChecked(stageConfig.loadGlobalObjects);
     scnProp->loadGlobalCB->blockSignals(false);
@@ -2155,7 +2152,6 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     scnProp->syncGC->setDisabled(!stageConfig.loadGlobalObjects);
 
     scnProp->bgSel->setColor(viewer->metadata.backgroundColor1);
-    scnProp->altBGSel->setColor(viewer->metadata.backgroundColor2);
     connect(scnProp->bgSel, &color_widgets::ColorPreview::clicked, [this] {
         ColourDialog dlg(viewer->metadata.backgroundColor1);
         if (dlg.exec() == QDialog::Accepted) {
@@ -2163,6 +2159,8 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
             scnProp->bgSel->setColor(viewer->metadata.backgroundColor1);
         }
     });
+
+    scnProp->altBGSel->setColor(viewer->metadata.backgroundColor2);
     connect(scnProp->altBGSel, &color_widgets::ColorPreview::clicked, [this] {
         ColourDialog dlg(viewer->metadata.backgroundColor2);
         if (dlg.exec() == QDialog::Accepted) {

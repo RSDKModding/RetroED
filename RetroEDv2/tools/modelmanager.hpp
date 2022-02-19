@@ -45,6 +45,8 @@ private:
 
     Ui::ModelManager *ui;
 
+    color_widgets::ColorPreview *mdlClrSel = nullptr;
+
     void startAnim();
     void stopAnim();
 
