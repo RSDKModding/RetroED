@@ -8,6 +8,12 @@ ModelViewer::ModelViewer(QWidget *parent) : QOpenGLWidget(parent)
 
     model = RSDKv5::Model();
 
+    model.indices = {0, 1, 2};
+    model.faceVerticiesCount = 3;
+    RSDKv5::Model::Frame f;
+    f.vertices = {};
+    model.frames.append(f);
+
     renderTimer = new QTimer(this);
     connect(renderTimer, &QTimer::timeout, this, [this] { this->repaint(); });
     renderTimer->start(1000 / 60.f);
@@ -21,46 +27,7 @@ ModelViewer::~ModelViewer()
 
 void ModelViewer::setModel(RSDKv5::Model m, QString tex)
 {
-    model.faceVerticiesCount = m.faceVerticiesCount;
-    model.indices            = m.indices;
-
-    model.colours.clear();
-    for (auto &c : m.colours) {
-        RSDKv5::Model::Colour v5c;
-        v5c.a = c.a;
-        v5c.r = c.r;
-        v5c.g = c.g;
-        v5c.b = c.b;
-        model.colours.append(v5c);
-    }
-    model.hasColours = m.hasColours;
-
-    model.texCoords.clear();
-    for (auto &uv : m.texCoords) {
-        RSDKv5::Model::TexCoord v5uv;
-        v5uv.x = uv.x;
-        v5uv.y = uv.y;
-        model.texCoords.append(v5uv);
-    }
-    model.hasTextures = m.hasTextures;
-
-    model.frames.clear();
-    for (auto &f : m.frames) {
-        RSDKv5::Model::Frame v5f;
-        for (auto &v : f.vertices) {
-            RSDKv5::Model::Frame::Vertex v5v;
-            v5v.x  = v.x;
-            v5v.y  = v.y;
-            v5v.z  = v.z;
-            v5v.nx = v.nx;
-            v5v.ny = v.ny;
-            v5v.nz = v.nz;
-            v5f.vertices.append(v5v);
-        }
-        model.frames.append(v5f);
-    }
-    model.hasNormals = m.hasNormals;
-
+    model = m;
     texFile = tex;
     reload  = true;
 
@@ -155,11 +122,13 @@ void ModelViewer::initializeGL()
     glFuncs->glEnable(GL_DEPTH_TEST);
     glFuncs->glDisable(GL_DITHER);
 
+
     glFuncs->glEnable(GL_BLEND);
     glFuncs->glDisable(GL_SCISSOR_TEST);
     glFuncs->glDisable(GL_CULL_FACE);
 
     glFuncs->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glFuncs->glDepthFunc(GL_ALWAYS);
 
     glFuncs->glClearColor(23 / 255.f, 23 / 255.f, 23 / 255.f, 1.0f);
 
@@ -205,6 +174,10 @@ void ModelViewer::initializeGL()
     indexVBO->create();
     indexVBO->bind();
     indexVBO->setUsagePattern(QOpenGLBuffer::StaticDraw);
+
+    //matModel.scale(1 / 256.f);
+    //matView.scale(4.f);
+    matView.translate(0, 0, -128);
 }
 void ModelViewer::resizeGL(int w, int h)
 {
@@ -213,7 +186,7 @@ void ModelViewer::resizeGL(int w, int h)
     glFuncs->glViewport(0, 0, w, h);
 
     matWorld.setToIdentity();
-    matWorld.perspective(30, w / (float)h, -16, 16);
+    matWorld.perspective(45, w / (float)h, 0, 256);
 }
 
 void ModelViewer::paintGL()
@@ -253,20 +226,20 @@ void ModelViewer::paintGL()
         // 0 3 5 turned to 3:   0 3 5
         // 0 3 5 4 turned to 3: 0 3 5 5 4 0
         // etc
-        int count       = 3 * model.faceVerticiesCount - 6;
+        int count       = 3 * model.faceVerticiesCount - 3;
         int total       = count * (model.indices.count() / model.faceVerticiesCount);
         auto indices    = new ushort[total];
         ushort *current = indices;
 
         i = 0;
         for (; i < model.indices.count() - 1; i += model.faceVerticiesCount) {
-            for (int j = 0; j < model.faceVerticiesCount - 2; ++j) {
+            for (int j = 0; j < model.faceVerticiesCount - 1; ++j) {
                 current[j * 3 + 0] = model.indices[i + j];
                 current[j * 3 + 1] = model.indices[i + j + 1];
-                // if (j + 3 < model.faceVerticiesCount)
-                current[j * 3 + 2] = model.indices[i + j + 2];
+                if (j + 1 < model.faceVerticiesCount - 1)
+                    current[j * 3 + 2] = model.indices[i + j + 2];
             }
-            // if (model.faceVerticiesCount != 3)
+            //if (model.faceVerticiesCount != 3)
             current[count - 1] = model.indices[i];
             current            = &current[count];
         }
