@@ -18,10 +18,65 @@
     <widget class="QStackedWidget" name="stackedWidget">
      <widget class="QWidget" name="page_v3v4">
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="4" column="0">
+       <item row="1" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Engine Revision (v4 only)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QCheckBox" name="useHex">
+         <property name="text">
+          <string>Use Hexadecimal Values (will not recompile, but helps for readability)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
         <widget class="QCheckBox" name="sepFolders">
          <property name="text">
           <string>Seperate Extraction Folders (always active if using custom aliases)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QCheckBox" name="useCustomAliases">
+         <property name="text">
+          <string>Use Extra Aliases (will not recompile, but helps for readability)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QPushButton" name="selDataFolder">
+         <property name="text">
+          <string>Select Data Folder</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="6" column="0">
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QPushButton" name="selExtractFolder">
+         <property name="text">
+          <string>Select Extraction Folder</string>
          </property>
         </widget>
        </item>
@@ -39,58 +94,25 @@
         </spacer>
        </item>
        <item row="2" column="0">
-        <widget class="QCheckBox" name="useHex">
-         <property name="text">
-          <string>Use Hexadecimal Values (will not recompile, but helps for readability)</string>
+        <widget class="QComboBox" name="engineRev">
+         <property name="currentIndex">
+          <number>2</number>
          </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QCheckBox" name="useCustomAliases">
-         <property name="text">
-          <string>Use Extra Aliases (will not recompile, but helps for readability)</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QPushButton" name="selDataFolder">
-         <property name="text">
-          <string>Select Data Folder</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QPushButton" name="selExtractFolder">
-         <property name="text">
-          <string>Select Extraction Folder</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="5" column="0">
-        <widget class="Line" name="line">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QCheckBox" name="useOldOps">
-         <property name="text">
-          <string>Use Old Opcode List (v4 only)</string>
-         </property>
+         <item>
+          <property name="text">
+           <string>Revision 00</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Revision 01</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Revision 02</string>
+          </property>
+         </item>
         </widget>
        </item>
       </layout>

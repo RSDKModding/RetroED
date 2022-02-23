@@ -308,6 +308,7 @@ const char variableNamesv4[][0x20] = {
     "editor.variableID",
     "editor.variableValue",
     "editor.returnVariable",
+    "editor.useGizmos",
 };
 
 const FunctionInfov4 functionsv4[] = {
@@ -929,6 +930,7 @@ enum ScrVar {
     VAR_EDITORVARIABLEID,
     VAR_EDITORVARIABLEVAL,
     VAR_EDITORRETURNVAR,
+    VAR_EDITORUSEGIZMOS,
     VAR_MAX_CNT
 };
 
@@ -1561,7 +1563,14 @@ void Compilerv4::convertFunctionText(QString &text)
                 }
             }
 
+            // Aliases (array value)
+            char prefix = 0;
             if (arrayStr.length() > 0) {
+                if (arrayStr[0] == '+' || arrayStr[0] == '-') {
+                    prefix = arrayStr[0].toLatin1();
+                    arrayStr.remove(0, 1);
+                }
+
                 // Private (this script only)
                 for (int a = 0; a < privateAliasCount; ++a) {
                     if (arrayStr == privateAliases[a].name) {
@@ -1804,14 +1813,12 @@ void Compilerv4::convertFunctionText(QString &text)
                 scriptData[scriptDataPos++] = SCRIPTVAR_VAR;
                 if (arrayStr.length()) {
                     scriptData[scriptDataPos] = VARARR_ARRAY;
-                    if (arrayStr[0] == '+')
+                    if (prefix == '+')
                         scriptData[scriptDataPos] = VARARR_ENTNOPLUS1;
-                    if (arrayStr[0] == '-')
+                    if (prefix == '-')
                         scriptData[scriptDataPos] = VARARR_ENTNOMINUS1;
                     ++scriptDataPos;
-                    if (arrayStr[0] == '-' || arrayStr[0] == '+') {
-                        arrayStr.remove(0, 1);
-                    }
+
                     if (convertStringToInteger(arrayStr, &value) == 1) {
                         scriptData[scriptDataPos++] = 0;
                         scriptData[scriptDataPos++] = value;
@@ -3452,6 +3459,10 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                     case VAR_EDITORRETURNVAR:
                         scriptEng.operands[i] = scnEditor->viewer->returnVariable;
                         break;
+                    case VAR_EDITORUSEGIZMOS:
+                        scriptEng.operands[i] = scnEditor->viewer->sceneInfo.effectGizmo
+                                                || scnEditor->viewer->selectedEntity == objectEntityPos;
+                        break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant
@@ -4913,6 +4924,7 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                         scnEditor->viewer->variableValue = scriptEng.operands[i];
                         break;
                     case VAR_EDITORRETURNVAR: break;
+                    case VAR_EDITORUSEGIZMOS: break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant

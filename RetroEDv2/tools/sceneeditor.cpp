@@ -148,7 +148,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(ui->verticalScrollBar, &QScrollBar::valueChanged,
             [this](int v) { viewer->cameraPos.y = v; });
 
-    connect(ui->useGizmos, &QCheckBox::toggled, [this](bool c) { /*sceneInfo.effectGizmo = c;*/ });
+    connect(ui->useGizmos, &QCheckBox::toggled, [this](bool c) { viewer->sceneInfo.effectGizmo = c; });
 
     connect(ui->layerList, &QListWidget::currentRowChanged, [this](int c) {
         // m_uo->setDisabled(c == -1);
@@ -334,19 +334,19 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         viewer->selectedScrollInfo = c;
 
-        scrProp->setupUI(&background.layers[viewer->selectedLayer - 1].scrollInfos[c],
-                         background.layers[viewer->selectedLayer - 1].scrollInfos);
+        scrProp->setupUI(&viewer->layers[viewer->selectedLayer].scrollInfos[c],
+                         viewer->layers[viewer->selectedLayer].scrollInfos);
         ui->propertiesBox->setCurrentWidget(ui->scrollPropPage);
     });
 
     connect(ui->addScr, &QToolButton::clicked, [this] {
-        auto &layer = background.layers[viewer->selectedLayer - 1];
+        auto &layer = viewer->layers[viewer->selectedLayer];
 
         auto &last = layer.scrollInfos.last();
 
-        FormatHelpers::Background::ScrollIndexInfo scr = last;
-        scr.startLine                                  = last.startLine + last.length;
-        scr.length                                     = 1;
+        SceneHelpers::TileLayer::ScrollIndexInfo scr = last;
+        scr.startLine                                = last.startLine + last.length;
+        scr.length                                   = 1;
         layer.scrollInfos.append(scr);
 
         createScrollList();
@@ -357,7 +357,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         int c = ui->scrollList->currentRow();
         int n = ui->scrollList->currentRow() == ui->scrollList->count() - 1 ? c - 1 : c;
         delete ui->scrollList->item(c);
-        background.layers[viewer->selectedLayer - 1].scrollInfos.removeAt(c);
+        viewer->layers[viewer->selectedLayer].scrollInfos.removeAt(c);
         ui->scrollList->blockSignals(true);
         ui->scrollList->setCurrentRow(n);
         ui->scrollList->blockSignals(false);
@@ -405,33 +405,20 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         }
     });
 
-    auto resetTools = [this](byte tool) {
-        if (tool == 0xFF)
-            tool = SceneViewerv5::TOOL_MOUSE;
-        viewer->curTool = tool;
-
-        // Reset
-        // mainView->selectedTile = -1;
-        // mainView->selectedStamp = -1;
-        viewer->selectedEntity = -1;
-        objProp->unsetUI();
-        viewer->isSelecting = false;
-
-        unsetCursor();
-
-        switch (tool) {
-            default: break; // what
-            case SceneViewerv5::TOOL_MOUSE: break;
-            case SceneViewerv5::TOOL_SELECT: break;
-            case SceneViewerv5::TOOL_PENCIL: viewer->isSelecting = true; break;
-            case SceneViewerv5::TOOL_ERASER: viewer->isSelecting = true; break;
-            case SceneViewerv5::TOOL_ENTITY: viewer->isSelecting = true; break;
-            case SceneViewerv5::TOOL_PARALLAX: viewer->isSelecting = true; break;
+    connect(ui->selToolBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int v) {
+        byte tool = SceneViewerv5::TOOL_MOUSE;
+        switch (v) {
+            default:
+            case 0: tool = SceneViewerv5::TOOL_MOUSE; break;
+            case 1: tool = SceneViewerv5::TOOL_SELECT; break;
+            case 2: tool = SceneViewerv5::TOOL_PENCIL; break;
+            case 3: tool = SceneViewerv5::TOOL_ERASER; break;
+            case 4: tool = SceneViewerv5::TOOL_ENTITY; break;
+            case 5: tool = SceneViewerv5::TOOL_PARALLAX; break;
         }
-    };
 
-    connect(ui->selToolBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [resetTools](int v) { resetTools(v); });
+        resetTools(tool);
+    });
 
     connect(ui->showCollisionA, &QPushButton::clicked, [this] {
         viewer->showPlaneA ^= 1;
@@ -718,11 +705,6 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
             writer.flush();
         }
-
-        // ExportRSDKv5Scene *dlg = new ExportRSDKv5Scene(scene.filepath, this);
-        // if (dlg->exec() == QDialog::Accepted) {
-        // exportRSDKv5(dlg);
-        // }
     });
 
     connect(scnProp->syncGC, &QPushButton::clicked, [] {});
@@ -883,6 +865,10 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             viewer->mousePos.x = mEvent->pos().x();
             viewer->mousePos.y = mEvent->pos().y();
 
+            Vector2<float> sceneMousePos((viewer->mousePos.x * viewer->invZoom()) + viewer->cameraPos.x,
+                                         (viewer->mousePos.y * viewer->invZoom())
+                                             + viewer->cameraPos.y);
+
             if ((mEvent->button() & Qt::LeftButton) == Qt::LeftButton)
                 mouseDownL = true;
             if ((mEvent->button() & Qt::MiddleButton) == Qt::MiddleButton)
@@ -896,7 +882,15 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             if (mouseDownL) {
                 switch (viewer->curTool) {
                     case SceneViewerv5::TOOL_MOUSE: break;
-                    case SceneViewerv5::TOOL_SELECT: break;
+                    case SceneViewerv5::TOOL_SELECT:
+                        viewer->isSelecting  = true;
+                        viewer->selectPos.x  = sceneMousePos.x;
+                        viewer->selectPos.y  = sceneMousePos.y;
+                        viewer->selectSize.x = 0;
+                        viewer->selectSize.y = 0;
+                        viewer->selectedEntities.clear();
+                        break;
+
                     case SceneViewerv5::TOOL_PENCIL: {
                         if (viewer->selectedTile >= 0 && viewer->isSelecting) {
                             setTile(mEvent->pos().x(), mEvent->pos().y());
@@ -1204,28 +1198,83 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             bool status         = false;
             QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
 
-            viewer->mousePos.x = mEvent->pos().x();
-            viewer->mousePos.y = mEvent->pos().y();
+            auto mPos = viewer->mapFromGlobal(QCursor::pos());
+
+            viewer->mousePos.x = mPos.x();
+            viewer->mousePos.y = mPos.y();
+
+            Vector2<float> sceneMousePos((viewer->mousePos.x * viewer->invZoom()) + viewer->cameraPos.x,
+                                         (viewer->mousePos.y * viewer->invZoom())
+                                             + viewer->cameraPos.y);
 
             if (mouseDownM || (mouseDownL && viewer->curTool == SceneViewerv5::TOOL_MOUSE)) {
-                viewer->cameraPos.x -= (viewer->mousePos.x - viewer->reference.x()) * viewer->invZoom();
-                viewer->cameraPos.y -= (viewer->mousePos.y - viewer->reference.y()) * viewer->invZoom();
-                viewer->reference = mEvent->pos();
-                status            = true;
+                float moveX = viewer->mousePos.x - viewer->reference.x();
+                float moveY = viewer->mousePos.y - viewer->reference.y();
+
+                QPoint cursorPos = QCursor::pos();
+                QRect screenRect = QGuiApplication::screenAt(viewer->pos())
+                                       ->availableGeometry()
+                                       .adjusted(20, 20, -19, -19);
+
+                if (!screenRect.contains(cursorPos)) {
+                    if (cursorPos.x() < screenRect.x()) {
+                        cursorPos.setX(cursorPos.x() + (screenRect.x() + screenRect.width()));
+                        viewer->reference.setX(viewer->reference.x()
+                                               + (screenRect.x() + screenRect.width()));
+                    }
+                    if (cursorPos.x() > screenRect.x() + screenRect.width()) {
+                        cursorPos.setX(cursorPos.x() - (screenRect.x() + screenRect.width()));
+                        viewer->reference.setX(viewer->reference.x()
+                                               - (screenRect.x() + screenRect.width()));
+                    }
+
+                    if (cursorPos.y() < screenRect.y()) {
+                        cursorPos.setY(cursorPos.y() + (screenRect.y() + screenRect.height()));
+                        viewer->reference.setY(viewer->reference.y()
+                                               + (screenRect.y() + screenRect.height()));
+                    }
+                    if (cursorPos.y() > screenRect.y() + screenRect.height()) {
+                        cursorPos.setY(cursorPos.y() - (screenRect.y() + screenRect.height()));
+                        viewer->reference.setY(viewer->reference.y()
+                                               - (screenRect.y() + screenRect.height()));
+                    }
+
+                    auto mousePos = viewer->mapFromGlobal(cursorPos);
+                    moveX         = mousePos.x() - viewer->reference.x();
+                    moveY         = mousePos.y() - viewer->reference.y();
+
+                    viewer->mousePos.x = mousePos.x();
+                    viewer->mousePos.y = mousePos.y();
+
+                    QCursor::setPos(cursorPos);
+                    viewer->reference = mousePos;
+                }
+                else {
+                    viewer->reference = mPos;
+                }
+
+                viewer->cameraPos.x -= moveX * viewer->invZoom();
+                viewer->cameraPos.y -= moveY * viewer->invZoom();
+
+                sceneMousePos =
+                    Vector2<float>((viewer->mousePos.x * viewer->invZoom()) + viewer->cameraPos.x,
+                                   (viewer->mousePos.y * viewer->invZoom()) + viewer->cameraPos.y);
+
+                status = true;
 
                 ui->horizontalScrollBar->blockSignals(true);
-                ui->horizontalScrollBar->setMaximum((scene.width * 0x80) - viewer->storedW);
+                ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x80) - viewer->storedW);
                 ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
                 ui->horizontalScrollBar->blockSignals(false);
 
                 ui->verticalScrollBar->blockSignals(true);
-                ui->verticalScrollBar->setMaximum((scene.height * 0x80) - viewer->storedH);
+                ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x80) - viewer->storedH);
                 ui->verticalScrollBar->setValue(viewer->cameraPos.y);
                 ui->verticalScrollBar->blockSignals(false);
-            }
 
-            Vector2<int> sceneMousePos((viewer->mousePos.x * viewer->invZoom()) + viewer->cameraPos.x,
-                                       (viewer->mousePos.y * viewer->invZoom()) + viewer->cameraPos.y);
+                viewer->screens->position.x = viewer->cameraPos.x;
+                viewer->screens->position.y = viewer->cameraPos.y;
+            }
 
             if (viewer->curTool == SceneViewerv5::TOOL_PENCIL
                 || viewer->curTool == SceneViewerv5::TOOL_ENTITY) {
@@ -1262,7 +1311,53 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 switch (viewer->curTool) {
                     default: break;
                     case SceneViewerv5::TOOL_MOUSE: break;
-                    case SceneViewerv5::TOOL_SELECT: break;
+                    case SceneViewerv5::TOOL_SELECT: {
+                        viewer->isSelecting  = true;
+                        viewer->selectSize.x = sceneMousePos.x - viewer->selectPos.x;
+                        viewer->selectSize.y = sceneMousePos.y - viewer->selectPos.y;
+
+                        float cx = viewer->selectPos.x;
+                        float cy = viewer->selectPos.y;
+                        if (viewer->selectSize.x < 0)
+                            cx -= fabsf(viewer->selectSize.x);
+                        if (viewer->selectSize.y < 0)
+                            cy -= fabsf(viewer->selectSize.y);
+
+                        cx += fabsf(viewer->selectSize.x) / 2;
+                        cy += fabsf(viewer->selectSize.y) / 2;
+
+                        float oLeft   = cx - (fabsf(viewer->selectSize.x) / 2);
+                        float oTop    = cy - (fabsf(viewer->selectSize.y) / 2);
+                        float oRight  = cx + (fabsf(viewer->selectSize.x) / 2);
+                        float oBottom = cy + (fabsf(viewer->selectSize.y) / 2);
+
+                        viewer->selectedEntities.clear();
+                        for (int e = 0; e < viewer->entities.count(); ++e) {
+                            SceneEntity &entity = viewer->entities[e];
+
+                            int filter = 0xFF;
+                            for (int v = 0; v < viewer->objects[entity.type].variables.count(); ++v) {
+                                if (viewer->objects[entity.type].variables[v].name == "filter") {
+                                    if (v < entity.variables.count())
+                                        filter = entity.variables[v].value_uint8;
+                                    break;
+                                }
+                            }
+
+                            if (!(filter & viewer->sceneFilter) && filter)
+                                continue;
+
+                            float left   = entity.pos.x + entity.box.x;
+                            float top    = entity.pos.y + entity.box.y;
+                            float right  = entity.pos.x + entity.box.w;
+                            float bottom = entity.pos.y + entity.box.h;
+
+                            if (left < oRight && right > oLeft && top < oBottom && bottom > oTop) {
+                                viewer->selectedEntities.append(e);
+                            }
+                        }
+                        break;
+                    }
                     case SceneViewerv5::TOOL_PENCIL: {
                         if (viewer->selectedTile >= 0 && viewer->isSelecting) {
                             setTile(viewer->mousePos.x, viewer->mousePos.y);
@@ -1323,6 +1418,28 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             viewer->mousePos.x  = mEvent->pos().x();
             viewer->mousePos.y  = mEvent->pos().y();
 
+            switch (viewer->curTool) {
+                case SceneViewerv5::TOOL_MOUSE: break;
+                case SceneViewerv5::TOOL_SELECT: viewer->isSelecting = false; break;
+                case SceneViewerv5::TOOL_PENCIL: {
+                    if (viewer->selectedTile >= 0 && viewer->isSelecting) {
+                        doAction(QString("Placed Tile(s): (%1, %2)")
+                                     .arg(mEvent->pos().x())
+                                     .arg(mEvent->pos().y()));
+                    }
+                    break;
+                }
+                case SceneViewerv5::TOOL_ERASER: {
+                    if (viewer->isSelecting) {
+                        doAction(QString("Erased Tile(s): (%1, %2)")
+                                     .arg(mEvent->pos().x())
+                                     .arg(mEvent->pos().y()));
+                    }
+                    break;
+                }
+                default: break;
+            }
+
             if ((mEvent->button() & Qt::LeftButton) == Qt::LeftButton)
                 mouseDownL = false;
             if ((mEvent->button() & Qt::MiddleButton) == Qt::MiddleButton)
@@ -1348,12 +1465,12 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             viewer->cameraPos.x -= wEvent->angleDelta().x() / 8;
 
             ui->horizontalScrollBar->blockSignals(true);
-            ui->horizontalScrollBar->setMaximum((scene.width * 0x80) - viewer->storedW);
+            ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x80) - viewer->storedW);
             ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
             ui->horizontalScrollBar->blockSignals(false);
 
             ui->verticalScrollBar->blockSignals(true);
-            ui->verticalScrollBar->setMaximum((scene.height * 0x80) - viewer->storedH);
+            ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x80) - viewer->storedH);
             ui->verticalScrollBar->setValue(viewer->cameraPos.y);
             ui->verticalScrollBar->blockSignals(false);
 
@@ -1678,8 +1795,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
     createEntityList();
 
-    ui->horizontalScrollBar->setMaximum((scene.width * 0x80) - viewer->storedW);
-    ui->verticalScrollBar->setMaximum((scene.height * 0x80) - viewer->storedH);
+    ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x80) - viewer->storedW);
+    ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x80) - viewer->storedH);
     ui->horizontalScrollBar->setPageStep(0x80);
     ui->verticalScrollBar->setPageStep(0x80);
 
@@ -2365,12 +2482,7 @@ void SceneEditor::setTile(float x, float y)
     ypos /= 0x80;
     if (ypos >= 0 && ypos < viewer->sceneHeight) {
         if (xpos >= 0 && xpos < viewer->sceneWidth) {
-            if (viewer->selectedLayer > 0) {
-                background.layers[viewer->selectedLayer - 1].layout[ypos][xpos] = viewer->selectedTile;
-            }
-            else {
-                scene.layout[ypos][xpos] = viewer->selectedTile;
-            }
+            viewer->layers[viewer->selectedLayer].layout[ypos][xpos] = viewer->selectedTile;
         }
     }
 };
@@ -2382,10 +2494,19 @@ void SceneEditor::resetTools(byte tool)
     viewer->curTool = tool;
 
     // Reset
-    // m_mainView->m_selectedTile = -1;
-    // m_mainView->m_selectedStamp = -1;
+
     ui->selToolBox->setDisabled(true);
-    ui->selToolBox->setCurrentIndex(tool);
+    byte index = 0;
+    switch (tool) {
+        default:
+        case SceneViewerv5::TOOL_MOUSE: index = 0; break;
+        case SceneViewerv5::TOOL_SELECT: index = 1; break;
+        case SceneViewerv5::TOOL_PENCIL: index = 2; break;
+        case SceneViewerv5::TOOL_ERASER: index = 3; break;
+        case SceneViewerv5::TOOL_ENTITY: index = 4; break;
+        case SceneViewerv5::TOOL_PARALLAX: index = 5; break;
+    }
+    ui->selToolBox->setCurrentIndex(index);
     ui->selToolBox->setDisabled(false);
     viewer->selectedEntity = -1;
     objProp->unsetUI();
@@ -2473,7 +2594,9 @@ bool SceneEditor::handleKeyPress(QKeyEvent *event)
 
     switch (viewer->curTool) {
         case SceneViewerv5::TOOL_MOUSE: break;
+
         case SceneViewerv5::TOOL_SELECT: break;
+
         case SceneViewerv5::TOOL_PENCIL:
             if (event->key() == Qt::Key_Z)
                 viewer->tileFlip.x = true;
@@ -2493,12 +2616,7 @@ bool SceneEditor::handleKeyPress(QKeyEvent *event)
                                 (viewer->tilePos.x * viewer->invZoom()) + viewer->cameraPos.x,
                                 (viewer->tilePos.y * viewer->invZoom()) + viewer->cameraPos.y);
                             if (box.contains(pos)) {
-                                if (viewer->selectedLayer > 0) {
-                                    background.layers[viewer->selectedLayer - 1].layout[y][x] = 0;
-                                }
-                                else {
-                                    scene.layout[y][x] = 0;
-                                }
+                                viewer->layers[viewer->selectedLayer].layout[y][x] = 0;
                                 doAction();
 
                                 // reset context
@@ -2509,7 +2627,9 @@ bool SceneEditor::handleKeyPress(QKeyEvent *event)
                 }
             }
             break;
+
         case SceneViewerv5::TOOL_ERASER: break;
+
         case SceneViewerv5::TOOL_ENTITY:
             if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace) {
                 if (viewer->selectedEntity >= 0) {
@@ -2531,6 +2651,7 @@ bool SceneEditor::handleKeyPress(QKeyEvent *event)
                 }
             }
             break;
+
         case SceneViewerv5::TOOL_PARALLAX: break;
     }
     return false;
@@ -2632,9 +2753,8 @@ void SceneEditor::createScrollList()
         return;
 
     ui->scrollList->blockSignals(true);
-    for (int i = 0; i < background.layers[viewer->selectedLayer - 1].scrollInfos.count(); ++i) {
-        FormatHelpers::Background::ScrollIndexInfo &info =
-            background.layers[viewer->selectedLayer - 1].scrollInfos[i];
+    for (int i = 0; i < viewer->layers[viewer->selectedLayer].scrollInfos.count(); ++i) {
+        auto &info = viewer->layers[viewer->selectedLayer].scrollInfos[i];
         ui->scrollList->addItem(QString("Start: %1, Length %2").arg(info.startLine).arg(info.length));
     }
 
@@ -3000,7 +3120,7 @@ void SceneEditor::readXMLScrollInfo(QXmlStreamReader &xmlReader, int layerID, by
     if (layerID <= 0 || layerID >= 9)
         return;
 
-    FormatHelpers::Background::Layer &layer = background.layers[layerID];
+    auto &layer = viewer->layers[layerID];
     layer.scrollInfos.clear();
     // Parse the XML until we reach end of it
     while (!xmlReader.atEnd() && !xmlReader.hasError() && mode < 2) {
@@ -3035,7 +3155,7 @@ void SceneEditor::readXMLScrollInfo(QXmlStreamReader &xmlReader, int layerID, by
                     if (attr.name().toString() == QLatin1String("deform"))
                         deform = attr.value().toString() != "false" && attr.value().toString() != "0";
                 }
-                FormatHelpers::Background::ScrollIndexInfo info;
+                SceneHelpers::TileLayer::ScrollIndexInfo info;
                 info.startLine      = startLine;
                 info.length         = length;
                 info.parallaxFactor = parallaxFactor;
@@ -3072,36 +3192,19 @@ void SceneEditor::readXMLLayout(QXmlStreamReader &xmlReader, int layerID, byte m
                 QStringList layout = text.split(",");
 
                 int id = 0;
-                if (layerID > 0) {
-                    FormatHelpers::Background::Layer &layer = background.layers[layerID - 1];
 
-                    for (int y = 0; y < layer.height; ++y) {
-                        for (int x = 0; x < layer.width; ++x) {
-                            bool ok            = false;
-                            layer.layout[y][x] = 0;
-                            if (id < layout.count()) {
-                                int index = layout[id].toInt(&ok);
-                                if (ok)
-                                    layer.layout[y][x] = index;
-                            }
-
-                            ++id;
+                auto &layer = viewer->layers[layerID];
+                for (int y = 0; y < layer.height; ++y) {
+                    for (int x = 0; x < layer.width; ++x) {
+                        bool ok            = false;
+                        layer.layout[y][x] = 0;
+                        if (id < layout.count()) {
+                            int index = layout[id].toInt(&ok);
+                            if (ok)
+                                layer.layout[y][x] = index;
                         }
-                    }
-                }
-                else {
-                    for (int y = 0; y < scene.height; ++y) {
-                        for (int x = 0; x < scene.width; ++x) {
-                            bool ok            = false;
-                            scene.layout[y][x] = 0;
-                            if (id < layout.count()) {
-                                int index = layout[id].toInt(&ok);
-                                if (ok)
-                                    scene.layout[y][x] = index;
-                            }
 
-                            ++id;
-                        }
+                        ++id;
                     }
                 }
 
@@ -3163,19 +3266,20 @@ void SceneEditor::readXMLLayers(QXmlStreamReader &xmlReader)
                     layerID = id + 1;
 
                     if (name == "Foreground") {
-                        scene.width               = width;
-                        scene.height              = height;
+                        viewer->layers[0].width   = width;
+                        viewer->layers[0].height  = height;
                         viewer->layers[0].visible = visible;
                         layerID                   = 0;
                     }
                     else if (id < 8) {
-                        FormatHelpers::Background::Layer layer;
-                        layer.type   = layerTypes.indexOf(type) == -1 ? 1 : layerTypes.indexOf(type);
-                        layer.width  = width;
-                        layer.height = height;
-                        layer.parallaxFactor       = parallaxFactor;
-                        layer.scrollSpeed          = scrollSpeed;
-                        viewer->layers[id].visible = visible;
+                        int layerType = layerTypes.indexOf(type) == -1 ? 1 : layerTypes.indexOf(type);
+
+                        viewer->layers[id].type           = layerType;
+                        viewer->layers[id].width          = width;
+                        viewer->layers[id].height         = height;
+                        viewer->layers[id].parallaxFactor = parallaxFactor;
+                        viewer->layers[id].scrollSpeed    = scrollSpeed;
+                        viewer->layers[id].visible        = visible;
                     }
 
                     id++;
@@ -3191,42 +3295,22 @@ void SceneEditor::readXMLLayers(QXmlStreamReader &xmlReader)
 
 void SceneEditor::writeXMLScrollInfo(Writer &writer, int layerID, int indentPos)
 {
-    if (layerID > 0) {
-        auto &layer = background.layers[layerID - 1];
+    auto &layer = viewer->layers[layerID];
 
-        if (layer.scrollInfos.count()) {
-            writeXMLIndentation(writer, indentPos++);
-            writer.writeLine("<scrollingInfo>");
-            for (auto &scroll : layer.scrollInfos) {
-                writeXMLIndentation(writer, indentPos);
-                writer.writeLine(QString("<scrollInfo startLine=\"%1\" length=\"%2\" "
-                                         "parallaxFactor=\"%3\" scrollSpeed=\"%4\" "
-                                         "deform=\"%5\"> </scrollInfo>")
-                                     .arg(scroll.startLine)
-                                     .arg(scroll.length)
-                                     .arg(scroll.parallaxFactor)
-                                     .arg(scroll.scrollSpeed)
-                                     .arg(scroll.deform ? "true" : "false"));
-            }
-            writeXMLIndentation(writer, --indentPos);
-            writer.writeLine("</scrollingInfo>");
-            writer.writeLine();
-        }
-    }
-    else {
+    if (layer.scrollInfos.count()) {
         writeXMLIndentation(writer, indentPos++);
         writer.writeLine("<scrollingInfo>");
-
-        writeXMLIndentation(writer, indentPos);
-        writer.writeLine(QString("<scrollInfo startLine=\"%1\" length=\"%2\" "
-                                 "parallaxFactor=\"%3\" scrollSpeed=\"%4\" "
-                                 "deform=\"%5\"> </scrollInfo>")
-                             .arg(0)
-                             .arg(scene.height * 0x80)
-                             .arg(1.0)
-                             .arg(0.0)
-                             .arg("false"));
-
+        for (auto &scroll : layer.scrollInfos) {
+            writeXMLIndentation(writer, indentPos);
+            writer.writeLine(QString("<scrollInfo startLine=\"%1\" length=\"%2\" "
+                                     "parallaxFactor=\"%3\" scrollSpeed=\"%4\" "
+                                     "deform=\"%5\"> </scrollInfo>")
+                                 .arg(scroll.startLine)
+                                 .arg(scroll.length)
+                                 .arg(scroll.parallaxFactor)
+                                 .arg(scroll.scrollSpeed)
+                                 .arg(scroll.deform ? "true" : "false"));
+        }
         writeXMLIndentation(writer, --indentPos);
         writer.writeLine("</scrollingInfo>");
         writer.writeLine();
@@ -3237,28 +3321,17 @@ void SceneEditor::writeXMLLayout(Writer &writer, int layerID, int indentPos)
 {
     writeXMLIndentation(writer, indentPos++);
     writer.writeLine("<layout>");
-    if (layerID > 0) {
-        auto &layer = background.layers[layerID - 1];
 
-        for (int y = 0; y < layer.height; ++y) {
-            writeXMLIndentation(writer, indentPos);
-            for (int x = 0; x < layer.width; ++x) {
-                writer.writeText(QString::number(layer.layout[y][x]));
-                writer.writeText(",");
-            }
-            writer.writeLine();
+    auto &layer = viewer->layers[layerID];
+    for (int y = 0; y < layer.height; ++y) {
+        writeXMLIndentation(writer, indentPos);
+        for (int x = 0; x < layer.width; ++x) {
+            writer.writeText(QString::number(layer.layout[y][x]));
+            writer.writeText(",");
         }
+        writer.writeLine();
     }
-    else {
-        for (int y = 0; y < scene.height; ++y) {
-            writeXMLIndentation(writer, indentPos);
-            for (int x = 0; x < scene.width; ++x) {
-                writer.writeText(QString::number(scene.layout[y][x]));
-                writer.writeText(",");
-            }
-            writer.writeLine();
-        }
-    }
+
     writeXMLIndentation(writer, --indentPos);
     writer.writeLine("</layout>");
     writer.writeLine();
@@ -3268,56 +3341,30 @@ void SceneEditor::writeXMLLayer(Writer &writer, int layerID, int indentPos)
 {
     QList<QString> layerTypes = { "None", "HScroll", "VScroll", "3D Sky", "3D Floor" };
 
-    if (layerID > 0) {
-        auto &layer = background.layers[layerID - 1];
+    auto &layer = viewer->layers[layerID];
 
-        int drawOrder = 0;
+    int drawOrder = 0;
 
-        writeXMLIndentation(writer, indentPos);
-        writer.writeLine(QString("<layer name=\"%1\" type=\"%2\" drawOrder=\"%3\" width=\"%4\" "
-                                 "height=\"%5\" parallaxFactor=\"%6\" scrollSpeed=\"%7\" "
-                                 "visible=\"%8\">")
-                             .arg("Background " + QString::number(layerID))
-                             .arg(layerTypes[layer.type])
-                             .arg(drawOrder)
-                             .arg(layer.width)
-                             .arg(layer.height)
-                             .arg(layer.parallaxFactor)
-                             .arg(layer.scrollSpeed)
-                             .arg(viewer->layers[layerID].visible ? "true" : "false"));
+    writeXMLIndentation(writer, indentPos);
+    writer.writeLine(QString("<layer name=\"%1\" type=\"%2\" drawOrder=\"%3\" width=\"%4\" "
+                             "height=\"%5\" parallaxFactor=\"%6\" scrollSpeed=\"%7\" "
+                             "visible=\"%8\">")
+                         .arg("Background " + QString::number(layerID))
+                         .arg(layerTypes[layer.type])
+                         .arg(drawOrder)
+                         .arg(layer.width)
+                         .arg(layer.height)
+                         .arg(layer.parallaxFactor)
+                         .arg(layer.scrollSpeed)
+                         .arg(viewer->layers[layerID].visible ? "true" : "false"));
 
-        writeXMLScrollInfo(writer, layerID, indentPos + 1);
+    writeXMLScrollInfo(writer, layerID, indentPos + 1);
 
-        writeXMLLayout(writer, layerID, indentPos + 1);
+    writeXMLLayout(writer, layerID, indentPos + 1);
 
-        writeXMLIndentation(writer, indentPos);
-        writer.writeLine("</layer>");
-        writer.writeLine();
-    }
-    else {
-        int drawOrder = 0;
-
-        writeXMLIndentation(writer, indentPos);
-        writer.writeLine(QString("<layer name=\"%1\" type=\"%2\" drawOrder=\"%3\" width=\"%4\" "
-                                 "height=\"%5\" parallaxFactor=\"%6\" scrollSpeed=\"%7\" "
-                                 "visible=\"%8\">")
-                             .arg("Foreground")
-                             .arg(layerTypes[1])
-                             .arg(drawOrder)
-                             .arg(scene.width)
-                             .arg(scene.height)
-                             .arg(1.0)
-                             .arg(0.0)
-                             .arg(viewer->layers[0].visible ? "true" : "false"));
-
-        writeXMLScrollInfo(writer, 0, indentPos + 1);
-
-        writeXMLLayout(writer, 0, indentPos + 1);
-
-        writeXMLIndentation(writer, indentPos);
-        writer.writeLine("</layer>");
-        writer.writeLine();
-    }
+    writeXMLIndentation(writer, indentPos);
+    writer.writeLine("</layer>");
+    writer.writeLine();
 }
 
 void SceneEditor::writeXMLObject(Writer &writer, int objID, int indentPos)
@@ -3516,10 +3563,8 @@ void SceneEditor::writeXMLScene(Writer &writer)
         writeXMLIndentation(writer, indentPos);
         writer.writeLine("<layers>");
 
-        writeXMLLayer(writer, 0, indentPos + 1);
-
         int id = 0;
-        for (auto &layer : background.layers) {
+        for (auto &layer : viewer->layers) {
             ++id;
             if (layer.width == 0 || layer.height == 0)
                 continue;

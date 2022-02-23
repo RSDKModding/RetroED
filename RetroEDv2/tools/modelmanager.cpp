@@ -142,11 +142,48 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
     connect(ui->impMDL, &QPushButton::pressed, [this] {
         QFileDialog filedialog(this, tr("Load Model Frame"), "",
                                tr(QString("OBJ Models (*.obj)").toStdString().c_str()));
-        filedialog.setAcceptMode(QFileDialog::AcceptSave);
+        filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
             QString selFile = filedialog.selectedFiles()[0];
 
-            // Load Obj file :smile:
+            useNormals  = false;
+            useTextures = false;
+            useColours  = false;
+            indices.clear();
+            vertices.clear();
+            normals.clear();
+            textureUVs.clear();
+            colours.clear();
+
+            // read
+
+            if (viewer->model.frames.count() > 1) {
+                if (vertices.count() != viewer->model.frames[0].vertices.count()) {
+                    QMessageBox msgBox(QMessageBox::Information, "RetroED",
+                                       QString("Different number of vertices between the "
+                                               "frames.\nExpected %1 vertices, but loaded %2 "
+                                               "vertices.\nAborting import.")
+                                           .arg(viewer->model.frames[0].vertices.count())
+                                           .arg(vertices.count()),
+                                       QMessageBox::NoButton);
+                    msgBox.exec();
+                    return;
+                }
+
+                if (indices.count() != viewer->model.indices.count()) {
+                    QMessageBox msgBox(QMessageBox::Information, "RetroED",
+                                       QString("Inconsistency in index count.\nExpected %1 "
+                                               "indices, but loaded %2 "
+                                               "indices.\nAborting import.")
+                                           .arg(viewer->model.indices.count())
+                                           .arg(indices.count()),
+                                       QMessageBox::NoButton);
+                    msgBox.exec();
+                    return;
+                }
+            }
+
+            RSDKv5::Model::Frame frame;
         }
     });
 

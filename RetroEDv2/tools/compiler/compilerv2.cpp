@@ -730,12 +730,12 @@ bool Compilerv2::convertSwitchStatement(QString &text)
 }
 void Compilerv2::convertFunctionText(QString &text)
 {
-    QString strBuffer = "";
-    QString funcName  = "";
-    int opcode        = 0;
-    int opcodeSize    = 0;
-    int textPos       = 0;
-    int namePos       = 0;
+    QString arrayStr = "";
+    QString funcName = "";
+    int opcode       = 0;
+    int opcodeSize   = 0;
+    int textPos      = 0;
+    int namePos      = 0;
     for (namePos = 0; namePos < text.length(); ++namePos) {
         if (text[namePos] == '(')
             break;
@@ -795,7 +795,7 @@ void Compilerv2::convertFunctionText(QString &text)
             int value            = 0;
             int scriptTextByteID = 0;
             funcName             = "";
-            strBuffer            = "";
+            arrayStr             = "";
             while (textPos < text.length()) {
                 if (text[textPos] == ',' || text[textPos] == ')')
                     break;
@@ -804,7 +804,7 @@ void Compilerv2::convertFunctionText(QString &text)
                     if (text[textPos] == ']')
                         value = 0;
                     else
-                        strBuffer += text[textPos];
+                        arrayStr += text[textPos];
                     ++textPos;
                 }
                 else {
@@ -821,15 +821,31 @@ void Compilerv2::convertFunctionText(QString &text)
                 if (funcName == aliasesv2[a].name) {
                     copyAliasStr(funcName, aliasesv2[a].value, 0);
                     if (findStringToken(aliasesv2[a].value, "[", 1) > -1)
-                        copyAliasStr(strBuffer, aliasesv2[a].value, 1);
+                        copyAliasStr(arrayStr, aliasesv2[a].value, 1);
                 }
             }
+
+            // Aliases (array value)
+            char prefix = 0;
+            if (arrayStr.length() > 0) {
+                if (arrayStr[0] == '+' || arrayStr[0] == '-') {
+                    prefix = arrayStr[0].toLatin1();
+                    arrayStr.remove(0, 1);
+                }
+
+                // Eg: TempValue0 = FX_SCALE
+                for (int a = 0; a < aliasCount; ++a) {
+                    if (arrayStr == aliasesv2[a].name)
+                        copyAliasStr(arrayStr, aliasesv2[a].value, 0);
+                }
+            }
+
             // Eg: TempValue0 = Game.Variable
             for (int v = 0; v < globalVariables.count(); ++v) {
                 if (funcName == globalVariables[v]) {
-                    funcName  = "Global";
-                    strBuffer = "";
-                    appendIntegerToSting(strBuffer, v);
+                    funcName = "Global";
+                    arrayStr = "";
+                    appendIntegerToSting(arrayStr, v);
                 }
             }
 
@@ -874,26 +890,24 @@ void Compilerv2::convertFunctionText(QString &text)
             }
             else {
                 scriptData[scriptDataPos++] = SCRIPTVAR_VAR;
-                if (strBuffer.length()) {
+                if (arrayStr.length()) {
                     scriptData[scriptDataPos] = VARARR_ARRAY;
-                    if (strBuffer[0] == '+')
+                    if (prefix == '+')
                         scriptData[scriptDataPos] = VARARR_ENTNOPLUS1;
-                    if (strBuffer[0] == '-')
+                    if (prefix == '-')
                         scriptData[scriptDataPos] = VARARR_ENTNOMINUS1;
                     ++scriptDataPos;
-                    if (strBuffer[0] == '-' || strBuffer[0] == '+') {
-                        strBuffer.remove(0, 1);
-                    }
-                    if (convertStringToInteger(strBuffer, &value) == 1) {
+
+                    if (convertStringToInteger(arrayStr, &value) == 1) {
                         scriptData[scriptDataPos++] = 0;
                         scriptData[scriptDataPos++] = value;
                     }
                     else {
-                        if (strBuffer == "ArrayPos0")
+                        if (arrayStr == "ArrayPos0")
                             value = 0;
-                        if (strBuffer == "ArrayPos1")
+                        if (arrayStr == "ArrayPos1")
                             value = 1;
-                        if (strBuffer == "TempObjectPos")
+                        if (arrayStr == "TempObjectPos")
                             value = 2;
                         scriptData[scriptDataPos++] = VARARR_ARRAY;
                         scriptData[scriptDataPos++] = value;

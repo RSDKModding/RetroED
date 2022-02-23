@@ -64,6 +64,16 @@ private:
     bool mouseDownM = false;
     bool mouseDownR = false;
 
+    // Importing Stuff
+    bool useNormals  = false;
+    bool useTextures = false;
+    bool useColours  = false;
+    QList<int> indices;
+    QList<Vector3<float>> vertices;
+    QList<Vector3<float>> normals;
+    QList<Vector2<float>> textureUVs;
+    QList<QColor> colours;
+
     bool modified    = false;
     QString tabTitle = "Model Manager";
 };

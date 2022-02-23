@@ -130,7 +130,7 @@ void RSDKv5::Model::writeAsOBJ(QString filePath, int exportFrame)
         writer.writeLine("s off");
 
         if (!hasTextures) {
-            writer.writeLine("v 0.0000 0.0000");
+            writer.writeLine("vt 0.0000 0.0000");
         }
         else {
             for (int v = 0; v < texCoords.count(); ++v)
@@ -159,7 +159,7 @@ void RSDKv5::Model::writeMTL(QString filepath)
     Writer writer(filepath);
     for (int i = 0; i < colours.count(); ++i) {
         writer.writeLine(QString("newmtl RSDKModelv5.Colour.%1").arg(i));
-        writer.writeLine(QString("kd %1 %2 %3}")
+        writer.writeLine(QString("kd %1 %2 %3")
                              .arg(colours[i].r / 255.0f)
                              .arg(colours[i].g / 255.0f)
                              .arg(colours[i].b / 255.0f));

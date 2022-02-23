@@ -7,9 +7,31 @@ namespace RSDKv4
 class Decompiler
 {
 public:
-    class SwitchJumpPtr
-    {
-    public:
+    struct AliasInfo {
+        AliasInfo() {}
+        AliasInfo(QString aliasName, QString aliasVal)
+        {
+            name  = aliasName;
+            value = aliasVal;
+        }
+
+        QString name  = "";
+        QString value = "";
+    };
+
+    struct FunctionInfo {
+        FunctionInfo() {}
+        FunctionInfo(QString functionName, int opSize)
+        {
+            name       = functionName;
+            opcodeSize = opSize;
+        }
+
+        QString name   = "";
+        int opcodeSize = 0;
+    };
+
+    struct SwitchJumpPtr {
         QList<int> cases;
         int jump;
 
@@ -26,7 +48,6 @@ public:
     };
 
     struct SwitchState {
-    public:
         int jumpTableOffset;
         int lowCase;
         int highCase;
@@ -36,9 +57,7 @@ public:
         QList<SwitchJumpPtr> jumpPtr;
     };
 
-    class StateScriptEngine
-    {
-    public:
+    struct StateScriptEngine {
         int scriptCodePtr    = 0;
         int jumpTablePtr     = 0;
         int scriptCodeOffset = 0;
@@ -72,16 +91,23 @@ public:
         }
     };
 
-    Decompiler() {}
+    Decompiler();
 
     void decompile(QString destPath = "");
     void clearScriptData();
+
+    QList<FunctionInfo> functionList_rev00;
+    QList<FunctionInfo> functionList_rev01;
+    QList<FunctionInfo> functionList_rev02;
+
+    QList<QString> variableList_rev00;
+    QList<QString> variableList;
 
     QList<QString> functionNames;
     int functionCount       = 0;
     int globalFunctionCount = 0;
 
-    QList<QString> variableNames;
+    QList<QString> globalVarNames;
 
     QList<QString> sourceNames;
     QList<QString> typeNames;
@@ -98,7 +124,7 @@ public:
     bool useHex           = false;
     bool useCustomAliases = false;
     bool seperateFolders  = false;
-    bool useOldOps        = false;
+    byte engineRevision   = 2;
 
     struct StaticVarInfo {
         QString name = "";
@@ -115,6 +141,12 @@ public:
         {
             return /*(name == rhs.name) && */ (dataPos == rhs.dataPos);
         }
+    };
+
+    enum lineFormats {
+        LINE_LF,
+        LINE_CRLF,
+        LINE_CR,
     };
 
     QList<StaticVarInfo> staticVars;

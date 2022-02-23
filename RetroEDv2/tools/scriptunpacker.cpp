@@ -295,15 +295,15 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                 decompilerv4.useCustomAliases = ui->useCustomAliases->isChecked();
                 if (decompilerv4.useCustomAliases)
                     decompilerv4.seperateFolders = true;
-                decompilerv4.useHex    = ui->useHex->isChecked();
-                decompilerv4.useOldOps = ui->useOldOps->isChecked();
+                decompilerv4.useHex         = ui->useHex->isChecked();
+                decompilerv4.engineRevision = ui->engineRev->currentIndex();
 
                 decompilerv4.globalScriptCount = globalScriptCount;
                 decompilerv4.globalSFXCount    = globalSFXCount;
                 QList<QString> globalFunctionScripts;
                 QList<QString> globalFunctionNames;
 
-                decompilerv4.variableNames = variableNames;
+                decompilerv4.globalVarNames = variableNames;
                 QList<RSDKv4::Decompiler::StaticVarInfo> globalConstants;
                 QList<RSDKv4::Decompiler::StaticVarInfo> globalArrays;
 
@@ -345,7 +345,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                         decompilerv4.globalFunctionCount = 0;
                         decompilerv4.globalStaticCount   = 0;
                         decompilerv4.globalArrayCount    = 0;
-                        decompilerv4.globalScriptCount   = 0;
+                        decompilerv4.globalScriptCount   = 1;
                         decompilerv4.globalSFXCount      = globalSFXCount;
 
                         decompilerv4.lastOffset = 0;
@@ -366,7 +366,8 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                         bc.read(bytecodeList[0].path);
                         decompilerv4.scriptCode = bc.scriptCode;
                         decompilerv4.jumpTable  = bc.jumpTable;
-                        decompilerv4.scriptList = bc.scriptList;
+                        decompilerv4.scriptList.append(RSDKv4::Bytecode::ScriptInfo()); // blank
+                        decompilerv4.scriptList.append(bc.scriptList);
 
                         // Load Stage-Specific Bytecode
                         bc.read(bytecodeList[b].path);
@@ -379,9 +380,10 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                     else {
                         // Load Stage-Specific Bytecode
                         bc.read(bytecodeList[b].path);
-                        decompilerv4.scriptCode   = bc.scriptCode;
-                        decompilerv4.jumpTable    = bc.jumpTable;
-                        decompilerv4.scriptList   = bc.scriptList;
+                        decompilerv4.scriptCode = bc.scriptCode;
+                        decompilerv4.jumpTable  = bc.jumpTable;
+                        decompilerv4.scriptList.append(RSDKv4::Bytecode::ScriptInfo()); // blank
+                        decompilerv4.scriptList.append(bc.scriptList);
                         decompilerv4.functionList = bc.functionList;
                         decompilerv4.bytecodePath = bc.filePath;
                     }
