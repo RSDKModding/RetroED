@@ -269,7 +269,7 @@ const QString variableNames[] = {
     "Editor.VariableID",
     "Editor.VariableValue",
     "Editor.ReturnVariable",
-    "Editor.UseGizmos",
+    "Editor.ShowGizmos",
 };
 
 const FunctionInfo functions[] = {
@@ -412,6 +412,9 @@ const FunctionInfo functions[] = {
     FunctionInfo("AddEditorVariable", 1),
     FunctionInfo("SetActiveVariable", 1),
     FunctionInfo("AddEnumVariable", 2),
+    FunctionInfo("SetVariableAlias", 2),
+    FunctionInfo("DrawLine", 7),
+    FunctionInfo("DrawArrow", 7),
 };
 
 AliasInfo aliases[ALIAS_COUNT] = {
@@ -712,7 +715,7 @@ enum ScrVariable {
     VAR_EDITORVARIABLEID,
     VAR_EDITORVARIABLEVAL,
     VAR_EDITORRETURNVAR,
-    VAR_EDITORUSEGIZMOS,
+    VAR_EDITORSHOWGIZMOS,
     VAR_MAX_CNT
 };
 
@@ -856,6 +859,9 @@ enum ScrFunction {
     FUNC_ADDEDITORVAR,
     FUNC_SETACTIVEVAR,
     FUNC_ADDENUMVAR,
+    FUNC_SETVARALIAS,
+    FUNC_DRAWLINE,
+    FUNC_DRAWARROW,
     FUNC_MAX_CNT
 };
 
@@ -2768,7 +2774,7 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     case VAR_EDITORRETURNVAR:
                         scriptEng.operands[i] = scnEditor->viewer->returnVariable;
                         break;
-                    case VAR_EDITORUSEGIZMOS:
+                    case VAR_EDITORSHOWGIZMOS:
                         scriptEng.operands[i] = scnEditor->viewer->sceneInfo.effectGizmo
                                                 || scnEditor->viewer->selectedEntity == objectLoop;
                         break;
@@ -3125,27 +3131,26 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     default: break;
                     case FX_SCALE:
                         editor->viewer->drawSpriteRotozoom(
-                            (scriptEng.operands[2] >> 16) - xScrollOffset,
-                            (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX,
-                            -spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
-                            spriteFrame->sprX, spriteFrame->sprY, entity->scale, entity->scale,
-                            entity->direction, 0, INK_NONE, 0xFF, scriptInfo->spriteSheetID);
+                            (scriptEng.operands[2] >> 16), (scriptEng.operands[3] >> 16),
+                            -spriteFrame->pivotX, -spriteFrame->pivotY, spriteFrame->width,
+                            spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, entity->scale,
+                            entity->scale, entity->direction, 0, INK_NONE, 0xFF,
+                            scriptInfo->spriteSheetID);
                         break;
                     case FX_ROTATE:
                         editor->viewer->drawSpriteRotozoom(
-                            (scriptEng.operands[2] >> 16) - xScrollOffset,
-                            (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX,
-                            -spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
-                            spriteFrame->sprX, spriteFrame->sprY, 0x200, 0x200, entity->direction,
-                            entity->rotation, INK_NONE, 0xFF, scriptInfo->spriteSheetID);
+                            (scriptEng.operands[2] >> 16), (scriptEng.operands[3] >> 16),
+                            -spriteFrame->pivotX, -spriteFrame->pivotY, spriteFrame->width,
+                            spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, 0x200, 0x200,
+                            entity->direction, entity->rotation, INK_NONE, 0xFF,
+                            scriptInfo->spriteSheetID);
                         break;
                     case FX_ROTOZOOM:
                         editor->viewer->drawSpriteRotozoom(
-                            (scriptEng.operands[2] >> 16) - xScrollOffset,
-                            (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX,
-                            -spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
-                            spriteFrame->sprX, spriteFrame->sprY, entity->scale, entity->scale,
-                            entity->direction, entity->rotation, INK_NONE, 0xFF,
+                            (scriptEng.operands[2] >> 16), (scriptEng.operands[3] >> 16),
+                            -spriteFrame->pivotX, -spriteFrame->pivotY, spriteFrame->width,
+                            spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, entity->scale,
+                            entity->scale, entity->direction, entity->rotation, INK_NONE, 0xFF,
                             scriptInfo->spriteSheetID);
                         break;
                     case FX_INK:
@@ -3239,24 +3244,21 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     default: break;
                     case FX_SCALE:
                         editor->viewer->drawSpriteRotozoom(
-                            scriptEng.operands[2] - xScrollOffset,
-                            scriptEng.operands[3] - yScrollOffset, -spriteFrame->pivotX,
+                            scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
                             -spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
                             spriteFrame->sprX, spriteFrame->sprY, entity->scale, entity->scale,
                             entity->direction, 0, INK_NONE, 0xFF, scriptInfo->spriteSheetID);
                         break;
                     case FX_ROTATE:
                         editor->viewer->drawSpriteRotozoom(
-                            scriptEng.operands[2] - xScrollOffset,
-                            scriptEng.operands[3] - yScrollOffset, -spriteFrame->pivotX,
+                            scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
                             -spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
                             spriteFrame->sprX, spriteFrame->sprY, 0x200, 0x200, entity->direction,
                             entity->rotation, INK_NONE, 0xFF, scriptInfo->spriteSheetID);
                         break;
                     case FX_ROTOZOOM:
                         editor->viewer->drawSpriteRotozoom(
-                            scriptEng.operands[2] - xScrollOffset,
-                            scriptEng.operands[3] - yScrollOffset, -spriteFrame->pivotX,
+                            scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
                             -spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
                             spriteFrame->sprX, spriteFrame->sprY, entity->scale, entity->scale,
                             entity->direction, entity->rotation, INK_NONE, 0xFF,
@@ -3494,6 +3496,51 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                 if (scriptSub == SUB_RSDKLOAD) {
                     editor->viewer->addEnumVariable(scriptText, scriptEng.operands[1]);
                 }
+                break;
+            }
+            case FUNC_SETVARALIAS: {
+                opcodeSize = 0;
+                if (scriptSub == SUB_RSDKLOAD) {
+                    editor->viewer->setVariableAlias(scriptEng.operands[0], scriptText);
+                }
+                break;
+            }
+            case FUNC_DRAWLINE: {
+                opcodeSize = 0;
+
+                Vector4<float> colour =
+                    Vector4<float>(scriptEng.operands[4] / 255.0f, scriptEng.operands[5] / 255.0f,
+                                   scriptEng.operands[6] / 255.0f, 1.0);
+
+                editor->viewer->drawLine((scriptEng.operands[0] >> 16) - editor->viewer->cameraPos.x,
+                                         (scriptEng.operands[1] >> 16) - editor->viewer->cameraPos.y,
+                                         (scriptEng.operands[2] >> 16) - editor->viewer->cameraPos.x,
+                                         (scriptEng.operands[3] >> 16) - editor->viewer->cameraPos.y,
+                                         colour, entity->alpha, (InkEffects)entity->inkEffect);
+                break;
+            }
+            case FUNC_DRAWARROW: {
+                opcodeSize = 0;
+
+                int angle = ArcTanLookup(scriptEng.operands[0] - scriptEng.operands[2],
+                                         scriptEng.operands[1] - scriptEng.operands[3]);
+                Vector4<float> colour =
+                    Vector4<float>(scriptEng.operands[4] / 255.0f, scriptEng.operands[5] / 255.0f,
+                                   scriptEng.operands[6] / 255.0f, 1.0);
+                InkEffects ink = (InkEffects)entity->inkEffect;
+
+                int x1 = (scriptEng.operands[0] >> 16) - editor->viewer->cameraPos.x;
+                int y1 = (scriptEng.operands[1] >> 16) - editor->viewer->cameraPos.y;
+                int x2 = (scriptEng.operands[2] >> 16) - editor->viewer->cameraPos.x;
+                int y2 = (scriptEng.operands[3] >> 16) - editor->viewer->cameraPos.y;
+
+                editor->viewer->drawLine(x1, y1, x2, y2, colour, entity->alpha, ink);
+                editor->viewer->drawLine(x2, y2, x2 + ((cos256(angle + 12) << 12) >> 16),
+                                         y2 + ((sin256(angle + 12) << 12) >> 16), colour, entity->alpha,
+                                         ink);
+                editor->viewer->drawLine(x2, y2, x2 + ((cos256(angle - 12) << 12) >> 16),
+                                         y2 + ((sin256(angle - 12) << 12) >> 16), colour, entity->alpha,
+                                         ink);
                 break;
             }
         }
@@ -3996,7 +4043,7 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                         scnEditor->viewer->variableValue = scriptEng.operands[i];
                         break;
                     case VAR_EDITORRETURNVAR: break;
-                    case VAR_EDITORUSEGIZMOS: break;
+                    case VAR_EDITORSHOWGIZMOS: break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant

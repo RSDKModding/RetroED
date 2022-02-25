@@ -2784,6 +2784,30 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
                     break;
                 }
                 case SceneViewerv5::EVENT_DRAW: {
+                    if (id == -1) {
+                        auto &tmpObj = compilerv3->objectScriptList[viewer->selectedObject];
+
+                        if (tmpObj.subRSDKDraw.scriptCodePtr >= 0 && viewer->selectedObject != 0) {
+
+                            float ex = viewer->tilePos.x;
+                            float ey = viewer->tilePos.y;
+
+                            ex *= viewer->invZoom();
+                            ey *= viewer->invZoom();
+
+                            compilerv3->objectEntityList[ENTITY_COUNT - 1].type =
+                                viewer->selectedObject;
+                            compilerv3->objectEntityList[ENTITY_COUNT - 1].XPos =
+                                (ex + viewer->cameraPos.x) * 65536.0f;
+                            compilerv3->objectEntityList[ENTITY_COUNT - 1].YPos =
+                                (ey + viewer->cameraPos.y) * 65536.0f;
+                            compilerv3->objectLoop = ENTITY_COUNT - 1;
+                            id                     = ENTITY_COUNT - 1;
+                        }
+                    }
+                    if (id == -1)
+                        return false;
+
                     auto &curObj = compilerv3->objectScriptList[viewer->entities[id].type];
 
                     if (curObj.subRSDKDraw.scriptCodePtr != SCRIPTDATA_COUNT - 1
@@ -2832,10 +2856,46 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
                     break;
                 }
                 case SceneViewerv5::EVENT_DRAW: {
-                    auto &curObj = compilerv4->objectScriptList[viewer->entities[id].type];
+                    SceneEntity *entity = nullptr;
+                    if (id == -1) {
+                        auto &tmpObj = compilerv4->objectScriptList[viewer->selectedObject];
+
+                        if (tmpObj.eventRSDKDraw.scriptCodePtr >= 0 && viewer->selectedObject != 0) {
+
+                            float ex = viewer->tilePos.x;
+                            float ey = viewer->tilePos.y;
+
+                            ex *= viewer->invZoom();
+                            ey *= viewer->invZoom();
+
+                            compilerv4->objectEntityList[ENTITY_COUNT - 1].type =
+                                viewer->selectedObject;
+                            compilerv4->objectEntityList[ENTITY_COUNT - 1].XPos =
+                                (ex + viewer->cameraPos.x) * 65536.0f;
+                            compilerv4->objectEntityList[ENTITY_COUNT - 1].YPos =
+                                (ey + viewer->cameraPos.y) * 65536.0f;
+                            compilerv4->objectEntityPos = ENTITY_COUNT - 1;
+                            id                          = ENTITY_COUNT - 1;
+
+                            createTempEntity.type   = viewer->selectedObject;
+                            createTempEntity.pos.x  = (ex + viewer->cameraPos.x) * 65536.0f;
+                            createTempEntity.pos.y  = (ey + viewer->cameraPos.y) * 65536.0f;
+                            createTempEntity.slotID = 0xFFFF;
+                            createTempEntity.box    = Rect<int>(0, 0, 0, 0);
+                            entity = viewer->activeDrawEntity = &createTempEntity;
+                        }
+                    }
+                    else {
+                        entity = &viewer->entities[id];
+                    }
+
+                    if (id == -1)
+                        return false;
+
+                    auto &curObj = compilerv4->objectScriptList[entity->type];
 
                     if (curObj.eventRSDKDraw.scriptCodePtr != SCRIPTDATA_COUNT - 1
-                        && viewer->entities[id].type != 0) {
+                        && entity->type != 0) {
                         compilerv4->objectEntityPos = id;
                         compilerv4->processScript(curObj.eventRSDKDraw.scriptCodePtr,
                                                   curObj.eventRSDKDraw.jumpTablePtr,

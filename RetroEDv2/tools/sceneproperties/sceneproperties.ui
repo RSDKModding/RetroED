@@ -29,7 +29,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-61</y>
+        <y>0</y>
         <width>219</width>
         <height>820</height>
        </rect>
@@ -163,7 +163,7 @@
        <item row="28" column="0" colspan="2">
         <widget class="QLabel" name="entCntTot">
          <property name="text">
-          <string>Total Entity Count: 0 Entities</string>
+          <string>Entity Count: 0 Entities</string>
          </property>
         </widget>
        </item>

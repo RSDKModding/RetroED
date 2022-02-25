@@ -222,11 +222,7 @@ void SceneViewerv5::updateScene()
 {
     this->repaint();
 
-    // objProp->updateUI();
-
     if (statusLabel) {
-        // printLog("Running: " + QString::number(entities.count()));
-
         int mx = (int)((mousePos.x * invZoom()) + cameraPos.x);
         int my = (int)((mousePos.y * invZoom()) + cameraPos.y);
         statusLabel->setText(
@@ -276,6 +272,11 @@ void SceneViewerv5::updateScene()
             v5Editor->scnProp->entCntInac->setText(
                 QString("Inactive Layer Count: %1 Entities").arg(inactiveCount));
         }
+    }
+    else if (scnEditor) {
+        scnEditor->scnProp->objCnt->setText(QString("Object Count: %1 Objects").arg(objects.count()));
+        scnEditor->scnProp->entCntTot->setText(
+            QString("Entity Count: %1 Entities").arg(entities.count()));
     }
 }
 

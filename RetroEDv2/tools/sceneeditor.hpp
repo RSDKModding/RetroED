@@ -86,6 +86,8 @@ public:
     ChunkSelector *chkProp         = nullptr;
     TilesetEditor *tsetEdit        = nullptr;
 
+    SceneEntity createTempEntity;
+
     FormatHelpers::GameConfig gameConfig;
 
     FormatHelpers::Scene scene;
