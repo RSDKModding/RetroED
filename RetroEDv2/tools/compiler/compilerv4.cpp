@@ -3973,7 +3973,8 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                                 break;
                             case FLIP_X:
                                 editor->drawSpriteFlipped(
-                                    (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
+                                    (scriptEng.operands[2] >> 16) - spriteFrame->width
+                                        - spriteFrame->pivotX,
                                     (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
                                     spriteFrame->sprY, FLIP_X, INK_NONE, 0xFF,
@@ -3982,15 +3983,18 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                             case FLIP_Y:
                                 editor->drawSpriteFlipped(
                                     (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
-                                    (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
+                                    (scriptEng.operands[3] >> 16) - spriteFrame->height
+                                        - spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
                                     spriteFrame->sprY, FLIP_Y, INK_NONE, 0xFF,
                                     scriptInfo->spriteSheetID, false);
                                 break;
                             case FLIP_XY:
                                 editor->drawSpriteFlipped(
-                                    (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
-                                    (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
+                                    (scriptEng.operands[2] >> 16) - spriteFrame->width
+                                        - spriteFrame->pivotX,
+                                    (scriptEng.operands[3] >> 16) - spriteFrame->height
+                                        - spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
                                     spriteFrame->sprY, FLIP_XY, INK_NONE, 0xFF,
                                     scriptInfo->spriteSheetID, false);

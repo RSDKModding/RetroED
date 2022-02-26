@@ -3202,36 +3202,40 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                         switch (entity->direction) {
                             default:
                             case FLIP_NONE:
-                                editor->viewer->drawSpriteFlipped(
+                                editor->drawSpriteFlipped(
                                     (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
                                     (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
                                     spriteFrame->sprY, FLIP_NONE, INK_NONE, 0xFF,
-                                    scriptInfo->spriteSheetID);
+                                    scriptInfo->spriteSheetID, false);
                                 break;
                             case FLIP_X:
-                                editor->viewer->drawSpriteFlipped(
-                                    (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
+                                editor->drawSpriteFlipped(
+                                    (scriptEng.operands[2] >> 16) - spriteFrame->width
+                                        - spriteFrame->pivotX,
                                     (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
                                     spriteFrame->sprY, FLIP_X, INK_NONE, 0xFF,
-                                    scriptInfo->spriteSheetID);
+                                    scriptInfo->spriteSheetID, false);
                                 break;
                             case FLIP_Y:
-                                editor->viewer->drawSpriteFlipped(
+                                editor->drawSpriteFlipped(
                                     (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
-                                    (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
+                                    (scriptEng.operands[3] >> 16) - spriteFrame->height
+                                        - spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
                                     spriteFrame->sprY, FLIP_Y, INK_NONE, 0xFF,
-                                    scriptInfo->spriteSheetID);
+                                    scriptInfo->spriteSheetID, false);
                                 break;
                             case FLIP_XY:
-                                editor->viewer->drawSpriteFlipped(
-                                    (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
-                                    (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
+                                editor->drawSpriteFlipped(
+                                    (scriptEng.operands[2] >> 16) - spriteFrame->width
+                                        - spriteFrame->pivotX,
+                                    (scriptEng.operands[3] >> 16) - spriteFrame->height
+                                        - spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
                                     spriteFrame->sprY, FLIP_XY, INK_NONE, 0xFF,
-                                    scriptInfo->spriteSheetID);
+                                    scriptInfo->spriteSheetID, false);
                                 break;
                         }
                         break;
