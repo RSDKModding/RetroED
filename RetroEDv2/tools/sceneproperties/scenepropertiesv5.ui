@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>237</width>
+    <width>290</width>
     <height>680</height>
    </rect>
   </property>
@@ -30,149 +30,95 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>203</width>
-        <height>672</height>
+        <width>256</width>
+        <height>725</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0" colspan="2">
-        <widget class="QLabel" name="label_14">
-         <property name="text">
-          <string>Scene Properties</string>
+       <item row="1" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Stamps</string>
          </property>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="2" column="1">
+           <widget class="QPushButton" name="saveStamps">
+            <property name="text">
+             <string>Save Stamps</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Filename</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QPushButton" name="loadStamps">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Load Stamps</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QLineEdit" name="stampName"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="8" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="title">
+          <string>Scene Info</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QLabel" name="layerCnt">
+            <property name="text">
+             <string>Tile Layer Count: 0 Layers</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="objCnt">
+            <property name="text">
+             <string>Object Count: 0 Objects</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="entCntTot">
+            <property name="text">
+             <string>Total Entity Count: 0 Entities</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="entCntAct">
+            <property name="text">
+             <string>Active Entity Count: 0 Entities</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="entCntInac">
+            <property name="text">
+             <string>Inactive Entity Count: 0 Entities</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item row="9" column="0" colspan="2">
-        <widget class="Line" name="line_4">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="22" column="0" colspan="2">
-        <widget class="Line" name="line_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="20" column="0">
-        <widget class="QLabel" name="entCntAct">
-         <property name="text">
-          <string>Active Entity Count: 0 Entities</string>
-         </property>
-        </widget>
-       </item>
-       <item row="28" column="0">
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="10" column="0" colspan="2">
-        <widget class="QPushButton" name="editChunks">
-         <property name="text">
-          <string>Edit Chunks</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0" colspan="2">
-        <widget class="QPushButton" name="loadStamps">
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Load Stamps</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0" colspan="2">
-        <widget class="QPushButton" name="saveStamps">
-         <property name="text">
-          <string>Save Stamps</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_11">
-         <property name="text">
-          <string>Load Global Objects</string>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="0" colspan="2">
-        <widget class="QPushButton" name="editCollision">
-         <property name="text">
-          <string>Edit Tile Collisions</string>
-         </property>
-        </widget>
-       </item>
-       <item row="13" column="0" colspan="2">
-        <widget class="QPushButton" name="editTSet">
-         <property name="text">
-          <string>Edit Tileset</string>
-         </property>
-        </widget>
-       </item>
-       <item row="21" column="0">
-        <widget class="QLabel" name="entCntInac">
-         <property name="text">
-          <string>Inactive Entity Count: 0 Entities</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0" colspan="2">
-        <widget class="QLineEdit" name="stampName"/>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Stamp Filename</string>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="0" colspan="2">
-        <widget class="QPushButton" name="editStageConfig">
-         <property name="text">
-          <string>Edit Stage Configuration</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Scene Background Colour</string>
-         </property>
-        </widget>
-       </item>
-       <item row="15" column="0" colspan="2">
-        <widget class="Line" name="line">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QCheckBox" name="loadGlobals">
-         <property name="layoutDirection">
-          <enum>Qt::RightToLeft</enum>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="24" column="0">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Grid Size</string>
@@ -221,81 +167,129 @@
          </layout>
         </widget>
        </item>
-       <item row="14" column="0" colspan="2">
-        <widget class="QPushButton" name="editPalette">
-         <property name="text">
-          <string>Edit Palette</string>
+       <item row="13" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="title">
+          <string>General Properties</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Load Global Objects</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Scene Background Colour</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Scene Alt Background Colour</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="loadGlobals">
+            <property name="layoutDirection">
+             <enum>Qt::RightToLeft</enum>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <layout class="QGridLayout" name="bgClrLayout"/>
+          </item>
+          <item row="2" column="1">
+           <layout class="QGridLayout" name="altBGClrLayout"/>
+          </item>
+         </layout>
         </widget>
        </item>
-       <item row="18" column="0">
-        <widget class="QLabel" name="objCnt">
-         <property name="text">
-          <string>Object Count: 0 Objects</string>
+       <item row="7" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_5">
+         <property name="title">
+          <string>Tools</string>
          </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QPushButton" name="editChunks">
+            <property name="text">
+             <string>Edit Chunks</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="editStageConfig">
+            <property name="text">
+             <string>Edit Stage Configuration</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="editCollision">
+            <property name="text">
+             <string>Edit Tile Collisions</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="editTSet">
+            <property name="text">
+             <string>Edit Tileset</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="editPalette">
+            <property name="text">
+             <string>Edit Palette</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="syncSC">
+            <property name="text">
+             <string>Sync with StageConfig object list</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="syncGC">
+            <property name="text">
+             <string>Sync with GameConfig object list</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="reloadLink">
+            <property name="text">
+             <string>Reload Game Link</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
-       </item>
-       <item row="26" column="0" colspan="2">
-        <widget class="QPushButton" name="syncSC">
-         <property name="text">
-          <string>Sync with StageConfig object list</string>
-         </property>
-        </widget>
-       </item>
-       <item row="19" column="0">
-        <widget class="QLabel" name="entCntTot">
-         <property name="text">
-          <string>Total Entity Count: 0 Entities</string>
-         </property>
-        </widget>
-       </item>
-       <item row="17" column="0">
-        <widget class="QLabel" name="layerCnt">
-         <property name="text">
-          <string>Tile Layer Count: 0 Layers</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Scene Alt Background Colour</string>
-         </property>
-        </widget>
-       </item>
-       <item row="16" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Scene Info</string>
-         </property>
-        </widget>
-       </item>
-       <item row="25" column="0" colspan="2">
-        <widget class="QPushButton" name="syncGC">
-         <property name="text">
-          <string>Sync with GameConfig object list</string>
-         </property>
-        </widget>
-       </item>
-       <item row="23" column="0">
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>Misc Tools</string>
-         </property>
-        </widget>
-       </item>
-       <item row="27" column="0" colspan="2">
-        <widget class="QPushButton" name="reloadLink">
-         <property name="text">
-          <string>Reload Game Link</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="1">
-        <layout class="QGridLayout" name="bgClrLayout"/>
-       </item>
-       <item row="8" column="1">
-        <layout class="QGridLayout" name="altBGClrLayout"/>
        </item>
       </layout>
      </widget>

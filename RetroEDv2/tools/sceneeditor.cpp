@@ -131,6 +131,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     ui->chunksPage->layout()->addWidget(chkProp);
     chkProp->show();
 
+    resetTools(SceneViewerv5::TOOL_MOUSE);
+
     viewer->statusLabel = ui->statusLabel;
 
     ui->toolBox->setCurrentIndex(0);
@@ -148,7 +150,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(ui->verticalScrollBar, &QScrollBar::valueChanged,
             [this](int v) { viewer->cameraPos.y = v; });
 
-    connect(ui->useGizmos, &QCheckBox::toggled, [this](bool c) { viewer->sceneInfo.effectGizmo = c; });
+    connect(ui->useGizmos, &QPushButton::toggled, [this] { viewer->sceneInfo.effectGizmo ^= 1; });
 
     connect(ui->layerList, &QListWidget::currentRowChanged, [this](int c) {
         // m_uo->setDisabled(c == -1);
@@ -405,20 +407,12 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         }
     });
 
-    connect(ui->selToolBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int v) {
-        byte tool = SceneViewerv5::TOOL_MOUSE;
-        switch (v) {
-            default:
-            case 0: tool = SceneViewerv5::TOOL_MOUSE; break;
-            case 1: tool = SceneViewerv5::TOOL_SELECT; break;
-            case 2: tool = SceneViewerv5::TOOL_PENCIL; break;
-            case 3: tool = SceneViewerv5::TOOL_ERASER; break;
-            case 4: tool = SceneViewerv5::TOOL_ENTITY; break;
-            case 5: tool = SceneViewerv5::TOOL_PARALLAX; break;
-        }
-
-        resetTools(tool);
-    });
+    connect(ui->panTool, &QToolButton::clicked, [this] { resetTools(SceneViewerv5::TOOL_MOUSE); });
+    connect(ui->selectTool, &QToolButton::clicked, [this] { resetTools(SceneViewerv5::TOOL_SELECT); });
+    connect(ui->pencilTool, &QToolButton::clicked, [this] { resetTools(SceneViewerv5::TOOL_PENCIL); });
+    connect(ui->eraserTool, &QToolButton::clicked, [this] { resetTools(SceneViewerv5::TOOL_ERASER); });
+    connect(ui->objectTool, &QToolButton::clicked, [this] { resetTools(SceneViewerv5::TOOL_OBJECT); });
+    connect(ui->entityTool, &QToolButton::clicked, [this] { resetTools(SceneViewerv5::TOOL_ENTITY); });
 
     connect(ui->showCollisionA, &QPushButton::clicked, [this] {
         viewer->showPlaneA ^= 1;
@@ -1185,7 +1179,6 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         }
                         break;
                     }
-                    case SceneViewerv5::TOOL_PARALLAX: break;
                     default: break;
                 }
                 break;
@@ -1303,8 +1296,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 case SceneViewerv5::TOOL_SELECT: break;
                 case SceneViewerv5::TOOL_PENCIL: break;
                 case SceneViewerv5::TOOL_ERASER: break;
+                case SceneViewerv5::TOOL_OBJECT: break;
                 case SceneViewerv5::TOOL_ENTITY: break;
-                case SceneViewerv5::TOOL_PARALLAX: break;
             }
 
             if (mouseDownL) {
@@ -1403,7 +1396,6 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         }
                         break;
                     }
-                    case SceneViewerv5::TOOL_PARALLAX: break;
                 }
             }
 
@@ -2493,21 +2485,39 @@ void SceneEditor::resetTools(byte tool)
         tool = SceneViewerv5::TOOL_MOUSE;
     viewer->curTool = tool;
 
-    // Reset
+    ui->panTool->blockSignals(true);
+    ui->selectTool->blockSignals(true);
+    ui->pencilTool->blockSignals(true);
+    ui->eraserTool->blockSignals(true);
+    ui->objectTool->blockSignals(true);
+    ui->entityTool->blockSignals(true);
 
-    ui->selToolBox->setDisabled(true);
-    byte index = 0;
+    ui->panTool->setDown(false);
+    ui->selectTool->setDown(false);
+    ui->pencilTool->setDown(false);
+    ui->eraserTool->setDown(false);
+    ui->objectTool->setDown(false);
+    ui->entityTool->setDown(false);
+
     switch (tool) {
-        default:
-        case SceneViewerv5::TOOL_MOUSE: index = 0; break;
-        case SceneViewerv5::TOOL_SELECT: index = 1; break;
-        case SceneViewerv5::TOOL_PENCIL: index = 2; break;
-        case SceneViewerv5::TOOL_ERASER: index = 3; break;
-        case SceneViewerv5::TOOL_ENTITY: index = 4; break;
-        case SceneViewerv5::TOOL_PARALLAX: index = 5; break;
+        default: break; // what
+        case SceneViewerv5::TOOL_MOUSE: ui->panTool->setDown(true); break;
+        case SceneViewerv5::TOOL_SELECT: ui->selectTool->setDown(true); break;
+        case SceneViewerv5::TOOL_PENCIL: ui->pencilTool->setDown(true); break;
+        case SceneViewerv5::TOOL_ERASER: ui->eraserTool->setDown(true); break;
+        case SceneViewerv5::TOOL_OBJECT: ui->objectTool->setDown(true); break;
+        case SceneViewerv5::TOOL_ENTITY: ui->entityTool->setDown(true); break;
     }
-    ui->selToolBox->setCurrentIndex(index);
-    ui->selToolBox->setDisabled(false);
+
+    ui->panTool->blockSignals(false);
+    ui->selectTool->blockSignals(false);
+    ui->pencilTool->blockSignals(false);
+    ui->eraserTool->blockSignals(false);
+    ui->objectTool->blockSignals(false);
+    ui->entityTool->blockSignals(false);
+
+    // Reset
+    viewer->selectedObject = -1;
     viewer->selectedEntity = -1;
     objProp->unsetUI();
     viewer->isSelecting = false;
@@ -2520,8 +2530,8 @@ void SceneEditor::resetTools(byte tool)
         case SceneViewerv5::TOOL_SELECT: break;
         case SceneViewerv5::TOOL_PENCIL: viewer->isSelecting = true; break;
         case SceneViewerv5::TOOL_ERASER: viewer->isSelecting = true; break;
+        case SceneViewerv5::TOOL_OBJECT: viewer->isSelecting = true; break;
         case SceneViewerv5::TOOL_ENTITY: viewer->isSelecting = true; break;
-        case SceneViewerv5::TOOL_PARALLAX: viewer->isSelecting = true; break;
     }
 };
 
@@ -2582,12 +2592,12 @@ bool SceneEditor::handleKeyPress(QKeyEvent *event)
         tool = SceneViewerv5::TOOL_SELECT;
     if (event->key() == Qt::Key_C)
         tool = SceneViewerv5::TOOL_PENCIL;
-    if (event->key() == Qt::Key_E)
+    if (event->key() == Qt::Key_R)
         tool = SceneViewerv5::TOOL_ERASER;
-    if (event->key() == Qt::Key_O)
+    if (event->key() == Qt::Key_E)
         tool = SceneViewerv5::TOOL_ENTITY;
-    if (event->key() == Qt::Key_P)
-        tool = SceneViewerv5::TOOL_PARALLAX;
+    if (event->key() == Qt::Key_O)
+        tool = SceneViewerv5::TOOL_OBJECT;
 
     if (tool != prevTool)
         resetTools(tool);
@@ -2651,8 +2661,6 @@ bool SceneEditor::handleKeyPress(QKeyEvent *event)
                 }
             }
             break;
-
-        case SceneViewerv5::TOOL_PARALLAX: break;
     }
     return false;
 }

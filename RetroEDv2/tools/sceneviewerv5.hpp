@@ -12,8 +12,8 @@ public:
         TOOL_PENCIL,
         TOOL_STAMP,
         TOOL_ERASER,
+        TOOL_OBJECT,
         TOOL_ENTITY,
-        TOOL_PARALLAX,
     };
 
     enum EventTypes { EVENT_LOAD, EVENT_CREATE, EVENT_UPDATE, EVENT_DRAW, EVENT_SERIALIZE, EVENT_EDIT };

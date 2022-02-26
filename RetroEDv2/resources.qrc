@@ -44,5 +44,13 @@
         <file>icons/ic_skip_previous_48px.svg</file>
         <file>icons/ic_stop_48px.svg</file>
         <file>icons/ic_undo_48px.svg</file>
+        <file>icons/ic_approval_48px.svg</file>
+        <file>icons/ic_category_48px.svg</file>
+        <file>icons/ic_highlight_alt_48px.svg</file>
+        <file>icons/ic_pan_tool_48px.svg</file>
+        <file>icons/ic_preview_48px.svg</file>
+        <file>icons/ic_view_in_ar_48px.svg</file>
+        <file>icons/ic_mode_edit_48px.svg</file>
+        <file>icons/ic_eraser_48px.svg</file>
     </qresource>
 </RCC>
