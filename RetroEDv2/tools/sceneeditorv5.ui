@@ -253,7 +253,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="20">
+      <item row="0" column="19">
        <widget class="QToolButton" name="showCollisionB">
         <property name="minimumSize">
          <size>
@@ -295,7 +295,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="21">
+      <item row="0" column="20">
        <widget class="QToolButton" name="showParallax">
         <property name="minimumSize">
          <size>
@@ -318,7 +318,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="6">
+      <item row="0" column="5">
        <widget class="QToolButton" name="entityTool">
         <property name="minimumSize">
          <size>
@@ -341,7 +341,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="22">
+      <item row="0" column="21">
        <widget class="QToolButton" name="showTileGrid">
         <property name="minimumSize">
          <size>
@@ -364,7 +364,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="18">
+      <item row="0" column="17">
        <widget class="QToolButton" name="useGizmos">
         <property name="minimumSize">
          <size>
@@ -387,30 +387,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="5">
-       <widget class="QToolButton" name="objectTool">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Object Tool</string>
-        </property>
-        <property name="text">
-         <string>O</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_category_48px.svg</normaloff>:/icons/ic_category_48px.svg</iconset>
-        </property>
-        <property name="autoRaise">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="19">
+      <item row="0" column="18">
        <widget class="QToolButton" name="showCollisionA">
         <property name="minimumSize">
          <size>
@@ -429,7 +406,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="25">
+      <item row="0" column="24">
        <widget class="QToolButton" name="expScene">
         <property name="minimumSize">
          <size>
@@ -455,7 +432,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="17">
+      <item row="0" column="16">
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -537,7 +514,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="8">
+      <item row="0" column="7">
        <widget class="QSpinBox" name="sceneFilter">
         <property name="minimumSize">
          <size>
@@ -556,7 +533,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="24">
+      <item row="0" column="23">
        <widget class="QToolButton" name="exportSceneImg">
         <property name="minimumSize">
          <size>
@@ -576,7 +553,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="7">
+      <item row="0" column="6">
        <widget class="QLabel" name="label">
         <property name="text">
          <string>Filter</string>

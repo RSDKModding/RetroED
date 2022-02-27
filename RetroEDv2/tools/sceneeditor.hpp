@@ -37,7 +37,7 @@ public:
         QList<SceneEntity> entities;
 
         // General Editing
-        byte curTool            = SceneViewerv5::TOOL_MOUSE;
+        byte curTool            = SceneViewer::TOOL_MOUSE;
         bool selecting          = false;
         Vector2<float> mousePos = Vector2<float>(0.0f, 0.0f);
 
@@ -77,7 +77,7 @@ public:
 
     Vector2<float> selectionOffset = Vector2<float>(0.0f, 0.0f);
 
-    SceneViewerv5 *viewer          = nullptr;
+    SceneViewer *viewer            = nullptr;
     SceneProperties *scnProp       = nullptr;
     SceneLayerProperties *lyrProp  = nullptr;
     SceneTileProperties *tileProp  = nullptr;
@@ -95,6 +95,7 @@ public:
     FormatHelpers::Chunks chunkset;
     FormatHelpers::StageConfig stageConfig;
 
+    void createNewScene();
     void loadScene(QString scnPath, QString gcfPath, byte gameType);
     bool saveScene(bool forceSaveAs = false);
 

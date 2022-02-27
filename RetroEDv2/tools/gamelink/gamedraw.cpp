@@ -592,7 +592,7 @@ void FunctionTable::drawCircle(int x, int y, int radius, uint color, int alpha, 
     }
     Vector4<float> rcolor = { ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f,
                               (color & 0xFF) / 255.0f, alpha / 255.0f };
-    v5Editor->viewer->drawCircle(xf, yf, 0, radius, rcolor, alpha, inkEffect);
+    // v5Editor->viewer->drawCircle(xf, yf, 0, radius, rcolor, alpha, inkEffect);
 }
 void FunctionTable::drawCircleOutline(int x, int y, int innerRadius, int outerRadius, uint color,
                                       int alpha, InkEffects inkEffect, bool32 screenRelative)
@@ -609,7 +609,7 @@ void FunctionTable::drawCircleOutline(int x, int y, int innerRadius, int outerRa
     }
     Vector4<float> rcolor = { ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f,
                               (color & 0xFF) / 255.0f, alpha / 255.0f };
-    v5Editor->viewer->drawCircle(xf, yf, innerRadius, outerRadius, rcolor, alpha, inkEffect);
+    // v5Editor->viewer->drawCircle(xf, yf, innerRadius, outerRadius, rcolor, alpha, inkEffect);
 }
 
 void FunctionTable::drawFace(Vector2<int> *vertices, int vertCount, int r, int g, int b, int alpha,

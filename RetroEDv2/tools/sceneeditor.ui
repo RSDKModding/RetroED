@@ -483,7 +483,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="6">
+      <item row="0" column="5">
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -519,7 +519,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="9">
+      <item row="0" column="8">
        <widget class="QToolButton" name="showCollisionB">
         <property name="minimumSize">
          <size>
@@ -538,7 +538,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="7">
+      <item row="0" column="6">
        <widget class="QToolButton" name="useGizmos">
         <property name="minimumSize">
          <size>
@@ -558,7 +558,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="5">
+      <item row="0" column="4">
        <widget class="QToolButton" name="entityTool">
         <property name="minimumSize">
          <size>
@@ -581,7 +581,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="12">
+      <item row="0" column="11">
        <widget class="QToolButton" name="exportSceneImg">
         <property name="minimumSize">
          <size>
@@ -601,30 +601,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="4">
-       <widget class="QToolButton" name="objectTool">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Object Tool</string>
-        </property>
-        <property name="text">
-         <string>O</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_category_48px.svg</normaloff>:/icons/ic_category_48px.svg</iconset>
-        </property>
-        <property name="autoRaise">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="11">
+      <item row="0" column="10">
        <widget class="QToolButton" name="showTileGrid">
         <property name="minimumSize">
          <size>
@@ -647,7 +624,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="10">
+      <item row="0" column="9">
        <widget class="QToolButton" name="showParallax">
         <property name="minimumSize">
          <size>
@@ -670,7 +647,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="8">
+      <item row="0" column="7">
        <widget class="QToolButton" name="showCollisionA">
         <property name="minimumSize">
          <size>
@@ -735,7 +712,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="13">
+      <item row="0" column="12">
        <widget class="QToolButton" name="exportScn">
         <property name="minimumSize">
          <size>

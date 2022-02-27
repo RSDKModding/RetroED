@@ -155,7 +155,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                                 if (QFile::exists(r.path) && QFile::exists(r.extra[0])) {
                                     SceneEditorv5 *tool = new SceneEditorv5();
                                     tool->installEventFilter(this);
-                                    addTab(tool, "Scene Editor (v5)");
+                                    addTab(tool, "Scene Editor");
                                     tool->loadScene(r.path, r.extra[0],
                                                     r.extra.count() >= 2 && r.extra[1] == "1");
                                 }
@@ -262,7 +262,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         setStatus("Opening Scene Editor...");
         SceneEditorv5 *tool = new SceneEditorv5();
         tool->installEventFilter(this);
-        addTab(tool, "Scene Editor (v5)");
+        addTab(tool, "Scene Editor");
         setStatus("Opened Scene Editor!");
     });
     tools->addMenu(scn);

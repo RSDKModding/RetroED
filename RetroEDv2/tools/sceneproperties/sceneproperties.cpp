@@ -23,9 +23,28 @@ SceneProperties::SceneProperties(QWidget *parent) : QWidget(parent), ui(new Ui::
     syncGC     = ui->syncGC;
     syncSC     = ui->syncSC;
     reloadLink = ui->reloadLink;
+
+    bgSel = new color_widgets::ColorPreview(this);
+    ui->bgClrLayout->addWidget(bgSel);
+
+    altBGSel = new color_widgets::ColorPreview(this);
+    ui->altBGClrLayout->addWidget(altBGSel);
+
+    sceneEditor = (void *)parent;
 }
 
-SceneProperties::~SceneProperties() { delete ui; }
+SceneProperties::~SceneProperties()
+{
+    delete ui;
+
+    if (bgSel)
+        delete bgSel;
+    bgSel = nullptr;
+
+    if (altBGSel)
+        delete altBGSel;
+    altBGSel = nullptr;
+}
 
 void SceneProperties::setupUI(FormatHelpers::Scene *scn, byte ver)
 {
@@ -88,10 +107,14 @@ void SceneProperties::setupUI(FormatHelpers::Scene *scn, byte ver)
                 [scn](int v) { scn->backgroundID = (byte)(v + 1); });
         connect(ui->music, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 [scn](int v) { scn->musicID = (byte)v; });
-        connect(ui->plrX, QOverload<int>::of(&QSpinBox::valueChanged),
-                [scn](int v) { scn->playerX = (short)v; });
-        connect(ui->plrY, QOverload<int>::of(&QSpinBox::valueChanged),
-                [scn](int v) { scn->playerY = (short)v; });
+        connect(ui->plrX, QOverload<int>::of(&QSpinBox::valueChanged), [this, scn](int v) {
+            scn->playerX                                      = (short)v;
+            ((SceneEditor *)sceneEditor)->viewer->playerPos.x = scn->playerX;
+        });
+        connect(ui->plrY, QOverload<int>::of(&QSpinBox::valueChanged), [this, scn](int v) {
+            scn->playerY                                      = (short)v;
+            ((SceneEditor *)sceneEditor)->viewer->playerPos.y = scn->playerY;
+        });
     }
 }
 

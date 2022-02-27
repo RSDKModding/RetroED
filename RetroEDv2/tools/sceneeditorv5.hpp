@@ -31,7 +31,7 @@ public:
         RSDKv5::TileConfig tileconfig;
 
         // General Editing
-        byte curTool            = SceneViewerv5::TOOL_MOUSE;
+        byte curTool            = SceneViewer::TOOL_MOUSE;
         bool selecting          = false;
         Vector2<float> mousePos = Vector2<float>(0.0f, 0.0f);
 
@@ -80,7 +80,7 @@ public:
 
     RSDKv5::TileConfig tileconfig;
 
-    SceneViewerv5 *viewer             = nullptr;
+    SceneViewer *viewer               = nullptr;
     ScenePropertiesv5 *scnProp        = nullptr;
     SceneLayerPropertiesv5 *lyrProp   = nullptr;
     SceneTilePropertiesv5 *tileProp   = nullptr;
@@ -93,6 +93,7 @@ public:
     GameEntityBase createGameEntity;
     SceneEntity createTempEntity;
 
+    void createNewScene();
     void loadScene(QString scnPath, QString gcfPath, byte gameType);
     void saveScene(QString path);
 

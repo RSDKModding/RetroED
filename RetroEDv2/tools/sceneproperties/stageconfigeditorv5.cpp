@@ -221,7 +221,7 @@ bool StageConfigEditorv5::event(QEvent *event)
     switch ((int)event->type()) {
         default: break;
         case RE_EVENT_UNDO: undoAction(); break;
-        case RE_EVENT_REDO: undoAction(); break;
+        case RE_EVENT_REDO: redoAction(); break;
     }
 
     return QWidget::event(event);

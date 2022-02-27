@@ -7,9 +7,6 @@ AppConfig appConfig = AppConfig();
 QLabel *statusLabel          = nullptr;
 QProgressBar *statusProgress = nullptr;
 
-QVector3D *vertsPtr  = nullptr;
-QVector2D *tVertsPtr = nullptr;
-
 void printLog(QString msg)
 {
 #ifdef _WIN32
@@ -115,15 +112,4 @@ void setStatusProgress(float percent)
 
     printLog(QString(" ").repeated(statusLabel->text().length()) + QString(" %1").arg((int)percent, 3)
              + "%");
-}
-
-void refreshScnEditorVerts(int w, int h)
-{
-    if (vertsPtr)
-        delete[] vertsPtr;
-    if (tVertsPtr)
-        delete[] tVertsPtr;
-
-    vertsPtr  = new QVector3D[(int)((h * w * 6) * 1.1)];
-    tVertsPtr = new QVector2D[(int)((h * w * 6) * 1.1)];
 }

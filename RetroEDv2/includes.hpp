@@ -101,7 +101,7 @@ public:
 #include "tools/sceneproperties/scenetilepropertiesv5.hpp"
 #include "tools/sceneproperties/scenestamppropertiesv5.hpp"
 #include "tools/sceneproperties/objectselector.hpp"
-#include "tools/sceneviewerv5.hpp"
+#include "tools/sceneviewer.hpp"
 
 // Scene Tools
 #include "tools/sceneproperties/sceneproperties.hpp"
@@ -152,9 +152,6 @@ extern AppConfig appConfig;
 extern QLabel *statusLabel;
 extern QProgressBar *statusProgress;
 
-extern QVector3D *vertsPtr;
-extern QVector2D *tVertsPtr;
-
 extern SceneEditor *scnEditor;
 extern SceneEditorv5 *v5Editor;
 
@@ -164,7 +161,5 @@ void printLog(QString msg);
 void setStatus(QString status, bool useStatus = false);
 void addStatusProgress(float percent);
 void setStatusProgress(float percent);
-
-void refreshScnEditorVerts(int w, int h);
 
 #endif // INCLUDES_H

@@ -36,7 +36,7 @@
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="1" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox_2">
+        <widget class="QGroupBox" name="stampsBox">
          <property name="title">
           <string>Stamps</string>
          </property>
@@ -75,7 +75,7 @@
         </widget>
        </item>
        <item row="8" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox_3">
+        <widget class="QGroupBox" name="infoBox">
          <property name="title">
           <string>Scene Info</string>
          </property>
@@ -119,7 +119,7 @@
         </widget>
        </item>
        <item row="9" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox">
+        <widget class="QGroupBox" name="gridBox">
          <property name="title">
           <string>Grid Size</string>
          </property>
@@ -181,7 +181,7 @@
         </spacer>
        </item>
        <item row="0" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox_4">
+        <widget class="QGroupBox" name="propertiesBox">
          <property name="title">
           <string>General Properties</string>
          </property>
@@ -196,14 +196,14 @@
           <item row="1" column="0">
            <widget class="QLabel" name="label_3">
             <property name="text">
-             <string>Scene Background Colour</string>
+             <string>BG Colour 1</string>
             </property>
            </widget>
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>Scene Alt Background Colour</string>
+             <string>BG Colour 2</string>
             </property>
            </widget>
           </item>
@@ -227,7 +227,7 @@
         </widget>
        </item>
        <item row="7" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox_5">
+        <widget class="QGroupBox" name="toolsBox">
          <property name="title">
           <string>Tools</string>
          </property>

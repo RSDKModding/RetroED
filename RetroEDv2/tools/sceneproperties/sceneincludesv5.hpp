@@ -123,8 +123,8 @@ struct SceneObject {
     QList<VariableInfo> variables;
 
     // for <= v4
-    QString variablesAliases[VAR_ALIAS_COUNT] = { "PropertyValue", "Value0", "Value1", "Value2",
-                                                  "Value3" };
+    QString variablesAliases[VAR_ALIAS_COUNT] = { "propertyValue", "value0", "value1", "value2",
+                                                  "value3" };
 
     // EDITOR ONLY
     bool visible = true;

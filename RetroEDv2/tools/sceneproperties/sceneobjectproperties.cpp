@@ -309,7 +309,7 @@ int SceneObjectProperties::callRSDKEdit(void *e, bool shouldReturnVal, int entit
     editor->viewer->variableValue             = variableValue;
     editor->viewer->returnVariable            = shouldReturnVal;
     editor->compilerv4->scriptEng.checkResult = -1;
-    bool c                         = editor->callGameEvent(SceneViewerv5::EVENT_EDIT, entityID);
+    bool c                         = editor->callGameEvent(SceneViewer::EVENT_EDIT, entityID);
     editor->viewer->returnVariable = false;
 
     if (called) {

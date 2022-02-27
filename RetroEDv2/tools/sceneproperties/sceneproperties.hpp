@@ -38,8 +38,13 @@ public:
     QPushButton *syncSC     = nullptr;
     QPushButton *reloadLink = nullptr;
 
+    color_widgets::ColorPreview *bgSel    = nullptr;
+    color_widgets::ColorPreview *altBGSel = nullptr;
+
 private:
     Ui::SceneProperties *ui;
+
+    void *sceneEditor = nullptr;
 };
 
 #endif // SCENEPROPERTIES_H

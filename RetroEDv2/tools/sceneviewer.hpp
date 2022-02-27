@@ -1,7 +1,7 @@
-#ifndef SCENEVIEWER_V5_H
-#define SCENEVIEWER_V5_H
+#ifndef SCENEVIEWER_H
+#define SCENEVIEWER_H
 
-class SceneViewerv5 : public QOpenGLWidget
+class SceneViewer : public QOpenGLWidget
 {
     Q_OBJECT
 
@@ -12,7 +12,6 @@ public:
         TOOL_PENCIL,
         TOOL_STAMP,
         TOOL_ERASER,
-        TOOL_OBJECT,
         TOOL_ENTITY,
     };
 
@@ -37,7 +36,7 @@ public:
         byte alpha     = 0xFF;
 
         ushort indexCount = 0;
-        ushort indecies[0x8000 * 6];
+        ushort indices[0x8000 * 6];
 
         byte argBuffer[0x20];
         byte fsArgs[0x20];
@@ -47,8 +46,8 @@ public:
         Vector2<int> clipRectBR;
     };
 
-    SceneViewerv5(byte gameType, QWidget *parent);
-    ~SceneViewerv5();
+    SceneViewer(byte gameType, QWidget *parent);
+    ~SceneViewer();
 
     void initScene(QImage tileset);
 
@@ -143,6 +142,9 @@ public:
     // Entity Editing
     int selectedObject = -1; // placing
     int selectedEntity = -1; // viewing
+
+    // Retro-Sonic only
+    Vector2<int> playerPos = Vector2<int>(0, 0);
 
     SceneEntity *activeDrawEntity = nullptr;
 
@@ -245,8 +247,6 @@ public:
     void startTimer();
     void stopTimer();
 
-    void drawTile(float XPos, float YPos, int tileX, int tileY, byte direction);
-
     void drawSpriteFlipped(float XPos, float YPos, float width, float height, float sprX, float sprY,
                            int direction, InkEffects inkEffect, int alpha, int sheetID);
     void drawSpriteRotozoom(float x, float y, float pivotX, float pivotY, float width, float height,
@@ -258,9 +258,6 @@ public:
 
     void drawRect(float x, float y, float w, float h, Vector4<float> colour, bool outline = false,
                   int alpha = 0xFF, InkEffects inkEffect = INK_NONE);
-
-    void drawCircle(float x, float y, float innerR, float outerR, Vector4<float> colour,
-                    int alpha = 0xFF, InkEffects inkEffect = INK_NONE);
 
     void drawFace(Vector2<int> *vertices, int vertCount, int r, int g, int b, int alpha = 0xFF,
                   InkEffects inkEffect = INK_NONE);
@@ -327,4 +324,4 @@ private:
     friend class SceneEditorv5;
 };
 
-#endif // SCENEVIEWER_V5_H
+#endif // SCENEVIEWER_H

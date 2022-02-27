@@ -18,7 +18,7 @@ union CircleArgs {
     };
 };
 
-SceneViewerv5::SceneViewerv5(byte gameType, QWidget *parent) : QOpenGLWidget(parent)
+SceneViewer::SceneViewer(byte gameType, QWidget *parent) : QOpenGLWidget(parent)
 {
     this->gameType = gameType;
     tileSize       = gameType == ENGINE_v5 ? 0x10 : 0x80;
@@ -31,7 +31,7 @@ SceneViewerv5::SceneViewerv5(byte gameType, QWidget *parent) : QOpenGLWidget(par
         delete updateTimer;
 
     updateTimer = new QTimer(this);
-    connect(updateTimer, &QTimer::timeout, this, QOverload<>::of(&SceneViewerv5::updateScene));
+    connect(updateTimer, &QTimer::timeout, this, QOverload<>::of(&SceneViewer::updateScene));
     startTimer();
 
     for (int a = 0; a < v5_SPRFILE_COUNT; ++a) {
@@ -115,9 +115,9 @@ SceneViewerv5::SceneViewerv5(byte gameType, QWidget *parent) : QOpenGLWidget(par
     }
 }
 
-SceneViewerv5::~SceneViewerv5() { dispose(); }
+SceneViewer::~SceneViewer() { dispose(); }
 
-void SceneViewerv5::startTimer()
+void SceneViewer::startTimer()
 {
     if (updateTimer) {
         stopTimer();
@@ -126,7 +126,7 @@ void SceneViewerv5::startTimer()
     }
 }
 
-void SceneViewerv5::stopTimer()
+void SceneViewer::stopTimer()
 {
     if (updateTimer) {
         if (updateTimer->isActive())
@@ -134,7 +134,7 @@ void SceneViewerv5::stopTimer()
     }
 }
 
-void SceneViewerv5::dispose()
+void SceneViewer::dispose()
 {
     unloadScene();
 
@@ -148,7 +148,7 @@ void SceneViewerv5::dispose()
     fbpVAO->destroy();
 }
 
-void SceneViewerv5::initScene(QImage tileset)
+void SceneViewer::initScene(QImage tileset)
 {
     // unloading
     unloadScene();
@@ -218,7 +218,7 @@ void SceneViewerv5::initScene(QImage tileset)
     disableObjects = false;
 }
 
-void SceneViewerv5::updateScene()
+void SceneViewer::updateScene()
 {
     this->repaint();
 
@@ -280,7 +280,7 @@ void SceneViewerv5::updateScene()
     }
 }
 
-void SceneViewerv5::cleanCol(int x, int y, int w, int h)
+void SceneViewer::cleanCol(int x, int y, int w, int h)
 {
     int ty = y + h;
     int tx = x + w;
@@ -292,7 +292,7 @@ void SceneViewerv5::cleanCol(int x, int y, int w, int h)
     }
 }
 
-void SceneViewerv5::placeCol(int x, int y, sbyte h, int sol, int w)
+void SceneViewer::placeCol(int x, int y, sbyte h, int sol, int w)
 {
     // rmg code opts at its finest
     if (h < 0) {
@@ -315,7 +315,7 @@ void SceneViewerv5::placeCol(int x, int y, sbyte h, int sol, int w)
     }
 }
 
-void SceneViewerv5::drawScene()
+void SceneViewer::drawScene()
 {
     // Constant stuff
     float iZoom = invZoom();
@@ -397,7 +397,6 @@ void SceneViewerv5::drawScene()
             renderRenderStates();
 
             int count = 0;
-
             if (gameType == ENGINE_v5) {
                 // Draw Tile-Based TileMap
                 for (int y = basedY; y < countY; ++y) {
@@ -422,9 +421,10 @@ void SceneViewerv5::drawScene()
 
                             // safety pass
                             if (renderCount >= vertexListLimit - 8) {
-                                renderCount -= count * 4;
                                 PlaceArgs args;
                                 args.texID = 0;
+
+                                renderCount -= count * 4;
                                 addRenderState((selectedLayer == l || fileRender) ? INK_NONE
                                                                                   : INK_BLEND,
                                                count * 4, count * 6, &args, 0xFF, &placeShader);
@@ -464,9 +464,10 @@ void SceneViewerv5::drawScene()
 
                                     // safety pass
                                     if (renderCount >= vertexListLimit - 8) {
-                                        renderCount -= count * 4;
                                         PlaceArgs args;
                                         args.texID = 0;
+
+                                        renderCount -= count * 4;
                                         addRenderState((selectedLayer == l || fileRender) ? INK_NONE
                                                                                           : INK_BLEND,
                                                        count * 4, count * 6, &args, 0xFF, &placeShader);
@@ -693,6 +694,21 @@ void SceneViewerv5::drawScene()
         }
     }
 
+    // Draw Retro-Sonic Player spawn point
+    if (gameType == ENGINE_v1) {
+        float px = playerPos.x;
+        float py = playerPos.y;
+
+        px *= iZoom;
+        py *= iZoom;
+        float xpos = px - cameraPos.x;
+        float ypos = py - cameraPos.y;
+
+        // Draw Player Spawn Preview
+        drawSpriteFlipped(xpos, ypos, gfxSurface[2].width, gfxSurface[2].height, 0, 0, FLIP_NONE,
+                          INK_NONE, 0xFF, 2);
+    }
+
     if (fileRender) {
         // addStatusProgress(0.2); // finished rendering entities
 
@@ -707,12 +723,15 @@ void SceneViewerv5::drawScene()
         float tx = tilePos.x;
         float ty = tilePos.y;
 
-        float tx2 = tx + fmodf(cameraPos.x, 0x10);
-        float ty2 = ty + fmodf(cameraPos.y, 0x10);
+        tx *= iZoom;
+        ty *= iZoom;
+
+        float tx2 = tx + fmodf(cameraPos.x, tileSize);
+        float ty2 = ty + fmodf(cameraPos.y, tileSize);
 
         // clip to grid
-        tx -= fmodf(tx2, 0x10);
-        ty -= fmodf(ty2, 0x10);
+        tx -= fmodf(tx2, tileSize);
+        ty -= fmodf(ty2, tileSize);
 
         // Draw Selected Tile Preview
         float xpos = tx + cameraPos.x;
@@ -721,19 +740,72 @@ void SceneViewerv5::drawScene()
         xpos -= cameraPos.x;
         ypos -= cameraPos.y;
 
-        addRenderState(INK_BLEND, 4, 6, nullptr, 0xFF, &placeShader);
+        int count = 0;
+        if (tileSize == 0x10) {
+            ++count;
 
-        ushort t     = (selectedTile & 0x3FF);
-        byte f       = (selectedTile >> 10) & 3;
-        ushort point = (t << 2) | (f << 12);
-        addPoly(xpos, ypos, 0, tileUVArray[point], tileUVArray[point + 1]);
-        addPoly(xpos + 0x10, ypos, 0, tileUVArray[point + 2], tileUVArray[point + 1]);
-        addPoly(xpos, ypos + 0x10, 0, tileUVArray[point], tileUVArray[point + 3]);
-        addPoly(xpos + 0x10, ypos + 0x10, 0, tileUVArray[point + 2], tileUVArray[point + 3]);
+            byte f       = (int)(tileFlip.x) | ((int)(tileFlip.y) << 1);
+            ushort point = (selectedTile << 2) | (f << 12);
+            addPoly(xpos, ypos, 0, tileUVArray[point], tileUVArray[point + 1]);
+            addPoly(xpos + 0x10, ypos, 0, tileUVArray[point + 2], tileUVArray[point + 1]);
+            addPoly(xpos, ypos + 0x10, 0, tileUVArray[point], tileUVArray[point + 3]);
+            addPoly(xpos + 0x10, ypos + 0x10, 0, tileUVArray[point + 2], tileUVArray[point + 3]);
+        }
+        else if (tileSize == 0x80) {
+            for (int y = 0; y < 8; ++y) {
+                for (int x = 0; x < 8; ++x) {
+                    ++count;
+
+                    FormatHelpers::Chunks::Tile &tile = chunkset.chunks[selectedTile].tiles[y][x];
+                    float tileX                       = xpos + (x * 0x10);
+                    float tileY                       = ypos + (y * 0x10);
+
+                    ushort point = (tile.tileIndex << 2) | (tile.direction << 12);
+                    addPoly(tileX, tileY, 0, tileUVArray[point], tileUVArray[point + 1]);
+                    addPoly(tileX + 0x10, tileY, 0, tileUVArray[point + 2], tileUVArray[point + 1]);
+                    addPoly(tileX, tileY + 0x10, 0, tileUVArray[point], tileUVArray[point + 3]);
+                    addPoly(tileX + 0x10, tileY + 0x10, 0, tileUVArray[point + 2],
+                            tileUVArray[point + 3]);
+                }
+            }
+        }
+
+        PlaceArgs args;
+        args.texID = 0;
+
+        renderCount -= count * 4;
+        addRenderState(INK_BLEND, count * 4, count * 6, &args, 0xFF, &placeShader);
+        renderCount += count * 4;
+    }
+
+    // ERASER PREVIEW
+    if (curTool == TOOL_ERASER) {
+        float tx = tilePos.x;
+        float ty = tilePos.y;
+
+        tx *= iZoom;
+        ty *= iZoom;
+
+        float tx2 = tx + fmodf(cameraPos.x, tileSize);
+        float ty2 = ty + fmodf(cameraPos.y, tileSize);
+
+        // clip to grid
+        tx -= fmodf(tx2, tileSize);
+        ty -= fmodf(ty2, tileSize);
+
+        // Draw Selected Tile Preview
+        float xpos = tx + cameraPos.x;
+        float ypos = ty + cameraPos.y;
+
+        xpos -= cameraPos.x;
+        ypos -= cameraPos.y;
+
+        drawRect(xpos, ypos, tileSize, tileSize, Vector4<float>(1.0f, 0.0f, 0.0f, 1.0f), false, 0x40,
+                 INK_ALPHA);
+        drawRect(xpos, ypos, tileSize, tileSize, Vector4<float>(1.0f, 0.0f, 0.0f, 1.0f), true);
     }
 
     // ENT PREVIEW
-
     if (selectedObject >= 0 && isSelecting && curTool == TOOL_ENTITY) {
         float ex = tilePos.x;
         float ey = tilePos.y;
@@ -866,11 +938,9 @@ void SceneViewerv5::drawScene()
     renderRenderStates();
 }
 
-void SceneViewerv5::unloadScene()
+void SceneViewer::unloadScene()
 {
     disableObjects = true;
-
-    // QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
     tiles.clear();
 
@@ -898,19 +968,13 @@ void SceneViewerv5::unloadScene()
 
     memset(gameEntityList, 0, sizeof(gameEntityList));
 
-    if (vertsPtr)
-        delete[] vertsPtr;
-    if (tVertsPtr)
-        delete[] tVertsPtr;
-    vertsPtr    = nullptr;
-    tVertsPtr   = nullptr;
     sceneWidth  = 0;
     sceneHeight = 0;
     prevStoredW = -1;
     prevStoredH = -1;
 }
 
-void SceneViewerv5::processObjects()
+void SceneViewer::processObjects()
 {
     for (int i = 0; i < v5_DRAWLAYER_COUNT; ++i) {
         drawLayers[i].entries.clear();
@@ -1121,7 +1185,7 @@ void SceneViewerv5::processObjects()
     }
 }
 
-void SceneViewerv5::initializeGL()
+void SceneViewer::initializeGL()
 {
     // QOpenGLFunctions::initializeOpenGLFunctions();
 
@@ -1262,7 +1326,7 @@ void SceneViewerv5::initializeGL()
     resizeGL(width(), height());
 }
 
-void SceneViewerv5::resizeGL(int w, int h)
+void SceneViewer::resizeGL(int w, int h)
 {
 
     glFuncs = context()->functions();
@@ -1323,7 +1387,7 @@ void SceneViewerv5::resizeGL(int w, int h)
     glFuncs->glBindTexture(GL_TEXTURE_2D, outFB->texture());
 }
 
-void SceneViewerv5::paintGL()
+void SceneViewer::paintGL()
 {
     glFuncs = context()->functions();
 
@@ -1448,7 +1512,7 @@ void SceneViewerv5::paintGL()
     glFuncs->glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 }
 
-int SceneViewerv5::addGraphicsFile(QString sheetPath, int sheetID, byte scope)
+int SceneViewer::addGraphicsFile(QString sheetPath, int sheetID, byte scope)
 {
     if (sheetID >= 0 && sheetID < v5_SURFACE_MAX) {
         QImage sheet;
@@ -1475,7 +1539,7 @@ int SceneViewerv5::addGraphicsFile(QString sheetPath, int sheetID, byte scope)
     return -1;
 }
 
-void SceneViewerv5::removeGraphicsFile(QString sheetPath, int slot)
+void SceneViewer::removeGraphicsFile(QString sheetPath, int slot)
 {
     if (slot >= 0) {
         gfxSurface[slot].texturePtr->destroy();
@@ -1493,18 +1557,9 @@ void SceneViewerv5::removeGraphicsFile(QString sheetPath, int slot)
     }
 }
 
-void SceneViewerv5::drawTile(float XPos, float YPos, int tileX, int tileY, byte direction)
-{
-    Q_UNUSED(XPos);
-    Q_UNUSED(YPos);
-    Q_UNUSED(tileX);
-    Q_UNUSED(tileY);
-    Q_UNUSED(direction);
-}
-
-void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, float width, float height, float sprX,
-                                      float sprY, int direction, InkEffects inkEffect, int alpha,
-                                      int sheetID)
+void SceneViewer::drawSpriteFlipped(float XPos, float YPos, float width, float height, float sprX,
+                                    float sprY, int direction, InkEffects inkEffect, int alpha,
+                                    int sheetID)
 {
     switch (inkEffect) {
         case INK_NONE: alpha = 0xFF; break;
@@ -1599,10 +1654,10 @@ void SceneViewerv5::drawSpriteFlipped(float XPos, float YPos, float width, float
     validDraw = true;
 }
 
-void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, float pivotX, float pivotY, float width,
-                                       float height, float sprX, float sprY, int scaleX, int scaleY,
-                                       int direction, short rotation, InkEffects inkEffect, int alpha,
-                                       int sheetID)
+void SceneViewer::drawSpriteRotozoom(float XPos, float YPos, float pivotX, float pivotY, float width,
+                                     float height, float sprX, float sprY, int scaleX, int scaleY,
+                                     int direction, short rotation, InkEffects inkEffect, int alpha,
+                                     int sheetID)
 {
     switch (inkEffect) {
         case INK_NONE: alpha = 0xFF; break;
@@ -1735,8 +1790,8 @@ void SceneViewerv5::drawSpriteRotozoom(float XPos, float YPos, float pivotX, flo
     validDraw = true;
 }
 
-void SceneViewerv5::drawLine(float x1, float y1, float x2, float y2, Vector4<float> colour, int alpha,
-                             InkEffects ink)
+void SceneViewer::drawLine(float x1, float y1, float x2, float y2, Vector4<float> colour, int alpha,
+                           InkEffects ink)
 {
     for (int i = 0; i < zoom; ++i) {
         addRenderState(ink, 2, 2, nullptr, alpha, &lineShader);
@@ -1763,8 +1818,8 @@ void SceneViewerv5::drawLine(float x1, float y1, float x2, float y2, Vector4<flo
     validDraw = true;
 }
 
-void SceneViewerv5::drawRect(float x, float y, float w, float h, Vector4<float> colour, bool outline,
-                             int alpha, InkEffects inkEffect)
+void SceneViewer::drawRect(float x, float y, float w, float h, Vector4<float> colour, bool outline,
+                           int alpha, InkEffects inkEffect)
 {
     if (outline) {
         // top
@@ -1789,20 +1844,8 @@ void SceneViewerv5::drawRect(float x, float y, float w, float h, Vector4<float> 
     validDraw = true;
 }
 
-void SceneViewerv5::drawCircle(float x, float y, float innerR, float outerR, Vector4<float> colour,
-                               int alpha, InkEffects inkEffect)
-{
-    Q_UNUSED(x)
-    Q_UNUSED(y)
-    Q_UNUSED(innerR)
-    Q_UNUSED(outerR)
-    Q_UNUSED(colour)
-    Q_UNUSED(alpha)
-    Q_UNUSED(inkEffect)
-}
-
-void SceneViewerv5::drawFace(Vector2<int> *vertices, int vertCount, int r, int g, int b, int alpha,
-                             InkEffects inkEffect)
+void SceneViewer::drawFace(Vector2<int> *vertices, int vertCount, int r, int g, int b, int alpha,
+                           InkEffects inkEffect)
 {
     return; /*
     uint colour = (r << 16) | (g << 8) | (b << 0);
@@ -1827,8 +1870,8 @@ void SceneViewerv5::drawFace(Vector2<int> *vertices, int vertCount, int r, int g
     validDraw = true;//*/
 }
 
-void SceneViewerv5::drawBlendedFace(Vector2<int> *vertices, uint *colors, int vertCount, int alpha,
-                                    InkEffects inkEffect)
+void SceneViewer::drawBlendedFace(Vector2<int> *vertices, uint *colors, int vertCount, int alpha,
+                                  InkEffects inkEffect)
 {
     return; /*
     int count = 3 * vertCount - 3;
@@ -1853,8 +1896,8 @@ void SceneViewerv5::drawBlendedFace(Vector2<int> *vertices, uint *colors, int ve
     validDraw = true;//*/
 }
 
-inline void SceneViewerv5::addPoly(float x, float y, float u, float v, Vector4<float> color,
-                                   GFXSurface *surface)
+inline void SceneViewer::addPoly(float x, float y, float u, float v, Vector4<float> color,
+                                 GFXSurface *surface)
 {
     vertexList[renderCount].pos.setX(x);
     vertexList[renderCount].pos.setY(y);
@@ -1872,7 +1915,7 @@ inline void SceneViewerv5::addPoly(float x, float y, float u, float v, Vector4<f
     renderCount++;
 }
 
-bool32 statesCompatible(SceneViewerv5::RenderState &one, SceneViewerv5::RenderState &two)
+bool32 statesCompatible(SceneViewer::RenderState &one, SceneViewer::RenderState &two)
 {
     if (one.blendMode) // one->blendMode != INK_NONE
         return false;  // the rest can't really be merged
@@ -1883,9 +1926,9 @@ bool32 statesCompatible(SceneViewerv5::RenderState &one, SceneViewerv5::RenderSt
     return true;
 }
 
-void SceneViewerv5::addRenderState(int blendMode, ushort vertCount, ushort indexCount, void *args,
-                                   byte alpha, Shader *shader, ushort *altIndex, Shader *fbShader,
-                                   Shader *fbShader2, Vector2<int> *clipRect)
+void SceneViewer::addRenderState(int blendMode, ushort vertCount, ushort indexCount, void *args,
+                                 byte alpha, Shader *shader, ushort *altIndex, Shader *fbShader,
+                                 Shader *fbShader2, Vector2<int> *clipRect)
 {
     if (!vertCount || !indexCount)
         return;
@@ -1924,8 +1967,8 @@ void SceneViewerv5::addRenderState(int blendMode, ushort vertCount, ushort index
         RenderState &last = renderStates.last();
         if (last.indexCount + indexCount < (vertexListLimit * 6) && statesCompatible(last, newState)) {
             // merge em and we'll be on our way
-            memcpy(&last.indecies[last.indexCount], altIndex, indexCount * sizeof(ushort));
-            for (int i = 0; i < indexCount; ++i) last.indecies[i + last.indexCount] += renderCount;
+            memcpy(&last.indices[last.indexCount], altIndex, indexCount * sizeof(ushort));
+            for (int i = 0; i < indexCount; ++i) last.indices[i + last.indexCount] += renderCount;
             last.indexCount += indexCount;
             return;
         }
@@ -1934,13 +1977,13 @@ void SceneViewerv5::addRenderState(int blendMode, ushort vertCount, ushort index
         renderRenderStates(); // you should render NOW!
     }
 
-    memcpy(newState.indecies, altIndex, indexCount * sizeof(ushort));
+    memcpy(newState.indices, altIndex, indexCount * sizeof(ushort));
     if (renderCount)
-        for (int i = 0; i < indexCount; ++i) newState.indecies[i] += renderCount;
+        for (int i = 0; i < indexCount; ++i) newState.indices[i] += renderCount;
     renderStates.append(newState);
 }
 
-void SceneViewerv5::renderRenderStates()
+void SceneViewer::renderRenderStates()
 {
     if (!renderCount)
         return;
@@ -1982,7 +2025,7 @@ void SceneViewerv5::renderRenderStates()
         renderState.shader->setValue("projection", matWorld);
         renderState.shader->setValue("view", matView);
 
-        indexVBO->write(0, renderState.indecies, renderState.indexCount * sizeof(ushort));
+        indexVBO->write(0, renderState.indices, renderState.indexCount * sizeof(ushort));
         glFuncs->glDrawElements(lines ? GL_LINES : GL_TRIANGLES, renderState.indexCount,
                                 GL_UNSIGNED_SHORT, 0);
 
@@ -2047,13 +2090,13 @@ void SceneViewerv5::renderRenderStates()
     renderStates.clear();
 }
 
-void SceneViewerv5::addEditorVariable(QString name)
+void SceneViewer::addEditorVariable(QString name)
 {
     VariableInfo var;
     var.name = name;
     objects[activeVarObj].variables.append(var);
 }
-void SceneViewerv5::setActiveVariable(QString name)
+void SceneViewer::setActiveVariable(QString name)
 {
     activeVar = -1;
 
@@ -2066,7 +2109,7 @@ void SceneViewerv5::setActiveVariable(QString name)
         ++v;
     }
 }
-void SceneViewerv5::addEnumVariable(QString name, int value)
+void SceneViewer::addEnumVariable(QString name, int value)
 {
     if (activeVarObj >= 0) {
         VariableValue var;
@@ -2077,14 +2120,14 @@ void SceneViewerv5::addEnumVariable(QString name, int value)
     }
 }
 
-void SceneViewerv5::setVariableAlias(int varID, QString alias)
+void SceneViewer::setVariableAlias(int varID, QString alias)
 {
     if (activeVarObj >= 0) {
         objects[activeVarObj].variablesAliases[varID] = alias;
     }
 }
 
-void SceneViewerv5::refreshResize()
+void SceneViewer::refreshResize()
 {
     if (storedW == prevStoredW && storedH == prevStoredH)
         return;
@@ -2100,10 +2143,8 @@ void SceneViewerv5::refreshResize()
     screens[0].pitch        = storedW;
     screens[0].waterDrawPos = storedH;
 
-    // refreshScnEditorVerts(storedW >> 2, storedH >> 2);
-
     prevStoredW = storedW;
     prevStoredH = storedH;
 }
 
-#include "moc_sceneviewerv5.cpp"
+#include "moc_sceneviewer.cpp"
