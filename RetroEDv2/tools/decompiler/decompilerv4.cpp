@@ -481,13 +481,13 @@ static QList<QString> gravityAliases = {
 };
 
 static QList<QString> faceFlagAliases = {
-    "FACE_TEXTURED_3D", "FACE_TEXTURED_2D", "FACE_COLOURED_3D", "FACE_COLOURED_2D",
-    "FACE_FADED",       "FACE_TEXTURED_C",  "FACE_TEXTURED_D",  "FACE_SPRITE_3D",
+    "FACE_TEXTURED_3D", "FACE_TEXTURED_2D", "FACE_COLOURED_3D",      "FACE_COLOURED_2D",
+    "FACE_FADED",       "FACE_TEXTURED_C",  "FACE_TEXTURED_C_BLEND", "FACE_SPRITE_3D",
 };
 
 static QList<QString> priorityAliases = {
     "PRIORITY_ACTIVE_BOUNDS",   "PRIORITY_ACTIVE",   "PRIORITY_ACTIVE_PAUSED", "PRIORITY_XBOUNDS",
-    "PRIORITY_XBOUNDS_DESTROY", "PRIORITY_INACTIVE", "PRIORITY_BOUNDS_SMALL",  "PRIORITY_UNKNOWN",
+    "PRIORITY_XBOUNDS_DESTROY", "PRIORITY_INACTIVE", "PRIORITY_BOUNDS_SMALL",  "PRIORITY_ACTIVE_SMALL",
 };
 
 static QList<QString> callbackAliases = {
@@ -504,11 +504,6 @@ static QList<QString> textInfoAliases = {
     "TEXTINFO_TEXTDATA",
     "TEXTINFO_TEXTSIZE",
     "TEXTINFO_ROWCOUNT",
-};
-
-static QList<QString> onlineMenuAliases = {
-    "ONLINEMENU_ACHIEVEMENTS",
-    "ONLINEMENU_LEADERBOARDS",
 };
 
 static QList<QString> tileLayerTypeAliases = {
@@ -2510,15 +2505,6 @@ void RSDKv4::Decompiler::decompileSub(Writer writer, RSDKv4::Decompiler::StateSc
                         id = variableName[2].toInt(&ok);
                         if (ok && id < textInfoAliases.count())
                             variableName[2] = textInfoAliases[id];
-
-                        break;
-                    }
-                    case 29: //"LoadOnlineMenu"
-                    {
-                        bool ok = false;
-                        int id  = variableName[0].toInt(&ok);
-                        if (ok && id < onlineMenuAliases.count())
-                            variableName[0] = onlineMenuAliases[id];
 
                         break;
                     }

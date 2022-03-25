@@ -39,10 +39,6 @@ protected:
     bool eventFilter(QObject *object, QEvent *event);
 
 private:
-    int mdlFormat = -1;
-    RSDKv5::Model modelv5;
-    RSDKv4::Model modelv4;
-
     Ui::ModelManager *ui;
 
     color_widgets::ColorPreview *mdlClrSel = nullptr;
@@ -63,16 +59,6 @@ private:
     bool mouseDownL = false;
     bool mouseDownM = false;
     bool mouseDownR = false;
-
-    // Importing Stuff
-    bool useNormals  = false;
-    bool useTextures = false;
-    bool useColours  = false;
-    QList<int> indices;
-    QList<Vector3<float>> vertices;
-    QList<Vector3<float>> normals;
-    QList<Vector2<float>> textureUVs;
-    QList<QColor> colours;
 
     bool modified    = false;
     QString tabTitle = "Model Manager";

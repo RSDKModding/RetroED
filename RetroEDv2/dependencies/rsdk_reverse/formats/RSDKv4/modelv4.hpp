@@ -74,6 +74,9 @@ public:
 
     void writeAsOBJ(QString filePath, int exportFrame = -1);
 
+    void loadPLY(QString filePath);
+    void writeAsPLY(QString filePath, int exportFrame = -1);
+
     byte signature[4] = { 'R', '3', 'D', 0 };
 
     QList<TexCoord> texCoords;
@@ -81,6 +84,45 @@ public:
     QList<ushort> indices;
 
     QString filePath = "";
+
+private:
+    enum PLYPropTypes {
+        UNKNOWN,
+        INT8,
+        UINT8,
+        INT16,
+        UINT16,
+        INT32,
+        UINT32,
+        FLOAT,
+        DOUBLE,
+        LIST,
+    };
+
+    struct PLYProperty {
+        PLYProperty() {}
+
+        QString sizeType = ""; // used for list types
+        QString itemType = ""; // used for list types
+        QString type     = "";
+        QString name     = "";
+    };
+
+    struct PLYPropertyValue {
+        PLYPropertyValue() {}
+
+        QList<QVariant> values; // if a list property exists, assume ONLY a list can exist
+    };
+
+    struct PLYElement {
+        PLYElement() {}
+
+        QList<PLYProperty> properties;
+        QList<PLYPropertyValue> propertyValues;
+        QString name = "";
+    };
+
+    int getPLYPropertyType(QString propertyType);
 };
 
 } // namespace RSDKv4

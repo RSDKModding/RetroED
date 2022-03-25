@@ -49,7 +49,7 @@ public:
     public:
         SoundInfo() {}
 
-        QString m_name = "Sound";
+        QString name = "Sound";
         QString path   = "Folder/Sound.wav";
     };
 
@@ -58,7 +58,7 @@ public:
     public:
         PlayerInfo() {}
 
-        QString m_name = "PLAYER";
+        QString name = "PLAYER";
         QString anim   = "player.ani";
         QString script = "Player/Player.txt";
     };

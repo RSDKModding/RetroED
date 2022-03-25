@@ -67,6 +67,64 @@ void ModelViewer::setModel(RSDKv4::Model m, QString tex)
     setFrame(0);
 }
 
+RSDKv4::Model ModelViewer::getModelv4()
+{
+    RSDKv4::Model mdl;
+
+    mdl.texCoords.clear();
+    if (model.hasTextures) {
+        for (auto &texCoord : model.texCoords) {
+            RSDKv4::Model::TexCoord coord;
+            coord.x = texCoord.x;
+            coord.y = texCoord.y;
+            mdl.texCoords.append(coord);
+        }
+    }
+    else {
+        int vertCnt = 0;
+        if (model.frames.count() >= 1)
+            vertCnt = model.frames[0].vertices.count();
+
+        for (int t = 0; t < vertCnt; ++t) {
+            RSDKv4::Model::TexCoord coord;
+            coord.x = 0;
+            coord.y = 0;
+            mdl.texCoords.append(coord);
+        }
+    }
+
+    mdl.indices.clear();
+    for (auto &index : model.indices) mdl.indices.append(index);
+
+    mdl.frames.clear();
+    for (auto &frame : model.frames) {
+        RSDKv4::Model::Frame f;
+
+        for (auto &vert : frame.vertices) {
+            RSDKv4::Model::Frame::Vertex vertex;
+            vertex.x = vert.x;
+            vertex.y = vert.y;
+            vertex.z = vert.z;
+
+            vertex.nx = 0;
+            vertex.ny = 0;
+            vertex.nz = 0;
+
+            if (model.hasNormals) {
+                vertex.nx = vert.nx;
+                vertex.ny = vert.ny;
+                vertex.nz = vert.nz;
+            }
+
+            f.vertices.append(vertex);
+        }
+
+        mdl.frames.append(f);
+    }
+
+    return mdl;
+}
+
 void ModelViewer::loadTexture(QString texturePath)
 {
     texFile = texturePath;

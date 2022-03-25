@@ -23,13 +23,11 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColour> &pal,
     ui->tileList->clear();
     for (int t = 0; t < tileList.count(); ++t) {
         auto *item = new QListWidgetItem(QString::number(t), ui->tileList);
-        item->setText("");
+        item->setText(QString::number(t));
         item->setIcon(QPixmap::fromImage(tileList.at(t)));
     }
 
-    for (int t = 0; t < 0x400; ++t) {
-        tileIDs.append(t);
-    }
+    for (int t = 0; t < 0x400; ++t) tileIDs.append(t);
 
     // ----------------
     // TILES

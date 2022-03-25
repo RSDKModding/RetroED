@@ -36,7 +36,7 @@ void FormatHelpers::GameConfig::read(byte ver, QString filename)
 
             for (QString &sfx : gameconfig.soundFX) {
                 SoundInfo s;
-                s.m_name = QFileInfo(sfx).baseName();
+                s.name = QFileInfo(sfx).baseName();
                 s.path   = sfx;
 
                 soundFX.append(s);
@@ -52,7 +52,7 @@ void FormatHelpers::GameConfig::read(byte ver, QString filename)
 
             for (RSDKv2::GameConfig::PlayerInfo &plr : gameconfig.players) {
                 PlayerInfo p;
-                p.m_name = plr.name;
+                p.name = plr.name;
                 p.anim   = plr.anim;
                 p.script = plr.script;
 
@@ -88,7 +88,7 @@ void FormatHelpers::GameConfig::read(byte ver, QString filename)
 
             for (QString &sfx : gameconfig.soundFX) {
                 SoundInfo s;
-                s.m_name = QFileInfo(sfx).baseName();
+                s.name = QFileInfo(sfx).baseName();
                 s.path   = sfx;
 
                 soundFX.append(s);
@@ -104,7 +104,7 @@ void FormatHelpers::GameConfig::read(byte ver, QString filename)
 
             for (QString &plr : gameconfig.players) {
                 PlayerInfo p;
-                p.m_name = plr;
+                p.name = plr;
                 p.anim   = plr + ".ani";
                 p.script = "Players/" + plr + ".txt";
 
@@ -140,7 +140,7 @@ void FormatHelpers::GameConfig::read(byte ver, QString filename)
 
             for (RSDKv4::GameConfig::SoundInfo &sfx : gameconfig.soundFX) {
                 SoundInfo s;
-                s.m_name = sfx.name;
+                s.name = sfx.name;
                 s.path   = sfx.path;
 
                 soundFX.append(s);
@@ -156,7 +156,7 @@ void FormatHelpers::GameConfig::read(byte ver, QString filename)
 
             for (QString &plr : gameconfig.players) {
                 PlayerInfo p;
-                p.m_name = plr;
+                p.name = plr;
                 p.anim   = plr + ".ani";
                 p.script = "Players/" + plr + ".txt";
 
@@ -211,7 +211,7 @@ void FormatHelpers::GameConfig::write(byte ver, QString filename)
 
             for (PlayerInfo &plr : players) {
                 RSDKv2::GameConfig::PlayerInfo p;
-                p.name   = plr.m_name;
+                p.name   = plr.name;
                 p.anim   = plr.anim;
                 p.script = plr.script;
 
@@ -255,7 +255,7 @@ void FormatHelpers::GameConfig::write(byte ver, QString filename)
                 gameconfig.globalVariables.append(v);
             }
 
-            for (PlayerInfo &plr : players) gameconfig.players.append(plr.m_name);
+            for (PlayerInfo &plr : players) gameconfig.players.append(plr.name);
 
             for (int c = 0; c < 4; ++c) {
                 for (SceneInfo &scn : stageLists[c].scenes) {
@@ -286,7 +286,7 @@ void FormatHelpers::GameConfig::write(byte ver, QString filename)
 
             for (SoundInfo &sfx : soundFX) {
                 RSDKv4::GameConfig::SoundInfo s;
-                s.name = sfx.m_name;
+                s.name = sfx.name;
                 s.path = sfx.path;
 
                 gameconfig.soundFX.append(s);
@@ -300,7 +300,7 @@ void FormatHelpers::GameConfig::write(byte ver, QString filename)
                 gameconfig.globalVariables.append(v);
             }
 
-            for (PlayerInfo &plr : players) gameconfig.players.append(plr.m_name);
+            for (PlayerInfo &plr : players) gameconfig.players.append(plr.name);
 
             for (int c = 0; c < 4; ++c) {
                 for (SceneInfo &scn : stageLists[c].scenes) {

@@ -1,6 +1,6 @@
 #include "includes.hpp"
 
-#define COMMONALIAS_COUNT_v4 (0x64 + 7)
+#define COMMONALIAS_COUNT_v4 (0x6A + 7)
 #define ALIAS_COUNT_TRIM_v4  (0xE0)
 #define ALIAS_COUNT_v4       (COMMONALIAS_COUNT_v4 + ALIAS_COUNT_TRIM_v4)
 
@@ -566,7 +566,7 @@ AliasInfov4 publicAliases[ALIAS_COUNT_v4] = {
     AliasInfov4("FACE_COLOURED_2D", "3"),
     AliasInfov4("FACE_FADED", "4"),
     AliasInfov4("FACE_TEXTURED_C", "5"),
-    AliasInfov4("FACE_TEXTURED_D", "6"),
+    AliasInfov4("FACE_TEXTURED_C_BLEND", "6"),
     AliasInfov4("FACE_SPRITE_3D", "7"),
     AliasInfov4("PRIORITY_ACTIVE_BOUNDS", "0"),
     AliasInfov4("PRIORITY_ACTIVE", "1"),
@@ -575,7 +575,14 @@ AliasInfov4 publicAliases[ALIAS_COUNT_v4] = {
     AliasInfov4("PRIORITY_XBOUNDS_DESTROY", "4"),
     AliasInfov4("PRIORITY_INACTIVE", "5"),
     AliasInfov4("PRIORITY_BOUNDS_SMALL", "6"),
-    AliasInfov4("PRIORITY_UNKNOWN", "7"),
+    AliasInfov4("PRIORITY_ACTIVE_SMALL", "7"),
+    AliasInfov4("CONTROLMODE_NONE", "-1"),
+    AliasInfov4("CONTROLMODE_NORMAL", "0"),
+    AliasInfov4("CAMERASTYLE_FOLLOW", "0"),
+    AliasInfov4("CAMERASTYLE_EXTENDED", "1"),
+    AliasInfov4("CAMERASTYLE_EXTENDED_OFFSET_L", "2"),
+    AliasInfov4("CAMERASTYLE_EXTENDED_OFFSET_R", "3"),
+    AliasInfov4("CAMERASTYLE_HLOCKED", "4"),
     AliasInfov4("TILEINFO_INDEX", "0"),
     AliasInfov4("TILEINFO_DIRECTION", "1"),
     AliasInfov4("TILEINFO_VISUALPLANE", "2"),
@@ -588,8 +595,6 @@ AliasInfov4 publicAliases[ALIAS_COUNT_v4] = {
     AliasInfov4("TEXTINFO_TEXTDATA", "0"),
     AliasInfov4("TEXTINFO_TEXTSIZE", "1"),
     AliasInfov4("TEXTINFO_ROWCOUNT", "2"),
-    AliasInfov4("ONLINEMENU_ACHIEVEMENTS", "0"),
-    AliasInfov4("ONLINEMENU_LEADERBOARDS", "1"),
     AliasInfov4("TILELAYER_NOSCROLL", "0"),
     AliasInfov4("TILELAYER_HSCROLL", "1"),
     AliasInfov4("TILELAYER_VSCROLL", "2"),
@@ -1119,6 +1124,30 @@ Compilerv4::Compilerv4()
     }
 }
 
+bool Compilerv4::strComp(QString strA, QString strB)
+{
+    if (strA.length() == 0 && strB.length() == 0)
+        return true;
+    if (strA.length() == 0 || strB.length() == 0 || strA.length() != strB.length())
+        return false;
+
+    bool match  = true;
+    int strPosA = 0, strPosB = 0;
+
+    while (strPosA < strA.length() && strPosB < strB.length()) {
+        if (strA[strPosA] == strB[strPosB] || strA[strPosA] == strB[strPosB].toLatin1() + ' '
+            || strA[strPosA] == strB[strPosB].toLatin1() - ' ') {
+            ++strPosA;
+            ++strPosB;
+        }
+        else {
+            match = false;
+            break;
+        }
+    }
+    return match;
+}
+
 int Compilerv4::findStringToken(QString &string, QString token, char stopID)
 {
     int tokenCharID  = 0;
@@ -1457,7 +1486,7 @@ void Compilerv4::convertFunctionText(QString &text)
     }
 
     for (int i = 0; i < ScrFunc::FUNC_MAX_CNT; ++i) {
-        if (funcName == functionsv4[i].name) {
+        if (strComp(funcName, functionsv4[i].name)) {
             opcode     = i;
             opcodeSize = functionsv4[i].opcodeSize;
             textPos    = functionsv4[i].name.length();
@@ -1473,10 +1502,10 @@ void Compilerv4::convertFunctionText(QString &text)
     }
     else {
         scriptData[scriptDataPos++] = opcode;
-        if (functionsv4[opcode].name == "else")
+        if (strComp(functionsv4[opcode].name, "else"))
             jumpTableData[jumpTableStack[jumpTableStackPos]] = scriptDataPos - scriptDataOffset;
 
-        if (functionsv4[opcode].name == "endif") {
+        if (strComp(functionsv4[opcode].name, "endif")) {
             int jPos                = jumpTableStack[jumpTableStackPos];
             jumpTableData[jPos + 1] = scriptDataPos - scriptDataOffset;
             if (jumpTableData[jPos] == -1)
@@ -1484,7 +1513,7 @@ void Compilerv4::convertFunctionText(QString &text)
             --jumpTableStackPos;
         }
 
-        if (functionsv4[opcode].name == "endswitch") {
+        if (strComp(functionsv4[opcode].name, "endswitch")) {
             int jPos                = jumpTableStack[jumpTableStackPos];
             jumpTableData[jPos + 3] = scriptDataPos - scriptDataOffset;
             if (jumpTableData[jPos + 2] == -1) {
@@ -1500,7 +1529,7 @@ void Compilerv4::convertFunctionText(QString &text)
             --jumpTableStackPos;
         }
 
-        if (functionsv4[opcode].name == "loop" || functionsv4[opcode].name == "next") {
+        if (strComp(functionsv4[opcode].name, "loop") || strComp(functionsv4[opcode].name, "next")) {
             jumpTableData[jumpTableStack[jumpTableStackPos--] + 1] = scriptDataPos - scriptDataOffset;
         }
 
@@ -1552,7 +1581,7 @@ void Compilerv4::convertFunctionText(QString &text)
             // Eg: temp0 = FX_SCALE
             // Private (this script only)
             for (int a = 0; a < privateAliasCount; ++a) {
-                if (funcName == privateAliases[a].name) {
+                if (strComp(funcName, privateAliases[a].name)) {
                     copyAliasStr(funcName, privateAliases[a].value, 0);
                     if (findStringToken(privateAliases[a].value, "[", 1) > -1)
                         copyAliasStr(arrayStr, privateAliases[a].value, 1);
@@ -1560,7 +1589,7 @@ void Compilerv4::convertFunctionText(QString &text)
             }
             // Private (this script & all following scripts)
             for (int a = 0; a < publicAliasCount; ++a) {
-                if (funcName == publicAliases[a].name) {
+                if (strComp(funcName, publicAliases[a].name)) {
                     copyAliasStr(funcName, publicAliases[a].value, 0);
                     if (findStringToken(publicAliases[a].value, "[", 1) > -1)
                         copyAliasStr(arrayStr, publicAliases[a].value, 1);
@@ -1577,13 +1606,13 @@ void Compilerv4::convertFunctionText(QString &text)
 
                 // Private (this script only)
                 for (int a = 0; a < privateAliasCount; ++a) {
-                    if (arrayStr == privateAliases[a].name) {
+                    if (strComp(arrayStr, privateAliases[a].name)) {
                         copyAliasStr(arrayStr, privateAliases[a].value, 0);
                     }
                 }
                 // Private (this script & all following scripts)
                 for (int a = 0; a < publicAliasCount; ++a) {
-                    if (arrayStr == publicAliases[a].name) {
+                    if (strComp(arrayStr, publicAliases[a].name)) {
                         copyAliasStr(arrayStr, publicAliases[a].value, 0);
                     }
                 }
@@ -1592,14 +1621,14 @@ void Compilerv4::convertFunctionText(QString &text)
             // Eg: temp0 = value0
             // Private (this script only)
             for (int s = 0; s < privateStaticVarCount; ++s) {
-                if (funcName == privateStaticVariables[s].name) {
+                if (strComp(funcName, privateStaticVariables[s].name)) {
                     funcName = "local";
                     arrayStr = QString::number(privateStaticVariables[s].dataPos);
                 }
             }
             // Private (this script & all following scripts)
             for (int s = 0; s < publicStaticVarCount; ++s) {
-                if (funcName == publicStaticVariables[s].name) {
+                if (strComp(funcName, publicStaticVariables[s].name)) {
                     funcName = "local";
                     arrayStr = QString::number(publicStaticVariables[s].dataPos);
                 }
@@ -1608,14 +1637,14 @@ void Compilerv4::convertFunctionText(QString &text)
             // Eg: GetTableValue(TempValue0, 1, array0)
             // Private (this script only)
             for (int a = 0; a < privateTableCount; ++a) {
-                if (funcName == privateTables[a].name) {
+                if (strComp(funcName, privateTables[a].name)) {
                     funcName = QString::number(privateTables[a].dataPos);
                     arrayStr = "";
                 }
             }
             // Private (this script & all following scripts)
             for (int a = 0; a < publicTableCount; ++a) {
-                if (funcName == publicTables[a].name) {
+                if (strComp(funcName, publicTables[a].name)) {
                     funcName = QString::number(publicTables[a].dataPos);
                     arrayStr = "";
                 }
@@ -1623,7 +1652,7 @@ void Compilerv4::convertFunctionText(QString &text)
 
             // Eg: temp0 = Game.Variable
             for (int v = 0; v < globalVariables.count(); ++v) {
-                if (funcName == globalVariables[v]) {
+                if (strComp(funcName, globalVariables[v])) {
                     funcName = "global";
                     arrayStr = "";
                     appendIntegerToString(arrayStr, v);
@@ -1631,17 +1660,17 @@ void Compilerv4::convertFunctionText(QString &text)
             }
             // Eg: temp0 = Function1
             for (int f = 0; f < functionCount; ++f) {
-                if (funcName == functionNames[f]) {
+                if (strComp(funcName, functionNames[f])) {
                     funcName = "";
                     appendIntegerToString(funcName, f);
                 }
             }
             // Eg: temp0 = TypeName[PlayerObject]
-            if (funcName == "TypeName") {
+            if (strComp(funcName, "TypeName")) {
                 funcName = "";
                 appendIntegerToString(funcName, 0);
                 for (int o = 0; o < OBJECT_COUNT; ++o) {
-                    if (arrayStr == typeNames[o]) {
+                    if (strComp(arrayStr, typeNames[o])) {
                         funcName = "";
                         appendIntegerToString(funcName, o);
                     }
@@ -1649,12 +1678,12 @@ void Compilerv4::convertFunctionText(QString &text)
             }
 
             // Eg: temp0 = SfxName[Jump]
-            if (funcName == "SfxName") {
+            if (strComp(funcName, "SfxName")) {
                 funcName = "";
                 appendIntegerToString(funcName, 0);
                 int s = 0;
                 for (; s < SFX_COUNT; ++s) {
-                    if (arrayStr == sfxNames[s]) {
+                    if (strComp(arrayStr, sfxNames[s])) {
                         funcName = "";
                         appendIntegerToString(funcName, s);
                         break;
@@ -1667,12 +1696,12 @@ void Compilerv4::convertFunctionText(QString &text)
             }
 
             // Eg: temp0 = VarName[player.lives]
-            if (funcName == "VarName") {
+            if (strComp(funcName, "VarName")) {
                 funcName = "";
                 appendIntegerToString(funcName, 0);
                 int v = 0;
                 for (; v < globalVariables.count(); ++v) {
-                    if (arrayStr == globalVariables[v]) {
+                    if (strComp(arrayStr, globalVariables[v])) {
                         funcName = "";
                         appendIntegerToString(funcName, v);
                         break;
@@ -1685,23 +1714,23 @@ void Compilerv4::convertFunctionText(QString &text)
             }
 
             // Eg: temp0 = AchievementName[Ring King]
-            if (funcName == "AchievementName") {
+            if (strComp(funcName, "AchievementName")) {
                 funcName = "";
                 appendIntegerToString(funcName, 0);
                 // default to 0, we don't know what these are
             }
 
             // Eg: temp0 = PlayerName[SONIC]
-            if (funcName == "PlayerName") {
+            if (strComp(funcName, "PlayerName")) {
                 funcName = "";
                 appendIntegerToString(funcName, 0);
                 int p = 0;
                 if (editor) {
                     for (; p < ((SceneEditor *)editor)->gameConfig.players.count(); ++p) {
-                        QString name = ((SceneEditor *)editor)->gameConfig.players[p].m_name;
+                        QString name = ((SceneEditor *)editor)->gameConfig.players[p].name;
                         name         = name.replace(" ", "");
 
-                        if (arrayStr == name) {
+                        if (strComp(arrayStr, name)) {
                             funcName = "";
                             appendIntegerToString(funcName, p);
                             break;
@@ -1717,7 +1746,7 @@ void Compilerv4::convertFunctionText(QString &text)
                         QString name = gameConfig.players[p];
                         name         = name.replace(" ", "");
 
-                        if (arrayStr == name) {
+                        if (strComp(arrayStr, name)) {
                             funcName = "";
                             appendIntegerToString(funcName, p);
                             break;
@@ -1733,7 +1762,7 @@ void Compilerv4::convertFunctionText(QString &text)
             }
 
             // Eg: temp0 = StageName[GREEN HILL ZONE 1]
-            if (funcName == "StageName") {
+            if (strComp(funcName, "StageName")) {
                 funcName = "";
                 int s    = -1;
                 if (arrayStr.length() >= 2) {
@@ -1755,7 +1784,7 @@ void Compilerv4::convertFunctionText(QString &text)
                         for (; s < gameConfig.stageLists[list].scenes.count(); ++s) {
                             QString name = gameConfig.stageLists[list].scenes[s].name;
                             name         = name.replace(" ", "");
-                            if (scnName == name)
+                            if (strComp(scnName, name))
                                 break;
                         }
 
@@ -1828,23 +1857,23 @@ void Compilerv4::convertFunctionText(QString &text)
                         scriptData[scriptDataPos++] = value;
                     }
                     else {
-                        if (arrayStr == "arrayPos0")
+                        if (strComp(arrayStr, "arrayPos0"))
                             value = 0;
-                        if (arrayStr == "arrayPos1")
+                        if (strComp(arrayStr, "arrayPos1"))
                             value = 1;
-                        if (arrayStr == "arrayPos2")
+                        if (strComp(arrayStr, "arrayPos2"))
                             value = 2;
-                        if (arrayStr == "arrayPos3")
+                        if (strComp(arrayStr, "arrayPos3"))
                             value = 3;
-                        if (arrayStr == "arrayPos4")
+                        if (strComp(arrayStr, "arrayPos4"))
                             value = 4;
-                        if (arrayStr == "arrayPos5")
+                        if (strComp(arrayStr, "arrayPos5"))
                             value = 5;
-                        if (arrayStr == "arrayPos6")
+                        if (strComp(arrayStr, "arrayPos6"))
                             value = 6;
-                        if (arrayStr == "arrayPos7")
+                        if (strComp(arrayStr, "arrayPos7"))
                             value = 7;
-                        if (arrayStr == "tempObjectPos")
+                        if (strComp(arrayStr, "tempObjectPos"))
                             value = 8;
                         scriptData[scriptDataPos++] = VARARR_ARRAY;
                         scriptData[scriptDataPos++] = value;
@@ -1855,7 +1884,7 @@ void Compilerv4::convertFunctionText(QString &text)
                 }
                 value = -1;
                 for (int i = 0; i < VAR_MAX_CNT; ++i) {
-                    if (funcName == variableNamesv4[i])
+                    if (strComp(funcName, variableNamesv4[i]))
                         value = i;
                 }
 
@@ -1894,7 +1923,7 @@ void Compilerv4::checkCaseNumber(QString &text)
         int textPos = 0;
         int mode    = 0;
 
-        while (caseString[textPos] != ':' && textPos < caseString.length()) {
+        while (textPos < caseString.length() && caseString[textPos] != ':') {
             switch (mode) {
                 case 0: // normal
                     if (caseString[textPos] == '[')
@@ -1914,11 +1943,11 @@ void Compilerv4::checkCaseNumber(QString &text)
         }
 
         // Eg: temp0 = TypeName[PlayerObject]
-        if (caseValue == "TypeName") {
+        if (strComp(caseValue, "TypeName")) {
             caseValue = "";
             appendIntegerToString(caseValue, 0);
             for (int o = 0; o < OBJECT_COUNT; ++o) {
-                if (arrayStr == typeNames[o]) {
+                if (strComp(arrayStr, typeNames[o])) {
                     caseValue = "";
                     appendIntegerToString(caseValue, o);
                 }
@@ -1926,12 +1955,12 @@ void Compilerv4::checkCaseNumber(QString &text)
         }
 
         // Eg: temp0 = SfxName[Jump]
-        if (caseValue == "SfxName") {
+        if (strComp(caseValue, "SfxName")) {
             caseValue = "";
             appendIntegerToString(caseValue, 0);
             int s = 0;
             for (; s < SFX_COUNT; ++s) {
-                if (arrayStr == sfxNames[s]) {
+                if (strComp(arrayStr, sfxNames[s])) {
                     caseValue = "";
                     appendIntegerToString(caseValue, s);
                     break;
@@ -1944,12 +1973,12 @@ void Compilerv4::checkCaseNumber(QString &text)
         }
 
         // Eg: temp0 = VarName[player.lives]
-        if (caseValue == "VarName") {
+        if (strComp(caseValue, "VarName")) {
             caseValue = "";
             appendIntegerToString(caseValue, 0);
             int v = 0;
             for (; v < globalVariables.count(); ++v) {
-                if (arrayStr == globalVariables[v]) {
+                if (strComp(arrayStr, globalVariables[v])) {
                     caseValue = "";
                     appendIntegerToString(caseValue, v);
                     break;
@@ -1962,23 +1991,23 @@ void Compilerv4::checkCaseNumber(QString &text)
         }
 
         // Eg: temp0 = AchievementName[Ring King]
-        if (caseValue == "AchievementName") {
+        if (strComp(caseValue, "AchievementName")) {
             caseValue = "";
             appendIntegerToString(caseValue, 0);
             // default to 0, we don't know what these are
         }
 
         // Eg: temp0 = PlayerName[SONIC]
-        if (caseValue == "PlayerName") {
+        if (strComp(caseValue, "PlayerName")) {
             caseValue = "";
             appendIntegerToString(caseValue, 0);
             int p = 0;
             if (editor) {
                 for (; p < ((SceneEditor *)editor)->gameConfig.players.count(); ++p) {
-                    QString name = ((SceneEditor *)editor)->gameConfig.players[p].m_name;
+                    QString name = ((SceneEditor *)editor)->gameConfig.players[p].name;
                     name         = name.replace(" ", "");
 
-                    if (arrayStr == name) {
+                    if (strComp(arrayStr, name)) {
                         caseValue = "";
                         appendIntegerToString(caseValue, p);
                         break;
@@ -1994,7 +2023,7 @@ void Compilerv4::checkCaseNumber(QString &text)
                     QString name = gameConfig.players[p];
                     name         = name.replace(" ", "");
 
-                    if (arrayStr == name) {
+                    if (strComp(arrayStr, name)) {
                         caseValue = "";
                         appendIntegerToString(caseValue, p);
                         break;
@@ -2010,7 +2039,7 @@ void Compilerv4::checkCaseNumber(QString &text)
         }
 
         // Eg: temp0 = StageName[GREEN HILL ZONE 1]
-        if (caseValue == "StageName") {
+        if (strComp(caseValue, "StageName")) {
             caseValue = "";
             int s     = -1;
             if (arrayStr.length() >= 2) {
@@ -2032,7 +2061,7 @@ void Compilerv4::checkCaseNumber(QString &text)
                     for (; s < gameConfig.stageLists[list].scenes.count(); ++s) {
                         QString name = gameConfig.stageLists[list].scenes[s].name;
                         name         = name.replace(" ", "");
-                        if (scnName == name)
+                        if (strComp(scnName, name))
                             break;
                     }
 
@@ -2055,7 +2084,7 @@ void Compilerv4::checkCaseNumber(QString &text)
     }
 
     for (int a = 0; a < privateAliasCount && !flag; ++a) {
-        if (caseString == privateAliases[a].name) {
+        if (strComp(caseString, privateAliases[a].name)) {
             caseString = privateAliases[a].value;
             flag       = true;
             break;
@@ -2063,7 +2092,7 @@ void Compilerv4::checkCaseNumber(QString &text)
     }
 
     for (int a = 0; a < publicAliasCount && !flag; ++a) {
-        if (caseString == publicAliases[a].name) {
+        if (strComp(caseString, publicAliases[a].name)) {
             caseString = publicAliases[a].value;
             break;
         }
@@ -2121,7 +2150,7 @@ bool Compilerv4::readSwitchCase(QString &text)
             int textPos = 0;
             int mode    = 0;
 
-            while (caseText[textPos] != ':' && textPos < caseText.length()) {
+            while (textPos < caseText.length() && caseText[textPos] != ':') {
                 switch (mode) {
                     case 0: // normal
                         if (caseText[textPos] == '[')
@@ -2141,11 +2170,11 @@ bool Compilerv4::readSwitchCase(QString &text)
             }
 
             // Eg: temp0 = TypeName[PlayerObject]
-            if (caseValue == "TypeName") {
+            if (strComp(caseValue, "TypeName")) {
                 caseValue = "";
                 appendIntegerToString(caseValue, 0);
                 for (int o = 0; o < OBJECT_COUNT; ++o) {
-                    if (arrayStr == typeNames[o]) {
+                    if (strComp(arrayStr, typeNames[o])) {
                         caseValue = "";
                         appendIntegerToString(caseValue, o);
                     }
@@ -2153,12 +2182,12 @@ bool Compilerv4::readSwitchCase(QString &text)
             }
 
             // Eg: temp0 = SfxName[Jump]
-            if (caseValue == "SfxName") {
+            if (strComp(caseValue, "SfxName")) {
                 caseValue = "";
                 appendIntegerToString(caseValue, 0);
                 int s = 0;
                 for (; s < SFX_COUNT; ++s) {
-                    if (arrayStr == sfxNames[s]) {
+                    if (strComp(arrayStr, sfxNames[s])) {
                         caseValue = "";
                         appendIntegerToString(caseValue, s);
                         break;
@@ -2171,12 +2200,12 @@ bool Compilerv4::readSwitchCase(QString &text)
             }
 
             // Eg: temp0 = VarName[player.lives]
-            if (caseValue == "VarName") {
+            if (strComp(caseValue, "VarName")) {
                 caseValue = "";
                 appendIntegerToString(caseValue, 0);
                 int v = 0;
                 for (; v < globalVariables.count(); ++v) {
-                    if (arrayStr == globalVariables[v]) {
+                    if (strComp(arrayStr, globalVariables[v])) {
                         caseValue = "";
                         appendIntegerToString(caseValue, v);
                         break;
@@ -2189,23 +2218,23 @@ bool Compilerv4::readSwitchCase(QString &text)
             }
 
             // Eg: temp0 = AchievementName[Ring King]
-            if (caseValue == "AchievementName") {
+            if (strComp(caseValue, "AchievementName")) {
                 caseValue = "";
                 appendIntegerToString(caseValue, 0);
                 // default to 0, we don't know what these are
             }
 
             // Eg: temp0 = PlayerName[SONIC]
-            if (caseValue == "PlayerName") {
+            if (strComp(caseValue, "PlayerName")) {
                 caseValue = "";
                 appendIntegerToString(caseValue, 0);
                 int p = 0;
                 if (editor) {
                     for (; p < ((SceneEditor *)editor)->gameConfig.players.count(); ++p) {
-                        QString name = ((SceneEditor *)editor)->gameConfig.players[p].m_name;
+                        QString name = ((SceneEditor *)editor)->gameConfig.players[p].name;
                         name         = name.replace(" ", "");
 
-                        if (arrayStr == name) {
+                        if (strComp(arrayStr, name)) {
                             caseValue = "";
                             appendIntegerToString(caseValue, p);
                             break;
@@ -2221,7 +2250,7 @@ bool Compilerv4::readSwitchCase(QString &text)
                         QString name = gameConfig.players[p];
                         name         = name.replace(" ", "");
 
-                        if (arrayStr == name) {
+                        if (strComp(arrayStr, name)) {
                             caseValue = "";
                             appendIntegerToString(caseValue, p);
                             break;
@@ -2237,7 +2266,7 @@ bool Compilerv4::readSwitchCase(QString &text)
             }
 
             // Eg: temp0 = StageName[GREEN HILL ZONE 1]
-            if (caseValue == "StageName") {
+            if (strComp(caseValue, "StageName")) {
                 caseValue = "";
                 int s     = -1;
                 if (arrayStr.length() >= 2) {
@@ -2259,7 +2288,7 @@ bool Compilerv4::readSwitchCase(QString &text)
                         for (; s < gameConfig.stageLists[list].scenes.count(); ++s) {
                             QString name = gameConfig.stageLists[list].scenes[s].name;
                             name         = name.replace(" ", "");
-                            if (scnName == name)
+                            if (strComp(scnName, name))
                                 break;
                         }
 
@@ -2283,7 +2312,7 @@ bool Compilerv4::readSwitchCase(QString &text)
         }
 
         for (int a = 0; a < privateAliasCount && !flag; ++a) {
-            if (caseText == privateAliases[a].name) {
+            if (strComp(caseText, privateAliases[a].name)) {
                 caseText = privateAliases[a].value;
                 flag     = true;
                 break;
@@ -2291,7 +2320,7 @@ bool Compilerv4::readSwitchCase(QString &text)
         }
 
         for (int a = 0; a < publicAliasCount && !flag; ++a) {
-            if (caseText == publicAliases[a].name) {
+            if (strComp(caseText, publicAliases[a].name)) {
                 caseText = publicAliases[a].value;
                 break;
             }
@@ -2315,14 +2344,14 @@ void Compilerv4::readTableValues(QString &text)
     int textPos       = 0;
     QString strBuffer = "";
     while (true) {
-        if (text[textPos] == ',' || textPos >= text.length()) {
+        if (textPos >= text.length() || text[textPos] == ',') {
             if (strBuffer.length()) { // only try if something exists
                 int cnt = currentTable->valueCount;
 
                 if (!convertStringToInteger(strBuffer, &currentTable->values[cnt].value)) {
                     bool flag = false;
                     for (int a = 0; a < privateAliasCount; ++a) {
-                        if (privateAliases[a].name == strBuffer) {
+                        if (strComp(privateAliases[a].name, strBuffer)) {
                             strBuffer = publicAliases[a].value;
                             flag      = true;
                             break;
@@ -2330,7 +2359,7 @@ void Compilerv4::readTableValues(QString &text)
                     }
 
                     for (int a = 0; a < publicAliasCount && !flag; ++a) {
-                        if (publicAliases[a].name == strBuffer) {
+                        if (strComp(publicAliases[a].name, strBuffer)) {
                             strBuffer = publicAliases[a].value;
                             break;
                         }
@@ -2551,21 +2580,21 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                     }
 
                     if (inEditor) {
-                        if (scriptText == "eventRSDKDraw") {
+                        if (strComp(scriptText, "eventRSDKDraw")) {
                             parseMode                                              = PARSEMODE_FUNCTION;
                             objectScriptList[scriptID].eventRSDKDraw.scriptCodePtr = scriptDataPos;
                             objectScriptList[scriptID].eventRSDKDraw.jumpTablePtr  = jumpTableDataPos;
                             scriptDataOffset                                       = scriptDataPos;
                             jumpTableDataOffset                                    = jumpTableDataPos;
                         }
-                        if (scriptText == "eventRSDKLoad") {
+                        if (strComp(scriptText, "eventRSDKLoad")) {
                             parseMode                                              = PARSEMODE_FUNCTION;
                             objectScriptList[scriptID].eventRSDKLoad.scriptCodePtr = scriptDataPos;
                             objectScriptList[scriptID].eventRSDKLoad.jumpTablePtr  = jumpTableDataPos;
                             scriptDataOffset                                       = scriptDataPos;
                             jumpTableDataOffset                                    = jumpTableDataPos;
                         }
-                        if (scriptText == "eventRSDKEdit") {
+                        if (strComp(scriptText, "eventRSDKEdit")) {
                             parseMode                                              = PARSEMODE_FUNCTION;
                             objectScriptList[scriptID].eventRSDKEdit.scriptCodePtr = scriptDataPos;
                             objectScriptList[scriptID].eventRSDKEdit.jumpTablePtr  = jumpTableDataPos;
@@ -2574,21 +2603,21 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                         }
                     }
                     else {
-                        if (scriptText == "eventObjectMain") {
+                        if (strComp(scriptText, "eventObjectMain")) {
                             parseMode                                          = PARSEMODE_FUNCTION;
                             objectScriptList[scriptID].eventMain.scriptCodePtr = scriptDataPos;
                             objectScriptList[scriptID].eventMain.jumpTablePtr  = jumpTableDataPos;
                             scriptDataOffset                                   = scriptDataPos;
                             jumpTableDataOffset                                = jumpTableDataPos;
                         }
-                        if (scriptText == "eventObjectDraw") {
+                        if (strComp(scriptText, "eventObjectDraw")) {
                             parseMode                                          = PARSEMODE_FUNCTION;
                             objectScriptList[scriptID].eventDraw.scriptCodePtr = scriptDataPos;
                             objectScriptList[scriptID].eventDraw.jumpTablePtr  = jumpTableDataPos;
                             scriptDataOffset                                   = scriptDataPos;
                             jumpTableDataOffset                                = jumpTableDataPos;
                         }
-                        if (scriptText == "eventObjectStartup") {
+                        if (strComp(scriptText, "eventObjectStartup")) {
                             parseMode                                             = PARSEMODE_FUNCTION;
                             objectScriptList[scriptID].eventStartup.scriptCodePtr = scriptDataPos;
                             objectScriptList[scriptID].eventStartup.jumpTablePtr  = jumpTableDataPos;
@@ -2604,7 +2633,7 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID, bool inEditor
 
                         int funcID = -1;
                         for (int f = 0; f < functionCount; ++f) {
-                            if (funcName == functionNames[f])
+                            if (strComp(funcName, functionNames[f]))
                                 funcID = f;
                         }
 
@@ -2624,7 +2653,7 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID, bool inEditor
 
                         int funcID = -1;
                         for (int f = 0; f < functionCount; ++f) {
-                            if (funcName == functionNames[f])
+                            if (strComp(funcName, functionNames[f]))
                                 funcID = f;
                         }
                         if (funcID <= -1) {
@@ -2661,11 +2690,11 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                     if (!semiFlag)
                         ++lineID;
                     if (scriptText.length()) {
-                        if (scriptText == "endevent") {
+                        if (strComp(scriptText, "endevent")) {
                             scriptData[scriptDataPos++] = FUNC_END;
                             parseMode                   = PARSEMODE_SCOPELESS;
                         }
-                        else if (scriptText == "endfunction") {
+                        else if (strComp(scriptText, "endfunction")) {
                             scriptData[scriptDataPos++] = FUNC_RETURN;
                             parseMode                   = PARSEMODE_SCOPELESS;
                         }

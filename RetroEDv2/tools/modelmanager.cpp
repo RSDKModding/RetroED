@@ -11,6 +11,10 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
     ui->viewerFrame->layout()->addWidget(viewer);
     viewer->show();
 
+    ui->vertCnt->setText(QString("Vertex Count: 0 Vertices"));
+    ui->idxCnt->setText(QString("Index Count: 0 Indices"));
+    ui->fVertCnt->setText(QString("Face Vertex Count: 3 Vertices"));
+
     updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, QOverload<>::of(&ModelManager::processAnimation));
 
@@ -22,6 +26,10 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
 
     connect(ui->useWireframe, &QCheckBox::toggled, [this](bool c) { viewer->setWireframe(c); });
     connect(ui->showNormals, &QCheckBox::toggled, [this](bool c) { viewer->setNormalsVisible(c); });
+
+    connect(ui->hasNormals, &QCheckBox::toggled, [this](bool c) { viewer->model.hasNormals = c; });
+    connect(ui->hasColours, &QCheckBox::toggled, [this](bool c) { viewer->model.hasColours = c; });
+    connect(ui->hasTextures, &QCheckBox::toggled, [this](bool c) { viewer->model.hasTextures = c; });
 
     connect(ui->loadTexture, &QPushButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Open Texture"), "", tr("PNG Files (*.png)"));
@@ -52,18 +60,21 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
         uint c = ui->frameList->currentRow() + 1;
         int n  = ui->frameList->currentRow() == ui->frameList->count() - 1 ? c - 1 : c;
 
-        switch (mdlFormat) {
-            case 0: modelv5.frames.insert(c, RSDKv5::Model::Frame()); break;
-            case 1: modelv4.frames.insert(c, RSDKv4::Model::Frame()); break;
-        }
-
         viewer->model.frames.insert(c, RSDKv5::Model::Frame());
+
+        if (viewer->model.frames.count() > 1) {
+            for (int v = 0; v < viewer->model.frames[0].vertices.count(); ++v) {
+                viewer->model.frames.last().vertices.append(RSDKv5::Model::Frame::Vertex());
+            }
+        }
 
         setupUI(false);
 
         ui->frameList->blockSignals(true);
         ui->frameList->setCurrentRow(n);
         ui->frameList->blockSignals(false);
+
+        viewer->setFrame(n);
 
         viewer->repaint();
         // doAction("Added animation", true);
@@ -74,15 +85,12 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
         int n = ui->frameList->currentRow() == ui->frameList->count() - 1 ? c - 1 : c;
         delete ui->frameList->item(c);
 
-        switch (mdlFormat) {
-            case 0: modelv5.frames.removeAt(c); break;
-            case 1: modelv4.frames.removeAt(c); break;
-        }
-
         viewer->model.frames.removeAt(c);
         setupUI(false);
 
         ui->rmFrame->setDisabled(viewer->model.frames.count() <= 0);
+
+        viewer->setFrame(n);
 
         viewer->repaint();
         // doAction("Removed frame", true);
@@ -98,14 +106,11 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
         if (n >= (uint)viewer->model.frames.count())
             return;
 
-        switch (mdlFormat) {
-            case 0: modelv5.frames.move(c, n); break;
-            case 1: modelv4.frames.move(c, n); break;
-        }
-
         viewer->model.frames.move(c, n);
 
         setupUI(false);
+
+        viewer->setFrame(n);
 
         viewer->repaint();
         // doAction("Moved frame", true);
@@ -124,11 +129,6 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
 
             viewer->model.frames.insert(c, viewer->model.frames[currentFrame]);
 
-            switch (mdlFormat) {
-                case 0: modelv5.frames.insert(c, modelv5.frames[currentFrame]); break;
-                case 1: modelv4.frames.insert(c, modelv4.frames[currentFrame]); break;
-            }
-
             setupUI(false);
 
             ui->frameList->blockSignals(true);
@@ -141,79 +141,90 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
 
     connect(ui->impMDL, &QPushButton::pressed, [this] {
         QFileDialog filedialog(this, tr("Load Model Frame"), "",
-                               tr(QString("OBJ Models (*.obj)").toStdString().c_str()));
+                               tr(QString("PLY Models (*.ply)").toStdString().c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
             QString selFile = filedialog.selectedFiles()[0];
 
-            useNormals  = false;
-            useTextures = false;
-            useColours  = false;
-            indices.clear();
-            vertices.clear();
-            normals.clear();
-            textureUVs.clear();
-            colours.clear();
-
+            RSDKv5::Model mdl;
             // read
+            mdl.loadPLY(selFile);
+            mdl.filePath = "Imported Model";
 
-            if (viewer->model.frames.count() > 1) {
-                if (vertices.count() != viewer->model.frames[0].vertices.count()) {
+            if (!mdl.frames.count()) {
+                QMessageBox msgBox(
+                    QMessageBox::Information, "RetroED",
+                    QString("No Vertices were loaded from the imported model.\nAborting import."),
+                    QMessageBox::NoButton);
+                msgBox.exec();
+                return;
+            }
+
+            if (viewer->model.frames.count() > 1 && mdl.frames.count() >= 1) {
+                if (mdl.frames[0].vertices.count() != viewer->model.frames[0].vertices.count()) {
                     QMessageBox msgBox(QMessageBox::Information, "RetroED",
                                        QString("Different number of vertices between the "
                                                "frames.\nExpected %1 vertices, but loaded %2 "
                                                "vertices.\nAborting import.")
                                            .arg(viewer->model.frames[0].vertices.count())
-                                           .arg(vertices.count()),
+                                           .arg(mdl.frames[0].vertices.count()),
                                        QMessageBox::NoButton);
                     msgBox.exec();
                     return;
                 }
 
-                if (indices.count() != viewer->model.indices.count()) {
+                if (mdl.indices.count() != viewer->model.indices.count()) {
                     QMessageBox msgBox(QMessageBox::Information, "RetroED",
                                        QString("Inconsistency in index count.\nExpected %1 "
                                                "indices, but loaded %2 "
                                                "indices.\nAborting import.")
                                            .arg(viewer->model.indices.count())
-                                           .arg(indices.count()),
+                                           .arg(mdl.indices.count()),
                                        QMessageBox::NoButton);
                     msgBox.exec();
                     return;
                 }
             }
 
-            RSDKv5::Model::Frame frame;
+            uint c = ui->frameList->currentRow();
+            if (!viewer->model.frames.count()
+                || (ui->frameList->currentRow() <= 0 && viewer->model.frames.count() == 1)) {
+                viewer->setModel(mdl);
+            }
+            else {
+                if (c >= (uint)viewer->model.frames.count())
+                    c = 0;
+
+                viewer->model.frames[c].vertices.clear();
+                for (auto &vertex : mdl.frames[0].vertices)
+                    viewer->model.frames[c].vertices.append(vertex);
+
+                viewer->setFrame(c);
+            }
+
+            setupUI(false);
+            ui->frameList->setCurrentRow(c);
+            viewer->repaint();
         }
     });
 
     connect(ui->expMDL, &QPushButton::pressed, [this] {
         QFileDialog filedialog(this, tr("Save Model Frames"), "",
-                               tr(QString("OBJ Models (*.obj)").toStdString().c_str()));
+                               tr(QString("PLY Models (*.ply)").toStdString().c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
             QString selFile = filedialog.selectedFiles()[0];
-
-            switch (mdlFormat) {
-                default: break;
-                case 0: modelv5.writeAsOBJ(selFile); break;
-                case 1: modelv4.writeAsOBJ(selFile); break;
-            }
+            viewer->model.writeAsPLY(selFile);
         }
     });
 
     /*connect(ui->exportCurFrame, &QPushButton::pressed, [this] {
         QFileDialog filedialog(this, tr("Save Model Frame"), "",
-                               tr(QString("OBJ Models (*.obj)").toStdString().c_str()));
+                               tr(QString("PLY Models (*.ply)").toStdString().c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
             QString selFile = filedialog.selectedFiles()[0];
-
-            switch (mdlFormat) {
-                default: break;
-                case 0: modelv5.writeAsOBJ(selFile, -1); break;
-                case 1: modelv4.writeAsOBJ(selFile, -1); break;
-            }
+            viewer->model.writeAsPLY(selFile, -1);
         }
     });*/
 
@@ -309,9 +320,8 @@ bool ModelManager::event(QEvent *event)
 {
     switch ((int)event->type()) {
         case RE_EVENT_NEW:
-            modelv4  = RSDKv4::Model();
-            modelv5  = RSDKv5::Model();
-            tabTitle = "Model Manager";
+            viewer->model = RSDKv5::Model();
+            tabTitle      = "Model Manager";
             setupUI();
             return true;
 
@@ -532,53 +542,57 @@ void ModelManager::setupUI(bool initialSetup)
 {
     ui->frameList->blockSignals(true);
 
+    ui->hasNormals->blockSignals(true);
+    ui->hasColours->blockSignals(true);
+    ui->hasTextures->blockSignals(true);
+
+    ui->hasNormals->setDisabled(false);
+    ui->hasColours->setDisabled(false);
+    ui->hasTextures->setDisabled(false);
+
+    ui->hasNormals->setChecked(false);
+    ui->hasColours->setChecked(false);
+    ui->hasTextures->setChecked(false);
+
     ui->frameList->clear();
-    switch (mdlFormat) {
-        default: break;
-        case 0: {
-            for (int f = 0; f < modelv5.frames.count(); ++f)
-                ui->frameList->addItem("Frame " + QString::number(f));
 
-            if (initialSetup) {
-                ui->animSpeed->blockSignals(true);
-                ui->animSpeed->setValue(0.1);
-                viewer->animSpeed = 0.1f;
-                ui->animSpeed->blockSignals(false);
+    for (int f = 0; f < viewer->model.frames.count(); ++f)
+        ui->frameList->addItem("Frame " + QString::number(f));
 
-                ui->loopIndex->blockSignals(true);
-                ui->loopIndex->setValue(0);
-                viewer->loopIndex = 0;
-                ui->loopIndex->blockSignals(false);
+    if (initialSetup) {
+        ui->animSpeed->blockSignals(true);
+        ui->animSpeed->setValue(0.1);
+        viewer->animSpeed = 0.1f;
+        ui->animSpeed->blockSignals(false);
 
-                ui->frameList->setCurrentRow(-1);
+        ui->loopIndex->blockSignals(true);
+        ui->loopIndex->setValue(0);
+        viewer->loopIndex = 0;
+        ui->loopIndex->blockSignals(false);
 
-                viewer->setModel(modelv5);
-            }
-            break;
-        }
-
-        case 1: {
-            for (int f = 0; f < modelv4.frames.count(); ++f)
-                ui->frameList->addItem("Frame " + QString::number(f));
-
-            if (initialSetup) {
-                ui->animSpeed->blockSignals(true);
-                ui->animSpeed->setValue(0.1);
-                viewer->animSpeed = 0.1f;
-                ui->animSpeed->blockSignals(false);
-
-                ui->loopIndex->blockSignals(true);
-                ui->loopIndex->setValue(0);
-                viewer->loopIndex = 0;
-                ui->loopIndex->blockSignals(false);
-
-                ui->frameList->setCurrentRow(-1);
-
-                viewer->setModel(modelv4);
-            }
-            break;
-        }
+        ui->frameList->setCurrentRow(-1);
     }
+
+    ui->hasNormals->setChecked(viewer->model.hasNormals);
+    ui->hasColours->setChecked(viewer->model.hasColours);
+    ui->hasTextures->setChecked(viewer->model.hasTextures);
+
+    int vertCnt = 0;
+    if (viewer->model.frames.count())
+        vertCnt = viewer->model.frames[0].vertices.count();
+
+    ui->vertCnt->setText(
+        QString("Vertex Count: %1 %2").arg(vertCnt).arg(vertCnt == 1 ? "Vertex" : "Vertices"));
+    ui->idxCnt->setText(QString("Index Count: %1 %2")
+                            .arg(viewer->model.indices.count())
+                            .arg(vertCnt == 1 ? "Index" : "Indices"));
+    ui->fVertCnt->setText(QString("Face Vertex Count: %1 %2")
+                              .arg(viewer->model.faceVerticesCount)
+                              .arg(vertCnt == 1 ? "Vertex" : "Vertices"));
+
+    ui->hasNormals->blockSignals(false);
+    ui->hasColours->blockSignals(false);
+    ui->hasTextures->blockSignals(false);
 
     ui->frameList->blockSignals(false);
 }
@@ -586,90 +600,90 @@ void ModelManager::setupUI(bool initialSetup)
 void ModelManager::loadModel(QString filePath, bool usev5Format)
 {
     setStatus("Loading model...", true);
+
     if (usev5Format) {
-        mdlFormat = 0;
-        modelv5.read(filePath);
-        tabTitle = Utils::getFilenameAndFolder(modelv5.filePath);
+        RSDKv5::Model mdl;
+        if (filePath != "")
+            mdl.read(filePath);
+        viewer->setModel(mdl);
+        tabTitle            = Utils::getFilenameAndFolder(mdl.filePath);
+        viewer->modelFormat = 0;
     }
     else {
-        mdlFormat = 1;
-        modelv4.read(filePath);
-        tabTitle = Utils::getFilenameAndFolder(modelv4.filePath);
+        RSDKv4::Model mdl;
+        if (filePath != "")
+            mdl.read(filePath);
+        viewer->setModel(mdl);
+        tabTitle            = Utils::getFilenameAndFolder(mdl.filePath);
+        viewer->modelFormat = 1;
     }
+
     updateTitle(false);
     setStatus("Loaded model " + tabTitle);
 
-    appConfig.addRecentFile(mdlFormat == 0 ? ENGINE_v5 : ENGINE_v4, TOOL_MODELMANAGER, filePath,
+    appConfig.addRecentFile(usev5Format ? ENGINE_v5 : ENGINE_v4, TOOL_MODELMANAGER, filePath,
                             QList<QString>{});
     setupUI();
 }
 
 bool ModelManager::saveModel(bool forceSaveAs)
 {
-    switch (mdlFormat) {
-        default: break;
-        case 0: {
-            if (forceSaveAs || modelv5.filePath.isEmpty()) {
-                QFileDialog filedialog(this, tr("Save RSDK Model"), "",
-                                       tr("RSDKv5 Model Files (*.bin)"));
-                filedialog.setAcceptMode(QFileDialog::AcceptSave);
-                if (filedialog.exec() == QDialog::Accepted) {
-                    QString filepath = filedialog.selectedFiles()[0];
 
-                    setStatus("Saving model...", true);
-                    modelv5.write(filepath);
-                    setStatus("Saved model to " + filepath);
+    if (forceSaveAs || viewer->model.filePath.isEmpty()) {
+        QString filters = { "RSDKv5 Model Files (*.bin);;RSDKv4 Model Files (*.bin)" };
 
-                    appConfig.addRecentFile(mdlFormat == 0 ? ENGINE_v5 : ENGINE_v4, TOOL_MODELMANAGER,
-                                            filepath, QList<QString>{});
-                    updateTitle(false);
-                    return true;
-                }
+        QFileDialog filedialog(this, tr("Save RSDK Model"), "", tr(filters.toStdString().c_str()));
+        filedialog.setAcceptMode(QFileDialog::AcceptSave);
+        if (filedialog.exec() == QDialog::Accepted) {
+            bool usev5Format = filedialog.selectedNameFilter() == "RSDKv5 Model Files (*.bin)";
+            QString filepath = filedialog.selectedFiles()[0];
+
+            if (usev5Format) {
+                setStatus("Saving model...", true);
+                viewer->model.write(filepath);
+                setStatus("Saved model to " + filepath);
+                viewer->modelFormat = 0;
+
+                appConfig.addRecentFile(ENGINE_v5, TOOL_MODELMANAGER, filepath, QList<QString>{});
             }
             else {
-                setStatus("Saving model...", true);
-                modelv5.write();
-                setStatus("Saved model to " + modelv5.filePath);
+                RSDKv4::Model mdl = viewer->getModelv4();
 
-                appConfig.addRecentFile(mdlFormat == 0 ? ENGINE_v5 : ENGINE_v4, TOOL_MODELMANAGER,
-                                        modelv5.filePath, QList<QString>{});
-                updateTitle(false);
-                return true;
+                setStatus("Saving model...", true);
+                mdl.write(filepath);
+                viewer->model.filePath = mdl.filePath;
+                setStatus("Saved model to " + filepath);
+                viewer->modelFormat = 1;
+
+                appConfig.addRecentFile(ENGINE_v4, TOOL_MODELMANAGER, filepath, QList<QString>{});
             }
-            break;
+
+            updateTitle(false);
+            return true;
+        }
+    }
+    else {
+        if (viewer->modelFormat == 0) {
+            setStatus("Saving model...", true);
+            viewer->model.write();
+            setStatus("Saved model to " + viewer->model.filePath);
+
+            appConfig.addRecentFile(ENGINE_v5, TOOL_MODELMANAGER, viewer->model.filePath,
+                                    QList<QString>{});
+        }
+        else {
+            RSDKv4::Model mdl = viewer->getModelv4();
+
+            setStatus("Saving model...", true);
+            mdl.write();
+            viewer->model.filePath = mdl.filePath;
+            setStatus("Saved model to " + mdl.filePath);
+
+            appConfig.addRecentFile(ENGINE_v5, TOOL_MODELMANAGER, mdl.filePath, QList<QString>{});
         }
 
-        case 1: {
-            if (forceSaveAs || modelv4.filePath.isEmpty()) {
-                QFileDialog filedialog(this, tr("Save RSDK Model"), "",
-                                       tr("RSDKv4 Model Files (*.bin)"));
-                filedialog.setAcceptMode(QFileDialog::AcceptSave);
-                if (filedialog.exec() == QDialog::Accepted) {
-                    QString filepath = filedialog.selectedFiles()[0];
-
-                    setStatus("Saving model...", true);
-                    modelv4.write(filepath);
-                    setStatus("Saved model to " + filepath);
-
-                    appConfig.addRecentFile(mdlFormat == 0 ? ENGINE_v5 : ENGINE_v4, TOOL_MODELMANAGER,
-                                            filepath, QList<QString>{});
-                    updateTitle(false);
-                    return true;
-                }
-            }
-            else {
-                setStatus("Saving model...", true);
-                modelv4.write();
-                setStatus("Saved model to " + modelv5.filePath);
-
-                appConfig.addRecentFile(mdlFormat == 0 ? ENGINE_v5 : ENGINE_v4, TOOL_MODELMANAGER,
-                                        modelv4.filePath, QList<QString>{});
-                updateTitle(false);
-
-                return true;
-            }
-            break;
-        }
+        updateTitle(false);
+        return true;
     }
 
     return false;

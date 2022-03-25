@@ -126,7 +126,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         viewer->sceneInfo.filter = v;
     });
 
-    connect(ui->useGizmos, &QPushButton::toggled, [this] { viewer->sceneInfo.effectGizmo ^= 1; });
+    connect(ui->useGizmos, &QPushButton::clicked, [this] { viewer->sceneInfo.effectGizmo ^= 1; });
 
     connect(ui->layerList, &QListWidget::currentRowChanged, [this](int c) {
         ui->rmLayer->setDisabled(c == -1);
@@ -2022,6 +2022,8 @@ void SceneEditorv5::createNewScene()
     initStorage(dataStorage);
     addStatusProgress(0.2); // finish unloading
 
+    // TODO: lol actually make a new scene
+
     tabTitle = "Scene Editor";
 
     clearActions();
@@ -2258,7 +2260,7 @@ void SceneEditorv5::saveScene(QString path)
         layer.scrollSpeed    = viewLayer.scrollSpeed * 256;
 
         layer.type = 0;
-        switch (layer.type) {
+        switch (viewLayer.type) {
             case SceneHelpers::TileLayer::LAYER_HSCROLL: layer.type = 0; break;
             case SceneHelpers::TileLayer::LAYER_VSCROLL: layer.type = 1; break;
             case SceneHelpers::TileLayer::LAYER_ROTOZOOM: layer.type = 2; break;

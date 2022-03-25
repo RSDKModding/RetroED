@@ -17,15 +17,15 @@ void SceneLayerPropertiesv5::setupUI(RSDKv5::Scene *scn, byte lID)
     layerID = lID;
 
     ui->type->setDisabled(false);
-    ui->relSpeed->setDisabled(false);
-    ui->constSpeed->setDisabled(false);
+    ui->parallaxFactor->setDisabled(false);
+    ui->scrollSpeed->setDisabled(false);
 
     ui->width->setValue(scene->layers[lID].width);
     ui->height->setValue(scene->layers[lID].height);
     ui->type->setCurrentIndex(scene->layers[lID].type);
     ui->drawOrder->setValue(scene->layers[lID].drawOrder);
-    ui->relSpeed->setValue(scene->layers[lID].parallaxFactor / 256.0f);
-    ui->constSpeed->setValue(scene->layers[lID].scrollSpeed / 256.0f);
+    ui->parallaxFactor->setValue(scene->layers[lID].parallaxFactor / 256.0f);
+    ui->scrollSpeed->setValue(scene->layers[lID].scrollSpeed / 256.0f);
 
     connect(ui->width, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
         if (v > scene->layers[layerID].width) {
@@ -72,10 +72,10 @@ void SceneLayerPropertiesv5::setupUI(RSDKv5::Scene *scn, byte lID)
     connect(ui->drawOrder, QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int v) { scene->layers[layerID].drawOrder = (byte)v; });
 
-    connect(ui->relSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    connect(ui->parallaxFactor, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             [this](double v) { scene->layers[layerID].parallaxFactor = v * 256; });
 
-    connect(ui->constSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    connect(ui->scrollSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             [this](double v) { scene->layers[layerID].scrollSpeed = v * 256; });
 }
 
@@ -85,8 +85,8 @@ void SceneLayerPropertiesv5::unsetUI()
     disconnect(ui->height, nullptr, nullptr, nullptr);
     disconnect(ui->type, nullptr, nullptr, nullptr);
     disconnect(ui->drawOrder, nullptr, nullptr, nullptr);
-    disconnect(ui->relSpeed, nullptr, nullptr, nullptr);
-    disconnect(ui->constSpeed, nullptr, nullptr, nullptr);
+    disconnect(ui->parallaxFactor, nullptr, nullptr, nullptr);
+    disconnect(ui->scrollSpeed, nullptr, nullptr, nullptr);
 }
 
 #include "moc_scenelayerpropertiesv5.cpp"

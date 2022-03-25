@@ -175,6 +175,7 @@ public:
     QString typeNames[OBJECT_COUNT];
     QString sfxNames[SFX_COUNT];
 
+    bool strComp(QString strA, QString strB);
     int findStringToken(QString &string, QString token, char stopID);
 
     void checkAliasText(QString &text);

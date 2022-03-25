@@ -297,6 +297,7 @@ public:
 
     void setModel(RSDKv5::Model m, QString tex = "");
     void setModel(RSDKv4::Model m, QString tex = "");
+    RSDKv4::Model getModelv4();
 
     void loadTexture(QString texturePath);
 
@@ -305,8 +306,9 @@ public:
     void setNormalsVisible(bool show);
     void setZoom(float zoom);
 
-    QString texFile = "";
-    bool reload     = false;
+    QString texFile  = "";
+    byte modelFormat = 0;
+    bool reload      = false;
 
     float *vertBuf;
     float *normBuf;

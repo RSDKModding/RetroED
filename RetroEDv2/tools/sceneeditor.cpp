@@ -150,7 +150,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(ui->verticalScrollBar, &QScrollBar::valueChanged,
             [this](int v) { viewer->cameraPos.y = v; });
 
-    connect(ui->useGizmos, &QPushButton::toggled, [this] { viewer->sceneInfo.effectGizmo ^= 1; });
+    connect(ui->useGizmos, &QPushButton::clicked, [this] { viewer->sceneInfo.effectGizmo ^= 1; });
 
     connect(ui->layerList, &QListWidget::currentRowChanged, [this](int c) {
         // m_uo->setDisabled(c == -1);
@@ -165,7 +165,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         viewer->selectedLayer = c;
 
-        lyrProp->setupUI(&scene, &background, c, viewer->gameType);
+        lyrProp->setupUI(viewer, c);
         ui->propertiesBox->setCurrentWidget(ui->layerPropPage);
 
         createScrollList();
@@ -303,6 +303,50 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
         doAction();
+    });
+
+    connect(ui->upEnt, &QToolButton::clicked, [this] {
+        ui->entityList->blockSignals(true);
+        uint c     = ui->entityList->currentRow();
+        auto *item = ui->entityList->takeItem(c);
+
+        int slot                       = viewer->entities[c].slotID;
+        viewer->entities[c].slotID     = viewer->entities[c - 1].slotID;
+        viewer->entities[c - 1].slotID = slot;
+
+        viewer->entities.move(c, c - 1);
+
+        ui->entityList->insertItem(c - 1, item);
+        ui->entityList->setCurrentRow(c - 1);
+        ui->entityList->blockSignals(false);
+
+        ui->entityList->item(c)->setText(QString::number(viewer->entities[c].slotID) + ": "
+                                         + viewer->objects[viewer->entities[c].type].name);
+
+        ui->entityList->item(c - 1)->setText(QString::number(viewer->entities[c - 1].slotID) + ": "
+                                             + viewer->objects[viewer->entities[c - 1].type].name);
+    });
+
+    connect(ui->downEnt, &QToolButton::clicked, [this] {
+        ui->entityList->blockSignals(true);
+        uint c     = ui->entityList->currentRow();
+        auto *item = ui->entityList->takeItem(c);
+
+        int slot                       = viewer->entities[c].slotID;
+        viewer->entities[c].slotID     = viewer->entities[c + 1].slotID;
+        viewer->entities[c + 1].slotID = slot;
+
+        viewer->entities.move(c, c + 1);
+
+        ui->entityList->insertItem(c + 1, item);
+        ui->entityList->setCurrentRow(c + 1);
+        ui->entityList->blockSignals(false);
+
+        ui->entityList->item(c)->setText(QString::number(viewer->entities[c].slotID) + ": "
+                                         + viewer->objects[viewer->entities[c].type].name);
+
+        ui->entityList->item(c + 1)->setText(QString::number(viewer->entities[c + 1].slotID) + ": "
+                                             + viewer->objects[viewer->entities[c + 1].type].name);
     });
 
     connect(ui->rmEnt, &QToolButton::clicked, [this] {
@@ -1497,6 +1541,8 @@ void SceneEditor::createNewScene()
 
     addStatusProgress(0.2); // finish unloading
 
+    // TODO: lol actually make a new scene
+
     tabTitle = "Scene Editor";
 
     clearActions();
@@ -1859,7 +1905,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     ui->propertiesBox->setCurrentIndex(0);
 
     scnProp->setupUI(&scene, viewer->gameType);
-    lyrProp->setupUI(&scene, &background, 0, viewer->gameType);
+    lyrProp->setupUI(viewer, 0);
     tileProp->unsetUI();
     objProp->unsetUI();
     scrProp->unsetUI();
@@ -1916,7 +1962,8 @@ bool SceneEditor::saveScene(bool forceSaveAs)
         }
     }
 
-    QString basePath = savePath.replace(QFileInfo(savePath).fileName(), "");
+    QString basePath = savePath;
+    basePath         = basePath.replace(QFileInfo(savePath).fileName(), "");
 
     setStatus("Saving scene...", true);
     FormatHelpers::Gif tileset(16, 0x400 * 16);
@@ -1960,7 +2007,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
         layer.scrollSpeed    = viewLayer.scrollSpeed;
 
         layer.type = 0;
-        switch (layer.type) {
+        switch (viewLayer.type) {
             default: break;
             case SceneHelpers::TileLayer::LAYER_HSCROLL: layer.type = 1; break;
             case SceneHelpers::TileLayer::LAYER_VSCROLL: layer.type = 2; break;
@@ -2716,7 +2763,9 @@ void SceneEditor::createEntityList()
     std::sort(viewer->entities.begin(), viewer->entities.end(),
               [](const SceneEntity &a, const SceneEntity &b) -> bool { return a.slotID < b.slotID; });
     for (int i = 0; i < viewer->entities.count(); ++i) {
-        QString name = viewer->objects[viewer->entities[i].type].name;
+        QString name = "Unknown Object";
+        if (viewer->entities[i].type < viewer->objects.count())
+            name = viewer->objects[viewer->entities[i].type].name;
         ui->entityList->addItem(QString::number(viewer->entities[i].slotID) + ": " + name);
     }
     ui->entityList->blockSignals(false);
@@ -2975,8 +3024,11 @@ void SceneEditor::parseGameXML(byte gameType, QString path)
 
     QXmlStreamReader xmlReader = QXmlStreamReader(bytes);
 
-    int list        = -1;
-    bool objectFlag = false;
+    int list          = -1;
+    bool objectFlag   = false;
+    bool variableFlag = false;
+    bool soundFXFlag  = false;
+    bool playerFlag   = false;
     // Parse the XML until we reach end of it
     while (!xmlReader.atEnd() && !xmlReader.hasError()) {
         // Read next element
@@ -3009,6 +3061,58 @@ void SceneEditor::parseGameXML(byte gameType, QString path)
                 obj.name   = objName;
                 obj.script = objScript;
                 gameConfig.objects.append(obj);
+            }
+            else if (name == "sounds") {
+                soundFXFlag ^= 1;
+            }
+            else if (soundFXFlag && name == "soundfx") {
+                QString sfxName = "";
+                QString sfxPath = "";
+                for (const QXmlStreamAttribute &attr : xmlReader.attributes()) {
+                    if (attr.name().toString() == QLatin1String("name")) {
+                        sfxName = attr.value().toString();
+                    }
+                    if (attr.name().toString() == QLatin1String("path")) {
+                        sfxPath = attr.value().toString();
+                    }
+                }
+                FormatHelpers::GameConfig::SoundInfo sfx;
+                sfx.name = sfxName;
+                sfx.path = sfxPath;
+                gameConfig.soundFX.append(sfx);
+            }
+            else if (name == "variables") {
+                variableFlag ^= 1;
+            }
+            else if (variableFlag && name == "variable") {
+                QString varName = "";
+                int varValue    = 0;
+                for (const QXmlStreamAttribute &attr : xmlReader.attributes()) {
+                    if (attr.name().toString() == QLatin1String("name")) {
+                        varName = attr.value().toString();
+                    }
+                    if (attr.name().toString() == QLatin1String("script")) {
+                        varValue = attr.value().toInt();
+                    }
+                }
+                FormatHelpers::GameConfig::GlobalVariable var;
+                var.name  = varName;
+                var.value = varValue;
+                gameConfig.globalVariables.append(var);
+            }
+            else if (name == "players") {
+                playerFlag ^= 1;
+            }
+            else if (playerFlag && name == "player") {
+                QString plrName = "";
+                for (const QXmlStreamAttribute &attr : xmlReader.attributes()) {
+                    if (attr.name().toString() == QLatin1String("name")) {
+                        plrName = attr.value().toString();
+                    }
+                }
+                FormatHelpers::GameConfig::PlayerInfo plr;
+                plr.name = plrName;
+                gameConfig.players.append(plr);
             }
             else if (listNames.indexOf(name.toString()) != -1) {
                 if (list == listNames.indexOf(name.toString()))

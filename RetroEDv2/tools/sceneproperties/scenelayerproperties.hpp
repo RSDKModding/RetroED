@@ -16,15 +16,11 @@ public:
     explicit SceneLayerProperties(QWidget *parent = nullptr);
     ~SceneLayerProperties();
 
-    void setupUI(FormatHelpers::Scene *scn, FormatHelpers::Background *bg, byte lID, byte ver);
+    void setupUI(SceneViewer *viewer, byte layerID);
     void unsetUI();
 
 private:
     Ui::SceneLayerProperties *ui;
-
-    FormatHelpers::Scene *scene           = nullptr;
-    FormatHelpers::Background *background = nullptr;
-    int layerID                           = -1;
 };
 
 #endif // SCENELAYERPROPERTIES_H

@@ -1240,7 +1240,7 @@ void Compilerv3::convertFunctionText(QString &text)
                 int p = 0;
                 if (editor) {
                     for (; p < ((SceneEditor *)editor)->gameConfig.players.count(); ++p) {
-                        QString name = ((SceneEditor *)editor)->gameConfig.players[p].m_name;
+                        QString name = ((SceneEditor *)editor)->gameConfig.players[p].name;
                         name         = name.replace(" ", "");
 
                         if (arrayStr == name) {
@@ -1499,7 +1499,7 @@ void Compilerv3::checkCaseNumber(QString &text)
             int p = 0;
             if (editor) {
                 for (; p < ((SceneEditor *)editor)->gameConfig.players.count(); ++p) {
-                    QString name = ((SceneEditor *)editor)->gameConfig.players[p].m_name;
+                    QString name = ((SceneEditor *)editor)->gameConfig.players[p].name;
                     name         = name.replace(" ", "");
 
                     if (arrayStr == name) {
@@ -1712,7 +1712,7 @@ bool Compilerv3::readSwitchCase(QString &text)
                 int p = 0;
                 if (editor) {
                     for (; p < ((SceneEditor *)editor)->gameConfig.players.count(); ++p) {
-                        QString name = ((SceneEditor *)editor)->gameConfig.players[p].m_name;
+                        QString name = ((SceneEditor *)editor)->gameConfig.players[p].name;
                         name         = name.replace(" ", "");
 
                         if (arrayStr == name) {

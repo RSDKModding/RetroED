@@ -102,11 +102,14 @@ public:
     void writeAsOBJ(QString filePath, int exportFrame = -1);
     void writeMTL(QString filepath);
 
+    void loadPLY(QString filePath);
+    void writeAsPLY(QString filePath, int exportFrame = -1);
+
     byte signature[4] = { 'M', 'D', 'L', 0 };
 
-    bool hasNormals         = true;
-    bool hasTextures        = false;
-    bool hasColours         = true;
+    bool hasNormals        = true;
+    bool hasTextures       = false;
+    bool hasColours        = true;
     byte faceVerticesCount = 3;
     QList<TexCoord> texCoords;
     QList<Colour> colours;
@@ -114,6 +117,45 @@ public:
     QList<ushort> indices;
 
     QString filePath = "";
+
+private:
+    enum PLYPropTypes {
+        UNKNOWN,
+        INT8,
+        UINT8,
+        INT16,
+        UINT16,
+        INT32,
+        UINT32,
+        FLOAT,
+        DOUBLE,
+        LIST,
+    };
+
+    struct PLYProperty {
+        PLYProperty() {}
+
+        QString sizeType = ""; // used for list types
+        QString itemType = ""; // used for list types
+        QString type     = "";
+        QString name     = "";
+    };
+
+    struct PLYPropertyValue {
+        PLYPropertyValue() {}
+
+        QList<QVariant> values; // if a list property exists, assume ONLY a list can exist
+    };
+
+    struct PLYElement {
+        PLYElement() {}
+
+        QList<PLYProperty> properties;
+        QList<PLYPropertyValue> propertyValues;
+        QString name = "";
+    };
+
+    int getPLYPropertyType(QString propertyType);
 };
 
 } // namespace RSDKv5

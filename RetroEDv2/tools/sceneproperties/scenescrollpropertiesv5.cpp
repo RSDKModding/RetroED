@@ -16,9 +16,9 @@ void SceneScrollPropertiesv5::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *
 
     ui->startLine->setValue(info->startLine);
     ui->length->setValue(info->length);
-    ui->relSpeed->setValue(info->parallaxFactor);
-    ui->constSpeed->setValue(info->scrollSpeed);
-    ui->behaviour->setCurrentIndex(info->deform);
+    ui->parallaxFactor->setValue(info->parallaxFactor);
+    ui->scrollSpeed->setValue(info->scrollSpeed);
+    ui->useDeform->setChecked(info->deform);
 
     connect(ui->startLine, QOverload<int>::of(&QSpinBox::valueChanged), [info, &infos](int v) {
         int move        = info->startLine + info->length;
@@ -34,21 +34,20 @@ void SceneScrollPropertiesv5::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *
         int index    = infos.indexOf(*info);
         for (int i = index + 1; i < infos.count(); ++i) infos[i].startLine += move;
     });
-    connect(ui->relSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    connect(ui->parallaxFactor, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             [info](double v) { info->parallaxFactor = v; });
-    connect(ui->constSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    connect(ui->scrollSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             [info](double v) { info->scrollSpeed = v; });
-    connect(ui->behaviour, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [info](int v) { info->deform = (byte)v; });
+    connect(ui->useDeform, &QCheckBox::toggled, [info](bool c) { info->deform = c; });
 }
 
 void SceneScrollPropertiesv5::unsetUI()
 {
     disconnect(ui->startLine, nullptr, nullptr, nullptr);
     disconnect(ui->length, nullptr, nullptr, nullptr);
-    disconnect(ui->relSpeed, nullptr, nullptr, nullptr);
-    disconnect(ui->constSpeed, nullptr, nullptr, nullptr);
-    disconnect(ui->behaviour, nullptr, nullptr, nullptr);
+    disconnect(ui->parallaxFactor, nullptr, nullptr, nullptr);
+    disconnect(ui->scrollSpeed, nullptr, nullptr, nullptr);
+    disconnect(ui->useDeform, nullptr, nullptr, nullptr);
 }
 
 #include "moc_scenescrollpropertiesv5.cpp"

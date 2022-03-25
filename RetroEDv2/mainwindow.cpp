@@ -254,6 +254,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         setStatus("Opening Scene Editor...");
         SceneEditor *tool = new SceneEditor();
         tool->installEventFilter(this);
+        tool->createNewScene();
         addTab(tool, "Scene Editor");
         setStatus("Opened Scene Editor!");
     });
@@ -262,6 +263,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         setStatus("Opening Scene Editor...");
         SceneEditorv5 *tool = new SceneEditorv5();
         tool->installEventFilter(this);
+        tool->createNewScene();
         addTab(tool, "Scene Editor");
         setStatus("Opened Scene Editor!");
     });

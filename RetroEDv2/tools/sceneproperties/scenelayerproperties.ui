@@ -50,7 +50,7 @@
    <item row="3" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>Relative Speed</string>
+      <string>Parallax Factor</string>
      </property>
     </widget>
    </item>
@@ -64,7 +64,7 @@
    <item row="4" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>Constant Speed</string>
+      <string>Scroll Speed</string>
      </property>
     </widget>
    </item>
@@ -89,7 +89,7 @@
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QComboBox" name="behaviour">
+    <widget class="QComboBox" name="type">
      <item>
       <property name="text">
        <string>None</string>
@@ -118,7 +118,7 @@
     </widget>
    </item>
    <item row="4" column="1">
-    <widget class="QDoubleSpinBox" name="constSpeed">
+    <widget class="QDoubleSpinBox" name="scrollSpeed">
      <property name="decimals">
       <number>10</number>
      </property>
@@ -131,7 +131,7 @@
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="QDoubleSpinBox" name="relSpeed">
+    <widget class="QDoubleSpinBox" name="parallaxFactor">
      <property name="decimals">
       <number>10</number>
      </property>
