@@ -1768,7 +1768,7 @@ void Compilerv4::convertFunctionText(QString &text)
                 if (arrayStr.length() >= 2) {
                     char list = arrayStr[0].toLatin1();
                     switch (list) {
-                        default: list = 0xFF;
+                        default: list = 0xFF; break;
                         case 'P': list = 0; break;
                         case 'R': list = 1; break;
                         case 'S': list = 2; break;
@@ -2936,6 +2936,16 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                     default: break;
                 }
 
+                // Allows the game to link to the editor properly
+                Entity *entityPtr = &objectEntityList[arrayVal];
+                if (editor) {
+                    for (int e = 0; e < editor->viewer->entities.count(); ++e) {
+                        if (arrayVal == editor->viewer->entities[e].gameEntitySlot) {
+                            entityPtr = &objectEntityList[e];
+                        }
+                    }
+                }
+
                 // Variables
                 switch (scriptData[scriptDataPtr++]) {
                     default: break;
@@ -2960,191 +2970,191 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                     case VAR_LOCAL: scriptEng.operands[i] = scriptData[arrayVal]; break;
                     case VAR_OBJECTENTITYPOS: scriptEng.operands[i] = arrayVal; break;
                     case VAR_OBJECTGROUPID: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].typeGroup;
+                        scriptEng.operands[i] = entityPtr->typeGroup;
                         break;
                     }
                     case VAR_OBJECTTYPE: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].type;
+                        scriptEng.operands[i] = entityPtr->type;
                         break;
                     }
                     case VAR_OBJECTPROPERTYVALUE: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].propertyValue;
+                        scriptEng.operands[i] = entityPtr->propertyValue;
                         break;
                     }
                     case VAR_OBJECTXPOS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].XPos;
+                        scriptEng.operands[i] = entityPtr->XPos;
                         break;
                     }
                     case VAR_OBJECTYPOS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].YPos;
+                        scriptEng.operands[i] = entityPtr->YPos;
                         break;
                     }
                     case VAR_OBJECTIXPOS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].XPos >> 16;
+                        scriptEng.operands[i] = entityPtr->XPos >> 16;
                         break;
                     }
                     case VAR_OBJECTIYPOS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].YPos >> 16;
+                        scriptEng.operands[i] = entityPtr->YPos >> 16;
                         break;
                     }
                     case VAR_OBJECTXVEL: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].XVelocity;
+                        scriptEng.operands[i] = entityPtr->XVelocity;
                         break;
                     }
                     case VAR_OBJECTYVEL: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].YVelocity;
+                        scriptEng.operands[i] = entityPtr->YVelocity;
                         break;
                     }
                     case VAR_OBJECTSPEED: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].speed;
+                        scriptEng.operands[i] = entityPtr->speed;
                         break;
                     }
                     case VAR_OBJECTSTATE: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].state;
+                        scriptEng.operands[i] = entityPtr->state;
                         break;
                     }
                     case VAR_OBJECTROTATION: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].rotation;
+                        scriptEng.operands[i] = entityPtr->rotation;
                         break;
                     }
                     case VAR_OBJECTSCALE: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].scale;
+                        scriptEng.operands[i] = entityPtr->scale;
                         break;
                     }
                     case VAR_OBJECTPRIORITY: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].priority;
+                        scriptEng.operands[i] = entityPtr->priority;
                         break;
                     }
                     case VAR_OBJECTDRAWORDER: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].drawOrder;
+                        scriptEng.operands[i] = entityPtr->drawOrder;
                         break;
                     }
                     case VAR_OBJECTDIRECTION: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].direction;
+                        scriptEng.operands[i] = entityPtr->direction;
                         break;
                     }
                     case VAR_OBJECTINKEFFECT: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].inkEffect;
+                        scriptEng.operands[i] = entityPtr->inkEffect;
                         break;
                     }
                     case VAR_OBJECTALPHA: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].alpha;
+                        scriptEng.operands[i] = entityPtr->alpha;
                         break;
                     }
                     case VAR_OBJECTFRAME: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].frame;
+                        scriptEng.operands[i] = entityPtr->frame;
                         break;
                     }
                     case VAR_OBJECTANIMATION: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].animation;
+                        scriptEng.operands[i] = entityPtr->animation;
                         break;
                     }
                     case VAR_OBJECTPREVANIMATION: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].prevAnimation;
+                        scriptEng.operands[i] = entityPtr->prevAnimation;
                         break;
                     }
                     case VAR_OBJECTANIMATIONSPEED: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].animationSpeed;
+                        scriptEng.operands[i] = entityPtr->animationSpeed;
                         break;
                     }
                     case VAR_OBJECTANIMATIONTIMER: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].animationTimer;
+                        scriptEng.operands[i] = entityPtr->animationTimer;
                         break;
                     }
                     case VAR_OBJECTANGLE: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].angle;
+                        scriptEng.operands[i] = entityPtr->angle;
                         break;
                     }
                     case VAR_OBJECTLOOKPOSX: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].lookPosX;
+                        scriptEng.operands[i] = entityPtr->lookPosX;
                         break;
                     }
                     case VAR_OBJECTLOOKPOSY: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].lookPosY;
+                        scriptEng.operands[i] = entityPtr->lookPosY;
                         break;
                     }
                     case VAR_OBJECTCOLLISIONMODE: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].collisionMode;
+                        scriptEng.operands[i] = entityPtr->collisionMode;
                         break;
                     }
                     case VAR_OBJECTCOLLISIONPLANE: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].collisionPlane;
+                        scriptEng.operands[i] = entityPtr->collisionPlane;
                         break;
                     }
                     case VAR_OBJECTCONTROLMODE: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].controlMode;
+                        scriptEng.operands[i] = entityPtr->controlMode;
                         break;
                     }
                     case VAR_OBJECTCONTROLLOCK: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].controlLock;
+                        scriptEng.operands[i] = entityPtr->controlLock;
                         break;
                     }
                     case VAR_OBJECTPUSHING: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].pushing;
+                        scriptEng.operands[i] = entityPtr->pushing;
                         break;
                     }
                     case VAR_OBJECTVISIBLE: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].visible;
+                        scriptEng.operands[i] = entityPtr->visible;
                         break;
                     }
                     case VAR_OBJECTTILECOLLISIONS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].tileCollisions;
+                        scriptEng.operands[i] = entityPtr->tileCollisions;
                         break;
                     }
                     case VAR_OBJECTINTERACTION: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].objectInteractions;
+                        scriptEng.operands[i] = entityPtr->objectInteractions;
                         break;
                     }
                     case VAR_OBJECTGRAVITY: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].gravity;
+                        scriptEng.operands[i] = entityPtr->gravity;
                         break;
                     }
                     case VAR_OBJECTUP: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].up;
+                        scriptEng.operands[i] = entityPtr->up;
                         break;
                     }
                     case VAR_OBJECTDOWN: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].down;
+                        scriptEng.operands[i] = entityPtr->down;
                         break;
                     }
                     case VAR_OBJECTLEFT: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].left;
+                        scriptEng.operands[i] = entityPtr->left;
                         break;
                     }
                     case VAR_OBJECTRIGHT: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].right;
+                        scriptEng.operands[i] = entityPtr->right;
                         break;
                     }
                     case VAR_OBJECTJUMPPRESS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].jumpPress;
+                        scriptEng.operands[i] = entityPtr->jumpPress;
                         break;
                     }
                     case VAR_OBJECTJUMPHOLD: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].jumpHold;
+                        scriptEng.operands[i] = entityPtr->jumpHold;
                         break;
                     }
                     case VAR_OBJECTSCROLLTRACKING: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].trackScroll;
+                        scriptEng.operands[i] = entityPtr->trackScroll;
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORL: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].flailing[0];
+                        scriptEng.operands[i] = entityPtr->flailing[0];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORC: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].flailing[1];
+                        scriptEng.operands[i] = entityPtr->flailing[1];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORR: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].flailing[2];
+                        scriptEng.operands[i] = entityPtr->flailing[2];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORLC: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].flailing[3];
+                        scriptEng.operands[i] = entityPtr->flailing[3];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORRC: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].flailing[4];
+                        scriptEng.operands[i] = entityPtr->flailing[4];
                         break;
                     }
                     case VAR_OBJECTCOLLISIONLEFT: {
@@ -3163,200 +3173,199 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                         break;
                     }
                     case VAR_OBJECTSPRITESHEET: {
-                        scriptEng.operands[i] =
-                            objectScriptList[objectEntityList[arrayVal].type].spriteSheetID;
+                        scriptEng.operands[i] = objectScriptList[entityPtr->type].spriteSheetID;
                         break;
                     }
                     case VAR_OBJECTVALUE0: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[0];
+                        scriptEng.operands[i] = entityPtr->values[0];
                         break;
                     }
                     case VAR_OBJECTVALUE1: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[1];
+                        scriptEng.operands[i] = entityPtr->values[1];
                         break;
                     }
                     case VAR_OBJECTVALUE2: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[2];
+                        scriptEng.operands[i] = entityPtr->values[2];
                         break;
                     }
                     case VAR_OBJECTVALUE3: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[3];
+                        scriptEng.operands[i] = entityPtr->values[3];
                         break;
                     }
                     case VAR_OBJECTVALUE4: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[4];
+                        scriptEng.operands[i] = entityPtr->values[4];
                         break;
                     }
                     case VAR_OBJECTVALUE5: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[5];
+                        scriptEng.operands[i] = entityPtr->values[5];
                         break;
                     }
                     case VAR_OBJECTVALUE6: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[6];
+                        scriptEng.operands[i] = entityPtr->values[6];
                         break;
                     }
                     case VAR_OBJECTVALUE7: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[7];
+                        scriptEng.operands[i] = entityPtr->values[7];
                         break;
                     }
                     case VAR_OBJECTVALUE8: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[8];
+                        scriptEng.operands[i] = entityPtr->values[8];
                         break;
                     }
                     case VAR_OBJECTVALUE9: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[9];
+                        scriptEng.operands[i] = entityPtr->values[9];
                         break;
                     }
                     case VAR_OBJECTVALUE10: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[10];
+                        scriptEng.operands[i] = entityPtr->values[10];
                         break;
                     }
                     case VAR_OBJECTVALUE11: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[11];
+                        scriptEng.operands[i] = entityPtr->values[11];
                         break;
                     }
                     case VAR_OBJECTVALUE12: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[12];
+                        scriptEng.operands[i] = entityPtr->values[12];
                         break;
                     }
                     case VAR_OBJECTVALUE13: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[13];
+                        scriptEng.operands[i] = entityPtr->values[13];
                         break;
                     }
                     case VAR_OBJECTVALUE14: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[14];
+                        scriptEng.operands[i] = entityPtr->values[14];
                         break;
                     }
                     case VAR_OBJECTVALUE15: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[15];
+                        scriptEng.operands[i] = entityPtr->values[15];
                         break;
                     }
                     case VAR_OBJECTVALUE16: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[16];
+                        scriptEng.operands[i] = entityPtr->values[16];
                         break;
                     }
                     case VAR_OBJECTVALUE17: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[17];
+                        scriptEng.operands[i] = entityPtr->values[17];
                         break;
                     }
                     case VAR_OBJECTVALUE18: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[18];
+                        scriptEng.operands[i] = entityPtr->values[18];
                         break;
                     }
                     case VAR_OBJECTVALUE19: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[19];
+                        scriptEng.operands[i] = entityPtr->values[19];
                         break;
                     }
                     case VAR_OBJECTVALUE20: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[20];
+                        scriptEng.operands[i] = entityPtr->values[20];
                         break;
                     }
                     case VAR_OBJECTVALUE21: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[21];
+                        scriptEng.operands[i] = entityPtr->values[21];
                         break;
                     }
                     case VAR_OBJECTVALUE22: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[22];
+                        scriptEng.operands[i] = entityPtr->values[22];
                         break;
                     }
                     case VAR_OBJECTVALUE23: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[23];
+                        scriptEng.operands[i] = entityPtr->values[23];
                         break;
                     }
                     case VAR_OBJECTVALUE24: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[24];
+                        scriptEng.operands[i] = entityPtr->values[24];
                         break;
                     }
                     case VAR_OBJECTVALUE25: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[25];
+                        scriptEng.operands[i] = entityPtr->values[25];
                         break;
                     }
                     case VAR_OBJECTVALUE26: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[26];
+                        scriptEng.operands[i] = entityPtr->values[26];
                         break;
                     }
                     case VAR_OBJECTVALUE27: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[27];
+                        scriptEng.operands[i] = entityPtr->values[27];
                         break;
                     }
                     case VAR_OBJECTVALUE28: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[28];
+                        scriptEng.operands[i] = entityPtr->values[28];
                         break;
                     }
                     case VAR_OBJECTVALUE29: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[29];
+                        scriptEng.operands[i] = entityPtr->values[29];
                         break;
                     }
                     case VAR_OBJECTVALUE30: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[30];
+                        scriptEng.operands[i] = entityPtr->values[30];
                         break;
                     }
                     case VAR_OBJECTVALUE31: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[31];
+                        scriptEng.operands[i] = entityPtr->values[31];
                         break;
                     }
                     case VAR_OBJECTVALUE32: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[32];
+                        scriptEng.operands[i] = entityPtr->values[32];
                         break;
                     }
                     case VAR_OBJECTVALUE33: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[33];
+                        scriptEng.operands[i] = entityPtr->values[33];
                         break;
                     }
                     case VAR_OBJECTVALUE34: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[34];
+                        scriptEng.operands[i] = entityPtr->values[34];
                         break;
                     }
                     case VAR_OBJECTVALUE35: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[35];
+                        scriptEng.operands[i] = entityPtr->values[35];
                         break;
                     }
                     case VAR_OBJECTVALUE36: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[36];
+                        scriptEng.operands[i] = entityPtr->values[36];
                         break;
                     }
                     case VAR_OBJECTVALUE37: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[37];
+                        scriptEng.operands[i] = entityPtr->values[37];
                         break;
                     }
                     case VAR_OBJECTVALUE38: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[38];
+                        scriptEng.operands[i] = entityPtr->values[38];
                         break;
                     }
                     case VAR_OBJECTVALUE39: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[39];
+                        scriptEng.operands[i] = entityPtr->values[39];
                         break;
                     }
                     case VAR_OBJECTVALUE40: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[40];
+                        scriptEng.operands[i] = entityPtr->values[40];
                         break;
                     }
                     case VAR_OBJECTVALUE41: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[41];
+                        scriptEng.operands[i] = entityPtr->values[41];
                         break;
                     }
                     case VAR_OBJECTVALUE42: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[42];
+                        scriptEng.operands[i] = entityPtr->values[42];
                         break;
                     }
                     case VAR_OBJECTVALUE43: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[43];
+                        scriptEng.operands[i] = entityPtr->values[43];
                         break;
                     }
                     case VAR_OBJECTVALUE44: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[44];
+                        scriptEng.operands[i] = entityPtr->values[44];
                         break;
                     }
                     case VAR_OBJECTVALUE45: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[45];
+                        scriptEng.operands[i] = entityPtr->values[45];
                         break;
                     }
                     case VAR_OBJECTVALUE46: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[46];
+                        scriptEng.operands[i] = entityPtr->values[46];
                         break;
                     }
                     case VAR_OBJECTVALUE47: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[47];
+                        scriptEng.operands[i] = entityPtr->values[47];
                         break;
                     }
                     case VAR_STAGESTATE: break;
@@ -4441,6 +4450,16 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                     default: break;
                 }
 
+                // Allows the game to link to the editor properly
+                Entity *entityPtr = &objectEntityList[arrayVal];
+                if (editor) {
+                    for (int e = 0; e < editor->viewer->entities.count(); ++e) {
+                        if (arrayVal == editor->viewer->entities[e].gameEntitySlot) {
+                            entityPtr = &objectEntityList[e];
+                        }
+                    }
+                }
+
                 // Variables
                 switch (scriptData[scriptDataPtr++]) {
                     default: break;
@@ -4465,191 +4484,191 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                     case VAR_LOCAL: scriptData[arrayVal] = scriptEng.operands[i]; break;
                     case VAR_OBJECTENTITYPOS: objectEntityPos = scriptEng.operands[i]; break;
                     case VAR_OBJECTGROUPID: {
-                        objectEntityList[arrayVal].typeGroup = scriptEng.operands[i];
+                        entityPtr->typeGroup = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTTYPE: {
-                        objectEntityList[arrayVal].type = scriptEng.operands[i];
+                        entityPtr->type = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTPROPERTYVALUE: {
-                        objectEntityList[arrayVal].propertyValue = scriptEng.operands[i];
+                        entityPtr->propertyValue = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTXPOS: {
-                        objectEntityList[arrayVal].XPos = scriptEng.operands[i];
+                        entityPtr->XPos = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTYPOS: {
-                        objectEntityList[arrayVal].YPos = scriptEng.operands[i];
+                        entityPtr->YPos = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTIXPOS: {
-                        objectEntityList[arrayVal].XPos = scriptEng.operands[i] << 16;
+                        entityPtr->XPos = scriptEng.operands[i] << 16;
                         break;
                     }
                     case VAR_OBJECTIYPOS: {
-                        objectEntityList[arrayVal].YPos = scriptEng.operands[i] << 16;
+                        entityPtr->YPos = scriptEng.operands[i] << 16;
                         break;
                     }
                     case VAR_OBJECTXVEL: {
-                        objectEntityList[arrayVal].XVelocity = scriptEng.operands[i];
+                        entityPtr->XVelocity = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTYVEL: {
-                        objectEntityList[arrayVal].YVelocity = scriptEng.operands[i];
+                        entityPtr->YVelocity = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTSPEED: {
-                        objectEntityList[arrayVal].speed = scriptEng.operands[i];
+                        entityPtr->speed = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTSTATE: {
-                        objectEntityList[arrayVal].state = scriptEng.operands[i];
+                        entityPtr->state = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTROTATION: {
-                        objectEntityList[arrayVal].rotation = scriptEng.operands[i];
+                        entityPtr->rotation = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTSCALE: {
-                        objectEntityList[arrayVal].scale = scriptEng.operands[i];
+                        entityPtr->scale = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTPRIORITY: {
-                        objectEntityList[arrayVal].priority = scriptEng.operands[i];
+                        entityPtr->priority = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTDRAWORDER: {
-                        objectEntityList[arrayVal].drawOrder = scriptEng.operands[i];
+                        entityPtr->drawOrder = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTDIRECTION: {
-                        objectEntityList[arrayVal].direction = scriptEng.operands[i];
+                        entityPtr->direction = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTINKEFFECT: {
-                        objectEntityList[arrayVal].inkEffect = scriptEng.operands[i];
+                        entityPtr->inkEffect = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTALPHA: {
-                        objectEntityList[arrayVal].alpha = scriptEng.operands[i];
+                        entityPtr->alpha = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTFRAME: {
-                        objectEntityList[arrayVal].frame = scriptEng.operands[i];
+                        entityPtr->frame = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTANIMATION: {
-                        objectEntityList[arrayVal].animation = scriptEng.operands[i];
+                        entityPtr->animation = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTPREVANIMATION: {
-                        objectEntityList[arrayVal].prevAnimation = scriptEng.operands[i];
+                        entityPtr->prevAnimation = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTANIMATIONSPEED: {
-                        objectEntityList[arrayVal].animationSpeed = scriptEng.operands[i];
+                        entityPtr->animationSpeed = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTANIMATIONTIMER: {
-                        objectEntityList[arrayVal].animationTimer = scriptEng.operands[i];
+                        entityPtr->animationTimer = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTANGLE: {
-                        objectEntityList[arrayVal].angle = scriptEng.operands[i];
+                        entityPtr->angle = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTLOOKPOSX: {
-                        objectEntityList[arrayVal].lookPosX = scriptEng.operands[i];
+                        entityPtr->lookPosX = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTLOOKPOSY: {
-                        objectEntityList[arrayVal].lookPosY = scriptEng.operands[i];
+                        entityPtr->lookPosY = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTCOLLISIONMODE: {
-                        objectEntityList[arrayVal].collisionMode = scriptEng.operands[i];
+                        entityPtr->collisionMode = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTCOLLISIONPLANE: {
-                        objectEntityList[arrayVal].collisionPlane = scriptEng.operands[i];
+                        entityPtr->collisionPlane = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTCONTROLMODE: {
-                        objectEntityList[arrayVal].controlMode = scriptEng.operands[i];
+                        entityPtr->controlMode = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTCONTROLLOCK: {
-                        objectEntityList[arrayVal].controlLock = scriptEng.operands[i];
+                        entityPtr->controlLock = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTPUSHING: {
-                        objectEntityList[arrayVal].pushing = scriptEng.operands[i];
+                        entityPtr->pushing = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVISIBLE: {
-                        objectEntityList[arrayVal].visible = scriptEng.operands[i];
+                        entityPtr->visible = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTTILECOLLISIONS: {
-                        objectEntityList[arrayVal].tileCollisions = scriptEng.operands[i];
+                        entityPtr->tileCollisions = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTINTERACTION: {
-                        objectEntityList[arrayVal].objectInteractions = scriptEng.operands[i];
+                        entityPtr->objectInteractions = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTGRAVITY: {
-                        objectEntityList[arrayVal].gravity = scriptEng.operands[i];
+                        entityPtr->gravity = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTUP: {
-                        objectEntityList[arrayVal].up = scriptEng.operands[i];
+                        entityPtr->up = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTDOWN: {
-                        objectEntityList[arrayVal].down = scriptEng.operands[i];
+                        entityPtr->down = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTLEFT: {
-                        objectEntityList[arrayVal].left = scriptEng.operands[i];
+                        entityPtr->left = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTRIGHT: {
-                        objectEntityList[arrayVal].right = scriptEng.operands[i];
+                        entityPtr->right = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTJUMPPRESS: {
-                        objectEntityList[arrayVal].jumpPress = scriptEng.operands[i];
+                        entityPtr->jumpPress = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTJUMPHOLD: {
-                        objectEntityList[arrayVal].jumpHold = scriptEng.operands[i];
+                        entityPtr->jumpHold = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTSCROLLTRACKING: {
-                        objectEntityList[arrayVal].trackScroll = scriptEng.operands[i];
+                        entityPtr->trackScroll = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORL: {
-                        objectEntityList[arrayVal].flailing[0] = scriptEng.operands[i];
+                        entityPtr->flailing[0] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORC: {
-                        objectEntityList[arrayVal].flailing[1] = scriptEng.operands[i];
+                        entityPtr->flailing[1] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORR: {
-                        objectEntityList[arrayVal].flailing[2] = scriptEng.operands[i];
+                        entityPtr->flailing[2] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORLC: {
-                        objectEntityList[arrayVal].flailing[3] = scriptEng.operands[i];
+                        entityPtr->flailing[3] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTFLOORSENSORRC: {
-                        objectEntityList[arrayVal].flailing[4] = scriptEng.operands[i];
+                        entityPtr->flailing[4] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTCOLLISIONLEFT: {
@@ -4668,200 +4687,199 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                         break;
                     }
                     case VAR_OBJECTSPRITESHEET: {
-                        objectScriptList[objectEntityList[arrayVal].type].spriteSheetID =
-                            scriptEng.operands[i];
+                        objectScriptList[entityPtr->type].spriteSheetID = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE0: {
-                        objectEntityList[arrayVal].values[0] = scriptEng.operands[i];
+                        entityPtr->values[0] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE1: {
-                        objectEntityList[arrayVal].values[1] = scriptEng.operands[i];
+                        entityPtr->values[1] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE2: {
-                        objectEntityList[arrayVal].values[2] = scriptEng.operands[i];
+                        entityPtr->values[2] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE3: {
-                        objectEntityList[arrayVal].values[3] = scriptEng.operands[i];
+                        entityPtr->values[3] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE4: {
-                        objectEntityList[arrayVal].values[4] = scriptEng.operands[i];
+                        entityPtr->values[4] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE5: {
-                        objectEntityList[arrayVal].values[5] = scriptEng.operands[i];
+                        entityPtr->values[5] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE6: {
-                        objectEntityList[arrayVal].values[6] = scriptEng.operands[i];
+                        entityPtr->values[6] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE7: {
-                        objectEntityList[arrayVal].values[7] = scriptEng.operands[i];
+                        entityPtr->values[7] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE8: {
-                        objectEntityList[arrayVal].values[8] = scriptEng.operands[i];
+                        entityPtr->values[8] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE9: {
-                        objectEntityList[arrayVal].values[9] = scriptEng.operands[i];
+                        entityPtr->values[9] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE10: {
-                        objectEntityList[arrayVal].values[10] = scriptEng.operands[i];
+                        entityPtr->values[10] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE11: {
-                        objectEntityList[arrayVal].values[11] = scriptEng.operands[i];
+                        entityPtr->values[11] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE12: {
-                        objectEntityList[arrayVal].values[12] = scriptEng.operands[i];
+                        entityPtr->values[12] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE13: {
-                        objectEntityList[arrayVal].values[13] = scriptEng.operands[i];
+                        entityPtr->values[13] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE14: {
-                        objectEntityList[arrayVal].values[14] = scriptEng.operands[i];
+                        entityPtr->values[14] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE15: {
-                        objectEntityList[arrayVal].values[15] = scriptEng.operands[i];
+                        entityPtr->values[15] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE16: {
-                        objectEntityList[arrayVal].values[16] = scriptEng.operands[i];
+                        entityPtr->values[16] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE17: {
-                        objectEntityList[arrayVal].values[17] = scriptEng.operands[i];
+                        entityPtr->values[17] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE18: {
-                        objectEntityList[arrayVal].values[18] = scriptEng.operands[i];
+                        entityPtr->values[18] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE19: {
-                        objectEntityList[arrayVal].values[19] = scriptEng.operands[i];
+                        entityPtr->values[19] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE20: {
-                        objectEntityList[arrayVal].values[20] = scriptEng.operands[i];
+                        entityPtr->values[20] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE21: {
-                        objectEntityList[arrayVal].values[21] = scriptEng.operands[i];
+                        entityPtr->values[21] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE22: {
-                        objectEntityList[arrayVal].values[22] = scriptEng.operands[i];
+                        entityPtr->values[22] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE23: {
-                        objectEntityList[arrayVal].values[23] = scriptEng.operands[i];
+                        entityPtr->values[23] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE24: {
-                        objectEntityList[arrayVal].values[24] = scriptEng.operands[i];
+                        entityPtr->values[24] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE25: {
-                        objectEntityList[arrayVal].values[25] = scriptEng.operands[i];
+                        entityPtr->values[25] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE26: {
-                        objectEntityList[arrayVal].values[26] = scriptEng.operands[i];
+                        entityPtr->values[26] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE27: {
-                        objectEntityList[arrayVal].values[27] = scriptEng.operands[i];
+                        entityPtr->values[27] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE28: {
-                        objectEntityList[arrayVal].values[28] = scriptEng.operands[i];
+                        entityPtr->values[28] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE29: {
-                        objectEntityList[arrayVal].values[29] = scriptEng.operands[i];
+                        entityPtr->values[29] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE30: {
-                        objectEntityList[arrayVal].values[30] = scriptEng.operands[i];
+                        entityPtr->values[30] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE31: {
-                        objectEntityList[arrayVal].values[31] = scriptEng.operands[i];
+                        entityPtr->values[31] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE32: {
-                        objectEntityList[arrayVal].values[32] = scriptEng.operands[i];
+                        entityPtr->values[32] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE33: {
-                        objectEntityList[arrayVal].values[33] = scriptEng.operands[i];
+                        entityPtr->values[33] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE34: {
-                        objectEntityList[arrayVal].values[34] = scriptEng.operands[i];
+                        entityPtr->values[34] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE35: {
-                        objectEntityList[arrayVal].values[35] = scriptEng.operands[i];
+                        entityPtr->values[35] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE36: {
-                        objectEntityList[arrayVal].values[36] = scriptEng.operands[i];
+                        entityPtr->values[36] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE37: {
-                        objectEntityList[arrayVal].values[37] = scriptEng.operands[i];
+                        entityPtr->values[37] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE38: {
-                        objectEntityList[arrayVal].values[38] = scriptEng.operands[i];
+                        entityPtr->values[38] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE39: {
-                        objectEntityList[arrayVal].values[39] = scriptEng.operands[i];
+                        entityPtr->values[39] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE40: {
-                        objectEntityList[arrayVal].values[40] = scriptEng.operands[i];
+                        entityPtr->values[40] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE41: {
-                        objectEntityList[arrayVal].values[41] = scriptEng.operands[i];
+                        entityPtr->values[41] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE42: {
-                        objectEntityList[arrayVal].values[42] = scriptEng.operands[i];
+                        entityPtr->values[42] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE43: {
-                        objectEntityList[arrayVal].values[43] = scriptEng.operands[i];
+                        entityPtr->values[43] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE44: {
-                        objectEntityList[arrayVal].values[44] = scriptEng.operands[i];
+                        entityPtr->values[44] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE45: {
-                        objectEntityList[arrayVal].values[45] = scriptEng.operands[i];
+                        entityPtr->values[45] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE46: {
-                        objectEntityList[arrayVal].values[46] = scriptEng.operands[i];
+                        entityPtr->values[46] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE47: {
-                        objectEntityList[arrayVal].values[47] = scriptEng.operands[i];
+                        entityPtr->values[47] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_STAGESTATE: break;

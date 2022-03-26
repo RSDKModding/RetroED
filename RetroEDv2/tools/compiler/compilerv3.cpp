@@ -2282,6 +2282,16 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     default: break;
                 }
 
+                // Allows the game to link to the editor properly
+                Entity *entityPtr = &objectEntityList[arrayVal];
+                if (editor) {
+                    for (int e = 0; e < editor->viewer->entities.count(); ++e) {
+                        if (arrayVal == editor->viewer->entities[e].gameEntitySlot) {
+                            entityPtr = &objectEntityList[e];
+                        }
+                    }
+                }
+
                 // Variables
                 switch (scriptData[scriptDataPtr++]) {
                     default: break;
@@ -3579,6 +3589,16 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                             arrayVal = objectLoop - scriptData[scriptDataPtr++];
                         break;
                     default: break;
+                }
+
+                // Allows the game to link to the editor properly
+                Entity *entityPtr = &objectEntityList[arrayVal];
+                if (editor) {
+                    for (int e = 0; e < editor->viewer->entities.count(); ++e) {
+                        if (arrayVal == editor->viewer->entities[e].gameEntitySlot) {
+                            entityPtr = &objectEntityList[e];
+                        }
+                    }
                 }
 
                 // Variables

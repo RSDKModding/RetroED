@@ -102,7 +102,8 @@ struct SceneEntity {
     byte type                  = 0;
     byte propertyValue         = 0;
     Vector2<float> pos         = Vector2<float>(0, 0);
-    GameEntityBase *gameEntity = nullptr;
+    GameEntityBase *gameEntity = nullptr; // for v5
+    int gameEntitySlot         = -1;      // for v4 and below
     QList<RSDKv5::Scene::VariableValue> variables;
     Rect<int> box = Rect<int>(-0x10, -0x10, 0x10, 0x10); // selection box
 

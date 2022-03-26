@@ -668,6 +668,9 @@ void SceneViewer::drawScene()
             if (!(filter & sceneFilter) && filter)
                 continue;
 
+            if (drawLayers[p].entries[o] == selectedEntity)
+                continue;
+
             if (entity->gameEntity) {
                 entity->gameEntity->position.x = Utils::floatToFixed(entity->pos.x);
                 entity->gameEntity->position.y = Utils::floatToFixed(entity->pos.y);
@@ -678,6 +681,39 @@ void SceneViewer::drawScene()
                     emit callGameEventv5(objects[entity->type].name, EVENT_DRAW, entity);
                 else
                     emit callGameEvent(EVENT_DRAW, drawLayers[p].entries[o]);
+            }
+
+            // Draw Default Object Sprite if invalid
+            if (!validDraw) {
+                entity->box = Rect<int>(-0x10, -0x10, 0x10, 0x10);
+
+                float xpos = entity->pos.x - (cameraPos.x);
+                float ypos = entity->pos.y - (cameraPos.y);
+
+                drawSpriteFlipped(xpos - (gfxSurface[1].width >> 1), ypos - (gfxSurface[1].height >> 1),
+                                  gfxSurface[1].width, gfxSurface[1].height, 0, 0, FLIP_NONE, INK_NONE,
+                                  0xFF, 1);
+            }
+        }
+
+        // Draw Selected Entity above the rest
+        if (selectedEntity >= 0) {
+            SceneEntity *entity = &entities[selectedEntity];
+            activeDrawEntity    = entity;
+            entity->box         = Rect<int>(0, 0, 0, 0);
+
+            validDraw = false;
+
+            if (entity->gameEntity) {
+                entity->gameEntity->position.x = Utils::floatToFixed(entity->pos.x);
+                entity->gameEntity->position.y = Utils::floatToFixed(entity->pos.y);
+            }
+
+            if (entity->type != 0) {
+                if (gameType == ENGINE_v5)
+                    emit callGameEventv5(objects[entity->type].name, EVENT_DRAW, entity);
+                else
+                    emit callGameEvent(EVENT_DRAW, selectedEntity);
             }
 
             // Draw Default Object Sprite if invalid

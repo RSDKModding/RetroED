@@ -145,6 +145,9 @@ private:
     byte clipboardType = COPY_NONE;
     int clipboardInfo  = 0;
 
+    int addEntity(int type, float x, float y);
+    void deleteEntity(int slot, bool updateUI = false);
+
     void createEntityList();
     void createScrollList();
     void setupObjects();

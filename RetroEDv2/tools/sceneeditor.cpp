@@ -273,33 +273,17 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         viewer->cameraPos.x = viewer->entities[c].pos.x - ((viewer->storedW / 2) * viewer->invZoom());
         viewer->cameraPos.y = viewer->entities[c].pos.y - ((viewer->storedH / 2) * viewer->invZoom());
 
-        objProp->setupUI(&viewer->entities[viewer->selectedEntity], viewer->selectedEntity,
-                         &compilerv2->objectEntityList[viewer->selectedEntity],
-                         &compilerv3->objectEntityList[viewer->selectedEntity],
-                         &compilerv4->objectEntityList[viewer->selectedEntity], viewer->gameType);
+        auto *entity = &viewer->entities[viewer->selectedEntity];
+        objProp->setupUI(entity, viewer->selectedEntity,
+                         &compilerv2->objectEntityList[entity->gameEntitySlot],
+                         &compilerv3->objectEntityList[entity->gameEntitySlot],
+                         &compilerv4->objectEntityList[entity->gameEntitySlot], viewer->gameType);
         ui->propertiesBox->setCurrentWidget(ui->objPropPage);
     });
 
     connect(ui->addEnt, &QToolButton::clicked, [this] {
         // uint c = objectList->currentRow() + 1;
-        SceneEntity ent;
-        ent.type = viewer->selectedObject;
-        if (viewer->selectedObject < 0)
-            ent.type = 0; // backup
-        ent.slotID   = viewer->entities.count();
-        ent.prevSlot = ent.slotID;
-
-        ent.variables.clear();
-        for (auto &var : viewer->objects[ent.type].variables) {
-            RSDKv5::Scene::VariableValue val;
-            val.type        = VAR_UINT8;
-            val.value_uint8 = 0;
-            ent.variables.append(val);
-        }
-
-        viewer->entities.append(ent);
-
-        createEntityList();
+        addEntity(viewer->selectedObject, 0xFFFF, 0xFFFF);
 
         ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
         doAction();
@@ -355,15 +339,12 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             return;
         int n = ui->entityList->currentRow() == ui->entityList->count() - 1 ? c - 1 : c;
         delete ui->entityList->item(c);
-        viewer->entities.removeAt(c);
+
         ui->entityList->blockSignals(true);
         ui->entityList->setCurrentRow(n);
         ui->entityList->blockSignals(false);
 
-        createEntityList();
-
-        if (viewer->entities.count() <= 0)
-            viewer->selectedEntity = -1;
+        deleteEntity(c);
 
         ui->rmEnt->setDisabled(viewer->entities.count() <= 0);
         ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
@@ -498,7 +479,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 if (viewer->entities[o].type > gameConfig.objects.count())
                     viewer->entities[o].type -= gameConfig.objects.count();
                 else if (viewer->entities[o].type >= 1)
-                    viewer->entities.removeAt(o);
+                    deleteEntity(o, false);
             }
 
             for (int t = gameConfig.objects.count() - 1; t >= 0; --t) {
@@ -515,6 +496,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         }
         ui->objectList->blockSignals(false);
 
+        objProp->unsetUI();
         createEntityList();
         doAction();
     });
@@ -987,12 +969,12 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                     selectionOffset.x      = pos.x - viewer->entities[o].pos.x;
                                     selectionOffset.y      = pos.y - viewer->entities[o].pos.y;
 
+                                    auto *entity = &viewer->entities[viewer->selectedEntity];
                                     objProp->setupUI(
-                                        &viewer->entities[viewer->selectedEntity],
-                                        viewer->selectedEntity,
-                                        &compilerv2->objectEntityList[viewer->selectedEntity],
-                                        &compilerv3->objectEntityList[viewer->selectedEntity],
-                                        &compilerv4->objectEntityList[viewer->selectedEntity],
+                                        entity, viewer->selectedEntity,
+                                        &compilerv2->objectEntityList[entity->gameEntitySlot],
+                                        &compilerv3->objectEntityList[entity->gameEntitySlot],
+                                        &compilerv4->objectEntityList[entity->gameEntitySlot],
                                         viewer->gameType);
                                     ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                     doAction();
@@ -1008,12 +990,12 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                     selectionOffset.y =
                                         firstPos.y - viewer->entities[viewer->selectedEntity].pos.y;
 
+                                    auto *entity = &viewer->entities[viewer->selectedEntity];
                                     objProp->setupUI(
-                                        &viewer->entities[viewer->selectedEntity],
-                                        viewer->selectedEntity,
-                                        &compilerv2->objectEntityList[viewer->selectedEntity],
-                                        &compilerv3->objectEntityList[viewer->selectedEntity],
-                                        &compilerv4->objectEntityList[viewer->selectedEntity],
+                                        entity, viewer->selectedEntity,
+                                        &compilerv2->objectEntityList[entity->gameEntitySlot],
+                                        &compilerv3->objectEntityList[entity->gameEntitySlot],
+                                        &compilerv4->objectEntityList[entity->gameEntitySlot],
                                         viewer->gameType);
                                     ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                 }
@@ -1022,68 +1004,25 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                     selectionOffset.y = 0;
                                 }
                             }
+
+                            ui->entityList->blockSignals(true);
+                            ui->entityList->setCurrentRow(viewer->selectedEntity);
+                            ui->entityList->blockSignals(false);
                         }
                         else {
                             if (viewer->selectedObject >= 0
                                 && viewer->entities.count() < FormatHelpers::Scene::entityLimit) {
-                                SceneEntity entity;
-                                entity.type = viewer->selectedObject;
-                                int xpos =
-                                    ((mEvent->pos().x() * viewer->invZoom()) + viewer->cameraPos.x)
-                                    * 65536;
-                                int ypos =
-                                    ((mEvent->pos().y() * viewer->invZoom()) + viewer->cameraPos.y)
-                                    * 65536;
-
-                                entity.pos.x =
+                                float x =
                                     ((mEvent->pos().x() * viewer->invZoom()) + viewer->cameraPos.x);
-                                entity.pos.y =
+                                float y =
                                     ((mEvent->pos().y() * viewer->invZoom()) + viewer->cameraPos.y);
 
                                 if (ctrlDownL) {
-                                    entity.pos.x =
-                                        (entity.pos.x - fmodf(entity.pos.x, viewer->gridSize.x));
-                                    entity.pos.y =
-                                        (entity.pos.y - fmodf(entity.pos.y, viewer->gridSize.y));
+                                    x = (x - fmodf(x, viewer->gridSize.x));
+                                    y = (y - fmodf(y, viewer->gridSize.y));
                                 }
 
-                                int cnt         = viewer->entities.count();
-                                entity.slotID   = cnt;
-                                entity.prevSlot = entity.slotID;
-
-                                entity.variables.clear();
-                                for (auto &var : viewer->objects[entity.type].variables) {
-                                    RSDKv5::Scene::VariableValue val;
-                                    val.type        = VAR_UINT8;
-                                    val.value_uint8 = 0;
-                                    entity.variables.append(val);
-                                }
-
-                                viewer->entities.append(entity);
-                                compilerv2->objectEntityList[cnt].type = viewer->selectedObject;
-                                compilerv2->objectEntityList[cnt].propertyValue = 0;
-                                compilerv2->objectEntityList[cnt].XPos          = xpos;
-                                compilerv2->objectEntityList[cnt].YPos          = ypos;
-
-                                compilerv3->objectEntityList[cnt].type = viewer->selectedObject;
-                                compilerv3->objectEntityList[cnt].propertyValue = 0;
-                                compilerv3->objectEntityList[cnt].XPos          = xpos;
-                                compilerv3->objectEntityList[cnt].YPos          = ypos;
-
-                                compilerv4->objectEntityList[cnt].type = viewer->selectedObject;
-                                compilerv4->objectEntityList[cnt].propertyValue = 0;
-                                compilerv4->objectEntityList[cnt].XPos          = xpos;
-                                compilerv4->objectEntityList[cnt].YPos          = ypos;
-                                viewer->selectedEntity                          = cnt;
-
-                                createEntityList();
-                                objProp->setupUI(&viewer->entities[viewer->selectedEntity],
-                                                 viewer->selectedEntity,
-                                                 &compilerv2->objectEntityList[viewer->selectedEntity],
-                                                 &compilerv3->objectEntityList[viewer->selectedEntity],
-                                                 &compilerv4->objectEntityList[viewer->selectedEntity],
-                                                 viewer->gameType);
-                                ui->propertiesBox->setCurrentWidget(ui->objPropPage);
+                                addEntity(viewer->selectedObject, x, y);
 
                                 doAction();
                             }
@@ -1175,11 +1114,11 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                 selectionOffset.y      = pos.y - viewer->entities[o].pos.y;
                                 found                  = true;
 
-                                objProp->setupUI(&viewer->entities[viewer->selectedEntity],
-                                                 viewer->selectedEntity,
-                                                 &compilerv2->objectEntityList[viewer->selectedEntity],
-                                                 &compilerv3->objectEntityList[viewer->selectedEntity],
-                                                 &compilerv4->objectEntityList[viewer->selectedEntity],
+                                auto *entity = &viewer->entities[viewer->selectedEntity];
+                                objProp->setupUI(entity, viewer->selectedEntity,
+                                                 &compilerv2->objectEntityList[entity->gameEntitySlot],
+                                                 &compilerv3->objectEntityList[entity->gameEntitySlot],
+                                                 &compilerv4->objectEntityList[entity->gameEntitySlot],
                                                  viewer->gameType);
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                                 break;
@@ -1193,11 +1132,12 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                     firstPos.x - viewer->entities[viewer->selectedEntity].pos.x;
                                 selectionOffset.y =
                                     firstPos.y - viewer->entities[viewer->selectedEntity].pos.y;
-                                objProp->setupUI(&viewer->entities[viewer->selectedEntity],
-                                                 viewer->selectedEntity,
-                                                 &compilerv2->objectEntityList[viewer->selectedEntity],
-                                                 &compilerv3->objectEntityList[viewer->selectedEntity],
-                                                 &compilerv4->objectEntityList[viewer->selectedEntity],
+
+                                auto *entity = &viewer->entities[viewer->selectedEntity];
+                                objProp->setupUI(entity, viewer->selectedEntity,
+                                                 &compilerv2->objectEntityList[entity->gameEntitySlot],
+                                                 &compilerv3->objectEntityList[entity->gameEntitySlot],
+                                                 &compilerv4->objectEntityList[entity->gameEntitySlot],
                                                  viewer->gameType);
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                             }
@@ -1212,6 +1152,10 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                 objProp->unsetUI();
                             }
                         }
+
+                        ui->entityList->blockSignals(true);
+                        ui->entityList->setCurrentRow(viewer->selectedEntity);
+                        ui->entityList->blockSignals(false);
                         break;
                     }
                     default: break;
@@ -1418,15 +1362,20 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                 entity.pos.y -= selectionOffset.y;
                             }
 
-                            int id                                = viewer->selectedEntity;
-                            compilerv2->objectEntityList[id].XPos = entity.pos.x * 65536;
-                            compilerv2->objectEntityList[id].YPos = entity.pos.y * 65536;
+                            compilerv2->objectEntityList[entity.gameEntitySlot].XPos =
+                                entity.pos.x * 65536;
+                            compilerv2->objectEntityList[entity.gameEntitySlot].YPos =
+                                entity.pos.y * 65536;
 
-                            compilerv3->objectEntityList[id].XPos = entity.pos.x * 65536;
-                            compilerv3->objectEntityList[id].YPos = entity.pos.y * 65536;
+                            compilerv3->objectEntityList[entity.gameEntitySlot].XPos =
+                                entity.pos.x * 65536;
+                            compilerv3->objectEntityList[entity.gameEntitySlot].YPos =
+                                entity.pos.y * 65536;
 
-                            compilerv4->objectEntityList[id].XPos = entity.pos.x * 65536;
-                            compilerv4->objectEntityList[id].YPos = entity.pos.y * 65536;
+                            compilerv4->objectEntityList[entity.gameEntitySlot].XPos =
+                                entity.pos.x * 65536;
+                            compilerv4->objectEntityList[entity.gameEntitySlot].YPos =
+                                entity.pos.y * 65536;
 
                             doAction();
                         }
@@ -1801,12 +1750,13 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
     for (int i = 0; i < scene.objects.count(); ++i) {
         SceneEntity info;
-        info.slotID        = scene.objects[i].slotID;
-        info.prevSlot      = info.slotID;
-        info.type          = scene.objects[i].type;
-        info.propertyValue = scene.objects[i].propertyValue;
-        info.pos.x         = scene.objects[i].getX();
-        info.pos.y         = scene.objects[i].getY();
+        info.slotID         = scene.objects[i].slotID;
+        info.prevSlot       = info.slotID;
+        info.gameEntitySlot = info.slotID;
+        info.type           = scene.objects[i].type;
+        info.propertyValue  = scene.objects[i].propertyValue;
+        info.pos.x          = scene.objects[i].getX();
+        info.pos.y          = scene.objects[i].getY();
 
         if (gameType == ENGINE_v4) {
             for (int v = 0; v < 0xF; ++v) {
@@ -2604,6 +2554,10 @@ void SceneEditor::resetTools(byte tool)
     objProp->unsetUI();
     viewer->isSelecting = false;
 
+    ui->entityList->blockSignals(true);
+    ui->entityList->setCurrentRow(viewer->selectedEntity);
+    ui->entityList->blockSignals(false);
+
     unsetCursor();
 
     switch (tool) {
@@ -2636,20 +2590,9 @@ bool SceneEditor::handleKeyPress(QKeyEvent *event)
                 default: break;
                 case COPY_ENTITY: {
                     if (viewer->entities.count() < FormatHelpers::Scene::entityLimit) {
-                        SceneEntity entity = *(SceneEntity *)clipboard;
-                        entity.pos.x       = (sceneMousePos.x);
-                        entity.pos.y       = (sceneMousePos.y);
+                        SceneEntity *entity = (SceneEntity *)clipboard;
 
-                        int cnt = viewer->entities.count();
-                        viewer->entities.append(entity);
-                        compilerv2->objectEntityList[cnt].XPos = entity.pos.x * 65536;
-                        compilerv2->objectEntityList[cnt].YPos = entity.pos.y * 65536;
-
-                        compilerv3->objectEntityList[cnt].XPos = entity.pos.x * 65536;
-                        compilerv3->objectEntityList[cnt].YPos = entity.pos.y * 65536;
-
-                        compilerv4->objectEntityList[cnt].XPos = entity.pos.x * 65536;
-                        compilerv4->objectEntityList[cnt].YPos = entity.pos.y * 65536;
+                        addEntity(entity->type, sceneMousePos.x, sceneMousePos.y);
                     }
                     else {
                         QMessageBox msgBox =
@@ -2684,7 +2627,21 @@ bool SceneEditor::handleKeyPress(QKeyEvent *event)
     switch (viewer->curTool) {
         case SceneViewer::TOOL_MOUSE: break;
 
-        case SceneViewer::TOOL_SELECT: break;
+        case SceneViewer::TOOL_SELECT:
+            if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace) {
+                if (viewer->selectedEntities.count()) {
+                    std::sort(viewer->selectedEntities.begin(), viewer->selectedEntities.end(),
+                              [](const int &a, const int &b) -> bool { return a < b; });
+
+                    for (int s = viewer->selectedEntities.count() - 1; s >= 0; --s) {
+                        deleteEntity(viewer->selectedEntities[s], false);
+                    }
+                    objProp->unsetUI();
+                    createEntityList();
+                    viewer->selectedEntities.clear();
+                }
+            }
+            break;
 
         case SceneViewer::TOOL_PENCIL:
             if (event->key() == Qt::Key_Z)
@@ -2722,11 +2679,9 @@ bool SceneEditor::handleKeyPress(QKeyEvent *event)
         case SceneViewer::TOOL_ENTITY:
             if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace) {
                 if (viewer->selectedEntity >= 0) {
-                    viewer->entities.removeAt(viewer->selectedEntity);
+                    deleteEntity(viewer->selectedEntity);
                     viewer->selectedEntity = -1;
 
-                    objProp->unsetUI();
-                    createEntityList();
                     doAction();
                 }
             }
@@ -2752,6 +2707,89 @@ bool SceneEditor::handleKeyRelease(QKeyEvent *event)
     if (event->key() == Qt::Key_Shift)
         shiftDownL = false;
     return false;
+}
+
+int SceneEditor::addEntity(int type, float x, float y)
+{
+    if (x == 0xFFFF)
+        x = viewer->cameraPos.x;
+
+    if (y == 0xFFFF)
+        y = viewer->cameraPos.y;
+
+    SceneEntity entity;
+    entity.type  = type;
+    entity.pos.x = x;
+    entity.pos.y = y;
+
+    int cnt               = viewer->entities.count();
+    entity.slotID         = cnt;
+    entity.prevSlot       = entity.slotID;
+    entity.gameEntitySlot = entity.slotID;
+
+    entity.variables.clear();
+    for (auto &var : viewer->objects[entity.type].variables) {
+        RSDKv5::Scene::VariableValue val;
+        val.type        = VAR_UINT8;
+        val.value_uint8 = 0;
+        entity.variables.append(val);
+    }
+
+    viewer->entities.append(entity);
+    compilerv2->objectEntityList[entity.gameEntitySlot].type          = viewer->selectedObject;
+    compilerv2->objectEntityList[entity.gameEntitySlot].propertyValue = 0;
+    compilerv2->objectEntityList[entity.gameEntitySlot].XPos          = x * 65536;
+    compilerv2->objectEntityList[entity.gameEntitySlot].YPos          = y * 65536;
+
+    compilerv3->objectEntityList[entity.gameEntitySlot].type          = viewer->selectedObject;
+    compilerv3->objectEntityList[entity.gameEntitySlot].propertyValue = 0;
+    compilerv3->objectEntityList[entity.gameEntitySlot].XPos          = x * 65536;
+    compilerv3->objectEntityList[entity.gameEntitySlot].YPos          = y * 65536;
+
+    compilerv4->objectEntityList[entity.gameEntitySlot].type          = viewer->selectedObject;
+    compilerv4->objectEntityList[entity.gameEntitySlot].propertyValue = 0;
+    compilerv4->objectEntityList[entity.gameEntitySlot].XPos          = x * 65536;
+    compilerv4->objectEntityList[entity.gameEntitySlot].YPos          = y * 65536;
+
+    viewer->selectedEntity = cnt;
+
+    ui->entityList->blockSignals(true);
+    ui->entityList->setCurrentRow(viewer->selectedEntity);
+    ui->entityList->blockSignals(false);
+
+    createEntityList();
+
+    auto *entityPtr = &viewer->entities[viewer->selectedEntity];
+    objProp->setupUI(entityPtr, viewer->selectedEntity,
+                     &compilerv2->objectEntityList[entityPtr->gameEntitySlot],
+                     &compilerv3->objectEntityList[entityPtr->gameEntitySlot],
+                     &compilerv4->objectEntityList[entityPtr->gameEntitySlot], viewer->gameType);
+    ui->propertiesBox->setCurrentWidget(ui->objPropPage);
+
+    return entity.slotID;
+}
+void SceneEditor::deleteEntity(int slot, bool updateUI)
+{
+    const SceneEntity &entity = viewer->entities.takeAt(slot);
+
+    compilerv4->objectEntityList[entity.gameEntitySlot].type = 0;
+    compilerv3->objectEntityList[entity.gameEntitySlot].type = 0;
+    compilerv2->objectEntityList[entity.gameEntitySlot].type = 0;
+
+    if (viewer->entities.count() <= 0)
+        viewer->selectedEntity = -1;
+
+    if (viewer->selectedEntity == slot)
+        viewer->selectedEntity = -1;
+
+    if (updateUI) {
+        objProp->unsetUI();
+        createEntityList();
+
+        ui->entityList->blockSignals(true);
+        ui->entityList->setCurrentRow(viewer->selectedEntity);
+        ui->entityList->blockSignals(false);
+    }
 }
 
 void SceneEditor::createEntityList()
