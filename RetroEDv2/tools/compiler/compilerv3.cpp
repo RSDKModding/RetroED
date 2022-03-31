@@ -1,7 +1,7 @@
 #include "includes.hpp"
 
-#define ALIAS_COUNT       (COMMONALIAS_COUNT + 0x60)
 #define COMMONALIAS_COUNT (0x22)
+#define ALIAS_COUNT       (COMMONALIAS_COUNT + 0x60)
 
 struct AliasInfo {
     AliasInfo()
@@ -898,6 +898,30 @@ Compilerv3::Compilerv3()
     }
 }
 
+bool Compilerv3::strComp(QString strA, QString strB)
+{
+    if (strA.length() == 0 && strB.length() == 0)
+        return true;
+    if (strA.length() == 0 || strB.length() == 0 || strA.length() != strB.length())
+        return false;
+
+    bool match  = true;
+    int strPosA = 0, strPosB = 0;
+
+    while (strPosA < strA.length() && strPosB < strB.length()) {
+        if (strA[strPosA] == strB[strPosB] || strA[strPosA] == strB[strPosB].toLatin1() + ' '
+            || strA[strPosA] == strB[strPosB].toLatin1() - ' ') {
+            ++strPosA;
+            ++strPosB;
+        }
+        else {
+            match = false;
+            break;
+        }
+    }
+    return match;
+}
+
 int Compilerv3::findStringToken(QString &string, QString token, char stopID)
 {
     int tokenCharID  = 0;
@@ -1071,7 +1095,7 @@ void Compilerv3::convertFunctionText(QString &text)
     }
 
     for (int i = 0; i < FUNC_MAX_CNT; ++i) {
-        if (funcName == functions[i].name) {
+        if (strComp(funcName, functions[i].name)) {
             opcode     = i;
             opcodeSize = functions[i].opcodeSize;
             textPos    = functions[i].name.length();
@@ -1086,10 +1110,10 @@ void Compilerv3::convertFunctionText(QString &text)
     }
     else {
         scriptData[scriptDataPos++] = opcode;
-        if (functions[opcode].name == "else")
+        if (strComp(functions[opcode].name, "else"))
             jumpTableData[jumpTableStack[jumpTableStackPos]] = scriptDataPos - scriptDataOffset;
 
-        if (functions[opcode].name == "endif") {
+        if (strComp(functions[opcode].name, "endif")) {
             int jPos                = jumpTableStack[jumpTableStackPos];
             jumpTableData[jPos + 1] = scriptDataPos - scriptDataOffset;
             if (jumpTableData[jPos] == -1)
@@ -1097,7 +1121,7 @@ void Compilerv3::convertFunctionText(QString &text)
             --jumpTableStackPos;
         }
 
-        if (functions[opcode].name == "endswitch") {
+        if (strComp(functions[opcode].name, "endswitch")) {
             int jPos                = jumpTableStack[jumpTableStackPos];
             jumpTableData[jPos + 3] = scriptDataPos - scriptDataOffset;
             if (jumpTableData[jPos + 2] == -1) {
@@ -1113,39 +1137,58 @@ void Compilerv3::convertFunctionText(QString &text)
             --jumpTableStackPos;
         }
 
-        if (functions[opcode].name == "loop") {
+        if (strComp(functions[opcode].name, "loop")) {
             jumpTableData[jumpTableStack[jumpTableStackPos--] + 1] = scriptDataPos - scriptDataOffset;
         }
 
         for (int i = 0; i < opcodeSize; ++i) {
             ++textPos;
-            int value            = 0;
-            int scriptTextByteID = 0;
-            funcName             = "";
-            arrayStr             = "";
-            while (textPos < text.length()) {
-                if (text[textPos] == ',' || text[textPos] == ')')
-                    break;
-
-                if (value) {
-                    if (text[textPos] == ']')
-                        value = 0;
-                    else
-                        arrayStr += text[textPos];
-                    ++textPos;
-                }
-                else {
-                    if (text[textPos] == '[')
-                        value = 1;
-                    else
-                        funcName += text[textPos];
-                    ++textPos;
+            int mode     = 0;
+            int prevMode = 0;
+            funcName     = "";
+            arrayStr     = "";
+            while (((text[textPos] != ',' && text[textPos] != ')') || mode == 2)
+                   && textPos < text.length()) {
+                switch (mode) {
+                    case 0: // normal
+                        if (text[textPos] == '[')
+                            mode = 1;
+                        else if (text[textPos] == '"') {
+                            prevMode = mode;
+                            mode     = 2;
+                            funcName += '"';
+                        }
+                        else
+                            funcName += text[textPos];
+                        ++textPos;
+                        break;
+                    case 1: // array val
+                        if (text[textPos] == ']')
+                            mode = 0;
+                        else if (text[textPos] == '"') {
+                            prevMode = mode;
+                            mode     = 2;
+                        }
+                        else
+                            arrayStr += text[textPos];
+                        ++textPos;
+                        break;
+                    case 2: // string
+                        if (text[textPos] == '"') {
+                            mode = prevMode;
+                            funcName += '"';
+                        }
+                        else
+                            funcName += text[textPos];
+                        ++textPos;
+                        break;
                 }
             }
 
+            int value = 0;
             // Eg: TempValue0 = FX_SCALE
             for (int a = 0; a < aliasCount; ++a) {
-                if (funcName == aliases[a].name) {
+                if (strComp(funcName, aliases[a].name)) {
                     copyAliasStr(funcName, aliases[a].value, 0);
                     if (findStringToken(aliases[a].value, "[", 1) > -1)
                         copyAliasStr(arrayStr, aliases[a].value, 1);
@@ -1162,7 +1205,7 @@ void Compilerv3::convertFunctionText(QString &text)
 
                 // Eg: TempValue0 = FX_SCALE
                 for (int a = 0; a < aliasCount; ++a) {
-                    if (arrayStr == aliases[a].name) {
+                    if (strComp(arrayStr, aliases[a].name)) {
                         copyAliasStr(arrayStr, aliases[a].value, 0);
                     }
                 }
@@ -1170,7 +1213,7 @@ void Compilerv3::convertFunctionText(QString &text)
 
             // Eg: TempValue0 = Game.Variable
             for (int v = 0; v < globalVariables.count(); ++v) {
-                if (funcName == globalVariables[v]) {
+                if (strComp(funcName, globalVariables[v])) {
                     funcName = "Global";
                     arrayStr = "";
                     appendIntegerToString(arrayStr, v);
@@ -1179,17 +1222,17 @@ void Compilerv3::convertFunctionText(QString &text)
 
             // Eg: TempValue0 = Function1
             for (int f = 0; f < functionCount; ++f) {
-                if (funcName == functionNames[f]) {
+                if (strComp(funcName, functionNames[f])) {
                     funcName = "";
                     appendIntegerToString(funcName, f);
                 }
             }
             // Eg: TempValue0 = TypeName[PlayerObject]
-            if (funcName == "TypeName") {
+            if (strComp(funcName, "TypeName")) {
                 funcName = "";
                 appendIntegerToString(funcName, 0);
                 for (int o = 0; o < OBJECT_COUNT; ++o) {
-                    if (arrayStr == typeNames[o]) {
+                    if (strComp(arrayStr, typeNames[o])) {
                         funcName = "";
                         appendIntegerToString(funcName, o);
                     }
@@ -1197,12 +1240,12 @@ void Compilerv3::convertFunctionText(QString &text)
             }
 
             // Eg: TempValue0 = SfxName[Jump]
-            if (funcName == "SfxName") {
+            if (strComp(funcName, "SfxName")) {
                 funcName = "";
                 appendIntegerToString(funcName, 0);
                 int s = 0;
                 for (; s < globalSfxNames.count(); ++s) {
-                    if (arrayStr == globalSfxNames[s]) {
+                    if (strComp(arrayStr, globalSfxNames[s])) {
                         funcName = "";
                         appendIntegerToString(funcName, s);
                         break;
@@ -1211,7 +1254,7 @@ void Compilerv3::convertFunctionText(QString &text)
 
                 if (s == globalSfxNames.count()) {
                     for (; s < stageSfxNames.count(); ++s) {
-                        if (arrayStr == stageSfxNames[s]) {
+                        if (strComp(arrayStr, stageSfxNames[s])) {
                             funcName = "";
                             appendIntegerToString(funcName, s);
                             break;
@@ -1227,14 +1270,14 @@ void Compilerv3::convertFunctionText(QString &text)
             }
 
             // Eg: TempValue0 = AchievementName[Ring King]
-            if (funcName == "AchievementName") {
+            if (strComp(funcName, "AchievementName")) {
                 funcName = "";
                 appendIntegerToString(funcName, 0);
                 // default to 0, we don't know what these are
             }
 
             // Eg: TempValue0 = PlayerName[SONIC]
-            if (funcName == "PlayerName") {
+            if (strComp(funcName, "PlayerName")) {
                 funcName = "";
                 appendIntegerToString(funcName, 0);
                 int p = 0;
@@ -1243,7 +1286,7 @@ void Compilerv3::convertFunctionText(QString &text)
                         QString name = ((SceneEditor *)editor)->gameConfig.players[p].name;
                         name         = name.replace(" ", "");
 
-                        if (arrayStr == name) {
+                        if (strComp(arrayStr, name)) {
                             funcName = "";
                             appendIntegerToString(funcName, p);
                             break;
@@ -1259,7 +1302,7 @@ void Compilerv3::convertFunctionText(QString &text)
                         QString name = gameConfig.players[p];
                         name         = name.replace(" ", "");
 
-                        if (arrayStr == name) {
+                        if (strComp(arrayStr, name)) {
                             funcName = "";
                             appendIntegerToString(funcName, p);
                             break;
@@ -1275,7 +1318,7 @@ void Compilerv3::convertFunctionText(QString &text)
             }
 
             // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
-            if (funcName == "StageName") {
+            if (strComp(funcName, "StageName")) {
                 funcName = "";
                 int s    = -1;
                 if (arrayStr.length() >= 2) {
@@ -1297,7 +1340,7 @@ void Compilerv3::convertFunctionText(QString &text)
                         for (; s < gameConfig.stageLists[list].scenes.count(); ++s) {
                             QString name = gameConfig.stageLists[list].scenes[s].name;
                             name         = name.replace(" ", "");
-                            if (scnName == name)
+                            if (strComp(scnName, name))
                                 break;
                         }
 
@@ -1324,23 +1367,23 @@ void Compilerv3::convertFunctionText(QString &text)
                 scriptData[scriptDataPos++] = SCRIPTVAR_STRCONST;
                 scriptData[scriptDataPos++] = funcName.length() - 2;
                 int scriptTextPos           = 1;
-                scriptTextByteID            = 0;
+                int scriptTextByteID        = 0;
                 while (scriptTextPos > -1) {
                     switch (scriptTextByteID) {
                         case 0:
-                            scriptData[scriptDataPos] = funcName[scriptTextPos].toLatin1() << 24;
+                            scriptData[scriptDataPos] = (byte)funcName[scriptTextPos].toLatin1() << 24;
                             ++scriptTextByteID;
                             break;
                         case 1:
-                            scriptData[scriptDataPos] += funcName[scriptTextPos].toLatin1() << 16;
+                            scriptData[scriptDataPos] |= (byte)funcName[scriptTextPos].toLatin1() << 16;
                             ++scriptTextByteID;
                             break;
                         case 2:
-                            scriptData[scriptDataPos] += funcName[scriptTextPos].toLatin1() << 8;
+                            scriptData[scriptDataPos] |= (byte)funcName[scriptTextPos].toLatin1() << 8;
                             ++scriptTextByteID;
                             break;
                         case 3:
-                            scriptData[scriptDataPos++] += funcName[scriptTextPos].toLatin1();
+                            scriptData[scriptDataPos++] |= (byte)funcName[scriptTextPos].toLatin1();
                             scriptTextByteID = 0;
                             break;
                         default: break;
@@ -1370,11 +1413,11 @@ void Compilerv3::convertFunctionText(QString &text)
                         scriptData[scriptDataPos++] = value;
                     }
                     else {
-                        if (arrayStr == "ArrayPos0")
+                        if (strComp(arrayStr, "ArrayPos0"))
                             value = 0;
-                        if (arrayStr == "ArrayPos1")
+                        if (strComp(arrayStr, "ArrayPos1"))
                             value = 1;
-                        if (arrayStr == "TempObjectPos")
+                        if (strComp(arrayStr, "TempObjectPos"))
                             value = 2;
                         scriptData[scriptDataPos++] = VARARR_ARRAY;
                         scriptData[scriptDataPos++] = value;
@@ -1385,7 +1428,7 @@ void Compilerv3::convertFunctionText(QString &text)
                 }
                 value = -1;
                 for (int i = 0; i < VAR_MAX_CNT; ++i) {
-                    if (funcName == variableNames[i])
+                    if (strComp(funcName, variableNames[i]))
                         value = i;
                 }
 
@@ -1444,11 +1487,11 @@ void Compilerv3::checkCaseNumber(QString &text)
         }
 
         // Eg: TempValue0 = TypeName[PlayerObject]
-        if (caseValue == "TypeName") {
+        if (strComp(caseValue, "TypeName")) {
             caseValue = "";
             appendIntegerToString(caseValue, 0);
             for (int o = 0; o < OBJECT_COUNT; ++o) {
-                if (arrayStr == typeNames[o]) {
+                if (strComp(arrayStr, typeNames[o])) {
                     caseValue = "";
                     appendIntegerToString(caseValue, o);
                 }
@@ -1456,12 +1499,12 @@ void Compilerv3::checkCaseNumber(QString &text)
         }
 
         // Eg: TempValue0 = SfxName[Jump]
-        if (caseValue == "SfxName") {
+        if (strComp(caseValue, "SfxName")) {
             caseValue = "";
             appendIntegerToString(caseValue, 0);
             int s = 0;
             for (; s < globalSfxNames.count(); ++s) {
-                if (arrayStr == globalSfxNames[s]) {
+                if (strComp(arrayStr, globalSfxNames[s])) {
                     caseValue = "";
                     appendIntegerToString(caseValue, s);
                     break;
@@ -1470,7 +1513,7 @@ void Compilerv3::checkCaseNumber(QString &text)
 
             if (s == globalSfxNames.count()) {
                 for (; s < stageSfxNames.count(); ++s) {
-                    if (arrayStr == stageSfxNames[s]) {
+                    if (strComp(arrayStr, stageSfxNames[s])) {
                         caseValue = "";
                         appendIntegerToString(caseValue, s);
                         break;
@@ -1486,14 +1529,14 @@ void Compilerv3::checkCaseNumber(QString &text)
         }
 
         // Eg: TempValue0 = AchievementName[Ring King]
-        if (caseValue == "AchievementName") {
+        if (strComp(caseValue, "AchievementName")) {
             caseValue = "";
             appendIntegerToString(caseValue, 0);
             // default to 0, we don't know what these are
         }
 
         // Eg: TempValue0 = PlayerName[SONIC]
-        if (caseValue == "PlayerName") {
+        if (strComp(caseValue, "PlayerName")) {
             caseValue = "";
             appendIntegerToString(caseValue, 0);
             int p = 0;
@@ -1502,7 +1545,7 @@ void Compilerv3::checkCaseNumber(QString &text)
                     QString name = ((SceneEditor *)editor)->gameConfig.players[p].name;
                     name         = name.replace(" ", "");
 
-                    if (arrayStr == name) {
+                    if (strComp(arrayStr, name)) {
                         caseValue = "";
                         appendIntegerToString(caseValue, p);
                         break;
@@ -1518,7 +1561,7 @@ void Compilerv3::checkCaseNumber(QString &text)
                     QString name = gameConfig.players[p];
                     name         = name.replace(" ", "");
 
-                    if (arrayStr == name) {
+                    if (strComp(arrayStr, name)) {
                         caseValue = "";
                         appendIntegerToString(caseValue, p);
                         break;
@@ -1534,7 +1577,7 @@ void Compilerv3::checkCaseNumber(QString &text)
         }
 
         // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
-        if (caseValue == "StageName") {
+        if (strComp(caseValue, "StageName")) {
             caseValue = "";
             int s     = -1;
             if (arrayStr.length() >= 2) {
@@ -1556,7 +1599,7 @@ void Compilerv3::checkCaseNumber(QString &text)
                     for (; s < gameConfig.stageLists[list].scenes.count(); ++s) {
                         QString name = gameConfig.stageLists[list].scenes[s].name;
                         name         = name.replace(" ", "");
-                        if (scnName == name)
+                        if (strComp(scnName, name))
                             break;
                     }
 
@@ -1579,7 +1622,7 @@ void Compilerv3::checkCaseNumber(QString &text)
     }
 
     for (int a = 0; a < aliasCount && !flag; ++a) {
-        if (caseString == aliases[a].name) {
+        if (strComp(caseString, aliases[a].name)) {
             caseString = aliases[a].value;
             break;
         }
@@ -1657,11 +1700,11 @@ bool Compilerv3::readSwitchCase(QString &text)
             }
 
             // Eg: TempValue0 = TypeName[PlayerObject]
-            if (caseValue == "TypeName") {
+            if (strComp(caseValue, "TypeName")) {
                 caseValue = "";
                 appendIntegerToString(caseValue, 0);
                 for (int o = 0; o < OBJECT_COUNT; ++o) {
-                    if (arrayStr == typeNames[o]) {
+                    if (strComp(arrayStr, typeNames[o])) {
                         caseValue = "";
                         appendIntegerToString(caseValue, o);
                     }
@@ -1669,12 +1712,12 @@ bool Compilerv3::readSwitchCase(QString &text)
             }
 
             // Eg: TempValue0 = SfxName[Jump]
-            if (caseValue == "SfxName") {
+            if (strComp(caseValue, "SfxName")) {
                 caseValue = "";
                 appendIntegerToString(caseValue, 0);
                 int s = 0;
                 for (; s < globalSfxNames.count(); ++s) {
-                    if (arrayStr == globalSfxNames[s]) {
+                    if (strComp(arrayStr, globalSfxNames[s])) {
                         caseValue = "";
                         appendIntegerToString(caseValue, s);
                         break;
@@ -1683,7 +1726,7 @@ bool Compilerv3::readSwitchCase(QString &text)
 
                 if (s == globalSfxNames.count()) {
                     for (; s < stageSfxNames.count(); ++s) {
-                        if (arrayStr == stageSfxNames[s]) {
+                        if (strComp(arrayStr, stageSfxNames[s])) {
                             caseValue = "";
                             appendIntegerToString(caseValue, s);
                             break;
@@ -1699,14 +1742,14 @@ bool Compilerv3::readSwitchCase(QString &text)
             }
 
             // Eg: TempValue0 = AchievementName[Ring King]
-            if (caseValue == "AchievementName") {
+            if (strComp(caseValue, "AchievementName")) {
                 caseValue = "";
                 appendIntegerToString(caseValue, 0);
                 // default to 0, we don't know what these are
             }
 
             // Eg: TempValue0 = PlayerName[SONIC]
-            if (caseValue == "PlayerName") {
+            if (strComp(caseValue, "PlayerName")) {
                 caseValue = "";
                 appendIntegerToString(caseValue, 0);
                 int p = 0;
@@ -1715,7 +1758,7 @@ bool Compilerv3::readSwitchCase(QString &text)
                         QString name = ((SceneEditor *)editor)->gameConfig.players[p].name;
                         name         = name.replace(" ", "");
 
-                        if (arrayStr == name) {
+                        if (strComp(arrayStr, name)) {
                             caseValue = "";
                             appendIntegerToString(caseValue, p);
                             break;
@@ -1731,7 +1774,7 @@ bool Compilerv3::readSwitchCase(QString &text)
                         QString name = gameConfig.players[p];
                         name         = name.replace(" ", "");
 
-                        if (arrayStr == name) {
+                        if (strComp(arrayStr, name)) {
                             caseValue = "";
                             appendIntegerToString(caseValue, p);
                             break;
@@ -1747,7 +1790,7 @@ bool Compilerv3::readSwitchCase(QString &text)
             }
 
             // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
-            if (caseValue == "StageName") {
+            if (strComp(caseValue, "StageName")) {
                 caseValue = "";
                 int s     = -1;
                 if (arrayStr.length() >= 2) {
@@ -1769,7 +1812,7 @@ bool Compilerv3::readSwitchCase(QString &text)
                         for (; s < gameConfig.stageLists[list].scenes.count(); ++s) {
                             QString name = gameConfig.stageLists[list].scenes[s].name;
                             name         = name.replace(" ", "");
-                            if (scnName == name)
+                            if (strComp(scnName, name))
                                 break;
                         }
 
@@ -1793,7 +1836,7 @@ bool Compilerv3::readSwitchCase(QString &text)
         }
 
         for (int a = 0; a < aliasCount && !flag; ++a) {
-            if (caseText == aliases[a].name)
+            if (strComp(caseText, aliases[a].name))
                 caseText = aliases[a].value;
         }
 
@@ -1910,11 +1953,24 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID, bool inEditor
             while (readMode < READMODE_ENDLINE) {
                 prevChar = curChar;
                 curChar  = reader.read<char>();
+
                 if (readMode == READMODE_STRING) {
                     if (curChar == '\t' || curChar == '\r' || curChar == '\n' || curChar == ';'
                         || readMode >= READMODE_COMMENTLINE) {
+                        if (curChar == '\r') {
+                            size_t pos = reader.tell();
+                            char chr   = reader.read<char>();
+                            if (chr != '\n') {
+                                reader.seek(pos);
+                            }
+                            else {
+                                curChar  = '\n';
+                                prevChar = '\r';
+                            }
+                        }
+
                         if ((curChar == '\n' && prevChar != '\r')
-                            || (curChar == '\n' && prevChar == '\r')) {
+                            || (curChar == '\n' && prevChar == '\r') || curChar == ';') {
                             readMode = READMODE_ENDLINE;
                             if (curChar == ';')
                                 semiFlag = true;
@@ -1922,6 +1978,7 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                     }
                     else if (curChar != '/' || textPos <= 0) {
                         scriptText += curChar;
+                        textPos++;
                         if (curChar == '"')
                             readMode = READMODE_NORMAL;
                     }
@@ -1931,19 +1988,34 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                     }
                     else {
                         scriptText += curChar;
+                        textPos++;
                     }
                 }
                 else if (curChar == ' ' || curChar == '\t' || curChar == '\r' || curChar == '\n'
                          || curChar == ';' || readMode >= READMODE_COMMENTLINE) {
-                    if ((curChar == '\n' && prevChar != '\r')
-                        || (curChar == '\n' && prevChar == '\r')) {
+                    if (curChar == '\r') {
+                        size_t pos = reader.tell();
+                        char chr   = reader.read<char>();
+                        if (chr != '\n') {
+                            reader.seek(pos);
+                        }
+                        else {
+                            curChar  = '\n';
+                            prevChar = '\r';
+                        }
+                    }
+
+                    if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r')
+                        || curChar == ';') {
                         readMode = READMODE_ENDLINE;
                         if (curChar == ';')
                             semiFlag = true;
+                        textPos++;
                     }
                 }
                 else if (curChar != '/' || textPos <= 0) {
                     scriptText += curChar;
+                    textPos++;
                     if (curChar == '"' && !readMode)
                         readMode = READMODE_STRING;
                 }
@@ -1953,10 +2025,10 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                 }
                 else {
                     scriptText += curChar;
+                    textPos++;
                 }
-                if (reader.isEOF()) {
+                if (reader.isEOF())
                     readMode = READMODE_EOF;
-                }
             }
 
             switch (parseMode) {
@@ -1965,21 +2037,23 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                         ++lineID;
                     checkAliasText(scriptText);
                     if (inEditor) {
-                        if (scriptText == "subRSDKDraw") {
+                        if (strComp(scriptText, "subRSDKDraw")) {
                             parseMode                                            = PARSEMODE_FUNCTION;
                             objectScriptList[scriptID].subRSDKDraw.scriptCodePtr = scriptDataPos;
                             objectScriptList[scriptID].subRSDKDraw.jumpTablePtr  = jumpTableDataPos;
                             scriptDataOffset                                     = scriptDataPos;
                             jumpTableDataOffset                                  = jumpTableDataPos;
                         }
-                        if (scriptText == "subRSDKLoad") {
+
+                        if (strComp(scriptText, "subRSDKLoad")) {
                             parseMode                                            = PARSEMODE_FUNCTION;
                             objectScriptList[scriptID].subRSDKLoad.scriptCodePtr = scriptDataPos;
                             objectScriptList[scriptID].subRSDKLoad.jumpTablePtr  = jumpTableDataPos;
                             scriptDataOffset                                     = scriptDataPos;
                             jumpTableDataOffset                                  = jumpTableDataPos;
                         }
-                        if (scriptText == "subRSDKEdit") {
+
+                        if (strComp(scriptText, "subRSDKEdit")) {
                             parseMode                                            = PARSEMODE_FUNCTION;
                             objectScriptList[scriptID].subRSDKEdit.scriptCodePtr = scriptDataPos;
                             objectScriptList[scriptID].subRSDKEdit.jumpTablePtr  = jumpTableDataPos;
@@ -1988,14 +2062,15 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                         }
                     }
                     else {
-                        if (scriptText == "subObjectMain") {
+                        if (strComp(scriptText, "subObjectMain")) {
                             parseMode                                        = PARSEMODE_FUNCTION;
                             objectScriptList[scriptID].subMain.scriptCodePtr = scriptDataPos;
                             objectScriptList[scriptID].subMain.jumpTablePtr  = jumpTableDataPos;
                             scriptDataOffset                                 = scriptDataPos;
                             jumpTableDataOffset                              = jumpTableDataPos;
                         }
-                        if (scriptText == "subObjectPlayerInteraction") {
+
+                        if (strComp(scriptText, "subObjectPlayerInteraction")) {
                             parseMode = PARSEMODE_FUNCTION;
                             objectScriptList[scriptID].subPlayerInteraction.scriptCodePtr =
                                 scriptDataPos;
@@ -2004,14 +2079,16 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                             scriptDataOffset    = scriptDataPos;
                             jumpTableDataOffset = jumpTableDataPos;
                         }
-                        if (scriptText == "subObjectDraw") {
+
+                        if (strComp(scriptText, "subObjectDraw")) {
                             parseMode                                        = PARSEMODE_FUNCTION;
                             objectScriptList[scriptID].subDraw.scriptCodePtr = scriptDataPos;
                             objectScriptList[scriptID].subDraw.jumpTablePtr  = jumpTableDataPos;
                             scriptDataOffset                                 = scriptDataPos;
                             jumpTableDataOffset                              = jumpTableDataPos;
                         }
-                        if (scriptText == "subObjectStartup") {
+
+                        if (strComp(scriptText, "subObjectStartup")) {
                             parseMode                                           = PARSEMODE_FUNCTION;
                             objectScriptList[scriptID].subStartup.scriptCodePtr = scriptDataPos;
                             objectScriptList[scriptID].subStartup.jumpTablePtr  = jumpTableDataPos;
@@ -2028,7 +2105,7 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID, bool inEditor
 
                             int funcID = -1;
                             for (int f = 0; f < functionCount; ++f) {
-                                if (funcName == functionNames[f])
+                                if (strComp(funcName, functionNames[f]))
                                     funcID = f;
                             }
                             if (functionCount < FUNCTION_COUNT && funcID == -1) {
@@ -2044,9 +2121,10 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID, bool inEditor
 
                         int funcID = -1;
                         for (int f = 0; f < functionCount; ++f) {
-                            if (funcName == functionNames[f])
+                            if (strComp(funcName, functionNames[f]))
                                 funcID = f;
                         }
+
                         if (funcID <= -1) {
                             if (functionCount >= FUNCTION_COUNT) {
                                 parseMode = PARSEMODE_SCOPELESS;
@@ -2081,11 +2159,11 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                     if (!semiFlag)
                         ++lineID;
                     if (scriptText.length()) {
-                        if (scriptText == "endsub") {
+                        if (strComp(scriptText, "endsub")) {
                             scriptData[scriptDataPos++] = FUNC_END;
                             parseMode                   = PARSEMODE_SCOPELESS;
                         }
-                        else if (scriptText == "endfunction") {
+                        else if (strComp(scriptText, "endfunction")) {
                             scriptData[scriptDataPos++] = FUNC_ENDFUNCTION;
                             parseMode                   = PARSEMODE_SCOPELESS;
                         }
@@ -2309,120 +2387,120 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     case VAR_GLOBAL: /*scriptEng.operands[i] = globalVariables[arrayVal];*/ break;
                     case VAR_OBJECTENTITYNO: scriptEng.operands[i] = arrayVal; break;
                     case VAR_OBJECTTYPE: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].type;
+                        scriptEng.operands[i] = entityPtr->type;
                         break;
                     }
                     case VAR_OBJECTPROPERTYVALUE: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].propertyValue;
+                        scriptEng.operands[i] = entityPtr->propertyValue;
                         break;
                     }
                     case VAR_OBJECTXPOS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].XPos;
+                        scriptEng.operands[i] = entityPtr->XPos;
                         break;
                     }
                     case VAR_OBJECTYPOS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].YPos;
+                        scriptEng.operands[i] = entityPtr->YPos;
                         break;
                     }
                     case VAR_OBJECTIXPOS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].XPos >> 16;
+                        scriptEng.operands[i] = entityPtr->XPos >> 16;
                         break;
                     }
                     case VAR_OBJECTIYPOS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].YPos >> 16;
+                        scriptEng.operands[i] = entityPtr->YPos >> 16;
                         break;
                     }
                     case VAR_OBJECTSTATE: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].state;
+                        scriptEng.operands[i] = entityPtr->state;
                         break;
                     }
                     case VAR_OBJECTROTATION: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].rotation;
+                        scriptEng.operands[i] = entityPtr->rotation;
                         break;
                     }
                     case VAR_OBJECTSCALE: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].scale;
+                        scriptEng.operands[i] = entityPtr->scale;
                         break;
                     }
                     case VAR_OBJECTPRIORITY: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].priority;
+                        scriptEng.operands[i] = entityPtr->priority;
                         break;
                     }
                     case VAR_OBJECTDRAWORDER: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].drawOrder;
+                        scriptEng.operands[i] = entityPtr->drawOrder;
                         break;
                     }
                     case VAR_OBJECTDIRECTION: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].direction;
+                        scriptEng.operands[i] = entityPtr->direction;
                         break;
                     }
                     case VAR_OBJECTINKEFFECT: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].inkEffect;
+                        scriptEng.operands[i] = entityPtr->inkEffect;
                         break;
                     }
                     case VAR_OBJECTALPHA: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].alpha;
+                        scriptEng.operands[i] = entityPtr->alpha;
                         break;
                     }
                     case VAR_OBJECTFRAME: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].frame;
+                        scriptEng.operands[i] = entityPtr->frame;
                         break;
                     }
                     case VAR_OBJECTANIMATION: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].animation;
+                        scriptEng.operands[i] = entityPtr->animation;
                         break;
                     }
                     case VAR_OBJECTPREVANIMATION: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].prevAnimation;
+                        scriptEng.operands[i] = entityPtr->prevAnimation;
                         break;
                     }
                     case VAR_OBJECTANIMATIONSPEED: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].animationSpeed;
+                        scriptEng.operands[i] = entityPtr->animationSpeed;
                         break;
                     }
                     case VAR_OBJECTANIMATIONTIMER: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].animationTimer;
+                        scriptEng.operands[i] = entityPtr->animationTimer;
                         break;
                     }
                     case VAR_OBJECTVALUE0: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[0];
+                        scriptEng.operands[i] = entityPtr->values[0];
                         break;
                     }
                     case VAR_OBJECTVALUE1: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[1];
+                        scriptEng.operands[i] = entityPtr->values[1];
                         break;
                     }
                     case VAR_OBJECTVALUE2: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[2];
+                        scriptEng.operands[i] = entityPtr->values[2];
                         break;
                     }
                     case VAR_OBJECTVALUE3: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[3];
+                        scriptEng.operands[i] = entityPtr->values[3];
                         break;
                     }
                     case VAR_OBJECTVALUE4: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[4];
+                        scriptEng.operands[i] = entityPtr->values[4];
                         break;
                     }
                     case VAR_OBJECTVALUE5: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[5];
+                        scriptEng.operands[i] = entityPtr->values[5];
                         break;
                     }
                     case VAR_OBJECTVALUE6: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[6];
+                        scriptEng.operands[i] = entityPtr->values[6];
                         break;
                     }
                     case VAR_OBJECTVALUE7: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[7];
+                        scriptEng.operands[i] = entityPtr->values[7];
                         break;
                     }
                     case VAR_OBJECTOUTOFBOUNDS: {
-                        /*int pos = objectEntityList[arrayVal].XPos >> 16;
+                        /*int pos = entityPtr->XPos >> 16;
                         if (pos <= xScrollOffset - OBJECT_BORDER_X1 || pos >= OBJECT_BORDER_X2 +
                         xScrollOffset) { scriptEng.operands[i] = 1;
                         }
                         else {
-                            int pos               = objectEntityList[arrayVal].YPos >> 16;
+                            int pos               = entityPtr->YPos >> 16;
                             scriptEng.operands[i] = pos <= yScrollOffset - OBJECT_BORDER_Y1 || pos >=
                         yScrollOffset + OBJECT_BORDER_Y2;
                         }*/
@@ -2761,8 +2839,7 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     case VAR_SAVERAM: break;
                     case VAR_ENGINELANGUAGE: break;
                     case VAR_OBJECTSPRITESHEET: {
-                        scriptEng.operands[i] =
-                            objectScriptList[objectEntityList[arrayVal].type].spriteSheetID;
+                        scriptEng.operands[i] = objectScriptList[entityPtr->type].spriteSheetID;
                         break;
                     }
                     case VAR_ENGINEONLINEACTIVE: break;
@@ -3035,29 +3112,29 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
             case FUNC_DRAWSPRITE:
                 opcodeSize  = 0;
                 spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
-                editor->viewer->drawSpriteFlipped((entity->XPos >> 16) + spriteFrame->pivotX,
-                                                  (entity->YPos >> 16) + spriteFrame->pivotY,
-                                                  spriteFrame->width, spriteFrame->height,
-                                                  spriteFrame->sprX, spriteFrame->sprY, FLIP_NONE,
-                                                  INK_NONE, 0xFF, scriptInfo->spriteSheetID);
+                editor->drawSpriteFlipped((entity->XPos >> 16) + spriteFrame->pivotX,
+                                          (entity->YPos >> 16) + spriteFrame->pivotY,
+                                          spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
+                                          spriteFrame->sprY, FLIP_NONE, INK_NONE, 0xFF,
+                                          scriptInfo->spriteSheetID, false);
                 break;
             case FUNC_DRAWSPRITEXY:
                 opcodeSize  = 0;
                 spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
-                editor->viewer->drawSpriteFlipped((scriptEng.operands[1] >> 16) + spriteFrame->pivotX,
-                                                  (scriptEng.operands[2] >> 16) + spriteFrame->pivotY,
-                                                  spriteFrame->width, spriteFrame->height,
-                                                  spriteFrame->sprX, spriteFrame->sprY, FLIP_NONE,
-                                                  INK_NONE, 0xFF, scriptInfo->spriteSheetID);
+                editor->drawSpriteFlipped((scriptEng.operands[1] >> 16) + spriteFrame->pivotX,
+                                          (scriptEng.operands[2] >> 16) + spriteFrame->pivotY,
+                                          spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
+                                          spriteFrame->sprY, FLIP_NONE, INK_NONE, 0xFF,
+                                          scriptInfo->spriteSheetID, false);
                 break;
             case FUNC_DRAWSPRITESCREENXY:
                 opcodeSize  = 0;
                 spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
-                editor->viewer->drawSpriteFlipped(scriptEng.operands[1] + spriteFrame->pivotX,
-                                                  scriptEng.operands[2] + spriteFrame->pivotY,
-                                                  spriteFrame->width, spriteFrame->height,
-                                                  spriteFrame->sprX, spriteFrame->sprY, FLIP_NONE,
-                                                  INK_NONE, 0xFF, scriptInfo->spriteSheetID);
+                editor->drawSpriteFlipped(scriptEng.operands[1] + spriteFrame->pivotX,
+                                          scriptEng.operands[2] + spriteFrame->pivotY,
+                                          spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
+                                          spriteFrame->sprY, FLIP_NONE, INK_NONE, 0xFF,
+                                          scriptInfo->spriteSheetID, true);
                 break;
             case FUNC_DRAWTINTRECT: opcodeSize = 0; break;
             case FUNC_DRAWNUMBERS: {
@@ -3067,11 +3144,11 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     while (scriptEng.operands[4] > 0) {
                         int frameID = scriptEng.operands[3] % i / (i / 10) + scriptEng.operands[0];
                         spriteFrame = &scriptFrames[scriptInfo->frameListOffset + frameID];
-                        editor->viewer->drawSpriteFlipped(
-                            spriteFrame->pivotX + scriptEng.operands[1],
-                            spriteFrame->pivotY + scriptEng.operands[2], spriteFrame->width,
-                            spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_NONE,
-                            INK_NONE, 0xFF, scriptInfo->spriteSheetID);
+                        editor->drawSpriteFlipped(spriteFrame->pivotX + scriptEng.operands[1],
+                                                  spriteFrame->pivotY + scriptEng.operands[2],
+                                                  spriteFrame->width, spriteFrame->height,
+                                                  spriteFrame->sprX, spriteFrame->sprY, FLIP_NONE,
+                                                  INK_NONE, 0xFF, scriptInfo->spriteSheetID, true);
                         scriptEng.operands[1] -= scriptEng.operands[5];
                         i *= 10;
                         --scriptEng.operands[4];
@@ -3085,11 +3162,11 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                         if (extra >= i) {
                             int frameID = scriptEng.operands[3] % i / (i / 10) + scriptEng.operands[0];
                             spriteFrame = &scriptFrames[scriptInfo->frameListOffset + frameID];
-                            editor->viewer->drawSpriteFlipped(
-                                spriteFrame->pivotX + scriptEng.operands[1],
-                                spriteFrame->pivotY + scriptEng.operands[2], spriteFrame->width,
-                                spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_NONE,
-                                INK_NONE, 0xFF, scriptInfo->spriteSheetID);
+                            editor->drawSpriteFlipped(spriteFrame->pivotX + scriptEng.operands[1],
+                                                      spriteFrame->pivotY + scriptEng.operands[2],
+                                                      spriteFrame->width, spriteFrame->height,
+                                                      spriteFrame->sprX, spriteFrame->sprY, FLIP_NONE,
+                                                      INK_NONE, 0xFF, scriptInfo->spriteSheetID, true);
                         }
                         scriptEng.operands[1] -= scriptEng.operands[5];
                         i *= 10;
@@ -3140,70 +3217,70 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                 switch (scriptEng.operands[1]) {
                     default: break;
                     case FX_SCALE:
-                        editor->viewer->drawSpriteRotozoom(
+                        editor->drawSpriteRotozoom(
                             (scriptEng.operands[2] >> 16), (scriptEng.operands[3] >> 16),
                             -spriteFrame->pivotX, -spriteFrame->pivotY, spriteFrame->width,
                             spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, entity->scale,
                             entity->scale, entity->direction, 0, INK_NONE, 0xFF,
-                            scriptInfo->spriteSheetID);
+                            scriptInfo->spriteSheetID, false);
                         break;
                     case FX_ROTATE:
-                        editor->viewer->drawSpriteRotozoom(
+                        editor->drawSpriteRotozoom(
                             (scriptEng.operands[2] >> 16), (scriptEng.operands[3] >> 16),
                             -spriteFrame->pivotX, -spriteFrame->pivotY, spriteFrame->width,
                             spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, 0x200, 0x200,
                             entity->direction, entity->rotation, INK_NONE, 0xFF,
-                            scriptInfo->spriteSheetID);
+                            scriptInfo->spriteSheetID, false);
                         break;
                     case FX_ROTOZOOM:
-                        editor->viewer->drawSpriteRotozoom(
+                        editor->drawSpriteRotozoom(
                             (scriptEng.operands[2] >> 16), (scriptEng.operands[3] >> 16),
                             -spriteFrame->pivotX, -spriteFrame->pivotY, spriteFrame->width,
                             spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, entity->scale,
                             entity->scale, entity->direction, entity->rotation, INK_NONE, 0xFF,
-                            scriptInfo->spriteSheetID);
+                            scriptInfo->spriteSheetID, false);
                         break;
                     case FX_INK:
                         switch (entity->inkEffect) {
                             case INK_NONE:
-                                editor->viewer->drawSpriteFlipped(
+                                editor->drawSpriteFlipped(
                                     (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
                                     (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
                                     spriteFrame->sprY, FLIP_NONE, INK_NONE, 0xFF,
-                                    scriptInfo->spriteSheetID);
+                                    scriptInfo->spriteSheetID, false);
                                 break;
                             case INK_BLEND:
-                                editor->viewer->drawSpriteFlipped(
+                                editor->drawSpriteFlipped(
                                     (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
                                     (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
                                     spriteFrame->sprY, FLIP_NONE, INK_BLEND, 0xFF,
-                                    scriptInfo->spriteSheetID);
+                                    scriptInfo->spriteSheetID, false);
                                 break;
                             case INK_ALPHA:
-                                editor->viewer->drawSpriteFlipped(
+                                editor->drawSpriteFlipped(
                                     (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
                                     (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
                                     spriteFrame->sprY, FLIP_NONE, INK_ALPHA, entity->alpha,
-                                    scriptInfo->spriteSheetID);
+                                    scriptInfo->spriteSheetID, false);
                                 break;
                             case INK_ADD:
-                                editor->viewer->drawSpriteFlipped(
+                                editor->drawSpriteFlipped(
                                     (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
                                     (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
                                     spriteFrame->sprY, FLIP_NONE, INK_ADD, entity->alpha,
-                                    scriptInfo->spriteSheetID);
+                                    scriptInfo->spriteSheetID, false);
                                 break;
                             case INK_SUB:
-                                editor->viewer->drawSpriteFlipped(
+                                editor->drawSpriteFlipped(
                                     (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
                                     (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
                                     spriteFrame->sprY, FLIP_NONE, INK_SUB, entity->alpha,
-                                    scriptInfo->spriteSheetID);
+                                    scriptInfo->spriteSheetID, false);
                                 break;
                         }
                         break;
@@ -3257,63 +3334,64 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                 switch (scriptEng.operands[1]) {
                     default: break;
                     case FX_SCALE:
-                        editor->viewer->drawSpriteRotozoom(
+                        editor->drawSpriteRotozoom(
                             scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
                             -spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
                             spriteFrame->sprX, spriteFrame->sprY, entity->scale, entity->scale,
-                            entity->direction, 0, INK_NONE, 0xFF, scriptInfo->spriteSheetID);
+                            entity->direction, 0, INK_NONE, 0xFF, scriptInfo->spriteSheetID, true);
                         break;
                     case FX_ROTATE:
-                        editor->viewer->drawSpriteRotozoom(
+                        editor->drawSpriteRotozoom(
                             scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
                             -spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
                             spriteFrame->sprX, spriteFrame->sprY, 0x200, 0x200, entity->direction,
-                            entity->rotation, INK_NONE, 0xFF, scriptInfo->spriteSheetID);
+                            entity->rotation, INK_NONE, 0xFF, scriptInfo->spriteSheetID, true);
                         break;
                     case FX_ROTOZOOM:
-                        editor->viewer->drawSpriteRotozoom(
-                            scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
-                            -spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
-                            spriteFrame->sprX, spriteFrame->sprY, entity->scale, entity->scale,
-                            entity->direction, entity->rotation, INK_NONE, 0xFF,
-                            scriptInfo->spriteSheetID);
+                        editor->drawSpriteRotozoom(scriptEng.operands[2], scriptEng.operands[3],
+                                                   -spriteFrame->pivotX, -spriteFrame->pivotY,
+                                                   spriteFrame->width, spriteFrame->height,
+                                                   spriteFrame->sprX, spriteFrame->sprY, entity->scale,
+                                                   entity->scale, entity->direction, entity->rotation,
+                                                   INK_NONE, 0xFF, scriptInfo->spriteSheetID, true);
                         break;
                     case FX_INK:
                         switch (entity->inkEffect) {
                             case INK_NONE:
-                                editor->viewer->drawSpriteFlipped(
+                                editor->drawSpriteFlipped(
                                     scriptEng.operands[2] + spriteFrame->pivotX,
                                     scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
                                     spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
-                                    FLIP_NONE, INK_NONE, 0xFF, scriptInfo->spriteSheetID);
+                                    FLIP_NONE, INK_NONE, 0xFF, scriptInfo->spriteSheetID, true);
                                 break;
                             case INK_BLEND:
-                                editor->viewer->drawSpriteFlipped(
+                                editor->drawSpriteFlipped(
                                     scriptEng.operands[2] + spriteFrame->pivotX,
                                     scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
                                     spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
-                                    FLIP_NONE, INK_BLEND, 0xFF, scriptInfo->spriteSheetID);
+                                    FLIP_NONE, INK_BLEND, 0xFF, scriptInfo->spriteSheetID, true);
                                 break;
                             case INK_ALPHA:
-                                editor->viewer->drawSpriteFlipped(
-                                    scriptEng.operands[2] + spriteFrame->pivotX,
-                                    scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
-                                    spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
-                                    FLIP_NONE, INK_ALPHA, entity->alpha, scriptInfo->spriteSheetID);
+                                editor->drawSpriteFlipped(scriptEng.operands[2] + spriteFrame->pivotX,
+                                                          scriptEng.operands[3] + spriteFrame->pivotY,
+                                                          spriteFrame->width, spriteFrame->height,
+                                                          spriteFrame->sprX, spriteFrame->sprY,
+                                                          FLIP_NONE, INK_ALPHA, entity->alpha,
+                                                          scriptInfo->spriteSheetID, true);
                                 break;
                             case INK_ADD:
-                                editor->viewer->drawSpriteFlipped(
+                                editor->drawSpriteFlipped(
                                     scriptEng.operands[2] + spriteFrame->pivotX,
                                     scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
                                     spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
-                                    FLIP_NONE, INK_ADD, entity->alpha, scriptInfo->spriteSheetID);
+                                    FLIP_NONE, INK_ADD, entity->alpha, scriptInfo->spriteSheetID, true);
                                 break;
                             case INK_SUB:
-                                editor->viewer->drawSpriteFlipped(
+                                editor->drawSpriteFlipped(
                                     scriptEng.operands[2] + spriteFrame->pivotX,
                                     scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
                                     spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
-                                    FLIP_NONE, INK_SUB, entity->alpha, scriptInfo->spriteSheetID);
+                                    FLIP_NONE, INK_SUB, entity->alpha, scriptInfo->spriteSheetID, true);
                                 break;
                         }
                         break;
@@ -3322,32 +3400,32 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                         switch (entity->direction) {
                             default:
                             case FLIP_NONE:
-                                editor->viewer->drawSpriteFlipped(
+                                editor->drawSpriteFlipped(
                                     scriptEng.operands[2] + spriteFrame->pivotX,
                                     scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
                                     spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
-                                    FLIP_NONE, INK_NONE, 0xFF, scriptInfo->spriteSheetID);
+                                    FLIP_NONE, INK_NONE, 0xFF, scriptInfo->spriteSheetID, true);
                                 break;
                             case FLIP_X:
-                                editor->viewer->drawSpriteFlipped(
+                                editor->drawSpriteFlipped(
                                     scriptEng.operands[2] + spriteFrame->pivotX,
                                     scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
                                     spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_X,
-                                    INK_NONE, 0xFF, scriptInfo->spriteSheetID);
+                                    INK_NONE, 0xFF, scriptInfo->spriteSheetID, true);
                                 break;
                             case FLIP_Y:
-                                editor->viewer->drawSpriteFlipped(
+                                editor->drawSpriteFlipped(
                                     scriptEng.operands[2] + spriteFrame->pivotX,
                                     scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
                                     spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_Y,
-                                    INK_NONE, 0xFF, scriptInfo->spriteSheetID);
+                                    INK_NONE, 0xFF, scriptInfo->spriteSheetID, true);
                                 break;
                             case FLIP_XY:
-                                editor->viewer->drawSpriteFlipped(
+                                editor->drawSpriteFlipped(
                                     scriptEng.operands[2] + spriteFrame->pivotX,
                                     scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
                                     spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_XY,
-                                    INK_NONE, 0xFF, scriptInfo->spriteSheetID);
+                                    INK_NONE, 0xFF, scriptInfo->spriteSheetID, true);
                                 break;
                         }
                         break;
@@ -3618,111 +3696,111 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     case VAR_GLOBAL: /*globalVariables[arrayVal] = scriptEng.operands[i];*/ break;
                     case VAR_OBJECTENTITYNO: objectLoop = scriptEng.operands[i]; break;
                     case VAR_OBJECTTYPE: {
-                        objectEntityList[arrayVal].type = scriptEng.operands[i];
+                        entityPtr->type = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTPROPERTYVALUE: {
-                        objectEntityList[arrayVal].propertyValue = scriptEng.operands[i];
+                        entityPtr->propertyValue = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTXPOS: {
-                        objectEntityList[arrayVal].XPos = scriptEng.operands[i];
+                        entityPtr->XPos = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTYPOS: {
-                        objectEntityList[arrayVal].YPos = scriptEng.operands[i];
+                        entityPtr->YPos = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTIXPOS: {
-                        objectEntityList[arrayVal].XPos = scriptEng.operands[i] << 16;
+                        entityPtr->XPos = scriptEng.operands[i] << 16;
                         break;
                     }
                     case VAR_OBJECTIYPOS: {
-                        objectEntityList[arrayVal].YPos = scriptEng.operands[i] << 16;
+                        entityPtr->YPos = scriptEng.operands[i] << 16;
                         break;
                     }
                     case VAR_OBJECTSTATE: {
-                        objectEntityList[arrayVal].state = scriptEng.operands[i];
+                        entityPtr->state = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTROTATION: {
-                        objectEntityList[arrayVal].rotation = scriptEng.operands[i];
+                        entityPtr->rotation = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTSCALE: {
-                        objectEntityList[arrayVal].scale = scriptEng.operands[i];
+                        entityPtr->scale = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTPRIORITY: {
-                        objectEntityList[arrayVal].priority = scriptEng.operands[i];
+                        entityPtr->priority = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTDRAWORDER: {
-                        objectEntityList[arrayVal].drawOrder = scriptEng.operands[i];
+                        entityPtr->drawOrder = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTDIRECTION: {
-                        objectEntityList[arrayVal].direction = scriptEng.operands[i];
+                        entityPtr->direction = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTINKEFFECT: {
-                        objectEntityList[arrayVal].inkEffect = scriptEng.operands[i];
+                        entityPtr->inkEffect = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTALPHA: {
-                        objectEntityList[arrayVal].alpha = scriptEng.operands[i];
+                        entityPtr->alpha = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTFRAME: {
-                        objectEntityList[arrayVal].frame = scriptEng.operands[i];
+                        entityPtr->frame = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTANIMATION: {
-                        objectEntityList[arrayVal].animation = scriptEng.operands[i];
+                        entityPtr->animation = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTPREVANIMATION: {
-                        objectEntityList[arrayVal].prevAnimation = scriptEng.operands[i];
+                        entityPtr->prevAnimation = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTANIMATIONSPEED: {
-                        objectEntityList[arrayVal].animationSpeed = scriptEng.operands[i];
+                        entityPtr->animationSpeed = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTANIMATIONTIMER: {
-                        objectEntityList[arrayVal].animationTimer = scriptEng.operands[i];
+                        entityPtr->animationTimer = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE0: {
-                        objectEntityList[arrayVal].values[0] = scriptEng.operands[i];
+                        entityPtr->values[0] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE1: {
-                        objectEntityList[arrayVal].values[1] = scriptEng.operands[i];
+                        entityPtr->values[1] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE2: {
-                        objectEntityList[arrayVal].values[2] = scriptEng.operands[i];
+                        entityPtr->values[2] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE3: {
-                        objectEntityList[arrayVal].values[3] = scriptEng.operands[i];
+                        entityPtr->values[3] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE4: {
-                        objectEntityList[arrayVal].values[4] = scriptEng.operands[i];
+                        entityPtr->values[4] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE5: {
-                        objectEntityList[arrayVal].values[5] = scriptEng.operands[i];
+                        entityPtr->values[5] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE6: {
-                        objectEntityList[arrayVal].values[6] = scriptEng.operands[i];
+                        entityPtr->values[6] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE7: {
-                        objectEntityList[arrayVal].values[7] = scriptEng.operands[i];
+                        entityPtr->values[7] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTOUTOFBOUNDS: break;
@@ -4047,8 +4125,7 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     case VAR_SAVERAM: break;
                     case VAR_ENGINELANGUAGE: break;
                     case VAR_OBJECTSPRITESHEET: {
-                        objectScriptList[objectEntityList[arrayVal].type].spriteSheetID =
-                            scriptEng.operands[i];
+                        objectScriptList[entityPtr->type].spriteSheetID = scriptEng.operands[i];
                         break;
                     }
                     case VAR_ENGINEONLINEACTIVE: break;

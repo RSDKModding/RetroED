@@ -782,10 +782,11 @@ void SceneViewer::drawScene()
 
             byte f       = (int)(tileFlip.x) | ((int)(tileFlip.y) << 1);
             ushort point = (selectedTile << 2) | (f << 12);
-            addPoly(xpos, ypos, 0, tileUVArray[point], tileUVArray[point + 1]);
-            addPoly(xpos + 0x10, ypos, 0, tileUVArray[point + 2], tileUVArray[point + 1]);
-            addPoly(xpos, ypos + 0x10, 0, tileUVArray[point], tileUVArray[point + 3]);
-            addPoly(xpos + 0x10, ypos + 0x10, 0, tileUVArray[point + 2], tileUVArray[point + 3]);
+            addPoly(xpos, ypos, tileUVArray[point], tileUVArray[point + 1], 0, gfxSurface);
+            addPoly(xpos + 0x10, ypos, tileUVArray[point + 2], tileUVArray[point + 1], 0, gfxSurface);
+            addPoly(xpos, ypos + 0x10, tileUVArray[point], tileUVArray[point + 3], 0, gfxSurface);
+            addPoly(xpos + 0x10, ypos + 0x10, tileUVArray[point + 2], tileUVArray[point + 3], 0,
+                    gfxSurface);
         }
         else if (tileSize == 0x80) {
             for (int y = 0; y < 8; ++y) {
@@ -797,11 +798,13 @@ void SceneViewer::drawScene()
                     float tileY                       = ypos + (y * 0x10);
 
                     ushort point = (tile.tileIndex << 2) | (tile.direction << 12);
-                    addPoly(tileX, tileY, 0, tileUVArray[point], tileUVArray[point + 1]);
-                    addPoly(tileX + 0x10, tileY, 0, tileUVArray[point + 2], tileUVArray[point + 1]);
-                    addPoly(tileX, tileY + 0x10, 0, tileUVArray[point], tileUVArray[point + 3]);
-                    addPoly(tileX + 0x10, tileY + 0x10, 0, tileUVArray[point + 2],
-                            tileUVArray[point + 3]);
+                    addPoly(tileX, tileY, tileUVArray[point], tileUVArray[point + 1], 0, gfxSurface);
+                    addPoly(tileX + 0x10, tileY, tileUVArray[point + 2], tileUVArray[point + 1], 0,
+                            gfxSurface);
+                    addPoly(tileX, tileY + 0x10, tileUVArray[point], tileUVArray[point + 3], 0,
+                            gfxSurface);
+                    addPoly(tileX + 0x10, tileY + 0x10, tileUVArray[point + 2], tileUVArray[point + 3],
+                            0, gfxSurface);
                 }
             }
         }

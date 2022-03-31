@@ -7,9 +7,9 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
 
     connect(ui->selectDatafile, &QPushButton::clicked, [this] {
         QList<QString> types = {
-            "RSDKv5 Datafiles (*data*.rsdk)", "RSDKv4 Datafiles (*data*.rsdk)",
-            "RSDKv3 Datafiles (*data*.rsdk)", "RSDKv2 Datafiles (*data*.bin)",
-            "RSDKv1 Datafiles (*data*.bin)",  "RSDKv3 Arc Containers (*.arc)",
+            "RSDKv5 Datafiles (*data*.rsdk*)", "RSDKv4 Datafiles (*data*.rsdk*)",
+            "RSDKv3 Datafiles (*data*.rsdk*)", "RSDKv2 Datafiles (*data*.bin*)",
+            "RSDKv1 Datafiles (*data*.bin*)",  "RSDKv3 Arc Containers (*.arc*)",
         };
 
         QFileDialog filedialog(this, tr("Open Datafile"), "",

@@ -2173,15 +2173,19 @@ void SceneEditor::initGameLink()
     int id                      = 0;
     compilerv3->typeNames[id]   = "Blank Object";
     compilerv4->typeNames[id++] = "Blank Object";
-    for (int o = 0; o < gameConfig.objects.count(); ++o) {
-        compilerv3->typeNames[id] = gameConfig.objects[o].name;
-        compilerv4->typeNames[id] = gameConfig.objects[o].name;
 
-        compilerv3->typeNames[id].replace(" ", "");
-        compilerv4->typeNames[id].replace(" ", "");
+    if (stageConfig.loadGlobalScripts) {
+        for (int o = 0; o < gameConfig.objects.count(); ++o) {
+            compilerv3->typeNames[id] = gameConfig.objects[o].name;
+            compilerv4->typeNames[id] = gameConfig.objects[o].name;
 
-        id++;
+            compilerv3->typeNames[id].replace(" ", "");
+            compilerv4->typeNames[id].replace(" ", "");
+
+            id++;
+        }
     }
+
     for (int o = 0; o < stageConfig.objects.count(); ++o) {
         compilerv3->typeNames[id] = stageConfig.objects[o].name;
         compilerv4->typeNames[id] = stageConfig.objects[o].name;
@@ -2911,6 +2915,7 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
                     break;
                 }
                 case SceneViewer::EVENT_DRAW: {
+                    SceneEntity *entity = nullptr;
                     if (id == -1) {
                         auto &tmpObj = compilerv3->objectScriptList[viewer->selectedObject];
 
@@ -2930,15 +2935,25 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
                                 (ey + viewer->cameraPos.y) * 65536.0f;
                             compilerv3->objectLoop = ENTITY_COUNT - 1;
                             id                     = ENTITY_COUNT - 1;
+
+                            createTempEntity.type   = viewer->selectedObject;
+                            createTempEntity.pos.x  = (ex + viewer->cameraPos.x) * 65536.0f;
+                            createTempEntity.pos.y  = (ey + viewer->cameraPos.y) * 65536.0f;
+                            createTempEntity.slotID = 0xFFFF;
+                            createTempEntity.box    = Rect<int>(0, 0, 0, 0);
+                            entity = viewer->activeDrawEntity = &createTempEntity;
                         }
                     }
+                    else {
+                        entity = &viewer->entities[id];
+                    }
+
                     if (id == -1)
                         return false;
 
-                    auto &curObj = compilerv3->objectScriptList[viewer->entities[id].type];
+                    auto &curObj = compilerv3->objectScriptList[entity->type];
 
-                    if (curObj.subRSDKDraw.scriptCodePtr != SCRIPTDATA_COUNT - 1
-                        && viewer->entities[id].type != 0) {
+                    if (curObj.subRSDKDraw.scriptCodePtr != SCRIPTDATA_COUNT - 1 && entity->type != 0) {
                         compilerv3->objectLoop = id;
                         compilerv3->processScript(curObj.subRSDKDraw.scriptCodePtr,
                                                   curObj.subRSDKDraw.jumpTablePtr,

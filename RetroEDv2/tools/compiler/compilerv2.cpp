@@ -792,30 +792,49 @@ void Compilerv2::convertFunctionText(QString &text)
 
         for (int i = 0; i < opcodeSize; ++i) {
             ++textPos;
-            int value            = 0;
-            int scriptTextByteID = 0;
-            funcName             = "";
-            arrayStr             = "";
-            while (textPos < text.length()) {
-                if (text[textPos] == ',' || text[textPos] == ')')
-                    break;
-
-                if (value) {
-                    if (text[textPos] == ']')
-                        value = 0;
-                    else
-                        arrayStr += text[textPos];
-                    ++textPos;
-                }
-                else {
-                    if (text[textPos] == '[')
-                        value = 1;
-                    else
-                        funcName += text[textPos];
-                    ++textPos;
+            int mode     = 0;
+            int prevMode = 0;
+            funcName     = "";
+            arrayStr     = "";
+            while (((text[textPos] != ',' && text[textPos] != ')') || mode == 2)
+                   && textPos < text.length()) {
+                switch (mode) {
+                    case 0: // normal
+                        if (text[textPos] == '[')
+                            mode = 1;
+                        else if (text[textPos] == '"') {
+                            prevMode = mode;
+                            mode     = 2;
+                            funcName += '"';
+                        }
+                        else
+                            funcName += text[textPos];
+                        ++textPos;
+                        break;
+                    case 1: // array val
+                        if (text[textPos] == ']')
+                            mode = 0;
+                        else if (text[textPos] == '"') {
+                            prevMode = mode;
+                            mode     = 2;
+                        }
+                        else
+                            arrayStr += text[textPos];
+                        ++textPos;
+                        break;
+                    case 2: // string
+                        if (text[textPos] == '"') {
+                            mode = prevMode;
+                            funcName += '"';
+                        }
+                        else
+                            funcName += text[textPos];
+                        ++textPos;
+                        break;
                 }
             }
 
+            int value = 0;
             // Eg: TempValue0 = FX_SCALE
             for (int a = 0; a < aliasCount; ++a) {
                 if (funcName == aliasesv2[a].name) {
@@ -857,7 +876,7 @@ void Compilerv2::convertFunctionText(QString &text)
                 scriptData[scriptDataPos++] = SCRIPTVAR_STRCONST;
                 scriptData[scriptDataPos++] = funcName.length() - 2;
                 int scriptTextPos           = 1;
-                scriptTextByteID            = 0;
+                int scriptTextByteID        = 0;
                 while (scriptTextPos > -1) {
                     switch (scriptTextByteID) {
                         case 0:
@@ -1107,11 +1126,24 @@ void Compilerv2::parseScriptFile(QString scriptName, int scriptID)
             while (readMode < READMODE_ENDLINE) {
                 prevChar = curChar;
                 curChar  = reader.read<char>();
+
                 if (readMode == READMODE_STRING) {
                     if (curChar == '\t' || curChar == '\r' || curChar == '\n' || curChar == ';'
                         || readMode >= READMODE_COMMENTLINE) {
+                        if (curChar == '\r') {
+                            size_t pos = reader.tell();
+                            char chr   = reader.read<char>();
+                            if (chr != '\n') {
+                                reader.seek(pos);
+                            }
+                            else {
+                                curChar  = '\n';
+                                prevChar = '\r';
+                            }
+                        }
+
                         if ((curChar == '\n' && prevChar != '\r')
-                            || (curChar == '\n' && prevChar == '\r')) {
+                            || (curChar == '\n' && prevChar == '\r') || curChar == ';') {
                             readMode = READMODE_ENDLINE;
                             if (curChar == ';')
                                 semiFlag = true;
@@ -1119,6 +1151,7 @@ void Compilerv2::parseScriptFile(QString scriptName, int scriptID)
                     }
                     else if (curChar != '/' || textPos <= 0) {
                         scriptText += curChar;
+                        textPos++;
                         if (curChar == '"')
                             readMode = READMODE_NORMAL;
                     }
@@ -1128,19 +1161,34 @@ void Compilerv2::parseScriptFile(QString scriptName, int scriptID)
                     }
                     else {
                         scriptText += curChar;
+                        textPos++;
                     }
                 }
                 else if (curChar == ' ' || curChar == '\t' || curChar == '\r' || curChar == '\n'
                          || curChar == ';' || readMode >= READMODE_COMMENTLINE) {
-                    if ((curChar == '\n' && prevChar != '\r')
-                        || (curChar == '\n' && prevChar == '\r')) {
+                    if (curChar == '\r') {
+                        size_t pos = reader.tell();
+                        char chr   = reader.read<char>();
+                        if (chr != '\n') {
+                            reader.seek(pos);
+                        }
+                        else {
+                            curChar  = '\n';
+                            prevChar = '\r';
+                        }
+                    }
+
+                    if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r')
+                        || curChar == ';') {
                         readMode = READMODE_ENDLINE;
                         if (curChar == ';')
                             semiFlag = true;
+                        textPos++;
                     }
                 }
                 else if (curChar != '/' || textPos <= 0) {
                     scriptText += curChar;
+                    textPos++;
                     if (curChar == '"' && !readMode)
                         readMode = READMODE_STRING;
                 }
@@ -1150,10 +1198,10 @@ void Compilerv2::parseScriptFile(QString scriptName, int scriptID)
                 }
                 else {
                     scriptText += curChar;
+                    textPos++;
                 }
-                if (reader.isEOF()) {
+                if (reader.isEOF())
                     readMode = READMODE_EOF;
-                }
             }
 
             switch (parseMode) {
@@ -1337,100 +1385,100 @@ void Compilerv2::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     case VAR_GLOBAL: /*scriptEng.operands[i] = globalVariables[arrayVal];*/ break;
                     case VAR_OBJECTENTITYNO: scriptEng.operands[i] = arrayVal; break;
                     case VAR_OBJECTTYPE: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].type;
+                        scriptEng.operands[i] = entityPtr->type;
                         break;
                     }
                     case VAR_OBJECTPROPERTYVALUE: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].propertyValue;
+                        scriptEng.operands[i] = entityPtr->propertyValue;
                         break;
                     }
                     case VAR_OBJECTXPOS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].XPos;
+                        scriptEng.operands[i] = entityPtr->XPos;
                         break;
                     }
                     case VAR_OBJECTYPOS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].YPos;
+                        scriptEng.operands[i] = entityPtr->YPos;
                         break;
                     }
                     case VAR_OBJECTIXPOS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].XPos >> 16;
+                        scriptEng.operands[i] = entityPtr->XPos >> 16;
                         break;
                     }
                     case VAR_OBJECTIYPOS: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].YPos >> 16;
+                        scriptEng.operands[i] = entityPtr->YPos >> 16;
                         break;
                     }
                     case VAR_OBJECTSTATE: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].state;
+                        scriptEng.operands[i] = entityPtr->state;
                         break;
                     }
                     case VAR_OBJECTROTATION: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].rotation;
+                        scriptEng.operands[i] = entityPtr->rotation;
                         break;
                     }
                     case VAR_OBJECTSCALE: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].scale;
+                        scriptEng.operands[i] = entityPtr->scale;
                         break;
                     }
                     case VAR_OBJECTPRIORITY: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].priority;
+                        scriptEng.operands[i] = entityPtr->priority;
                         break;
                     }
                     case VAR_OBJECTDRAWORDER: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].drawOrder;
+                        scriptEng.operands[i] = entityPtr->drawOrder;
                         break;
                     }
                     case VAR_OBJECTDIRECTION: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].direction;
+                        scriptEng.operands[i] = entityPtr->direction;
                         break;
                     }
                     case VAR_OBJECTINKEFFECT: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].inkEffect;
+                        scriptEng.operands[i] = entityPtr->inkEffect;
                         break;
                     }
                     case VAR_OBJECTFRAME: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].frame;
+                        scriptEng.operands[i] = entityPtr->frame;
                         break;
                     }
                     case VAR_OBJECTVALUE0: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[0];
+                        scriptEng.operands[i] = entityPtr->values[0];
                         break;
                     }
                     case VAR_OBJECTVALUE1: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[1];
+                        scriptEng.operands[i] = entityPtr->values[1];
                         break;
                     }
                     case VAR_OBJECTVALUE2: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[2];
+                        scriptEng.operands[i] = entityPtr->values[2];
                         break;
                     }
                     case VAR_OBJECTVALUE3: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[3];
+                        scriptEng.operands[i] = entityPtr->values[3];
                         break;
                     }
                     case VAR_OBJECTVALUE4: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[4];
+                        scriptEng.operands[i] = entityPtr->values[4];
                         break;
                     }
                     case VAR_OBJECTVALUE5: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[5];
+                        scriptEng.operands[i] = entityPtr->values[5];
                         break;
                     }
                     case VAR_OBJECTVALUE6: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[6];
+                        scriptEng.operands[i] = entityPtr->values[6];
                         break;
                     }
                     case VAR_OBJECTVALUE7: {
-                        scriptEng.operands[i] = objectEntityList[arrayVal].values[7];
+                        scriptEng.operands[i] = entityPtr->values[7];
                         break;
                     }
                     case VAR_OBJECTOUTOFBOUNDS: {
-                        /*int pos = objectEntityList[arrayVal].XPos >> 16;
+                        /*int pos = entityPtr->XPos >> 16;
                         if (pos <= xScrollOffset - OBJECT_BORDER_X1 || pos >= OBJECT_BORDER_X2 +
                         xScrollOffset) { scriptEng.operands[i] = 1;
                         }
                         else {
-                            int pos               = objectEntityList[arrayVal].YPos >> 16;
+                            int pos               = entityPtr->YPos >> 16;
                             scriptEng.operands[i] = pos <= yScrollOffset - OBJECT_BORDER_Y1 || pos >=
                         yScrollOffset + OBJECT_BORDER_Y2;
                         }*/
@@ -2131,91 +2179,91 @@ void Compilerv2::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                     case VAR_GLOBAL: /*globalVariables[arrayVal] = scriptEng.operands[i];*/ break;
                     case VAR_OBJECTENTITYNO: objectLoop = scriptEng.operands[i]; break;
                     case VAR_OBJECTTYPE: {
-                        objectEntityList[arrayVal].type = scriptEng.operands[i];
+                        entityPtr->type = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTPROPERTYVALUE: {
-                        objectEntityList[arrayVal].propertyValue = scriptEng.operands[i];
+                        entityPtr->propertyValue = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTXPOS: {
-                        objectEntityList[arrayVal].XPos = scriptEng.operands[i];
+                        entityPtr->XPos = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTYPOS: {
-                        objectEntityList[arrayVal].YPos = scriptEng.operands[i];
+                        entityPtr->YPos = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTIXPOS: {
-                        objectEntityList[arrayVal].XPos = scriptEng.operands[i] << 16;
+                        entityPtr->XPos = scriptEng.operands[i] << 16;
                         break;
                     }
                     case VAR_OBJECTIYPOS: {
-                        objectEntityList[arrayVal].YPos = scriptEng.operands[i] << 16;
+                        entityPtr->YPos = scriptEng.operands[i] << 16;
                         break;
                     }
                     case VAR_OBJECTSTATE: {
-                        objectEntityList[arrayVal].state = scriptEng.operands[i];
+                        entityPtr->state = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTROTATION: {
-                        objectEntityList[arrayVal].rotation = scriptEng.operands[i];
+                        entityPtr->rotation = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTSCALE: {
-                        objectEntityList[arrayVal].scale = scriptEng.operands[i];
+                        entityPtr->scale = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTPRIORITY: {
-                        objectEntityList[arrayVal].priority = scriptEng.operands[i];
+                        entityPtr->priority = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTDRAWORDER: {
-                        objectEntityList[arrayVal].drawOrder = scriptEng.operands[i];
+                        entityPtr->drawOrder = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTDIRECTION: {
-                        objectEntityList[arrayVal].direction = scriptEng.operands[i];
+                        entityPtr->direction = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTINKEFFECT: {
-                        objectEntityList[arrayVal].inkEffect = scriptEng.operands[i];
+                        entityPtr->inkEffect = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTFRAME: {
-                        objectEntityList[arrayVal].frame = scriptEng.operands[i];
+                        entityPtr->frame = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE0: {
-                        objectEntityList[arrayVal].values[0] = scriptEng.operands[i];
+                        entityPtr->values[0] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE1: {
-                        objectEntityList[arrayVal].values[1] = scriptEng.operands[i];
+                        entityPtr->values[1] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE2: {
-                        objectEntityList[arrayVal].values[2] = scriptEng.operands[i];
+                        entityPtr->values[2] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE3: {
-                        objectEntityList[arrayVal].values[3] = scriptEng.operands[i];
+                        entityPtr->values[3] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE4: {
-                        objectEntityList[arrayVal].values[4] = scriptEng.operands[i];
+                        entityPtr->values[4] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE5: {
-                        objectEntityList[arrayVal].values[5] = scriptEng.operands[i];
+                        entityPtr->values[5] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE6: {
-                        objectEntityList[arrayVal].values[6] = scriptEng.operands[i];
+                        entityPtr->values[6] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTVALUE7: {
-                        objectEntityList[arrayVal].values[7] = scriptEng.operands[i];
+                        entityPtr->values[7] = scriptEng.operands[i];
                         break;
                     }
                     case VAR_OBJECTOUTOFBOUNDS: break;

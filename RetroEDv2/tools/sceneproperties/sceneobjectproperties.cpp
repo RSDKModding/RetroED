@@ -308,6 +308,7 @@ int SceneObjectProperties::callRSDKEdit(void *e, bool shouldReturnVal, int entit
     editor->viewer->variableID                = variableID;
     editor->viewer->variableValue             = variableValue;
     editor->viewer->returnVariable            = shouldReturnVal;
+    editor->compilerv3->scriptEng.checkResult = -1;
     editor->compilerv4->scriptEng.checkResult = -1;
     bool c                         = editor->callGameEvent(SceneViewer::EVENT_EDIT, entityID);
     editor->viewer->returnVariable = false;
@@ -315,11 +316,19 @@ int SceneObjectProperties::callRSDKEdit(void *e, bool shouldReturnVal, int entit
     if (called) {
         *called = c;
 
-        if (variableID == -1 && shouldReturnVal)
-            *called = c && editor->compilerv4->scriptEng.checkResult >= 0;
+        if (variableID == -1 && shouldReturnVal) {
+            if (editor->viewer->gameType == ENGINE_v4)
+                *called = c && editor->compilerv4->scriptEng.checkResult >= 0;
+            else if (editor->viewer->gameType == ENGINE_v3)
+                *called = c && editor->compilerv3->scriptEng.checkResult >= 0;
+        }
     }
 
-    return editor->compilerv4->scriptEng.checkResult;
+    if (editor->viewer->gameType == ENGINE_v4)
+        return editor->compilerv4->scriptEng.checkResult;
+    else if (editor->viewer->gameType == ENGINE_v3)
+        return editor->compilerv3->scriptEng.checkResult;
+    return 0;
 }
 
 #include "moc_sceneobjectproperties.cpp"

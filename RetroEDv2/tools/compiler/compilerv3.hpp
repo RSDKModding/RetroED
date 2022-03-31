@@ -135,6 +135,7 @@ public:
     QList<QString> globalSfxNames;
     QList<QString> stageSfxNames;
 
+    bool strComp(QString strA, QString strB);
     int findStringToken(QString &string, QString token, char stopID);
 
     void checkAliasText(QString &text);
