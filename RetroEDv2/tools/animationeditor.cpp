@@ -526,11 +526,11 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                     if (!aindex.isValid())
                         return;
 
-                    if (aindex.row() >= 0 && frameCount() > 0) {
-                        ui->properties->setCurrentIndex(1);
-                    }
-                    else {
-                        ui->properties->setCurrentIndex(0);
+                    if (ui->properties->currentIndex() == 0) {
+                        if (aindex.row() >= 0 && frameCount() > 0)
+                            ui->properties->setCurrentIndex(1); // frame selected, use that
+                        else
+                            ui->properties->setCurrentIndex(0); // no frame selected, show anim props
                     }
 
                     ui->downFrame->setDisabled(aindex.row() == frameModel->rowCount() - 1);
@@ -784,8 +784,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     connect(ui->hitboxList, &QListWidget::currentRowChanged, hitboxFunc);
 
     connect(ui->impFile, &QToolButton::clicked, [this] {
-        QFileDialog filedialog(this, tr("Open File"), QFileInfo(animFile.filePath).absolutePath(),
-                               tr("json Files (*.json)"));
+        QFileDialog filedialog(this, tr("Import Anim File"),
+                               QFileInfo(animFile.filePath).absolutePath(), tr("json Files (*.json)"));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() != QDialog::Accepted)
             return;
@@ -991,8 +991,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     });
 
     connect(ui->expFile, &QToolButton::clicked, [this] {
-        QFileDialog filedialog(this, tr("Save File"), QFileInfo(animFile.filePath).absolutePath(),
-                               tr("json Files (*.json)"));
+        QFileDialog filedialog(this, tr("Export Anim File"),
+                               QFileInfo(animFile.filePath).absolutePath(), tr("json Files (*.json)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() != QDialog::Accepted)
             return;
@@ -1088,7 +1088,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     });
 
     connect(ui->impAnim, &QToolButton::clicked, [this] {
-        QFileDialog filedialog(this, tr("Open Anim"), QFileInfo(animFile.filePath).absolutePath(),
+        QFileDialog filedialog(this, tr("Import Anim"), QFileInfo(animFile.filePath).absolutePath(),
                                tr("json Files (*.json)"));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() != QDialog::Accepted)
@@ -1278,7 +1278,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     connect(ui->expAnim, &QToolButton::clicked, [this] {
         if (ui->animationList->currentRow() == -1)
             return;
-        QFileDialog filedialog(this, tr("Save Anim"), QFileInfo(animFile.filePath).absolutePath(),
+        QFileDialog filedialog(this, tr("Export Anim"), QFileInfo(animFile.filePath).absolutePath(),
                                tr("json Files (*.json);;RetroScript SpriteFrames (*.txt)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() != QDialog::Accepted)
@@ -1384,7 +1384,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     });
 
     connect(ui->impFrame, &QToolButton::clicked, [this] {
-        QFileDialog filedialog(this, tr("Open Frame"), QFileInfo(animFile.filePath).absolutePath(),
+        QFileDialog filedialog(this, tr("Import Frame"), QFileInfo(animFile.filePath).absolutePath(),
                                tr("json Files (*.json)"));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() != QDialog::Accepted)
@@ -1564,7 +1564,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     connect(ui->expFrame, &QToolButton::clicked, [this] {
         if (ui->animationList->currentRow() == -1)
             return;
-        QFileDialog filedialog(this, tr("Save Anim"), QFileInfo(animFile.filePath).absolutePath(),
+        QFileDialog filedialog(this, tr("Export Frame"), QFileInfo(animFile.filePath).absolutePath(),
                                tr("json Files (*.json);;RetroScript SpriteFrames (*.txt)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() != QDialog::Accepted)
@@ -1766,8 +1766,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
                 int sheet = animFile.animations[a].frames[f].sheet;
                 int p     = ui->sourceList->currentRow();
-                animFile.animations[a].frames[f].sheet =
-                    sheet < p ? sheet : sheet >= p ? (sheet + 1) : 0;
+                if (sheet > p)
+                    animFile.animations[a].frames[f].sheet++;
             }
         }
 
@@ -1783,8 +1783,10 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     connect(ui->rmSheet, &QToolButton::clicked, [this, setupSheetBox] {
         int c = ui->sourceList->currentRow();
         int n = ui->sourceList->currentRow() == ui->sourceList->count() - 1 ? c - 1 : c;
+
         delete ui->sourceList->item(c);
         removeSheet(c);
+
         for (int a = 0; a < animCount(); ++a) {
             for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
                 int sheet = animFile.animations[a].frames[f].sheet;
@@ -1797,9 +1799,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         updateView();
         doAction("Removed sheet", true);
 
-        ui->sourceList->blockSignals(true);
         ui->sourceList->setCurrentRow(n);
-        ui->sourceList->blockSignals(false);
     });
 
     auto moveSheetFunc = [this, setupSheetBox](sbyte translation) {
@@ -1818,7 +1818,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->sourceList->insertItem(n, item);
 
         for (int a = 0; a < animCount(); ++a) {
-            for (int f = 0; f < frameCount(); ++f) {
+            for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
                 animFile.animations[a].frames[f].sheet = idList[animFile.animations[a].frames[f].sheet];
             }
         }
@@ -1831,7 +1831,6 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     };
 
     connect(ui->addHB, &QToolButton::clicked, [this, setupHiboxTypeBox] {
-        ui->hitboxList->blockSignals(true);
         uint c = ui->hitboxList->currentRow() + 1;
 
         animFile.hitboxTypes.insert(c, "Hitbox " + QString::number(c));
@@ -1844,8 +1843,9 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         hitboxVisible.insert(c, false);
         auto *item = new QListWidgetItem(name);
+        item->setFlags(item->flags() | Qt::ItemIsEditable | Qt::ItemIsUserCheckable);
+        item->setCheckState(Qt::Unchecked);
         ui->hitboxList->insertItem(c, item);
-        item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->hitboxList->setCurrentItem(item);
 
         if (aniType == ENGINE_v5) {
@@ -1871,7 +1871,6 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                 }
             }
         }
-        ui->hitboxList->blockSignals(false);
 
         ui->addHB->setDisabled(animFile.hitboxes.count() >= 8);
 
@@ -1883,6 +1882,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     connect(ui->rmHB, &QToolButton::clicked, [this, setupHiboxTypeBox] {
         int c = ui->hitboxList->currentRow();
         int n = ui->hitboxList->currentRow() == ui->hitboxList->count() - 1 ? c - 1 : c;
+
         delete ui->hitboxList->item(c);
         animFile.hitboxes.removeAt(c);
         animFile.hitboxTypes.removeAt(c);
@@ -1903,17 +1903,14 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             }
         }
 
-        ui->rmHB->setDisabled(animFile.hitboxes.count() <= 0);
+        ui->rmHB->setDisabled(animFile.hitboxTypes.count() <= 0 || animFile.hitboxes.count() <= 0);
 
         setupHiboxTypeBox();
         updateView();
 
         doAction("Removed hitbox", true);
 
-        ui->hitboxList->blockSignals(true);
         ui->hitboxList->setCurrentRow(n);
-        ui->hitboxList->blockSignals(false);
-
         currentHitbox = c;
     });
 
