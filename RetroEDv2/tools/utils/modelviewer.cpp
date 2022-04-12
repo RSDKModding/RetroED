@@ -336,6 +336,7 @@ void ModelViewer::paintGL()
         shader.setValue("useTextures", model.hasTextures);
         shader.setValue("useNormals", model.hasNormals);
 
+        delete[] indices;
         delete[] colors;
         delete[] uvs;
     }
