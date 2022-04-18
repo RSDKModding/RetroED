@@ -24,6 +24,9 @@ SceneProperties::SceneProperties(QWidget *parent) : QWidget(parent), ui(new Ui::
     syncSC     = ui->syncSC;
     reloadLink = ui->reloadLink;
 
+    replaceChunk = ui->replaceChunk;
+    replaceTile  = ui->replaceTile;
+
     bgSel = new color_widgets::ColorPreview(this);
     ui->bgClrLayout->addWidget(bgSel);
 

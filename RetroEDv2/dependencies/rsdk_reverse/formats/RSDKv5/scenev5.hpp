@@ -15,7 +15,7 @@ enum VariableTypes {
     BOOL    = 7,
     STRING  = 8,
     VECTOR2 = 9,
-    UNKNOWN = 10,
+    FLOAT   = 10,
     COLOR   = 11
 };
 
@@ -75,24 +75,34 @@ public:
         }
     };
 
-    class ScrollIndexInfo
-    {
-    public:
+    struct ScrollInstance {
         int startLine = 0;
         int length    = 1;
+    };
 
+    struct ScrollIndexInfo {
         float scrollPos      = 0.0f; // not written, for scene viewer only
         float parallaxFactor = 1.0f;
         float scrollSpeed    = 0.0f;
         byte deform          = 0;
         byte unknown         = 0;
 
+        QList<ScrollInstance> instances;
+
         bool operator==(const ScrollIndexInfo &other) const
         {
-            return startLine == other.startLine && length == other.length
-                   && scrollPos == other.scrollPos && parallaxFactor == other.parallaxFactor
-                   && scrollSpeed == other.scrollSpeed && deform == other.deform
-                   && unknown == other.unknown;
+            if (instances.count() != other.instances.count())
+                return false;
+
+            bool instanceMatch = false;
+            for (int i = 0; i < instances.count(); ++i) {
+                instanceMatch = instanceMatch && instances[i].startLine == other.instances[i].startLine
+                                && instances[i].length == other.instances[i].length;
+            }
+
+            return instanceMatch && scrollPos == other.scrollPos
+                   && parallaxFactor == other.parallaxFactor && scrollSpeed == other.scrollSpeed
+                   && deform == other.deform && unknown == other.unknown;
         }
     };
 
@@ -110,7 +120,7 @@ public:
         short scrollSpeed    = 0 << 8;
 
         QList<ScrollInfo> scrollingInfo;
-        QByteArray lineIndexes;
+        QByteArray lineScroll;
 
         QList<ScrollIndexInfo> scrollInfos;
 
@@ -233,7 +243,7 @@ public:
         QString value_string = "";
         Vector2<int> value_vector2;
         Vector2<float> value_vector2f;
-        int value_unknown = 0;
+        float value_float = 0;
         QColor value_color;
 
         byte type;

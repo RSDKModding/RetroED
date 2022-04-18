@@ -18,7 +18,7 @@ void RSDKv5::Scene::VariableValue::read(Reader &reader)
             value_vector2f.x = Utils::fixedToFloat(value_vector2.x);
             value_vector2f.y = Utils::fixedToFloat(value_vector2.y);
             break;
-        case VariableTypes::UNKNOWN: value_unknown = reader.read<int>(); break;
+        case VariableTypes::FLOAT: value_float = reader.read<float>(); break;
         case VariableTypes::COLOR: {
             byte b      = reader.read<byte>();
             byte g      = reader.read<byte>();
@@ -46,7 +46,7 @@ void RSDKv5::Scene::VariableValue::write(Writer &writer)
             writer.write(value_vector2.x);
             writer.write(value_vector2.y);
             break;
-        case VariableTypes::UNKNOWN: writer.write(value_int32); break;
+        case VariableTypes::FLOAT: writer.write(value_float); break;
         case VariableTypes::COLOR: {
             writer.write((byte)value_color.blue());
             writer.write((byte)value_color.green());
@@ -76,7 +76,7 @@ void RSDKv5::Scene::SceneLayer::read(Reader &reader)
     ushort scrollInfoCount = reader.read<ushort>();
     for (int i = 0; i < scrollInfoCount; ++i) scrollingInfo.append(ScrollInfo(reader));
 
-    lineIndexes = reader.readZLib();
+    lineScroll = reader.readZLib();
 
     Reader creader = reader.getCReader();
     layout.resize(height);
@@ -108,7 +108,7 @@ void RSDKv5::Scene::SceneLayer::write(Writer &writer)
     writer.write((ushort)scrollingInfo.count());
     for (ScrollInfo &info : scrollingInfo) info.write(writer);
 
-    writer.writeCompressed(lineIndexes);
+    writer.writeCompressed(lineScroll);
 
     QByteArray bytes;
     QBuffer buffer(&bytes);
@@ -128,7 +128,7 @@ void RSDKv5::Scene::SceneLayer::resize(ushort width, ushort height)
     ushort oldHeight = height;
     this->width      = width;
     this->height     = height;
-    lineIndexes.resize(height * 0x10);
+    lineScroll.resize(height * 0x10);
 
     layout.resize(height);
     for (int y = oldHeight; y < height; ++y) {
@@ -153,47 +153,59 @@ void RSDKv5::Scene::SceneLayer::scrollInfoFromIndices()
     else
         return;
 
-    int prev  = lineIndexes.count() > 0 ? lineIndexes[0] : 0;
-    int start = 0;
-    int l     = 1;
-
-    for (; l < lineIndexes.count(); ++l) {
-        if ((byte)lineIndexes[l] != prev) {
-            ScrollIndexInfo info;
-
-            info.startLine      = start;
-            info.length         = l - start;
-            info.parallaxFactor = infos[prev].parallaxFactor / 256.0f;
-            info.scrollSpeed    = infos[prev].scrollSpeed / 256.0f;
-            info.deform         = infos[prev].deform;
-            info.unknown        = infos[prev].unknown;
-
-            scrollInfos.append(info);
-            start = l;
-        }
-
-        prev = (byte)lineIndexes[l];
-    }
-
-    if (l != start) {
+    for (auto &scroll : scrollingInfo) {
         ScrollIndexInfo info;
 
-        info.startLine      = start;
-        info.length         = l - start;
-        info.parallaxFactor = infos[prev].parallaxFactor / 256.0f;
-        info.scrollSpeed    = infos[prev].scrollSpeed / 256.0f;
-        info.scrollPos      = 0.0f;
-        info.deform         = infos[prev].deform;
-        info.unknown        = infos[prev].unknown;
+        info.parallaxFactor = scroll.parallaxFactor / 256.0f;
+        info.scrollSpeed    = scroll.scrollSpeed / 256.0f;
+        info.deform         = scroll.deform;
+        info.unknown        = scroll.unknown;
+        info.instances.clear();
 
         scrollInfos.append(info);
+    }
+
+    byte index     = lineScroll.count() <= 0 ? 0 : lineScroll[0];
+    byte lastIndex = index;
+    int startLine  = 0;
+    for (int i = 0; i < lineScroll.count(); ++i) {
+        index = lineScroll[i];
+
+        if (index != lastIndex) {
+            ScrollInstance instance;
+            instance.startLine = startLine;
+            instance.length    = i - startLine;
+
+            if (lastIndex < scrollInfos.count()) {
+                scrollInfos[lastIndex].instances.append(instance);
+            }
+            else {
+                // uhhh... error???
+            }
+
+            lastIndex = index;
+            startLine = i;
+        }
+    }
+
+    if (lineScroll.count() > 0) {
+        ScrollInstance instance;
+        instance.startLine = startLine;
+        instance.length    = lineScroll.count() - startLine;
+
+        if (lastIndex < scrollInfos.count()) {
+            scrollInfos[lastIndex].instances.append(instance);
+        }
+        else {
+            // uhhh... error???
+        }
     }
 }
 
 void RSDKv5::Scene::SceneLayer::scrollIndicesFromInfo()
 {
     bool hScroll = type == 0;
-    lineIndexes.clear();
+    lineScroll.clear();
     scrollingInfo.clear();
 
     if (type != 0 && type != 1) {
@@ -203,47 +215,34 @@ void RSDKv5::Scene::SceneLayer::scrollIndicesFromInfo()
     if (width == 0 || height == 0)
         return; // basically invalid layers, dont write em
 
-    if (hScroll) {
-        lineIndexes.resize(height * 0x10);
-    }
-    else {
-        lineIndexes.resize(width * 0x10);
-    }
+    if (hScroll)
+        lineScroll.resize(height * 0x10);
+    else
+        lineScroll.resize(width * 0x10);
 
-    int id = 0;
-    for (ScrollIndexInfo &info : scrollInfos) {
-        int infoID = id;
-        ScrollInfo sInfo;
-        sInfo.parallaxFactor = info.parallaxFactor * 256;
-        sInfo.scrollSpeed    = info.scrollSpeed * 256;
-        sInfo.deform         = info.deform;
-        sInfo.unknown        = info.unknown;
+    int scrID = 0;
+    for (auto &info : scrollInfos) {
+        ScrollInfo scroll;
 
-        int scrollID = 0;
-        for (ScrollInfo &info : scrollingInfo) {
-            if (info.parallaxFactor == sInfo.parallaxFactor && info.scrollSpeed == sInfo.scrollSpeed
-                && info.deform == sInfo.deform && info.unknown == sInfo.unknown) {
-                infoID = scrollID;
-                break;
+        scroll.parallaxFactor = info.parallaxFactor * 256.0f;
+        scroll.scrollSpeed    = info.scrollSpeed * 256.0f;
+        scroll.deform         = info.deform;
+        scroll.unknown        = info.unknown;
+
+        for (auto &instance : info.instances) {
+            for (int i = instance.startLine; i < instance.startLine + instance.length; ++i) {
+                lineScroll[i] = (byte)scrID;
             }
-            ++scrollID;
         }
 
-        for (int i = info.startLine; i < info.startLine + info.length; ++i) {
-            lineIndexes[i] = (byte)infoID;
-        }
-
-        // New Info needs to be added
-        if (infoID == id) {
-            scrollingInfo.append(sInfo);
-            ++id;
-        }
+        scrollInfos.append(info);
+        scrID++;
     }
 }
 
 void RSDKv5::Scene::SceneEditorMetadata::read(Reader &reader)
 {
-    unknown1         = reader.read<byte>();
+    unknown1         = reader.read<byte>(); // usually 3, sometimes 4, LRZ1 (old) is 2
     byte b           = reader.read<byte>();
     byte g           = reader.read<byte>();
     byte r           = reader.read<byte>();
@@ -256,15 +255,15 @@ void RSDKv5::Scene::SceneEditorMetadata::read(Reader &reader)
     a                = reader.read<byte>();
     backgroundColor2 = QColor(r, g, b, a);
 
-    unknown2  = reader.read<byte>();
-    unknown3  = reader.read<byte>();
-    unknown4  = reader.read<byte>();
-    unknown5  = reader.read<byte>();
-    unknown6  = reader.read<byte>();
-    unknown7  = reader.read<byte>();
-    unknown8  = reader.read<byte>();
+    unknown2  = reader.read<byte>(); // 1
+    unknown3  = reader.read<byte>(); // 1
+    unknown4  = reader.read<byte>(); // 4
+    unknown5  = reader.read<byte>(); // 0
+    unknown6  = reader.read<byte>(); // 1
+    unknown7  = reader.read<byte>(); // 4
+    unknown8  = reader.read<byte>(); // 0
     stampName = reader.readString();
-    unknown9  = reader.read<byte>();
+    unknown9  = reader.read<byte>(); // 3, 4, or 5
 }
 
 void RSDKv5::Scene::SceneEditorMetadata::write(Writer &writer)

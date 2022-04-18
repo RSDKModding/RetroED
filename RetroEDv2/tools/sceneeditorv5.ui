@@ -249,7 +249,7 @@
           <normaloff>:/icons/ic_mode_edit_48px.svg</normaloff>:/icons/ic_mode_edit_48px.svg</iconset>
         </property>
         <property name="autoRaise">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -291,7 +291,7 @@
           <normaloff>:/icons/ic_highlight_alt_48px.svg</normaloff>:/icons/ic_highlight_alt_48px.svg</iconset>
         </property>
         <property name="autoRaise">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -337,7 +337,7 @@
           <normaloff>:/icons/ic_view_in_ar_48px.svg</normaloff>:/icons/ic_view_in_ar_48px.svg</iconset>
         </property>
         <property name="autoRaise">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -464,7 +464,7 @@
           <normaloff>:/icons/ic_eraser_48px.svg</normaloff>:/icons/ic_eraser_48px.svg</iconset>
         </property>
         <property name="autoRaise">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -487,7 +487,7 @@
           <normaloff>:/icons/ic_approval_48px.svg</normaloff>:/icons/ic_approval_48px.svg</iconset>
         </property>
         <property name="autoRaise">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -510,7 +510,7 @@
           <normaloff>:/icons/ic_pan_tool_48px.svg</normaloff>:/icons/ic_pan_tool_48px.svg</iconset>
         </property>
         <property name="autoRaise">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>

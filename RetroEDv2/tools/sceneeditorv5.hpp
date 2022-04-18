@@ -148,7 +148,7 @@ private:
     int addEntity(int type, float x, float y);
     void deleteEntity(int slot, bool updateUI = false);
 
-    void createEntityList();
+    void createEntityList(int startSlot = -1);
     void createScrollList();
     void setupObjects();
 
@@ -173,7 +173,7 @@ class TileLabel : public QLabel
 {
     Q_OBJECT
 public:
-    TileLabel(int *select, int tileIndex, QWidget *parent)
+    TileLabel(ushort *select, int tileIndex, QWidget *parent)
         : QLabel(parent), sel(select), index(tileIndex)
     {
     }
@@ -200,7 +200,7 @@ protected:
     QSize sizeHint() const override { return QSize(0, 0); }
 
 private:
-    int *sel = nullptr;
+    ushort *sel = nullptr;
     int index;
 };
 

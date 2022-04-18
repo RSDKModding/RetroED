@@ -15,7 +15,7 @@ enum InkEffects {
     INK_ALPHA,
     INK_ADD,
     INK_SUB,
-    INK_LOOKUP,
+    INK_TINT,
     INK_MASKED,
     INK_UNMASKED,
 };
@@ -35,7 +35,7 @@ enum VarTypes {
     VAR_BOOL,
     VAR_STRING,
     VAR_VECTOR2,
-    VAR_UNKNOWN,
+    VAR_FLOAT,
     VAR_COLOUR,
 };
 

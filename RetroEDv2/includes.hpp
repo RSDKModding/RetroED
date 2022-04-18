@@ -101,6 +101,9 @@ public:
 #include "tools/sceneproperties/scenetilepropertiesv5.hpp"
 #include "tools/sceneproperties/scenestamppropertiesv5.hpp"
 #include "tools/sceneproperties/objectselector.hpp"
+#include "tools/sceneproperties/tilereplaceoptions.hpp"
+#include "tools/sceneproperties/confirmgamelink.hpp"
+#include "tools/sceneproperties/syncgcdetails.hpp"
 #include "tools/sceneviewer.hpp"
 
 // Scene Tools

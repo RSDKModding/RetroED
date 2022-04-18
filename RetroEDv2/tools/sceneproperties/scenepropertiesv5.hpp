@@ -43,8 +43,20 @@ public:
     QPushButton *syncSC     = nullptr;
     QPushButton *reloadLink = nullptr;
 
+    QPushButton *replaceTile = nullptr;
+
     color_widgets::ColorPreview *bgSel    = nullptr;
     color_widgets::ColorPreview *altBGSel = nullptr;
+
+    QSpinBox *unknown1 = nullptr;
+    QSpinBox *unknown2 = nullptr;
+    QSpinBox *unknown3 = nullptr;
+    QSpinBox *unknown4 = nullptr;
+    QSpinBox *unknown5 = nullptr;
+    QSpinBox *unknown6 = nullptr;
+    QSpinBox *unknown7 = nullptr;
+    QSpinBox *unknown8 = nullptr;
+    QSpinBox *unknown9 = nullptr;
 
 private:
     Ui::ScenePropertiesv5 *ui;

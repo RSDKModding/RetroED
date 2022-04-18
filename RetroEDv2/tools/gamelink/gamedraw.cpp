@@ -440,7 +440,7 @@ void FunctionTable::drawLine(int x1, int y1, int x2, int y2, uint color, int alp
             else if (alpha <= 0)
                 return;
             break;
-        case INK_LOOKUP:
+        case INK_TINT:
             // if (!lookupTable)
             //    return;
             break;
@@ -466,18 +466,21 @@ void FunctionTable::drawLine(int x1, int y1, int x2, int y2, uint color, int alp
     float boxRight  = x1f > x2f ? x1f : x2f;
     float boxBottom = y1f > y2f ? y1f : y2f;
 
-    if (boxLeft < entX + v5Editor->viewer->activeDrawEntity->box.x) {
-        v5Editor->viewer->activeDrawEntity->box.x = boxLeft - entX;
+    if (!v5Editor->viewer->sceneInfo.debugMode) {
+        if (boxLeft < entX + v5Editor->viewer->activeDrawEntity->box.x) {
+            v5Editor->viewer->activeDrawEntity->box.x = boxLeft - entX;
+        }
+        if (boxTop < entY + v5Editor->viewer->activeDrawEntity->box.y) {
+            v5Editor->viewer->activeDrawEntity->box.y = boxTop - entY;
+        }
+        if (boxRight > entX + v5Editor->viewer->activeDrawEntity->box.w) {
+            v5Editor->viewer->activeDrawEntity->box.w = boxRight - entX;
+        }
+        if (boxBottom > entY + v5Editor->viewer->activeDrawEntity->box.h) {
+            v5Editor->viewer->activeDrawEntity->box.h = boxBottom - entY;
+        }
     }
-    if (boxTop < entY + v5Editor->viewer->activeDrawEntity->box.y) {
-        v5Editor->viewer->activeDrawEntity->box.y = boxTop - entY;
-    }
-    if (boxRight > entX + v5Editor->viewer->activeDrawEntity->box.w) {
-        v5Editor->viewer->activeDrawEntity->box.w = boxRight - entX;
-    }
-    if (boxBottom > entY + v5Editor->viewer->activeDrawEntity->box.h) {
-        v5Editor->viewer->activeDrawEntity->box.h = boxBottom - entY;
-    }
+
     float x1p = x1, x2p = x2, y1p = y1, y2p = y2;
     if (!screenRelative) {
         x1p = x1 / (float)(1 << 16) - v5Editor->viewer->cameraPos.x;
@@ -511,7 +514,7 @@ void FunctionTable::drawRect(int x, int y, int width, int height, uint color, in
             else if (alpha <= 0)
                 return;
             break;
-        case INK_LOOKUP:
+        case INK_TINT:
             alpha = 0xFF;
             // if (!lookupTable)
             //    return;
@@ -561,17 +564,20 @@ void FunctionTable::drawRect(int x, int y, int width, int height, uint color, in
     float boxTop    = startY;
     float boxRight  = startX + widthf;
     float boxBottom = startY + heightf;
-    if (boxLeft < entX + v5Editor->viewer->activeDrawEntity->box.x) {
-        v5Editor->viewer->activeDrawEntity->box.x = boxLeft - entX;
-    }
-    if (boxTop < entY + v5Editor->viewer->activeDrawEntity->box.y) {
-        v5Editor->viewer->activeDrawEntity->box.y = boxTop - entY;
-    }
-    if (boxRight > entX + v5Editor->viewer->activeDrawEntity->box.w) {
-        v5Editor->viewer->activeDrawEntity->box.w = boxRight - entX;
-    }
-    if (boxBottom > entY + v5Editor->viewer->activeDrawEntity->box.h) {
-        v5Editor->viewer->activeDrawEntity->box.h = boxBottom - entY;
+
+    if (!v5Editor->viewer->sceneInfo.debugMode) {
+        if (boxLeft < entX + v5Editor->viewer->activeDrawEntity->box.x) {
+            v5Editor->viewer->activeDrawEntity->box.x = boxLeft - entX;
+        }
+        if (boxTop < entY + v5Editor->viewer->activeDrawEntity->box.y) {
+            v5Editor->viewer->activeDrawEntity->box.y = boxTop - entY;
+        }
+        if (boxRight > entX + v5Editor->viewer->activeDrawEntity->box.w) {
+            v5Editor->viewer->activeDrawEntity->box.w = boxRight - entX;
+        }
+        if (boxBottom > entY + v5Editor->viewer->activeDrawEntity->box.h) {
+            v5Editor->viewer->activeDrawEntity->box.h = boxBottom - entY;
+        }
     }
 
     v5Editor->viewer->drawRect(xf, yf, widthf, heightf, rcolor, false, alpha, inkEffect);

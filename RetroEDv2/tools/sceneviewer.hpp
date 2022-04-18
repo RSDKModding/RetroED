@@ -62,7 +62,8 @@ public:
     // viewing properties
     float zoom = 1.0f;
     inline float invZoom() { return 1.0f / zoom; }
-    bool disableObjects = true;
+    bool disableObjects   = true;
+    bool disableDrawScene = false;
 
     byte gameType = ENGINE_v5;
 
@@ -75,6 +76,10 @@ public:
     byte tileSize = 0x10;
     QList<SceneHelpers::TileLayer> layers;
     FormatHelpers::Chunks chunkset;
+
+    bool useLayerScrollInfo = true;
+    QList<SceneHelpers::TileLayer::ScrollIndexInfo> hScroll;
+    QList<SceneHelpers::TileLayer::ScrollIndexInfo> vScroll;
 
     QList<SceneObject> objects;
     QList<SceneEntity> entities;
@@ -130,7 +135,7 @@ public:
     Vector2<bool> tileFlip   = Vector2<bool>(false, false);
     Vector2<bool> tileSolidA = Vector2<bool>(false, false);
     Vector2<bool> tileSolidB = Vector2<bool>(false, false);
-    int selectedTile         = -1;
+    ushort selectedTile      = 0xFFFF;
     int selectedLayer        = -1;
 
     int selectedStamp = -1;
@@ -151,8 +156,9 @@ public:
     int sceneFilter = 0xFF;
 
     // Parallax Editing
-    bool showParallax      = false;
-    int selectedScrollInfo = -1;
+    bool showParallax       = false;
+    int selectedHScrollInfo = -1;
+    int selectedVScrollInfo = -1;
 
     // Camera
     Vector2<float> cameraPos = Vector2<float>(0.0f, 0.0f);

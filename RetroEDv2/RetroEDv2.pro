@@ -57,6 +57,7 @@ SOURCES += \
     tools/sceneeditor.cpp \
     tools/sceneeditorv5.cpp \
     tools/sceneproperties/chunkeditor.cpp \
+    tools/sceneproperties/confirmgamelink.cpp \
     tools/sceneproperties/objectselector.cpp \
     tools/sceneproperties/scenelayerproperties.cpp \
     tools/sceneproperties/scenelayerpropertiesv5.cpp \
@@ -74,6 +75,8 @@ SOURCES += \
     tools/sceneproperties/stageconfigeditorv4.cpp \
     tools/sceneproperties/stageconfigeditorv1.cpp \
     tools/sceneproperties/stageconfigeditorv5.cpp \
+    tools/sceneproperties/syncgcdetails.cpp \
+    tools/sceneproperties/tilereplaceoptions.cpp \
     tools/sceneproperties/tileseteditor.cpp \
     tools/sceneviewer.cpp \
     tools/scriptcompiler.cpp \
@@ -121,6 +124,7 @@ HEADERS += \
     tools/sceneeditor.hpp \
     tools/sceneeditorv5.hpp \
     tools/sceneproperties/chunkeditor.hpp \
+    tools/sceneproperties/confirmgamelink.hpp \
     tools/sceneproperties/objectselector.hpp \
     tools/sceneproperties/sceneincludesv5.hpp \
     tools/sceneproperties/scenelayerproperties.hpp \
@@ -139,6 +143,8 @@ HEADERS += \
     tools/sceneproperties/stageconfigeditorv4.hpp \
     tools/sceneproperties/stageconfigeditorv1.hpp \
     tools/sceneproperties/stageconfigeditorv5.hpp \
+    tools/sceneproperties/syncgcdetails.hpp \
+    tools/sceneproperties/tilereplaceoptions.hpp \
     tools/sceneproperties/tileseteditor.hpp \
     tools/sceneviewer.hpp \
     tools/scriptcompiler.hpp \
@@ -173,6 +179,7 @@ FORMS += \
     tools/sceneeditor.ui \
     tools/sceneeditorv5.ui \
     tools/sceneproperties/chunkeditor.ui \
+    tools/sceneproperties/confirmgamelink.ui \
     tools/sceneproperties/objectselector.ui \
     tools/sceneproperties/scenelayerproperties.ui \
     tools/sceneproperties/scenelayerpropertiesv5.ui \
@@ -190,6 +197,8 @@ FORMS += \
     tools/sceneproperties/stageconfigeditorv4.ui \
     tools/sceneproperties/stageconfigeditorv1.ui \
     tools/sceneproperties/stageconfigeditorv5.ui \
+    tools/sceneproperties/syncgcdetails.ui \
+    tools/sceneproperties/tilereplaceoptions.ui \
     tools/sceneproperties/tileseteditor.ui \
     tools/scriptcompiler.ui \
     tools/scriptunpacker.ui \

@@ -411,7 +411,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 }
             }
 
-            doAction("Add Object(s)");
+            doAction("Add Object" + QString(selector->objAddList.count() ? "s" : ""));
 
             createEntityList();
         }
@@ -432,7 +432,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->objectList->blockSignals(true);
         ui->objectList->setCurrentRow(n);
         ui->objectList->blockSignals(false);
-        createEntityList();
+        createEntityList(c);
         doAction("Remove Object: " + QString::number(c));
     });
 
@@ -541,7 +541,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         if (c == -1)
             return;
 
-        viewer->selectedScrollInfo = c;
+        viewer->selectedHScrollInfo = c;
 
         scrProp->setupUI(&viewer->layers[viewer->selectedLayer].scrollInfos[c],
                          viewer->layers[viewer->selectedLayer].scrollInfos);
@@ -551,15 +551,17 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     connect(ui->addScr, &QToolButton::clicked, [this] {
         auto &layer = viewer->layers[viewer->selectedLayer];
 
-        auto &last = layer.scrollInfos.last();
+        SceneHelpers::TileLayer::ScrollIndexInfo scr;
+        SceneHelpers::TileLayer::ScrollInstance instance;
 
-        SceneHelpers::TileLayer::ScrollIndexInfo scr = last;
-        scr.startLine                                = last.startLine + last.length;
-        scr.length                                   = 1;
+        instance.startLine = 0;
+        instance.length    = 1;
+        scr.instances.append(instance);
+
         layer.scrollInfos.append(scr);
 
         createScrollList();
-        doAction("Add Scroll Info");
+        doAction("Add Scroll");
     });
 
     connect(ui->rmScr, &QToolButton::clicked, [this] {
@@ -570,7 +572,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->scrollList->blockSignals(true);
         ui->scrollList->setCurrentRow(n);
         ui->scrollList->blockSignals(false);
-        doAction("Remove Scroll Info: " + QString::number(c));
+        doAction("Remove Scroll: " + QString::number(c));
     });
 
     connect(ui->impScr, &QToolButton::clicked, [this] {
@@ -584,12 +586,18 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             ushort count = reader.read<ushort>();
             for (int i = 0; i < count; ++i) {
                 SceneHelpers::TileLayer::ScrollIndexInfo info;
-                info.startLine      = reader.read<int>();
-                info.length         = reader.read<int>();
                 info.parallaxFactor = reader.read<float>();
                 info.scrollSpeed    = reader.read<float>();
                 info.deform         = reader.read<byte>();
                 info.unknown        = reader.read<byte>();
+
+                byte instanceCount = reader.read<byte>();
+                for (int c = 0; c < instanceCount; ++c) {
+                    SceneHelpers::TileLayer::ScrollInstance instance;
+                    instance.startLine = reader.read<int>();
+                    instance.length    = reader.read<int>();
+                    info.instances.append(instance);
+                }
                 layer.scrollInfos.append(info);
             }
             createScrollList();
@@ -608,12 +616,16 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             writer.write<ushort>(layer.scrollInfos.count());
             for (int i = 0; i < layer.scrollInfos.count(); ++i) {
                 SceneHelpers::TileLayer::ScrollIndexInfo &info = layer.scrollInfos[i];
-                writer.write<int>(info.startLine);
-                writer.write<int>(info.length);
                 writer.write<float>(info.parallaxFactor);
                 writer.write<float>(info.scrollSpeed);
                 writer.write<byte>(info.deform);
                 writer.write<byte>(info.unknown);
+
+                writer.write<byte>(info.instances.count());
+                for (auto &instance : info.instances) {
+                    writer.write<int>(instance.startLine);
+                    writer.write<int>(instance.length);
+                }
             }
             writer.flush();
         }
@@ -648,6 +660,33 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     connect(scnProp->gridY, QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int v) { viewer->gridSize.y = v; });
 
+    connect(scnProp->unknown1, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { viewer->metadata.unknown1 = (byte)v; });
+
+    connect(scnProp->unknown2, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { viewer->metadata.unknown2 = (byte)v; });
+
+    connect(scnProp->unknown3, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { viewer->metadata.unknown3 = (byte)v; });
+
+    connect(scnProp->unknown4, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { viewer->metadata.unknown4 = (byte)v; });
+
+    connect(scnProp->unknown5, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { viewer->metadata.unknown5 = (byte)v; });
+
+    connect(scnProp->unknown6, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { viewer->metadata.unknown6 = (byte)v; });
+
+    connect(scnProp->unknown7, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { viewer->metadata.unknown7 = (byte)v; });
+
+    connect(scnProp->unknown8, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { viewer->metadata.unknown8 = (byte)v; });
+
+    connect(scnProp->unknown9, QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int v) { viewer->metadata.unknown9 = (byte)v; });
+
     connect(scnProp->loadGlobalCB, &QCheckBox::toggled, [this](bool b) {
         stageConfig.loadGlobalObjects = b;
         if (stageConfig.loadGlobalObjects) { // assume we had no globals & are now adding em
@@ -676,7 +715,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             }
 
             objProp->unsetUI();
-            createEntityList();
         }
 
         ui->objectList->clear();
@@ -861,7 +899,13 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     });
 
     connect(scnProp->syncGC, &QPushButton::clicked, [this, linkGameObject] {
-        int oldGlobalCount = 45;
+        SyncGCDetails *detailsDlg = new SyncGCDetails(gameConfig.objects.count());
+        if (!detailsDlg->exec())
+            return;
+
+        int oldGlobalCount = detailsDlg->oldObjCount->value(); // 45;
+        int newGlobalCount = detailsDlg->newObjCount->value(); // 45;
+
         QList<QString> oldGlobals;
         QList<int> oldGlobalIDs;
         QList<SceneObject> oldGlobalObjs;
@@ -994,11 +1038,130 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         setStatus("Reloading Game Link...");
         viewer->stopTimer();
 
+        unloadGameLinks();
+
+        ConfirmGameLink *confirmDlg = new ConfirmGameLink;
+        confirmDlg->exec();
+
         loadGameLinks();
         initGameLink();
 
         viewer->startTimer();
         setStatus("Game Link reloaded successfully!");
+    });
+
+    connect(scnProp->replaceTile, &QPushButton::clicked, [this] {
+        TileReplaceOptions *dlg = new TileReplaceOptions;
+        dlg->replaceVisualPlane->setDisabled(true);
+        dlg->hasVisualPlane->setDisabled(true);
+
+        if (!dlg->exec())
+            return;
+
+        viewer->stopTimer();
+
+        setStatus("Replacing Tile Info...", true);
+
+        ushort dstTile = dlg->dstTile->value();
+        ushort srcTile = dlg->srcTile->value();
+
+        bool replaceIndex     = dlg->replaceTileIndex->checkState() == Qt::Checked;
+        bool replaceFlipX     = dlg->replaceFlipX->checkState() == Qt::Checked;
+        bool replaceFlipY     = dlg->replaceFlipY->checkState() == Qt::Checked;
+        bool replaceSolidATop = dlg->replaceSolidATop->checkState() == Qt::Checked;
+        bool replaceSolidALRB = dlg->replaceSolidALRB->checkState() == Qt::Checked;
+        bool replaceSolidBTop = dlg->replaceSolidBTop->checkState() == Qt::Checked;
+        bool replaceSolidBLRB = dlg->replaceSolidBLRB->checkState() == Qt::Checked;
+        bool replaceCollision = dlg->replaceCollision->checkState() == Qt::Checked;
+        bool replaceGraphics  = dlg->replaceGraphics->checkState() == Qt::Checked;
+
+        bool hasFlipX     = dlg->hasFlipX->checkState() == Qt::Checked;
+        bool hasFlipY     = dlg->hasFlipY->checkState() == Qt::Checked;
+        bool hasSolidATop = dlg->hasSolidATop->checkState() == Qt::Checked;
+        bool hasSolidALRB = dlg->hasSolidALRB->checkState() == Qt::Checked;
+        bool hasSolidBTop = dlg->hasSolidBTop->checkState() == Qt::Checked;
+        bool hasSolidBLRB = dlg->hasSolidBLRB->checkState() == Qt::Checked;
+
+        // Replace Tile Layer info
+        if (replaceIndex || replaceFlipX || replaceFlipY || replaceSolidATop || replaceSolidALRB
+            || replaceSolidBTop || replaceSolidBLRB) {
+            for (int i = 0; i < viewer->layers.count(); ++i) {
+                auto &layer = viewer->layers[i];
+                for (int y = 0; y < layer.height; ++y) {
+                    for (int x = 0; x < layer.width; ++x) {
+                        ushort tile = layer.layout[y][x];
+
+                        if ((tile & 0x3FF) == dstTile) {
+                            bool flipX     = replaceFlipX ? hasFlipX : Utils::getBit(tile, 10);
+                            bool flipY     = replaceFlipY ? hasFlipY : Utils::getBit(tile, 11);
+                            bool solidATop = replaceSolidATop ? hasSolidATop : Utils::getBit(tile, 12);
+                            bool solidALRB = replaceSolidALRB ? hasSolidALRB : Utils::getBit(tile, 13);
+                            bool solidBTop = replaceSolidBTop ? hasSolidBTop : Utils::getBit(tile, 14);
+                            bool solidBLRB = replaceSolidBLRB ? hasSolidBLRB : Utils::getBit(tile, 15);
+
+                            ushort newTile = replaceIndex ? srcTile : dstTile;
+
+                            Utils::setBit(newTile, flipX, 10);
+                            Utils::setBit(newTile, flipY, 11);
+                            Utils::setBit(newTile, solidATop, 12);
+                            Utils::setBit(newTile, solidALRB, 13);
+                            Utils::setBit(newTile, solidBTop, 14);
+                            Utils::setBit(newTile, solidBLRB, 15);
+
+                            layer.layout[y][x] = newTile;
+                        }
+                    }
+                }
+            }
+        }
+        addStatusProgress(1. / 3); // finished updating layers
+
+        if (replaceCollision) {
+            auto &dstA = viewer->tileconfig.collisionPaths[0][dstTile];
+            auto &srcA = viewer->tileconfig.collisionPaths[0][srcTile];
+
+            dstA.flags      = srcA.flags;
+            dstA.floorAngle = srcA.floorAngle;
+            dstA.lWallAngle = srcA.lWallAngle;
+            dstA.roofAngle  = srcA.roofAngle;
+            dstA.rWallAngle = srcA.rWallAngle;
+
+            for (int c = 0; c < 16; ++c) {
+                dstA.collision[c].height = srcA.collision[c].height;
+                dstA.collision[c].solid  = srcA.collision[c].solid;
+            }
+
+            auto &dstB = viewer->tileconfig.collisionPaths[1][dstTile];
+            auto &srcB = viewer->tileconfig.collisionPaths[1][srcTile];
+
+            dstB.flags      = srcB.flags;
+            dstB.floorAngle = srcB.floorAngle;
+            dstB.lWallAngle = srcB.lWallAngle;
+            dstB.roofAngle  = srcB.roofAngle;
+            dstB.rWallAngle = srcB.rWallAngle;
+
+            for (int c = 0; c < 16; ++c) {
+                dstB.collision[c].height = srcB.collision[c].height;
+                dstB.collision[c].solid  = srcB.collision[c].solid;
+            }
+        }
+        addStatusProgress(1. / 3); // finished updating collision
+
+        if (replaceGraphics) {
+            auto &dstTileImg = viewer->tiles[dstTile];
+            auto &srcTileImg = viewer->tiles[srcTile];
+
+            uchar *dstPixels = dstTileImg.bits();
+            uchar *srcPixels = srcTileImg.bits();
+            for (int y = 0; y < 16; ++y) {
+                for (int x = 0; x < 16; ++x) {
+                    *dstPixels++ = *srcPixels++;
+                }
+            }
+        }
+        setStatus("Finished replacing Tile Info!"); // finished updating graphics
+
+        viewer->startTimer();
     });
 
     connect(ui->exportSceneImg, &QPushButton::clicked, [this] {
@@ -1020,8 +1183,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             writer.writeLine("");
             writer.writeLine("<scene>");
 
-            QList<QString> types      = { "uint8", "uint16", "uint32", "int8",    "int16",   "int32",
-                                     "enum",  "bool",   "string", "vector2", "unknown", "colour" };
+            QList<QString> types      = { "uint8", "uint16", "uint32", "int8",    "int16", "int32",
+                                     "enum",  "bool",   "string", "vector2", "float", "colour" };
             QList<QString> layerTypes = { "HScroll", "VScroll", "RotoZoom", "Basic" };
 
             writer.writeLine(QString("\t<metadata libraryFile=\"%1\" bgColour=\"%2\" "
@@ -1044,23 +1207,26 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                             .arg(layer.drawOrder)
                             .arg(layer.width)
                             .arg(layer.height)
-                            .arg(layer.parallaxFactor / 256.0f)
-                            .arg(layer.scrollSpeed / 256.0f)
+                            .arg(layer.parallaxFactor)
+                            .arg(layer.scrollSpeed)
                             .arg(layer.visible ? "true" : "false"));
 
                     if (layer.scrollInfos.count()) {
                         writer.writeLine();
                         writer.writeLine("\t\t\t<scrollingInfo>");
                         for (auto &scroll : layer.scrollInfos) {
-                            writer.writeLine(
-                                QString("\t\t\t\t<scrollInfo startLine=\"%1\" length=\"%2\" "
-                                        "parallaxFactor=\"%3\" scrollSpeed=\"%4\" "
-                                        "deform=\"%5\"> </scrollInfo>")
-                                    .arg(scroll.startLine)
-                                    .arg(scroll.length)
-                                    .arg(scroll.parallaxFactor)
-                                    .arg(scroll.scrollSpeed)
-                                    .arg(scroll.deform ? "true" : "false"));
+                            writer.writeLine(QString("\t\t\t\t<scrollInfo parallaxFactor=\"%1\" "
+                                                     "scrollSpeed=\"%2\" deform=\"%3\">")
+                                                 .arg(scroll.parallaxFactor)
+                                                 .arg(scroll.scrollSpeed)
+                                                 .arg(scroll.deform ? "true" : "false"));
+                            for (auto instance : scroll.instances) {
+                                writer.writeLine(QString("\t\t\t\t\t<scrollInstance startLine=\"%1\" "
+                                                         "length=\"%2\"></scrollInstance>")
+                                                     .arg(instance.startLine)
+                                                     .arg(instance.length));
+                            }
+                            writer.writeLine(QString("\t\t\t\t</scrollInfo>"));
                         }
                         writer.writeLine("\t\t\t</scrollingInfo>");
                     }
@@ -1165,8 +1331,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                                         QString("\t\t\t\t<y>%1</y>").arg(variable.value_vector2.y));
                                     writer.writeText("\t\t\t");
                                     break;
-                                case VAR_UNKNOWN:
-                                    writer.writeText(QString::number(variable.value_unknown));
+                                case VAR_FLOAT:
+                                    writer.writeText(QString::number(variable.value_float));
                                     break;
                                 case VAR_COLOUR:
                                     writer.writeText(QString::number(variable.value_color.rgb()));
@@ -1374,7 +1540,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                         break;
 
                     case SceneViewer::TOOL_PENCIL: {
-                        if (viewer->selectedTile >= 0 && viewer->isSelecting) {
+                        if (viewer->selectedTile != 0xFFFF && viewer->isSelecting) {
                             setTile(mEvent->pos().x(), mEvent->pos().y());
                         }
                         else {
@@ -1820,7 +1986,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                         break;
                     }
                     case SceneViewer::TOOL_PENCIL: {
-                        if (viewer->selectedTile >= 0 && viewer->isSelecting) {
+                        if (viewer->selectedTile != 0xFFFF && viewer->isSelecting) {
                             setTile(viewer->mousePos.x, viewer->mousePos.y);
                         }
                         break;
@@ -1872,7 +2038,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                 case SceneViewer::TOOL_MOUSE: break;
                 case SceneViewer::TOOL_SELECT: viewer->isSelecting = false; break;
                 case SceneViewer::TOOL_PENCIL: {
-                    if (viewer->selectedTile >= 0 && viewer->isSelecting) {
+                    if (viewer->selectedTile != 0xFFFF && viewer->isSelecting) {
                         doAction(QString("Placed Tile(s): (%1, %2)")
                                      .arg(mEvent->pos().x())
                                      .arg(mEvent->pos().y()));
@@ -2008,7 +2174,7 @@ int SceneEditorv5::addEntity(int type, float x, float y)
 
     objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
     ui->propertiesBox->setCurrentWidget(ui->objPropPage);
-    createEntityList();
+    createEntityList(entity.slotID);
 
     return entity.slotID;
 }
@@ -2022,7 +2188,7 @@ void SceneEditorv5::deleteEntity(int slot, bool updateUI)
 
     if (updateUI) {
         objProp->unsetUI();
-        createEntityList();
+        createEntityList(slot);
     }
 
     if (viewer->objects.count() <= 0) {
@@ -2065,7 +2231,7 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
 
     releaseStorage(dataStorage);
     initStorage(dataStorage);
-    addStatusProgress(0.2); // finish unloading
+    addStatusProgress(1. / 6); // finish unloading
 
     if (gcfPath != gameConfig.filePath) {
         if (QFileInfo(gcfPath).suffix().toLower().contains("xml"))
@@ -2086,10 +2252,12 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
 
     viewer->currentFolder = QDir(basePath).dirName();
 
-    addStatusProgress(0.2); // finish initial setup
+    addStatusProgress(1. / 6); // finish initial setup
 
     scene.read(scnPath);
     viewer->metadata = scene.editorMetadata;
+
+    viewer->useLayerScrollInfo = true; // use v5 style scroll Info
 
     viewer->layers.clear();
     for (auto &layer : scene.layers) {
@@ -2115,12 +2283,19 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
         for (auto &info : layer.scrollInfos) {
             SceneHelpers::TileLayer::ScrollIndexInfo scroll;
 
-            scroll.startLine      = info.startLine;
-            scroll.length         = info.length;
             scroll.parallaxFactor = info.parallaxFactor;
             scroll.scrollSpeed    = info.scrollSpeed;
             scroll.deform         = info.deform;
             scroll.unknown        = info.unknown;
+
+            for (auto &instance : info.instances) {
+                SceneHelpers::TileLayer::ScrollInstance inst;
+
+                inst.startLine = instance.startLine;
+                inst.length    = instance.length;
+                inst.layerID   = 0xFF; // for v5, we don't care about layer ID
+                scroll.instances.append(inst);
+            }
 
             viewLayer.scrollInfos.append(scroll);
         }
@@ -2154,7 +2329,7 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     else
         stamps = RSDKv5::Stamps();
 
-    addStatusProgress(0.2); // finish scene loading
+    addStatusProgress(1. / 6); // finish scene loading
 
     // Tile Texture
     QImage tileset(16, 0x400 * 16, QImage::Format_Indexed8);
@@ -2164,7 +2339,7 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     }
     viewer->initScene(tileset);
 
-    addStatusProgress(0.2); // finish tileset loading
+    addStatusProgress(1. / 6); // finish tileset loading
 
     loadGameLinks();
 
@@ -2221,6 +2396,43 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     scnProp->stampNameEdit->setText(viewer->metadata.stampName);
     scnProp->stampNameEdit->blockSignals(false);
 
+    // TEMP!!!!
+    scnProp->unknown1->blockSignals(true);
+    scnProp->unknown1->setValue(viewer->metadata.unknown1);
+    scnProp->unknown1->blockSignals(false);
+
+    scnProp->unknown2->blockSignals(true);
+    scnProp->unknown2->setValue(viewer->metadata.unknown2);
+    scnProp->unknown2->blockSignals(false);
+
+    scnProp->unknown3->blockSignals(true);
+    scnProp->unknown3->setValue(viewer->metadata.unknown3);
+    scnProp->unknown3->blockSignals(false);
+
+    scnProp->unknown4->blockSignals(true);
+    scnProp->unknown4->setValue(viewer->metadata.unknown4);
+    scnProp->unknown4->blockSignals(false);
+
+    scnProp->unknown5->blockSignals(true);
+    scnProp->unknown5->setValue(viewer->metadata.unknown5);
+    scnProp->unknown5->blockSignals(false);
+
+    scnProp->unknown6->blockSignals(true);
+    scnProp->unknown6->setValue(viewer->metadata.unknown6);
+    scnProp->unknown6->blockSignals(false);
+
+    scnProp->unknown7->blockSignals(true);
+    scnProp->unknown7->setValue(viewer->metadata.unknown7);
+    scnProp->unknown7->blockSignals(false);
+
+    scnProp->unknown8->blockSignals(true);
+    scnProp->unknown8->setValue(viewer->metadata.unknown8);
+    scnProp->unknown8->blockSignals(false);
+
+    scnProp->unknown9->blockSignals(true);
+    scnProp->unknown9->setValue(viewer->metadata.unknown9);
+    scnProp->unknown9->blockSignals(false);
+
     scnProp->syncGC->setDisabled(!stageConfig.loadGlobalObjects);
 
     scnProp->bgSel->setColor(viewer->metadata.backgroundColor1);
@@ -2248,6 +2460,8 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     objProp->unsetUI();
     scrProp->unsetUI();
 
+    addStatusProgress(1. / 6); // finish setting up UI stuff
+
     initGameLink();
 
     ui->addEnt->setDisabled(viewer->activeEntityCount() >= 0x800);
@@ -2259,6 +2473,8 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
                             QList<QString>{ gcfPath, gameConfig.readFilter ? "2" : "1" });
     setStatus("Loaded scene " + QFileInfo(scnPath).fileName()); // done!
 
+    viewer->disableDrawScene = false;
+    viewer->disableObjects   = false;
     viewer->startTimer();
 }
 
@@ -2295,12 +2511,18 @@ void SceneEditorv5::saveScene(QString path)
         for (auto &info : viewLayer.scrollInfos) {
             RSDKv5::Scene::ScrollIndexInfo scroll;
 
-            scroll.startLine      = info.startLine;
-            scroll.length         = info.length;
             scroll.parallaxFactor = info.parallaxFactor;
             scroll.scrollSpeed    = info.scrollSpeed;
             scroll.deform         = info.deform;
             scroll.unknown        = info.unknown;
+
+            for (auto &instance : info.instances) {
+                RSDKv5::Scene::ScrollInstance inst;
+
+                inst.startLine = instance.startLine;
+                inst.length    = instance.length;
+                scroll.instances.append(inst);
+            }
 
             layer.scrollInfos.append(scroll);
         }
@@ -2380,14 +2602,20 @@ void SceneEditorv5::saveScene(QString path)
     setStatus("Saved scene to " + Utils::getFilenameAndFolder(scene.filepath));
 }
 
-void SceneEditorv5::createEntityList()
+void SceneEditorv5::createEntityList(int startSlot)
 {
     ui->entityList->blockSignals(true);
-    ui->entityList->clear();
+    if (startSlot <= 0) {
+        ui->entityList->clear();
+        startSlot = 0;
+    }
+    else {
+        for (int i = ui->entityList->count(); i >= startSlot; --i) delete ui->entityList->item(i);
+    }
 
     std::sort(viewer->entities.begin(), viewer->entities.end(),
               [](const SceneEntity &a, const SceneEntity &b) -> bool { return a.slotID < b.slotID; });
-    for (int i = 0; i < viewer->entities.count(); ++i) {
+    for (int i = startSlot; i < viewer->entities.count(); ++i) {
         QString name = viewer->objects[viewer->entities[i].type].name;
         ui->entityList->addItem(QString::number(viewer->entities[i].slotID) + ": " + name);
     }
@@ -2405,7 +2633,8 @@ void SceneEditorv5::createScrollList()
     for (int i = 0; i < viewer->layers[viewer->selectedLayer].scrollInfos.count(); ++i) {
         SceneHelpers::TileLayer::ScrollIndexInfo &info =
             viewer->layers[viewer->selectedLayer].scrollInfos[i];
-        ui->scrollList->addItem(QString("Start: %1, Length %2").arg(info.startLine).arg(info.length));
+        ui->scrollList->addItem(
+            QString("Parallax: %1, Speed: %2").arg(info.parallaxFactor).arg(info.scrollSpeed));
     }
 
     ui->scrollList->blockSignals(false);
@@ -2663,8 +2892,11 @@ void SceneEditorv5::initGameLink()
 
 void SceneEditorv5::setTile(float x, float y)
 {
-    if (viewer->selectedTile < 0 || viewer->selectedLayer < 0)
+    if (viewer->selectedLayer < 0)
         return;
+    if (viewer->selectedTile >= 0x400 && viewer->selectedTile != 0xFFFF)
+        return;
+
     float tx = x;
     float ty = y;
 
@@ -2986,8 +3218,8 @@ void SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                     }
                     // i'm cheating w this 1
                     case VAR_VECTOR2: memcpy(offset, &val.value_vector2.x, sizeof(Vector2<int>)); break;
-                    case VAR_UNKNOWN: // :urarakaconfuse:
-                        memcpy(offset, &val.value_unknown, sizeof(int));
+                    case VAR_FLOAT: // :urarakaconfuse:
+                        memcpy(offset, &val.value_float, sizeof(int));
                         break;
                     case VAR_BOOL: {
                         bool32 value = val.value_bool;
@@ -3035,8 +3267,8 @@ void SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                         val.value_vector2f.x = Utils::fixedToFloat(val.value_vector2.x);
                         val.value_vector2f.y = Utils::fixedToFloat(val.value_vector2.y);
                         break;
-                    case VAR_UNKNOWN: // :urarakaconfuse:
-                        memcpy(&val.value_unknown, offset, sizeof(int));
+                    case VAR_FLOAT: // :urarakaconfuse:
+                        memcpy(&val.value_float, offset, sizeof(int));
                         break;
                     case VAR_BOOL: {
                         bool32 value = false;
@@ -3096,6 +3328,7 @@ void SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
             viewer->sceneInfo.currentScreenID  = 0;
             viewer->sceneInfo.currentDrawGroup = 0; // TODO
 
+            viewer->sceneInfo.debugMode  = false; // always start with overlay mode off
             viewer->sceneInfo.entity     = entity->gameEntity;
             viewer->sceneInfo.entitySlot = entity->slotID;
             if (info->editorDraw && entity->gameEntity)
@@ -3251,7 +3484,7 @@ void SceneEditorv5::resetAction()
 
     // Parallax Editing
     // viewer->showParallax       = actions[actionIndex].showParallax;
-    viewer->selectedScrollInfo = actions[actionIndex].selectedScrollInfo;
+    viewer->selectedHScrollInfo = actions[actionIndex].selectedScrollInfo;
 
     // Camera
     // viewer->showGrid = actions[actionIndex].showGrid;
@@ -3343,7 +3576,7 @@ void SceneEditorv5::doAction(QString name, bool setModified)
 
     // Parallax Editing
     action.showParallax       = viewer->showParallax;
-    action.selectedScrollInfo = viewer->selectedScrollInfo;
+    action.selectedScrollInfo = viewer->selectedHScrollInfo;
 
     // Actions
     for (int i = actions.count() - 1; i > actionIndex; --i) {

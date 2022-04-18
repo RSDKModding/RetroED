@@ -42,7 +42,7 @@ void SceneLayerPropertiesv5::setupUI(RSDKv5::Scene *scn, byte lID)
         }
 
         if (scene->layers[layerID].type == 1)
-            scene->layers[layerID].lineIndexes.resize(v * 0x10);
+            scene->layers[layerID].lineScroll.resize(v * 0x10);
 
         scene->layers[layerID].width = (short)v;
     });
@@ -61,7 +61,7 @@ void SceneLayerPropertiesv5::setupUI(RSDKv5::Scene *scn, byte lID)
         }
 
         if (scene->layers[layerID].type == 0)
-            scene->layers[layerID].lineIndexes.resize(v * 0x10);
+            scene->layers[layerID].lineScroll.resize(v * 0x10);
 
         scene->layers[layerID].height = (short)v;
     });

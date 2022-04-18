@@ -68,6 +68,7 @@ public:
     byte defaultSolidA        = 3;
     byte defaultSolidB        = 3;
 
+    QList<ushort> chunkIDs;
     QList<bool> changedChunks;
 
     void setupUI();

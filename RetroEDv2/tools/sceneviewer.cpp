@@ -53,7 +53,7 @@ SceneViewer::SceneViewer(byte gameType, QWidget *parent) : QOpenGLWidget(parent)
     sceneInfo.classCount       = 0;
     sceneInfo.inEditor         = true;
     sceneInfo.effectGizmo      = false;
-    sceneInfo.debugMode        = true;
+    sceneInfo.debugMode        = false;
     sceneInfo.useGlobalScripts = false;
     sceneInfo.timeEnabled      = false;
     sceneInfo.activeCategory   = 0;
@@ -214,8 +214,6 @@ void SceneViewer::initScene(QImage tileset)
         gfxSurface[2].height   = missingObj.height();
         gfxSurface[2].transClr = QColor(0xFF000000);
     }
-
-    disableObjects = false;
 }
 
 void SceneViewer::updateScene()
@@ -605,34 +603,186 @@ void SceneViewer::drawScene()
                 if (layers[l].type == SceneHelpers::TileLayer::LAYER_HSCROLL
                     || layers[l].type == SceneHelpers::TileLayer::LAYER_VSCROLL) {
                     if (showParallax) {
-                        int id = 0;
-                        for (SceneHelpers::TileLayer::ScrollIndexInfo &info : layers[l].scrollInfos) {
-                            bool isSelected = selectedScrollInfo == id;
+                        SceneHelpers::TileLayer::ScrollIndexInfo *selInfo = nullptr;
 
-                            Vector4<float> clr(1.0f, 1.0f, 0.0f, 1.0f);
-                            if (isSelected)
-                                clr = Vector4<float>(0.0f, 0.0f, 1.0f, 1.0f);
+                        if (useLayerScrollInfo) {
+                            int id = 0;
+                            for (SceneHelpers::TileLayer::ScrollIndexInfo &info :
+                                 layers[l].scrollInfos) {
+                                if (selectedHScrollInfo == id) {
+                                    selInfo = &info;
+                                    ++id;
+                                    continue;
+                                }
 
-                            if (layers[l].type == SceneHelpers::TileLayer::LAYER_HSCROLL) {
-                                int w = (layers[l].width * tileSize);
-                                drawLine(0.0f, info.startLine - cameraPos.y, (w - cameraPos.x),
-                                         (info.startLine - cameraPos.y), clr);
+                                Vector4<float> clr(1.0f, 1.0f, 0.0f, 1.0f);
+                                if (layers[l].type == SceneHelpers::TileLayer::LAYER_HSCROLL) {
+                                    for (auto &instance : info.instances) {
+                                        int w     = layers[l].width * tileSize;
+                                        int start = instance.startLine;
+                                        int end   = instance.startLine + instance.length;
 
-                                drawLine(0.0f, ((info.startLine + info.length) - cameraPos.y),
-                                         (w - cameraPos.x),
-                                         ((info.startLine + info.length) - cameraPos.y), clr);
+                                        drawLine(0.0f, start - cameraPos.y, w - cameraPos.x,
+                                                 start - cameraPos.y, clr);
+
+                                        drawLine(0.0f, end - cameraPos.y, w - cameraPos.x,
+                                                 end - cameraPos.y, clr);
+                                    }
+                                }
+                                else if (layers[l].type == SceneHelpers::TileLayer::LAYER_VSCROLL) {
+                                    for (auto &instance : info.instances) {
+                                        int h     = layers[l].height * tileSize;
+                                        int start = instance.startLine;
+                                        int end   = instance.startLine + instance.length;
+
+                                        drawLine(start - cameraPos.x, 0.0f, start - cameraPos.x,
+                                                 h - cameraPos.y, clr);
+
+                                        drawLine(end - cameraPos.x, 0.0f, end - cameraPos.x,
+                                                 h - cameraPos.y, clr);
+                                    }
+                                }
+
+                                ++id;
                             }
-                            else if (layers[l].type == SceneHelpers::TileLayer::LAYER_VSCROLL) {
-                                int h = (layers[l].height * tileSize);
-                                drawLine((info.startLine - cameraPos.x), 0.0f,
-                                         (info.startLine - cameraPos.x), (h - cameraPos.y), clr);
 
-                                drawLine(((info.startLine + info.length) - cameraPos.x), 0.0f,
-                                         ((info.startLine + info.length) - cameraPos.x),
-                                         (h - cameraPos.y), clr);
+                            if (selInfo) {
+                                Vector4<float> clr(0.0f, 0.0f, 1.0f, 1.0f);
+
+                                if (layers[l].type == SceneHelpers::TileLayer::LAYER_HSCROLL) {
+                                    for (auto &instance : selInfo->instances) {
+                                        int w     = layers[l].width * tileSize;
+                                        int start = instance.startLine;
+                                        int end   = instance.startLine + instance.length;
+
+                                        drawLine(0.0f, start - cameraPos.y, w - cameraPos.x,
+                                                 start - cameraPos.y, clr);
+
+                                        drawLine(0.0f, end - cameraPos.y, w - cameraPos.x,
+                                                 end - cameraPos.y, clr);
+                                    }
+                                }
+                                else if (layers[l].type == SceneHelpers::TileLayer::LAYER_VSCROLL) {
+                                    for (auto &instance : selInfo->instances) {
+                                        int h     = layers[l].height * tileSize;
+                                        int start = instance.startLine;
+                                        int end   = instance.startLine + instance.length;
+
+                                        drawLine(start - cameraPos.x, 0.0f, start - cameraPos.x,
+                                                 h - cameraPos.y, clr);
+
+                                        drawLine(end - cameraPos.x, 0.0f, end - cameraPos.x,
+                                                 h - cameraPos.y, clr);
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            selInfo = nullptr;
+                            int id  = 0;
+                            for (SceneHelpers::TileLayer::ScrollIndexInfo &info : hScroll) {
+                                if (selectedHScrollInfo == id) {
+                                    selInfo = &info;
+                                    ++id;
+                                    continue;
+                                }
+
+                                Vector4<float> clr(1.0f, 1.0f, 0.0f, 1.0f);
+                                if (layers[l].type == SceneHelpers::TileLayer::LAYER_HSCROLL) {
+                                    for (auto &instance : info.instances) {
+                                        if (instance.layerID != l)
+                                            continue;
+
+                                        int w     = layers[l].width * tileSize;
+                                        int start = instance.startLine;
+                                        int end   = instance.startLine + instance.length;
+
+                                        drawLine(0.0f, start - cameraPos.y, w - cameraPos.x,
+                                                 start - cameraPos.y, clr);
+
+                                        drawLine(0.0f, end - cameraPos.y, w - cameraPos.x,
+                                                 end - cameraPos.y, clr);
+                                    }
+                                }
+
+                                ++id;
                             }
 
-                            ++id;
+                            // Selected HScroll
+                            if (selInfo) {
+                                Vector4<float> clr(0.0f, 0.0f, 1.0f, 1.0f);
+
+                                if (layers[l].type == SceneHelpers::TileLayer::LAYER_HSCROLL) {
+                                    for (auto &instance : selInfo->instances) {
+                                        if (instance.layerID != l)
+                                            continue;
+
+                                        int w     = layers[l].width * tileSize;
+                                        int start = instance.startLine;
+                                        int end   = instance.startLine + instance.length;
+
+                                        drawLine(0.0f, start - cameraPos.y, w - cameraPos.x,
+                                                 start - cameraPos.y, clr);
+
+                                        drawLine(0.0f, end - cameraPos.y, w - cameraPos.x,
+                                                 end - cameraPos.y, clr);
+                                    }
+                                }
+                            }
+
+                            selInfo = nullptr;
+                            id      = 0;
+                            for (SceneHelpers::TileLayer::ScrollIndexInfo &info : vScroll) {
+                                if (selectedVScrollInfo == id) {
+                                    selInfo = &info;
+                                    ++id;
+                                    continue;
+                                }
+
+                                Vector4<float> clr(1.0f, 1.0f, 0.0f, 1.0f);
+                                if (layers[l].type == SceneHelpers::TileLayer::LAYER_VSCROLL) {
+                                    for (auto &instance : info.instances) {
+                                        if (instance.layerID != l)
+                                            continue;
+
+                                        int h     = layers[l].height * tileSize;
+                                        int start = instance.startLine;
+                                        int end   = instance.startLine + instance.length;
+
+                                        drawLine(start - cameraPos.x, 0.0f, start - cameraPos.x,
+                                                 h - cameraPos.y, clr);
+
+                                        drawLine(end - cameraPos.x, 0.0f, end - cameraPos.x,
+                                                 h - cameraPos.y, clr);
+                                    }
+                                }
+
+                                ++id;
+                            }
+
+                            // Selected VScroll
+                            if (selInfo) {
+                                Vector4<float> clr(0.0f, 0.0f, 1.0f, 1.0f);
+
+                                if (layers[l].type == SceneHelpers::TileLayer::LAYER_VSCROLL) {
+                                    for (auto &instance : selInfo->instances) {
+                                        if (instance.layerID != l)
+                                            continue;
+
+                                        int h     = layers[l].height * tileSize;
+                                        int start = instance.startLine;
+                                        int end   = instance.startLine + instance.length;
+
+                                        drawLine(start - cameraPos.x, 0.0f, start - cameraPos.x,
+                                                 h - cameraPos.y, clr);
+
+                                        drawLine(end - cameraPos.x, 0.0f, end - cameraPos.x,
+                                                 h - cameraPos.y, clr);
+                                    }
+                                }
+
+                                ++id;
+                            }
                         }
                     }
                 }
@@ -777,18 +927,18 @@ void SceneViewer::drawScene()
         ypos -= cameraPos.y;
 
         int count = 0;
-        if (tileSize == 0x10) {
+        if (tileSize == 0x10 && selectedTile != 0xFFFF) {
             ++count;
 
             byte f       = (int)(tileFlip.x) | ((int)(tileFlip.y) << 1);
-            ushort point = (selectedTile << 2) | (f << 12);
+            ushort point = ((selectedTile & 0x3FF) << 2) | (f << 12);
             addPoly(xpos, ypos, tileUVArray[point], tileUVArray[point + 1], 0, gfxSurface);
             addPoly(xpos + 0x10, ypos, tileUVArray[point + 2], tileUVArray[point + 1], 0, gfxSurface);
             addPoly(xpos, ypos + 0x10, tileUVArray[point], tileUVArray[point + 3], 0, gfxSurface);
             addPoly(xpos + 0x10, ypos + 0x10, tileUVArray[point + 2], tileUVArray[point + 3], 0,
                     gfxSurface);
         }
-        else if (tileSize == 0x80) {
+        else if (tileSize == 0x80 && selectedTile != 0xFFFF) {
             for (int y = 0; y < 8; ++y) {
                 for (int x = 0; x < 8; ++x) {
                     ++count;
@@ -996,14 +1146,14 @@ void SceneViewer::unloadScene()
         spriteAnimationList[a].scope = SCOPE_NONE;
     }
 
-    cameraPos.x        = 0;
-    cameraPos.y        = 0;
-    selectedTile       = -1;
-    selectedEntity     = -1;
-    selectedLayer      = -1;
-    selectedScrollInfo = -1;
-    selectedObject     = -1;
-    isSelecting        = false;
+    cameraPos.x         = 0;
+    cameraPos.y         = 0;
+    selectedTile        = -1;
+    selectedEntity      = -1;
+    selectedLayer       = -1;
+    selectedHScrollInfo = -1;
+    selectedObject      = -1;
+    isSelecting         = false;
 
     memset(gameEntityList, 0, sizeof(gameEntityList));
 
@@ -1137,16 +1287,22 @@ void SceneViewer::processObjects()
 
                 switch (gameType) {
                     case ENGINE_v2:
-                        activeType = scnEditor->compilerv2->objectEntityList[selectedEntity].priority;
-                        drawOrder  = scnEditor->compilerv2->objectEntityList[selectedEntity].drawOrder;
+                        activeType = scnEditor->compilerv2->objectEntityList[entities[e].gameEntitySlot]
+                                         .priority;
+                        drawOrder = scnEditor->compilerv2->objectEntityList[entities[e].gameEntitySlot]
+                                        .drawOrder;
                         break;
                     case ENGINE_v3:
-                        activeType = scnEditor->compilerv3->objectEntityList[selectedEntity].priority;
-                        drawOrder  = scnEditor->compilerv3->objectEntityList[selectedEntity].drawOrder;
+                        activeType = scnEditor->compilerv3->objectEntityList[entities[e].gameEntitySlot]
+                                         .priority;
+                        drawOrder = scnEditor->compilerv3->objectEntityList[entities[e].gameEntitySlot]
+                                        .drawOrder;
                         break;
                     case ENGINE_v4:
-                        activeType = scnEditor->compilerv4->objectEntityList[selectedEntity].priority;
-                        drawOrder  = scnEditor->compilerv4->objectEntityList[selectedEntity].drawOrder;
+                        activeType = scnEditor->compilerv4->objectEntityList[entities[e].gameEntitySlot]
+                                         .priority;
+                        drawOrder = scnEditor->compilerv4->objectEntityList[entities[e].gameEntitySlot]
+                                        .drawOrder;
                         break;
                 }
 
@@ -1539,7 +1695,9 @@ void SceneViewer::paintGL()
 
     if (!disableObjects)
         processObjects();
-    drawScene();
+
+    if (!disableDrawScene)
+        drawScene();
 
     // swap FB0
     glFuncs->glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
@@ -1620,7 +1778,7 @@ void SceneViewer::drawSpriteFlipped(float XPos, float YPos, float width, float h
                 return;
             }
             break;
-        case INK_LOOKUP:
+        case INK_TINT:
             // if (!lookupTable)
             //    return;
             break;
@@ -1642,17 +1800,20 @@ void SceneViewer::drawSpriteFlipped(float XPos, float YPos, float width, float h
     float boxTop    = startY;
     float boxRight  = startX + startW;
     float boxBottom = startY + startH;
-    if (boxLeft < entX + activeDrawEntity->box.x) {
-        activeDrawEntity->box.x = boxLeft - entX;
-    }
-    if (boxTop < entY + activeDrawEntity->box.y) {
-        activeDrawEntity->box.y = boxTop - entY;
-    }
-    if (boxRight > entX + activeDrawEntity->box.w) {
-        activeDrawEntity->box.w = boxRight - entX;
-    }
-    if (boxBottom > entY + activeDrawEntity->box.h) {
-        activeDrawEntity->box.h = boxBottom - entY;
+
+    if (!sceneInfo.debugMode) {
+        if (boxLeft < entX + activeDrawEntity->box.x) {
+            activeDrawEntity->box.x = boxLeft - entX;
+        }
+        if (boxTop < entY + activeDrawEntity->box.y) {
+            activeDrawEntity->box.y = boxTop - entY;
+        }
+        if (boxRight > entX + activeDrawEntity->box.w) {
+            activeDrawEntity->box.w = boxRight - entX;
+        }
+        if (boxBottom > entY + activeDrawEntity->box.h) {
+            activeDrawEntity->box.h = boxBottom - entY;
+        }
     }
 
     // Draw Sprite
@@ -1714,7 +1875,7 @@ void SceneViewer::drawSpriteRotozoom(float XPos, float YPos, float pivotX, float
             else if (alpha <= 0)
                 return;
             break;
-        case INK_LOOKUP:
+        case INK_TINT:
             // if (!lookupTable)
             //    return;
             break;
@@ -1808,17 +1969,20 @@ void SceneViewer::drawSpriteRotozoom(float XPos, float YPos, float pivotX, float
         if (posY[i] > bottom)
             bottom = posY[i];
     }
-    if (left < entX + activeDrawEntity->box.x) {
-        activeDrawEntity->box.x = left - entX;
-    }
-    if (top < entY + activeDrawEntity->box.y) {
-        activeDrawEntity->box.y = top - entY;
-    }
-    if (right > entX + activeDrawEntity->box.w) {
-        activeDrawEntity->box.w = right - entX;
-    }
-    if (bottom > entY + activeDrawEntity->box.h) {
-        activeDrawEntity->box.h = bottom - entY;
+
+    if (!sceneInfo.debugMode) {
+        if (left < entX + activeDrawEntity->box.x) {
+            activeDrawEntity->box.x = left - entX;
+        }
+        if (top < entY + activeDrawEntity->box.y) {
+            activeDrawEntity->box.y = top - entY;
+        }
+        if (right > entX + activeDrawEntity->box.w) {
+            activeDrawEntity->box.w = right - entX;
+        }
+        if (bottom > entY + activeDrawEntity->box.h) {
+            activeDrawEntity->box.h = bottom - entY;
+        }
     }
 
     addPoly(posX[0], posY[0], sprX, sprY, 0, sheet);

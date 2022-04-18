@@ -13,26 +13,40 @@ public:
         ScrollInfo() {}
 
         float parallaxFactor = 1.0f;
-        float scrollSpeed = 0.0f;
-        byte deform      = 0;
+        float scrollSpeed    = 0.0f;
+        byte deform          = 0;
     };
 
-    class ScrollIndexInfo
-    {
-    public:
+    struct ScrollInstance {
         int startLine = 0;
         int length    = 1;
 
-        float scrollPos     = 0.0f; // not written, for scene viewer only
+        byte layerID = 0;
+    };
+
+    struct ScrollIndexInfo {
+        float scrollPos      = 0.0f; // not written, for scene viewer only
         float parallaxFactor = 1.0f;
-        float scrollSpeed = 0.0f;
-        byte deform      = 0;
+        float scrollSpeed    = 0.0f;
+        bool deform          = false;
+
+        QList<ScrollInstance> instances;
 
         bool operator==(const ScrollIndexInfo &other) const
         {
-            return startLine == other.startLine && length == other.length
-                   && scrollPos == other.scrollPos && parallaxFactor == other.parallaxFactor
-                   && scrollSpeed == other.scrollSpeed && deform == other.deform;
+            if (instances.count() != other.instances.count())
+                return false;
+
+            bool instanceMatch = false;
+            for (int i = 0; i < instances.count(); ++i) {
+                instanceMatch = instanceMatch && instances[i].startLine == other.instances[i].startLine
+                                && instances[i].length == other.instances[i].length
+                                && instances[i].layerID == other.instances[i].layerID;
+            }
+
+            return instanceMatch && scrollPos == other.scrollPos
+                   && parallaxFactor == other.parallaxFactor && scrollSpeed == other.scrollSpeed
+                   && deform == other.deform;
         }
     };
 
@@ -43,14 +57,12 @@ public:
 
         QList<QList<ushort>> layout;
 
-        byte width          = 0;
-        byte height         = 0;
-        byte type      = 0;
+        byte width           = 0;
+        byte height          = 0;
+        byte type            = 0;
         float parallaxFactor = 1.0f;
-        float scrollSpeed = 0.0f;
-        QByteArray lineIndexes;
-
-        QList<ScrollIndexInfo> scrollInfos;
+        float scrollSpeed    = 0.0f;
+        QByteArray lineScroll;
     };
 
     Background() {}
@@ -61,6 +73,9 @@ public:
 
     void scrollInfoFromIndices();
     void scrollIndicesFromInfo();
+
+    QList<ScrollIndexInfo> hScrollInfo;
+    QList<ScrollIndexInfo> vScrollInfo;
 
     QList<Layer> layers;
     QList<ScrollInfo> hScroll;

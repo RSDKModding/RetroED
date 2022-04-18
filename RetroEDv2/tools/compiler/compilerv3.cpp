@@ -270,6 +270,7 @@ const QString variableNames[] = {
     "Editor.VariableValue",
     "Editor.ReturnVariable",
     "Editor.ShowGizmos",
+    "editor.drawingOverlay",
 };
 
 const FunctionInfo functions[] = {
@@ -415,6 +416,10 @@ const FunctionInfo functions[] = {
     FunctionInfo("SetVariableAlias", 2),
     FunctionInfo("DrawLine", 7),
     FunctionInfo("DrawArrow", 7),
+    FunctionInfo("DrawRectWorld", 8),
+    FunctionInfo("DrawRectOutline", 8),
+    FunctionInfo("GetObjectType", 2),
+    FunctionInfo("CheckCurrentStageFolder", 1),
 };
 
 AliasInfo aliases[ALIAS_COUNT] = {
@@ -716,6 +721,7 @@ enum ScrVariable {
     VAR_EDITORVARIABLEVAL,
     VAR_EDITORRETURNVAR,
     VAR_EDITORSHOWGIZMOS,
+    VAR_EDITORDRAWINGOVERLAY,
     VAR_MAX_CNT
 };
 
@@ -862,6 +868,10 @@ enum ScrFunction {
     FUNC_SETVARALIAS,
     FUNC_DRAWLINE,
     FUNC_DRAWARROW,
+    FUNC_DRAWRECTWORLD,
+    FUNC_DRAWRECTOUTLINE,
+    FUNC_GETOBJECTTYPE,
+    FUNC_CHECKCURRENTSTAGEFOLDER,
     FUNC_MAX_CNT
 };
 
@@ -2865,6 +2875,9 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                         scriptEng.operands[i] = scnEditor->viewer->sceneInfo.effectGizmo
                                                 || scnEditor->viewer->selectedEntity == objectLoop;
                         break;
+                    case VAR_EDITORDRAWINGOVERLAY:
+                        scriptEng.operands[i] = scnEditor->viewer->sceneInfo.debugMode;
+                        break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant
@@ -3635,6 +3648,44 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                                          ink);
                 break;
             }
+            case FUNC_DRAWRECTWORLD: {
+                opcodeSize = 0;
+                int x      = (scriptEng.operands[0] >> 16) - editor->viewer->cameraPos.x;
+                int y      = (scriptEng.operands[1] >> 16) - editor->viewer->cameraPos.y;
+
+                editor->viewer->drawRect(
+                    x, y, scriptEng.operands[2], scriptEng.operands[3],
+                    Vector4<float>(scriptEng.operands[4] / 255.0f, scriptEng.operands[5] / 255.0f,
+                                   scriptEng.operands[6] / 255.0f, scriptEng.operands[7] / 255.0f),
+                    false, 0xFF, INK_NONE);
+                break;
+            }
+            case FUNC_DRAWRECTOUTLINE: {
+                opcodeSize = 0;
+
+                int x = (scriptEng.operands[0] >> 16) - editor->viewer->cameraPos.x;
+                int y = (scriptEng.operands[1] >> 16) - editor->viewer->cameraPos.y;
+
+                editor->viewer->drawRect(
+                    x, y, scriptEng.operands[2], scriptEng.operands[3],
+                    Vector4<float>(scriptEng.operands[4] / 255.0f, scriptEng.operands[5] / 255.0f,
+                                   scriptEng.operands[6] / 255.0f, scriptEng.operands[7] / 255.0f),
+                    true, 0xFF, INK_NONE);
+                break;
+            }
+            case FUNC_GETOBJECTTYPE: {
+                scriptEng.operands[0] = -1;
+                for (int o = 0; o < OBJECT_COUNT; ++o) {
+                    if (strComp(scriptText, typeNames[o])) {
+                        scriptEng.operands[0] = 0;
+                    }
+                }
+                break;
+            }
+            case FUNC_CHECKCURRENTSTAGEFOLDER:
+                opcodeSize            = 0;
+                scriptEng.checkResult = editor->viewer->currentFolder == scriptText;
+                break;
         }
 
         // Set Values
@@ -4145,6 +4196,9 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                         break;
                     case VAR_EDITORRETURNVAR: break;
                     case VAR_EDITORSHOWGIZMOS: break;
+                    case VAR_EDITORDRAWINGOVERLAY:
+                        scnEditor->viewer->sceneInfo.debugMode = scriptEng.operands[i];
+                        break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant

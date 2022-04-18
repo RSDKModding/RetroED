@@ -30,7 +30,10 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         item->setIcon(QPixmap::fromImage(tiles[t]));
     }
 
+    chunkIDs.clear();
+    changedChunks.clear();
     for (int c = 0; c < (gameVer == ENGINE_v1 ? 0x100 : 0x200); ++c) {
+        chunkIDs.append(c);
         changedChunks.append(false);
     }
 
@@ -292,6 +295,27 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
             setStatus(QString("Exported chunks to %2/").arg(path));
         }
     });
+
+    auto moveChunk = [this](char translation) {
+        uint c = ui->chunkList->currentRow();
+        uint n = ui->chunkList->currentRow() + translation;
+        if (n >= (uint)chunkImgList.count())
+            return;
+
+        auto *item = ui->chunkList->takeItem(c);
+        chunkIDs.move(c, n);
+        changedChunks.move(c, n);
+        chunkImgList.move(c, n);
+        ui->chunkList->insertItem(n, item);
+
+        // doAction("Moved chunk", true);
+
+        ui->chunkList->setCurrentRow(n);
+    };
+
+    connect(ui->upChunk, &QToolButton::clicked, [moveChunk] { moveChunk(-1); });
+
+    connect(ui->downChunk, &QToolButton::clicked, [moveChunk] { moveChunk(1); });
 
     for (QWidget *w : findChildren<QWidget *>()) {
         w->installEventFilter(this);

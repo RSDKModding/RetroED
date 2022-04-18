@@ -29,9 +29,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>-148</y>
         <width>256</width>
-        <height>907</height>
+        <height>961</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
@@ -169,6 +169,20 @@
            <widget class="QPushButton" name="reloadLink">
             <property name="text">
              <string>Reload Game Link</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="replaceChunk">
+            <property name="text">
+             <string>Replace Chunk</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="replaceTile">
+            <property name="text">
+             <string>Replace Tile</string>
             </property>
            </widget>
           </item>

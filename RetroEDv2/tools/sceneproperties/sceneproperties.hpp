@@ -38,6 +38,9 @@ public:
     QPushButton *syncSC     = nullptr;
     QPushButton *reloadLink = nullptr;
 
+    QPushButton *replaceChunk = nullptr;
+    QPushButton *replaceTile  = nullptr;
+
     color_widgets::ColorPreview *bgSel    = nullptr;
     color_widgets::ColorPreview *altBGSel = nullptr;
 

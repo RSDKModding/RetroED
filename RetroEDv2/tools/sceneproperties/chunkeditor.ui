@@ -14,6 +14,38 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="5">
+    <widget class="QComboBox" name="defSolidB">
+     <property name="currentIndex">
+      <number>3</number>
+     </property>
+     <item>
+      <property name="text">
+       <string>Solid (All)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Solid (Top Only, Grippable)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Solid (All Except Top)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Not Solid</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Solid (Top Only, Not Grippable)</string>
+      </property>
+     </item>
+    </widget>
+   </item>
    <item row="1" column="11">
     <widget class="QPushButton" name="exportImg">
      <property name="text">
@@ -21,136 +53,40 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="4">
-    <widget class="QLabel" name="label_8">
+   <item row="0" column="1">
+    <widget class="QLabel" name="label_9">
      <property name="text">
-      <string>Path B</string>
+      <string>Flip</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="10">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>Defaults:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="2" colspan="9">
-    <widget class="QFrame" name="viewerFrame">
+   <item row="3" column="2" rowspan="3" colspan="9">
+    <widget class="QGroupBox" name="groupBox">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3"/>
-    </widget>
-   </item>
-   <item row="3" column="2" colspan="9">
-    <widget class="QGroupBox" name="groupBox">
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>180</height>
+       <height>16777215</height>
       </size>
      </property>
      <property name="title">
       <string>Properties</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_3">
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>Tile Index</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QComboBox" name="visualPlane">
-        <item>
-         <property name="text">
-          <string>Low Plane</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>High Plane</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Visual Plane</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QSpinBox" name="tileIndex">
-        <property name="maximum">
-         <number>1023</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QCheckBox" name="flipY">
-        <property name="text">
-         <string>Flip Y</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="flipX">
-        <property name="text">
-         <string>Flip X</string>
+         <string>Solidity (Path B)</string>
         </property>
        </widget>
       </item>
       <item row="3" column="1">
        <widget class="QComboBox" name="solidityA">
-        <item>
-         <property name="text">
-          <string>Solid (All)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Solid (Top Only, Grippable)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Solid (All Except Top)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Not Solid</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Solid (Top Only, Not Grippable)</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QComboBox" name="solidityB">
         <item>
          <property name="text">
           <string>Solid (All)</string>
@@ -185,67 +121,104 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_4">
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Solidity (Path B)</string>
+         <string>Tile Index</string>
         </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="visualPlane">
+        <item>
+         <property name="text">
+          <string>Low Plane</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>High Plane</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QCheckBox" name="flipY">
+        <property name="text">
+         <string>Flip Y</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QSpinBox" name="tileIndex">
+        <property name="maximum">
+         <number>1023</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="flipX">
+        <property name="text">
+         <string>Flip X</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Visual Plane</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QComboBox" name="solidityB">
+        <item>
+         <property name="text">
+          <string>Solid (All)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Solid (Top Only, Grippable)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Solid (All Except Top)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Not Solid</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Solid (Top Only, Not Grippable)</string>
+         </property>
+        </item>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="2" column="11" rowspan="2">
-    <widget class="QListWidget" name="tileList">
-     <property name="maximumSize">
+   <item row="0" column="10">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
       <size>
-       <width>140</width>
-       <height>16777215</height>
+       <width>40</width>
+       <height>20</height>
       </size>
      </property>
-     <property name="viewMode">
-      <enum>QListView::IconMode</enum>
-     </property>
-    </widget>
+    </spacer>
    </item>
    <item row="0" column="4">
     <widget class="QLabel" name="label_6">
      <property name="text">
       <string>Visual Plane</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" rowspan="2" colspan="2">
-    <widget class="QListWidget" name="chunkList">
-     <property name="maximumSize">
-      <size>
-       <width>140</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="viewMode">
-      <enum>QListView::IconMode</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLabel" name="label_7">
-     <property name="text">
-      <string>Path A</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="3">
-    <widget class="QCheckBox" name="defFlipY">
-     <property name="text">
-      <string>Y</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QCheckBox" name="defFlipX">
-     <property name="text">
-      <string>X</string>
      </property>
     </widget>
    </item>
@@ -281,10 +254,37 @@
      </item>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QLabel" name="label_9">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>Flip</string>
+      <string>Defaults:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="11" rowspan="4">
+    <widget class="QListWidget" name="tileList">
+     <property name="maximumSize">
+      <size>
+       <width>140</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="viewMode">
+      <enum>QListView::IconMode</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>Path A</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QCheckBox" name="defFlipX">
+     <property name="text">
+      <string>X</string>
      </property>
     </widget>
    </item>
@@ -302,38 +302,6 @@
      </item>
     </widget>
    </item>
-   <item row="1" column="5">
-    <widget class="QComboBox" name="defSolidB">
-     <property name="currentIndex">
-      <number>3</number>
-     </property>
-     <item>
-      <property name="text">
-       <string>Solid (All)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Solid (Top Only, Grippable)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Solid (All Except Top)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Not Solid</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Solid (Top Only, Not Grippable)</string>
-      </property>
-     </item>
-    </widget>
-   </item>
    <item row="1" column="0">
     <widget class="QLabel" name="label_10">
      <property name="text">
@@ -341,8 +309,118 @@
      </property>
     </widget>
    </item>
+   <item row="2" column="2" colspan="9">
+    <widget class="QFrame" name="viewerFrame">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3"/>
+    </widget>
+   </item>
+   <item row="1" column="4">
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>Path B</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QCheckBox" name="defFlipY">
+     <property name="text">
+      <string>Y</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <layout class="QGridLayout" name="gridLayout_4">
+     <item row="0" column="2">
+      <widget class="QToolButton" name="downChunk">
+       <property name="text">
+        <string>D</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resources.qrc">
+         <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="3">
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="1">
+      <widget class="QToolButton" name="upChunk">
+       <property name="text">
+        <string>U</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resources.qrc">
+         <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0" rowspan="3" colspan="2">
+    <widget class="QListWidget" name="chunkList">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>140</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="viewMode">
+      <enum>QListView::IconMode</enum>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -302,14 +302,14 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     });
                     break;
                 }
-                case VAR_UNKNOWN: {
-                    valGroup.append(new Property("unknown", &entity->variables[v].value_unknown));
+                case VAR_FLOAT: {
+                    valGroup.append(new Property("float", &entity->variables[v].value_float));
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
                     connect(prop, &Property::changed, [prop, v, entity, object] {
                         if (object && entity->gameEntity) {
                             byte *dataPtr = &((byte *)entity->gameEntity)[object->variables[v].offset];
-                            memcpy(dataPtr, &prop->valuePtr, sizeof(int));
+                            memcpy(dataPtr, &prop->valuePtr, sizeof(float));
                         }
                     });
                     break;

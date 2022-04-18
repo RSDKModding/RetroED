@@ -479,7 +479,8 @@ void Property::updateValue()
         case COLOR_MANAGER: {
             QtColorPropertyManager *m = static_cast<QtColorPropertyManager *>(typeManager);
             m->setValue(p, *static_cast<QColor *>(valuePtr));
-        } break;
+            break;
+        }
     }
 }
 
@@ -576,7 +577,10 @@ void PropertyBrowser::assignDelegate(Property *property)
             this->setFactoryForManager(static_cast<QtEnumPropertyManager *>(property->typeManager),
                                        new QtEnumEditorFactory);
             break;
-        case Property::COLOR_MANAGER: break;
+        case Property::COLOR_MANAGER:
+            this->setFactoryForManager(static_cast<QtColorPropertyManager *>(property->typeManager),
+                                       new QtColorEditorFactory);
+            break;
         case Property::GROUP_MANAGER: break;
     }
 }

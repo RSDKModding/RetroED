@@ -29,11 +29,23 @@ ScenePropertiesv5::ScenePropertiesv5(QWidget *parent) : QWidget(parent), ui(new 
     syncSC     = ui->syncSC;
     reloadLink = ui->reloadLink;
 
+    replaceTile = ui->replaceTile;
+
     bgSel = new color_widgets::ColorPreview(this);
     ui->bgClrLayout->addWidget(bgSel);
 
     altBGSel = new color_widgets::ColorPreview(this);
     ui->altBGClrLayout->addWidget(altBGSel);
+
+    unknown1 = ui->unknown1;
+    unknown2 = ui->unknown2;
+    unknown3 = ui->unknown3;
+    unknown4 = ui->unknown4;
+    unknown5 = ui->unknown5;
+    unknown6 = ui->unknown6;
+    unknown7 = ui->unknown7;
+    unknown8 = ui->unknown8;
+    unknown9 = ui->unknown9;
 }
 
 ScenePropertiesv5::~ScenePropertiesv5()

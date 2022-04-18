@@ -158,7 +158,7 @@ private:
     int addEntity(int type, float x, float y);
     void deleteEntity(int slot, bool updateUI = false);
 
-    void createEntityList();
+    void createEntityList(int startSlot = -1);
     void createScrollList();
 
     // XML Management
@@ -199,7 +199,7 @@ class ChunkLabel : public QLabel
 {
     Q_OBJECT
 public:
-    ChunkLabel(int *sel, int index, QWidget *parent) : QLabel(parent), m_sel(sel), m_index(index) {}
+    ChunkLabel(ushort *sel, int index, QWidget *parent) : QLabel(parent), m_sel(sel), m_index(index) {}
 
 signals:
     void requestRepaint();
@@ -223,7 +223,7 @@ protected:
     QSize sizeHint() const override { return QSize(0, 0); }
 
 private:
-    int *m_sel = nullptr;
+    ushort *m_sel = nullptr;
     int m_index;
 };
 

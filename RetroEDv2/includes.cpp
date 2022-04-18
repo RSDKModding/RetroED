@@ -67,8 +67,8 @@ void setStatus(QString status, bool useStatus)
         return;
 
     if (useStatus) {
-        statusProgress->show();
         statusProgress->setValue(0);
+        statusProgress->show();
     }
     // statusProgress->repaint();
 }

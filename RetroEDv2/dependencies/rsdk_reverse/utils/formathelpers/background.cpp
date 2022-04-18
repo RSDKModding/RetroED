@@ -39,7 +39,7 @@ void FormatHelpers::Background::read(byte ver, QString filename)
                 layer.type           = lyr.type;
                 layer.parallaxFactor = lyr.relativeSpeed / 128.0f;
                 layer.scrollSpeed    = (lyr.constantSpeed << 10) / 65536.0f;
-                layer.lineIndexes    = lyr.lineIndexes;
+                layer.lineScroll     = lyr.lineIndexes;
 
                 layer.layout.clear();
                 for (int y = 0; y < layer.height; ++y) {
@@ -82,7 +82,7 @@ void FormatHelpers::Background::read(byte ver, QString filename)
                 layer.type           = lyr.type;
                 layer.parallaxFactor = lyr.parallaxFactor / 128.0f;
                 layer.scrollSpeed    = (lyr.scrollSpeed << 10) / 65536.0f;
-                layer.lineIndexes    = lyr.lineIndexes;
+                layer.lineScroll     = lyr.lineIndexes;
 
                 layer.layout.clear();
                 for (int y = 0; y < layer.height; ++y) {
@@ -125,7 +125,7 @@ void FormatHelpers::Background::read(byte ver, QString filename)
                 layer.type           = lyr.type;
                 layer.parallaxFactor = lyr.parallaxFactor / 256.0f;
                 layer.scrollSpeed    = (lyr.scrollSpeed << 10) / 65536.0f;
-                layer.lineIndexes    = lyr.lineIndexes;
+                layer.lineScroll     = lyr.lineIndexes;
 
                 layer.layout.clear();
                 for (int y = 0; y < layer.height; ++y) {
@@ -168,7 +168,7 @@ void FormatHelpers::Background::read(byte ver, QString filename)
                 layer.type           = lyr.type;
                 layer.parallaxFactor = lyr.parallaxFactor / 256.0f;
                 layer.scrollSpeed    = (lyr.scrollSpeed << 10) / 65536.0f;
-                layer.lineIndexes    = lyr.lineIndexes;
+                layer.lineScroll     = lyr.lineIndexes;
 
                 layer.layout.clear();
                 for (int y = 0; y < layer.height; ++y) {
@@ -228,7 +228,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
                 layer.type          = lyr.type;
                 layer.relativeSpeed = lyr.parallaxFactor * 128;
                 layer.constantSpeed = (int)(lyr.scrollSpeed * 65536) >> 10;
-                layer.lineIndexes   = lyr.lineIndexes;
+                layer.lineIndexes   = lyr.lineScroll;
 
                 layer.layout.clear();
                 for (int y = 0; y < layer.height; ++y) {
@@ -276,7 +276,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
                 layer.type           = lyr.type;
                 layer.parallaxFactor = lyr.parallaxFactor * 128;
                 layer.scrollSpeed    = (int)(lyr.scrollSpeed * 65536) >> 10;
-                layer.lineIndexes    = lyr.lineIndexes;
+                layer.lineIndexes    = lyr.lineScroll;
 
                 layer.layout.clear();
                 for (int y = 0; y < layer.height; ++y) {
@@ -324,7 +324,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
                 layer.type           = lyr.type;
                 layer.parallaxFactor = lyr.parallaxFactor * 256;
                 layer.scrollSpeed    = (int)(lyr.scrollSpeed * 65536) >> 10;
-                layer.lineIndexes    = lyr.lineIndexes;
+                layer.lineIndexes    = lyr.lineScroll;
 
                 layer.layout.clear();
                 for (int y = 0; y < layer.height; ++y) {
@@ -369,7 +369,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
                 layer.type           = lyr.type;
                 layer.parallaxFactor = lyr.parallaxFactor * 256;
                 layer.scrollSpeed    = (int)(lyr.scrollSpeed * 65536) >> 10;
-                layer.lineIndexes    = lyr.lineIndexes;
+                layer.lineIndexes    = lyr.lineScroll;
 
                 layer.layout.clear();
                 for (int y = 0; y < layer.height; ++y) {
@@ -390,50 +390,86 @@ void FormatHelpers::Background::write(byte ver, QString filename)
 
 void FormatHelpers::Background::scrollInfoFromIndices()
 {
+    hScrollInfo.clear();
+    vScrollInfo.clear();
+
+    for (auto &scroll : hScroll) {
+        ScrollIndexInfo info;
+
+        info.parallaxFactor = scroll.parallaxFactor;
+        info.scrollSpeed    = scroll.scrollSpeed;
+        info.deform         = scroll.deform;
+        info.instances.clear();
+
+        hScrollInfo.append(info);
+    }
+
+    for (auto &scroll : vScroll) {
+        ScrollIndexInfo info;
+
+        info.parallaxFactor = scroll.parallaxFactor;
+        info.scrollSpeed    = scroll.scrollSpeed;
+        info.deform         = scroll.deform;
+        info.instances.clear();
+
+        vScrollInfo.append(info);
+    }
+
+    int layerID = 1;
     for (Layer &layer : layers) {
-        layer.scrollInfos.clear();
-        QList<ScrollInfo> infos;
-        if (layer.type == 1)
-            infos = hScroll;
-        else if (layer.type == 2)
-            infos = vScroll;
-        else
-            continue;
+        if (layer.type == 1) {
+            byte index     = layer.lineScroll.count() <= 0 ? 0 : layer.lineScroll[0];
+            byte lastIndex = index;
+            int startLine  = 0;
+            for (int i = 0; i < layer.lineScroll.count(); ++i) {
+                index = layer.lineScroll[i];
 
-        int prev  = layer.lineIndexes.count() > 0 ? layer.lineIndexes[0] : -1;
-        int start = 0;
-        int l     = 0;
+                if (index != lastIndex) {
+                    ScrollInstance instance;
+                    instance.startLine = startLine;
+                    instance.length    = i - startLine;
+                    instance.layerID   = layerID;
 
-        for (; l < layer.lineIndexes.count(); ++l) {
-            if ((byte)layer.lineIndexes[l] != prev) {
-                ScrollIndexInfo info;
+                    if (lastIndex < hScrollInfo.count()) {
+                        hScrollInfo[lastIndex].instances.append(instance);
+                    }
+                    else {
+                        // uhhh... error???
+                    }
 
-                info.startLine      = start;
-                info.length         = l - start;
-                info.parallaxFactor = infos[prev].parallaxFactor;
-                info.scrollSpeed    = infos[prev].scrollSpeed;
-                info.scrollPos      = 0.0f;
-                info.deform         = infos[prev].deform;
-
-                layer.scrollInfos.append(info);
-                start = l;
+                    lastIndex = index;
+                    startLine = i;
+                }
             }
-
-            prev = (byte)layer.lineIndexes[l];
         }
 
-        {
-            ScrollIndexInfo info;
+        if (layer.type == 2) {
+            byte index     = layer.lineScroll.count() <= 0 ? 0 : layer.lineScroll[0];
+            byte lastIndex = index;
+            int startLine  = 0;
+            for (int i = 0; i < layer.lineScroll.count(); ++i) {
+                index = layer.lineScroll[i];
 
-            info.startLine      = start;
-            info.length         = l - start;
-            info.parallaxFactor = infos[0].parallaxFactor;
-            info.scrollSpeed    = infos[0].scrollSpeed;
-            info.scrollPos      = 0.0f;
-            info.deform         = infos[0].deform;
+                if (index != lastIndex) {
+                    ScrollInstance instance;
+                    instance.startLine = startLine;
+                    instance.length    = i - startLine;
+                    instance.layerID   = layerID;
 
-            layer.scrollInfos.append(info);
+                    if (lastIndex < vScrollInfo.count()) {
+                        vScrollInfo[lastIndex].instances.append(instance);
+                    }
+                    else {
+                        // uhhh... error???
+                    }
+
+                    lastIndex = index;
+                    startLine = i;
+                }
+            }
         }
+
+        layerID++;
     }
 }
 
@@ -442,72 +478,66 @@ void FormatHelpers::Background::scrollIndicesFromInfo()
     hScroll.clear();
     vScroll.clear();
 
-    int hID = 0;
-    int vID = 0;
-
     for (Layer &layer : layers) {
-        layer.lineIndexes.clear();
-
         if (layer.type != 1 && layer.type != 2) {
             // other layers dont need any scrolling, TODO: check this works
             continue;
         }
+
         if (layer.width == 0 || layer.height == 0)
             continue; // basically invalid layers, dont write em
 
-        if (layer.type == 1) {
-            layer.lineIndexes.resize(layer.height * 0x80);
+        if (layer.type == 1)
+            layer.lineScroll.resize(layer.height * 0x80);
+        else
+            layer.lineScroll.resize(layer.width * 0x80);
+    }
+
+    int scrID = 0;
+    for (auto &info : hScrollInfo) {
+        ScrollInfo scroll;
+
+        scroll.parallaxFactor = info.parallaxFactor * 256.0f;
+        scroll.scrollSpeed    = info.scrollSpeed * 256.0f;
+        scroll.deform         = info.deform;
+
+        for (auto &instance : info.instances) {
+            Layer *layer = nullptr;
+            if (instance.layerID < layers.count())
+                layer = &layers[instance.layerID];
+
+            if (!layer || layer->width == 0 || layer->height == 0 || layer->type != 1)
+                continue;
+
+            for (int i = instance.startLine; i < instance.startLine + instance.length; ++i)
+                layer->lineScroll[i] = (byte)scrID;
         }
-        else {
-            layer.lineIndexes.resize(layer.width * 0x80);
+
+        hScroll.append(scroll);
+        scrID++;
+    }
+
+    scrID = 0;
+    for (auto &info : vScrollInfo) {
+        ScrollInfo scroll;
+
+        scroll.parallaxFactor = info.parallaxFactor;
+        scroll.scrollSpeed    = info.scrollSpeed;
+        scroll.deform         = info.deform;
+
+        for (auto &instance : info.instances) {
+            Layer *layer = nullptr;
+            if (instance.layerID < layers.count())
+                layer = &layers[instance.layerID];
+
+            if (!layer || layer->width == 0 || layer->height == 0 || layer->type != 2)
+                continue;
+
+            for (int i = instance.startLine; i < instance.startLine + instance.length; ++i)
+                layer->lineScroll[i] = (byte)scrID;
         }
 
-        int id = 0;
-        for (ScrollIndexInfo &info : layer.scrollInfos) {
-            int infoID = id;
-            ScrollInfo sInfo;
-            sInfo.deform         = info.deform;
-            sInfo.parallaxFactor = info.parallaxFactor;
-            sInfo.scrollSpeed    = info.scrollSpeed;
-
-            int scrollID = 0;
-            if (layer.type == 1) {
-                for (ScrollInfo &info : hScroll) {
-                    if (info.parallaxFactor == sInfo.parallaxFactor
-                        && info.scrollSpeed == sInfo.scrollSpeed && info.deform == sInfo.deform) {
-                        // infoID = scrollID;
-                        break;
-                    }
-                    ++scrollID;
-                }
-            }
-            else {
-                for (ScrollInfo &info : vScroll) {
-                    if (info.parallaxFactor == sInfo.parallaxFactor
-                        && info.scrollSpeed == sInfo.scrollSpeed && info.deform == sInfo.deform) {
-                        // infoID = scrollID;
-                        break;
-                    }
-                    ++scrollID;
-                }
-            }
-
-            for (int i = info.startLine; i < info.startLine + info.length; ++i) {
-                layer.lineIndexes[i] = (byte)infoID;
-            }
-
-            // New Info needs to be added
-            if (infoID == id) {
-                if (layer.type == 1) {
-                    hScroll.append(sInfo);
-                    ++hID;
-                }
-                else {
-                    vScroll.append(sInfo);
-                    ++vID;
-                }
-                ++id;
-            }
-        }
+        vScroll.append(scroll);
+        scrID++;
     }
 }

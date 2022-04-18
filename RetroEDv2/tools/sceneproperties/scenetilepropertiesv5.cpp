@@ -127,7 +127,7 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
     connect(ui->editCollision, &QPushButton::clicked, [&] {
         TileCollisionWidgetv5 *edit = new TileCollisionWidgetv5();
         edit->cmask                 = cmask[collisionLyr];
-        edit->tileImg               = tileImg;
+        edit->tileImg               = this->tileImg;
         edit->exec();
     });
 

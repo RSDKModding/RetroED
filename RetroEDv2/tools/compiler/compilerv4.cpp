@@ -309,6 +309,7 @@ const char variableNamesv4[][0x20] = {
     "editor.variableValue",
     "editor.returnVariable",
     "editor.showGizmos",
+    "editor.drawingOverlay",
 };
 
 const FunctionInfov4 functionsv4[] = {
@@ -493,6 +494,9 @@ const FunctionInfov4 functionsv4[] = {
     FunctionInfov4("SetVariableAlias", 2),
     FunctionInfov4("DrawLine", 7),
     FunctionInfov4("DrawArrow", 7),
+    FunctionInfov4("DrawRectWorld", 8),
+    FunctionInfov4("DrawRectOutline", 8),
+    FunctionInfov4("GetObjectType", 2),
 };
 
 AliasInfov4 publicAliases[ALIAS_COUNT_v4] = {
@@ -938,6 +942,7 @@ enum ScrVar {
     VAR_EDITORVARIABLEVAL,
     VAR_EDITORRETURNVAR,
     VAR_EDITORSHOWGIZMOS,
+    VAR_EDITORDRAWINGOVERLAY,
     VAR_MAX_CNT
 };
 
@@ -1088,6 +1093,9 @@ enum ScrFunc {
     FUNC_SETVARALIAS,
     FUNC_DRAWLINE,
     FUNC_DRAWARROW,
+    FUNC_DRAWRECTWORLD,
+    FUNC_DRAWRECTOUTLINE,
+    FUNC_GETOBJECTTYPE,
     FUNC_MAX_CNT
 };
 
@@ -3505,6 +3513,9 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                         scriptEng.operands[i] = scnEditor->viewer->sceneInfo.effectGizmo
                                                 || scnEditor->viewer->selectedEntity == objectEntityPos;
                         break;
+                    case VAR_EDITORDRAWINGOVERLAY:
+                        scriptEng.operands[i] = scnEditor->viewer->sceneInfo.debugMode;
+                        break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant
@@ -4416,6 +4427,40 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                                          ink);
                 break;
             }
+            case FUNC_DRAWRECTWORLD: {
+                opcodeSize = 0;
+                int x      = (scriptEng.operands[0] >> 16) - editor->viewer->cameraPos.x;
+                int y      = (scriptEng.operands[1] >> 16) - editor->viewer->cameraPos.y;
+
+                editor->viewer->drawRect(
+                    x, y, scriptEng.operands[2], scriptEng.operands[3],
+                    Vector4<float>(scriptEng.operands[4] / 255.0f, scriptEng.operands[5] / 255.0f,
+                                   scriptEng.operands[6] / 255.0f, scriptEng.operands[7] / 255.0f),
+                    false, 0xFF, INK_NONE);
+                break;
+            }
+            case FUNC_DRAWRECTOUTLINE: {
+                opcodeSize = 0;
+
+                int x = (scriptEng.operands[0] >> 16) - editor->viewer->cameraPos.x;
+                int y = (scriptEng.operands[1] >> 16) - editor->viewer->cameraPos.y;
+
+                editor->viewer->drawRect(
+                    x, y, scriptEng.operands[2], scriptEng.operands[3],
+                    Vector4<float>(scriptEng.operands[4] / 255.0f, scriptEng.operands[5] / 255.0f,
+                                   scriptEng.operands[6] / 255.0f, scriptEng.operands[7] / 255.0f),
+                    true, 0xFF, INK_NONE);
+                break;
+            }
+            case FUNC_GETOBJECTTYPE: {
+                scriptEng.operands[0] = -1;
+                for (int o = 0; o < OBJECT_COUNT; ++o) {
+                    if (strComp(scriptText, typeNames[o])) {
+                        scriptEng.operands[0] = 0;
+                    }
+                }
+                break;
+            }
         }
 
         // Set Values
@@ -5014,6 +5059,9 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
                         break;
                     case VAR_EDITORRETURNVAR: break;
                     case VAR_EDITORSHOWGIZMOS: break;
+                    case VAR_EDITORDRAWINGOVERLAY:
+                        scnEditor->viewer->sceneInfo.debugMode = scriptEng.operands[i];
+                        break;
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant
