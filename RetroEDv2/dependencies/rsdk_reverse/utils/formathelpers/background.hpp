@@ -25,7 +25,6 @@ public:
     };
 
     struct ScrollIndexInfo {
-        float scrollPos      = 0.0f; // not written, for scene viewer only
         float parallaxFactor = 1.0f;
         float scrollSpeed    = 0.0f;
         bool deform          = false;
@@ -44,9 +43,8 @@ public:
                                 && instances[i].layerID == other.instances[i].layerID;
             }
 
-            return instanceMatch && scrollPos == other.scrollPos
-                   && parallaxFactor == other.parallaxFactor && scrollSpeed == other.scrollSpeed
-                   && deform == other.deform;
+            return instanceMatch && parallaxFactor == other.parallaxFactor
+                   && scrollSpeed == other.scrollSpeed && deform == other.deform;
         }
     };
 

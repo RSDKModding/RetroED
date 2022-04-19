@@ -57,16 +57,15 @@ ChunkSelector::ChunkSelector(QWidget *parent) : QWidget(parent), parentWidget((S
     layout->setSpacing(0);
 
     int i = 0;
-    for (auto &&im : parentWidget->viewer->chunks) {
-        auto *chunk = new ChunkLabel(&parentWidget->viewer->selectedTile, i, chunkArea);
-        chunk->setPixmap(QPixmap::fromImage(im).scaled(im.width(), im.height()));
-        chunk->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        chunk->resize(im.width(), im.height());
-        chunk->setFixedSize(im.width(), im.height() * 1.1f);
-        layout->addWidget(chunk, i, 1);
-        labels.append(chunk);
-        i++;
-        connect(chunk, &ChunkLabel::requestRepaint, chunkArea, QOverload<>::of(&QWidget::update));
+    for (auto &&chunk : parentWidget->viewer->chunks) {
+        auto *label = new ChunkLabel(&parentWidget->viewer->selectedTile, i, chunkArea);
+        label->setPixmap(QPixmap::fromImage(chunk).scaled(chunk.width(), chunk.height()));
+        label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        label->resize(chunk.width(), chunk.height());
+        label->setFixedSize(chunk.width(), chunk.height() * 1.1f);
+        layout->addWidget(label, i, 1);
+        connect(label, &ChunkLabel::requestRepaint, chunkArea, QOverload<>::of(&QWidget::update));
+        labels[i++] = label;
     }
 
     chunkArea->setLayout(layout);
@@ -79,12 +78,8 @@ ChunkSelector::ChunkSelector(QWidget *parent) : QWidget(parent), parentWidget((S
 void ChunkSelector::refreshList()
 {
     int i = 0;
-    for (auto &&im : parentWidget->viewer->chunks) {
-        auto *chunk = labels[i];
-        chunk->setPixmap(QPixmap::fromImage(im).scaled(im.width(), im.height()));
-        chunk->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        chunk->resize(im.width(), im.height());
-        i++;
+    for (auto &&chunk : parentWidget->viewer->chunks) {
+        labels[i++]->setPixmap(QPixmap::fromImage(chunk).scaled(chunk.width(), chunk.height()));
     }
 }
 
@@ -747,16 +742,18 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         TilesetEditor *edit = new TilesetEditor(viewer->tiles, viewer->tilePalette);
         edit->setWindowTitle("Edit Tileset");
         edit->exec();
+        viewer->stopTimer();
+        viewer->disableDrawScene = true;
 
         setStatus("Rebuilding tiles...", true);
-        viewer->tilesetTexture = nullptr;
+        viewer->gfxSurface[0].texturePtr = nullptr;
 
         QImage tileset(0x10, 0x400 * 0x10, QImage::Format_Indexed8);
 
         QVector<QRgb> pal;
         for (PaletteColour &col : viewer->tilePalette) pal.append(col.toQColor().rgb());
         tileset.setColorTable(pal);
-        addStatusProgress(0.2); // finished setup
+        addStatusProgress(1. / 5); // finished setup
 
         uchar *pixels = tileset.bits();
         for (int i = 0; i < 0x400; ++i) {
@@ -767,9 +764,9 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 }
             }
         }
-        addStatusProgress(0.2); // finished copying tiles
+        addStatusProgress(1. / 5); // finished copying tiles
 
-        viewer->tilesetTexture = viewer->createTexture(tileset);
+        viewer->gfxSurface[0].texturePtr = viewer->createTexture(tileset, QOpenGLTexture::Target2D);
 
         for (int i = 0; i < 0x200; ++i) {
             for (int y = 0; y < 8; ++y) {
@@ -779,7 +776,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 }
             }
         }
-        addStatusProgress(0.2); // finished updating layout
+        addStatusProgress(1. / 5); // finished updating layout
 
         RSDKv5::TileConfig configStore = viewer->tileconfig;
         for (int i = 0; i < 0x400; ++i) {
@@ -787,7 +784,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             viewer->tileconfig.collisionPaths[0][id] = configStore.collisionPaths[0][i];
             viewer->tileconfig.collisionPaths[1][id] = configStore.collisionPaths[1][i];
         }
-        addStatusProgress(0.2); // finished updating collision masks
+        addStatusProgress(1. / 5); // finished updating collision masks
 
         viewer->chunks.clear();
         for (FormatHelpers::Chunks::Chunk &c : viewer->chunkset.chunks)
@@ -797,6 +794,9 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         doAction("Edited Tiles");
         setStatus("Finished rebuilding tiles!"); // done!
+
+        viewer->startTimer();
+        viewer->disableDrawScene = false;
     });
 
     connect(scnProp->editPAL, &QPushButton::clicked, [this] {
@@ -2163,6 +2163,8 @@ bool SceneEditor::saveScene(bool forceSaveAs)
     QString basePath = savePath;
     basePath         = basePath.replace(QFileInfo(savePath).fileName(), "");
 
+    viewer->disableDrawScene = true;
+
     setStatus("Saving scene...", true);
     FormatHelpers::Gif tileset(16, 0x400 * 16);
 
@@ -2221,6 +2223,49 @@ bool SceneEditor::saveScene(bool forceSaveAs)
 
         background.layers.append(layer);
     }
+
+    background.hScrollInfo.clear();
+    for (auto &hScroll : viewer->hScroll) {
+        FormatHelpers::Background::ScrollIndexInfo scroll;
+
+        scroll.parallaxFactor = hScroll.parallaxFactor;
+        scroll.scrollSpeed    = hScroll.scrollSpeed;
+        scroll.deform         = hScroll.deform;
+
+        scroll.instances.clear();
+        for (auto &instance : hScroll.instances) {
+            FormatHelpers::Background::ScrollInstance inst;
+
+            inst.startLine = instance.startLine;
+            inst.length    = instance.length;
+            inst.layerID   = instance.layerID;
+
+            scroll.instances.append(inst);
+        }
+        background.hScrollInfo.append(scroll);
+    }
+
+    background.vScrollInfo.clear();
+    for (auto &vScroll : viewer->vScroll) {
+        FormatHelpers::Background::ScrollIndexInfo scroll;
+
+        scroll.parallaxFactor = vScroll.parallaxFactor;
+        scroll.scrollSpeed    = vScroll.scrollSpeed;
+        scroll.deform         = vScroll.deform;
+
+        scroll.instances.clear();
+        for (auto &instance : vScroll.instances) {
+            FormatHelpers::Background::ScrollInstance inst;
+
+            inst.startLine = instance.startLine;
+            inst.length    = instance.length;
+            inst.layerID   = instance.layerID;
+
+            scroll.instances.append(inst);
+        }
+        background.vScrollInfo.append(scroll);
+    }
+
     addStatusProgress(1.f / 5); // created tile layers
 
     scene.objects.clear();
@@ -2329,6 +2374,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
     tabTitle = Utils::getFilenameAndFolder(savePath);
     clearActions();
     setStatus("Saved scene to " + Utils::getFilenameAndFolder(savePath));
+    viewer->disableDrawScene = false;
     return true;
 }
 

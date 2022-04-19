@@ -292,7 +292,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
                 chunks->chunks[c].getImage(tileList).save(QString(path + "/Chunk %1.png").arg(id++));
                 setStatusProgress(c / (float)0x200);
             }
-            setStatus(QString("Exported chunks to %2/").arg(path));
+            setStatus(QString("Exported chunks to %1/").arg(path));
         }
     });
 
@@ -570,6 +570,7 @@ void ChunkEditor::keyPressEvent(QKeyEvent *event)
 
         viewer->repaint();
 
+        changedChunks[selectedChunk] = true;
         ui->chunkList->item(selectedChunk)
             ->setIcon(QPixmap::fromImage(chunks->chunks[selectedChunk].getImage(tileList)));
     }

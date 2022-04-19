@@ -36,7 +36,7 @@ enum VarTypes {
     VAR_STRING,
     VAR_VECTOR2,
     VAR_FLOAT,
-    VAR_COLOUR,
+    VAR_COLOR,
 };
 
 struct GameObject {

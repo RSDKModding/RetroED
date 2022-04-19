@@ -12,33 +12,41 @@ TileSelector::TileSelector(QWidget *parent) : QWidget(parent), parentPtr((SceneE
 
     QWidget *tileArea = new QWidget();
 
-    QGridLayout *layout = new QGridLayout();
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(1);
+    QGridLayout *tileLayout = new QGridLayout();
+    tileLayout->setContentsMargins(0, 0, 0, 0);
+    tileLayout->setSpacing(1);
 
     int i = 0;
     int x = 0, y = 0;
-    for (auto &&im : parentPtr->viewer->tiles) {
-        auto *tile = new TileLabel(&parentPtr->viewer->selectedTile, i, tileArea);
-        tile->setPixmap(QPixmap::fromImage(im).scaled(im.width() * 2, im.height() * 2));
-        tile->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        tile->resize(im.width(), im.height());
-        layout->addWidget(tile, y, x);
+    for (auto &&tile : parentPtr->viewer->tiles) {
+        TileLabel *label = new TileLabel(&parentPtr->viewer->selectedTile, i, tileArea);
+        label->setPixmap(QPixmap::fromImage(tile).scaled(tile.width() * 2, tile.height() * 2));
+        label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        label->resize(tile.width(), tile.height());
+        tileLayout->addWidget(label, y, x);
         x++;
         if (x >= 4) {
             x = 0;
             y += 1;
         }
-        tile->setFixedSize(im.width() * 2, im.height() * 2);
-        i++;
-        connect(tile, &TileLabel::requestRepaint, tileArea, QOverload<>::of(&QWidget::update));
+        label->setFixedSize(tile.width() * 2, tile.height() * 2);
+        connect(label, &TileLabel::requestRepaint, tileArea, QOverload<>::of(&QWidget::update));
+        tiles[i++] = label;
     }
 
-    tileArea->setLayout(layout);
+    tileArea->setLayout(tileLayout);
     scrollArea->setWidget(tileArea);
     QVBoxLayout *l = new QVBoxLayout(this);
     l->addWidget(scrollArea);
     setLayout(l);
+}
+
+void TileSelector::refreshList()
+{
+    int t = 0;
+    for (auto &&tile : parentPtr->viewer->tiles) {
+        tiles[t++]->setPixmap(QPixmap::fromImage(tile).scaled(tile.width() * 2, tile.height() * 2));
+    }
 }
 
 SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEditorv5)
@@ -804,15 +812,18 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         edit->setWindowTitle("Edit Tileset");
         edit->exec();
 
+        viewer->stopTimer();
+        viewer->disableDrawScene = true;
+
         setStatus("Rebuilding tiles...", true);
-        viewer->tilesetTexture = nullptr;
+        viewer->gfxSurface[0].texturePtr = nullptr;
 
         QImage tileset(0x10, 0x400 * 0x10, QImage::Format_Indexed8);
 
         QVector<QRgb> pal;
         for (PaletteColour &col : viewer->tilePalette) pal.append(col.toQColor().rgb());
         tileset.setColorTable(pal);
-        addStatusProgress(0.25); // finished setup
+        addStatusProgress(1. / 4); // finished setup
 
         uchar *pixels = tileset.bits();
         for (int i = 0; i < 0x400; ++i) {
@@ -823,9 +834,9 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 }
             }
         }
-        addStatusProgress(0.25); // finished copying tiles
+        addStatusProgress(1. / 4); // finished copying tiles
 
-        viewer->tilesetTexture = viewer->createTexture(tileset);
+        viewer->gfxSurface[0].texturePtr = viewer->createTexture(tileset, QOpenGLTexture::Target2D);
 
         for (int i = 0; i < viewer->layers.count(); ++i) {
             auto &layer = viewer->layers[i];
@@ -837,7 +848,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 }
             }
         }
-        addStatusProgress(0.25); // finished updating layout
+        addStatusProgress(1. / 4); // finished updating layout
 
         RSDKv5::TileConfig configStore = tileconfig;
         for (int i = 0; i < 0x400; ++i) {
@@ -846,8 +857,13 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             tileconfig.collisionPaths[1][id] = configStore.collisionPaths[1][i];
         }
 
+        tileSel->refreshList();
+
         doAction("Edited Tiles");
         setStatus("Finished rebuilding tiles!"); // done !
+
+        viewer->startTimer();
+        viewer->disableDrawScene = false;
     });
 
     connect(scnProp->editPAL, &QPushButton::clicked, [this] {
@@ -1334,7 +1350,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                                 case VAR_FLOAT:
                                     writer.writeText(QString::number(variable.value_float));
                                     break;
-                                case VAR_COLOUR:
+                                case VAR_COLOR:
                                     writer.writeText(QString::number(variable.value_color.rgb()));
                                     break;
                             }
@@ -2481,7 +2497,9 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
 void SceneEditorv5::saveScene(QString path)
 {
     // saving
-    setStatus("Saving scene...");
+    viewer->disableDrawScene = true;
+    setStatus("Saving scene...", true);
+
     QString pth      = path;
     QString basePath = pth.replace(QFileInfo(pth).fileName(), "");
 
@@ -2535,7 +2553,7 @@ void SceneEditorv5::saveScene(QString path)
 
         scene.layers.append(layer);
     }
-    addStatusProgress(1.f / 6); // created tile layers
+    addStatusProgress(1.f / 5); // created tile layers
 
     scene.objects.clear();
     for (SceneObject &obj : viewer->objects) {
@@ -2551,7 +2569,7 @@ void SceneEditorv5::saveScene(QString path)
         }
         scene.objects.append(object);
     }
-    addStatusProgress(1.f / 6); // created object definitions
+    addStatusProgress(1.f / 5); // created object definitions
 
     for (SceneEntity &entity : viewer->entities) {
         if (entity.type >= 0 && entity.type < viewer->objects.count()) {
@@ -2572,7 +2590,7 @@ void SceneEditorv5::saveScene(QString path)
             // what...?
         }
     }
-    addStatusProgress(1.f / 6); // created entity list
+    addStatusProgress(1.f / 5); // created entity list
 
     FormatHelpers::Gif tileset(16, 0x400 * 16);
 
@@ -2586,11 +2604,9 @@ void SceneEditorv5::saveScene(QString path)
             for (int x = 0; x < 16; ++x) tileset.pixels[pos++] = *src++;
         }
     }
-    addStatusProgress(1.f / 6); // generated tileset
+    addStatusProgress(1.f / 5); // generated tileset
 
     scene.write(path);
-    addStatusProgress(1.f / 6); // written scene
-
     tileconfig.write(basePath + "TileConfig.bin");
     stageConfig.write(basePath + "StageConfig.bin");
     stamps.write(basePath + viewer->metadata.stampName);
@@ -2599,7 +2615,8 @@ void SceneEditorv5::saveScene(QString path)
     tabTitle = Utils::getFilenameAndFolder(path);
     clearActions();
     appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, path, QList<QString>{ gameConfig.filePath });
-    setStatus("Saved scene to " + Utils::getFilenameAndFolder(scene.filepath));
+    setStatus("Saved scene to " + Utils::getFilenameAndFolder(scene.filepath)); // written scene
+    viewer->disableDrawScene = false;
 }
 
 void SceneEditorv5::createEntityList(int startSlot)
@@ -3226,7 +3243,7 @@ void SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                         memcpy(offset, &value, sizeof(bool32));
                         break;
                     }
-                    case VAR_COLOUR: {
+                    case VAR_COLOR: {
                         auto c   = val.value_color;
                         uint clr = (c.red() << 16) | (c.green() << 8) | (c.blue());
                         memcpy(offset, &clr, sizeof(uint));
@@ -3276,7 +3293,7 @@ void SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                         val.value_bool = value;
                         break;
                     }
-                    case VAR_COLOUR: {
+                    case VAR_COLOR: {
                         uint clr = 0;
                         memcpy(&clr, offset, sizeof(uint));
                         val.value_color = QColor(clr);

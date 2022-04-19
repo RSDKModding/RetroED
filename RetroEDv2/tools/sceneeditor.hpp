@@ -238,7 +238,7 @@ public:
     SceneEditor *parentWidget = nullptr;
 
 private:
-    QList<ChunkLabel *> labels;
+    ChunkLabel *labels[0x200];
 };
 
 #endif // SCENEEDITOR_H

@@ -41,8 +41,8 @@ void RSDKv3::Background::Layer::read(Reader &reader)
     parallaxFactor |= (short)reader.read<byte>();
     scrollSpeed = reader.read<byte>();
 
-    lineIndexes.clear();
-    lineIndexes.reserve(height * 128);
+    lineScroll.clear();
+    lineScroll.reserve(height * 128);
 
     byte buf[3];
     while (true) {
@@ -56,11 +56,11 @@ void RSDKv3::Background::Layer::read(Reader &reader)
                 buf[2]  = reader.read<byte>();
                 int val = buf[1];
                 int cnt = buf[2] - 1;
-                for (int c = 0; c < cnt; ++c) lineIndexes.append(val);
+                for (int c = 0; c < cnt; ++c) lineScroll.append(val);
             }
         }
         else {
-            lineIndexes.append(buf[0]);
+            lineScroll.append(buf[0]);
         }
     }
 
@@ -107,12 +107,12 @@ void RSDKv3::Background::Layer::write(Writer &writer)
     int l   = 0;
     int cnt = 0;
 
-    for (int x = 0; x < lineIndexes.count(); ++x) {
-        if ((byte)lineIndexes[x] != l && x > 0) {
+    for (int x = 0; x < lineScroll.count(); ++x) {
+        if ((byte)lineScroll[x] != l && x > 0) {
             rle_writev3(writer, l, cnt);
             cnt = 0;
         }
-        l = lineIndexes[x];
+        l = lineScroll[x];
         cnt++;
     }
 

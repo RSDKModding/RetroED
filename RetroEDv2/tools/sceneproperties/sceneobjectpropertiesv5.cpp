@@ -259,8 +259,8 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     });
                     break;
                 }
-                case VAR_COLOUR: {
-                    valGroup.append(new Property("colour", &entity->variables[v].value_color));
+                case VAR_COLOR: {
+                    valGroup.append(new Property("color", &entity->variables[v].value_color));
                     Property *prop = valGroup.last();
                     disconnect(prop, nullptr, nullptr, nullptr);
                     connect(prop, &Property::changed, [prop, v, entity, object] {

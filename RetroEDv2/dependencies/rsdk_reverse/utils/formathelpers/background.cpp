@@ -39,7 +39,7 @@ void FormatHelpers::Background::read(byte ver, QString filename)
                 layer.type           = lyr.type;
                 layer.parallaxFactor = lyr.relativeSpeed / 128.0f;
                 layer.scrollSpeed    = (lyr.constantSpeed << 10) / 65536.0f;
-                layer.lineScroll     = lyr.lineIndexes;
+                layer.lineScroll     = lyr.lineScroll;
 
                 layer.layout.clear();
                 for (int y = 0; y < layer.height; ++y) {
@@ -82,7 +82,7 @@ void FormatHelpers::Background::read(byte ver, QString filename)
                 layer.type           = lyr.type;
                 layer.parallaxFactor = lyr.parallaxFactor / 128.0f;
                 layer.scrollSpeed    = (lyr.scrollSpeed << 10) / 65536.0f;
-                layer.lineScroll     = lyr.lineIndexes;
+                layer.lineScroll     = lyr.lineScroll;
 
                 layer.layout.clear();
                 for (int y = 0; y < layer.height; ++y) {
@@ -125,7 +125,7 @@ void FormatHelpers::Background::read(byte ver, QString filename)
                 layer.type           = lyr.type;
                 layer.parallaxFactor = lyr.parallaxFactor / 256.0f;
                 layer.scrollSpeed    = (lyr.scrollSpeed << 10) / 65536.0f;
-                layer.lineScroll     = lyr.lineIndexes;
+                layer.lineScroll     = lyr.lineScroll;
 
                 layer.layout.clear();
                 for (int y = 0; y < layer.height; ++y) {
@@ -168,7 +168,7 @@ void FormatHelpers::Background::read(byte ver, QString filename)
                 layer.type           = lyr.type;
                 layer.parallaxFactor = lyr.parallaxFactor / 256.0f;
                 layer.scrollSpeed    = (lyr.scrollSpeed << 10) / 65536.0f;
-                layer.lineScroll     = lyr.lineIndexes;
+                layer.lineScroll     = lyr.lineScroll;
 
                 layer.layout.clear();
                 for (int y = 0; y < layer.height; ++y) {
@@ -228,7 +228,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
                 layer.type          = lyr.type;
                 layer.relativeSpeed = lyr.parallaxFactor * 128;
                 layer.constantSpeed = (int)(lyr.scrollSpeed * 65536) >> 10;
-                layer.lineIndexes   = lyr.lineScroll;
+                layer.lineScroll    = lyr.lineScroll;
 
                 layer.layout.clear();
                 for (int y = 0; y < layer.height; ++y) {
@@ -276,7 +276,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
                 layer.type           = lyr.type;
                 layer.parallaxFactor = lyr.parallaxFactor * 128;
                 layer.scrollSpeed    = (int)(lyr.scrollSpeed * 65536) >> 10;
-                layer.lineIndexes    = lyr.lineScroll;
+                layer.lineScroll     = lyr.lineScroll;
 
                 layer.layout.clear();
                 for (int y = 0; y < layer.height; ++y) {
@@ -324,7 +324,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
                 layer.type           = lyr.type;
                 layer.parallaxFactor = lyr.parallaxFactor * 256;
                 layer.scrollSpeed    = (int)(lyr.scrollSpeed * 65536) >> 10;
-                layer.lineIndexes    = lyr.lineScroll;
+                layer.lineScroll     = lyr.lineScroll;
 
                 layer.layout.clear();
                 for (int y = 0; y < layer.height; ++y) {
@@ -369,7 +369,7 @@ void FormatHelpers::Background::write(byte ver, QString filename)
                 layer.type           = lyr.type;
                 layer.parallaxFactor = lyr.parallaxFactor * 256;
                 layer.scrollSpeed    = (int)(lyr.scrollSpeed * 65536) >> 10;
-                layer.lineIndexes    = lyr.lineScroll;
+                layer.lineScroll     = lyr.lineScroll;
 
                 layer.layout.clear();
                 for (int y = 0; y < layer.height; ++y) {
@@ -441,6 +441,19 @@ void FormatHelpers::Background::scrollInfoFromIndices()
                     startLine = i;
                 }
             }
+
+            if (layer.lineScroll.count() > 0) {
+                ScrollInstance instance;
+                instance.startLine = startLine;
+                instance.length    = layer.lineScroll.count() - startLine;
+
+                if (lastIndex < hScroll.count()) {
+                    hScrollInfo[lastIndex].instances.append(instance);
+                }
+                else {
+                    // uhhh... error???
+                }
+            }
         }
 
         if (layer.type == 2) {
@@ -467,6 +480,19 @@ void FormatHelpers::Background::scrollInfoFromIndices()
                     startLine = i;
                 }
             }
+
+            if (layer.lineScroll.count() > 0) {
+                ScrollInstance instance;
+                instance.startLine = startLine;
+                instance.length    = layer.lineScroll.count() - startLine;
+
+                if (lastIndex < vScroll.count()) {
+                    vScrollInfo[lastIndex].instances.append(instance);
+                }
+                else {
+                    // uhhh... error???
+                }
+            }
         }
 
         layerID++;
@@ -479,6 +505,7 @@ void FormatHelpers::Background::scrollIndicesFromInfo()
     vScroll.clear();
 
     for (Layer &layer : layers) {
+        layer.lineScroll.clear();
         if (layer.type != 1 && layer.type != 2) {
             // other layers dont need any scrolling, TODO: check this works
             continue;
@@ -491,20 +518,22 @@ void FormatHelpers::Background::scrollIndicesFromInfo()
             layer.lineScroll.resize(layer.height * 0x80);
         else
             layer.lineScroll.resize(layer.width * 0x80);
+
+        for (int i = 0; i < layer.lineScroll.count(); ++i) layer.lineScroll[i] = 0;
     }
 
     int scrID = 0;
     for (auto &info : hScrollInfo) {
         ScrollInfo scroll;
 
-        scroll.parallaxFactor = info.parallaxFactor * 256.0f;
-        scroll.scrollSpeed    = info.scrollSpeed * 256.0f;
+        scroll.parallaxFactor = info.parallaxFactor;
+        scroll.scrollSpeed    = info.scrollSpeed;
         scroll.deform         = info.deform;
 
         for (auto &instance : info.instances) {
             Layer *layer = nullptr;
-            if (instance.layerID < layers.count())
-                layer = &layers[instance.layerID];
+            if ((uint)(instance.layerID - 1) < (uint)layers.count())
+                layer = &layers[instance.layerID - 1];
 
             if (!layer || layer->width == 0 || layer->height == 0 || layer->type != 1)
                 continue;

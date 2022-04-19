@@ -46,25 +46,30 @@ void RSDKv4::Background::Layer::read(Reader &reader)
     parallaxFactor |= reader.read<byte>() << 8;
     scrollSpeed = reader.read<byte>();
 
-    lineIndexes.clear();
-    lineIndexes.reserve(height * 128);
+    lineScroll.clear();
+    lineScroll.reserve(height * 128);
 
     byte buf[3];
     // prevent infinite loops
     while (reader.tell() < reader.filesize) {
-        while (reader.tell() < reader.filesize) {
-            buf[0] = reader.read<byte>();
-            if (buf[0] == 0xFF)
+        buf[0] = reader.read<byte>();
+        if (buf[0] == 0xFF) {
+            buf[1] = reader.read<byte>();
+            if (buf[1] == 0xFF) {
                 break;
-            lineIndexes.append(buf[0]);
+            }
+            else {
+                buf[2]    = reader.read<byte>();
+                int index = buf[1];
+                int cnt   = buf[2] - 1;
+                for (int c = 0; c < cnt; ++c) {
+                    lineScroll.append(index);
+                }
+            }
         }
-
-        buf[1] = reader.read<byte>();
-        if (buf[1] == 0xFF)
-            break;
-
-        buf[2] = (byte)(reader.read<byte>() - 1);
-        for (int l = 0; l < buf[2]; ++l) lineIndexes.append(buf[1]);
+        else {
+            lineScroll.append(buf[0]);
+        }
     }
 
     layout.reserve(height);
@@ -108,16 +113,15 @@ void RSDKv4::Background::Layer::write(Writer &writer)
     writer.write((byte)(parallaxFactor >> 8));
     writer.write(scrollSpeed);
 
-    // Output data
+    // Write lineScroll using RLE compression
     int l   = 0;
     int cnt = 0;
-
-    for (int x = 0; x < lineIndexes.count(); ++x) {
-        if ((byte)lineIndexes[x] != l && x > 0) {
+    for (int x = 0; x < lineScroll.count(); ++x) {
+        if ((byte)lineScroll[x] != l && x > 0) {
             rle_writev4(writer, l, cnt);
             cnt = 0;
         }
-        l = lineIndexes[x];
+        l = lineScroll[x];
         cnt++;
     }
 

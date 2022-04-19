@@ -210,6 +210,11 @@ class TileSelector : public QWidget
 public:
     TileSelector(QWidget *parent = nullptr);
 
+    void refreshList();
+
+private:
+    TileLabel *tiles[0x400];
+
     SceneEditorv5 *parentPtr = nullptr;
 };
 

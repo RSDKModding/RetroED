@@ -4,35 +4,50 @@
 #include "qgifimage.h"
 
 TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColour> &pal, QWidget *parent)
-    : QDialog(parent), ui(new Ui::TilesetEditor), tiles(tileList), palette(pal)
+    : tiles(tileList), palette(pal), QDialog(parent), ui(new Ui::TilesetEditor)
 {
+    setWindowFlag(Qt::WindowStaysOnTopHint);
+
     ui->setupUi(this);
+
+    this->setWindowTitle("Tileset Editor");
 
     QVector<QRgb> clrTable;
     for (int i = 0; i < pal.count(); ++i) clrTable.append(qRgb(pal[i].r, pal[i].g, pal[i].b));
 
-    for (int t = tileList.count(); t < 0x400; ++t) {
+    // Add any filler tiles
+    for (int t = tiles.count(); t < 0x400; ++t) {
         QImage tile = QImage(16, 16, QImage::Format_Indexed8);
         tile.setColorTable(clrTable);
-        tileList.append(tile);
+        tiles.append(tile);
     }
 
     // Remove Excess tiles
-    for (int t = tileList.count(); t > 0x400; --t) tileList.removeAt(t);
+    for (int t = tiles.count(); t > 0x400; --t) tiles.removeAt(t);
+
+    viewer = new TilesetViewer(&selectedTile, tiles);
+    viewer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->viewerFrame->layout()->addWidget(viewer);
 
     ui->tileList->clear();
-    for (int t = 0; t < tileList.count(); ++t) {
+    for (int t = 0; t < tiles.count(); ++t) {
         auto *item = new QListWidgetItem(QString::number(t), ui->tileList);
-        item->setText(QString::number(t));
-        item->setIcon(QPixmap::fromImage(tileList.at(t)));
+        item->setIcon(QPixmap::fromImage(tiles.at(t)));
     }
 
-    for (int t = 0; t < 0x400; ++t) tileIDs.append(t);
+    tileIDs.clear();
+    changedTiles.clear();
+    for (int t = 0; t < tiles.count(); ++t) {
+        tileIDs.append(t);
+        changedTiles.append(false);
+    }
 
-    // ----------------
-    // TILES
-    // ----------------
-    connect(ui->tileList, &QListWidget::currentRowChanged, [this](int c) {
+    auto tileRowChanged = [this](int c) {
+        selectedTile = c;
+
+        viewer->offset.x = 0;
+        viewer->offset.y = 0;
+
         if (ui->upTile)
             ui->upTile->setDisabled(c == -1);
         if (ui->downTile)
@@ -41,35 +56,57 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColour> &pal,
         if (c == -1)
             return;
 
-        if (ui->downTile)
-            ui->downTile->setDisabled(c == ui->tileList->count() - 1);
         if (ui->upTile)
             ui->upTile->setDisabled(c == 0);
-    });
+        if (ui->downTile)
+            ui->downTile->setDisabled(c == ui->tileList->count() - 1);
 
-    connect(ui->upTile, &QToolButton::clicked, [this, &tileList] {
-        uint c     = ui->tileList->currentRow();
+        viewer->repaint();
+    };
+
+    tileRowChanged(-1);
+    connect(ui->tileList, &QListWidget::currentRowChanged, tileRowChanged);
+
+    auto moveChunk = [this](char translation) {
+        uint c = ui->tileList->currentRow();
+        uint n = ui->tileList->currentRow() + translation;
+        if (n >= (uint)tiles.count())
+            return;
+
         auto *item = ui->tileList->takeItem(c);
-        tileList.move(c, c - 1);
-        tileIDs.move(c, c - 1);
-        ui->tileList->insertItem(c - 1, item);
-        ui->tileList->setCurrentRow(c - 1);
+        changedTiles.move(c, n);
+        tileIDs.move(c, n);
+        tiles.move(c, n);
+        ui->tileList->insertItem(n, item);
+
+        // doAction("Moved tile", true);
+
+        ui->tileList->setCurrentRow(n);
+    };
+
+    connect(ui->upTile, &QToolButton::clicked, [moveChunk] { moveChunk(-1); });
+
+    connect(ui->downTile, &QToolButton::clicked, [moveChunk] { moveChunk(1); });
+
+    // connect(ui->editPal, &QPushButton::clicked, [this, &tileList] {
+    //
+    // });
+
+    connect(ui->exportImg, &QPushButton::clicked, [this] {
+        QFileDialog filedialog(this, tr("Select folder to place images"), "", "");
+        filedialog.setFileMode(QFileDialog::Directory);
+        if (filedialog.exec() == QDialog::Accepted) {
+            QString path = filedialog.selectedFiles()[0];
+            setStatus("Exporting tiles as images...");
+            for (int t = 0; t < tiles.count(); ++t) {
+                tiles.at(t).save(QString(path + "/Tile %1.png").arg(t));
+                setStatusProgress(t / (float)tiles.count());
+            }
+            setStatus(QString("Exported tiles to %1/").arg(path));
+        }
     });
 
-    connect(ui->downTile, &QToolButton::clicked, [this, &tileList] {
-        uint c     = ui->tileList->currentRow();
-        auto *item = ui->tileList->takeItem(c);
-        tileList.move(c, c + 1);
-        tileIDs.move(c, c + 1);
-        ui->tileList->insertItem(c + 1, item);
-        ui->tileList->setCurrentRow(c + 1);
-    });
-
-    connect(ui->editPal, &QToolButton::clicked, [this, &tileList] {
-
-    });
-
-    connect(ui->importTiles, &QToolButton::clicked, [this, &tileList, clrTable] {
+    connect(ui->importImg, &QPushButton::clicked, [this, clrTable] {
         QList<QString> types = {
             "Gif Images (*.gif)",
             "PNG Images (*.png)",
@@ -84,7 +121,7 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColour> &pal,
             int filter = types.indexOf(filedialog.selectedNameFilter());
             QImage img;
 
-            setStatus("Importing tiles...");
+            setStatus("Importing tiles...", true);
 
             if (!filter) {
                 QGifImage gif(filedialog.selectedFiles()[0]);
@@ -116,7 +153,8 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColour> &pal,
                             }
                         }
 
-                        tileList[pos++] = tile;
+                        changedTiles[pos] = true;
+                        tiles.replace(pos++, tile);
 
                         if (pos >= 0x400) {
                             x = img.width();
@@ -142,7 +180,8 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColour> &pal,
                             }
                         }
 
-                        tileList[pos++] = tile;
+                        changedTiles[pos] = true;
+                        tiles.replace(pos++, tile);
 
                         if (pos >= 0x400) {
                             x = img.width();
@@ -153,14 +192,236 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColour> &pal,
             }
 
             for (int p = startPos; p < pos; ++p) {
-                ui->tileList->item(p)->setIcon(QPixmap::fromImage(tileList.at(p)));
+                ui->tileList->item(p)->setIcon(QPixmap::fromImage(tiles.at(p)));
             }
 
             setStatus("Finished importing tiles!");
         }
     });
+
+    for (QWidget *w : findChildren<QWidget *>()) {
+        w->installEventFilter(this);
+    }
 }
 
 TilesetEditor::~TilesetEditor() { delete ui; }
+
+bool TilesetEditor::event(QEvent *e)
+{
+    switch (e->type()) {
+        default: break;
+        case QEvent::KeyPress: keyPressEvent((QKeyEvent *)e); break;
+    }
+    return QWidget::event(e);
+}
+
+bool TilesetViewer::event(QEvent *e)
+{
+    switch (e->type()) {
+        default: break;
+
+        case QEvent::MouseButtonPress: mousePressEvent((QMouseEvent *)e); break;
+
+        case QEvent::MouseMove: mouseMoveEvent((QMouseEvent *)e); break;
+
+        case QEvent::MouseButtonRelease: mouseReleaseEvent((QMouseEvent *)e); break;
+
+        case QEvent::Paint: paintEvent((QPaintEvent *)e); break;
+
+        case QEvent::Wheel: {
+            QWheelEvent *wEvent = static_cast<QWheelEvent *>(e);
+            if (wEvent->modifiers() & Qt::ControlModifier) {
+                if (wEvent->angleDelta().y() > 0 && zoom < 20)
+                    zoom += 1;
+                else if (wEvent->angleDelta().y() < 0 && zoom > 1.5)
+                    zoom -= 1;
+
+                // round to nearest whole number
+                zoom = (int)zoom;
+                if (zoom < 1)
+                    zoom = 1;
+            }
+            else {
+                if (wEvent->angleDelta().y() > 0 && zoom < 20)
+                    zoom *= 1.1f;
+                else if (wEvent->angleDelta().y() < 0 && zoom > 0.5)
+                    zoom /= 1.1f;
+            }
+            // ui->zoomLabel->setText(QString("Zoom: %1%").arg(zoom * 100));
+            // updateView();
+            update();
+            return true;
+        }
+    }
+    return QWidget::event(e);
+}
+
+void TilesetViewer::mousePressEvent(QMouseEvent *event)
+{
+    float w = this->width(), h = this->height();
+    float originX = w / 2, originY = h / 2;
+    originX -= offset.x;
+    originY -= offset.y;
+    originX -= (4 * 16);
+    originY -= (4 * 16);
+
+    float chunkPosX = event->pos().x() - originX;
+    float chunkPosY = event->pos().y() - originY;
+
+    chunkPosX *= (1.0f / zoom);
+    chunkPosY *= (1.0f / zoom);
+
+    printLog(QString("pos(%1, %2), origin(%3, %4), mousePos(%5, %6)")
+                 .arg(chunkPosX)
+                 .arg(chunkPosY)
+                 .arg(originX)
+                 .arg(originY)
+                 .arg(event->pos().x())
+                 .arg(event->pos().y()));
+
+    if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
+        mouseDownL = true;
+    if ((event->button() & Qt::MiddleButton) == Qt::MiddleButton)
+        mouseDownM = true;
+    if ((event->button() & Qt::RightButton) == Qt::RightButton)
+        mouseDownR = true;
+
+    reference = event->pos();
+
+    if (mouseDownR) {
+        selection->x = chunkPosX / 16;
+        selection->y = chunkPosY / 16;
+
+        if (selection->x >= 8 || selection->x < 0)
+            selection->x = -1;
+
+        if (selection->y >= 8 || selection->y < 0)
+            selection->y = -1;
+
+        repaint();
+    }
+
+    // if (mouseDownM)
+    //     setCursor(Qt::ClosedHandCursor);
+
+    // if (mouseDownM) {
+    // }
+
+    if (mouseDownL) {
+    }
+}
+
+void TilesetViewer::mouseMoveEvent(QMouseEvent *event)
+{
+    float w = this->width(), h = this->height();
+    float originX = w / 2, originY = h / 2;
+    originX -= offset.x;
+    originY -= offset.y;
+    originX -= (4 * 16);
+    originY -= (4 * 16);
+
+    float chunkPosX = event->pos().x() - originX;
+    float chunkPosY = event->pos().y() - originY;
+
+    chunkPosX *= (1.0f / zoom);
+    chunkPosY *= (1.0f / zoom);
+
+    if (mouseDownM) {
+        offset.x -= event->pos().x() - reference.x();
+        offset.y -= event->pos().y() - reference.y();
+        reference = event->pos();
+
+        repaint();
+    }
+
+    if (mouseDownR) {
+        selection->x = chunkPosX / 16;
+        selection->y = chunkPosY / 16;
+
+        if (selection->x >= 8 || selection->x < 0)
+            selection->x = -1;
+
+        if (selection->y >= 8 || selection->y < 0)
+            selection->y = -1;
+
+        repaint();
+    }
+
+    if (mouseDownM) {
+    }
+
+    if (mouseDownL) {
+    }
+}
+
+void TilesetViewer::mouseReleaseEvent(QMouseEvent *event)
+{
+    if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
+        mouseDownL = false;
+    if ((event->button() & Qt::MiddleButton) == Qt::MiddleButton)
+        mouseDownM = false;
+    if ((event->button() & Qt::RightButton) == Qt::RightButton)
+        mouseDownR = false;
+}
+
+void TilesetViewer::paintEvent(QPaintEvent *event)
+{
+    QLabel::paintEvent(event);
+    QPainter p(this);
+    p.scale(zoom, zoom);
+
+    float w = this->width(), h = this->height();
+    float originX = w / 2, originY = h / 2;
+    originX -= offset.x;
+    originY -= offset.y;
+    originX -= 8;
+    originY -= 8;
+
+    originX *= 1.0f / zoom;
+    originY *= 1.0f / zoom;
+
+    const QBrush brush = p.brush();
+
+    if (tSel && *tSel >= 0)
+        p.drawImage(QPointF(originX, originY), tiles.at(*tSel));
+}
+
+void TilesetEditor::keyPressEvent(QKeyEvent *event)
+{
+    bool ctrlDownL  = false;
+    bool altDownL   = false;
+    bool shiftDownL = false;
+    if (event->key() == Qt::Key_Control)
+        ctrlDownL = true;
+    if (event->key() == Qt::Key_Alt)
+        altDownL = true;
+    if (event->key() == Qt::Key_Shift)
+        shiftDownL = true;
+
+    if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
+        && event->key() == Qt::Key_C) {
+        copiedTile = selectedTile;
+        setStatus("copied tile: " + QString::number(copiedTile));
+    }
+
+    if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
+        && event->key() == Qt::Key_V) {
+        if (copiedTile < 0 || selectedTile < 0)
+            return;
+
+        uchar *pixels = tiles[selectedTile].bits();
+        uchar *src    = tiles[copiedTile].bits();
+        for (int y = 0; y < 16; ++y) {
+            for (int x = 0; x < 16; ++x) {
+                *pixels++ = *src++;
+            }
+        }
+
+        viewer->repaint();
+
+        changedTiles[selectedTile] = true;
+        ui->tileList->item(selectedTile)->setIcon(QPixmap::fromImage(tiles.at(selectedTile)));
+    }
+}
 
 #include "moc_tileseteditor.cpp"

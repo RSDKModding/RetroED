@@ -204,21 +204,21 @@ void RSDKv5::Scene::SceneLayer::scrollInfoFromIndices()
 
 void RSDKv5::Scene::SceneLayer::scrollIndicesFromInfo()
 {
-    bool hScroll = type == 0;
     lineScroll.clear();
     scrollingInfo.clear();
 
-    if (type != 0 && type != 1) {
-        // other layers dont need any scrolling
+    // other layers dont need any scrolling
+    if (type != 0 && type != 1)
         return;
-    }
     if (width == 0 || height == 0)
         return; // basically invalid layers, dont write em
 
-    if (hScroll)
+    if (type == 0) // hScroll
         lineScroll.resize(height * 0x10);
-    else
+    else // vScroll
         lineScroll.resize(width * 0x10);
+
+    for (int i = 0; i < lineScroll.count(); ++i) lineScroll[i] = 0;
 
     int scrID = 0;
     for (auto &info : scrollInfos) {
@@ -235,7 +235,7 @@ void RSDKv5::Scene::SceneLayer::scrollIndicesFromInfo()
             }
         }
 
-        scrollInfos.append(info);
+        scrollingInfo.append(scroll);
         scrID++;
     }
 }

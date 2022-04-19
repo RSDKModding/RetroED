@@ -47,7 +47,7 @@ public:
         byte type          = 1;
         byte relativeSpeed = 1 << 7;
         byte constantSpeed = 0 << 6;
-        QByteArray lineIndexes;
+        QByteArray lineScroll;
     };
 
     Background() {}

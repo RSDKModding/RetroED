@@ -1,12 +1,46 @@
-#ifndef TILESETEDITOR_HPP
-#define TILESETEDITOR_HPP
+#ifndef TILESETEDITOR_H
+#define TILESETEDITOR_H
 
-#include <QDialog>
+#include <QWidget>
 
 namespace Ui
 {
 class TilesetEditor;
 }
+
+class TilesetViewer : public QLabel
+{
+    Q_OBJECT
+public:
+    TilesetViewer(int *tSel, QList<QImage> &tiles, QWidget *parent = nullptr)
+        : QLabel(parent), tSel(tSel), tiles(tiles)
+    {
+    }
+
+    Vector2<int> offset = Vector2<int>(0, 0);
+
+protected:
+    bool event(QEvent *e) override;
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    int *tSel               = nullptr;
+    Vector2<int> *selection = nullptr;
+    int index;
+
+    float zoom = 8.0f;
+
+    QPoint reference;
+
+    bool mouseDownL = false;
+    bool mouseDownM = false;
+    bool mouseDownR = false;
+
+    QList<QImage> &tiles;
+};
 
 class TilesetEditor : public QDialog
 {
@@ -17,7 +51,21 @@ public:
                            QWidget *parent = nullptr);
     ~TilesetEditor();
 
+    int selectedTile = -1;
+    int copiedTile   = -1;
+
     QList<ushort> tileIDs;
+    QList<bool> changedTiles;
+
+    QList<PaletteColour> &palette;
+    QList<QImage> &tiles;
+
+    void setupUI();
+
+protected:
+    bool event(QEvent *e) override;
+
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     Ui::TilesetEditor *ui;
@@ -36,10 +84,9 @@ private:
         }
 
         return index;
-    };
+    }
 
-    QList<PaletteColour> &palette;
-    QList<QImage> &tiles;
+    TilesetViewer *viewer = nullptr;
 };
 
-#endif // TILESETEDITOR_HPP
+#endif // TILESETEDITOR_H

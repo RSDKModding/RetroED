@@ -49,7 +49,7 @@ public:
         byte type            = 1;
         short parallaxFactor = 1 << 8;
         byte scrollSpeed     = 0 << 6;
-        QByteArray lineIndexes;
+        QByteArray lineScroll;
     };
 
     Background() {}

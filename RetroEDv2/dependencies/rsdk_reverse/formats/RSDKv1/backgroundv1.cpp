@@ -40,8 +40,8 @@ void RSDKv1::Background::Layer::read(Reader &reader)
     relativeSpeed = reader.read<byte>();
     constantSpeed = reader.read<byte>();
 
-    lineIndexes.clear();
-    lineIndexes.reserve(height * 128);
+    lineScroll.clear();
+    lineScroll.reserve(height * 128);
 
     byte buf[3];
     while (true) {
@@ -49,7 +49,7 @@ void RSDKv1::Background::Layer::read(Reader &reader)
             buf[0] = reader.read<byte>();
             if (buf[0] == 0xFF)
                 break;
-            lineIndexes.append(buf[0]);
+            lineScroll.append(buf[0]);
         }
 
         buf[1] = reader.read<byte>();
@@ -58,7 +58,7 @@ void RSDKv1::Background::Layer::read(Reader &reader)
 
         buf[2] = (byte)(reader.read<byte>() - 1);
 
-        for (int l = 0; l < buf[2]; ++l) lineIndexes.append(buf[1]);
+        for (int l = 0; l < buf[2]; ++l) lineScroll.append(buf[1]);
     }
 
     layout.reserve(height);
@@ -102,12 +102,12 @@ void RSDKv1::Background::Layer::write(Writer &writer)
     int l   = 0;
     int cnt = 0;
 
-    for (int x = 0; x < lineIndexes.count(); ++x) {
-        if ((byte)lineIndexes[x] != l && x > 0) {
+    for (int x = 0; x < lineScroll.count(); ++x) {
+        if ((byte)lineScroll[x] != l && x > 0) {
             rle_writev1(writer, l, cnt);
             cnt = 0;
         }
-        l = lineIndexes[x];
+        l = lineScroll[x];
         cnt++;
     }
 

@@ -244,8 +244,6 @@ public:
     QOpenGLFramebufferObject *outFB = nullptr, *tFB = nullptr, *t2FB = nullptr;
     QOpenGLTexture *outFBT = nullptr, *tFBT = nullptr, *t2FBT = nullptr;
 
-    QOpenGLTexture *tilesetTexture = nullptr;
-
     QOpenGLFunctions *glFuncs = nullptr;
 
     QTimer *updateTimer = nullptr;
