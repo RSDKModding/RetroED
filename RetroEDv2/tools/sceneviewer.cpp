@@ -995,7 +995,8 @@ void SceneViewer::drawScene()
     }
 
     // ENT PREVIEW
-    if (selectedObject >= 0 && isSelecting && curTool == TOOL_ENTITY) {
+    if (selectedObject >= 0 && selectedObject < objects.count() && isSelecting
+        && curTool == TOOL_ENTITY) {
         float ex = tilePos.x;
         float ey = tilePos.y;
 
@@ -1065,7 +1066,7 @@ void SceneViewer::drawScene()
         }
     }
 
-    if (selectedEntity >= 0) {
+    if (selectedEntity >= 0 && selectedEntity < entities.count()) {
         SceneEntity &entity = entities[selectedEntity];
 
         float left   = entity.pos.x + entity.box.x;
@@ -1082,7 +1083,7 @@ void SceneViewer::drawScene()
     }
 
     // Selected Stamp Box
-    if (selectedStamp >= 0) {
+    if (selectedStamp >= 0 && selectedStamp < stamps.stampList.count()) {
         RSDKv5::Stamps::StampEntry &stamp = stamps.stampList[selectedStamp];
 
         float left   = stamp.pos.x - (stamp.size.x / 2.0f);

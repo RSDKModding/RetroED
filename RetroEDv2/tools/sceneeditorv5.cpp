@@ -221,13 +221,13 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     });
 
     connect(ui->stampList, &QListWidget::currentRowChanged, [this](int c) {
-        ui->rmStp->setDisabled(c == -1 || c >= stamps.stampList.count());
+        ui->rmStp->setDisabled(c == -1 || c >= viewer->stamps.stampList.count());
 
-        if (c == -1 || c >= stamps.stampList.count())
+        if (c == -1 || c >= viewer->stamps.stampList.count())
             return;
 
         viewer->selectedStamp = c;
-        stampProp->setupUI(&stamps, c);
+        stampProp->setupUI(&viewer->stamps, c);
         ui->propertiesBox->setCurrentWidget(ui->stampPropPage);
     });
 
@@ -235,27 +235,28 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         uint c = ui->stampList->currentRow() + 1;
         RSDKv5::Stamps::StampEntry stamp;
         stamp.name = "New Stamp";
-        stamps.stampList.insert(c, stamp);
+        viewer->stamps.stampList.insert(c, stamp);
+
+        ui->stampList->blockSignals(true);
 
         auto *item = new QListWidgetItem();
         item->setText("New Stamp");
         ui->stampList->addItem(item);
-
         item->setFlags(item->flags());
+
+        ui->stampList->blockSignals(false);
         ui->stampList->setCurrentItem(item);
         doAction("Add Stamp: " + stamp.name);
     });
 
     connect(ui->rmStp, &QToolButton::clicked, [this] {
-        int c        = ui->objectList->currentRow();
-        int n        = ui->objectList->currentRow() == ui->objectList->count() - 1 ? c - 1 : c;
-        QString name = stamps.stampList.at(c).name;
+        int c        = ui->stampList->currentRow();
+        int n        = ui->stampList->currentRow() == ui->objectList->count() - 1 ? c - 1 : c;
+        QString name = viewer->stamps.stampList.at(c).name;
         delete ui->stampList->item(c);
-        stamps.stampList.removeAt(c);
+        viewer->stamps.stampList.removeAt(c);
 
-        ui->stampList->blockSignals(true);
         ui->stampList->setCurrentRow(n);
-        ui->stampList->blockSignals(false);
 
         doAction("Remove Stamp: " + name);
     });
@@ -877,14 +878,14 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         if (QFile::exists(viewer->metadata.stampName)) {
             setStatus("Loading stamps...");
 
-            stamps = RSDKv5::Stamps(viewer->metadata.stampName);
+            viewer->stamps = RSDKv5::Stamps(viewer->metadata.stampName);
 
             ui->stampList->blockSignals(true);
-            for (auto &stamp : stamps.stampList) ui->stampList->addItem(stamp.name);
+            for (auto &stamp : viewer->stamps.stampList) ui->stampList->addItem(stamp.name);
             ui->stampList->blockSignals(false);
             ui->stampList->setCurrentRow(-1);
 
-            setStatus("Loaded stamps from " + QFile(stamps.filePath).fileName());
+            setStatus("Loaded stamps from " + QFile(viewer->stamps.filePath).fileName());
         }
         else {
             setStatus("Unable to load stamps! file does not exist...");
@@ -892,14 +893,14 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     });
 
     connect(scnProp->saveStamps, &QPushButton::clicked, [this] {
-        QString path = stamps.filePath;
+        QString path = viewer->stamps.filePath;
 
         if (QFile::exists(path)) {
             setStatus("Saving stamps...");
 
-            stamps.write(path);
+            viewer->stamps.write(path);
 
-            setStatus("Saved stamps to " + QFile(stamps.filePath).fileName());
+            setStatus("Saved stamps to " + QFile(viewer->stamps.filePath).fileName());
         }
         else {
             QFileDialog filedialog(this, tr("Save Stamps"), "", tr("RSDKv5 Stamps (*.bin)"));
@@ -908,8 +909,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 setStatus("Saving stamps...");
                 QString path = filedialog.selectedFiles()[0];
 
-                stamps.write(path);
-                setStatus("Saved stamps to " + QFile(stamps.filePath).fileName());
+                viewer->stamps.write(path);
+                setStatus("Saved stamps to " + QFile(viewer->stamps.filePath).fileName());
             }
         }
     });
@@ -2341,9 +2342,9 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
                                    basePath + viewer->metadata.stampName);
 
     if (QFile::exists(pathSTP))
-        stamps.read(pathSTP);
+        viewer->stamps.read(pathSTP);
     else
-        stamps = RSDKv5::Stamps();
+        viewer->stamps = RSDKv5::Stamps();
 
     addStatusProgress(1. / 6); // finish scene loading
 
@@ -2609,7 +2610,7 @@ void SceneEditorv5::saveScene(QString path)
     scene.write(path);
     tileconfig.write(basePath + "TileConfig.bin");
     stageConfig.write(basePath + "StageConfig.bin");
-    stamps.write(basePath + viewer->metadata.stampName);
+    viewer->stamps.write(basePath + viewer->metadata.stampName);
     tileset.write(basePath + "16x16Tiles.gif");
 
     tabTitle = Utils::getFilenameAndFolder(path);

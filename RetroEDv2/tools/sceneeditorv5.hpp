@@ -76,7 +76,6 @@ public:
     RSDKv5::GameConfig gameConfig;
     RSDKv5::Scene scene;
     RSDKv5::StageConfig stageConfig;
-    RSDKv5::Stamps stamps;
 
     RSDKv5::TileConfig tileconfig;
 
