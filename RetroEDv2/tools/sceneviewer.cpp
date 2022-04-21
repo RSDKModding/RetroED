@@ -326,6 +326,15 @@ void SceneViewer::drawScene()
     // Constant stuff
     float iZoom = invZoom();
 
+    int layerSizeX = 0;
+    int layerSizeY = 0;
+    for (int i = 0; i < layers.count(); ++i) {
+        if ((layers[i].width * tileSize) > layerSizeX)
+            layerSizeX = layers[i].width * tileSize;
+        if ((layers[i].height * tileSize) > layerSizeY)
+            layerSizeY = layers[i].height * tileSize;
+    }
+
     Vector4<float> c = { metadata.backgroundColor2.red() / 255.f,
                          metadata.backgroundColor2.green() / 255.f,
                          metadata.backgroundColor2.blue() / 255.f, 1.f };
@@ -334,8 +343,8 @@ void SceneViewer::drawScene()
     float bgSquareSize = 0x100 * iZoom;
     float bgScreenW    = storedW * invZoom();
     float bgScreenH    = storedH * invZoom();
-    for (float y = 0; y < (sceneHeight * tileSize + 0x80); y += bgSquareSize) {
-        for (float x = 0; x < (sceneWidth * tileSize + 0x80); x += bgSquareSize * 2) {
+    for (float y = 0; y < layerSizeY; y += bgSquareSize) {
+        for (float x = 0; x < layerSizeX; x += bgSquareSize * 2) {
             float rx = x + bgXOffset;
 
             // c[xy] is the center pos
@@ -1169,10 +1178,12 @@ void SceneViewer::unloadScene()
 
     memset(gameEntityList, 0, sizeof(gameEntityList));
 
-    sceneWidth  = 0;
-    sceneHeight = 0;
-    prevStoredW = -1;
-    prevStoredH = -1;
+    sceneBoundsL = 0;
+    sceneBoundsT = 0;
+    sceneBoundsR = 0;
+    sceneBoundsB = 0;
+    prevStoredW  = -1;
+    prevStoredH  = -1;
 }
 
 void SceneViewer::processObjects()
@@ -1598,43 +1609,80 @@ void SceneViewer::paintGL()
 {
     glFuncs = context()->functions();
 
-    int sceneW = 0;
-    int sceneH = 0;
-
+    int boundsL = 0;
+    int boundsT = 0;
+    int boundsR = 0;
+    int boundsB = 0;
     for (int i = 0; i < layers.count(); ++i) {
-        if (layers[i].width > sceneW)
-            sceneW = layers[i].width;
-        if (layers[i].height > sceneH)
-            sceneH = layers[i].height;
+        if ((layers[i].width * tileSize) > boundsR)
+            boundsR = layers[i].width * tileSize;
+        if ((layers[i].height * tileSize) > boundsB)
+            boundsB = layers[i].height * tileSize;
     }
 
-    if (sceneW != sceneWidth || sceneH != sceneHeight) {
-        sceneWidth  = sceneW;
-        sceneHeight = sceneH;
+    for (int e = 0; e < entities.count(); ++e) {
+        auto &entity = entities[e];
+
+        int left   = entity.pos.x + entity.box.x;
+        int top    = entity.pos.y + entity.box.y;
+        int right  = entity.pos.x + entity.box.w;
+        int bottom = entity.pos.y + entity.box.h;
+
+        // LEFT BOUNDS
+        if (left < boundsL)
+            boundsL = left;
+
+        if (right < boundsL)
+            boundsL = right;
+
+        // TOP BOUNDS
+        if (top < boundsT)
+            boundsT = top;
+
+        if (bottom < boundsT)
+            boundsT = bottom;
+
+        // RIGHT BOUNDS
+        if (left > boundsR)
+            boundsR = left;
+
+        if (right > boundsR)
+            boundsR = right;
+
+        // BOTTOM BOUNDS
+        if (top > boundsB)
+            boundsB = top;
+
+        if (bottom > boundsB)
+            boundsB = bottom;
     }
+
+    if (boundsL != sceneBoundsL)
+        sceneBoundsL = boundsL;
+
+    if (boundsT != sceneBoundsT)
+        sceneBoundsT = boundsT;
+
+    if (boundsR != sceneBoundsR)
+        sceneBoundsR = boundsR;
+
+    if (boundsB != sceneBoundsB)
+        sceneBoundsB = boundsB;
 
     if (fileRender == 0) {
         // pre-render
 
-        // this *works* but its terrible
-        if ((cameraPos.x * zoom) + storedW > (sceneWidth * tileSize) * zoom)
-            cameraPos.x = ((sceneWidth * tileSize) - (storedW * invZoom()));
+        if ((cameraPos.x * zoom) + storedW > sceneBoundsR * zoom)
+            cameraPos.x = (sceneBoundsR - (storedW * invZoom()));
 
-        if ((cameraPos.y * zoom) + storedH > (sceneHeight * tileSize) * zoom)
-            cameraPos.y = ((sceneHeight * tileSize) - (storedH * invZoom()));
+        if ((cameraPos.y * zoom) + storedH > sceneBoundsB * zoom)
+            cameraPos.y = (sceneBoundsB - (storedH * invZoom()));
 
-        // this does not work, but its good
-        // if (cameraPos.x + storedW > (sceneWidth * tileSize))
-        //     cameraPos.x = ((sceneWidth * tileSize) - storedW);
-        //
-        // if (cameraPos.y + storedH > (sceneHeight * tileSize))
-        //     cameraPos.y = ((sceneHeight * tileSize) - storedH);
+        if (cameraPos.x < sceneBoundsL)
+            cameraPos.x = sceneBoundsL;
 
-        if (cameraPos.x < -64)
-            cameraPos.x = -64;
-
-        if (cameraPos.y < -64)
-            cameraPos.y = -64;
+        if (cameraPos.y < sceneBoundsT)
+            cameraPos.y = sceneBoundsT;
 
         screens[0].position.x = cameraPos.x;
         screens[0].position.y = cameraPos.y;
@@ -1649,7 +1697,7 @@ void SceneViewer::paintGL()
         outFB = nullptr;
         tFB   = nullptr;
         t2FB  = nullptr;
-        resizeGL(sceneW * tileSize, sceneH * tileSize);
+        resizeGL(boundsR * tileSize, boundsB * tileSize);
 
         cameraPos = { 0, 0 };
         zoom      = 1;

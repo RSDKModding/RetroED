@@ -1906,12 +1906,12 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                 status = true;
 
                 ui->horizontalScrollBar->blockSignals(true);
-                ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x10) - viewer->storedW);
+                ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR - viewer->storedW);
                 ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
                 ui->horizontalScrollBar->blockSignals(false);
 
                 ui->verticalScrollBar->blockSignals(true);
-                ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x10) - viewer->storedH);
+                ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB - viewer->storedH);
                 ui->verticalScrollBar->setValue(viewer->cameraPos.y);
                 ui->verticalScrollBar->blockSignals(false);
 
@@ -2097,9 +2097,9 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                 else if (wEvent->angleDelta().y() < 0 && viewer->zoom > 0.5)
                     viewer->zoom /= 2;
 
-                ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x10)
+                ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR
                                                     - viewer->storedW / viewer->zoom);
-                ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x10)
+                ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB
                                                   - viewer->storedH / viewer->zoom);
                 return true;
             }
@@ -2114,13 +2114,13 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
             }
 
             ui->horizontalScrollBar->blockSignals(true);
-            ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x10)
+            ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR
                                                 - (viewer->storedW * viewer->invZoom()));
             ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
             ui->horizontalScrollBar->blockSignals(false);
 
             ui->verticalScrollBar->blockSignals(true);
-            ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x10)
+            ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB
                                               - (viewer->storedH * viewer->invZoom()));
             ui->verticalScrollBar->setValue(viewer->cameraPos.y);
             ui->verticalScrollBar->blockSignals(false);
@@ -2383,24 +2383,26 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
 
     createEntityList();
 
-    viewer->sceneWidth  = 0;
-    viewer->sceneHeight = 0;
+    viewer->sceneBoundsL = 0;
+    viewer->sceneBoundsT = 0;
+    viewer->sceneBoundsR = 0;
+    viewer->sceneBoundsB = 0;
     for (int l = 0; l < viewer->layers.count(); ++l) {
-        if (viewer->sceneWidth < viewer->layers[l].width)
-            viewer->sceneWidth = viewer->layers[l].width;
-        if (viewer->sceneHeight < viewer->layers[l].height)
-            viewer->sceneHeight = viewer->layers[l].height;
+        if (viewer->sceneBoundsR < viewer->layers[l].width)
+            viewer->sceneBoundsR = viewer->layers[l].width;
+        if (viewer->sceneBoundsB < viewer->layers[l].height)
+            viewer->sceneBoundsB = viewer->layers[l].height;
     }
 
     viewer->refreshResize();
 
-    viewer->colTex =
-        new QImage(viewer->sceneWidth * 0x10, viewer->sceneHeight * 0x10, QImage::Format_Indexed8);
+    viewer->colTex = new QImage(viewer->sceneBoundsR * viewer->tileSize,
+                                viewer->sceneBoundsB * viewer->tileSize, QImage::Format_Indexed8);
     viewer->colTex->setColorTable(
         { qRgb(0, 0, 0), qRgb(255, 255, 0), qRgb(255, 0, 0), qRgb(255, 255, 255) });
 
-    ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x10) - viewer->storedW);
-    ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x10) - viewer->storedH);
+    ui->horizontalScrollBar->setMaximum((viewer->sceneBoundsR * viewer->tileSize) - viewer->storedW);
+    ui->verticalScrollBar->setMaximum((viewer->sceneBoundsB * viewer->tileSize) - viewer->storedH);
     ui->horizontalScrollBar->setPageStep(0x10);
     ui->verticalScrollBar->setPageStep(0x10);
 

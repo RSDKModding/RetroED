@@ -178,7 +178,7 @@ public:
 
     int prevStoredW = -1, prevStoredH = -1;
     int storedW, storedH;
-    int sceneWidth, sceneHeight;
+    int sceneBoundsL, sceneBoundsT, sceneBoundsR, sceneBoundsB;
 
     QImage *colTex = nullptr;
 

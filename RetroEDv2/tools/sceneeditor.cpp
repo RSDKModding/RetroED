@@ -1273,8 +1273,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         if (viewer->selectedLayer >= 0) {
                             Rect<float> box, box2;
 
-                            for (int y = 0; y < viewer->sceneHeight; ++y) {
-                                for (int x = 0; x < viewer->sceneWidth; ++x) {
+                            for (int y = 0; y < viewer->sceneBoundsB; ++y) {
+                                for (int x = 0; x < viewer->sceneBoundsR; ++x) {
                                     box = Rect<float>(x * 0x80, y * 0x80, 0x80, 0x80);
 
                                     Vector2<float> pos = Vector2<float>(
@@ -1458,12 +1458,12 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 status = true;
 
                 ui->horizontalScrollBar->blockSignals(true);
-                ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x80) - viewer->storedW);
+                ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR - viewer->storedW);
                 ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
                 ui->horizontalScrollBar->blockSignals(false);
 
                 ui->verticalScrollBar->blockSignals(true);
-                ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x80) - viewer->storedH);
+                ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB - viewer->storedH);
                 ui->verticalScrollBar->setValue(viewer->cameraPos.y);
                 ui->verticalScrollBar->blockSignals(false);
 
@@ -1664,9 +1664,9 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 else if (wEvent->angleDelta().y() < 0 && viewer->zoom > 0.5)
                     viewer->zoom /= 1.5;
 
-                ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x10)
+                ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR
                                                     - viewer->storedW / viewer->zoom);
-                ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x10)
+                ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB
                                                   - viewer->storedH / viewer->zoom);
                 return true;
             }
@@ -1681,13 +1681,13 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             }
 
             ui->horizontalScrollBar->blockSignals(true);
-            ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x10)
+            ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR
                                                 - (viewer->storedW * viewer->invZoom()));
             ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
             ui->horizontalScrollBar->blockSignals(false);
 
             ui->verticalScrollBar->blockSignals(true);
-            ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x10)
+            ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB
                                               - (viewer->storedH * viewer->invZoom()));
             ui->verticalScrollBar->setValue(viewer->cameraPos.y);
             ui->verticalScrollBar->blockSignals(false);
@@ -2060,8 +2060,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
     createEntityList();
 
-    ui->horizontalScrollBar->setMaximum((viewer->sceneWidth * 0x80) - viewer->storedW);
-    ui->verticalScrollBar->setMaximum((viewer->sceneHeight * 0x80) - viewer->storedH);
+    ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR - viewer->storedW);
+    ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB - viewer->storedH);
     ui->horizontalScrollBar->setPageStep(0x80);
     ui->verticalScrollBar->setPageStep(0x80);
 
@@ -2940,8 +2940,8 @@ bool SceneEditor::handleKeyPress(QKeyEvent *event)
                 if (viewer->selectedLayer >= 0) {
                     Rect<float> box;
 
-                    for (int y = 0; y < viewer->sceneHeight; ++y) {
-                        for (int x = 0; x < viewer->sceneWidth; ++x) {
+                    for (int y = 0; y < viewer->sceneBoundsB; ++y) {
+                        for (int x = 0; x < viewer->sceneBoundsR; ++x) {
                             box = Rect<float>(x * 0x80, y * 0x80, 0x80, 0x80);
 
                             Vector2<float> pos = Vector2<float>(
