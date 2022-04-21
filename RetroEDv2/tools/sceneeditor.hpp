@@ -158,6 +158,9 @@ private:
     int addEntity(int type, float x, float y);
     void deleteEntity(int slot, bool updateUI = false);
 
+    void filterObjectList(QString filter);
+    void filterEntityList(QString filter);
+
     void createEntityList(int startSlot = -1);
     void createScrollList();
 

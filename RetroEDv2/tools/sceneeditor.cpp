@@ -176,6 +176,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             viewer->layers[c].visible = item->checkState() == Qt::Checked;
     });
 
+    connect(ui->objectFilter, &QLineEdit::textChanged, [this](QString s) { filterObjectList(s); });
+
     connect(ui->objectList, &QListWidget::currentRowChanged, [this](int c) {
         // m_uo->setDisabled(c == -1);
         // m_do->setDisabled(c == -1);
@@ -199,6 +201,12 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         viewer->selectedObject = c;
         ui->rmObj->setDisabled(c == -1 || global);
+    });
+
+    connect(ui->objectList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
+        int c = ui->objectList->row(item);
+        if ((uint)c < (uint)viewer->objects.count())
+            viewer->objects[c].visible = item->checkState() == Qt::Checked;
     });
 
     connect(ui->addObj, &QToolButton::clicked, [this] {
@@ -246,11 +254,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         doAction();
     });
 
-    connect(ui->objectList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        int c = ui->objectList->row(item);
-        if ((uint)c < (uint)viewer->objects.count())
-            viewer->objects[c].visible = item->checkState() == Qt::Checked;
-    });
+    connect(ui->entityFilter, &QLineEdit::textChanged, [this](QString s) { filterEntityList(s); });
 
     connect(ui->entityList, &QListWidget::currentRowChanged, [this](int c) {
         // m_uo->setDisabled(c == -1);
@@ -3075,6 +3079,26 @@ void SceneEditor::deleteEntity(int slot, bool updateUI)
         ui->entityList->blockSignals(true);
         ui->entityList->setCurrentRow(viewer->selectedEntity);
         ui->entityList->blockSignals(false);
+    }
+}
+
+void SceneEditor::filterObjectList(QString filter)
+{
+    bool showAll = filter.length() == 0;
+
+    for (int row = 0; row < ui->objectList->count(); ++row) {
+        auto *item = ui->objectList->item(row);
+        item->setHidden(!showAll && !item->text().contains(filter));
+    }
+}
+
+void SceneEditor::filterEntityList(QString filter)
+{
+    bool showAll = filter.length() == 0;
+
+    for (int row = 0; row < ui->entityList->count(); ++row) {
+        auto *item = ui->entityList->item(row);
+        item->setHidden(!showAll && !item->text().contains(filter));
     }
 }
 

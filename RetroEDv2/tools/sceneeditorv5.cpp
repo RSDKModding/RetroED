@@ -261,43 +261,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         doAction("Remove Stamp: " + name);
     });
 
-    connect(ui->objectList, &QListWidget::currentRowChanged, [this](int c) {
-        ui->rmObj->setDisabled(c == -1 || c >= viewer->objects.count());
-
-        if (c == -1 || c >= viewer->objects.count())
-            return;
-
-        bool global = c == 0;
-        if (stageConfig.loadGlobalObjects) {
-            for (auto &obj : gameConfig.objects) {
-                if (viewer->objects[c].name == obj) {
-                    global = true;
-                    break;
-                }
-            }
-        }
-
-        viewer->selectedObject = c;
-
-        memset(&createGameEntity, 0, sizeof(GameEntityBase));
-        createGameEntity.position.x = 0;
-        createGameEntity.position.y = 0;
-        createGameEntity.objectID   = viewer->selectedObject;
-
-        createTempEntity.type       = viewer->selectedObject;
-        createTempEntity.pos.x      = 0;
-        createTempEntity.pos.y      = 0;
-        createTempEntity.slotID     = 0xFFFF;
-        createTempEntity.gameEntity = &createGameEntity;
-        createTempEntity.box        = Rect<int>(0, 0, 0, 0);
-
-        viewer->activeDrawEntity = &createTempEntity;
-        callGameEvent(viewer->objects[viewer->selectedObject].name, SceneViewer::EVENT_CREATE,
-                      &createTempEntity);
-
-        ui->rmObj->setDisabled(c == -1 || global);
-    });
-
     // MAKE SURE YOU ADD YOUR OBJECT TO THE VIEWER'S LIST BEFORE CALLING THIS
     auto linkGameObject = [this](int objectID, GameObjectInfo *info, bool useLoadEvent = true,
                                  bool updateTypes = true) {
@@ -378,6 +341,51 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         viewer->objects.removeAt(objectID);
     };
 
+    connect(ui->objectFilter, &QLineEdit::textChanged, [this](QString s) { filterObjectList(s); });
+
+    connect(ui->objectList, &QListWidget::currentRowChanged, [this](int c) {
+        ui->rmObj->setDisabled(c == -1 || c >= viewer->objects.count());
+
+        if (c == -1 || c >= viewer->objects.count())
+            return;
+
+        bool global = c == 0;
+        if (stageConfig.loadGlobalObjects) {
+            for (auto &obj : gameConfig.objects) {
+                if (viewer->objects[c].name == obj) {
+                    global = true;
+                    break;
+                }
+            }
+        }
+
+        viewer->selectedObject = c;
+
+        memset(&createGameEntity, 0, sizeof(GameEntityBase));
+        createGameEntity.position.x = 0;
+        createGameEntity.position.y = 0;
+        createGameEntity.objectID   = viewer->selectedObject;
+
+        createTempEntity.type       = viewer->selectedObject;
+        createTempEntity.pos.x      = 0;
+        createTempEntity.pos.y      = 0;
+        createTempEntity.slotID     = 0xFFFF;
+        createTempEntity.gameEntity = &createGameEntity;
+        createTempEntity.box        = Rect<int>(0, 0, 0, 0);
+
+        viewer->activeDrawEntity = &createTempEntity;
+        callGameEvent(viewer->objects[viewer->selectedObject].name, SceneViewer::EVENT_CREATE,
+                      &createTempEntity);
+
+        ui->rmObj->setDisabled(c == -1 || global);
+    });
+
+    connect(ui->objectList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
+        int c = ui->objectList->row(item);
+        if ((uint)c < (uint)viewer->objects.count())
+            viewer->objects[c].visible = item->checkState() == Qt::Checked;
+    });
+
     connect(ui->addObj, &QToolButton::clicked, [this, linkGameObject] {
         QList<QString> list;
         for (int o = 0; o < viewer->objects.count(); ++o) {
@@ -445,11 +453,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         doAction("Remove Object: " + QString::number(c));
     });
 
-    connect(ui->objectList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
-        int c = ui->objectList->row(item);
-        if ((uint)c < (uint)viewer->objects.count())
-            viewer->objects[c].visible = item->checkState() == Qt::Checked;
-    });
+    connect(ui->entityFilter, &QLineEdit::textChanged, [this](QString s) { filterEntityList(s); });
 
     connect(ui->entityList, &QListWidget::currentRowChanged, [this](int c) {
         ui->upEnt->setDisabled(c == -1);
@@ -2621,6 +2625,26 @@ void SceneEditorv5::saveScene(QString path)
     appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, path, QList<QString>{ gameConfig.filePath });
     setStatus("Saved scene to " + Utils::getFilenameAndFolder(scene.filepath)); // written scene
     viewer->disableDrawScene = false;
+}
+
+void SceneEditorv5::filterObjectList(QString filter)
+{
+    bool showAll = filter.length() == 0;
+
+    for (int row = 0; row < ui->objectList->count(); ++row) {
+        auto *item = ui->objectList->item(row);
+        item->setHidden(!showAll && !item->text().contains(filter));
+    }
+}
+
+void SceneEditorv5::filterEntityList(QString filter)
+{
+    bool showAll = filter.length() == 0;
+
+    for (int row = 0; row < ui->entityList->count(); ++row) {
+        auto *item = ui->entityList->item(row);
+        item->setHidden(!showAll && !item->text().contains(filter));
+    }
 }
 
 void SceneEditorv5::createEntityList(int startSlot)
