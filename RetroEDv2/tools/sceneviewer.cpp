@@ -838,11 +838,6 @@ void SceneViewer::drawScene()
             if (drawLayers[p].entries[o] == selectedEntity)
                 continue;
 
-            if (entity->gameEntity) {
-                entity->gameEntity->position.x = Utils::floatToFixed(entity->pos.x);
-                entity->gameEntity->position.y = Utils::floatToFixed(entity->pos.y);
-            }
-
             if (entity->type != 0) {
                 if (gameType == ENGINE_v5)
                     emit callGameEventv5(objects[entity->type].name, EVENT_DRAW, entity);
@@ -864,17 +859,12 @@ void SceneViewer::drawScene()
         }
 
         // Draw Selected Entity above the rest
-        if (selectedEntity >= 0) {
+        if (selectedEntity >= 0 && selectedEntity < entities.count()) {
             SceneEntity *entity = &entities[selectedEntity];
             activeDrawEntity    = entity;
             entity->box         = Rect<int>(0, 0, 0, 0);
 
             validDraw = false;
-
-            if (entity->gameEntity) {
-                entity->gameEntity->position.x = Utils::floatToFixed(entity->pos.x);
-                entity->gameEntity->position.y = Utils::floatToFixed(entity->pos.y);
-            }
 
             if (entity->type != 0) {
                 if (gameType == ENGINE_v5)

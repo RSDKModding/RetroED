@@ -2374,8 +2374,8 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                 Entity *entityPtr = &objectEntityList[arrayVal];
                 if (editor) {
                     for (int e = 0; e < editor->viewer->entities.count(); ++e) {
-                        if (arrayVal == editor->viewer->entities[e].gameEntitySlot) {
-                            entityPtr = &objectEntityList[e];
+                        if (arrayVal == editor->viewer->entities[e].slotID) {
+                            entityPtr = &objectEntityList[editor->viewer->entities[e].gameEntitySlot];
                         }
                     }
                 }
@@ -3724,8 +3724,8 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                 Entity *entityPtr = &objectEntityList[arrayVal];
                 if (editor) {
                     for (int e = 0; e < editor->viewer->entities.count(); ++e) {
-                        if (arrayVal == editor->viewer->entities[e].gameEntitySlot) {
-                            entityPtr = &objectEntityList[e];
+                        if (arrayVal == editor->viewer->entities[e].slotID) {
+                            entityPtr = &objectEntityList[editor->viewer->entities[e].gameEntitySlot];
                         }
                     }
                 }

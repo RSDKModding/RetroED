@@ -3052,7 +3052,11 @@ int SceneEditor::addEntity(int type, float x, float y)
     ui->entityList->setCurrentRow(viewer->selectedEntity);
     ui->entityList->blockSignals(false);
 
-    createEntityList(entity.slotID);
+    QString name = "Unknown Object " + QString::number(entity.type);
+    if (entity.type < viewer->objects.count())
+        name = viewer->objects[entity.type].name;
+
+    ui->entityList->addItem(QString::number(entity.slotID) + ": " + name);
 
     auto *entityPtr = &viewer->entities[viewer->selectedEntity];
     objProp->setupUI(entityPtr, viewer->selectedEntity,
@@ -3071,15 +3075,22 @@ void SceneEditor::deleteEntity(int slot, bool updateUI)
     compilerv3->objectEntityList[entity.gameEntitySlot].type = 0;
     compilerv2->objectEntityList[entity.gameEntitySlot].type = 0;
 
-    if (viewer->entities.count() <= 0)
-        viewer->selectedEntity = -1;
+    if (viewer->entities.count() <= 0) {
+        viewer->selectedEntity    = -1;
+        viewer->sceneInfo.listPos = -1;
+    }
 
-    if (viewer->selectedEntity == slot)
-        viewer->selectedEntity = -1;
+    if (viewer->selectedEntity == slot) {
+        viewer->selectedEntity    = -1;
+        viewer->sceneInfo.listPos = -1;
+    }
+
+    ui->entityList->blockSignals(true);
+    delete ui->entityList->item(slot);
+    ui->entityList->blockSignals(false);
 
     if (updateUI) {
         objProp->unsetUI();
-        createEntityList(slot);
 
         ui->entityList->blockSignals(true);
         ui->entityList->setCurrentRow(viewer->selectedEntity);
@@ -3265,16 +3276,23 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
                             compilerv3->objectLoop = ENTITY_COUNT - 1;
                             id                     = ENTITY_COUNT - 1;
 
-                            createTempEntity.type   = viewer->selectedObject;
-                            createTempEntity.pos.x  = (ex + viewer->cameraPos.x) * 65536.0f;
-                            createTempEntity.pos.y  = (ey + viewer->cameraPos.y) * 65536.0f;
-                            createTempEntity.slotID = 0xFFFF;
-                            createTempEntity.box    = Rect<int>(0, 0, 0, 0);
+                            createTempEntity.type           = viewer->selectedObject;
+                            createTempEntity.pos.x          = (ex + viewer->cameraPos.x) * 65536.0f;
+                            createTempEntity.pos.y          = (ey + viewer->cameraPos.y) * 65536.0f;
+                            createTempEntity.slotID         = 0xFFFF;
+                            createTempEntity.box            = Rect<int>(0, 0, 0, 0);
+                            createTempEntity.gameEntitySlot = id;
                             entity = viewer->activeDrawEntity = &createTempEntity;
                         }
                     }
                     else {
                         entity = &viewer->entities[id];
+
+                        compilerv3->objectEntityList[entity->gameEntitySlot].type = entity->type;
+                        compilerv3->objectEntityList[entity->gameEntitySlot].XPos =
+                            entity->pos.x * 65536.0f;
+                        compilerv3->objectEntityList[entity->gameEntitySlot].YPos =
+                            entity->pos.y * 65536.0f;
                     }
 
                     if (id == -1)
@@ -3284,7 +3302,7 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
 
                     if (curObj.subRSDKDraw.scriptCodePtr != SCRIPTDATA_COUNT - 1 && entity->type != 0) {
                         viewer->sceneInfo.debugMode = false; // always start with overlay mode off
-                        compilerv3->objectLoop      = id;
+                        compilerv3->objectLoop      = entity->gameEntitySlot;
                         compilerv3->processScript(curObj.subRSDKDraw.scriptCodePtr,
                                                   curObj.subRSDKDraw.jumpTablePtr,
                                                   Compilerv3::SUB_RSDKDRAW);
@@ -3297,7 +3315,7 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
 
                     if (curObj.subRSDKEdit.scriptCodePtr != SCRIPTDATA_COUNT - 1
                         && viewer->entities[id].type != 0) {
-                        compilerv3->objectLoop = id;
+                        compilerv3->objectLoop = viewer->entities[id].gameEntitySlot;
                         viewer->activeVarObj   = viewer->entities[id].type;
 
                         compilerv3->processScript(curObj.subRSDKEdit.scriptCodePtr,
@@ -3349,16 +3367,23 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
                             compilerv4->objectEntityPos = ENTITY_COUNT - 1;
                             id                          = ENTITY_COUNT - 1;
 
-                            createTempEntity.type   = viewer->selectedObject;
-                            createTempEntity.pos.x  = (ex + viewer->cameraPos.x) * 65536.0f;
-                            createTempEntity.pos.y  = (ey + viewer->cameraPos.y) * 65536.0f;
-                            createTempEntity.slotID = 0xFFFF;
-                            createTempEntity.box    = Rect<int>(0, 0, 0, 0);
+                            createTempEntity.type           = viewer->selectedObject;
+                            createTempEntity.pos.x          = (ex + viewer->cameraPos.x) * 65536.0f;
+                            createTempEntity.pos.y          = (ey + viewer->cameraPos.y) * 65536.0f;
+                            createTempEntity.slotID         = 0xFFFF;
+                            createTempEntity.box            = Rect<int>(0, 0, 0, 0);
+                            createTempEntity.gameEntitySlot = id;
                             entity = viewer->activeDrawEntity = &createTempEntity;
                         }
                     }
                     else {
                         entity = &viewer->entities[id];
+
+                        compilerv4->objectEntityList[entity->gameEntitySlot].type = entity->type;
+                        compilerv4->objectEntityList[entity->gameEntitySlot].XPos =
+                            entity->pos.x * 65536.0f;
+                        compilerv4->objectEntityList[entity->gameEntitySlot].YPos =
+                            entity->pos.y * 65536.0f;
                     }
 
                     if (id == -1)
@@ -3369,7 +3394,7 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
                     if (curObj.eventRSDKDraw.scriptCodePtr != SCRIPTDATA_COUNT - 1
                         && entity->type != 0) {
                         viewer->sceneInfo.debugMode = false; // always start with overlay mode off
-                        compilerv4->objectEntityPos = id;
+                        compilerv4->objectEntityPos = entity->gameEntitySlot;
                         compilerv4->processScript(curObj.eventRSDKDraw.scriptCodePtr,
                                                   curObj.eventRSDKDraw.jumpTablePtr,
                                                   Compilerv4::EVENT_RSDKDRAW);
@@ -3382,7 +3407,7 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
 
                     if (curObj.eventRSDKEdit.scriptCodePtr != SCRIPTDATA_COUNT - 1
                         && viewer->entities[id].type != 0) {
-                        compilerv4->objectEntityPos = id;
+                        compilerv4->objectEntityPos = viewer->entities[id].gameEntitySlot;
                         viewer->activeVarObj        = viewer->entities[id].type;
 
                         compilerv4->processScript(curObj.eventRSDKEdit.scriptCodePtr,

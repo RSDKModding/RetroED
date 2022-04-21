@@ -447,6 +447,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->objectList->blockSignals(true);
         ui->objectList->setCurrentRow(n);
         ui->objectList->blockSignals(false);
+
         createEntityList(c);
         doAction("Remove Object: " + QString::number(c));
     });
@@ -2194,9 +2195,14 @@ int SceneEditorv5::addEntity(int type, float x, float y)
     ui->entityList->setCurrentRow(viewer->selectedEntity);
     ui->entityList->blockSignals(false);
 
+    QString name = "Unknown Object " + QString::number(entity.type);
+    if (entity.type < viewer->objects.count())
+        name = viewer->objects[entity.type].name;
+
+    ui->entityList->addItem(QString::number(entity.slotID) + ": " + name);
+
     objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
     ui->propertiesBox->setCurrentWidget(ui->objPropPage);
-    createEntityList(entity.slotID);
 
     return entity.slotID;
 }
@@ -2208,14 +2214,21 @@ void SceneEditorv5::deleteEntity(int slot, bool updateUI)
     if (entity.gameEntity)
         entity.gameEntity->objectID = 0;
 
-    if (updateUI) {
-        objProp->unsetUI();
-        createEntityList(slot);
-    }
-
-    if (viewer->objects.count() <= 0) {
+    if (viewer->entities.count() <= 0) {
         viewer->selectedEntity    = -1;
         viewer->sceneInfo.listPos = -1;
+    }
+
+    if (viewer->selectedEntity == slot) {
+        viewer->selectedEntity    = -1;
+        viewer->sceneInfo.listPos = -1;
+    }
+
+    ui->entityList->blockSignals(true);
+    delete ui->entityList->item(slot);
+    ui->entityList->blockSignals(false);
+    if (updateUI) {
+        objProp->unsetUI();
 
         ui->entityList->blockSignals(true);
         ui->entityList->setCurrentRow(viewer->selectedEntity);
@@ -2651,6 +2664,7 @@ void SceneEditorv5::filterEntityList(QString filter)
 void SceneEditorv5::createEntityList(int startSlot)
 {
     ui->entityList->blockSignals(true);
+
     if (startSlot <= 0) {
         ui->entityList->clear();
         startSlot = 0;
@@ -2662,7 +2676,10 @@ void SceneEditorv5::createEntityList(int startSlot)
     std::sort(viewer->entities.begin(), viewer->entities.end(),
               [](const SceneEntity &a, const SceneEntity &b) -> bool { return a.slotID < b.slotID; });
     for (int i = startSlot; i < viewer->entities.count(); ++i) {
-        QString name = viewer->objects[viewer->entities[i].type].name;
+        QString name = "Unknown Object " + QString::number(viewer->entities[i].type);
+        if (viewer->entities[i].type < viewer->objects.count())
+            name = viewer->objects[viewer->entities[i].type].name;
+
         ui->entityList->addItem(QString::number(viewer->entities[i].slotID) + ": " + name);
     }
     ui->entityList->blockSignals(false);
@@ -3162,7 +3179,7 @@ bool SceneEditorv5::handleKeyPress(QKeyEvent *event)
         case SceneViewer::TOOL_ENTITY:
             if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace) {
                 if (viewer->selectedEntity >= 0) {
-                    deleteEntity(viewer->selectedEntity);
+                    deleteEntity(viewer->selectedEntity, true);
 
                     doAction(QString("Deleted Entity: %1").arg(viewer->selectedEntity));
                 }
@@ -3369,6 +3386,12 @@ void SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                 viewer->activeDrawEntity = &createTempEntity;
 
                 entity = &createTempEntity;
+            }
+
+            if (entity->gameEntity) {
+                entity->gameEntity->objectID   = entity->type;
+                entity->gameEntity->position.x = Utils::floatToFixed(entity->pos.x);
+                entity->gameEntity->position.y = Utils::floatToFixed(entity->pos.y);
             }
 
             viewer->sceneInfo.currentScreenID  = 0;
