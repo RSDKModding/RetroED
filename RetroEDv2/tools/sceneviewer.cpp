@@ -1002,6 +1002,8 @@ void SceneViewer::drawScene()
         ex *= iZoom;
         ey *= iZoom;
 
+        validDraw = false;
+
         if (selectedObject != 0) {
             if (gameType == ENGINE_v5)
                 emit callGameEventv5(objects[selectedObject].name, EVENT_DRAW, NULL);
@@ -1014,8 +1016,9 @@ void SceneViewer::drawScene()
             float xpos = ex;
             float ypos = ey;
 
-            drawSpriteFlipped(xpos, ypos, gfxSurface[1].width, gfxSurface[1].height, 0, 0, FLIP_NONE,
-                              INK_NONE, 0xFF, 1);
+            drawSpriteFlipped(xpos - (gfxSurface[1].width >> 1), ypos - (gfxSurface[1].height >> 1),
+                              gfxSurface[1].width, gfxSurface[1].height, 0, 0, FLIP_NONE, INK_NONE,
+                              0xFF, 1);
         }
     }
 
