@@ -641,9 +641,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                 if (val < 0)
                     v = 0;
 
-                if (val != v) {
+                if (val != v)
                     ui->loopIndex->setValue(val);
-                }
 
                 animFile.animations[c].loopIndex = (ushort)v;
                 doAction("Changed loop index", true);
@@ -1789,9 +1788,10 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         for (int a = 0; a < animCount(); ++a) {
             for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
-                int sheet = animFile.animations[a].frames[f].sheet;
-                animFile.animations[a].frames[f].sheet =
-                    sheet < c ? sheet : sheet > c ? (sheet - 1) : 0;
+                int sheet                              = animFile.animations[a].frames[f].sheet;
+                animFile.animations[a].frames[f].sheet = sheet < c   ? sheet
+                                                         : sheet > c ? (sheet - 1)
+                                                                     : 0;
             }
         }
 
@@ -2465,6 +2465,9 @@ void AnimationEditor::loadAnim(QString filepath, int aniType)
     // PC users out there how do you live with that speed
     setStatus("Loading animation file...", true);
 
+    stopAnim(); // stop that
+    ui->play->setIcon(playPauseIco[0]);
+
     appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
 
     this->aniType = aniType;
@@ -2636,7 +2639,7 @@ bool AnimationEditor::event(QEvent *event)
             mousePos.x = mEvent->pos().x();
             mousePos.y = mEvent->pos().y();
 
-            if (mouseDownM) {
+            if (mouseDownL || mouseDownM) {
                 offset.x -= mousePos.x - reference.x();
                 offset.y -= mousePos.y - reference.y();
                 ui->frameOffLabel->setText(

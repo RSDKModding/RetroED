@@ -18,8 +18,17 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
     updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, QOverload<>::of(&ModelManager::processAnimation));
 
-    connect(ui->loopIndex, QOverload<int>::of(&QSpinBox::valueChanged),
-            [this](int v) { viewer->loopIndex = v; });
+    connect(ui->loopIndex, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
+        int val = v;
+        if (val >= viewer->model.frames.count())
+            v = viewer->model.frames.count() - 1;
+        if (val < 0)
+            v = 0;
+
+        if (val != v)
+            ui->loopIndex->setValue(val);
+        viewer->loopIndex = v;
+    });
 
     connect(ui->animSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             [this](double v) { viewer->animSpeed = v; });
