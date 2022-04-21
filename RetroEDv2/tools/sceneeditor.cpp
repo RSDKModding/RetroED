@@ -1751,7 +1751,8 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     QString pth      = scnPath;
     QString basePath = pth.replace(QFileInfo(pth).fileName(), "");
 
-    viewer->currentFolder = QDir(basePath).dirName();
+    viewer->currentFolder  = QDir(basePath).dirName();
+    viewer->currentSceneID = QFileInfo(scnPath).baseName().toLower().replace("act", "");
 
     scene.read(gameType, scnPath);
 

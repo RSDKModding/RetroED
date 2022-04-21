@@ -386,6 +386,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         if (QFile::exists(gamePath)) {
             QStringList args;
             args << "console=true;";
+            if (argInitStage.length())
+                args << QString("stage=%1;").arg(argInitStage);
+            if (argInitScene.length())
+                args << QString("scene=%1;").arg(argInitScene);
+            if (argInitFilter.length())
+                args << QString("filter=%1;").arg(argInitFilter);
             QProcess proc;
             proc.setProgram(gamePath);
             proc.setWorkingDirectory(QFileInfo(gamePath).absolutePath());

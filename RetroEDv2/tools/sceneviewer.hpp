@@ -117,7 +117,8 @@ public:
         return count;
     }
 
-    QString currentFolder = "Blank";
+    QString currentSceneID = "1";
+    QString currentFolder  = "Blank";
 
     QPoint reference;
 

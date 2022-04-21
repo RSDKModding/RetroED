@@ -2267,7 +2267,8 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     QString pth      = scnPath;
     QString basePath = pth.replace(QFileInfo(pth).fileName(), "");
 
-    viewer->currentFolder = QDir(basePath).dirName();
+    viewer->currentFolder  = QDir(basePath).dirName();
+    viewer->currentSceneID = QFileInfo(scnPath).baseName().toLower().replace("scene", "");
 
     addStatusProgress(1. / 6); // finish initial setup
 

@@ -146,6 +146,10 @@ void SceneViewer::dispose()
 
     VAO->destroy();
     fbpVAO->destroy();
+
+    argInitStage  = "";
+    argInitScene  = "";
+    argInitFilter = "";
 }
 
 void SceneViewer::initScene(QImage tileset)
@@ -219,6 +223,10 @@ void SceneViewer::initScene(QImage tileset)
 void SceneViewer::updateScene()
 {
     this->repaint();
+
+    argInitStage  = currentFolder;
+    argInitScene  = currentSceneID;
+    argInitFilter = QString::number(sceneFilter);
 
     if (statusLabel) {
         int mx = (int)((mousePos.x * invZoom()) + cameraPos.x);

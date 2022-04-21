@@ -7,6 +7,10 @@ AppConfig appConfig = AppConfig();
 QLabel *statusLabel          = nullptr;
 QProgressBar *statusProgress = nullptr;
 
+QString argInitStage  = "";
+QString argInitScene  = "";
+QString argInitFilter = "";
+
 void printLog(QString msg)
 {
 #ifdef _WIN32

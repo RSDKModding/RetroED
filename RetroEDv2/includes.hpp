@@ -155,6 +155,10 @@ extern AppConfig appConfig;
 extern QLabel *statusLabel;
 extern QProgressBar *statusProgress;
 
+extern QString argInitStage;
+extern QString argInitScene;
+extern QString argInitFilter;
+
 extern SceneEditor *scnEditor;
 extern SceneEditorv5 *v5Editor;
 
