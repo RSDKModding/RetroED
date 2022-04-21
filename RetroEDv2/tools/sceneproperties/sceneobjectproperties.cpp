@@ -49,6 +49,7 @@ void SceneObjectProperties::setupUI(SceneEntity *entity, int entityID, Compilerv
         if (entityv4)
             entityv4->type = type;
     });
+
     connect(infoGroup[1], &Property::changed, [this, entity, infoGroup] {
         bool flag = false;
         if (entity->slotID != entity->prevSlot) {
@@ -72,6 +73,7 @@ void SceneObjectProperties::setupUI(SceneEntity *entity, int entityID, Compilerv
             entity->prevSlot = entity->slotID;
         }
     });
+
     connect(infoGroup[2], &Property::changed,
             [this, infoGroup, entity, entityv2, entityv3, entityv4, entityID, ver] {
                 byte propVal = *(byte *)infoGroup[2]->valuePtr;
@@ -95,6 +97,22 @@ void SceneObjectProperties::setupUI(SceneEntity *entity, int entityID, Compilerv
                     entityv3->propertyValue = propVal;
                 if (entityv4)
                     entityv4->propertyValue = propVal;
+
+                // in case that changed any custom vars
+                int startGroup = ver == ENGINE_v4 ? 3 : 2;
+                for (int i = startGroup; i < properties->propertySet.count(); ++i) {
+                    auto &var = entity->variables[i - startGroup];
+                    var.value_int32 =
+                        callRSDKEdit(scnEditor, true, entityID, i - startGroup, var.value_int32);
+
+                    switch (ver) {
+                        case ENGINE_v2: entity->propertyValue = entityv2->propertyValue; break;
+                        case ENGINE_v3: entity->propertyValue = entityv3->propertyValue; break;
+                        case ENGINE_v4: entity->propertyValue = entityv4->propertyValue; break;
+                    }
+
+                    properties->propertySet[i]->subProperties[0]->updateValue();
+                }
 
                 infoGroup[2]->updateValue(); // in case it changed
             });
@@ -186,6 +204,7 @@ void SceneObjectProperties::setupUI(SceneEntity *entity, int entityID, Compilerv
                         new Property(RSDKv4::objectVariableTypes[v], &entity->sceneVariables[v].value);
                     break;
                 }
+
                 case 1:
                     variable = new Property(RSDKv4::objectVariableTypes[v], flipFlags,
                                             &entity->sceneVariables[v].value, Property::BYTE_MANAGER);
@@ -210,11 +229,6 @@ void SceneObjectProperties::setupUI(SceneEntity *entity, int entityID, Compilerv
                 else
                     *valuesB[v] = entity->sceneVariables[v].value;
 
-                // if (RSDKv4::objectVariableNames[v] == "scale")
-                //     entity->variables[v].active = entity->variables[v].value != 0x200;
-                // else if (RSDKv4::objectVariableNames[v] == "drawOrder")
-                //     entity->variables[v].active = entity->variables[v].value != 3;
-                // else
                 entity->sceneVariables[v].active = entity->sceneVariables[v].value != 0;
             });
 
@@ -274,6 +288,26 @@ void SceneObjectProperties::setupUI(SceneEntity *entity, int entityID, Compilerv
                         case ENGINE_v4: entity->propertyValue = entityv4->propertyValue; break;
                     }
 
+                    // in case that changed any custom vars
+                    int startGroup = ver == ENGINE_v4 ? 3 : 2;
+                    for (int i = startGroup; i < properties->propertySet.count(); ++i) {
+                        if (i == startGroup + v)
+                            continue; // dont update ourselves lol
+
+                        auto &var = entity->variables[i - startGroup];
+                        var.value_int32 =
+                            callRSDKEdit(scnEditor, true, entityID, i - startGroup, var.value_int32);
+
+                        switch (ver) {
+                            case ENGINE_v2: entity->propertyValue = entityv2->propertyValue; break;
+                            case ENGINE_v3: entity->propertyValue = entityv3->propertyValue; break;
+                            case ENGINE_v4: entity->propertyValue = entityv4->propertyValue; break;
+                        }
+
+                        properties->propertySet[i]->subProperties[0]->updateValue();
+                    }
+
+                    // Update propertyVal
                     infoGroup[2]->updateValue();
                 });
 
@@ -298,6 +332,9 @@ void SceneObjectProperties::updateUI()
 {
     if (!entityPtr)
         return;
+
+    properties->propertySet[1]->subProperties[0]->updateValue();
+    properties->propertySet[1]->subProperties[1]->updateValue();
 }
 
 int SceneObjectProperties::callRSDKEdit(void *e, bool shouldReturnVal, int entityID, int variableID,
@@ -328,6 +365,7 @@ int SceneObjectProperties::callRSDKEdit(void *e, bool shouldReturnVal, int entit
         return editor->compilerv4->scriptEng.checkResult;
     else if (editor->viewer->gameType == ENGINE_v3)
         return editor->compilerv3->scriptEng.checkResult;
+
     return 0;
 }
 

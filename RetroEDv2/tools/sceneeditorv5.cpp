@@ -2,8 +2,6 @@
 #include "ui_sceneeditorv5.h"
 #include "qgifimage.h"
 
-enum PropertiesTabIDs { PROP_SCN, PROP_LAYER, PROP_TILE, PROP_STAMP, PROP_ENTITY, PROP_SCROLL };
-
 TileSelector::TileSelector(QWidget *parent) : QWidget(parent), parentPtr((SceneEditorv5 *)parent)
 {
     QScrollArea *scrollArea = new QScrollArea(this);
@@ -1741,7 +1739,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                             &tileconfig.collisionPaths[1][tile & 0x3FF],
                                             &viewer->layers[viewer->selectedLayer].layout[y][x],
                                             viewer->tiles[tile & 0x3FF]);
-                                        ui->propertiesBox->setCurrentIndex(PROP_TILE);
+                                        ui->propertiesBox->setCurrentWidget(ui->tilePropPage);
+
                                         viewer->selectedTile = tile;
                                         doAction(QString("Selected Tile: %1 (%2, %3)")
                                                      .arg(tile & 0x3FF)
@@ -2038,6 +2037,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 entity.pos.x -= selectionOffset.x;
                                 entity.pos.y -= selectionOffset.y;
                             }
+
+                            objProp->updateUI();
                         }
                         break;
                     }

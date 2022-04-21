@@ -42,8 +42,6 @@ QList<QString> globalsRS = {
     "Smoke Puff",        // 30
 };
 
-enum PropertiesTabIDs { PROP_SCN, PROP_LAYER, PROP_TILE, PROP_ENTITY, PROP_SCROLL };
-
 ChunkSelector::ChunkSelector(QWidget *parent) : QWidget(parent), parentWidget((SceneEditor *)parent)
 {
     QScrollArea *scrollArea = new QScrollArea(this);
@@ -1205,7 +1203,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                         &compilerv4->objectEntityList[entity->gameEntitySlot],
                                         viewer->gameType);
                                     ui->propertiesBox->setCurrentWidget(ui->objPropPage);
-                                    doAction();
+                                    // doAction();
                                     break;
                                 }
                             }
@@ -1252,7 +1250,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
                                 addEntity(viewer->selectedObject, x, y);
 
-                                doAction();
+                                doAction("Added Entity");
                             }
                             else if (viewer->entities.count() >= FormatHelpers::Scene::entityLimit) {
                                 QMessageBox msgBox =
@@ -1302,7 +1300,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                                         &viewer->tileconfig.collisionPaths[0][tid],
                                                         &viewer->tileconfig.collisionPaths[1][tid], tid,
                                                         viewer->tiles[tid]);
-                                                    ui->propertiesBox->setCurrentIndex(PROP_TILE);
+                                                    ui->propertiesBox->setCurrentWidget(
+                                                        ui->tilePropPage);
                                                     break;
                                                 }
                                             }
@@ -1558,6 +1557,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         }
                         break;
                     }
+
                     case SceneViewer::TOOL_PENCIL: {
                         if (viewer->selectedTile != 0xFFFF && viewer->isSelecting) {
                             setTile(viewer->mousePos.x, viewer->mousePos.y);
@@ -1565,6 +1565,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         }
                         break;
                     }
+
                     case SceneViewer::TOOL_ERASER: {
                         if (viewer->isSelecting) {
                             viewer->selectedTile = 0x0;
@@ -1573,12 +1574,15 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         }
                         break;
                     }
+
                     case SceneViewer::TOOL_ENTITY: {
                         if (viewer->selectedObject < 0 && viewer->selectedEntity >= 0) {
                             SceneEntity &entity = viewer->entities[viewer->selectedEntity];
 
-                            entity.pos.x = sceneMousePos.x;
-                            entity.pos.y = sceneMousePos.y;
+                            entity.pos.x =
+                                (viewer->mousePos.x * viewer->invZoom()) + viewer->cameraPos.x;
+                            entity.pos.y =
+                                (viewer->mousePos.y * viewer->invZoom()) + viewer->cameraPos.y;
 
                             if (ctrlDownL) {
                                 entity.pos.x = (entity.pos.x - fmodf(entity.pos.x, viewer->gridSize.x));
@@ -1604,7 +1608,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                             compilerv4->objectEntityList[entity.gameEntitySlot].YPos =
                                 entity.pos.y * 65536;
 
-                            doAction();
+                            objProp->updateUI();
+                            // doAction();
                         }
                         break;
                     }

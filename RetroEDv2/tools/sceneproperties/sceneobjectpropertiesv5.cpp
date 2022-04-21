@@ -120,6 +120,7 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     });
                     break;
                 }
+
                 case VAR_UINT16: {
                     if (aliases.count()) {
                         valGroup.append(new Property("uint16", aliases,
@@ -139,6 +140,7 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     });
                     break;
                 }
+
                 case VAR_UINT32: {
                     if (aliases.count()) {
                         valGroup.append(new Property("uint32", aliases,
@@ -158,6 +160,7 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     });
                     break;
                 }
+
                 case VAR_INT8: {
                     if (aliases.count()) {
                         valGroup.append(new Property("int8", aliases, &entity->variables[v].value_int8,
@@ -176,6 +179,7 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     });
                     break;
                 }
+
                 case VAR_INT16: {
                     if (aliases.count()) {
                         valGroup.append(new Property("int16", aliases,
@@ -195,6 +199,7 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     });
                     break;
                 }
+
                 case VAR_INT32: {
                     if (aliases.count()) {
                         valGroup.append(new Property("int32", aliases,
@@ -214,6 +219,7 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     });
                     break;
                 }
+
                 case VAR_ENUM: {
                     if (aliases.count()) {
                         valGroup.append(new Property("enum", aliases, &entity->variables[v].value_enum,
@@ -232,6 +238,7 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     });
                     break;
                 }
+
                 case VAR_BOOL: {
                     valGroup.append(new Property("bool", &entity->variables[v].value_bool));
                     Property *prop = valGroup.last();
@@ -245,6 +252,7 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     });
                     break;
                 }
+
                 case VAR_STRING: {
                     valGroup.append(new Property("string", &entity->variables[v].value_string));
                     Property *prop = valGroup.last();
@@ -259,6 +267,7 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     });
                     break;
                 }
+
                 case VAR_COLOR: {
                     valGroup.append(new Property("color", &entity->variables[v].value_color));
                     Property *prop = valGroup.last();
@@ -273,6 +282,7 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     });
                     break;
                 }
+
                 case VAR_VECTOR2: {
                     valGroup.append(new Property("x", &entity->variables[v].value_vector2f.x));
                     Property *prop = valGroup.last();
@@ -302,6 +312,7 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     });
                     break;
                 }
+
                 case VAR_FLOAT: {
                     valGroup.append(new Property("float", &entity->variables[v].value_float));
                     Property *prop = valGroup.last();
@@ -332,7 +343,6 @@ void SceneObjectPropertiesv5::unsetUI()
 {
     properties->clear();
 
-    // m_ver = ver;
     entityPtr = nullptr;
 }
 
@@ -340,6 +350,9 @@ void SceneObjectPropertiesv5::updateUI()
 {
     if (!entityPtr)
         return;
+
+    properties->propertySet[1]->subProperties[0]->updateValue();
+    properties->propertySet[1]->subProperties[1]->updateValue();
 }
 
 #include "moc_sceneobjectpropertiesv5.cpp"

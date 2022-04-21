@@ -71,10 +71,6 @@ void ScenePropertiesv5::setupUI(RSDKv5::Scene *scn, RSDKv5::StageConfig *config)
     ui->loadGlobals->blockSignals(true);
     ui->loadGlobals->setChecked(config->loadGlobalObjects);
     ui->loadGlobals->blockSignals(false);
-
-    // ui->stampName->blockSignals(true);
-    // ui->stampName->setText(scn->editorMetadata.stampName);
-    // ui->stampName->blockSignals(false);
 }
 
 void ScenePropertiesv5::unsetUI() {}
