@@ -2844,6 +2844,7 @@ void SceneEditorv5::initGameLink()
 
     for (auto &entity : viewer->entities) {
         auto &obj = viewer->objects[entity.type];
+
         if (entity.variables.count() != obj.variables.count()) {
             // add & update
             if (entity.variables.count() < obj.variables.count()) {
@@ -2927,17 +2928,20 @@ void SceneEditorv5::initGameLink()
     }
 
     for (int i = 0; i < viewer->objects.count() && gameLinks.count(); ++i) {
-        callGameEvent(viewer->objects[i].name, SceneViewer::EVENT_SERIALIZE, NULL);
+        bool called = callGameEvent(viewer->objects[i].name, SceneViewer::EVENT_SERIALIZE, NULL);
 
-        for (int v = viewer->objects[i].variables.count() - 1; v >= 0; --v) {
-            // check if var no longer exists
-            if (viewer->objects[i].variables[v].offset == -1) {
-                for (auto &entity : viewer->entities) {
-                    if (entity.type == i)
-                        entity.variables.removeAt(v);
+        if (called) { // only erase vars if serialize was called, otherwise its likely we just dont have
+                      // a game link
+            for (int v = viewer->objects[i].variables.count() - 1; v >= 0; --v) {
+                // check if var no longer exists
+                if (viewer->objects[i].variables[v].offset == -1) {
+                    for (auto &entity : viewer->entities) {
+                        if (entity.type == i)
+                            entity.variables.removeAt(v);
+                    }
+
+                    viewer->objects[i].variables.removeAt(v);
                 }
-
-                viewer->objects[i].variables.removeAt(v);
             }
         }
     }
@@ -3229,25 +3233,108 @@ GameObjectInfo *SceneEditorv5::getObjectInfo(QString name)
     return NULL;
 }
 
-void SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *entity)
+void SceneEditorv5::setGameEntityVariables(SceneEntity *entity, GameEntity *gameEntity)
 {
+    for (int o = 0; o < entity->variables.length(); o++) {
+        auto var    = viewer->objects[entity->type].variables[o];
+        auto val    = entity->variables[o];
+        auto offset = &((byte *)gameEntity)[var.offset];
+
+        switch (var.type) {
+            case VAR_UINT8: memcpy(offset, &val.value_uint8, sizeof(byte)); break;
+            case VAR_INT8: memcpy(offset, &val.value_int8, sizeof(sbyte)); break;
+            case VAR_UINT16: memcpy(offset, &val.value_uint16, sizeof(ushort)); break;
+            case VAR_INT16: memcpy(offset, &val.value_int16, sizeof(short)); break;
+            case VAR_UINT32: memcpy(offset, &val.value_uint32, sizeof(uint)); break;
+            case VAR_INT32: memcpy(offset, &val.value_int32, sizeof(int)); break;
+            case VAR_ENUM: memcpy(offset, &val.value_enum, sizeof(int)); break;
+            case VAR_STRING: {
+                FunctionTable::setText((TextInfo *)offset,
+                                       (char *)val.value_string.toStdString().c_str(), false);
+                break;
+            }
+            case VAR_VECTOR2: memcpy(offset, &val.value_vector2.x, sizeof(Vector2<int>)); break;
+            case VAR_FLOAT: memcpy(offset, &val.value_float, sizeof(float)); break;
+            case VAR_BOOL: {
+                bool32 value = val.value_bool;
+                memcpy(offset, &value, sizeof(bool32));
+                break;
+            }
+            case VAR_COLOR: {
+                auto c   = val.value_color;
+                uint clr = (c.red() << 16) | (c.green() << 8) | (c.blue());
+                memcpy(offset, &clr, sizeof(uint));
+                break;
+            }
+        }
+    }
+}
+
+void SceneEditorv5::getGameEntityVariables(SceneEntity *entity, GameEntity *gameEntity)
+{
+    for (int o = 0; o < entity->variables.length(); o++) {
+        auto var    = viewer->objects[entity->type].variables[o];
+        auto &val   = entity->variables[o];
+        auto offset = &((byte *)gameEntity)[var.offset];
+        switch (var.type) {
+            case VAR_UINT8: memcpy(&val.value_uint8, offset, sizeof(byte)); break;
+            case VAR_INT8: memcpy(&val.value_int8, offset, sizeof(sbyte)); break;
+            case VAR_UINT16: memcpy(&val.value_uint16, offset, sizeof(ushort)); break;
+            case VAR_INT16: memcpy(&val.value_int16, offset, sizeof(short)); break;
+            case VAR_UINT32: memcpy(&val.value_uint32, offset, sizeof(uint)); break;
+            case VAR_INT32: memcpy(&val.value_int32, offset, sizeof(int)); break;
+            case VAR_ENUM: memcpy(&val.value_enum, offset, sizeof(int)); break;
+            case VAR_STRING: {
+                char buffer[0x100];
+                FunctionTable::getCString(buffer, (TextInfo *)offset);
+                val.value_string = buffer;
+                break;
+            }
+            case VAR_VECTOR2:
+                memcpy(&val.value_vector2.x, offset, sizeof(Vector2<int>));
+                val.value_vector2f.x = Utils::fixedToFloat(val.value_vector2.x);
+                val.value_vector2f.y = Utils::fixedToFloat(val.value_vector2.y);
+                break;
+            case VAR_FLOAT: memcpy(&val.value_float, offset, sizeof(float)); break;
+            case VAR_BOOL: {
+                bool32 value = false;
+                memcpy(&value, offset, sizeof(bool32));
+                val.value_bool = value;
+                break;
+            }
+            case VAR_COLOR: {
+                uint clr = 0;
+                memcpy(&clr, offset, sizeof(uint));
+                val.value_color = QColor(clr);
+                break;
+            }
+        }
+    }
+}
+
+bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *entity)
+{
+    bool called = false;
+
     GameObjectInfo *info = getObjectInfo(objName);
 
     if (!info)
-        return;
+        return called;
 
     viewer->foreachStackPtr = viewer->foreachStackList;
     switch (eventID) {
         default: break;
 
         case SceneViewer::EVENT_LOAD:
-            if (info->editorLoad)
+            if (info->editorLoad) {
                 info->editorLoad();
+                called = true;
+            }
             break;
 
         case SceneViewer::EVENT_CREATE: {
             if (!entity)
-                return;
+                return called;
 
             GameEntity *entityPtr =
                 entity->slotID == 0xFFFF ? entity->gameEntity : &viewer->gameEntityList[entity->slotID];
@@ -3262,103 +3349,34 @@ void SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
             entityPtr->scale.y       = 0x200;
             entityPtr->objectID      = entity->type;
 
-            for (int o = 0; o < entity->variables.length(); o++) {
-                auto var    = viewer->objects[entity->type].variables[o];
-                auto val    = entity->variables[o];
-                auto offset = &((byte *)entityPtr)[var.offset];
-                switch (var.type) {
-                    case VAR_UINT8: memcpy(offset, &val.value_uint8, sizeof(byte)); break;
-                    case VAR_INT8: memcpy(offset, &val.value_int8, sizeof(sbyte)); break;
-                    case VAR_UINT16: memcpy(offset, &val.value_uint16, sizeof(ushort)); break;
-                    case VAR_INT16: memcpy(offset, &val.value_int16, sizeof(short)); break;
-                    case VAR_UINT32: memcpy(offset, &val.value_uint32, sizeof(uint)); break;
-                    case VAR_INT32: memcpy(offset, &val.value_int32, sizeof(int)); break;
-                    case VAR_ENUM: memcpy(offset, &val.value_enum, sizeof(int)); break;
-                    case VAR_STRING: {
-                        FunctionTable::setText((TextInfo *)offset,
-                                               (char *)val.value_string.toStdString().c_str(), false);
-                        break;
-                    }
-                    // i'm cheating w this 1
-                    case VAR_VECTOR2: memcpy(offset, &val.value_vector2.x, sizeof(Vector2<int>)); break;
-                    case VAR_FLOAT: // :urarakaconfuse:
-                        memcpy(offset, &val.value_float, sizeof(int));
-                        break;
-                    case VAR_BOOL: {
-                        bool32 value = val.value_bool;
-                        memcpy(offset, &value, sizeof(bool32));
-                        break;
-                    }
-                    case VAR_COLOR: {
-                        auto c   = val.value_color;
-                        uint clr = (c.red() << 16) | (c.green() << 8) | (c.blue());
-                        memcpy(offset, &clr, sizeof(uint));
-                        break;
-                    }
-                }
-            }
             entity->gameEntity = (GameEntityBase *)entityPtr;
+            setGameEntityVariables(entity, entity->gameEntity);
 
             viewer->sceneInfo.entity     = entity->gameEntity;
             viewer->sceneInfo.entitySlot = entity->slotID;
-            if (info->create && entity->gameEntity)
+            if (info->create && entity->gameEntity) {
                 info->create(NULL);
+                called = true;
+            }
             viewer->sceneInfo.entity     = NULL;
             viewer->sceneInfo.entitySlot = 0;
 
             // editor defaults!
-            for (int o = 0; o < entity->variables.length(); o++) {
-                auto var    = viewer->objects[entity->type].variables[o];
-                auto &val   = entity->variables[o];
-                auto offset = &((byte *)entityPtr)[var.offset];
-                switch (var.type) {
-                    case VAR_UINT8: memcpy(&val.value_uint8, offset, sizeof(byte)); break;
-                    case VAR_INT8: memcpy(&val.value_int8, offset, sizeof(sbyte)); break;
-                    case VAR_UINT16: memcpy(&val.value_uint16, offset, sizeof(ushort)); break;
-                    case VAR_INT16: memcpy(&val.value_int16, offset, sizeof(short)); break;
-                    case VAR_UINT32: memcpy(&val.value_uint32, offset, sizeof(uint)); break;
-                    case VAR_INT32: memcpy(&val.value_int32, offset, sizeof(int)); break;
-                    case VAR_ENUM: memcpy(&val.value_enum, offset, sizeof(int)); break;
-                    case VAR_STRING: {
-                        char buffer[0x100];
-                        FunctionTable::getCString(buffer, (TextInfo *)offset);
-                        val.value_string = buffer;
-                        break;
-                    }
-                    case VAR_VECTOR2:
-                        memcpy(&val.value_vector2.x, offset, sizeof(Vector2<int>));
-                        val.value_vector2f.x = Utils::fixedToFloat(val.value_vector2.x);
-                        val.value_vector2f.y = Utils::fixedToFloat(val.value_vector2.y);
-                        break;
-                    case VAR_FLOAT: // :urarakaconfuse:
-                        memcpy(&val.value_float, offset, sizeof(int));
-                        break;
-                    case VAR_BOOL: {
-                        bool32 value = false;
-                        memcpy(&value, offset, sizeof(bool32));
-                        val.value_bool = value;
-                        break;
-                    }
-                    case VAR_COLOR: {
-                        uint clr = 0;
-                        memcpy(&clr, offset, sizeof(uint));
-                        val.value_color = QColor(clr);
-                        break;
-                    }
-                }
-            }
+            // getGameEntityVariables(entity, entity->gameEntity);
             break;
         }
 
         case SceneViewer::EVENT_UPDATE:
             if (!entity)
-                return;
+                return called;
 
-            // TODO: that(?)
+            // TODO: this(?)
             viewer->sceneInfo.entity     = entity->gameEntity;
             viewer->sceneInfo.entitySlot = entity->slotID;
-            if (info->update && entity->gameEntity)
+            if (info->update && entity->gameEntity) {
                 info->update();
+                called = true;
+            }
             viewer->sceneInfo.entity     = NULL;
             viewer->sceneInfo.entitySlot = 0;
             break;
@@ -3392,6 +3410,8 @@ void SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                 entity->gameEntity->objectID   = entity->type;
                 entity->gameEntity->position.x = Utils::floatToFixed(entity->pos.x);
                 entity->gameEntity->position.y = Utils::floatToFixed(entity->pos.y);
+
+                setGameEntityVariables(entity, entity->gameEntity);
             }
 
             viewer->sceneInfo.currentScreenID  = 0;
@@ -3400,17 +3420,23 @@ void SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
             viewer->sceneInfo.debugMode  = false; // always start with overlay mode off
             viewer->sceneInfo.entity     = entity->gameEntity;
             viewer->sceneInfo.entitySlot = entity->slotID;
-            if (info->editorDraw && entity->gameEntity)
+            if (info->editorDraw && entity->gameEntity) {
                 info->editorDraw();
+                called = true;
+            }
             viewer->sceneInfo.entity     = NULL;
             viewer->sceneInfo.entitySlot = 0;
             break;
 
         case SceneViewer::EVENT_SERIALIZE:
-            if (info->serialize)
+            if (info->serialize) {
                 info->serialize();
+                called = true;
+            }
             break;
     }
+
+    return called;
 }
 
 void SceneEditorv5::parseGameXML(QString path)

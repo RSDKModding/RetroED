@@ -158,7 +158,10 @@ private:
     void loadGameLinks();
     void initGameLink();
 
-    void callGameEvent(QString objName, byte eventID, SceneEntity *entity);
+    void setGameEntityVariables(SceneEntity *entity, GameEntity *gameEntity);
+    void getGameEntityVariables(SceneEntity *entity, GameEntity *gameEntity);
+
+    bool callGameEvent(QString objName, byte eventID, SceneEntity *entity);
 
     void parseGameXML(QString path);
 
