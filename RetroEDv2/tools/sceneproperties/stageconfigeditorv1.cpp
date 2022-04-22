@@ -604,8 +604,8 @@ void StageConfigEditorv1::copyConfig(ActionState *stateDst, ActionState *stateSr
     dst->filePath          = src->filePath;
     dst->loadGlobalScripts = src->loadGlobalScripts;
 
-    dst->palette.colours.clear();
-    for (auto clr : src->palette.colours) dst->palette.colours.append(clr);
+    dst->palette.colors.clear();
+    for (auto clr : src->palette.colors) dst->palette.colors.append(clr);
 
     dst->objects.clear();
     for (auto obj : src->objects) dst->objects.append(obj);

@@ -33,8 +33,8 @@ void ModelViewer::setModel(RSDKv4::Model m, QString tex)
     model.faceVerticesCount = 3;
     model.indices           = m.indices;
 
-    model.colours.clear();
-    model.hasColours = false;
+    model.colors.clear();
+    model.hasColors = false;
 
     model.texCoords.clear();
     for (auto &uv : m.texCoords) {
@@ -291,11 +291,11 @@ void ModelViewer::paintGL()
         int vc      = curFrame->vertices.count();
         vertBuf     = new float[vc * 3];
         normBuf     = new float[vc * 3];
-        auto colors = new RSDKv5::Model::Colour[vc];
+        auto colors = new RSDKv5::Model::Color[vc];
         auto uvs    = new RSDKv5::Model::TexCoord[vc];
 
         int i = 0;
-        for (auto &c : model.colours) colors[i++] = c;
+        for (auto &c : model.colors) colors[i++] = c;
 
         i = 0;
         for (auto &uv : model.texCoords) uvs[i++] = uv;
@@ -326,13 +326,13 @@ void ModelViewer::paintGL()
         normalVBO->bind();
         normalVBO->allocate(vc * sizeof(float) * 3);
         colorVBO->bind();
-        colorVBO->allocate(colors, vc * sizeof(RSDKv5::Model::Colour));
+        colorVBO->allocate(colors, vc * sizeof(RSDKv5::Model::Color));
         texVBO->bind();
         texVBO->allocate(uvs, vc * sizeof(RSDKv5::Model::TexCoord));
         indexVBO->bind();
         indexVBO->allocate(indices, total * sizeof(ushort));
 
-        shader.setValue("useColor", model.hasColours);
+        shader.setValue("useColor", model.hasColors);
         shader.setValue("useTextures", model.hasTextures);
         shader.setValue("useNormals", model.hasNormals);
 
@@ -379,8 +379,8 @@ void ModelViewer::paintGL()
     matModel.setToIdentity();
     matModel.scale(zoom, zoom, zoom);
 
-    shader.setValue("default_color", QVector4D(modelColour.redF(), modelColour.greenF(),
-                                               modelColour.blueF(), modelColour.alphaF()));
+    shader.setValue("default_color", QVector4D(modelColor.redF(), modelColor.greenF(),
+                                               modelColor.blueF(), modelColor.alphaF()));
 
     shader.setValue("projection", matWorld);
     shader.setValue("view", camera.toMatrix());

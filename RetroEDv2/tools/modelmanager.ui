@@ -481,7 +481,7 @@
           <item row="10" column="0" colspan="2">
            <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>Mesh Colour</string>
+             <string>Mesh Color</string>
             </property>
            </widget>
           </item>
@@ -591,9 +591,9 @@
            </widget>
           </item>
           <item row="20" column="0" colspan="2">
-           <widget class="QCheckBox" name="hasColours">
+           <widget class="QCheckBox" name="hasColors">
             <property name="text">
-             <string>Has Colours</string>
+             <string>Has Colors</string>
             </property>
            </widget>
           </item>

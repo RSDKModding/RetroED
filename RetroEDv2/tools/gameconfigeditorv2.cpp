@@ -725,9 +725,9 @@ bool GameConfigEditorv2::event(QEvent *event)
                 }
             }
             else {
-                        setStatus("Saving GameConfig...", true);
-                        gameConfig.write("");
-                        setStatus("Saved GameConfig to " + gameConfig.filePath);
+                setStatus("Saving GameConfig...", true);
+                gameConfig.write("");
+                setStatus("Saved GameConfig to " + gameConfig.filePath);
                 clearActions();
                 return true;
             }
@@ -868,9 +868,9 @@ bool GameConfigEditorv2::event(QEvent *event)
                         }
                         addStatusProgress(1.f / 6);
 
-                        config.palette.colours.clear();
+                        config.palette.colors.clear();
                         for (int i = 0; i < 96; ++i) {
-                            config.palette.colours.append(Colour(0x00, 0x00, 0x00));
+                            config.palette.colors.append(Color(0x00, 0x00, 0x00));
                         }
                         addStatusProgress(1.f / 6);
 
@@ -979,7 +979,9 @@ bool GameConfigEditorv2::event(QEvent *event)
                         setStatus("Saving RSDKConfig...", true);
                         rsdkConfig.write(filedialog.selectedFiles()[0].toLower().replace("gameconfig",
                                                                                          "RSDKConfig"));
-                        setStatus("Saved v5 GFC and RSDKConfig to " + filedialog.selectedFiles()[0] + " and RSDKConfig.bin", true);
+                        setStatus("Saved v5 GFC and RSDKConfig to " + filedialog.selectedFiles()[0]
+                                      + " and RSDKConfig.bin",
+                                  true);
 
                         break;
                     }

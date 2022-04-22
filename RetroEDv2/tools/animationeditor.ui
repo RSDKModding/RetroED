@@ -82,7 +82,7 @@
       <item>
        <widget class="QToolButton" name="showTransClr">
         <property name="text">
-         <string>Show Transparent Colour</string>
+         <string>Show Transparent Color</string>
         </property>
         <property name="iconSize">
          <size>
@@ -113,9 +113,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="bgColour">
+       <widget class="QToolButton" name="bgColor">
         <property name="text">
-         <string>Change BG Colour</string>
+         <string>Change BG Color</string>
         </property>
         <property name="iconSize">
          <size>

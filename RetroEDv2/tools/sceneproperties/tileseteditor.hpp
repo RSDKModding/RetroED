@@ -47,7 +47,7 @@ class TilesetEditor : public QDialog
     Q_OBJECT
 
 public:
-    explicit TilesetEditor(QList<QImage> &tileList, QList<PaletteColour> &pal,
+    explicit TilesetEditor(QList<QImage> &tileList, QList<PaletteColor> &pal,
                            QWidget *parent = nullptr);
     ~TilesetEditor();
 
@@ -57,7 +57,7 @@ public:
     QList<ushort> tileIDs;
     QList<bool> changedTiles;
 
-    QList<PaletteColour> &palette;
+    QList<PaletteColor> &palette;
     QList<QImage> &tiles;
 
     void setupUI();
@@ -70,7 +70,7 @@ protected:
 private:
     Ui::TilesetEditor *ui;
 
-    inline int getColourIndex(QImage &img, const QVector<QRgb> &clrTable, int x, int y)
+    inline int getColorIndex(QImage &img, const QVector<QRgb> &clrTable, int x, int y)
     {
         int index    = -1;
         int distance = 0x7FFFFFFF;

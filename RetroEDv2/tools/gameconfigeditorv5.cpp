@@ -1224,19 +1224,19 @@ bool GameConfigEditorv5::event(QEvent *event)
 
                             config.players.clear();
 
-                            config.palette.colours.clear();
+                            config.palette.colors.clear();
                             for (int r = 0; r < 6; ++r) {
                                 if (gameConfig.palettes[0].activeRows[r]) {
                                     for (int c = 0; c < 16; ++c) {
-                                        config.palette.colours.append(
-                                            Colour(gameConfig.palettes[0].colours[r][c].red(),
-                                                   gameConfig.palettes[0].colours[r][c].green(),
-                                                   gameConfig.palettes[0].colours[r][c].blue()));
+                                        config.palette.colors.append(
+                                            Color(gameConfig.palettes[0].colors[r][c].red(),
+                                                  gameConfig.palettes[0].colors[r][c].green(),
+                                                  gameConfig.palettes[0].colors[r][c].blue()));
                                     }
                                 }
                                 else {
                                     for (int c = 0; c < 16; ++c) {
-                                        config.palette.colours.append(Colour(0x00, 0x00, 0x00));
+                                        config.palette.colors.append(Color(0x00, 0x00, 0x00));
                                     }
                                 }
                             }
@@ -1516,7 +1516,7 @@ void GameConfigEditorv5::copyConfig(ActionState *stateDst, ActionState *stateSrc
         for (int r = 0; r < 16; ++r) {
             dst->palettes[p].activeRows[r] = src->palettes[p].activeRows[r];
             for (int c = 0; c < 16; ++c) {
-                dst->palettes[p].colours[r][c] = src->palettes[p].colours[r][c];
+                dst->palettes[p].colors[r][c] = src->palettes[p].colors[r][c];
             }
         }
     }

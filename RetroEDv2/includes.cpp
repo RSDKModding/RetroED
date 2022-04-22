@@ -15,12 +15,12 @@ void printLog(QString msg)
 {
 #ifdef _WIN32
     {
-        int colourCode = FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_BLUE;
+        int colorCode = FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_BLUE;
         CONSOLE_SCREEN_BUFFER_INFO csbi;
         HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
         if (GetConsoleScreenBufferInfo(hStdOut, &csbi)) {
-            WORD wColour = (csbi.wAttributes & 0xF0) + colourCode;
-            SetConsoleTextAttribute(hStdOut, wColour);
+            WORD wColor = (csbi.wAttributes & 0xF0) + colorCode;
+            SetConsoleTextAttribute(hStdOut, wColor);
         }
     }
 #endif
@@ -30,12 +30,12 @@ void printLog(QString msg)
 
 #ifdef _WIN32
     {
-        int colourCode = 0;
+        int colorCode = 0;
         CONSOLE_SCREEN_BUFFER_INFO csbi;
         HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
         if (GetConsoleScreenBufferInfo(hStdOut, &csbi)) {
-            WORD wColour = (csbi.wAttributes & 0xF0) + colourCode;
-            SetConsoleTextAttribute(hStdOut, wColour);
+            WORD wColor = (csbi.wAttributes & 0xF0) + colorCode;
+            SetConsoleTextAttribute(hStdOut, wColor);
         }
     }
 #endif

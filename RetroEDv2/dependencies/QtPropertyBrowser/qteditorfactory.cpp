@@ -2175,7 +2175,14 @@ void QtColorEditWidget::setValue(const QColor &c)
     }
 }
 
-void QtColorEditWidget::buttonClicked() {}
+void QtColorEditWidget::buttonClicked()
+{
+    QColor newCol = QColorDialog::getColor(m_color);
+    if (newCol.isValid() && newCol != m_color) {
+        setValue(newCol);
+        emit valueChanged(m_color);
+    }
+}
 
 bool QtColorEditWidget::eventFilter(QObject *obj, QEvent *ev)
 {
@@ -2223,7 +2230,9 @@ void QtColorEditorFactoryPrivate::slotPropertyChanged(QtProperty *property, cons
         return;
     QListIterator<QtColorEditWidget *> itEditor(it.value());
 
-    while (itEditor.hasNext()) itEditor.next()->setValue(value);
+    while (itEditor.hasNext()) {
+        itEditor.next()->setValue(value);
+    }
 }
 
 void QtColorEditorFactoryPrivate::slotSetValue(const QColor &value)

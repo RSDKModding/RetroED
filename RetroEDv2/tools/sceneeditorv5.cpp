@@ -96,8 +96,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     viewer->statusLabel = ui->statusLabel;
     viewer->objProp     = objProp;
 
-    ui->showParallax->setIcon(Utils::getColouredIcon(":/icons/ic_horizontal_split_48px.svg"));
-    ui->showTileGrid->setIcon(Utils::getColouredIcon(":/icons/ic_grid_48px.svg"));
+    ui->showParallax->setIcon(Utils::getColoredIcon(":/icons/ic_horizontal_split_48px.svg"));
+    ui->showTileGrid->setIcon(Utils::getColoredIcon(":/icons/ic_grid_48px.svg"));
 
     scnProp->gridX->setValue(viewer->gridSize.x);
     scnProp->gridY->setValue(viewer->gridSize.y);
@@ -825,7 +825,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         QImage tileset(0x10, 0x400 * 0x10, QImage::Format_Indexed8);
 
         QVector<QRgb> pal;
-        for (PaletteColour &col : viewer->tilePalette) pal.append(col.toQColor().rgb());
+        for (PaletteColor &col : viewer->tilePalette) pal.append(col.toQColor().rgb());
         tileset.setColorTable(pal);
         addStatusProgress(1. / 4); // finished setup
 
@@ -1038,18 +1038,18 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
     scnProp->bgSel->setColor(viewer->metadata.backgroundColor1);
     connect(scnProp->bgSel, &color_widgets::ColorPreview::clicked, [this] {
-        ColourDialog dlg(viewer->metadata.backgroundColor1);
+        ColorDialog dlg(viewer->metadata.backgroundColor1);
         if (dlg.exec() == QDialog::Accepted) {
-            viewer->metadata.backgroundColor1 = dlg.colour().toQColor();
+            viewer->metadata.backgroundColor1 = dlg.color().toQColor();
             scnProp->bgSel->setColor(viewer->metadata.backgroundColor1);
         }
     });
 
     scnProp->altBGSel->setColor(viewer->metadata.backgroundColor2);
     connect(scnProp->altBGSel, &color_widgets::ColorPreview::clicked, [this] {
-        ColourDialog dlg(viewer->metadata.backgroundColor2);
+        ColorDialog dlg(viewer->metadata.backgroundColor2);
         if (dlg.exec() == QDialog::Accepted) {
-            viewer->metadata.backgroundColor2 = dlg.colour().toQColor();
+            viewer->metadata.backgroundColor2 = dlg.color().toQColor();
             scnProp->altBGSel->setColor(viewer->metadata.backgroundColor2);
         }
     });
@@ -1204,11 +1204,11 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             writer.writeLine("<scene>");
 
             QList<QString> types      = { "uint8", "uint16", "uint32", "int8",    "int16", "int32",
-                                     "enum",  "bool",   "string", "vector2", "float", "colour" };
+                                     "enum",  "bool",   "string", "vector2", "float", "color" };
             QList<QString> layerTypes = { "HScroll", "VScroll", "RotoZoom", "Basic" };
 
-            writer.writeLine(QString("\t<metadata libraryFile=\"%1\" bgColour=\"%2\" "
-                                     "altBgColour=\"%3\"> </metadata>")
+            writer.writeLine(QString("\t<metadata libraryFile=\"%1\" bgColor1=\"%2\" "
+                                     "bgColor2=\"%3\"> </metadata>")
                                  .arg(viewer->metadata.stampName)
                                  .arg(viewer->metadata.backgroundColor1.rgba())
                                  .arg(viewer->metadata.backgroundColor2.rgba()));
@@ -2617,7 +2617,7 @@ void SceneEditorv5::saveScene(QString path)
     FormatHelpers::Gif tileset(16, 0x400 * 16);
 
     int c = 0;
-    for (PaletteColour &col : viewer->tilePalette) tileset.palette[c++] = col.toQColor();
+    for (PaletteColor &col : viewer->tilePalette) tileset.palette[c++] = col.toQColor();
 
     int pos = 0;
     for (int i = 0; i < 0x400; ++i) {

@@ -35,7 +35,7 @@ public:
     QImage exportImage();
     FormatHelpers::Gif exportGif();
 
-    Colour palette[255];
+    Color palette[255];
     ushort width  = 16;
     ushort height = 16;
     QByteArray pixels;

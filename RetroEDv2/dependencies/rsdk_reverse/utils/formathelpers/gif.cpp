@@ -23,7 +23,7 @@ void FormatHelpers::Gif::read(Reader &reader, bool skipHeader, int clrCnt)
         clrCnt    = (info & 0x7) + 1;
         if (clrCnt > 0)
             clrCnt = 1 << clrCnt;
-        reader.read<byte>(); // background colour index
+        reader.read<byte>(); // background color index
         reader.read<byte>(); // unused
     }
 
@@ -123,10 +123,10 @@ void FormatHelpers::Gif::write(Writer &writer, bool skipHeader, bool useLocal)
 
         if (useLocal)
             writer.write<byte>((1 << 7) | (6 << 4)
-                               | 6); // 1 == hasColours, 6 == paletteSize of 128, 6 == 7bpp
+                               | 6); // 1 == hasColors, 6 == paletteSize of 128, 6 == 7bpp
         else
             writer.write<byte>((1 << 7) | (7 << 4)
-                               | 7); // 1 == hasColours, 7 == paletteSize of 256, 7 == 8bpp
+                               | 7); // 1 == hasColors, 7 == paletteSize of 256, 7 == 8bpp
         writer.write<byte>(0);
         writer.write<byte>(0);
     }

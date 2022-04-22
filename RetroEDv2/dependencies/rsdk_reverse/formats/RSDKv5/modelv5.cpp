@@ -10,16 +10,16 @@ void RSDKv5::Model::read(Reader &reader)
     byte flags  = reader.read<byte>();
     hasNormals  = Utils::getBit(flags, 0);
     hasTextures = Utils::getBit(flags, 1);
-    hasColours  = Utils::getBit(flags, 2);
+    hasColors   = Utils::getBit(flags, 2);
 
     faceVerticesCount = reader.read<byte>();
 
     ushort vertCount  = reader.read<ushort>();
     ushort frameCount = reader.read<ushort>();
 
-    colours.clear();
-    if (hasColours) {
-        for (int v = 0; v < vertCount; ++v) colours.append(Colour(reader));
+    colors.clear();
+    if (hasColors) {
+        for (int v = 0; v < vertCount; ++v) colors.append(Color(reader));
     }
 
     texCoords.clear();
@@ -59,7 +59,7 @@ void RSDKv5::Model::write(Writer &writer)
     byte flags = 0;
     Utils::setBit(flags, hasNormals, 0);
     Utils::setBit(flags, hasTextures, 1);
-    Utils::setBit(flags, hasColours, 2);
+    Utils::setBit(flags, hasColors, 2);
     writer.write(flags);
 
     writer.write(faceVerticesCount);
@@ -68,8 +68,8 @@ void RSDKv5::Model::write(Writer &writer)
     writer.write((ushort)vertCount);
     writer.write((ushort)frames.count());
 
-    if (hasColours) {
-        for (int v = 0; v < vertCount; ++v) colours[v].write(writer);
+    if (hasColors) {
+        for (int v = 0; v < vertCount; ++v) colors[v].write(writer);
     }
 
     if (hasTextures) {
@@ -140,7 +140,7 @@ void RSDKv5::Model::writeAsOBJ(QString filePath, int exportFrame)
         for (int v = 0; v < indices.count(); v += faceVerticesCount) {
             QList<ushort> verts;
             for (int ii = 0; ii < faceVerticesCount; ++ii) verts.append(indices[v + ii]);
-            writer.writeLine(QString("usemtl RSDKModelv5.Colour.%1").arg(indices[v]));
+            writer.writeLine(QString("usemtl RSDKModelv5.Color.%1").arg(indices[v]));
             writer.writeLine(
                 QString("f %1 %2 %3").arg(verts[0] + 1).arg(verts[1] + 1).arg(verts[2] + 1));
             if (faceVerticesCount == 4)
@@ -157,12 +157,12 @@ void RSDKv5::Model::writeAsOBJ(QString filePath, int exportFrame)
 void RSDKv5::Model::writeMTL(QString filepath)
 {
     Writer writer(filepath);
-    for (int i = 0; i < colours.count(); ++i) {
-        writer.writeLine(QString("newmtl RSDKModelv5.Colour.%1").arg(i));
+    for (int i = 0; i < colors.count(); ++i) {
+        writer.writeLine(QString("newmtl RSDKModelv5.Color.%1").arg(i));
         writer.writeLine(QString("kd %1 %2 %3")
-                             .arg(colours[i].r / 255.0f)
-                             .arg(colours[i].g / 255.0f)
-                             .arg(colours[i].b / 255.0f));
+                             .arg(colors[i].r / 255.0f)
+                             .arg(colors[i].g / 255.0f)
+                             .arg(colors[i].b / 255.0f));
     }
     writer.flush();
 }
@@ -205,14 +205,14 @@ int RSDKv5::Model::getPLYPropertyType(QString propertyType)
 
 void RSDKv5::Model::loadPLY(QString filePath)
 {
-    hasColours        = false;
+    hasColors         = false;
     hasNormals        = false;
     hasTextures       = false;
     faceVerticesCount = 3;
 
     texCoords.clear();
     frames.clear();
-    colours.clear();
+    colors.clear();
     indices.clear();
 
     frames.append(Frame());
@@ -396,13 +396,13 @@ void RSDKv5::Model::loadPLY(QString filePath)
 
         if (name == "vertex") {
             frames[0].vertices.clear();
-            colours.clear();
+            colors.clear();
             texCoords.clear();
 
             // Fill up all the blanks
             for (int v = 0; v < element.propertyValues.count(); ++v) {
                 frames[0].vertices.append(Frame::Vertex());
-                colours.append(Colour());
+                colors.append(Color());
                 texCoords.append(TexCoord());
             }
 
@@ -715,39 +715,39 @@ void RSDKv5::Model::loadPLY(QString filePath)
                     }
                 }
 
-                // VERTEX COLOURS
+                // VERTEX COLORS
                 {
                     if (name == "r" || name == "red") {
                         if (element.propertyValues.count())
-                            hasColours = true;
+                            hasColors = true;
 
                         for (auto &propertyValue : element.propertyValues) {
                             bool ok = false;
                             switch (getPLYPropertyType(property.type)) {
                                 default: break;
                                 case PLYPropTypes::INT8:
-                                    colours[v].r = propertyValue.values[p].toInt(&ok);
+                                    colors[v].r = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::UINT8:
-                                    colours[v].r = propertyValue.values[p].toInt(&ok);
+                                    colors[v].r = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::INT16:
-                                    colours[v].r = propertyValue.values[p].toInt(&ok);
+                                    colors[v].r = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::UINT16:
-                                    colours[v].r = propertyValue.values[p].toInt(&ok);
+                                    colors[v].r = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::INT32:
-                                    colours[v].r = propertyValue.values[p].toInt(&ok);
+                                    colors[v].r = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::UINT32:
-                                    colours[v].r = propertyValue.values[p].toInt(&ok);
+                                    colors[v].r = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::FLOAT:
-                                    colours[v].r = propertyValue.values[p].toFloat(&ok) * 255.0f;
+                                    colors[v].r = propertyValue.values[p].toFloat(&ok) * 255.0f;
                                     break;
                                 case PLYPropTypes::DOUBLE:
-                                    colours[v].r = propertyValue.values[p].toDouble(&ok) * 255.0f;
+                                    colors[v].r = propertyValue.values[p].toDouble(&ok) * 255.0f;
                                     break;
                             }
 
@@ -757,35 +757,35 @@ void RSDKv5::Model::loadPLY(QString filePath)
 
                     if (name == "g" || name == "green") {
                         if (element.propertyValues.count())
-                            hasColours = true;
+                            hasColors = true;
 
                         for (auto &propertyValue : element.propertyValues) {
                             bool ok = false;
                             switch (getPLYPropertyType(property.type)) {
                                 default: break;
                                 case PLYPropTypes::INT8:
-                                    colours[v].g = propertyValue.values[p].toInt(&ok);
+                                    colors[v].g = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::UINT8:
-                                    colours[v].g = propertyValue.values[p].toInt(&ok);
+                                    colors[v].g = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::INT16:
-                                    colours[v].g = propertyValue.values[p].toInt(&ok);
+                                    colors[v].g = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::UINT16:
-                                    colours[v].g = propertyValue.values[p].toInt(&ok);
+                                    colors[v].g = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::INT32:
-                                    colours[v].g = propertyValue.values[p].toInt(&ok);
+                                    colors[v].g = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::UINT32:
-                                    colours[v].g = propertyValue.values[p].toInt(&ok);
+                                    colors[v].g = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::FLOAT:
-                                    colours[v].g = propertyValue.values[p].toFloat(&ok) * 255.0f;
+                                    colors[v].g = propertyValue.values[p].toFloat(&ok) * 255.0f;
                                     break;
                                 case PLYPropTypes::DOUBLE:
-                                    colours[v].g = propertyValue.values[p].toDouble(&ok) * 255.0f;
+                                    colors[v].g = propertyValue.values[p].toDouble(&ok) * 255.0f;
                                     break;
                             }
 
@@ -795,35 +795,35 @@ void RSDKv5::Model::loadPLY(QString filePath)
 
                     if (name == "b" || name == "blue") {
                         if (element.propertyValues.count())
-                            hasColours = true;
+                            hasColors = true;
 
                         for (auto &propertyValue : element.propertyValues) {
                             bool ok = false;
                             switch (getPLYPropertyType(property.type)) {
                                 default: break;
                                 case PLYPropTypes::INT8:
-                                    colours[v].b = propertyValue.values[p].toInt(&ok);
+                                    colors[v].b = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::UINT8:
-                                    colours[v].b = propertyValue.values[p].toInt(&ok);
+                                    colors[v].b = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::INT16:
-                                    colours[v].b = propertyValue.values[p].toInt(&ok);
+                                    colors[v].b = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::UINT16:
-                                    colours[v].b = propertyValue.values[p].toInt(&ok);
+                                    colors[v].b = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::INT32:
-                                    colours[v].b = propertyValue.values[p].toInt(&ok);
+                                    colors[v].b = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::UINT32:
-                                    colours[v].b = propertyValue.values[p].toInt(&ok);
+                                    colors[v].b = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::FLOAT:
-                                    colours[v].b = propertyValue.values[p].toFloat(&ok) * 255.0f;
+                                    colors[v].b = propertyValue.values[p].toFloat(&ok) * 255.0f;
                                     break;
                                 case PLYPropTypes::DOUBLE:
-                                    colours[v].b = propertyValue.values[p].toDouble(&ok) * 255.0f;
+                                    colors[v].b = propertyValue.values[p].toDouble(&ok) * 255.0f;
                                     break;
                             }
 
@@ -833,35 +833,35 @@ void RSDKv5::Model::loadPLY(QString filePath)
 
                     if (name == "a" || name == "alpha") {
                         if (element.propertyValues.count())
-                            hasColours = true;
+                            hasColors = true;
 
                         for (auto &propertyValue : element.propertyValues) {
                             bool ok = false;
                             switch (getPLYPropertyType(property.type)) {
                                 default: break;
                                 case PLYPropTypes::INT8:
-                                    colours[v].a = propertyValue.values[p].toInt(&ok);
+                                    colors[v].a = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::UINT8:
-                                    colours[v].a = propertyValue.values[p].toInt(&ok);
+                                    colors[v].a = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::INT16:
-                                    colours[v].a = propertyValue.values[p].toInt(&ok);
+                                    colors[v].a = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::UINT16:
-                                    colours[v].a = propertyValue.values[p].toInt(&ok);
+                                    colors[v].a = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::INT32:
-                                    colours[v].a = propertyValue.values[p].toInt(&ok);
+                                    colors[v].a = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::UINT32:
-                                    colours[v].a = propertyValue.values[p].toInt(&ok);
+                                    colors[v].a = propertyValue.values[p].toInt(&ok);
                                     break;
                                 case PLYPropTypes::FLOAT:
-                                    colours[v].a = propertyValue.values[p].toFloat(&ok) * 255.0f;
+                                    colors[v].a = propertyValue.values[p].toFloat(&ok) * 255.0f;
                                     break;
                                 case PLYPropTypes::DOUBLE:
-                                    colours[v].a = propertyValue.values[p].toDouble(&ok) * 255.0f;
+                                    colors[v].a = propertyValue.values[p].toDouble(&ok) * 255.0f;
                                     break;
                             }
 
@@ -963,7 +963,7 @@ void RSDKv5::Model::writeAsPLY(QString filePath, int exportFrame)
             writer.writeLine("property float u");
             writer.writeLine("property float v");
         }
-        if (hasColours) {
+        if (hasColors) {
             writer.writeLine("property uint8 red");
             writer.writeLine("property uint8 green");
             writer.writeLine("property uint8 blue");
@@ -990,11 +990,11 @@ void RSDKv5::Model::writeAsPLY(QString filePath, int exportFrame)
                     writer.write(texCoords[v].y);
                 }
 
-                if (hasColours) {
-                    writer.write(colours[v].r);
-                    writer.write(colours[v].g);
-                    writer.write(colours[v].b);
-                    writer.write(colours[v].a);
+                if (hasColors) {
+                    writer.write(colors[v].r);
+                    writer.write(colors[v].g);
+                    writer.write(colors[v].b);
+                    writer.write(colors[v].a);
                 }
             }
 
@@ -1023,12 +1023,12 @@ void RSDKv5::Model::writeAsPLY(QString filePath, int exportFrame)
                     vertex += QString(" %1 %2").arg(texCoords[v].x).arg(texCoords[v].y);
                 }
 
-                if (hasColours) {
+                if (hasColors) {
                     vertex += QString(" %1 %2 %3 %4")
-                                  .arg(colours[v].r)
-                                  .arg(colours[v].g)
-                                  .arg(colours[v].b)
-                                  .arg(colours[v].a);
+                                  .arg(colors[v].r)
+                                  .arg(colors[v].g)
+                                  .arg(colors[v].b)
+                                  .arg(colors[v].a);
                 }
 
                 writer.writeLine(vertex);

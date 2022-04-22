@@ -3613,7 +3613,7 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
             case FUNC_DRAWLINE: {
                 opcodeSize = 0;
 
-                Vector4<float> colour =
+                Vector4<float> color =
                     Vector4<float>(scriptEng.operands[4] / 255.0f, scriptEng.operands[5] / 255.0f,
                                    scriptEng.operands[6] / 255.0f, 1.0);
 
@@ -3621,7 +3621,7 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                                          (scriptEng.operands[1] >> 16) - editor->viewer->cameraPos.y,
                                          (scriptEng.operands[2] >> 16) - editor->viewer->cameraPos.x,
                                          (scriptEng.operands[3] >> 16) - editor->viewer->cameraPos.y,
-                                         colour, entity->alpha, (InkEffects)entity->inkEffect);
+                                         color, entity->alpha, (InkEffects)entity->inkEffect);
                 break;
             }
             case FUNC_DRAWARROW: {
@@ -3629,7 +3629,7 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
 
                 int angle = ArcTanLookup(scriptEng.operands[0] - scriptEng.operands[2],
                                          scriptEng.operands[1] - scriptEng.operands[3]);
-                Vector4<float> colour =
+                Vector4<float> color =
                     Vector4<float>(scriptEng.operands[4] / 255.0f, scriptEng.operands[5] / 255.0f,
                                    scriptEng.operands[6] / 255.0f, 1.0);
                 InkEffects ink = (InkEffects)entity->inkEffect;
@@ -3639,12 +3639,12 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                 int x2 = (scriptEng.operands[2] >> 16) - editor->viewer->cameraPos.x;
                 int y2 = (scriptEng.operands[3] >> 16) - editor->viewer->cameraPos.y;
 
-                editor->viewer->drawLine(x1, y1, x2, y2, colour, entity->alpha, ink);
+                editor->viewer->drawLine(x1, y1, x2, y2, color, entity->alpha, ink);
                 editor->viewer->drawLine(x2, y2, x2 + ((cos256(angle + 12) << 12) >> 16),
-                                         y2 + ((sin256(angle + 12) << 12) >> 16), colour, entity->alpha,
+                                         y2 + ((sin256(angle + 12) << 12) >> 16), color, entity->alpha,
                                          ink);
                 editor->viewer->drawLine(x2, y2, x2 + ((cos256(angle - 12) << 12) >> 16),
-                                         y2 + ((sin256(angle - 12) << 12) >> 16), colour, entity->alpha,
+                                         y2 + ((sin256(angle - 12) << 12) >> 16), color, entity->alpha,
                                          ink);
                 break;
             }

@@ -328,7 +328,7 @@ void StageConfigEditorv5::copyConfig(ActionState *stateDst, ActionState *stateSr
         for (int r = 0; r < 16; ++r) {
             dst->palettes[i].activeRows[r] = src->palettes[i].activeRows[r];
             for (int c = 0; c < 16; ++c)
-                dst->palettes[i].colours[r][c] = src->palettes[i].colours[r][c];
+                dst->palettes[i].colors[r][c] = src->palettes[i].colors[r][c];
         }
     }
 

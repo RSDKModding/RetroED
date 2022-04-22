@@ -1,12 +1,12 @@
-#ifndef RSDK_COLOUR_H
-#define RSDK_COLOUR_H
+#ifndef RSDK_COLOR_H
+#define RSDK_COLOR_H
 
-class Colour
+class Color
 {
 public:
-    Colour() {}
-    Colour(byte r, byte g, byte b) : r(r), g(g), b(b) {}
-    Colour(Reader &reader) { read(reader); }
+    Color() {}
+    Color(byte r, byte g, byte b) : r(r), g(g), b(b) {}
+    Color(Reader &reader) { read(reader); }
 
     void read(Reader &reader)
     {
@@ -27,15 +27,15 @@ public:
     byte b = 0xFF;
 };
 
-struct PaletteColour {
-    PaletteColour() {}
-    PaletteColour(byte r, byte g, byte b)
+struct PaletteColor {
+    PaletteColor() {}
+    PaletteColor(byte r, byte g, byte b)
     {
         this->r = r;
         this->g = g;
         this->b = b;
     }
-    PaletteColour(QColor c)
+    PaletteColor(QColor c)
     {
         this->r = c.red();
         this->g = c.green();
@@ -63,4 +63,4 @@ struct PaletteColour {
     byte b = 0xFF;
 };
 
-#endif // RSDK_COLOUR_H
+#endif // RSDK_COLOR_H

@@ -74,15 +74,15 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
         int mouseY = mousePos.y;
         int X = 0, Y = 0, W = 0, H = 0;
 
-        QColor bgColour = QColor(0xFFFFFFFF);
+        QColor bgColor = QColor(0xFFFFFFFF);
         if (this->sheet->format() == QImage::Format_Indexed8) {
-            // last colour in the palette (should) always be bg
-            // bgColour = this->sheet->colorTable().last();
+            // last color in the palette (should) always be bg
+            // bgColor = this->sheet->colorTable().last();
         }
 
         int px = mouseX;
         while (true) {
-            if (this->sheet->pixelColor(px, mouseY) == bgColour)
+            if (this->sheet->pixelColor(px, mouseY) == bgColor)
                 break;
             else {
                 X--;
@@ -93,7 +93,7 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
 
         px = mouseX;
         while (true) {
-            if (this->sheet->pixelColor(px, mouseY) == bgColour)
+            if (this->sheet->pixelColor(px, mouseY) == bgColor)
                 break;
             else {
                 W++;
@@ -104,7 +104,7 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
 
         int py = mouseY;
         while (true) {
-            if (this->sheet->pixelColor(mouseX, py) == bgColour)
+            if (this->sheet->pixelColor(mouseX, py) == bgColor)
                 break;
             else {
                 Y--;
@@ -115,7 +115,7 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
 
         py = mouseY;
         while (true) {
-            if (this->sheet->pixelColor(mouseX, py) == bgColour)
+            if (this->sheet->pixelColor(mouseX, py) == bgColor)
                 break;
             else {
                 H++;

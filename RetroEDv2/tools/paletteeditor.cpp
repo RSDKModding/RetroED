@@ -21,7 +21,7 @@ void PaletteEditor::init()
 
     if (firstInit) {
         connect(ui->importPal, &QPushButton::clicked, [=] {
-            QStringList types        = { "Adobe Colour Table Palettes (*.act)",
+            QStringList types        = { "Adobe Color Table Palettes (*.act)",
                                   "rev02 (plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
                                   "rev01 (pre-plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
                                   "RSDKv5 StageConfig Palettes (*StageConfig*.bin)",
@@ -31,7 +31,7 @@ void PaletteEditor::init()
                                   "RSDKv2 StageConfig Palettes (*StageConfig*.bin)",
                                   "RSDKv1 StageConfig Palettes (*Zone*.zcf)" };
             QList<QString> typesList = {
-                "Adobe Colour Table Palettes (*.act)",
+                "Adobe Color Table Palettes (*.act)",
                 "rev02 (plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
                 "rev01 (pre-plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
                 "RSDKv5 StageConfig Palettes (*StageConfig*.bin)",
@@ -57,7 +57,7 @@ void PaletteEditor::init()
 
         connect(ui->exportPal, &QPushButton::clicked, [=] {
             QFileDialog filedialog(this, tr("Export Palette"), "",
-                                   tr("Adobe Colour Table Palettes (*.act)"));
+                                   tr("Adobe Color Table Palettes (*.act)"));
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
                 QString fileName = filedialog.selectedFiles()[0];
@@ -96,11 +96,11 @@ void PaletteEditor::load(QString path, byte type)
     bankID  = 0;
     switch (type) {
         case PALTYPE_ACT: { //.act
-            QList<PaletteColour> pal;
+            QList<PaletteColor> pal;
             Reader reader(path);
             pal.clear();
             while (!reader.isEOF()) {
-                PaletteColour clr;
+                PaletteColor clr;
                 clr.read(reader);
                 pal.append(clr);
             }
@@ -152,8 +152,8 @@ void PaletteEditor::load(QString path, byte type)
             }
 
             palette.clear();
-            for (auto &c : configPal->colours) {
-                palette.append(PaletteColour(c.r, c.g, c.b));
+            for (auto &c : configPal->colors) {
+                palette.append(PaletteColor(c.r, c.g, c.b));
             }
             break;
         }
@@ -188,13 +188,13 @@ void PaletteEditor::switchBank(int id)
             for (int r = 0; r < 16; ++r) {
                 if (configPal->activeRows[r]) {
                     for (int c = 0; c < 16; ++c) {
-                        palette.append(PaletteColour(configPal->colours[r][c].red(),
-                                                     configPal->colours[r][c].green(),
-                                                     configPal->colours[r][c].blue()));
+                        palette.append(PaletteColor(configPal->colors[r][c].red(),
+                                                    configPal->colors[r][c].green(),
+                                                    configPal->colors[r][c].blue()));
                     }
                 }
                 else {
-                    for (int c = 0; c < 16; ++c) palette.append(PaletteColour(0xFF, 0x00, 0xFF));
+                    for (int c = 0; c < 16; ++c) palette.append(PaletteColor(0xFF, 0x00, 0xFF));
                 }
             }
             break;
@@ -290,17 +290,17 @@ void PaletteWidget::mouseDoubleClickEvent(QMouseEvent *)
 {
     PaletteEditor *editor = (PaletteEditor *)parent();
 
-    PaletteColour prev = palette->at(selection);
-    ColourDialog dlg(palette->at(selection));
+    PaletteColor prev = palette->at(selection);
+    ColorDialog dlg(palette->at(selection));
     if (dlg.exec() == QDialog::Accepted) {
-        PaletteColour clr;
-        clr.r = dlg.colour().r;
-        clr.g = dlg.colour().g;
-        clr.b = dlg.colour().b;
+        PaletteColor clr;
+        clr.r = dlg.color().r;
+        clr.g = dlg.color().g;
+        clr.b = dlg.color().b;
         palette->replace(selection, clr);
 
         if (prev.r != clr.r && prev.g != clr.g && prev.b != clr.b)
-            editor->doAction("Changed colour", true);
+            editor->doAction("Changed color", true);
     }
 }
 
@@ -357,7 +357,7 @@ void PaletteWidget::paintEvent(QPaintEvent *)
             // if (index >= m_palette->m_pal.count()) continue;
             QPen pen(qApp->palette().base(), 2);
             p.setPen(pen);
-            PaletteColour clr = palette->at(index);
+            PaletteColor clr = palette->at(index);
             p.setBrush(clr.toQColor());
 
             if (editor->palType == PALTYPE_GAMECONFIGv5
@@ -385,7 +385,7 @@ void PaletteWidget::paintEvent(QPaintEvent *)
 
 bool PaletteEditor::event(QEvent *event)
 {
-    QStringList types        = { "Adobe Colour Table Palettes (*.act)",
+    QStringList types        = { "Adobe Color Table Palettes (*.act)",
                           "rev02 (plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
                           "rev01 (pre-plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
                           "RSDKv5 StageConfig Palettes (*StageConfig*.bin)",
@@ -394,7 +394,7 @@ bool PaletteEditor::event(QEvent *event)
                           "RSDKv3 StageConfig Palettes (*StageConfig*.bin)",
                           "RSDKv2 StageConfig Palettes (*StageConfig*.bin)",
                           "RSDKv1 StageConfig Palettes (*Zone*.zcf)" };
-    QList<QString> typesList = { "Adobe Colour Table Palettes (*.act)",
+    QList<QString> typesList = { "Adobe Color Table Palettes (*.act)",
                                  "rev02 (plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
                                  "rev01 (pre-plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
                                  "RSDKv5 StageConfig Palettes (*StageConfig*.bin)",
@@ -455,7 +455,7 @@ bool PaletteEditor::event(QEvent *event)
     }
 
     if (event->type() == (QEvent::Type)RE_EVENT_SAVE_AS) {
-        QList<QString> typesList = { "Adobe Colour Table Palettes (*.act)",
+        QList<QString> typesList = { "Adobe Color Table Palettes (*.act)",
                                      "rev02 (plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
                                      "rev01 (pre-plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
                                      "RSDKv5 StageConfig Palettes (*StageConfig*.bin)",
@@ -559,7 +559,7 @@ void PaletteEditor::savePalette(QString filepath)
                 if (configPal->activeRows[r]) {
                     for (int c = 0; c < 16; ++c) {
                         for (int c = 0; c < 16; ++c) {
-                            configPal->colours[r][c] =
+                            configPal->colors[r][c] =
                                 QColor(palette[(r << 4) + c].r, palette[(r << 4) + c].g,
                                        palette[(r << 4) + c].b);
 
@@ -568,7 +568,7 @@ void PaletteEditor::savePalette(QString filepath)
                     }
                 }
                 else {
-                    for (int c = 0; c < 16; ++c) configPal->colours[r][c] = QColor(0xFF, 0x00, 0xFF);
+                    for (int c = 0; c < 16; ++c) configPal->colors[r][c] = QColor(0xFF, 0x00, 0xFF);
 
                     addStatusProgress(16.0 / 256);
                 }
@@ -599,15 +599,15 @@ void PaletteEditor::savePalette(QString filepath)
                 case PALTYPE_STAGECONFIGv1: configPal = &stageConfigv1.palette; break;
             }
 
-            configPal->colours.clear();
-            int colourCount = PALTYPE_GAMECONFIGv4 ? 96 : 32;
-            for (int c = 0; c < colourCount; ++c) {
+            configPal->colors.clear();
+            int colorCount = PALTYPE_GAMECONFIGv4 ? 96 : 32;
+            for (int c = 0; c < colorCount; ++c) {
                 if (c < palette.count())
-                    configPal->colours.append(Colour(palette[c].r, palette[c].g, palette[c].b));
+                    configPal->colors.append(Color(palette[c].r, palette[c].g, palette[c].b));
                 else
-                    configPal->colours.append(Colour(0xFF, 0x00, 0xFF));
+                    configPal->colors.append(Color(0xFF, 0x00, 0xFF));
 
-                addStatusProgress(1.0 / colourCount);
+                addStatusProgress(1.0 / colorCount);
             }
 
             switch (palType) {

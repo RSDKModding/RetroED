@@ -79,10 +79,10 @@ SceneViewer::SceneViewer(byte gameType, QWidget *parent) : QOpenGLWidget(parent)
         baseIndexList[vID++] = (i << 2) + 3;
         baseIndexList[vID++] = (i << 2) + 2;
 
-        vertexList[i].colour.setX(0);
-        vertexList[i].colour.setY(0);
-        vertexList[i].colour.setZ(0);
-        vertexList[i].colour.setW(0);
+        vertexList[i].color.setX(0);
+        vertexList[i].color.setY(0);
+        vertexList[i].color.setZ(0);
+        vertexList[i].color.setW(0);
     }
 
     for (int i = 0; i < 0x400; ++i) {
@@ -171,7 +171,7 @@ void SceneViewer::initScene(QImage tileset)
     auto pal = tileset.colorTable();
     tilePalette.clear();
     for (QRgb &col : pal) {
-        tilePalette.append(PaletteColour(col));
+        tilePalette.append(PaletteColor(col));
     }
 
     chunks.clear();
@@ -1504,7 +1504,7 @@ void SceneViewer::initializeGL()
                                    (void *)offsetof(DrawVertex, uv));
     glFuncs->glEnableVertexAttribArray(1);
     glFuncs->glVertexAttribPointer(2, 4, GL_FLOAT, GL_TRUE, sizeof(DrawVertex),
-                                   (void *)offsetof(DrawVertex, colour));
+                                   (void *)offsetof(DrawVertex, color));
     glFuncs->glEnableVertexAttribArray(2);
     indexVBO = new QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
     indexVBO->create();
@@ -2043,13 +2043,13 @@ void SceneViewer::drawSpriteRotozoom(float XPos, float YPos, float pivotX, float
     validDraw = true;
 }
 
-void SceneViewer::drawLine(float x1, float y1, float x2, float y2, Vector4<float> colour, int alpha,
+void SceneViewer::drawLine(float x1, float y1, float x2, float y2, Vector4<float> color, int alpha,
                            InkEffects ink)
 {
     for (int i = 0; i < zoom; ++i) {
         addRenderState(ink, 2, 2, nullptr, alpha, &lineShader);
-        addPoly(x1, y1, 0, 0, colour);
-        addPoly(x2, y2, 0, 0, colour);
+        addPoly(x1, y1, 0, 0, color);
+        addPoly(x2, y2, 0, 0, color);
         if (x1 > x2) {
             y1 -= invZoom();
             y2 -= invZoom();
@@ -2071,28 +2071,28 @@ void SceneViewer::drawLine(float x1, float y1, float x2, float y2, Vector4<float
     validDraw = true;
 }
 
-void SceneViewer::drawRect(float x, float y, float w, float h, Vector4<float> colour, bool outline,
+void SceneViewer::drawRect(float x, float y, float w, float h, Vector4<float> color, bool outline,
                            int alpha, InkEffects inkEffect)
 {
     if (outline) {
         // top
-        drawLine(x, y, x + w, y, colour);
+        drawLine(x, y, x + w, y, color);
         // bottom
-        drawLine(x, y + h, x + w, y + h, colour);
+        drawLine(x, y + h, x + w, y + h, color);
         // left
-        drawLine(x, y, x, y + h + 1, colour);
+        drawLine(x, y, x, y + h + 1, color);
         // right
-        drawLine(x + w, y, x + w, y + h, colour);
+        drawLine(x + w, y, x + w, y + h, color);
     }
     else {
         PlaceArgs args;
         args.texID = -1;
         addRenderState(inkEffect, 4, 6, &args, alpha);
 
-        addPoly(x, y, 0, 0, colour);
-        addPoly(x + w, y, 0, 0, colour);
-        addPoly(x, y + h, 0, 0, colour);
-        addPoly(x + w, y + h, 0, 0, colour);
+        addPoly(x, y, 0, 0, color);
+        addPoly(x + w, y, 0, 0, color);
+        addPoly(x, y + h, 0, 0, color);
+        addPoly(x + w, y + h, 0, 0, color);
     }
     validDraw = true;
 }
@@ -2101,7 +2101,7 @@ void SceneViewer::drawFace(Vector2<int> *vertices, int vertCount, int r, int g, 
                            InkEffects inkEffect)
 {
     return; /*
-    uint colour = (r << 16) | (g << 8) | (b << 0);
+    uint color = (r << 16) | (g << 8) | (b << 0);
 
     int count = 3 * vertCount - 3;
     ushort indecies[0x800 * 6];
@@ -2118,7 +2118,7 @@ void SceneViewer::drawFace(Vector2<int> *vertices, int vertCount, int r, int g, 
 
     for (int i = 0; i < vertCount; ++i)
         addPoly(vertices[i].x / (float)(1 << 16), vertices[i].y / (float)(1 << 16), 0, 0, 0,
-    colour);
+    color);
 
     validDraw = true;//*/
 }
@@ -2161,10 +2161,10 @@ inline void SceneViewer::addPoly(float x, float y, float u, float v, Vector4<flo
     vertexList[renderCount].uv.setX(u);
     vertexList[renderCount].uv.setY(v);
 
-    vertexList[renderCount].colour.setX(color.x);
-    vertexList[renderCount].colour.setY(color.y);
-    vertexList[renderCount].colour.setZ(color.z);
-    vertexList[renderCount].colour.setW(color.w);
+    vertexList[renderCount].color.setX(color.x);
+    vertexList[renderCount].color.setY(color.y);
+    vertexList[renderCount].color.setZ(color.z);
+    vertexList[renderCount].color.setW(color.w);
     renderCount++;
 }
 

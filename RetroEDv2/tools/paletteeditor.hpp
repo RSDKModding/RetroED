@@ -16,7 +16,7 @@ enum PaletteFormatTypes {
     PALTYPE_STAGECONFIGv3,
     PALTYPE_STAGECONFIGv2,
     PALTYPE_STAGECONFIGv1,
-    PALTYPE_COLOURLIST,
+    PALTYPE_COLORLIST,
 };
 
 class PaletteWidget : public QWidget
@@ -24,8 +24,8 @@ class PaletteWidget : public QWidget
     Q_OBJECT
 public:
     explicit PaletteWidget(QWidget *parent = nullptr);
-    QColor colour = 0xFF00FF;
-    QList<PaletteColour> *palette;
+    QColor color = 0xFF00FF;
+    QList<PaletteColor> *palette;
 
 protected:
     void paintEvent(QPaintEvent *) override;
@@ -54,7 +54,7 @@ public:
     public:
         QString name = "Action";
 
-        QList<PaletteColour> palette;
+        QList<PaletteColor> palette;
 
         RSDKv5::GameConfig gameConfigv5;
         RSDKv5::StageConfig stageConfigv5;
@@ -81,7 +81,7 @@ public:
             emit titleChanged(tabTitle);
     }
 
-    QList<PaletteColour> palette;
+    QList<PaletteColor> palette;
 
     RSDKv5::GameConfig gameConfigv5;
     RSDKv5::StageConfig stageConfigv5;

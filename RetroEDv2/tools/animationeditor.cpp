@@ -2060,10 +2060,10 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->frameList->blockSignals(false);
     });
 
-    connect(ui->bgColour, &QToolButton::clicked, [this] {
-        ColourDialog dlg(bgColour);
+    connect(ui->bgColor, &QToolButton::clicked, [this] {
+        ColorDialog dlg(bgColor);
         if (dlg.exec() == QDialog::Accepted) {
-            bgColour = dlg.colour().toQColor();
+            bgColor = dlg.color().toQColor();
             updateView();
         }
     });
@@ -2215,7 +2215,7 @@ void AnimationEditor::updateView()
     cx -= offset.x;
     cy -= offset.y;
 
-    QBrush bgBrush(bgColour);
+    QBrush bgBrush(bgColor);
     painter->fillRect(0, 0, ui->viewerFrame->width(), ui->viewerFrame->height(), bgBrush);
 
     painter->setPen(QColor(0x80E0E0E0));

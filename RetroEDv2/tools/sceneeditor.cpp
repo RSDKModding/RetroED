@@ -753,7 +753,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         QImage tileset(0x10, 0x400 * 0x10, QImage::Format_Indexed8);
 
         QVector<QRgb> pal;
-        for (PaletteColour &col : viewer->tilePalette) pal.append(col.toQColor().rgb());
+        for (PaletteColor &col : viewer->tilePalette) pal.append(col.toQColor().rgb());
         tileset.setColorTable(pal);
         addStatusProgress(1. / 5); // finished setup
 
@@ -830,18 +830,18 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     scnProp->bgSel->setColor(viewer->metadata.backgroundColor1);
     connect(scnProp->bgSel, &color_widgets::ColorPreview::clicked, [this] {
-        ColourDialog dlg(viewer->metadata.backgroundColor1);
+        ColorDialog dlg(viewer->metadata.backgroundColor1);
         if (dlg.exec() == QDialog::Accepted) {
-            viewer->metadata.backgroundColor1 = dlg.colour().toQColor();
+            viewer->metadata.backgroundColor1 = dlg.color().toQColor();
             scnProp->bgSel->setColor(viewer->metadata.backgroundColor1);
         }
     });
 
     scnProp->altBGSel->setColor(viewer->metadata.backgroundColor2);
     connect(scnProp->altBGSel, &color_widgets::ColorPreview::clicked, [this] {
-        ColourDialog dlg(viewer->metadata.backgroundColor2);
+        ColorDialog dlg(viewer->metadata.backgroundColor2);
         if (dlg.exec() == QDialog::Accepted) {
-            viewer->metadata.backgroundColor2 = dlg.colour().toQColor();
+            viewer->metadata.backgroundColor2 = dlg.color().toQColor();
             scnProp->altBGSel->setColor(viewer->metadata.backgroundColor2);
         }
     });
@@ -2179,7 +2179,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
     FormatHelpers::Gif tileset(16, 0x400 * 16);
 
     int c = 0;
-    for (PaletteColour &col : viewer->tilePalette) tileset.palette[c++] = col.toQColor();
+    for (PaletteColor &col : viewer->tilePalette) tileset.palette[c++] = col.toQColor();
 
     int pos = 0;
     for (int i = 0; i < 0x400; ++i) {
@@ -4051,7 +4051,7 @@ void SceneEditor::writeXMLEntity(Writer &writer, int entityID, int indentPos)
 {
 
     QList<QString> types = { "uint8", "uint16", "uint32", "int8",    "int16", "int32",
-                             "enum",  "bool",   "string", "vector2", "float", "colour" };
+                             "enum",  "bool",   "string", "vector2", "float", "color" };
 
     auto &entity = viewer->entities[entityID];
 
@@ -4150,7 +4150,7 @@ void SceneEditor::writeXMLScene(Writer &writer)
     writer.writeLine("<scene>");
 
     QList<QString> types = { "uint8", "uint16", "uint32", "int8",    "int16", "int32",
-                             "enum",  "bool",   "string", "vector2", "float", "colour" };
+                             "enum",  "bool",   "string", "vector2", "float", "color" };
 
     indentPos++;
     {
@@ -4161,8 +4161,8 @@ void SceneEditor::writeXMLScene(Writer &writer)
                       | (viewer->metadata.backgroundColor2.green() << 8)
                       | (viewer->metadata.backgroundColor2.blue() << 0) | (0xFF << 24);
         writer.writeLine(
-            QString("\t<metadata bgColour=\"%1\" "
-                    "altBgColour=\"%2\" title=\"%3\" layerMidpoint=\"%4\" activeLayer0=\"%5\" "
+            QString("\t<metadata bgColor1=\"%1\" "
+                    "bgColor2=\"%2\" title=\"%3\" layerMidpoint=\"%4\" activeLayer0=\"%5\" "
                     "activeLayer1=\"%6\" activeLayer2=\"%7\" activeLayer3=\"%8\" musicID=\"%9\" "
                     "backgroundID=\"%10\" playerX=\"%11\" playerY=\"%12\"> </metadata>")
                 .arg(bgClr1)

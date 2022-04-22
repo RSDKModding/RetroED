@@ -1,30 +1,30 @@
-#ifndef COLOURDIALOG_H
-#define COLOURDIALOG_H
+#ifndef COLORDIALOG_H
+#define COLORDIALOG_H
 
 namespace Ui
 {
-class ColourDialog;
+class ColorDialog;
 }
 
-class ColourDialog : public QDialog
+class ColorDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit ColourDialog(PaletteColour color, QWidget *parent = nullptr);
-    ~ColourDialog();
-    static PaletteColour getColour(PaletteColour colour, bool *ok, QWidget *parent = nullptr);
+    explicit ColorDialog(PaletteColor color, QWidget *parent = nullptr);
+    ~ColorDialog();
+    static PaletteColor getColor(PaletteColor color, bool *ok, QWidget *parent = nullptr);
 
-    inline PaletteColour colour() { return m_colour; }
+    inline PaletteColor color() { return m_color; }
 
 private slots:
-    void setColour(QColor col);
+    void setColor(QColor col);
     void setHsv();
     void setRGB();
 
 private:
-    Ui::ColourDialog *ui;
-    PaletteColour m_colour;
+    Ui::ColorDialog *ui;
+    PaletteColor m_color;
 };
 
-#endif // COLOURDIALOG_H
+#endif // COLORDIALOG_H

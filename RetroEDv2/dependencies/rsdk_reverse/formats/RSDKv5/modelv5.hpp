@@ -7,15 +7,15 @@ namespace RSDKv5
 class Model
 {
 public:
-    class Colour
+    class Color
     {
     public:
         byte r = 0xFF;
         byte g = 0x00;
         byte b = 0xFF;
         byte a = 0xFF;
-        Colour() {}
-        Colour(Reader &reader) { read(reader); }
+        Color() {}
+        Color(Reader &reader) { read(reader); }
 
         void read(Reader &reader)
         {
@@ -109,10 +109,10 @@ public:
 
     bool hasNormals        = true;
     bool hasTextures       = false;
-    bool hasColours        = true;
+    bool hasColors        = true;
     byte faceVerticesCount = 3;
     QList<TexCoord> texCoords;
-    QList<Colour> colours;
+    QList<Color> colors;
     QList<Frame> frames;
     QList<ushort> indices;
 

@@ -941,10 +941,10 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                     for (int i = 0; i < 6; ++i) {
                         config.palettes[0].activeRows[i] = true;
                         for (int c = 0; c < 16; ++c) {
-                            QColor clr(gameConfig.palette.colours[(i * 16) + c].r,
-                                       gameConfig.palette.colours[(i * 16) + c].g,
-                                       gameConfig.palette.colours[(i * 16) + c].b);
-                            config.palettes[0].colours[i][c] = clr;
+                            QColor clr(gameConfig.palette.colors[(i * 16) + c].r,
+                                       gameConfig.palette.colors[(i * 16) + c].g,
+                                       gameConfig.palette.colors[(i * 16) + c].b);
+                            config.palettes[0].colors[i][c] = clr;
                         }
                     }
                     config.palettes[0].activeRows[6]  = false;
@@ -1160,8 +1160,8 @@ void GameConfigEditorv4::copyConfig(ActionState *stateDst, ActionState *stateSrc
     dst->gameWindowText      = src->gameWindowText;
     dst->gameDescriptionText = src->gameDescriptionText;
 
-    dst->palette.colours.clear();
-    for (auto clr : src->palette.colours) dst->palette.colours.append(clr);
+    dst->palette.colors.clear();
+    for (auto clr : src->palette.colors) dst->palette.colors.append(clr);
 
     dst->objects.clear();
     for (auto obj : src->objects) dst->objects.append(obj);

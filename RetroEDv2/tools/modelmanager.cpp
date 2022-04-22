@@ -37,7 +37,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
     connect(ui->showNormals, &QCheckBox::toggled, [this](bool c) { viewer->setNormalsVisible(c); });
 
     connect(ui->hasNormals, &QCheckBox::toggled, [this](bool c) { viewer->model.hasNormals = c; });
-    connect(ui->hasColours, &QCheckBox::toggled, [this](bool c) { viewer->model.hasColours = c; });
+    connect(ui->hasColors, &QCheckBox::toggled, [this](bool c) { viewer->model.hasColors = c; });
     connect(ui->hasTextures, &QCheckBox::toggled, [this](bool c) { viewer->model.hasTextures = c; });
 
     connect(ui->loadTexture, &QPushButton::clicked, [this] {
@@ -287,12 +287,12 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
     mdlClrSel = new color_widgets::ColorPreview(this);
     ui->mdlClrFrame->layout()->addWidget(mdlClrSel);
 
-    mdlClrSel->setColor(viewer->modelColour);
+    mdlClrSel->setColor(viewer->modelColor);
     connect(mdlClrSel, &color_widgets::ColorPreview::clicked, [this] {
-        ColourDialog dlg(viewer->modelColour);
+        ColorDialog dlg(viewer->modelColor);
         if (dlg.exec() == QDialog::Accepted) {
-            viewer->modelColour = dlg.colour().toQColor();
-            mdlClrSel->setColor(viewer->modelColour);
+            viewer->modelColor = dlg.color().toQColor();
+            mdlClrSel->setColor(viewer->modelColor);
             viewer->repaint();
         }
     });
@@ -552,15 +552,15 @@ void ModelManager::setupUI(bool initialSetup)
     ui->frameList->blockSignals(true);
 
     ui->hasNormals->blockSignals(true);
-    ui->hasColours->blockSignals(true);
+    ui->hasColors->blockSignals(true);
     ui->hasTextures->blockSignals(true);
 
     ui->hasNormals->setDisabled(false);
-    ui->hasColours->setDisabled(false);
+    ui->hasColors->setDisabled(false);
     ui->hasTextures->setDisabled(false);
 
     ui->hasNormals->setChecked(false);
-    ui->hasColours->setChecked(false);
+    ui->hasColors->setChecked(false);
     ui->hasTextures->setChecked(false);
 
     ui->frameList->clear();
@@ -583,7 +583,7 @@ void ModelManager::setupUI(bool initialSetup)
     }
 
     ui->hasNormals->setChecked(viewer->model.hasNormals);
-    ui->hasColours->setChecked(viewer->model.hasColours);
+    ui->hasColors->setChecked(viewer->model.hasColors);
     ui->hasTextures->setChecked(viewer->model.hasTextures);
 
     int vertCnt = 0;
@@ -600,7 +600,7 @@ void ModelManager::setupUI(bool initialSetup)
                               .arg(vertCnt == 1 ? "Vertex" : "Vertices"));
 
     ui->hasNormals->blockSignals(false);
-    ui->hasColours->blockSignals(false);
+    ui->hasColors->blockSignals(false);
     ui->hasTextures->blockSignals(false);
 
     ui->frameList->blockSignals(false);

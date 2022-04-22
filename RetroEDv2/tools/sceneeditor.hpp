@@ -20,7 +20,7 @@ public:
     public:
         QString name = "Action";
 
-        QList<PaletteColour> tilePalette;
+        QList<PaletteColor> tilePalette;
         QList<QImage> tiles;
         QList<QImage> chunks;
 

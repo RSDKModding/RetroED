@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ColourDialog</class>
- <widget class="QDialog" name="ColourDialog">
+ <class>ColorDialog</class>
+ <widget class="QDialog" name="ColorDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Select Colour...</string>
+   <string>Select Color...</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -425,7 +425,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>ColourDialog</receiver>
+   <receiver>ColorDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -441,7 +441,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>ColourDialog</receiver>
+   <receiver>ColorDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

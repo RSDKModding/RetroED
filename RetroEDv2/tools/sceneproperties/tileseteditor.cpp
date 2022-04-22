@@ -3,7 +3,7 @@
 
 #include "qgifimage.h"
 
-TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColour> &pal, QWidget *parent)
+TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColor> &pal, QWidget *parent)
     : tiles(tileList), palette(pal), QDialog(parent), ui(new Ui::TilesetEditor)
 {
     setWindowFlag(Qt::WindowStaysOnTopHint);
@@ -175,7 +175,7 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColour> &pal,
                                 if (x + sx >= img.width() || y + sy >= img.height())
                                     continue;
 
-                                int index = getColourIndex(img, clrTable, x + sx, y + sy);
+                                int index = getColorIndex(img, clrTable, x + sx, y + sy);
                                 tile.setPixel(sx, sy, index);
                             }
                         }

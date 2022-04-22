@@ -22,7 +22,7 @@ public:
 
         QVector2D pos;
         QVector2D uv;
-        QVector4D colour;
+        QVector4D color;
     };
 
     struct RenderState {
@@ -164,7 +164,7 @@ public:
     // Camera
     Vector2<float> cameraPos = Vector2<float>(0.0f, 0.0f);
 
-    QList<PaletteColour> tilePalette;
+    QList<PaletteColor> tilePalette;
     QList<QImage> tiles;
     QList<QImage> chunks;
     QImage missingObj;
@@ -258,10 +258,10 @@ public:
                             float sprX, float sprY, int scaleX, int scaleY, int direction,
                             short rotation, InkEffects inkEffect, int alpha, int sheetID);
 
-    void drawLine(float x1, float y1, float x2, float y2, Vector4<float> colour, int alpha = 0xFF,
+    void drawLine(float x1, float y1, float x2, float y2, Vector4<float> color, int alpha = 0xFF,
                   InkEffects inkEffect = INK_NONE);
 
-    void drawRect(float x, float y, float w, float h, Vector4<float> colour, bool outline = false,
+    void drawRect(float x, float y, float w, float h, Vector4<float> color, bool outline = false,
                   int alpha = 0xFF, InkEffects inkEffect = INK_NONE);
 
     void drawFace(Vector2<int> *vertices, int vertCount, int r, int g, int b, int alpha = 0xFF,

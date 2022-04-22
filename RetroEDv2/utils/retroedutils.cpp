@@ -16,7 +16,7 @@ void Utils::setAttrRecur(QDomElement &&elem, QString strtagname, QString strattr
     }
 }
 
-QIcon Utils::getColouredIcon(QString filename)
+QIcon Utils::getColoredIcon(QString filename)
 {
     if (!QFile::exists(filename))
         filename = ":/icons/ic_help_48px.svg";

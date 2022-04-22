@@ -1,58 +1,58 @@
 #include "includes.hpp"
 #include "ui_colourdialog.h"
 
-ColourDialog::ColourDialog(PaletteColour colour, QWidget *parent)
-    : QDialog(parent), ui(new Ui::ColourDialog), m_colour(colour)
+ColorDialog::ColorDialog(PaletteColor color, QWidget *parent)
+    : QDialog(parent), ui(new Ui::ColorDialog), m_color(color)
 {
     setWindowFlags(this->windowFlags() & ~Qt::WindowContextHelpButtonHint);
     ui->setupUi(this);
     setFixedSize(550, 300);
-    ui->oldPreview->setColor(m_colour.toQColor());
-    // connect(rSlider, &colour_widgets::GradientSlider::)
-    connect(ui->wheel, &color_widgets::ColorWheel::colorChanged, this, &ColourDialog::setColour);
-    connect(ui->hSlider, &QSlider::valueChanged, this, &ColourDialog::setHsv);
-    connect(ui->sSlider, &QSlider::valueChanged, this, &ColourDialog::setHsv);
-    connect(ui->vSlider, &QSlider::valueChanged, this, &ColourDialog::setHsv);
+    ui->oldPreview->setColor(m_color.toQColor());
+    // connect(rSlider, &color_widgets::GradientSlider::)
+    connect(ui->wheel, &color_widgets::ColorWheel::colorChanged, this, &ColorDialog::setColor);
+    connect(ui->hSlider, &QSlider::valueChanged, this, &ColorDialog::setHsv);
+    connect(ui->sSlider, &QSlider::valueChanged, this, &ColorDialog::setHsv);
+    connect(ui->vSlider, &QSlider::valueChanged, this, &ColorDialog::setHsv);
     connect(ui->hSpin, SIGNAL(valueChanged(int)), ui->hSlider,
             SLOT(setValue(int))); // fucking new style syntax not working
     connect(ui->sSpin, SIGNAL(valueChanged(int)), ui->sSlider, SLOT(setValue(int)));
     connect(ui->vSpin, SIGNAL(valueChanged(int)), ui->vSlider, SLOT(setValue(int)));
-    connect(ui->rSlider, &QSlider::valueChanged, this, &ColourDialog::setRGB);
-    connect(ui->gSlider, &QSlider::valueChanged, this, &ColourDialog::setRGB);
-    connect(ui->bSlider, &QSlider::valueChanged, this, &ColourDialog::setRGB);
+    connect(ui->rSlider, &QSlider::valueChanged, this, &ColorDialog::setRGB);
+    connect(ui->gSlider, &QSlider::valueChanged, this, &ColorDialog::setRGB);
+    connect(ui->bSlider, &QSlider::valueChanged, this, &ColorDialog::setRGB);
     connect(ui->rSpin, SIGNAL(valueChanged(int)), ui->rSlider, SLOT(setValue(int)));
     connect(ui->gSpin, SIGNAL(valueChanged(int)), ui->gSlider, SLOT(setValue(int)));
     connect(ui->bSpin, SIGNAL(valueChanged(int)), ui->bSlider, SLOT(setValue(int)));
 
     connect(ui->htmlInput, &color_widgets::ColorLineEdit::colorEdited,
-            [=](QColor color) { setColour(color); });
+            [=](QColor color) { setColor(color); });
     connect(ui->htmlInput, &color_widgets::ColorLineEdit::colorEditingFinished, [=](QColor color) {
         ui->htmlInput->setModified(false);
-        setColour(color);
+        setColor(color);
     });
-    setColour(m_colour.toQColor());
+    setColor(m_color.toQColor());
 }
 
-void ColourDialog::setHsv()
+void ColorDialog::setHsv()
 {
     if (signalsBlocked())
         return;
     QColor col =
         QColor::fromHsv(ui->hSlider->value(), ui->sSlider->value(), ui->vSlider->value(), 0xFF);
-    setColour(col);
+    setColor(col);
 }
 
-void ColourDialog::setRGB()
+void ColorDialog::setRGB()
 {
     if (signalsBlocked())
         return;
     QColor col(ui->rSlider->value(), ui->gSlider->value(), ui->bSlider->value(), 0xFF);
     if (col.saturation() == 0)
         col = QColor::fromHsv(ui->hSlider->value(), 0, col.value());
-    setColour(col);
+    setColor(col);
 }
 
-void ColourDialog::setColour(QColor col)
+void ColorDialog::setColor(QColor col)
 {
 
     bool blocked = signalsBlocked();
@@ -106,19 +106,19 @@ void ColourDialog::setColour(QColor col)
         ui->htmlInput->setColor(col);
 
     ui->htmlInput->setColor(col);
-    m_colour.r = col.red();
-    m_colour.g = col.green();
-    m_colour.b = col.blue();
+    m_color.r = col.red();
+    m_color.g = col.green();
+    m_color.b = col.blue();
 
-    // emit selectedColourModified(col);
+    // emit selectedColorModified(col);
 }
 
-ColourDialog::~ColourDialog() { delete ui; }
+ColorDialog::~ColorDialog() { delete ui; }
 
-PaletteColour ColourDialog::getColour(PaletteColour color, bool *ok, QWidget *parent)
+PaletteColor ColorDialog::getColor(PaletteColor color, bool *ok, QWidget *parent)
 {
-    PaletteColour clr = PaletteColour(color);
-    ColourDialog c(clr, parent);
+    PaletteColor clr = PaletteColor(color);
+    ColorDialog c(clr, parent);
     *ok = (c.exec() == DialogCode::Accepted);
     return clr;
 }

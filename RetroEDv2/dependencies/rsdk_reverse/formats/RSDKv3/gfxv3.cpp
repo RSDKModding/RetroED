@@ -121,11 +121,11 @@ void RSDKv3::GFX::importImage(QImage image)
 
     int size = image.colorCount();
     for (int c = 0; c < size; ++c) {
-        palette[c] = Colour(qRed(image.color(c)), qGreen(image.color(c)), qBlue(image.color(c)));
+        palette[c] = Color(qRed(image.color(c)), qGreen(image.color(c)), qBlue(image.color(c)));
     }
 
     for (int c = size; c < 0xFF; ++c) {
-        palette[c] = Colour(0xFF, 0x00, 0xFF);
+        palette[c] = Color(0xFF, 0x00, 0xFF);
     }
 
     int i  = 0;
@@ -149,7 +149,7 @@ void RSDKv3::GFX::importImage(FormatHelpers::Gif image)
     pixels.resize(w * h);
 
     for (int c = 0; c < 0xFF; ++c)
-        palette[c] = Colour(image.palette[c].red(), image.palette[c].green(), image.palette[c].blue());
+        palette[c] = Color(image.palette[c].red(), image.palette[c].green(), image.palette[c].blue());
 
     int i  = 0;
     width  = w;
@@ -166,13 +166,13 @@ QImage RSDKv3::GFX::exportImage()
 {
     QImage img(width, height, QImage::Format_Indexed8);
 
-    QVector<QRgb> colours;
+    QVector<QRgb> colors;
 
     for (int i = 0; i < 0xFF; ++i) {
-        Colour c = palette[i];
-        colours.append(qRgb(c.r, c.g, c.b));
+        Color c = palette[i];
+        colors.append(qRgb(c.r, c.g, c.b));
     }
-    img.setColorTable(colours);
+    img.setColorTable(colors);
 
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
@@ -188,11 +188,8 @@ QImage RSDKv3::GFX::exportImage()
 FormatHelpers::Gif RSDKv3::GFX::exportGif()
 {
     FormatHelpers::Gif img(width, height);
-
-    QVector<QRgb> colours;
-
     for (int i = 0; i < 0xFF; ++i) {
-        Colour c       = palette[i];
+        Color c        = palette[i];
         img.palette[i] = QColor(c.r, c.g, c.b);
     }
 

@@ -87,7 +87,7 @@ enum FunctionTableIDs {
     FunctionTable_LoadPalette,
     FunctionTable_RotatePalette,
     FunctionTable_SetLimitedFade,
-    FunctionTable_BlendColours,
+    FunctionTable_BlendColors,
     FunctionTable_DrawRect,
     FunctionTable_DrawLine,
     FunctionTable_DrawCircle,
@@ -104,7 +104,7 @@ enum FunctionTableIDs {
     FunctionTable_LoadMesh,
     FunctionTable_Create3DScene,
     FunctionTable_Prepare3DScene,
-    FunctionTable_SetDiffuseColour,
+    FunctionTable_SetDiffuseColor,
     FunctionTable_SetDiffuseIntensity,
     FunctionTable_SetSpecularIntensity,
     FunctionTable_SetupMesh,
@@ -291,7 +291,7 @@ void GameLink::Setup()
     addToRSDKFunctionTable(FunctionTable_LoadPalette, nullFunc);
     addToRSDKFunctionTable(FunctionTable_RotatePalette, nullFunc);
     addToRSDKFunctionTable(FunctionTable_SetLimitedFade, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_BlendColours, nullFunc);
+    addToRSDKFunctionTable(FunctionTable_BlendColors, nullFunc);
     addToRSDKFunctionTable(FunctionTable_DrawRect, drawRect);
     addToRSDKFunctionTable(FunctionTable_DrawLine, drawLine);
     addToRSDKFunctionTable(FunctionTable_DrawCircle, drawCircle);
@@ -308,7 +308,7 @@ void GameLink::Setup()
     addToRSDKFunctionTable(FunctionTable_LoadMesh, nullFunc);
     addToRSDKFunctionTable(FunctionTable_Create3DScene, nullFunc);
     addToRSDKFunctionTable(FunctionTable_Prepare3DScene, nullFunc);
-    addToRSDKFunctionTable(FunctionTable_SetDiffuseColour, nullFunc);
+    addToRSDKFunctionTable(FunctionTable_SetDiffuseColor, nullFunc);
     addToRSDKFunctionTable(FunctionTable_SetDiffuseIntensity, nullFunc);
     addToRSDKFunctionTable(FunctionTable_SetSpecularIntensity, nullFunc);
     addToRSDKFunctionTable(FunctionTable_SetupMesh, nullFunc);

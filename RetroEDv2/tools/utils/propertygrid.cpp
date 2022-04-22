@@ -155,7 +155,7 @@ Property::Property(QString name, QStringList names, void *value, byte type)
             // case BOOL_MANAGER: m->setValue(p, *(bool *)value); break;
             // case STRING_MANAGER: m->setValue(p, *(QString *)value); break;
             // case FLOAT_MANAGER: m->setValue(p, *(float *)value); break;
-            // case COLOR_MANAGER: m->setValue(p, ((Colour *)value)->toUInt()); break;
+            // case COLOR_MANAGER: m->setValue(p, ((Color *)value)->toUInt()); break;
     }
     this->type    = ENUM_MANAGER;
     this->varType = type;
@@ -174,7 +174,7 @@ Property::Property(QString name, QStringList names, void *value, byte type)
                 // case BOOL_MANAGER: *reinterpret_cast<bool *>(value) = x; break;
                 // case STRING_MANAGER: *reinterpret_cast<QString *>(value) = x; break;
                 // case FLOAT_MANAGER: *reinterpret_cast<float *>(value) = x; break;
-                // case COLOR_MANAGER: *reinterpret_cast<Colour *>(value) = Colour((uint)x);
+                // case COLOR_MANAGER: *reinterpret_cast<Color *>(value) = Color((uint)x);
                 // break;
         }
         emit changed();
@@ -277,7 +277,7 @@ Property::Property(QString name, QList<PropertyValue> valueList, void *value, by
                 *reinterpret_cast<float *>(value) = valueList[x].value.toFloat();
                 break;
                 // case COLOR_MANAGER:
-                //    *reinterpret_cast<Colour *>(value) = Colour(valueList[x].value.toUInt());
+                //    *reinterpret_cast<Color *>(value) = Color(valueList[x].value.toUInt());
                 //    break;
         }
         emit changed();
@@ -577,10 +577,17 @@ void PropertyBrowser::assignDelegate(Property *property)
             this->setFactoryForManager(static_cast<QtEnumPropertyManager *>(property->typeManager),
                                        new QtEnumEditorFactory);
             break;
-        case Property::COLOR_MANAGER:
+        case Property::COLOR_MANAGER: {
+            auto *factory = new QtColorEditorFactory;
+
             this->setFactoryForManager(static_cast<QtColorPropertyManager *>(property->typeManager),
-                                       new QtColorEditorFactory);
+                                       factory);
+
+            auto *intManager =
+                static_cast<QtColorPropertyManager *>(property->typeManager)->subIntPropertyManager();
+            this->setFactoryForManager(intManager, new QtSpinBoxFactory);
             break;
+        }
         case Property::GROUP_MANAGER: break;
     }
 }

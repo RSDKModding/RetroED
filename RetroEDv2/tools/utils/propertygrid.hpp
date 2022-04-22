@@ -48,7 +48,7 @@ public:
     Property(QString name, bool *value);
     Property(QString name, QString *value);
     Property(QString name, QColor *value);
-    // Property(QString name, Colour *value);
+    // Property(QString name, Color *value);
     Property(QString name, QStringList names, void *value, byte type);
     Property(QString name, QList<PropertyValue> valueList, void *value, byte type);
     Property(QString name);

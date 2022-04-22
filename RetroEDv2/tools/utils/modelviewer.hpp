@@ -291,9 +291,9 @@ public:
 
     void resetCamera();
 
-    bool showNormals   = false;
-    float zoom         = 1.0f;
-    QColor modelColour = QColor(0xFFFFFFFF);
+    bool showNormals  = false;
+    float zoom        = 1.0f;
+    QColor modelColor = QColor(0xFFFFFFFF);
 
     void setModel(RSDKv5::Model m, QString tex = "");
     void setModel(RSDKv4::Model m, QString tex = "");
