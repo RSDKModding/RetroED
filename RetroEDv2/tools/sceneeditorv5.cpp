@@ -3395,8 +3395,8 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                 createGameEntity.objectID   = viewer->selectedObject;
 
                 createTempEntity.type       = viewer->selectedObject;
-                createTempEntity.pos.x      = (ex + viewer->cameraPos.x) * 65536.0f;
-                createTempEntity.pos.y      = (ey + viewer->cameraPos.y) * 65536.0f;
+                createTempEntity.pos.x      = ex + viewer->cameraPos.x;
+                createTempEntity.pos.y      = ey + viewer->cameraPos.y;
                 createTempEntity.slotID     = 0xFFFF;
                 createTempEntity.gameEntity = &createGameEntity;
                 createTempEntity.box        = Rect<int>(0, 0, 0, 0);

@@ -276,7 +276,7 @@ void SceneViewer::updateScene()
             v5Editor->scnProp->entCntAct->setText(
                 QString("Active Entity Count: %1 Entities").arg(activeCount));
             v5Editor->scnProp->entCntInac->setText(
-                QString("Inactive Layer Count: %1 Entities").arg(inactiveCount));
+                QString("Inactive Entity Count: %1 Entities").arg(inactiveCount));
         }
     }
     else if (scnEditor) {
