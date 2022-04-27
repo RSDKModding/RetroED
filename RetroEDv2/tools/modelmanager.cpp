@@ -528,7 +528,7 @@ void ModelManager::stopAnim()
 
 void ModelManager::processAnimation()
 {
-    bool changed = false;
+    //bool changed = false;
 
     if (currentFrame < viewer->model.frames.count()) {
         viewer->animTimer += viewer->animSpeed;
@@ -539,7 +539,7 @@ void ModelManager::processAnimation()
             if (currentFrame >= viewer->model.frames.count())
                 currentFrame = viewer->loopIndex;
 
-            changed = true;
+            //changed = true;
         }
     }
 

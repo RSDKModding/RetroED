@@ -2,7 +2,7 @@
 #include "ui_stageconfigeditorv5.h"
 
 StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *parent)
-    : stageConfig(scf), QDialog(parent), ui(new Ui::StageConfigEditorv5)
+    : QDialog(parent), ui(new Ui::StageConfigEditorv5), stageConfig(scf)
 {
     ui->setupUi(this);
 

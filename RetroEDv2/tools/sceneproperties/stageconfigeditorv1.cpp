@@ -2,7 +2,7 @@
 #include "ui_stageconfigeditorv1.h"
 
 StageConfigEditorv1::StageConfigEditorv1(FormatHelpers::StageConfig *scf, QWidget *parent)
-    : stageConfig(scf), QDialog(parent), ui(new Ui::StageConfigEditorv1)
+    : QDialog(parent), ui(new Ui::StageConfigEditorv1), stageConfig(scf)
 {
     ui->setupUi(this);
 

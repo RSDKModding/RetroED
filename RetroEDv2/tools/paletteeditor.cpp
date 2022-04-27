@@ -600,7 +600,7 @@ void PaletteEditor::savePalette(QString filepath)
             }
 
             configPal->colors.clear();
-            int colorCount = PALTYPE_GAMECONFIGv4 ? 96 : 32;
+            int colorCount = palType == PALTYPE_GAMECONFIGv4 ? 96 : 32;
             for (int c = 0; c < colorCount; ++c) {
                 if (c < palette.count())
                     configPal->colors.append(Color(palette[c].r, palette[c].g, palette[c].b));

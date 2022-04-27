@@ -2185,7 +2185,7 @@ void AnimationEditor::setupUI(bool setFrame, bool setRow)
     ui->upHB->setDisabled(aniType == ENGINE_v1);
     ui->downHB->setDisabled(aniType == ENGINE_v1);
 
-    if (currentAnim >= 0 && currentAnim < animFile.animations.count()) {
+    if (currentAnim < animFile.animations.count()) {
         ui->animName->blockSignals(true);
         ui->speedMult->blockSignals(true);
         ui->loopIndex->blockSignals(true);
@@ -2633,7 +2633,7 @@ bool AnimationEditor::event(QEvent *event)
         }
 
         case QEvent::MouseMove: {
-            bool status         = false;
+            //bool status         = false;
             QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
 
             mousePos.x = mEvent->pos().x();
@@ -2645,7 +2645,7 @@ bool AnimationEditor::event(QEvent *event)
                 ui->frameOffLabel->setText(
                     QString("Frame Offset: (%1, %2)").arg(offset.x).arg(offset.y));
                 reference = mEvent->pos();
-                status    = true;
+                //status    = true;
                 updateView();
             }
             break;
@@ -2767,15 +2767,6 @@ void AnimationEditor::resetAction()
     for (int h = 0; h < animFile.hitboxTypes.count(); ++h) hitboxVisible.append(false);
 
     setupUI(true);
-
-    if (currentAnim >= 0) {
-        return;
-        ui->frameList->blockSignals(true);
-        setupFrameList(animFile.animations[currentAnim].frames);
-        updateView();
-
-        ui->frameList->blockSignals(false);
-    }
 
     updateTitle(actionIndex > 0);
 }

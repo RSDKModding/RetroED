@@ -4,7 +4,7 @@
 #include "qgifimage.h"
 
 TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColor> &pal, QWidget *parent)
-    : tiles(tileList), palette(pal), QDialog(parent), ui(new Ui::TilesetEditor)
+    : QDialog(parent), ui(new Ui::TilesetEditor), tiles(tileList), palette(pal)
 {
     setWindowFlag(Qt::WindowStaysOnTopHint);
 
@@ -388,6 +388,7 @@ void TilesetViewer::paintEvent(QPaintEvent *event)
 
 void TilesetEditor::keyPressEvent(QKeyEvent *event)
 {
+    /*
     bool ctrlDownL  = false;
     bool altDownL   = false;
     bool shiftDownL = false;
@@ -396,7 +397,7 @@ void TilesetEditor::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Alt)
         altDownL = true;
     if (event->key() == Qt::Key_Shift)
-        shiftDownL = true;
+        shiftDownL = true;//*/
 
     if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
         && event->key() == Qt::Key_C) {

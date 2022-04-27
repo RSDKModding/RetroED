@@ -5,7 +5,7 @@
 #include <QTimer>
 
 AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *parent)
-    : sheetPath(sheetPath), sheet(sheet), QDialog(parent), ui(new Ui::AnimSheetSelector)
+    : QDialog(parent), ui(new Ui::AnimSheetSelector), sheetPath(sheetPath), sheet(sheet)
 {
     ui->setupUi(this);
     this->setWindowTitle("Select Bounding Box");

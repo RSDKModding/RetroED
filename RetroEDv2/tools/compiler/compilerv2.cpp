@@ -959,7 +959,7 @@ void Compilerv2::checkCaseNumber(QString &text)
         return;
 
     QString caseString;
-    int caseStrPos = 0;
+    //int caseStrPos = 0;
     char caseChar  = text[4].toLatin1();
     if (text.length() >= 4) {
         int textPos = 5;
@@ -970,7 +970,7 @@ void Compilerv2::checkCaseNumber(QString &text)
         } while (caseChar);
     }
     else {
-        caseStrPos = 0;
+        //caseStrPos = 0;
     }
 
     for (int a = 0; a < aliasCount; ++a) {
@@ -1316,7 +1316,7 @@ void Compilerv2::writeBytecode(QString path)
     bytecode.write(path);
 }
 
-void Compilerv2::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
+void Compilerv2::processScript(int scriptCodePtr, int jumpTablePtr)
 {
     bool running        = true;
     int scriptDataPtr   = scriptCodePtr;

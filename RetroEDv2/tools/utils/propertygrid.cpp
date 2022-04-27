@@ -26,7 +26,7 @@ Property::Property(QString name, signed char *value)
     type     = SBYTE_MANAGER;
     valuePtr = value;
 
-    int v = *value;
+    //int v = *value;
     connect(m, &QtIntPropertyManager::valueChanged, this, [=](QtProperty *, int x) {
         *value = x;
         emit changed();

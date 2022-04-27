@@ -156,7 +156,7 @@ ushort FunctionTable::getSpriteAnimation(ushort aniFrames, const char *name)
         return -1;
 
     if (aniFrames >= v5_SPRFILE_COUNT)
-        return NULL;
+        return -1;
     SpriteAnimation *spr = &v5Editor->viewer->spriteAnimationList[aniFrames];
 
     uint hash[4];

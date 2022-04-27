@@ -3,7 +3,7 @@
 
 StageConfigEditorv3::StageConfigEditorv3(FormatHelpers::StageConfig *scf, int gcCount,
                                          int globalSfxCount, QWidget *parent)
-    : stageConfig(scf), QDialog(parent), ui(new Ui::StageConfigEditorv3)
+    : QDialog(parent), ui(new Ui::StageConfigEditorv3), stageConfig(scf)
 {
     ui->setupUi(this);
     globalObjectCount = gcCount;

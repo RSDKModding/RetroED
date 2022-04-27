@@ -9,8 +9,7 @@ SceneScrollProperties::SceneScrollProperties(QWidget *parent)
 
 SceneScrollProperties::~SceneScrollProperties() { delete ui; }
 
-void SceneScrollProperties::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *info,
-                                    QList<SceneHelpers::TileLayer::ScrollIndexInfo> &infos)
+void SceneScrollProperties::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *info)
 {
     unsetUI();
 

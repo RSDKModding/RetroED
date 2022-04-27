@@ -16,8 +16,7 @@ public:
     explicit SceneScrollProperties(QWidget *parent = nullptr);
     ~SceneScrollProperties();
 
-    void setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *info,
-                 QList<SceneHelpers::TileLayer::ScrollIndexInfo> &infos);
+    void setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *info);
     void unsetUI();
 
 private:

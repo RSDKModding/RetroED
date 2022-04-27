@@ -1334,7 +1334,7 @@ void Compilerv3::convertFunctionText(QString &text)
                 if (arrayStr.length() >= 2) {
                     char list = arrayStr[0].toLatin1();
                     switch (list) {
-                        default: list = 0xFF;
+                        default: list = 0xFF; break;
                         case 'P': list = 0; break;
                         case 'R': list = 1; break;
                         case 'S': list = 2; break;
@@ -1593,7 +1593,7 @@ void Compilerv3::checkCaseNumber(QString &text)
             if (arrayStr.length() >= 2) {
                 char list = arrayStr[0].toLatin1();
                 switch (list) {
-                    default: list = 0xFF;
+                    default: list = 0xFF; break;
                     case 'P': list = 0; break;
                     case 'R': list = 1; break;
                     case 'S': list = 2; break;
@@ -1806,7 +1806,7 @@ bool Compilerv3::readSwitchCase(QString &text)
                 if (arrayStr.length() >= 2) {
                     char list = arrayStr[0].toLatin1();
                     switch (list) {
-                        default: list = 0xFF;
+                        default: list = 0xFF; break;
                         case 'P': list = 0; break;
                         case 'R': list = 1; break;
                         case 'S': list = 2; break;
@@ -3443,6 +3443,7 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                         }
                         break;
                 }
+                break;
             case FUNC_LOADANIMATION: opcodeSize = 0; break;
             case FUNC_SETUPMENU: {
                 opcodeSize = 0;

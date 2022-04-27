@@ -1025,6 +1025,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                     setStatus("Saved StageConfig to " + filedialog.selectedFiles()[0]);
                 }
             }
+            break;
         }
         case RE_EVENT_SAVE_AS:
             if (!ui->stackedWidget->currentIndex()) {

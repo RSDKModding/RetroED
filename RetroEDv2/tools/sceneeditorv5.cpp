@@ -359,7 +359,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         viewer->selectedObject = c;
 
-        memset(&createGameEntity, 0, sizeof(GameEntityBase));
+        memset((void*)&createGameEntity, 0, sizeof(GameEntityBase));
         createGameEntity.position.x = 0;
         createGameEntity.position.y = 0;
         createGameEntity.objectID   = viewer->selectedObject;
@@ -924,7 +924,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             return;
 
         int oldGlobalCount = detailsDlg->oldObjCount->value(); // 45;
-        int newGlobalCount = detailsDlg->newObjCount->value(); // 45;
+        //int newGlobalCount = detailsDlg->newObjCount->value(); // 45;
 
         QList<QString> oldGlobals;
         QList<int> oldGlobalIDs;
@@ -932,7 +932,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         QList<int> removeFlags;
 
         // get info about old objs
-        SceneViewer *v = viewer;
         for (int i = 0; i <= oldGlobalCount; ++i) {
             oldGlobals.append(viewer->objects[i].name);
             oldGlobalIDs.append(i);
@@ -2594,7 +2593,7 @@ void SceneEditorv5::saveScene(QString path)
     addStatusProgress(1.f / 5); // created object definitions
 
     for (SceneEntity &entity : viewer->entities) {
-        if (entity.type >= 0 && entity.type < viewer->objects.count()) {
+        if (entity.type < viewer->objects.count()) {
             RSDKv5::Scene::SceneEntity ent;
             ent.slotID     = entity.slotID;
             ent.position.x = entity.pos.x * 65536.0f;
@@ -3338,7 +3337,7 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
 
             GameEntity *entityPtr =
                 entity->slotID == 0xFFFF ? entity->gameEntity : &viewer->gameEntityList[entity->slotID];
-            memset(entityPtr, 0, sizeof(GameEntityBase));
+            memset((void*)entityPtr, 0, sizeof(GameEntityBase));
             entityPtr->position.x    = Utils::floatToFixed(entity->pos.x);
             entityPtr->position.y    = Utils::floatToFixed(entity->pos.y);
             entityPtr->interaction   = true;

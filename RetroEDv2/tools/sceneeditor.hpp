@@ -165,7 +165,7 @@ private:
     void createScrollList();
 
     // XML Management
-    void parseGameXML(byte gameType, QString path);
+    void parseGameXML(QString path);
 
     inline void writeXMLIndentation(Writer &writer, int tabCount)
     {

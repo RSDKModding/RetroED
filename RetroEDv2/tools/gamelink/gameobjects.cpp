@@ -246,7 +246,7 @@ void FunctionTable::resetEntityPtr(GameEntity *entity, ushort type, void *data)
         GameObjectInfo *info = v5Editor->getObjectInfo(v5Editor->viewer->objects[type].name);
         if (!info)
             return;
-        memset(entity, 0, info->entitySize);
+        memset((void*)entity, 0, info->entitySize);
         if (info->create) {
             GameEntity *curEnt                              = v5Editor->viewer->sceneInfo.entity;
             v5Editor->viewer->sceneInfo.entity              = entity;
@@ -271,7 +271,7 @@ void FunctionTable::resetEntitySlot(ushort slotID, ushort type, void *data)
     if (slotID < ENTITY_COUNT)
         slot = slotID;
     GameEntity *entityPtr = &v5Editor->viewer->gameEntityList[slot];
-    memset(&v5Editor->viewer->gameEntityList[slot], 0, objInfo->entitySize);
+    memset((void*)&v5Editor->viewer->gameEntityList[slot], 0, objInfo->entitySize);
     if (objInfo->create) {
         GameEntity *curEnt                 = v5Editor->viewer->sceneInfo.entity;
         v5Editor->viewer->sceneInfo.entity = entityPtr;
@@ -315,7 +315,7 @@ void FunctionTable::createEntity(ushort type, void *data, int x, int y)
         ++loopCnt;
     }
 
-    memset(entityPtr, 0, objInfo->entitySize);
+    memset((void*)entityPtr, 0, objInfo->entitySize);
     entityPtr->position.x  = x;
     entityPtr->position.y  = y;
     entityPtr->interaction = true;

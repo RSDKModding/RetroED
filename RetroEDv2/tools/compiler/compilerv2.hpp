@@ -133,7 +133,7 @@ public:
 
     void *editor = nullptr;
 
-    void processScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub);
+    void processScript(int scriptCodePtr, int jumpTablePtr);
 
     RSDKv2::Bytecode bytecode;
 

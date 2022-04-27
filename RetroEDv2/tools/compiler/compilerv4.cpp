@@ -1403,7 +1403,7 @@ void Compilerv4::convertForeachStatement(QString &text)
     if (findStringToken(text, "foreach", 1))
         return;
     QString dest   = "";
-    int destStrPos = 0;
+    //int destStrPos = 0;
 
     if (findStringToken(text, "ACTIVE_ENTITIES", 1)
         > 0) { // foreach (just actively interacting entities)
@@ -1411,7 +1411,7 @@ void Compilerv4::convertForeachStatement(QString &text)
         dest += "(";
         dest += QString::number(jumpTableDataPos - jumpTableDataOffset);
         dest += ",";
-        destStrPos = dest.length();
+        //destStrPos = dest.length();
         int cnt    = 0;
         for (int i = 8; i < text.length(); ++i) {
             if (text[i] != '(' && text[i] != ')' && text[i] != ',') {
@@ -1436,7 +1436,7 @@ void Compilerv4::convertForeachStatement(QString &text)
         dest += "(";
         dest += QString::number(jumpTableDataPos - jumpTableDataOffset);
         dest += ",";
-        destStrPos = dest.length();
+        //destStrPos = dest.length();
         int cnt    = 0;
         for (int i = 8; i < text.length(); ++i) {
             if (text[i] != '(' && text[i] != ')' && text[i] != ',') {

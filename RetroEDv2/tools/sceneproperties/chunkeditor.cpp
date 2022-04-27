@@ -3,7 +3,7 @@
 
 ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, QList<QImage> &tiles,
                          byte gameVer, QWidget *parent)
-    : chunks(chk), tileList(tiles), chunkImgList(chunkList), QDialog(parent), ui(new Ui::ChunkEditor)
+    : QDialog(parent), ui(new Ui::ChunkEditor), chunks(chk), tileList(tiles), chunkImgList(chunkList)
 {
     setWindowFlag(Qt::WindowStaysOnTopHint);
 
@@ -535,6 +535,7 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
 
 void ChunkEditor::keyPressEvent(QKeyEvent *event)
 {
+    /*
     bool ctrlDownL  = false;
     bool altDownL   = false;
     bool shiftDownL = false;
@@ -543,7 +544,7 @@ void ChunkEditor::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Alt)
         altDownL = true;
     if (event->key() == Qt::Key_Shift)
-        shiftDownL = true;
+        shiftDownL = true;//*/
 
     if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
         && event->key() == Qt::Key_C) {

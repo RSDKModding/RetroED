@@ -1394,7 +1394,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
         case QEvent::MouseMove: {
             bool status         = false;
-            QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
+            //QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
 
             auto mPos = viewer->mapFromGlobal(QCursor::pos());
 
@@ -1745,7 +1745,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
     if (gcfPath != gameConfig.filePath) {
         if (QFileInfo(gcfPath).suffix().toLower().contains("xml"))
-            parseGameXML(gameType, gcfPath);
+            parseGameXML(gcfPath);
         else
             gameConfig.read(gameType, gcfPath);
     }
@@ -2134,11 +2134,11 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
 bool SceneEditor::saveScene(bool forceSaveAs)
 {
-    byte saveVer     = ENGINE_v4;
+    //byte saveVer     = ENGINE_v4;
     QString savePath = "";
     if (!forceSaveAs && QFile::exists(scene.filepath)) {
         savePath = scene.filepath;
-        saveVer  = viewer->gameType;
+        //saveVer  = viewer->gameType;
     }
     else {
         QList<QString> types = {
@@ -2160,7 +2160,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
 
         if (filedialog.exec() == QDialog::Accepted) {
-            saveVer  = types.indexOf(filedialog.selectedNameFilter()) + ENGINE_v4;
+            //-saveVer  = types.indexOf(filedialog.selectedNameFilter()) + ENGINE_v4;
             savePath = filedialog.selectedFiles()[0];
 
             return true;
@@ -2395,9 +2395,9 @@ void SceneEditor::initGameLink()
     compilerv4->clearScriptData();
 
     for (int i = 0; i < ENTITY_COUNT; ++i) {
-        memset(&compilerv2->objectEntityList[i], 0, sizeof(compilerv2->objectEntityList[i]));
-        memset(&compilerv3->objectEntityList[i], 0, sizeof(compilerv3->objectEntityList[i]));
-        memset(&compilerv4->objectEntityList[i], 0, sizeof(compilerv4->objectEntityList[i]));
+        memset((void*)&compilerv2->objectEntityList[i], 0, sizeof(compilerv2->objectEntityList[i]));
+        memset((void*)&compilerv3->objectEntityList[i], 0, sizeof(compilerv3->objectEntityList[i]));
+        memset((void*)&compilerv4->objectEntityList[i], 0, sizeof(compilerv4->objectEntityList[i]));
 
         if (i < viewer->entities.count()) {
             compilerv2->objectEntityList[i].type          = viewer->entities[i].type;
@@ -2744,7 +2744,7 @@ void SceneEditor::initGameLink()
 
     for (int e = 0; e < viewer->entities.count(); ++e) {
         viewer->entities[e].variables.clear();
-        for (auto &var : viewer->objects[viewer->entities[e].type].variables) {
+        for (int v = 0; v < viewer->objects[viewer->entities[e].type].variables.count(); ++v) {
             RSDKv5::Scene::VariableValue val;
             val.type        = VAR_UINT8;
             val.value_uint8 = 0;
@@ -3023,7 +3023,7 @@ int SceneEditor::addEntity(int type, float x, float y)
     entity.gameEntitySlot = entity.slotID;
 
     entity.variables.clear();
-    for (auto &var : viewer->objects[entity.type].variables) {
+    for (int v = 0; v < viewer->objects[entity.type].variables.count(); ++v) {
         RSDKv5::Scene::VariableValue val;
         val.type        = VAR_UINT8;
         val.value_uint8 = 0;
@@ -3144,9 +3144,9 @@ void SceneEditor::createEntityList(int startSlot)
     ui->entityList->blockSignals(false);
 
     for (int i = 0; i < ENTITY_COUNT; ++i) {
-        memset(&compilerv2->objectEntityList[i], 0, sizeof(compilerv2->objectEntityList[i]));
-        memset(&compilerv3->objectEntityList[i], 0, sizeof(compilerv3->objectEntityList[i]));
-        memset(&compilerv4->objectEntityList[i], 0, sizeof(compilerv4->objectEntityList[i]));
+        memset((void*)&compilerv2->objectEntityList[i], 0, sizeof(compilerv2->objectEntityList[i]));
+        memset((void*)&compilerv3->objectEntityList[i], 0, sizeof(compilerv3->objectEntityList[i]));
+        memset((void*)&compilerv4->objectEntityList[i], 0, sizeof(compilerv4->objectEntityList[i]));
 
         if (i < viewer->entities.count()) {
             compilerv2->objectEntityList[i].type          = viewer->entities[i].type;
@@ -3423,7 +3423,7 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
     return called;
 }
 
-void SceneEditor::parseGameXML(byte gameType, QString path)
+void SceneEditor::parseGameXML(QString path)
 {
     gameConfig          = FormatHelpers::GameConfig();
     gameConfig.filePath = path;
