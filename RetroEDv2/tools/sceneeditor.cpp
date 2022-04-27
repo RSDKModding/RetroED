@@ -358,7 +358,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         viewer->selectedHScrollInfo = c;
 
-        scrProp->setupUI(&viewer->hScroll[c], viewer->hScroll);
+        scrProp->setupUI(&viewer->hScroll[c]);
         ui->propertiesBox->setCurrentWidget(ui->scrollPropPage);
     });
 
@@ -438,7 +438,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         viewer->selectedVScrollInfo = c;
 
-        scrProp->setupUI(&viewer->vScroll[c], viewer->vScroll);
+        scrProp->setupUI(&viewer->vScroll[c]);
         ui->propertiesBox->setCurrentWidget(ui->scrollPropPage);
     });
 

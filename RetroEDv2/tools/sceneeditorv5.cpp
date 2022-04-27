@@ -555,8 +555,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         viewer->selectedHScrollInfo = c;
 
-        scrProp->setupUI(&viewer->layers[viewer->selectedLayer].scrollInfos[c],
-                         viewer->layers[viewer->selectedLayer].scrollInfos);
+        scrProp->setupUI(&viewer->layers[viewer->selectedLayer].scrollInfos[c]);
         ui->propertiesBox->setCurrentWidget(ui->scrollPropPage);
     });
 
