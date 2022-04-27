@@ -10,7 +10,7 @@ void getCString(char *dest, TextInfo *info);
 void appendText(TextInfo *info, char *text);
 void prependText(TextInfo *info, char *text);
 void appendString(TextInfo *textA, TextInfo *textB);
-bool32 stringCompare(TextInfo *textA, TextInfo *textB, byte flag);
+bool32 stringCompare(TextInfo *textA, TextInfo *textB, bool32 exactMatch);
 } // namespace FunctionTable
 
 #endif // GAMETEXT_HPP

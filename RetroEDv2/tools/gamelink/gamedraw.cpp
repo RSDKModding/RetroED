@@ -838,7 +838,7 @@ void FunctionTable::drawText(Animator *animator, Vector2<int> *position, TextInf
                              int endFrame, byte align, int spacing, int a8, Vector2<int> *charOffsets,
                              bool32 screenRelative)
 {
-    if (animator && info && animator->framePtrs && v5Editor) {
+    if (animator && info && info->text && animator->framePtrs && v5Editor) {
         SceneInfo &sceneInfo = v5Editor->viewer->sceneInfo;
 
         if (!position)

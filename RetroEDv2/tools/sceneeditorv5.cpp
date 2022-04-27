@@ -398,13 +398,13 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         ObjectSelectorv5 *selector = new ObjectSelectorv5(list, objList);
         if (selector->exec() == QDialog::Accepted) {
-            uint c          = ui->objectList->currentRow() + 1;
-            int globalCount = 1;
-            if (stageConfig.loadGlobalObjects)
-                globalCount = gameConfig.objects.count() + 1;
-
-            if (c < (uint)globalCount)
-                c = globalCount;
+            // uint c          = ui->objectList->currentRow() + 1;
+            // int globalCount = 1;
+            // if (stageConfig.loadGlobalObjects)
+            //     globalCount = gameConfig.objects.count() + 1;
+            //
+            // if (c < (uint)globalCount)
+            //     c = globalCount;
 
             for (int i = 0; i < selector->objAddList.count(); ++i) {
                 if (selector->objAddList[i]) {
@@ -413,16 +413,16 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
                     obj.name = objInfo.name;
 
-                    viewer->objects.insert(c, obj);
+                    viewer->objects.append(obj);
+                    stageConfig.objects.append(obj.name);
+
                     auto *item = new QListWidgetItem();
                     item->setText(obj.name);
                     item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
                     item->setCheckState(Qt::Checked);
-                    ui->objectList->insertItem(c, item);
+                    ui->objectList->addItem(item);
 
-                    linkGameObject(c, &objInfo);
-
-                    ++c;
+                    linkGameObject(viewer->objects.count() - 1, &objInfo);
                 }
             }
 

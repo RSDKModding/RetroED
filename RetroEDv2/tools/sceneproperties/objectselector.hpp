@@ -22,6 +22,8 @@ public:
 
 private:
     Ui::ObjectSelectorv5 *ui;
+
+    void filterObjectList(QString filter);
 };
 
 #endif // OBJECTSELECTOR_H
