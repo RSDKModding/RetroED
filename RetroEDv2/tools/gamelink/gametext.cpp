@@ -17,18 +17,38 @@ void FunctionTable::setText(TextInfo *textInfo, char *text, uint size)
         return;
 
     if (text) {
+        bool match = true;
+        // No point setting smth we already have
+        if (textInfo->length != strlen(text))
+            match = false;
+
+        for (int i = 0; i < textInfo->length && match; ++i) {
+            if (textInfo->text[i] != text[i])
+                match = false;
+        }
+
+        if (match)
+            return;
+
         textInfo->text = NULL;
+
+        if (true) // TODO: stop it from crashing when chaing scenes & text is loaded
+            return;
+
         if (*text) {
             int cnt = 0;
             do textInfo->textLength = ++cnt;
             while (text[cnt]);
         }
+
         if (size && size >= textInfo->textLength)
             textInfo->length = size;
         else
             textInfo->length = textInfo->textLength;
+
         if (!textInfo->length)
             textInfo->length = 1;
+
         allocateStorage(v5Editor->dataStorage, sizeof(ushort) * textInfo->length,
                         (void **)&textInfo->text, DATASET_STR, false);
 
@@ -222,32 +242,29 @@ void FunctionTable::appendString(TextInfo *info, TextInfo *string)
     }
 }
 
-bool32 FunctionTable::stringCompare(TextInfo *textA, TextInfo *textB, byte a3)
+bool32 FunctionTable::stringCompare(TextInfo *textA, TextInfo *textB, bool32 exactMatch)
 {
     if (!v5Editor)
         return false;
 
-    if (textA->textLength != textB->textLength)
+    if (textA->length != textB->length)
         return false;
-    ushort *textPtrA = textA->text;
-    ushort *textPtrB = textB->text;
 
-    if (a3) {
-        for (int i = 0; i < textA->textLength; ++i) {
-            if (textPtrA[i] != textPtrB[i])
+    if (exactMatch) { // each character has to match
+        for (int i = 0; i < textA->length; ++i) {
+            if (textA->text[i] != textB->text[i])
                 return false;
         }
         return true;
     }
-    else {
-        if (textA->textLength <= 0)
+    else { // attempt to ignore case sensitivity when matching
+        if (textA->length <= 0)
             return true;
 
-        for (int i = 0; i < textA->textLength; ++i) {
-            if (textPtrA[i] != textPtrB[i]) {
-                if (textPtrA[i] != textPtrB[i] + 0x10 && textPtrA[i] != textPtrB[i] - 0x10) {
+        for (int i = 0; i < textA->length; ++i) {
+            if (textA->text[i] != textB->text[i]) {
+                if (textA->text[i] != textB->text[i] + 0x20 && textA->text[i] != textB->text[i] - 0x20)
                     return false;
-                }
             }
         }
         return true;

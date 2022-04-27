@@ -20,6 +20,9 @@ ObjectSelectorv5::ObjectSelectorv5(QList<QString> list, QList<GameObjectInfo> ob
             objAddList[r] = item->checkState() != Qt::Unchecked;
     });
 
+    disconnect(ui->objectFilter, nullptr, nullptr, nullptr);
+    connect(ui->objectFilter, &QLineEdit::textChanged, [this](QString s) { filterObjectList(s); });
+
     for (QString &obj : list) {
         // object already exists
         QListWidgetItem *item = new QListWidgetItem();
@@ -47,5 +50,15 @@ ObjectSelectorv5::ObjectSelectorv5(QList<QString> list, QList<GameObjectInfo> ob
 }
 
 ObjectSelectorv5::~ObjectSelectorv5() { delete ui; }
+
+void ObjectSelectorv5::filterObjectList(QString filter)
+{
+    bool showAll = filter.length() == 0;
+
+    for (int row = 0; row < ui->objList->count(); ++row) {
+        auto *item = ui->objList->item(row);
+        item->setHidden(!showAll && !item->text().contains(filter));
+    }
+}
 
 #include "moc_objectselector.cpp"

@@ -1841,6 +1841,8 @@ void SceneViewer::drawSpriteFlipped(float XPos, float YPos, float width, float h
     float startW = width;
     float startH = height;
 
+    // TODO: some do clipping here
+
     if (width <= 0 || height <= 0)
         return;
 
