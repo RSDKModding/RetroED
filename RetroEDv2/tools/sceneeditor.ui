@@ -638,6 +638,9 @@
         <property name="checkable">
          <bool>true</bool>
         </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="6">
@@ -657,6 +660,12 @@
         <property name="icon">
          <iconset resource="../resources.qrc">
           <normaloff>:/icons/ic_preview_48px.svg</normaloff>:/icons/ic_preview_48px.svg</iconset>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -724,6 +733,9 @@
         <property name="checkable">
          <bool>true</bool>
         </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="9">
@@ -747,6 +759,9 @@
         <property name="checkable">
          <bool>true</bool>
         </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="7">
@@ -764,6 +779,9 @@
          <string>A</string>
         </property>
         <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoRaise">
          <bool>true</bool>
         </property>
        </widget>

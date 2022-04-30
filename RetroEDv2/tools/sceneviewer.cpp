@@ -1176,7 +1176,7 @@ void SceneViewer::unloadScene()
     prevStoredH  = -1;
 }
 
-void SceneViewer::processObjects()
+void SceneViewer::processObjects(bool isImage)
 {
     for (int i = 0; i < v5_DRAWLAYER_COUNT; ++i) {
         drawLayers[i].entries.clear();
@@ -1188,7 +1188,7 @@ void SceneViewer::processObjects()
 
     if (gameType == ENGINE_v5) {
         for (int e = 0; e < entities.count(); ++e) {
-            if (!entities[e].gameEntity || !entities[e].type) {
+            if (!entities[e].gameEntity || !entities[e].type || isImage) {
                 drawLayers[15].entries.append(sceneInfo.entitySlot++);
                 continue;
             }
@@ -1288,7 +1288,7 @@ void SceneViewer::processObjects()
     }
     else {
         for (int e = 0; e < entities.count(); ++e) {
-            if (!entities[e].type) {
+            if (!entities[e].type || isImage) {
                 drawLayers[15].entries.append(sceneInfo.entitySlot++);
                 continue;
             }
@@ -1687,7 +1687,7 @@ void SceneViewer::paintGL()
         outFB = nullptr;
         tFB   = nullptr;
         t2FB  = nullptr;
-        resizeGL(boundsR * tileSize, boundsB * tileSize);
+        resizeGL(boundsR, boundsB);
 
         cameraPos = { 0, 0 };
         zoom      = 1;
@@ -1700,9 +1700,10 @@ void SceneViewer::paintGL()
         glFuncs->glClear(GL_COLOR_BUFFER_BIT);
 
         if (!disableObjects)
-            processObjects();
+            processObjects(true);
 
-        drawScene();
+        if (!disableDrawScene)
+            drawScene();
 
         outFB->toImage(false)
             .convertToFormat(QImage::Format_ARGB32)
@@ -1744,7 +1745,7 @@ void SceneViewer::paintGL()
     glFuncs->glClear(GL_COLOR_BUFFER_BIT);
 
     if (!disableObjects)
-        processObjects();
+        processObjects(false);
 
     if (!disableDrawScene)
         drawScene();

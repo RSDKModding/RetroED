@@ -1393,8 +1393,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
         }
 
         case QEvent::MouseMove: {
-            bool status         = false;
-            //QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
+            bool status = false;
+            // QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
 
             auto mPos = viewer->mapFromGlobal(QCursor::pos());
 
@@ -2134,11 +2134,11 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
 bool SceneEditor::saveScene(bool forceSaveAs)
 {
-    //byte saveVer     = ENGINE_v4;
+    // byte saveVer     = ENGINE_v4;
     QString savePath = "";
     if (!forceSaveAs && QFile::exists(scene.filepath)) {
         savePath = scene.filepath;
-        //saveVer  = viewer->gameType;
+        // saveVer  = viewer->gameType;
     }
     else {
         QList<QString> types = {
@@ -2395,9 +2395,9 @@ void SceneEditor::initGameLink()
     compilerv4->clearScriptData();
 
     for (int i = 0; i < ENTITY_COUNT; ++i) {
-        memset((void*)&compilerv2->objectEntityList[i], 0, sizeof(compilerv2->objectEntityList[i]));
-        memset((void*)&compilerv3->objectEntityList[i], 0, sizeof(compilerv3->objectEntityList[i]));
-        memset((void*)&compilerv4->objectEntityList[i], 0, sizeof(compilerv4->objectEntityList[i]));
+        memset((void *)&compilerv2->objectEntityList[i], 0, sizeof(compilerv2->objectEntityList[i]));
+        memset((void *)&compilerv3->objectEntityList[i], 0, sizeof(compilerv3->objectEntityList[i]));
+        memset((void *)&compilerv4->objectEntityList[i], 0, sizeof(compilerv4->objectEntityList[i]));
 
         if (i < viewer->entities.count()) {
             compilerv2->objectEntityList[i].type          = viewer->entities[i].type;
@@ -3144,9 +3144,9 @@ void SceneEditor::createEntityList(int startSlot)
     ui->entityList->blockSignals(false);
 
     for (int i = 0; i < ENTITY_COUNT; ++i) {
-        memset((void*)&compilerv2->objectEntityList[i], 0, sizeof(compilerv2->objectEntityList[i]));
-        memset((void*)&compilerv3->objectEntityList[i], 0, sizeof(compilerv3->objectEntityList[i]));
-        memset((void*)&compilerv4->objectEntityList[i], 0, sizeof(compilerv4->objectEntityList[i]));
+        memset((void *)&compilerv2->objectEntityList[i], 0, sizeof(compilerv2->objectEntityList[i]));
+        memset((void *)&compilerv3->objectEntityList[i], 0, sizeof(compilerv3->objectEntityList[i]));
+        memset((void *)&compilerv4->objectEntityList[i], 0, sizeof(compilerv4->objectEntityList[i]));
 
         if (i < viewer->entities.count()) {
             compilerv2->objectEntityList[i].type          = viewer->entities[i].type;

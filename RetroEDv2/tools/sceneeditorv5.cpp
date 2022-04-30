@@ -359,7 +359,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         viewer->selectedObject = c;
 
-        memset((void*)&createGameEntity, 0, sizeof(GameEntityBase));
+        memset((void *)&createGameEntity, 0, sizeof(GameEntityBase));
         createGameEntity.position.x = 0;
         createGameEntity.position.y = 0;
         createGameEntity.objectID   = viewer->selectedObject;
@@ -923,7 +923,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             return;
 
         int oldGlobalCount = detailsDlg->oldObjCount->value(); // 45;
-        //int newGlobalCount = detailsDlg->newObjCount->value(); // 45;
+        // int newGlobalCount = detailsDlg->newObjCount->value(); // 45;
 
         QList<QString> oldGlobals;
         QList<int> oldGlobalIDs;
@@ -2799,10 +2799,43 @@ void SceneEditorv5::setupObjects()
 
 void SceneEditorv5::unloadGameLinks()
 {
+    for (int o = 2; o < v5_SURFACE_MAX; ++o) {
+        if (viewer->gfxSurface[o].scope == SCOPE_STAGE) {
+            if (viewer->gfxSurface[o].texturePtr)
+                delete viewer->gfxSurface[o].texturePtr;
+            viewer->gfxSurface[o].texturePtr = nullptr;
+            viewer->gfxSurface[o].scope      = SCOPE_NONE;
+        }
+    }
+
+    for (int a = 0; a < v5_SPRFILE_COUNT; ++a) {
+        viewer->spriteAnimationList[a].scope      = SCOPE_NONE;
+        viewer->spriteAnimationList[a].animations = NULL;
+        viewer->spriteAnimationList[a].frames     = NULL;
+    }
+
     for (int l = 0; l < gameLinks.count(); ++l) {
         gameLinks[l].unload();
     }
     gameLinks.clear();
+
+    dataStorage[DATASET_STG].usedStorage = 0;
+    dataStorage[DATASET_STG].entryCount  = 0;
+    dataStorage[DATASET_STG].clearCount  = 0;
+    memset(dataStorage[DATASET_STG].dataEntries, 0, sizeof(dataStorage[DATASET_STG].dataEntries));
+    memset(dataStorage[DATASET_STG].storageEntries, 0, sizeof(dataStorage[DATASET_STG].storageEntries));
+
+    dataStorage[DATASET_STR].usedStorage = 0;
+    dataStorage[DATASET_STR].entryCount  = 0;
+    dataStorage[DATASET_STR].clearCount  = 0;
+    memset(dataStorage[DATASET_STR].dataEntries, 0, sizeof(dataStorage[DATASET_STR].dataEntries));
+    memset(dataStorage[DATASET_STR].storageEntries, 0, sizeof(dataStorage[DATASET_STR].storageEntries));
+
+    dataStorage[DATASET_TMP].usedStorage = 0;
+    dataStorage[DATASET_TMP].entryCount  = 0;
+    dataStorage[DATASET_TMP].clearCount  = 0;
+    memset(dataStorage[DATASET_TMP].dataEntries, 0, sizeof(dataStorage[DATASET_TMP].dataEntries));
+    memset(dataStorage[DATASET_TMP].storageEntries, 0, sizeof(dataStorage[DATASET_TMP].storageEntries));
 }
 
 void SceneEditorv5::loadGameLinks()
@@ -3336,7 +3369,7 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
 
             GameEntity *entityPtr =
                 entity->slotID == 0xFFFF ? entity->gameEntity : &viewer->gameEntityList[entity->slotID];
-            memset((void*)entityPtr, 0, sizeof(GameEntityBase));
+            memset((void *)entityPtr, 0, sizeof(GameEntityBase));
             entityPtr->position.x    = Utils::floatToFixed(entity->pos.x);
             entityPtr->position.y    = Utils::floatToFixed(entity->pos.y);
             entityPtr->interaction   = true;
@@ -3632,6 +3665,9 @@ void SceneEditorv5::resetAction()
 
 void SceneEditorv5::doAction(QString name, bool setModified)
 {
+    // TODO: THIS IS VERY SLOW!! FIX IT!!
+    // return;
+
     ActionState action;
 
     action.name = name;

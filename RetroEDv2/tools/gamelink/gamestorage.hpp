@@ -1,5 +1,8 @@
-#ifndef GAMESTORAGE_HPP
-#define GAMESTORAGE_HPP
+#ifndef GAMESTORAGE_H
+#define GAMESTORAGE_H
+
+#define STORAGE_ENTRY_COUNT (0x1000)
+#define STORAGE_HEADER_SIZE (sizeof(DataStorageHeader) / sizeof(int))
 
 enum StorageDataSets {
     DATASET_STG,
@@ -9,13 +12,22 @@ enum StorageDataSets {
 };
 
 struct DataStorage {
-    int *memPtr;
+    int *memoryTable;
     uint usedStorage;
     uint storageLimit;
-    int **startPtrs1[0x1000];
-    int *startPtrs2[0x1000];
+    int **dataEntries[STORAGE_ENTRY_COUNT];   // pointer to the actual variable
+    int *storageEntries[STORAGE_ENTRY_COUNT]; // pointer to the storage in "memoryTable"
     uint entryCount;
-    uint unknown;
+    uint clearCount;
+};
+
+struct DataStorageHeader {
+    bool32 active;
+    int setID;
+    int dataOffset;
+    int dataSize;
+    // there are "dataSize" int's following this header, but they are omitted from the struct cuz they
+    // don't need to be here
 };
 
 void initStorage(DataStorage *dataStorage);
@@ -28,4 +40,4 @@ void removeStorageEntry(DataStorage *dataStorage, void **dataPtr);
 void copyStorage(DataStorage *dataStorage, int **src, int **dst);
 void cleanEmptyStorage(DataStorage *dataStorage, StorageDataSets dataSet);
 
-#endif // GAMESTORAGE_HPP
+#endif // GAMESTORAGE_H

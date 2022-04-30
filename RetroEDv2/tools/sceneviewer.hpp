@@ -55,7 +55,7 @@ public:
     void drawScene();
     void unloadScene();
 
-    void processObjects();
+    void processObjects(bool isImage);
 
     void dispose();
 

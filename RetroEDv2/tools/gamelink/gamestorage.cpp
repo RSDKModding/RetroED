@@ -6,15 +6,16 @@ void initStorage(DataStorage *storages)
         return;
 
     // storage limits
-    storages[DATASET_STG].storageLimit = 0x1800000;
-    storages[DATASET_STR].storageLimit = 0x200000;
-    storages[DATASET_TMP].storageLimit = 0x800000;
+    storages[DATASET_STG].storageLimit = 32 * 0x100000;
+    storages[DATASET_STR].storageLimit = 2 * 0x100000;
+    storages[DATASET_TMP].storageLimit = 8 * 0x100000;
 
     for (int s = 0; s < DATASET_MAX; ++s) {
-        storages[s].memPtr      = (int *)malloc(storages[s].storageLimit);
+        storages[s].memoryTable = (int *)malloc(storages[s].storageLimit);
+
         storages[s].usedStorage = 0;
         storages[s].entryCount  = 0;
-        storages[s].unknown     = 0;
+        storages[s].clearCount  = 0;
     }
 }
 
@@ -24,12 +25,13 @@ void releaseStorage(DataStorage *storages)
         return;
 
     for (int s = 0; s < DATASET_MAX; ++s) {
-        if (storages[s].memPtr)
-            free(storages[s].memPtr);
-        storages[s].memPtr      = NULL;
+        if (storages[s].memoryTable)
+            free(storages[s].memoryTable);
+
+        storages[s].memoryTable = NULL;
         storages[s].usedStorage = 0;
         storages[s].entryCount  = 0;
-        storages[s].unknown     = 0;
+        storages[s].clearCount  = 0;
     }
 }
 
@@ -49,53 +51,63 @@ void allocateStorage(DataStorage *storages, uint size, void **dataPtr, StorageDa
     int **data = (int **)dataPtr;
     *data      = NULL;
 
-    if (dataSet < DATASET_MAX) {
+    if ((uint)dataSet < DATASET_MAX) {
         DataStorage *storage = &storages[dataSet];
 
         if ((size & -4) < size)
             size = (size & -4) + sizeof(int);
 
-        if (storage->entryCount < 0x1000) {
+        if (storage->entryCount < STORAGE_ENTRY_COUNT) {
             if (size + sizeof(int) * storage->usedStorage >= storage->storageLimit) {
                 clearUnusedStorage(storages, dataSet);
 
                 if (size + sizeof(int) * storage->usedStorage >= storage->storageLimit) {
-                    if (storage->entryCount >= 0x1000)
+                    if (storage->entryCount >= STORAGE_ENTRY_COUNT)
                         cleanEmptyStorage(storages, dataSet);
 
-                    if (*data && clear) {
+                    if (*data && clear)
                         memset(*data, 0, size);
-                    }
                 }
                 else {
-                    storage->memPtr[storage->usedStorage++] = true;
-                    storage->memPtr[storage->usedStorage++] = dataSet;
+                    DataStorageHeader *entry =
+                        (DataStorageHeader *)&storage->memoryTable[storage->usedStorage];
 
-                    storage->memPtr[storage->usedStorage++] = storage->usedStorage + 2;
-                    storage->memPtr[storage->usedStorage++] = size;
-                    *data                                   = &storage->memPtr[storage->usedStorage];
+                    entry->active     = true;
+                    entry->setID      = dataSet;
+                    entry->dataOffset = storage->usedStorage + STORAGE_HEADER_SIZE;
+                    entry->dataSize   = size;
+
+                    storage->usedStorage += STORAGE_HEADER_SIZE;
+                    *data = &storage->memoryTable[storage->usedStorage];
                     storage->usedStorage += size / sizeof(int);
-                    storage->startPtrs1[storage->entryCount] = data;
-                    storage->startPtrs2[storage->entryCount] = *data;
+
+                    storage->dataEntries[storage->entryCount]    = data;
+                    storage->storageEntries[storage->entryCount] = *data;
                 }
             }
             else {
-                storage->memPtr[storage->usedStorage++] = true;
-                storage->memPtr[storage->usedStorage++] = dataSet;
-                storage->memPtr[storage->usedStorage++] = storage->usedStorage + 2;
-                storage->memPtr[storage->usedStorage++] = size;
-                *data                                   = &storage->memPtr[storage->usedStorage];
+                DataStorageHeader *entry =
+                    (DataStorageHeader *)&storage->memoryTable[storage->usedStorage];
+
+                entry->active     = true;
+                entry->setID      = dataSet;
+                entry->dataOffset = storage->usedStorage + STORAGE_HEADER_SIZE;
+                entry->dataSize   = size;
+
+                storage->usedStorage += STORAGE_HEADER_SIZE;
+                *data = &storage->memoryTable[storage->usedStorage];
                 storage->usedStorage += size / sizeof(int);
-                storage->startPtrs1[storage->entryCount] = data;
-                storage->startPtrs2[storage->entryCount] = *data;
+
+                storage->dataEntries[storage->entryCount]    = data;
+                storage->storageEntries[storage->entryCount] = *data;
             }
+
             ++storage->entryCount;
-            if (storage->entryCount >= 0x1000)
+            if (storage->entryCount >= STORAGE_ENTRY_COUNT)
                 cleanEmptyStorage(storages, dataSet);
 
-            if (*data && clear) {
+            if (*data && clear)
                 memset(*data, 0, size);
-            }
         }
     }
 }
@@ -108,35 +120,37 @@ void removeStorageEntry(DataStorage *storages, void **dataPtr)
     if (dataPtr) {
         if (*dataPtr) {
             int **data = (int **)dataPtr;
-            int *ptr   = *data;
 
-            int set = *(ptr - 3);
+            DataStorageHeader *entry = (DataStorageHeader *)(*data - STORAGE_HEADER_SIZE);
+            int set                  = entry->setID;
 
-            for (uint e = 0; e < storages[set].entryCount; ++e) {
-                if (data == storages[set].startPtrs1[e]) {
-                    storages[set].startPtrs1[e] = NULL;
-                }
+            for (int e = 0; e < storages[set].entryCount; ++e) {
+                if (data == storages[set].dataEntries[e])
+                    storages[set].dataEntries[e] = NULL;
             }
 
-            uint c = 0;
-            for (uint e = 0; e < storages[set].entryCount; ++e) {
-                if (storages[set].startPtrs1[e]) {
-                    if (e != c) {
-                        storages[set].startPtrs1[c] = storages[set].startPtrs1[e];
-                        storages[set].startPtrs2[c] = storages[set].startPtrs2[e];
-                        storages[set].startPtrs1[e] = NULL;
-                        storages[set].startPtrs2[e] = NULL;
+            int newEntryCount = 0;
+            for (int entryID = 0; entryID < storages[set].entryCount; ++entryID) {
+                if (storages[set].dataEntries[entryID]) {
+                    if (entryID != newEntryCount) {
+                        storages[set].dataEntries[newEntryCount] = storages[set].dataEntries[entryID];
+                        storages[set].storageEntries[newEntryCount] =
+                            storages[set].storageEntries[entryID];
+                        storages[set].dataEntries[entryID]    = NULL;
+                        storages[set].storageEntries[entryID] = NULL;
                     }
-                    c++;
+
+                    newEntryCount++;
                 }
             }
-            storages[set].entryCount = c;
+            storages[set].entryCount = newEntryCount;
 
-            for (int e = storages[set].entryCount; e < 0x1000; ++e) {
-                storages[set].startPtrs1[e] = NULL;
-                storages[set].startPtrs2[e] = NULL;
+            for (int e = storages[set].entryCount; e < STORAGE_ENTRY_COUNT; ++e) {
+                storages[set].dataEntries[e]    = NULL;
+                storages[set].storageEntries[e] = NULL;
             }
-            *(ptr - 4) = false;
+
+            entry->active = false;
         }
     }
 }
@@ -146,82 +160,85 @@ void clearUnusedStorage(DataStorage *storages, StorageDataSets set)
     if (!storages)
         return;
 
-    ++storages[set].unknown;
+    ++storages[set].clearCount;
+
     cleanEmptyStorage(storages, set);
 
     if (storages[set].usedStorage) {
-        int totalSizeA  = 0;
-        int totalSizeB  = 0;
-        int usedStorage = 0;
-        int *memPtr2    = storages[set].memPtr;
-        int *memPtr     = storages[set].memPtr;
+        int curStorageSize = 0;
+        int newStorageSize = 0;
+        uint usedStorage   = 0;
 
-        for (uint c = 0; c < storages[set].usedStorage;) {
-            int startOffset = memPtr2[2];
-            int size        = ((uint)memPtr2[3] >> 2) + 4;
-            *memPtr2        = false;
-            int *dataPtr    = &storages[set].memPtr[startOffset];
+        int *curMemTablePtr = storages[set].memoryTable;
+        int *newMemTablePtr = storages[set].memoryTable;
 
-            if (!storages[set].entryCount) {
-                memPtr2 += size;
-                c           = size + totalSizeA;
-                usedStorage = size + totalSizeA;
-                totalSizeB += size;
-                totalSizeA += size;
-            }
-            else {
+        for (uint memPos = 0; memPos < storages[set].usedStorage;) {
+            DataStorageHeader *curEntry = (DataStorageHeader *)curMemTablePtr;
+
+            int size         = ((uint)curEntry->dataSize >> 2) + STORAGE_HEADER_SIZE;
+            curEntry->active = false;
+
+            int *dataPtr = &storages[set].memoryTable[curEntry->dataOffset];
+
+            bool32 noCopy = true;
+            if (storages[set].entryCount) {
                 for (uint e = 0; e < storages[set].entryCount; ++e) {
-                    if (dataPtr == storages[set].startPtrs2[e])
-                        *memPtr2 = true;
+                    if (dataPtr == storages[set].storageEntries[e])
+                        curEntry->active = true;
                 }
 
-                if (*memPtr2) {
-                    c = size + totalSizeA;
-                    totalSizeA += size;
-                    if (memPtr2 <= memPtr) {
-                        memPtr += size;
-                        memPtr2 += size;
+                if (curEntry->active) {
+                    noCopy = false;
+
+                    curStorageSize += size;
+                    memPos = curStorageSize;
+
+                    if (curMemTablePtr <= newMemTablePtr) {
+                        newMemTablePtr += size;
+                        curMemTablePtr += size;
                     }
                     else {
                         for (; size; --size) {
-                            int store = *memPtr2;
-                            ++memPtr2;
-                            *memPtr = store;
-                            ++memPtr;
+                            *newMemTablePtr++ = *curMemTablePtr++;
                         }
                     }
-                    usedStorage = totalSizeB;
+
+                    usedStorage = newStorageSize;
                 }
-                else {
-                    memPtr2 += size;
-                    c           = size + totalSizeA;
-                    usedStorage = size + totalSizeB;
-                    totalSizeB += size;
-                    totalSizeA += size;
-                }
+            }
+
+            if (noCopy) {
+                curMemTablePtr += size;
+                newStorageSize += size;
+                curStorageSize += size;
+
+                memPos      = curStorageSize;
+                usedStorage = newStorageSize;
             }
         }
 
         if (usedStorage) {
-            bool32 flag = storages[set].usedStorage == (uint)usedStorage;
+            bool32 noEntriesRemoved = storages[set].usedStorage != usedStorage;
             storages[set].usedStorage -= usedStorage;
-            int *memPtr = storages[set].memPtr;
 
-            if (!flag) {
-                for (uint offset = 0; offset < storages[set].usedStorage;) {
-                    int *ptr = &storages[set].memPtr[memPtr[2]];
-                    int size = ((uint)memPtr[3] >> 2) + 4;
+            int *memory = storages[set].memoryTable;
+            if (noEntriesRemoved) {
+                for (uint memPos = 0; memPos < storages[set].usedStorage;) {
+                    DataStorageHeader *entry = (DataStorageHeader *)memory;
+
+                    int *dataPtr = &storages[set].memoryTable[entry->dataOffset];
+                    int size     = ((uint)entry->dataSize >> 2) + STORAGE_HEADER_SIZE; // size (in ints)
 
                     for (uint c = 0; c < storages[set].entryCount; ++c) {
-                        if (ptr == storages[set].startPtrs2[c]) {
-                            *storages[set].startPtrs1[c] = memPtr + 4;
-                            storages[set].startPtrs2[c]  = memPtr + 4;
+                        if (dataPtr == storages[set].storageEntries[c]) {
+                            *storages[set].dataEntries[c]   = memory + STORAGE_HEADER_SIZE;
+                            storages[set].storageEntries[c] = memory + STORAGE_HEADER_SIZE;
                         }
                     }
 
-                    memPtr[2] = offset + 4; // offset
-                    offset += size;
-                    memPtr += size;
+                    entry->dataOffset = memPos + STORAGE_HEADER_SIZE;
+                    memPos += size;
+                    memory += size;
                 }
             }
         }
@@ -236,15 +253,16 @@ void copyStorage(DataStorage *storages, int **src, int **dst)
     if (src) {
         int *dstPtr = *dst;
         *src        = *dst;
-        int dstSet  = dstPtr[-3];
 
-        if (storages[dstSet].entryCount < 0x1000) {
-            storages[dstSet].startPtrs1[storages[dstSet].entryCount] = src;
-            storages[dstSet].startPtrs2[storages[dstSet].entryCount] = *src;
+        DataStorageHeader *entry = (DataStorageHeader *)(dstPtr - 4);
+        int setID                = entry->setID;
 
-            dstSet = dstPtr[-3];
-            if (storages[dstSet].entryCount >= 0x1000)
-                cleanEmptyStorage(storages, (StorageDataSets)dstSet);
+        if (storages[setID].entryCount < STORAGE_ENTRY_COUNT) {
+            storages[setID].dataEntries[storages[setID].entryCount]    = src;
+            storages[setID].storageEntries[storages[setID].entryCount] = *src;
+
+            if (storages[setID].entryCount >= STORAGE_ENTRY_COUNT)
+                cleanEmptyStorage(storages, (StorageDataSets)setID);
         }
     }
 }
@@ -254,31 +272,37 @@ void cleanEmptyStorage(DataStorage *storages, StorageDataSets set)
     if (!storages)
         return;
 
-    if (set < DATASET_MAX) {
+    if ((uint)set < DATASET_MAX) {
         DataStorage *storage = &storages[set];
 
         for (uint e = 0; e < storage->entryCount; ++e) {
-            if (storage->startPtrs1[e] && *storage->startPtrs1[e] != storage->startPtrs2[e])
-                storage->startPtrs1[e] = NULL;
+            // So what's happening here is the engine is checking to see if the storage entry
+            // (which is the pointer to the "memoryTable" offset that is allocated for this entry)
+            // matches what the actual variable that allocated the storage is currently pointing to.
+            // if they don't match, the storage entry is considered invalid and marked for removal.
+
+            if (storage->dataEntries[e] && *storage->dataEntries[e] != storage->storageEntries[e])
+                storage->dataEntries[e] = NULL;
         }
 
-        uint c = 0;
-        for (uint e = 0; e < storage->entryCount; ++e) {
-            if (storage->startPtrs1[e]) {
-                if (e != c) {
-                    storage->startPtrs1[c] = storage->startPtrs1[e];
-                    storage->startPtrs2[c] = storage->startPtrs2[e];
-                    storage->startPtrs1[e] = NULL;
-                    storage->startPtrs2[e] = NULL;
+        int newEntryCount = 0;
+        for (uint entryID = 0; entryID < storage->entryCount; ++entryID) {
+            if (storage->dataEntries[entryID]) {
+                if (entryID != newEntryCount) {
+                    storage->dataEntries[newEntryCount]    = storage->dataEntries[entryID];
+                    storage->storageEntries[newEntryCount] = storage->storageEntries[entryID];
+                    storage->dataEntries[entryID]          = NULL;
+                    storage->storageEntries[entryID]       = NULL;
                 }
-                c++;
+
+                newEntryCount++;
             }
         }
-        storage->entryCount = c;
+        storage->entryCount = newEntryCount;
 
-        for (int e = storage->entryCount; e < 0x1000; ++e) {
-            storage->startPtrs1[e] = NULL;
-            storage->startPtrs2[e] = NULL;
+        for (int e = storage->entryCount; e < STORAGE_ENTRY_COUNT; ++e) {
+            storage->dataEntries[e]    = NULL;
+            storage->storageEntries[e] = NULL;
         }
     }
 }
