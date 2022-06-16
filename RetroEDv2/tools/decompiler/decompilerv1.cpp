@@ -440,7 +440,7 @@ QString RSDKv1::Decompiler::getVariable(RSDKv1::Script::ParamInfo param)
                     var = setArrayValue(var, QString::number(arrVal));
                     // [Array + objectLoop]
                     break;
-                default: printLog(QString("Unexpected array index (%1)").arg(arrVal)); break;
+                default: PrintLog(QString("Unexpected array index (%1)").arg(arrVal)); break;
             }
         }
 

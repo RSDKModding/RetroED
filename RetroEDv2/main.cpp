@@ -132,10 +132,20 @@ int main(int argc, char *argv[])
         writer.flush();
     }
 
-    printLog("====================================================");
-    printLog("New RetroED instance: " + QDateTime::currentDateTime().toString());
-    printLog(QString("Version: ") + RE_VERSION);
-    printLog("====================================================");
+    if (!QFile(homeDir + "RSDKv5UFileList.txt").exists()) {
+        Reader reader(":/resources/RSDKv5UFileList.txt");
+        QByteArray bytes = reader.readByteArray(reader.filesize);
+        reader.close();
+
+        Writer writer(homeDir + "RSDKv5UFileList.txt");
+        writer.write(bytes);
+        writer.flush();
+    }
+
+    PrintLog("====================================================");
+    PrintLog("New RetroED instance: " + QDateTime::currentDateTime().toString());
+    PrintLog(QString("Version: ") + RE_VERSION);
+    PrintLog("====================================================");
 
     GameLink::Setup();
 

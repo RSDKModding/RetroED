@@ -242,117 +242,117 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     QMenu *tools = new QMenu("Tools");
     tools->addAction("RSDK Unpacker", [this] {
-        setStatus("Opening RSDK unpacker...");
+        SetStatus("Opening RSDK unpacker...");
         RSDKUnpacker *tool = new RSDKUnpacker;
         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "RSDK Unpacker"));
-        setStatus("Opened RSDK unpacker!");
+        SetStatus("Opened RSDK unpacker!");
     });
     tools->addSeparator();
 
     QMenu *scn = new QMenu("Scene Editor");
     scn->addAction("v1, v2, v3, v4", [this] {
-        setStatus("Opening Scene Editor...");
+        SetStatus("Opening Scene Editor...");
         SceneEditor *tool = new SceneEditor();
         tool->installEventFilter(this);
         tool->createNewScene();
         addTab(tool, "Scene Editor");
-        setStatus("Opened Scene Editor!");
+        SetStatus("Opened Scene Editor!");
     });
 
     scn->addAction("v5 (Sonic Mania)", [this] {
-        setStatus("Opening Scene Editor...");
+        SetStatus("Opening Scene Editor...");
         SceneEditorv5 *tool = new SceneEditorv5();
         tool->installEventFilter(this);
         tool->createNewScene();
         addTab(tool, "Scene Editor");
-        setStatus("Opened Scene Editor!");
+        SetStatus("Opened Scene Editor!");
     });
     tools->addMenu(scn);
 
     tools->addAction("Animation Editor", [this] {
-        setStatus("Opening Animation Editor...");
+        SetStatus("Opening Animation Editor...");
         AnimationEditor *tool = new AnimationEditor;
         addTab(tool, "Animation Editor");
-        setStatus("Opened Animation Editor!");
+        SetStatus("Opened Animation Editor!");
     });
 
     QMenu *gc = new QMenu("GameConfig Editor");
     gc->addAction("v1 (Retro-Sonic)", [this] {
-        setStatus("Opening Game Configuration Editor...");
+        SetStatus("Opening Game Configuration Editor...");
         GameConfigEditorv1 *tool = new GameConfigEditorv1;
         addTab(tool, "GameConfig Editor");
-        setStatus("Opened Game Configuration Editor!");
+        SetStatus("Opened Game Configuration Editor!");
     });
     gc->addAction("v2 (Sonic Nexus)", [this] {
-        setStatus("Opening GameConfig Editor...");
+        SetStatus("Opening GameConfig Editor...");
         GameConfigEditorv2 *tool = new GameConfigEditorv2;
         addTab(tool, "GameConfig Editor");
-        setStatus("Opened GameConfig Editor!");
+        SetStatus("Opened GameConfig Editor!");
     });
     gc->addAction("v3 (Sonic CD)", [this] {
-        setStatus("Opening GameConfig Editor...");
+        SetStatus("Opening GameConfig Editor...");
         GameConfigEditorv3 *tool = new GameConfigEditorv3;
         addTab(tool, "GameConfig Editor");
-        setStatus("Opened GameConfig Editor!");
+        SetStatus("Opened GameConfig Editor!");
     });
     gc->addAction("v4 (Sonic 1/Sonic 2)", [this] {
-        setStatus("Opening GameConfig Editor...");
+        SetStatus("Opening GameConfig Editor...");
         GameConfigEditorv4 *tool = new GameConfigEditorv4;
         addTab(tool, "GameConfig Editor");
-        setStatus("Opened GameConfig Editor!");
+        SetStatus("Opened GameConfig Editor!");
     });
     gc->addAction("v5 (Sonic Mania)", [this] {
-        setStatus("Opening GameConfig Editor...");
+        SetStatus("Opening GameConfig Editor...");
         GameConfigEditorv5 *tool = new GameConfigEditorv5("", 0, false);
         addTab(tool, "GameConfig Editor");
-        setStatus("Opened GameConfig Editor!");
+        SetStatus("Opened GameConfig Editor!");
     });
     tools->addMenu(gc);
 
     tools->addAction("Palette Editor", [this] {
-        setStatus("Opening Palette Editor...");
+        SetStatus("Opening Palette Editor...");
         PaletteEditor *tool = new PaletteEditor;
         addTab(tool, "Palette Editor");
-        setStatus("Opened Palette Editor!");
+        SetStatus("Opened Palette Editor!");
     });
 
     tools->addAction("Model Manager", [this] {
-        setStatus("Opening Model Manager...");
+        SetStatus("Opening Model Manager...");
         ModelManager *tool = new ModelManager;
         tool->installEventFilter(this);
         addTab(tool, "Model Manager");
-        setStatus("Opened Model Manager!");
+        SetStatus("Opened Model Manager!");
     });
 
 #if !RE_BUILD_TYPE
     tools->addAction("Script Decompiler", [] {
-        setStatus("Opening Script Decompiler...");
+        SetStatus("Opening Script Decompiler...");
         ScriptUnpacker *tool = new ScriptUnpacker();
         tool->exec();
     });
 #endif
 
     tools->addAction("Script Compiler", [this] {
-        setStatus("Opening Script Compiler...");
+        SetStatus("Opening Script Compiler...");
         ScriptCompiler *tool = new ScriptCompiler();
         ui->toolTabs->setCurrentIndex(ui->toolTabs->addTab(tool, "Script Compiler"));
-        setStatus("Opened Script Compiler!");
+        SetStatus("Opened Script Compiler!");
     });
 
     tools->addAction("GFX Manager", [] {
-        setStatus("Opening GFX Manager...");
+        SetStatus("Opening GFX Manager...");
         GFXTool *tool = new GFXTool();
         tool->exec();
     });
 
     tools->addAction("UserDB Manager", [] {
-        setStatus("Opening UserDB Manager...");
+        SetStatus("Opening UserDB Manager...");
         UserDBManager *tool = new UserDBManager();
         tool->exec();
     });
 
     tools->addAction("RSV Manager", [] {
-        setStatus("Opening RSV Manager...");
+        SetStatus("Opening RSV Manager...");
         RSVTool *tool = new RSVTool();
         tool->exec();
     });

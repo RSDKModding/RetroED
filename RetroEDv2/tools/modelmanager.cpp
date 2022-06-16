@@ -608,7 +608,7 @@ void ModelManager::setupUI(bool initialSetup)
 
 void ModelManager::loadModel(QString filePath, bool usev5Format)
 {
-    setStatus("Loading model...", true);
+    SetStatus("Loading model...", true);
 
     if (usev5Format) {
         RSDKv5::Model mdl;
@@ -628,7 +628,7 @@ void ModelManager::loadModel(QString filePath, bool usev5Format)
     }
 
     updateTitle(false);
-    setStatus("Loaded model " + tabTitle);
+    SetStatus("Loaded model " + tabTitle);
 
     appConfig.addRecentFile(usev5Format ? ENGINE_v5 : ENGINE_v4, TOOL_MODELMANAGER, filePath,
                             QList<QString>{});
@@ -648,9 +648,9 @@ bool ModelManager::saveModel(bool forceSaveAs)
             QString filepath = filedialog.selectedFiles()[0];
 
             if (usev5Format) {
-                setStatus("Saving model...", true);
+                SetStatus("Saving model...", true);
                 viewer->model.write(filepath);
-                setStatus("Saved model to " + filepath);
+                SetStatus("Saved model to " + filepath);
                 viewer->modelFormat = 0;
 
                 appConfig.addRecentFile(ENGINE_v5, TOOL_MODELMANAGER, filepath, QList<QString>{});
@@ -658,10 +658,10 @@ bool ModelManager::saveModel(bool forceSaveAs)
             else {
                 RSDKv4::Model mdl = viewer->getModelv4();
 
-                setStatus("Saving model...", true);
+                SetStatus("Saving model...", true);
                 mdl.write(filepath);
                 viewer->model.filePath = mdl.filePath;
-                setStatus("Saved model to " + filepath);
+                SetStatus("Saved model to " + filepath);
                 viewer->modelFormat = 1;
 
                 appConfig.addRecentFile(ENGINE_v4, TOOL_MODELMANAGER, filepath, QList<QString>{});
@@ -673,9 +673,9 @@ bool ModelManager::saveModel(bool forceSaveAs)
     }
     else {
         if (viewer->modelFormat == 0) {
-            setStatus("Saving model...", true);
+            SetStatus("Saving model...", true);
             viewer->model.write();
-            setStatus("Saved model to " + viewer->model.filePath);
+            SetStatus("Saved model to " + viewer->model.filePath);
 
             appConfig.addRecentFile(ENGINE_v5, TOOL_MODELMANAGER, viewer->model.filePath,
                                     QList<QString>{});
@@ -683,10 +683,10 @@ bool ModelManager::saveModel(bool forceSaveAs)
         else {
             RSDKv4::Model mdl = viewer->getModelv4();
 
-            setStatus("Saving model...", true);
+            SetStatus("Saving model...", true);
             mdl.write();
             viewer->model.filePath = mdl.filePath;
-            setStatus("Saved model to " + mdl.filePath);
+            SetStatus("Saved model to " + mdl.filePath);
 
             appConfig.addRecentFile(ENGINE_v5, TOOL_MODELMANAGER, mdl.filePath, QList<QString>{});
         }

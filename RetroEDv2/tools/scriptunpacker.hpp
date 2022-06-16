@@ -35,7 +35,7 @@ private:
     QString dataPath = "";
 
     QList<BytecodeInfo> bytecodeList; // Bytecode Paths
-    QList<QString> variableNames;     // Global Variable Names
+    QList<QString> globalVariableNames;     // Global Variable Names
 
     int globalScriptCount   = 0;
     int globalFunctionCount = 0;

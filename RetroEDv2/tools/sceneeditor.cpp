@@ -747,7 +747,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         viewer->stopTimer();
         viewer->disableDrawScene = true;
 
-        setStatus("Rebuilding tiles...", true);
+        SetStatus("Rebuilding tiles...", true);
         viewer->gfxSurface[0].texturePtr = nullptr;
 
         QImage tileset(0x10, 0x400 * 0x10, QImage::Format_Indexed8);
@@ -755,7 +755,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         QVector<QRgb> pal;
         for (PaletteColor &col : viewer->tilePalette) pal.append(col.toQColor().rgb());
         tileset.setColorTable(pal);
-        addStatusProgress(1. / 5); // finished setup
+        AddStatusProgress(1. / 5); // finished setup
 
         uchar *pixels = tileset.bits();
         for (int i = 0; i < 0x400; ++i) {
@@ -766,7 +766,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 }
             }
         }
-        addStatusProgress(1. / 5); // finished copying tiles
+        AddStatusProgress(1. / 5); // finished copying tiles
 
         viewer->gfxSurface[0].texturePtr = viewer->createTexture(tileset, QOpenGLTexture::Target2D);
 
@@ -778,7 +778,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 }
             }
         }
-        addStatusProgress(1. / 5); // finished updating layout
+        AddStatusProgress(1. / 5); // finished updating layout
 
         RSDKv5::TileConfig configStore = viewer->tileconfig;
         for (int i = 0; i < 0x400; ++i) {
@@ -786,7 +786,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             viewer->tileconfig.collisionPaths[0][id] = configStore.collisionPaths[0][i];
             viewer->tileconfig.collisionPaths[1][id] = configStore.collisionPaths[1][i];
         }
-        addStatusProgress(1. / 5); // finished updating collision masks
+        AddStatusProgress(1. / 5); // finished updating collision masks
 
         viewer->chunks.clear();
         for (FormatHelpers::Chunks::Chunk &c : viewer->chunkset.chunks)
@@ -795,7 +795,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         chkProp->refreshList();
 
         doAction("Edited Tiles");
-        setStatus("Finished rebuilding tiles!"); // done!
+        SetStatus("Finished rebuilding tiles!"); // done!
 
         viewer->startTimer();
         viewer->disableDrawScene = false;
@@ -847,14 +847,14 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     });
 
     connect(scnProp->reloadLink, &QPushButton::clicked, [this] {
-        setStatus("Reloading Game Link...", true);
+        SetStatus("Reloading Game Link...", true);
         viewer->stopTimer();
         objProp->unsetUI();
 
         initGameLink();
 
         viewer->startTimer();
-        setStatus("Game Link reloaded successfully!");
+        SetStatus("Game Link reloaded successfully!");
     });
 
     connect(scnProp->replaceChunk, &QPushButton::clicked, [this] {
@@ -868,7 +868,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         viewer->stopTimer();
 
-        setStatus("Replacing Tile Info...", true);
+        SetStatus("Replacing Tile Info...", true);
 
         ushort dstTile = dlg->dstTile->value();
         ushort srcTile = dlg->srcTile->value();
@@ -936,7 +936,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 }
             }
         }
-        addStatusProgress(1. / 3); // finished updating layers
+        AddStatusProgress(1. / 3); // finished updating layers
 
         if (replaceCollision) {
             auto &dstA = viewer->tileconfig.collisionPaths[0][dstTile];
@@ -967,7 +967,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 dstB.collision[c].solid  = srcB.collision[c].solid;
             }
         }
-        addStatusProgress(1. / 3); // finished updating collision
+        AddStatusProgress(1. / 3); // finished updating collision
 
         if (replaceGraphics) {
             auto &dstTileImg = viewer->tiles[dstTile];
@@ -981,7 +981,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 }
             }
         }
-        setStatus("Finished replacing Tile Info!"); // finished updating graphics
+        SetStatus("Finished replacing Tile Info!"); // finished updating graphics
 
         viewer->startTimer();
     });
@@ -990,7 +990,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         QFileDialog filedialog(this, tr("Save Image"), "", tr("PNG Files (*.png)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
-            setStatus("Rendering image...", true);
+            SetStatus("Rendering image...", true);
             viewer->queueRender(filedialog.selectedFiles()[0]);
         }
     });
@@ -1714,20 +1714,20 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
 void SceneEditor::createNewScene()
 {
-    setStatus("Creating new scene...", true);
+    SetStatus("Creating new scene...", true);
 
     viewer->objectsLoaded = false;
     viewer->stopTimer();
     viewer->unloadScene();
 
-    addStatusProgress(0.2); // finish unloading
+    AddStatusProgress(0.2); // finish unloading
 
     // TODO: lol actually make a new scene
 
     tabTitle = "Scene Editor";
 
     clearActions();
-    setStatus("Created new scene!"); // done!
+    SetStatus("Created new scene!"); // done!
 
     viewer->startTimer();
 }
@@ -1736,7 +1736,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 {
     viewer->disableDrawScene = true;
 
-    setStatus("Loading scene...", true);
+    SetStatus("Loading scene...", true);
 
     viewer->objectsLoaded = false;
 
@@ -1754,7 +1754,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     dir.cdUp();
     viewer->dataPath = dir.path();
 
-    addStatusProgress(1. / 7); // finish initial setup
+    AddStatusProgress(1. / 7); // finish initial setup
 
     // loading
     QString pth      = scnPath;
@@ -1843,7 +1843,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     }
     viewer->chunkset = chunkset;
 
-    addStatusProgress(1. / 7); // finish reading files
+    AddStatusProgress(1. / 7); // finish reading files
 
     // Always have 8 layers, even if some have w/h of 0
     for (int l = background.layers.count(); l < 8; ++l)
@@ -1958,7 +1958,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
             viewer->layers[id].visible = true;
     }
 
-    addStatusProgress(1. / 7); // finish setting up layers
+    AddStatusProgress(1. / 7); // finish setting up layers
 
     if (gameType != ENGINE_v1) {
         scene.objectTypeNames.clear();
@@ -2021,7 +2021,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
         viewer->entities.append(info);
     }
 
-    addStatusProgress(1. / 7); // finish objects & entities
+    AddStatusProgress(1. / 7); // finish objects & entities
 
     QImage tileset(16, 0x400 * 16, QImage::Format_Indexed8);
     if (gameType == ENGINE_v1) {
@@ -2042,7 +2042,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     viewer->gameType = gameType;
     viewer->initScene(tileset);
 
-    addStatusProgress(1. / 7); // finish building tiles & chunks
+    AddStatusProgress(1. / 7); // finish building tiles & chunks
 
     ui->layerList->blockSignals(true);
     ui->layerList->clear();
@@ -2114,7 +2114,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     objProp->unsetUI();
     scrProp->unsetUI();
 
-    addStatusProgress(1. / 7); // finish setting up UI stuff
+    AddStatusProgress(1. / 7); // finish setting up UI stuff
 
     initGameLink();
 
@@ -2129,7 +2129,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
     clearActions();
     appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR, scnPath, QList<QString>{ gcfPath });
-    setStatus("Loaded scene " + QFileInfo(scnPath).fileName()); // done!
+    SetStatus("Loaded scene " + QFileInfo(scnPath).fileName()); // done!
 }
 
 bool SceneEditor::saveScene(bool forceSaveAs)
@@ -2175,7 +2175,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
 
     viewer->disableDrawScene = true;
 
-    setStatus("Saving scene...", true);
+    SetStatus("Saving scene...", true);
     FormatHelpers::Gif tileset(16, 0x400 * 16);
 
     int c = 0;
@@ -2188,7 +2188,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
             for (int x = 0; x < 16; ++x) tileset.pixels[pos++] = *src++;
         }
     }
-    addStatusProgress(1.f / 5); // created tileset
+    AddStatusProgress(1.f / 5); // created tileset
 
     // FG Layer
     {
@@ -2276,7 +2276,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
         background.vScrollInfo.append(scroll);
     }
 
-    addStatusProgress(1.f / 5); // created tile layers
+    AddStatusProgress(1.f / 5); // created tile layers
 
     scene.objects.clear();
     scene.objectTypeNames.clear();
@@ -2296,7 +2296,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
 
         objID++;
     }
-    addStatusProgress(1.f / 5); // created object list
+    AddStatusProgress(1.f / 5); // created object list
 
     for (auto &ent : viewer->entities) {
         FormatHelpers::Scene::Object entity;
@@ -2313,7 +2313,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
 
         scene.objects.append(entity);
     }
-    addStatusProgress(1.f / 5); // created entity list
+    AddStatusProgress(1.f / 5); // created entity list
 
     if (viewer->gameType != ENGINE_v1) {
         RSDKv4::TileConfig tileconfig;
@@ -2383,7 +2383,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
 
     tabTitle = Utils::getFilenameAndFolder(savePath);
     clearActions();
-    setStatus("Saved scene to " + Utils::getFilenameAndFolder(savePath));
+    SetStatus("Saved scene to " + Utils::getFilenameAndFolder(savePath));
     viewer->disableDrawScene = false;
     return true;
 }
@@ -2508,16 +2508,16 @@ void SceneEditor::initGameLink()
                     compilerv2->parseScriptFile(scriptPath, scrID++);
 
                     if (compilerv2->scriptError) {
-                        printLog(compilerv2->errorMsg);
-                        printLog(compilerv2->errorPos);
-                        printLog(QString::number(compilerv2->errorLine));
+                        PrintLog(compilerv2->errorMsg);
+                        PrintLog(compilerv2->errorPos);
+                        PrintLog(QString::number(compilerv2->errorLine));
 
                         QFileInfo info(compilerv2->errorScr);
                         QDir dir(info.dir());
                         dir.cdUp();
                         QString dirFile = dir.relativeFilePath(compilerv2->errorScr);
 
-                        setStatus("Failed to compile script: " + dirFile);
+                        SetStatus("Failed to compile script: " + dirFile);
                         compilerv2->objectScriptList[scrID - 1].subRSDK.scriptCodePtr = -1;
                         compilerv2->objectScriptList[scrID - 1].subRSDK.jumpTablePtr  = -1;
                     }
@@ -2531,16 +2531,16 @@ void SceneEditor::initGameLink()
                 compilerv2->parseScriptFile(scriptPath, scrID++);
 
                 if (compilerv2->scriptError) {
-                    printLog(compilerv2->errorMsg);
-                    printLog(compilerv2->errorPos);
-                    printLog(QString::number(compilerv2->errorLine));
+                    PrintLog(compilerv2->errorMsg);
+                    PrintLog(compilerv2->errorPos);
+                    PrintLog(QString::number(compilerv2->errorLine));
 
                     QFileInfo info(compilerv2->errorScr);
                     QDir dir(info.dir());
                     dir.cdUp();
                     QString dirFile = dir.relativeFilePath(compilerv2->errorScr);
 
-                    setStatus("Failed to compile script: " + dirFile);
+                    SetStatus("Failed to compile script: " + dirFile);
                     compilerv2->objectScriptList[scrID - 1].subRSDK.scriptCodePtr = -1;
                     compilerv2->objectScriptList[scrID - 1].subRSDK.jumpTablePtr  = -1;
                 }
@@ -2562,9 +2562,9 @@ void SceneEditor::initGameLink()
                     compilerv3->parseScriptFile(scriptPath, scrID++);
 
                     if (compilerv3->scriptError) {
-                        printLog(compilerv3->errorMsg);
-                        printLog(compilerv3->errorPos);
-                        printLog(QString::number(compilerv3->errorLine));
+                        PrintLog(compilerv3->errorMsg);
+                        PrintLog(compilerv3->errorPos);
+                        PrintLog(QString::number(compilerv3->errorLine));
 
                         QFileInfo info(compilerv3->errorScr);
                         QDir dir(info.dir());
@@ -2584,7 +2584,7 @@ void SceneEditor::initGameLink()
                                            QMessageBox::Ok);
                         msgBox.exec();
 
-                        setStatus("Failed to compile script: " + dirFile);
+                        SetStatus("Failed to compile script: " + dirFile);
                         compilerv3->objectScriptList[scrID - 1].subRSDKDraw.scriptCodePtr = -1;
                         compilerv3->objectScriptList[scrID - 1].subRSDKDraw.jumpTablePtr  = -1;
                         compilerv3->objectScriptList[scrID - 1].subRSDKLoad.scriptCodePtr = -1;
@@ -2602,9 +2602,9 @@ void SceneEditor::initGameLink()
                 compilerv3->parseScriptFile(scriptPath, scrID++);
 
                 if (compilerv3->scriptError) {
-                    printLog(compilerv3->errorMsg);
-                    printLog(compilerv3->errorPos);
-                    printLog(QString::number(compilerv3->errorLine));
+                    PrintLog(compilerv3->errorMsg);
+                    PrintLog(compilerv3->errorPos);
+                    PrintLog(QString::number(compilerv3->errorLine));
 
                     QFileInfo info(compilerv3->errorScr);
                     QDir dir(info.dir());
@@ -2624,7 +2624,7 @@ void SceneEditor::initGameLink()
                                        QMessageBox::Ok);
                     msgBox.exec();
 
-                    setStatus("Failed to compile script: " + dirFile);
+                    SetStatus("Failed to compile script: " + dirFile);
                     compilerv3->objectScriptList[scrID - 1].subRSDKDraw.scriptCodePtr = -1;
                     compilerv3->objectScriptList[scrID - 1].subRSDKDraw.jumpTablePtr  = -1;
                     compilerv3->objectScriptList[scrID - 1].subRSDKLoad.scriptCodePtr = -1;
@@ -2651,9 +2651,9 @@ void SceneEditor::initGameLink()
                     compilerv4->parseScriptFile(scriptPath, scrID++);
 
                     if (compilerv4->scriptError) {
-                        printLog(compilerv4->errorMsg);
-                        printLog(compilerv4->errorPos);
-                        printLog(QString::number(compilerv4->errorLine));
+                        PrintLog(compilerv4->errorMsg);
+                        PrintLog(compilerv4->errorPos);
+                        PrintLog(QString::number(compilerv4->errorLine));
 
                         QFileInfo info(compilerv4->errorScr);
                         QDir dir(info.dir());
@@ -2673,7 +2673,7 @@ void SceneEditor::initGameLink()
                                            QMessageBox::Ok);
                         msgBox.exec();
 
-                        setStatus("Failed to compile script: " + dirFile);
+                        SetStatus("Failed to compile script: " + dirFile);
                         compilerv4->objectScriptList[scrID - 1].eventRSDKDraw.scriptCodePtr = -1;
                         compilerv4->objectScriptList[scrID - 1].eventRSDKDraw.jumpTablePtr  = -1;
                         compilerv4->objectScriptList[scrID - 1].eventRSDKLoad.scriptCodePtr = -1;
@@ -2691,16 +2691,16 @@ void SceneEditor::initGameLink()
                 compilerv4->parseScriptFile(scriptPath, scrID++);
 
                 if (compilerv4->scriptError) {
-                    printLog(compilerv4->errorMsg);
-                    printLog(compilerv4->errorPos);
-                    printLog(QString::number(compilerv4->errorLine));
+                    PrintLog(compilerv4->errorMsg);
+                    PrintLog(compilerv4->errorPos);
+                    PrintLog(QString::number(compilerv4->errorLine));
 
                     QFileInfo info(compilerv4->errorScr);
                     QDir dir(info.dir());
                     dir.cdUp();
                     QString dirFile = dir.relativeFilePath(compilerv4->errorScr);
 
-                    setStatus("Failed to compile script: " + dirFile);
+                    SetStatus("Failed to compile script: " + dirFile);
 
                     QMessageBox msgBox(QMessageBox::Information, "RetroED",
                                        QString("Failed to compile script: %1\n"

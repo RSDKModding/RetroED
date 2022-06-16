@@ -32,7 +32,7 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
             viewer->pixmapItem()->rect.setY(returnRect.y);
             viewer->pixmapItem()->rect.setWidth(returnRect.w);
             viewer->pixmapItem()->rect.setHeight(returnRect.h);
-            printLog(QString("ClickPos: X: %1, Y: %2, W: %3, H: %4")
+            PrintLog(QString("ClickPos: X: %1, Y: %2, W: %3, H: %4")
                          .arg(returnRect.x)
                          .arg(returnRect.y)
                          .arg(returnRect.w)
@@ -56,7 +56,7 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
 
             viewer->pixmapItem()->rect.setWidth(returnRect.w);
             viewer->pixmapItem()->rect.setHeight(returnRect.h);
-            printLog(QString("RectPos: X: %1, Y: %2, W: %3, H: %4")
+            PrintLog(QString("RectPos: X: %1, Y: %2, W: %3, H: %4")
                          .arg(returnRect.x)
                          .arg(returnRect.y)
                          .arg(returnRect.w)
@@ -131,7 +131,7 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
         viewer->pixmapItem()->rect.setY(returnRect.y);
         viewer->pixmapItem()->rect.setWidth(returnRect.w);
         viewer->pixmapItem()->rect.setHeight(returnRect.h);
-        printLog(QString("AutoPos: X: %1, Y: %2, W: %3, H: %4")
+        PrintLog(QString("AutoPos: X: %1, Y: %2, W: %3, H: %4")
                      .arg(returnRect.x)
                      .arg(returnRect.y)
                      .arg(returnRect.w)

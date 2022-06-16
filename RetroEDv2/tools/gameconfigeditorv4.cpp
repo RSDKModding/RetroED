@@ -695,12 +695,12 @@ bool GameConfigEditorv4::event(QEvent *event)
                                    tr("RSDKv4 GameConfig files (GameConfig*.bin)"));
             filedialog.setAcceptMode(QFileDialog::AcceptOpen);
             if (filedialog.exec() == QDialog::Accepted) {
-                setStatus("Loading GameConfig...", true);
+                SetStatus("Loading GameConfig...", true);
                 QString basePath = filedialog.selectedFiles()[0].replace(
                     QFileInfo(filedialog.selectedFiles()[0]).fileName(), "");
                 load(filedialog.selectedFiles()[0]);
 
-                setStatus("Loaded GameConfig " + tabTitle);
+                SetStatus("Loaded GameConfig " + tabTitle);
 
                 return true;
             }
@@ -759,19 +759,19 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                 default: break;
 
                 case 0: {
-                    setStatus("Saving GameConfig...", true);
+                    SetStatus("Saving GameConfig...", true);
 
                     appConfig.addRecentFile(ENGINE_v4, TOOL_GAMECONFIGEDITOR,
                                             filedialog.selectedFiles()[0], QList<QString>{ /**/ });
 
                     gameConfig.write(filedialog.selectedFiles()[0]);
-                    setStatus("Saved GameConfig to " + filedialog.selectedFiles()[0]);
+                    SetStatus("Saved GameConfig to " + filedialog.selectedFiles()[0]);
 
                     break;
                 }
 
                 case 1: {
-                    setStatus("Converting GameConfig to v2...", true);
+                    SetStatus("Converting GameConfig to v2...", true);
                     RSDKv2::GameConfig config;
 
                     config.gameWindowText      = gameConfig.gameWindowText;
@@ -784,19 +784,19 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                         variable.value = var.value;
                         config.globalVariables.append(variable);
                     }
-                    addStatusProgress(1.f / 5);
+                    AddStatusProgress(1.f / 5);
 
                     config.objects.clear();
                     for (auto &obj : gameConfig.objects) {
                         config.objects.append(obj.script);
                     }
-                    addStatusProgress(1.f / 5);
+                    AddStatusProgress(1.f / 5);
 
                     config.soundFX.clear();
                     for (auto &sfx : gameConfig.soundFX) {
                         config.soundFX.append(sfx.name);
                     }
-                    addStatusProgress(1.f / 5);
+                    AddStatusProgress(1.f / 5);
 
                     config.players.clear();
                     for (auto &plr : gameConfig.players) {
@@ -804,7 +804,7 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                         player.name = plr;
                         config.players.append(player);
                     }
-                    addStatusProgress(1.f / 5);
+                    AddStatusProgress(1.f / 5);
 
                     config.stageLists.clear();
                     for (auto &cat : gameConfig.stageLists) {
@@ -821,17 +821,17 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                         }
                         config.stageLists.append(category);
                     }
-                    setStatus("Saving GameConfig...", true);
+                    SetStatus("Saving GameConfig...", true);
 
                     appConfig.addRecentFile(ENGINE_v2, TOOL_GAMECONFIGEDITOR,
                                             filedialog.selectedFiles()[0], QList<QString>{ /**/ });
                     config.write(filedialog.selectedFiles()[0]);
-                    setStatus("Saved v2 GameConfig to " + filedialog.selectedFiles()[0]);
+                    SetStatus("Saved v2 GameConfig to " + filedialog.selectedFiles()[0]);
                     break;
                 }
 
                 case 2: {
-                    setStatus("Converting GameConfig to v3...", true);
+                    SetStatus("Converting GameConfig to v3...", true);
                     RSDKv3::GameConfig config;
 
                     config.gameWindowText      = gameConfig.gameWindowText;
@@ -844,7 +844,7 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                         variable.value = var.value;
                         config.globalVariables.append(variable);
                     }
-                    addStatusProgress(1.f / 5);
+                    AddStatusProgress(1.f / 5);
 
                     config.objects.clear();
                     for (auto &obj : gameConfig.objects) {
@@ -853,19 +853,19 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                         object.script = obj.script;
                         config.objects.append(object);
                     }
-                    addStatusProgress(1.f / 5);
+                    AddStatusProgress(1.f / 5);
 
                     config.soundFX.clear();
                     for (auto &sfx : gameConfig.soundFX) {
                         config.soundFX.append(sfx.name);
                     }
-                    addStatusProgress(1.f / 5);
+                    AddStatusProgress(1.f / 5);
 
                     config.players.clear();
                     for (auto &plr : gameConfig.players) {
                         config.players.append(plr);
                     }
-                    addStatusProgress(1.f / 5);
+                    AddStatusProgress(1.f / 5);
 
                     config.stageLists.clear();
                     for (auto &cat : gameConfig.stageLists) {
@@ -882,18 +882,18 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                         }
                         config.stageLists.append(category);
                     }
-                    setStatus("Saving GameConfig...", true);
+                    SetStatus("Saving GameConfig...", true);
 
                     appConfig.addRecentFile(ENGINE_v3, TOOL_GAMECONFIGEDITOR,
                                             filedialog.selectedFiles()[0], QList<QString>{ /**/ });
                     config.write(filedialog.selectedFiles()[0]);
-                    setStatus("Saved v3 GameConfig to " + filedialog.selectedFiles()[0]);
+                    SetStatus("Saved v3 GameConfig to " + filedialog.selectedFiles()[0]);
                     break;
                 }
 
                 case 3:
                 case 4: {
-                    setStatus("Converting GameConfig to v5 GCF and RSDKConfig...", true);
+                    SetStatus("Converting GameConfig to v5 GCF and RSDKConfig...", true);
                     RSDKv5::GameConfig config;
                     RSDKv5::RSDKConfig rsdkConfig;
 
@@ -920,14 +920,14 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                         rsdkConfig.variables.append(rsdkVar);
                         ++varID;
                     }
-                    addStatusProgress(1.f / 5);
+                    AddStatusProgress(1.f / 5);
 
                     config.objects.clear();
                     for (auto &obj : gameConfig.objects) {
                         QString name = obj.name;
                         config.objects.append(name.replace(" ", ""));
                     }
-                    addStatusProgress(1.f / 5);
+                    AddStatusProgress(1.f / 5);
 
                     config.soundFX.clear();
                     for (auto &sfx : gameConfig.soundFX) {
@@ -936,7 +936,7 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                         soundFX.maxConcurrentPlay = 1;
                         config.soundFX.append(soundFX);
                     }
-                    addStatusProgress(1.f / 5);
+                    AddStatusProgress(1.f / 5);
 
                     for (int i = 0; i < 6; ++i) {
                         config.palettes[0].activeRows[i] = true;
@@ -961,7 +961,7 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                     for (int i = 1; i < 8; ++i) {
                         for (int r = 0; r < 16; ++r) config.palettes[i].activeRows[r] = false;
                     }
-                    addStatusProgress(1.f / 5);
+                    AddStatusProgress(1.f / 5);
 
                     config.categories.clear();
                     QList<QString> catNames = { "Presentation", "Regular Stages", "Bonus Stages",
@@ -989,13 +989,13 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                         ENGINE_v5, TOOL_GAMECONFIGEDITOR, filedialog.selectedFiles()[0],
                         QList<QString>{ "GameConfig", filter == 4 ? "rev01" : "rev02" });
 
-                    setStatus("Saving Gameconfig...", true);
+                    SetStatus("Saving Gameconfig...", true);
                     config.write(filedialog.selectedFiles()[0]);
 
-                    setStatus("Saving RSDKConfig...", true);
+                    SetStatus("Saving RSDKConfig...", true);
                     rsdkConfig.write(
                         filedialog.selectedFiles()[0].toLower().replace("gameconfig", "rsdkconfig"));
-                    setStatus("Saved v5 GFC and RSDKConfig to " + filedialog.selectedFiles()[0]
+                    SetStatus("Saved v5 GFC and RSDKConfig to " + filedialog.selectedFiles()[0]
                                   + " and RSDKConfig.bin",
                               true);
 
@@ -1003,7 +1003,7 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                 }
 
                 case 5: {
-                    setStatus("Saving Game.xml...", true);
+                    SetStatus("Saving Game.xml...", true);
                     Writer writer(filedialog.selectedFiles()[0]);
 
                     writer.writeLine("<?xml version=\"1.0\"?>");
@@ -1021,7 +1021,7 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                         }
                         writer.writeLine("\t</variables>");
                     }
-                    addStatusProgress(1.f / 5);
+                    AddStatusProgress(1.f / 5);
 
                     if (gameConfig.objects.count()) {
                         writer.writeLine();
@@ -1034,7 +1034,7 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                         }
                         writer.writeLine("\t</objects>");
                     }
-                    addStatusProgress(1.f / 5);
+                    AddStatusProgress(1.f / 5);
 
                     if (gameConfig.soundFX.count()) {
                         writer.writeLine();
@@ -1046,7 +1046,7 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                         }
                         writer.writeLine("\t</sounds>");
                     }
-                    addStatusProgress(1.f / 5);
+                    AddStatusProgress(1.f / 5);
 
                     if (gameConfig.players.count()) {
                         writer.writeLine();
@@ -1056,7 +1056,7 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                         }
                         writer.writeLine("\t</players>");
                     }
-                    addStatusProgress(1.f / 5);
+                    AddStatusProgress(1.f / 5);
 
                     QString elementNames[] = { "presentationStages", "regularStages", "specialStages",
                                                "bonusStages" };
@@ -1078,7 +1078,7 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                     writer.writeLine("</game>");
 
                     writer.flush();
-                    setStatus("Saved Game.xml to " + filedialog.selectedFiles()[0]);
+                    SetStatus("Saved Game.xml to " + filedialog.selectedFiles()[0]);
 
                     break;
                 }
@@ -1089,9 +1089,9 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
         }
     }
     else {
-        setStatus("Saving GameConfig...", true);
+        SetStatus("Saving GameConfig...", true);
         gameConfig.write("");
-        setStatus("Saved GameConfig to " + gameConfig.filePath);
+        SetStatus("Saved GameConfig to " + gameConfig.filePath);
         clearActions();
         return true;
     }

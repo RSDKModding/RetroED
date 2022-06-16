@@ -52,5 +52,6 @@
         <file>icons/ic_view_in_ar_48px.svg</file>
         <file>icons/ic_mode_edit_48px.svg</file>
         <file>icons/ic_eraser_48px.svg</file>
+        <file>resources/RSDKv5UFileList.txt</file>
     </qresource>
 </RCC>

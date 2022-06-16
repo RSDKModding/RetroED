@@ -93,9 +93,10 @@ void RSDKv4::Model::writeAsOBJ(QString filePath, int exportFrame)
         writer.writeLine("usemtl None");
         writer.writeLine("s off");
 
-        for (int v = 0; v < indices.count(); v += 3) {
+        for (int i = 0; i < indices.count(); i += 3) {
             QList<ushort> verts;
-            for (int ii = 0; ii < 3; ++ii) verts.append(indices[v + ii]);
+            for (int v = 0; v < 3; ++v) verts.append(indices[i + v]);
+
             writer.writeLine(
                 QString("f %1 %2 %3").arg(verts[0] + 1).arg(verts[1] + 1).arg(verts[2] + 1));
         }
@@ -738,7 +739,7 @@ void RSDKv4::Model::writeAsPLY(QString filePath, int exportFrame)
 
             for (int i = 0; i < indices.count(); i += 3) {
                 writer.write<byte>(3);
-                for (int ii = 0; ii < 3; ++ii) writer.write<ushort>(indices[i + ii]);
+                for (int v = 0; v < 3; ++v) writer.write<ushort>(indices[i + v]);
             }
         }
         else {
@@ -765,9 +766,9 @@ void RSDKv4::Model::writeAsPLY(QString filePath, int exportFrame)
 
                 face += QString::number(3) + " ";
 
-                for (int ii = 0; ii < 3; ++ii) {
-                    face += QString::number(indices[i + ii]);
-                    if (ii + 1 < 3)
+                for (int v = 0; v < 3; ++v) {
+                    face += QString::number(indices[i + v]);
+                    if (v + 1 < 3)
                         face += " ";
                 }
 

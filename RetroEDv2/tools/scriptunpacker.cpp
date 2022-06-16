@@ -12,7 +12,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
     connect(ui->selEngineType, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int i) {
         if (i >= 0)
             ui->stackedWidget->setCurrentIndex(i == 2);
-        variableNames.clear();
+        globalVariableNames.clear();
         bytecodeList.clear();
     });
 
@@ -33,16 +33,16 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                     globalPath = dataPath + "/Scripts/Bytecode/GlobalCode.bin";
                     mobileVer  = true;
                     if (!QFile::exists(globalPath)) {
-                        setStatus("No global bytecode found in folder! Aborting extraction!");
+                        SetStatus("No global bytecode found in folder! Aborting extraction!");
                         return;
                     }
                 }
 
                 bytecodeList.clear();
-                variableNames.clear();
+                globalVariableNames.clear();
 
                 if (!QFile::exists(dataPath + "/Game/GameConfig.bin")) {
-                    setStatus("No GameConfig found in folder! Aborting extraction!");
+                    SetStatus("No GameConfig found in folder! Aborting extraction!");
                     return;
                 }
                 else {
@@ -70,9 +70,9 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                     globalInfo.path = globalPath;
                     bytecodeList.append(globalInfo);
 
-                    for (auto &v : gcf.globalVariables) variableNames.append(v.name);
+                    for (auto &v : gcf.globalVariables) globalVariableNames.append(v.name);
 
-                    printLog("Loading global bytecode: " + globalPath);
+                    PrintLog("Loading global bytecode: " + globalPath);
 
                     QList<QString> categoryChars = { "PS", "RS", "SS", "BS" };
                     for (int cat = 0; cat < 4; ++cat) {
@@ -107,26 +107,26 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                             stageInfo.loadGlobals = scf.loadGlobalScripts;
                             bytecodeList.append(stageInfo);
 
-                            printLog("Loading stage bytecode " + s.name + " (" + stageInfo.path + ")");
+                            PrintLog("Loading stage bytecode " + s.name + " (" + stageInfo.path + ")");
                         }
                     }
 
-                    setStatus(QString("Loaded %1 bytecode files!").arg(bytecodeList.count()));
+                    SetStatus(QString("Loaded %1 bytecode files!").arg(bytecodeList.count()));
                 }
             }
             else if (ui->selEngineType->currentIndex() == 1) {
                 QString globalPath = dataPath + "/../Bytecode/GlobalCode.bin";
                 mobileVer          = true;
                 if (!QFile::exists(globalPath)) {
-                    setStatus("No global bytecode found in folder! Aborting extraction!");
+                    SetStatus("No global bytecode found in folder! Aborting extraction!");
                     return;
                 }
 
                 bytecodeList.clear();
-                variableNames.clear();
+                globalVariableNames.clear();
 
                 if (!QFile::exists(dataPath + "/Game/GameConfig.bin")) {
-                    setStatus("No GameConfig found in folder! Aborting extraction!");
+                    SetStatus("No GameConfig found in folder! Aborting extraction!");
                     return;
                 }
                 else {
@@ -154,9 +154,9 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                     globalInfo.path = globalPath;
                     bytecodeList.append(globalInfo);
 
-                    for (auto &v : gcf.globalVariables) variableNames.append(v.name);
+                    for (auto &v : gcf.globalVariables) globalVariableNames.append(v.name);
 
-                    printLog("Loading global bytecode " + globalPath);
+                    PrintLog("Loading global bytecode " + globalPath);
 
                     for (int cat = 0; cat < 4; ++cat) {
                         auto &c = gcf.stageLists[cat];
@@ -179,11 +179,11 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                             stageInfo.loadGlobals = scf.loadGlobalScripts;
                             bytecodeList.append(stageInfo);
 
-                            printLog("Loading stage bytecode " + s.name + " (" + stageInfo.path + ")");
+                            PrintLog("Loading stage bytecode " + s.name + " (" + stageInfo.path + ")");
                         }
                     }
 
-                    setStatus(QString("Loaded %1 bytecode files!").arg(bytecodeList.count()));
+                    SetStatus(QString("Loaded %1 bytecode files!").arg(bytecodeList.count()));
                 }
             }
         }
@@ -195,7 +195,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
             QString outputPath = filedialog.selectedFiles()[0];
-            setStatus("Decompiling scripts...", true);
+            SetStatus("Decompiling scripts...", true);
 
             if (ui->selEngineType->currentIndex() == 0) {
                 decompilerv3.seperateFolders  = ui->sepFolders->isChecked();
@@ -210,13 +210,13 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                 QList<QString> globalFunctionScripts;
                 QList<QString> globalFunctionNames;
 
-                decompilerv3.variableNames = variableNames;
+                decompilerv3.globalVariableNames = globalVariableNames;
 
                 for (int b = 0; b < bytecodeList.count(); ++b) {
                     decompilerv3.sourceNames.clear();
                     decompilerv3.typeNames.clear();
                     decompilerv3.sfxNames.clear();
-                    decompilerv3.functionNames.clear();
+                    decompilerv3.scriptFunctionNames.clear();
 
                     decompilerv3.globalScriptCount = b ? globalScriptCount : 0;
 
@@ -225,7 +225,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                         for (auto &n : bytecodeList[0].sourceNames) decompilerv3.sourceNames.append(n);
                         for (auto &n : bytecodeList[0].typeNames) decompilerv3.typeNames.append(n);
                         for (auto &n : bytecodeList[0].sfxNames) decompilerv3.sfxNames.append(n);
-                        for (auto &n : globalFunctionNames) decompilerv3.functionNames.append(n);
+                        for (auto &n : globalFunctionNames) decompilerv3.scriptFunctionNames.append(n);
 
                         decompilerv3.globalFunctionCount = globalFunctionCount;
                         decompilerv3.globalScriptCount   = globalScriptCount;
@@ -278,6 +278,8 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                         decompilerv3.functionList = bc.functionList;
                         decompilerv3.bytecodePath = bc.filePath;
                     }
+                    decompilerv3.scriptList.prepend(RSDKv3::Bytecode::ScriptInfo()); // blank object
+
                     decompilerv3.decompile(outputPath);
 
                     if (!b) {
@@ -285,9 +287,9 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
 
                         globalFunctionNames.clear();
                         globalFunctionScripts.clear();
-                        for (auto &n : decompilerv3.functionNames) globalFunctionNames.append(n);
+                        for (auto &n : decompilerv3.scriptFunctionNames) globalFunctionNames.append(n);
                     }
-                    setStatusProgress((float)b + 1 / bytecodeList.count());
+                    SetStatusProgress((float)b + 1 / bytecodeList.count());
                 }
             }
             else if (ui->selEngineType->currentIndex() == 1) {
@@ -303,7 +305,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                 QList<QString> globalFunctionScripts;
                 QList<QString> globalFunctionNames;
 
-                decompilerv4.globalVarNames = variableNames;
+                decompilerv4.globalVarNames = globalVariableNames;
                 QList<RSDKv4::Decompiler::StaticVarInfo> globalConstants;
                 QList<RSDKv4::Decompiler::StaticVarInfo> globalArrays;
 
@@ -345,7 +347,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                         decompilerv4.globalFunctionCount = 0;
                         decompilerv4.globalStaticCount   = 0;
                         decompilerv4.globalArrayCount    = 0;
-                        decompilerv4.globalScriptCount   = 1;
+                        decompilerv4.globalScriptCount   = 0;
                         decompilerv4.globalSFXCount      = globalSFXCount;
 
                         decompilerv4.lastOffset = 0;
@@ -366,7 +368,6 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                         bc.read(bytecodeList[0].path);
                         decompilerv4.scriptCode = bc.scriptCode;
                         decompilerv4.jumpTable  = bc.jumpTable;
-                        decompilerv4.scriptList.append(RSDKv4::Bytecode::ScriptInfo()); // blank
                         decompilerv4.scriptList.append(bc.scriptList);
 
                         // Load Stage-Specific Bytecode
@@ -382,11 +383,12 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                         bc.read(bytecodeList[b].path);
                         decompilerv4.scriptCode = bc.scriptCode;
                         decompilerv4.jumpTable  = bc.jumpTable;
-                        decompilerv4.scriptList.append(RSDKv4::Bytecode::ScriptInfo()); // blank
                         decompilerv4.scriptList.append(bc.scriptList);
                         decompilerv4.functionList = bc.functionList;
                         decompilerv4.bytecodePath = bc.filePath;
                     }
+                    decompilerv4.scriptList.prepend(RSDKv4::Bytecode::ScriptInfo()); // blank object
+
                     decompilerv4.decompile(outputPath);
 
                     if (!b) {
@@ -403,10 +405,10 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                         for (auto &n : decompilerv4.staticVars) globalConstants.append(n);
                         for (auto &n : decompilerv4.tables) globalArrays.append(n);
                     }
-                    setStatusProgress((float)b + 1 / bytecodeList.count());
+                    SetStatusProgress((float)b + 1 / bytecodeList.count());
                 }
             }
-            setStatus("Finished decompiling scripts!");
+            SetStatus("Finished decompiling scripts!");
         }
     });
 
@@ -416,12 +418,12 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                                tr("Retro-Sonic Bytecode files (*.rsf)"));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
-            variableNames.clear(); // hack :]
-            variableNames.append(filedialog.selectedFiles()[0]);
+            globalVariableNames.clear(); // hack :]
+            globalVariableNames.append(filedialog.selectedFiles()[0]);
         }
     });
     connect(ui->saveTRScript, &QPushButton::clicked, [this] {
-        if (!variableNames.count())
+        if (!globalVariableNames.count())
             return;
 
         QFileDialog filedialog(this, tr("Save Script"), "", tr("Text Files (*.txt)"));
@@ -430,7 +432,7 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
         if (filedialog.exec() == QDialog::Accepted) {
             QString scriptPath = filedialog.selectedFiles()[0];
 
-            RSDKv1::Script script(variableNames[0]);
+            RSDKv1::Script script(globalVariableNames[0]);
             decompilerv1.decompile(script, scriptPath);
         }
     });

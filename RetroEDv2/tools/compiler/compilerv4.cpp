@@ -1762,7 +1762,7 @@ void Compilerv4::convertFunctionText(QString &text)
                     }
 
                     if (p == gameConfig.players.count()) {
-                        printLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
+                        PrintLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
                                      .arg(arrayStr)
                                      .arg(lineID));
                     }
@@ -1802,7 +1802,7 @@ void Compilerv4::convertFunctionText(QString &text)
                 }
 
                 if (s == -1) {
-                    printLog(QString("WARNING: Unknown StageName \"%1\", on line %2")
+                    PrintLog(QString("WARNING: Unknown StageName \"%1\", on line %2")
                                  .arg(arrayStr)
                                  .arg(lineID));
                     s = 0;
@@ -2039,7 +2039,7 @@ void Compilerv4::checkCaseNumber(QString &text)
                 }
 
                 if (p == gameConfig.players.count()) {
-                    printLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
+                    PrintLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
                                  .arg(arrayStr)
                                  .arg(lineID));
                 }
@@ -2079,7 +2079,7 @@ void Compilerv4::checkCaseNumber(QString &text)
             }
 
             if (s == -1) {
-                printLog(
+                PrintLog(
                     QString("WARNING: Unknown StageName \"%1\", on line %2").arg(arrayStr).arg(lineID));
                 s = 0;
             }
@@ -2116,7 +2116,7 @@ void Compilerv4::checkCaseNumber(QString &text)
             jumpTableData[stackValue] = caseID;
     }
     else {
-        printLog(QString("WARNING: unable to convert case string \"%1\" to int, on line %2")
+        PrintLog(QString("WARNING: unable to convert case string \"%1\" to int, on line %2")
                      .arg(caseString)
                      .arg(lineID));
     }
@@ -2266,7 +2266,7 @@ bool Compilerv4::readSwitchCase(QString &text)
                     }
 
                     if (p == gameConfig.players.count()) {
-                        printLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
+                        PrintLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
                                      .arg(arrayStr)
                                      .arg(lineID));
                     }
@@ -2306,7 +2306,7 @@ bool Compilerv4::readSwitchCase(QString &text)
                 }
 
                 if (s == -1) {
-                    printLog(QString("WARNING: Unknown StageName \"%1\", on line %2")
+                    PrintLog(QString("WARNING: Unknown StageName \"%1\", on line %2")
                                  .arg(arrayStr)
                                  .arg(lineID));
                     s = 0;
@@ -2649,7 +2649,7 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                             functionNames[functionCount++] = funcName;
                         }
                         else {
-                            printLog(QString("Warning: Function %1 has already been reserved!")
+                            PrintLog(QString("Warning: Function %1 has already been reserved!")
                                          .arg(funcName));
                         }
                         parseMode = PARSEMODE_SCOPELESS;
@@ -4353,12 +4353,12 @@ void Compilerv4::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptE
             }
             case FUNC_PRINT: {
                 if (scriptEng.operands[1])
-                    printLog(QString::number(scriptEng.operands[0]));
+                    PrintLog(QString::number(scriptEng.operands[0]));
                 else
-                    printLog(scriptText);
+                    PrintLog(scriptText);
 
                 if (scriptEng.operands[2])
-                    printLog("\n");
+                    PrintLog("\n");
                 break;
             }
             case FUNC_ADDEDITORVAR: {

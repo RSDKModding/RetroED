@@ -414,7 +414,7 @@ void GameLink::LinkGameObjects(QString gameName)
     logicLib->setFileName(gameName);
     logicLib->load();
     if (!logicLib->isLoaded())
-        printLog("Failed to link: " + logicLib->errorString());
+        PrintLog("Failed to link: " + logicLib->errorString());
 
     void (*linkGameLogic)(GameInfo *) = NULL;
 

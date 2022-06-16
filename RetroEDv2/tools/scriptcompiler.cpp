@@ -137,7 +137,7 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     bytecodeName = dir.dirName();
                 }
 
-                setStatus("Compiling " + bytecodeName + ".bin...", true);
+                SetStatus("Compiling " + bytecodeName + ".bin...", true);
 
                 compilerv4.clearScriptData();
                 compilerv4.gamePlatform      = "STANDARD";
@@ -198,9 +198,9 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                         compilerv4.parseScriptFile(scriptPath, scrID++, false);
 
                         if (compilerv4.scriptError) {
-                            printLog(compilerv4.errorMsg);
-                            printLog(compilerv4.errorPos);
-                            printLog(QString::number(compilerv4.errorLine));
+                            PrintLog(compilerv4.errorMsg);
+                            PrintLog(compilerv4.errorPos);
+                            PrintLog(QString::number(compilerv4.errorLine));
 
                             QFileInfo info(compilerv4.errorScr);
                             QDir dir(info.dir());
@@ -220,7 +220,7 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                                                QMessageBox::Ok);
                             msgBox.exec();
 
-                            setStatus("Failed to compile script: " + dirFile);
+                            SetStatus("Failed to compile script: " + dirFile);
                             compilerv4.objectScriptList[scrID - 1].eventMain.scriptCodePtr =
                                 SCRIPTDATA_COUNT_v4 - 1;
                             compilerv4.objectScriptList[scrID - 1].eventMain.jumpTablePtr =
@@ -237,7 +237,7 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                             hasError = true;
                             break;
                         }
-                        setStatusProgress(((float)i + 1 / gameConfig.objects.count()) / 2);
+                        SetStatusProgress(((float)i + 1 / gameConfig.objects.count()) / 2);
                     }
                 }
                 int globalScriptCodePos = compilerv4.scriptDataPos;
@@ -250,16 +250,16 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     compilerv4.parseScriptFile(scriptPath, scrID++, false);
 
                     if (compilerv4.scriptError) {
-                        printLog(compilerv4.errorMsg);
-                        printLog(compilerv4.errorPos);
-                        printLog(QString::number(compilerv4.errorLine));
+                        PrintLog(compilerv4.errorMsg);
+                        PrintLog(compilerv4.errorPos);
+                        PrintLog(QString::number(compilerv4.errorLine));
 
                         QFileInfo info(compilerv4.errorScr);
                         QDir dir(info.dir());
                         dir.cdUp();
                         QString dirFile = dir.relativeFilePath(compilerv4.errorScr);
 
-                        setStatus("Failed to compile script: " + dirFile);
+                        SetStatus("Failed to compile script: " + dirFile);
 
                         QMessageBox msgBox(QMessageBox::Information, "RetroED",
                                            QString("Failed to compile script: %1\n"
@@ -289,7 +289,7 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                         hasError = true;
                         break;
                     }
-                    setStatusProgress(((float)i + 1 / stageConfig.objects.count()) / 2 + .5);
+                    SetStatusProgress(((float)i + 1 / stageConfig.objects.count()) / 2 + .5);
                 }
                 int scriptCodePos = compilerv4.scriptDataPos;
                 int jumpTablePos  = compilerv4.jumpTableDataPos;
@@ -342,14 +342,14 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 
                     bytecode.write(outputFolder + bytecodeName + ".bin");
 
-                    setStatus(bytecodeName + ".bin compiled successfully!");
+                    SetStatus(bytecodeName + ".bin compiled successfully!");
                     QMessageBox msgBox(QMessageBox::Information, "RetroED",
                                        QString(bytecodeName + ".bin compiled successfully!"),
                                        QMessageBox::Ok);
                     msgBox.exec();
                 }
                 else {
-                    setStatus(bytecodeName + ".bin compilation failed...");
+                    SetStatus(bytecodeName + ".bin compilation failed...");
                 }
 
                 break;
@@ -370,7 +370,7 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     bytecodeName = dir.dirName();
                 }
 
-                setStatus("Compiling " + bytecodeName + ".bin...", true);
+                SetStatus("Compiling " + bytecodeName + ".bin...", true);
 
                 compilerv3.clearScriptData();
                 compilerv3.gamePlatform      = "Standard";
@@ -422,9 +422,9 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                         compilerv3.parseScriptFile(scriptPath, scrID++, false);
 
                         if (compilerv3.scriptError) {
-                            printLog(compilerv3.errorMsg);
-                            printLog(compilerv3.errorPos);
-                            printLog(QString::number(compilerv3.errorLine));
+                            PrintLog(compilerv3.errorMsg);
+                            PrintLog(compilerv3.errorPos);
+                            PrintLog(QString::number(compilerv3.errorLine));
 
                             QFileInfo info(compilerv3.errorScr);
                             QDir dir(info.dir());
@@ -444,12 +444,12 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                                                QMessageBox::Ok);
                             msgBox.exec();
 
-                            setStatus("Failed to compile script: " + dirFile);
+                            SetStatus("Failed to compile script: " + dirFile);
 
                             hasError = true;
                             break;
                         }
-                        setStatusProgress(((float)i + 1 / gameConfig.objects.count()) / 2);
+                        SetStatusProgress(((float)i + 1 / gameConfig.objects.count()) / 2);
                     }
                 }
                 int globalScriptCodePos = compilerv3.scriptDataPos;
@@ -462,9 +462,9 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     compilerv3.parseScriptFile(scriptPath, scrID++, false);
 
                     if (compilerv3.scriptError) {
-                        printLog(compilerv3.errorMsg);
-                        printLog(compilerv3.errorPos);
-                        printLog(QString::number(compilerv3.errorLine));
+                        PrintLog(compilerv3.errorMsg);
+                        PrintLog(compilerv3.errorPos);
+                        PrintLog(QString::number(compilerv3.errorLine));
 
                         QFileInfo info(compilerv3.errorScr);
                         QDir dir(info.dir());
@@ -484,12 +484,12 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                                            QMessageBox::Ok);
                         msgBox.exec();
 
-                        setStatus("Failed to compile script: " + dirFile);
+                        SetStatus("Failed to compile script: " + dirFile);
 
                         hasError = true;
                         break;
                     }
-                    setStatusProgress(((float)i + 1 / stageConfig.objects.count()) / 2 + .5);
+                    SetStatusProgress(((float)i + 1 / stageConfig.objects.count()) / 2 + .5);
                 }
                 int scriptCodePos = compilerv3.scriptDataPos;
                 int jumpTablePos  = compilerv3.jumpTableDataPos;
@@ -549,26 +549,26 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 
                     bytecode.write(outputFolder + bytecodeName + ".bin");
 
-                    setStatus(bytecodeName + ".bin compiled successfully!");
+                    SetStatus(bytecodeName + ".bin compiled successfully!");
                     QMessageBox msgBox(QMessageBox::Information, "RetroED",
                                        QString(bytecodeName + ".bin compiled successfully!"),
                                        QMessageBox::Ok);
                     msgBox.exec();
                 }
                 else {
-                    setStatus(bytecodeName + ".bin compilation failed...");
+                    SetStatus(bytecodeName + ".bin compilation failed...");
                 }
                 break;
             }
             case ENGINE_v1: {
                 QString scrName = Utils::getFilenameAndFolder(ui->trScript->text());
-                setStatus("Compiling " + scrName + "...", true);
+                SetStatus("Compiling " + scrName + "...", true);
                 compilerv1.parseScriptFile(ui->trScript->text());
 
                 if (compilerv1.scriptError) {
-                    printLog(compilerv1.errorMsg);
-                    printLog(compilerv1.errorPos);
-                    printLog(QString::number(compilerv1.errorLine));
+                    PrintLog(compilerv1.errorMsg);
+                    PrintLog(compilerv1.errorPos);
+                    PrintLog(QString::number(compilerv1.errorLine));
 
                     QFileInfo info(compilerv1.errorScr);
                     QDir dir(info.dir());
@@ -588,11 +588,11 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                                        QMessageBox::Ok);
                     msgBox.exec();
 
-                    setStatus("Failed to compile script: " + dirFile);
+                    SetStatus("Failed to compile script: " + dirFile);
                     break;
                 }
                 else {
-                    setStatus(scrName + " compiled successfully");
+                    SetStatus(scrName + " compiled successfully");
                     compilerv1.script.write(ui->trBytecodePath->text());
                 }
 

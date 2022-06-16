@@ -1080,8 +1080,8 @@ void RSDKv3::Decompiler::clearScriptData()
 {
     // typeNames.clear();
     //
-    // functionNames.clear();
-    // variableNames.clear();
+    // scriptFunctionNames.clear();
+    // globalVariableNames.clear();
     //
     // globalSFXCount = 0;
     // sfxNames.clear();
@@ -1103,7 +1103,7 @@ QString RSDKv3::Decompiler::setArrayValue(QString strIn, QString index)
     int point      = -1;
 
     if (strIn == "Global") {
-        strOut = variableNames[index.toInt()];
+        strOut = globalVariableNames[index.toInt()];
         if (strOut == "")
             return strIn;
         return strOut;
@@ -1172,7 +1172,7 @@ void RSDKv3::Decompiler::decompile(QString destPath)
             auto &func = functionList[f];
             if (func.scriptCodePos < lowestScriptCodePtr && lowestScriptCodePtr < 0x3FFFF) {
                 QString tn = typeNames[i];
-                functionNames.append(tn.replace(" ", "") + "_Function" + QString::number(f));
+                scriptFunctionNames.append(tn.replace(" ", "") + "_Function" + QString::number(f));
                 funcIDv3++;
             }
         }
@@ -1268,7 +1268,7 @@ void RSDKv3::Decompiler::decompile(QString destPath)
         for (int f = funcIDv3; f < functionList.count(); ++f) {
             int fs = functionList[f].scriptCodePos;
             if (fs < lastPtr) {
-                scriptPtrs.append(ScriptPtr(functionNames[f], functionList[f].scriptCodePos,
+                scriptPtrs.append(ScriptPtr(scriptFunctionNames[f], functionList[f].scriptCodePos,
                                             functionList[f].jumpTablePos, true));
             }
             else if (!flag) {
@@ -1534,7 +1534,7 @@ void RSDKv3::Decompiler::decompileSub(Writer writer, RSDKv3::Decompiler::StateSc
 
             if (opcode >= functionNames.count()) {
                 writer.writeText("ERROR AT: " + QString::number(state.scriptCodePos) + " : " + opcode);
-                printLog("OPCODE ABOVE THE MAX OPCODES");
+                PrintLog("OPCODE ABOVE THE MAX OPCODES");
                 return;
             }
 
@@ -2288,7 +2288,7 @@ void RSDKv3::Decompiler::decompileSub(Writer writer, RSDKv3::Decompiler::StateSc
                         bool ok = false;
                         int id  = variableName[0].toInt(&ok);
                         if (ok)
-                            writer.writeText(QString("CallFunction(%1)").arg(functionNames[id]));
+                            writer.writeText(QString("CallFunction(%1)").arg(scriptFunctionNames[id]));
                         else
                             writer.writeText(QString("CallFunction(%1)").arg(variableName[0]));
                     }

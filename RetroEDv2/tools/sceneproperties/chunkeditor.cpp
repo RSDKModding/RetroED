@@ -287,12 +287,12 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         if (filedialog.exec() == QDialog::Accepted) {
             QString path = filedialog.selectedFiles()[0];
             int id       = 0;
-            setStatus("Exporting chunks as images...");
+            SetStatus("Exporting chunks as images...");
             for (int c = 0; c < 0x200; ++c) {
                 chunks->chunks[c].getImage(tileList).save(QString(path + "/Chunk %1.png").arg(id++));
-                setStatusProgress(c / (float)0x200);
+                SetStatusProgress(c / (float)0x200);
             }
-            setStatus(QString("Exported chunks to %1/").arg(path));
+            SetStatus(QString("Exported chunks to %1/").arg(path));
         }
     });
 
@@ -389,7 +389,7 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
     chunkPosX *= (1.0f / zoom);
     chunkPosY *= (1.0f / zoom);
 
-    printLog(QString("pos(%1, %2), origin(%3, %4), mousePos(%5, %6)")
+    PrintLog(QString("pos(%1, %2), origin(%3, %4), mousePos(%5, %6)")
                  .arg(chunkPosX)
                  .arg(chunkPosY)
                  .arg(originX)
@@ -549,7 +549,7 @@ void ChunkEditor::keyPressEvent(QKeyEvent *event)
     if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
         && event->key() == Qt::Key_C) {
         copiedChunk = selectedChunk;
-        setStatus("copied chunk: " + QString::number(copiedChunk));
+        SetStatus("copied chunk: " + QString::number(copiedChunk));
     }
 
     if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier

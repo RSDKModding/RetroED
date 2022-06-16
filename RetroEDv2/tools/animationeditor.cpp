@@ -798,7 +798,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         QJsonParseError jsonError;
         QJsonDocument document = QJsonDocument::fromJson(bytes, &jsonError);
         if (jsonError.error != QJsonParseError::NoError) {
-            printLog("fromJson failed: " + jsonError.errorString()
+            PrintLog("fromJson failed: " + jsonError.errorString()
                      + ", offset: " + QString::number(jsonError.offset));
             return;
         }
@@ -1103,7 +1103,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         QJsonParseError jsonError;
         QJsonDocument document = QJsonDocument::fromJson(bytes, &jsonError);
         if (jsonError.error != QJsonParseError::NoError) {
-            printLog("fromJson failed: " + jsonError.errorString()
+            PrintLog("fromJson failed: " + jsonError.errorString()
                      + ", offset: " + QString::number(jsonError.offset));
             return;
         }
@@ -1399,7 +1399,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         QJsonParseError jsonError;
         QJsonDocument document = QJsonDocument::fromJson(bytes, &jsonError);
         if (jsonError.error != QJsonParseError::NoError) {
-            printLog("fromJson failed: " + jsonError.errorString()
+            PrintLog("fromJson failed: " + jsonError.errorString()
                      + ", offset: " + QString::number(jsonError.offset));
             return;
         }
@@ -2463,7 +2463,7 @@ void AnimationEditor::loadAnim(QString filepath, int aniType)
 {
     // prolly dont need to do this since its so quick but if you see this loading then hello to all slow
     // PC users out there how do you live with that speed
-    setStatus("Loading animation file...", true);
+    SetStatus("Loading animation file...", true);
 
     stopAnim(); // stop that
     ui->play->setIcon(playPauseIco[0]);
@@ -2472,7 +2472,7 @@ void AnimationEditor::loadAnim(QString filepath, int aniType)
 
     this->aniType = aniType;
     animFile      = FormatHelpers::Animation(aniType, filepath);
-    addStatusProgress(0.33); // finished loading animation
+    AddStatusProgress(0.33); // finished loading animation
 
     int id = 0;
     for (auto &sheet : animFile.sheets) {
@@ -2480,7 +2480,7 @@ void AnimationEditor::loadAnim(QString filepath, int aniType)
 
         loadSheet(sheet, id++, false);
     }
-    addStatusProgress(0.33); // finished loading sheets
+    AddStatusProgress(0.33); // finished loading sheets
 
     hitboxVisible.clear();
     for (int h = 0; h < animFile.hitboxTypes.count(); ++h) {
@@ -2496,7 +2496,7 @@ void AnimationEditor::loadAnim(QString filepath, int aniType)
     clearActions();
     setupUI();
 
-    setStatus("Loaded animation file " + tabTitle); // done!
+    SetStatus("Loaded animation file " + tabTitle); // done!
 }
 
 bool AnimationEditor::event(QEvent *event)
@@ -2524,7 +2524,7 @@ bool AnimationEditor::event(QEvent *event)
                                    tr(types.join(";;").toStdString().c_str()));
             filedialog.setAcceptMode(QFileDialog::AcceptOpen);
             if (filedialog.exec() == QDialog::Accepted) {
-                setStatus("Opening animation \""
+                SetStatus("Opening animation \""
                           + Utils::getFilenameAndFolder(filedialog.selectedFiles()[0]) + "\"");
 
                 QString filepath = filedialog.selectedFiles()[0];
@@ -2542,7 +2542,7 @@ bool AnimationEditor::event(QEvent *event)
                 filedialog.selectNameFilter(types[aniType]);
                 filedialog.setAcceptMode(QFileDialog::AcceptSave);
                 if (filedialog.exec() == QDialog::Accepted) {
-                    setStatus("Saving animation...");
+                    SetStatus("Saving animation...");
 
                     QString filepath = filedialog.selectedFiles()[0];
                     int type         = typesList.indexOf(filedialog.selectedNameFilter());
@@ -2560,7 +2560,7 @@ bool AnimationEditor::event(QEvent *event)
                 }
             }
             else {
-                setStatus("Saving animation...");
+                SetStatus("Saving animation...");
 
                 QString filepath = animFile.filePath;
                 animFile.write(aniType, filepath);
@@ -2588,7 +2588,7 @@ bool AnimationEditor::event(QEvent *event)
             filedialog.selectNameFilter(types[aniType]);
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
-                setStatus("Saving animation...");
+                SetStatus("Saving animation...");
 
                 QString filepath = filedialog.selectedFiles()[0];
                 int type         = typesList.indexOf(filedialog.selectedNameFilter());
@@ -2712,7 +2712,7 @@ bool AnimationEditor::event(QEvent *event)
                                                tr(typesList[aniType].toStdString().c_str()));
                         filedialog.setAcceptMode(QFileDialog::AcceptSave);
                         if (filedialog.exec() == QDialog::Accepted) {
-                            setStatus("Saving animation...");
+                            SetStatus("Saving animation...");
 
                             QString filepath = filedialog.selectedFiles()[0];
                             animFile.write(aniType, filepath);
@@ -2723,7 +2723,7 @@ bool AnimationEditor::event(QEvent *event)
                         }
                     }
                     else {
-                        setStatus("Saving animation...");
+                        SetStatus("Saving animation...");
 
                         QString filepath = animFile.filePath;
                         animFile.write(aniType, filepath);

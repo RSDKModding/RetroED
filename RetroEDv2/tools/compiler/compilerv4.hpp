@@ -167,8 +167,8 @@ public:
     int errorLine    = 0;
 
     QString gamePlatform      = "EDITOR";
-    QString gameRenderType    = "SW_RENDERING";
-    QString gameHapticSetting = "USE_F_FEEDBACK";
+    QString gameRenderType    = "EDITOR_RENDERING";
+    QString gameHapticSetting = "NO_F_FEEDBACK";
 
     QList<QString> globalVariables;
 

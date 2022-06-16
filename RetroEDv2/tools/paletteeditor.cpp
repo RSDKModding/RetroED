@@ -418,12 +418,12 @@ bool PaletteEditor::event(QEvent *event)
         if (filedialog.exec() == QDialog::Accepted) {
             reinit();
 
-            setStatus("Loading palette...", true);
+            SetStatus("Loading palette...", true);
             QString filepath = filedialog.selectedFiles()[0];
             tabTitle         = Utils::getFilenameAndFolder(filepath);
             int type         = typesList.indexOf(filedialog.selectedNameFilter());
             load(filepath, type);
-            setStatus("Loaded palette from " + tabTitle);
+            SetStatus("Loaded palette from " + tabTitle);
 
             appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
             return true;
@@ -530,7 +530,7 @@ bool PaletteEditor::event(QEvent *event)
 
 void PaletteEditor::savePalette(QString filepath)
 {
-    setStatus("Saving palette...", true);
+    SetStatus("Saving palette...", true);
     switch (palType) {
         case PALTYPE_ACT: {
             float total = palette.count();
@@ -539,7 +539,7 @@ void PaletteEditor::savePalette(QString filepath)
             for (auto &c : palette) {
                 c.write(writer);
 
-                addStatusProgress(1.0 / total);
+                AddStatusProgress(1.0 / total);
             }
 
             writer.flush();
@@ -563,14 +563,14 @@ void PaletteEditor::savePalette(QString filepath)
                                 QColor(palette[(r << 4) + c].r, palette[(r << 4) + c].g,
                                        palette[(r << 4) + c].b);
 
-                            addStatusProgress(1.0 / 256);
+                            AddStatusProgress(1.0 / 256);
                         }
                     }
                 }
                 else {
                     for (int c = 0; c < 16; ++c) configPal->colors[r][c] = QColor(0xFF, 0x00, 0xFF);
 
-                    addStatusProgress(16.0 / 256);
+                    AddStatusProgress(16.0 / 256);
                 }
             }
 
@@ -607,7 +607,7 @@ void PaletteEditor::savePalette(QString filepath)
                 else
                     configPal->colors.append(Color(0xFF, 0x00, 0xFF));
 
-                addStatusProgress(1.0 / colorCount);
+                AddStatusProgress(1.0 / colorCount);
             }
 
             switch (palType) {
@@ -622,7 +622,7 @@ void PaletteEditor::savePalette(QString filepath)
         }
     }
 
-    setStatus("Saved Palette to " + filepath);
+    SetStatus("Saved Palette to " + filepath);
 }
 
 #include "moc_paletteeditor.cpp"

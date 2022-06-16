@@ -44,7 +44,7 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
             QString baseDir = filedialog.selectedFiles()[0];
-            setStatus("Unpacking Datafile...", true);
+            SetStatus("Unpacking Datafile...", true);
             float total = files.count();
             int count   = 0;
 
@@ -60,10 +60,10 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
                 f.open(QIODevice::WriteOnly);
                 f.write(file.fileData);
                 f.close();
-                setStatusProgress(++count / total);
+                SetStatusProgress(++count / total);
             }
 
-            setStatus("Datafile unpacked to " + baseDir);
+            SetStatus("Datafile unpacked to " + baseDir);
         }
     });
 
@@ -72,7 +72,7 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
         filedialog.setFileMode(QFileDialog::Directory);
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
-            setStatus("Creating Datafile...", true);
+            SetStatus("Creating Datafile...", true);
             QString dir  = filedialog.selectedFiles()[0] + "/";
             QDir dirInfo = QDir(dir);
             dirInfo.cdUp();
@@ -156,10 +156,10 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
                                       .c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
-            setStatus("Saving Datafile...");
+            SetStatus("Saving Datafile...");
             savePack(filedialog.selectedFiles()[0], types.indexOf(filedialog.selectedNameFilter()));
 
-            setStatus("Datafile Saved Successfully!");
+            SetStatus("Datafile Saved Successfully!");
         }
     });
 
@@ -248,7 +248,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
         }
     }
 
-    setStatus("Loading Datafile...", true);
+    SetStatus("Loading Datafile...", true);
     // TODO: segment this somehow
     files.clear();
     switch (gameVer) {
@@ -268,7 +268,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
                 files.append(info);
 
                 ui->fileList->addItem(file.fileName);
-                setStatusProgress(++count / total);
+                SetStatusProgress(++count / total);
             }
             break;
         }
@@ -288,7 +288,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
                 files.append(info);
 
                 ui->fileList->addItem(file.fileName);
-                setStatusProgress(++count / total);
+                SetStatusProgress(++count / total);
             }
             break;
         }
@@ -308,7 +308,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
                 files.append(info);
 
                 ui->fileList->addItem(file.fullFileName);
-                setStatusProgress(++count / total);
+                SetStatusProgress(++count / total);
             }
             break;
         }
@@ -327,7 +327,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
                 files.append(info);
 
                 ui->fileList->addItem(file.fullFileName);
-                setStatusProgress(++count / total);
+                SetStatusProgress(++count / total);
             }
             break;
         }
@@ -346,7 +346,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
                 files.append(info);
 
                 ui->fileList->addItem(file.fullFilename);
-                setStatusProgress(++count / total);
+                SetStatusProgress(++count / total);
             }
             break;
         }
@@ -366,7 +366,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
                 files.append(info);
 
                 ui->fileList->addItem(file.fileName);
-                setStatusProgress(++count / total);
+                SetStatusProgress(++count / total);
             }
             break;
         }
@@ -376,7 +376,7 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
 
     ui->fileList->setCurrentRow(-1);
 
-    setStatus("Datafile loaded successfully!");
+    SetStatus("Datafile loaded successfully!");
 }
 
 void RSDKUnpacker::savePack(QString filepath, byte ver)

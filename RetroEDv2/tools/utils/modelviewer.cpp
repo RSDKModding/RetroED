@@ -186,17 +186,17 @@ void ModelViewer::initializeGL()
     QString sdrVersionStr = reinterpret_cast<const char *>(sdrVersion);
     QString extensionsStr = reinterpret_cast<const char *>(extensions);
 
-    printLog("ModelViewer OpenGL Details");
-    printLog("GL Version:   " + QString::number(fmt.majorVersion()) + "."
+    PrintLog("ModelViewer OpenGL Details");
+    PrintLog("GL Version:   " + QString::number(fmt.majorVersion()) + "."
              + QString::number(fmt.minorVersion()));
-    printLog("Vendor:       " + vendorStr);
-    printLog("Renderer:     " + rendererStr);
-    printLog("Version:      " + versionStr);
-    printLog("GLSL version: " + sdrVersionStr);
-    printLog("Extensions:   " + (extensionsStr == "" ? "None" : extensionsStr));
-    printLog("GLType:       "
+    PrintLog("Vendor:       " + vendorStr);
+    PrintLog("Renderer:     " + rendererStr);
+    PrintLog("Version:      " + versionStr);
+    PrintLog("GLSL version: " + sdrVersionStr);
+    PrintLog("Extensions:   " + (extensionsStr == "" ? "None" : extensionsStr));
+    PrintLog("GLType:       "
              + QString(QOpenGLContext::currentContext()->isOpenGLES() ? "OpenGLES" : "OpenGL"));
-    printLog("Valid:        " + QString(QOpenGLContext::currentContext()->isValid() ? "Yes" : "No"));
+    PrintLog("Valid:        " + QString(QOpenGLContext::currentContext()->isValid() ? "Yes" : "No"));
 
     glFuncs->glEnable(GL_DEPTH_TEST);
     glFuncs->glDisable(GL_DITHER);

@@ -959,8 +959,8 @@ void Compilerv2::checkCaseNumber(QString &text)
         return;
 
     QString caseString;
-    //int caseStrPos = 0;
-    char caseChar  = text[4].toLatin1();
+    // int caseStrPos = 0;
+    char caseChar = text[4].toLatin1();
     if (text.length() >= 4) {
         int textPos = 5;
         do {
@@ -970,7 +970,7 @@ void Compilerv2::checkCaseNumber(QString &text)
         } while (caseChar);
     }
     else {
-        //caseStrPos = 0;
+        // caseStrPos = 0;
     }
 
     for (int a = 0; a < aliasCount; ++a) {
@@ -1044,16 +1044,16 @@ bool Compilerv2::convertStringToInteger(QString &text, int *value)
     bool ok = false;
 
     if (text.startsWith("0x") || text.startsWith("0X")) {
-        *value = text.toInt(&ok, 0x10);
+        *value = text.toLongLong(&ok, 0x10);
     }
     else if (text.startsWith("0b") || text.startsWith("0B")) {
-        *value = text.toInt(&ok, 0b10);
+        *value = text.toLongLong(&ok, 0b10);
     }
     else if (text.startsWith("0o") || text.startsWith("0O")) {
-        *value = text.toInt(&ok, 0010);
+        *value = text.toLongLong(&ok, 0010);
     }
     else {
-        *value = text.toInt(&ok, 10);
+        *value = text.toLongLong(&ok, 10);
     }
 
     return ok;

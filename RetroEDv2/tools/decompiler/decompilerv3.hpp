@@ -77,11 +77,11 @@ public:
     void decompile(QString destPath = "");
     void clearScriptData();
 
-    QList<QString> functionNames;
+    QList<QString> scriptFunctionNames;
     int functionCount       = 0;
     int globalFunctionCount = 0;
 
-    QList<QString> variableNames;
+    QList<QString> globalVariableNames;
 
     QList<QString> sourceNames;
     QList<QString> typeNames;

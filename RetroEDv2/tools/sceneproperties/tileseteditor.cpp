@@ -97,12 +97,12 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColor> &pal, 
         filedialog.setFileMode(QFileDialog::Directory);
         if (filedialog.exec() == QDialog::Accepted) {
             QString path = filedialog.selectedFiles()[0];
-            setStatus("Exporting tiles as images...");
+            SetStatus("Exporting tiles as images...");
             for (int t = 0; t < tiles.count(); ++t) {
                 tiles.at(t).save(QString(path + "/Tile %1.png").arg(t));
-                setStatusProgress(t / (float)tiles.count());
+                SetStatusProgress(t / (float)tiles.count());
             }
-            setStatus(QString("Exported tiles to %1/").arg(path));
+            SetStatus(QString("Exported tiles to %1/").arg(path));
         }
     });
 
@@ -121,7 +121,7 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColor> &pal, 
             int filter = types.indexOf(filedialog.selectedNameFilter());
             QImage img;
 
-            setStatus("Importing tiles...", true);
+            SetStatus("Importing tiles...", true);
 
             if (!filter) {
                 QGifImage gif(filedialog.selectedFiles()[0]);
@@ -195,7 +195,7 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColor> &pal, 
                 ui->tileList->item(p)->setIcon(QPixmap::fromImage(tiles.at(p)));
             }
 
-            setStatus("Finished importing tiles!");
+            SetStatus("Finished importing tiles!");
         }
     });
 
@@ -271,7 +271,7 @@ void TilesetViewer::mousePressEvent(QMouseEvent *event)
     chunkPosX *= (1.0f / zoom);
     chunkPosY *= (1.0f / zoom);
 
-    printLog(QString("pos(%1, %2), origin(%3, %4), mousePos(%5, %6)")
+    PrintLog(QString("pos(%1, %2), origin(%3, %4), mousePos(%5, %6)")
                  .arg(chunkPosX)
                  .arg(chunkPosY)
                  .arg(originX)
@@ -402,7 +402,7 @@ void TilesetEditor::keyPressEvent(QKeyEvent *event)
     if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
         && event->key() == Qt::Key_C) {
         copiedTile = selectedTile;
-        setStatus("copied tile: " + QString::number(copiedTile));
+        SetStatus("copied tile: " + QString::number(copiedTile));
     }
 
     if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier

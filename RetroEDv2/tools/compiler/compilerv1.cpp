@@ -459,7 +459,7 @@ bool Compilerv1::readSwitchCase(QString &text)
 
         int caseID = 0;
         if (!convertStringToInteger(caseText, &caseID)) {
-            printLog(QString("WARNING: unable to convert case string \"%1\" to int, on line %2")
+            PrintLog(QString("WARNING: unable to convert case string \"%1\" to int, on line %2")
                          .arg(caseText)
                          .arg(scriptLineID));
         }

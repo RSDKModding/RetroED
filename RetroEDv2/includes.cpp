@@ -11,7 +11,7 @@ QString argInitStage  = "";
 QString argInitScene  = "";
 QString argInitFilter = "";
 
-void printLog(QString msg)
+void PrintLog(QString msg)
 {
 #ifdef _WIN32
     {
@@ -54,16 +54,16 @@ void printLog(QString msg)
     }
 }
 
-void setStatus(QString status, bool useStatus)
+void SetStatus(QString status, bool useStatus)
 {
     if (!statusLabel)
         return;
 
     if (statusProgress && statusProgress->value() != statusProgress->maximum()) {
-        addStatusProgress(1);
+        AddStatusProgress(1);
     }
 
-    printLog(status + (useStatus ? "   0%" : ""));
+    PrintLog(status + (useStatus ? "   0%" : ""));
     statusLabel->setText(status);
     // statusLabel->repaint();
 
@@ -77,7 +77,7 @@ void setStatus(QString status, bool useStatus)
     // statusProgress->repaint();
 }
 
-void addStatusProgress(float percent)
+void AddStatusProgress(float percent)
 {
     if (!statusProgress)
         return;
@@ -93,11 +93,11 @@ void addStatusProgress(float percent)
     if (!statusLabel)
         return;
 
-    printLog(QString(" ").repeated(statusLabel->text().length()) + QString(" %1").arg(v, 3) + "%");
+    PrintLog(QString(" ").repeated(statusLabel->text().length()) + QString(" %1").arg(v, 3) + "%");
     // statusProgress->repaint();
 }
 
-void setStatusProgress(float percent)
+void SetStatusProgress(float percent)
 {
     if (!statusProgress)
         return;
@@ -114,6 +114,6 @@ void setStatusProgress(float percent)
     if (!statusLabel)
         return;
 
-    printLog(QString(" ").repeated(statusLabel->text().length()) + QString(" %1").arg((int)percent, 3)
+    PrintLog(QString(" ").repeated(statusLabel->text().length()) + QString(" %1").arg((int)percent, 3)
              + "%");
 }

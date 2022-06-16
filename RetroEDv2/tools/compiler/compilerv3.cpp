@@ -1272,7 +1272,7 @@ void Compilerv3::convertFunctionText(QString &text)
                     }
 
                     if (s == stageSfxNames.count()) {
-                        printLog(QString("WARNING: Unknown sfxName \"%1\", on line %2")
+                        PrintLog(QString("WARNING: Unknown sfxName \"%1\", on line %2")
                                      .arg(arrayStr)
                                      .arg(lineID));
                     }
@@ -1320,7 +1320,7 @@ void Compilerv3::convertFunctionText(QString &text)
                     }
 
                     if (p == gameConfig.players.count()) {
-                        printLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
+                        PrintLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
                                      .arg(arrayStr)
                                      .arg(lineID));
                     }
@@ -1360,7 +1360,7 @@ void Compilerv3::convertFunctionText(QString &text)
                 }
 
                 if (s == -1) {
-                    printLog(QString("WARNING: Unknown StageName \"%1\", on line %2")
+                    PrintLog(QString("WARNING: Unknown StageName \"%1\", on line %2")
                                  .arg(arrayStr)
                                  .arg(lineID));
                     s = 0;
@@ -1531,7 +1531,7 @@ void Compilerv3::checkCaseNumber(QString &text)
                 }
 
                 if (s == stageSfxNames.count()) {
-                    printLog(QString("WARNING: Unknown sfxName \"%1\", on line %2")
+                    PrintLog(QString("WARNING: Unknown sfxName \"%1\", on line %2")
                                  .arg(arrayStr)
                                  .arg(lineID));
                 }
@@ -1579,7 +1579,7 @@ void Compilerv3::checkCaseNumber(QString &text)
                 }
 
                 if (p == gameConfig.players.count()) {
-                    printLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
+                    PrintLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
                                  .arg(arrayStr)
                                  .arg(lineID));
                 }
@@ -1619,7 +1619,7 @@ void Compilerv3::checkCaseNumber(QString &text)
             }
 
             if (s == -1) {
-                printLog(
+                PrintLog(
                     QString("WARNING: Unknown StageName \"%1\", on line %2").arg(arrayStr).arg(lineID));
                 s = 0;
             }
@@ -1648,7 +1648,7 @@ void Compilerv3::checkCaseNumber(QString &text)
             jumpTableData[stackValue] = caseID;
     }
     else {
-        printLog(QString("WARNING: unable to convert case string \"%1\" to int, on line %2")
+        PrintLog(QString("WARNING: unable to convert case string \"%1\" to int, on line %2")
                      .arg(caseString)
                      .arg(lineID));
     }
@@ -1744,7 +1744,7 @@ bool Compilerv3::readSwitchCase(QString &text)
                     }
 
                     if (s == stageSfxNames.count()) {
-                        printLog(QString("WARNING: Unknown sfxName \"%1\", on line %2")
+                        PrintLog(QString("WARNING: Unknown sfxName \"%1\", on line %2")
                                      .arg(arrayStr)
                                      .arg(lineID));
                     }
@@ -1792,7 +1792,7 @@ bool Compilerv3::readSwitchCase(QString &text)
                     }
 
                     if (p == gameConfig.players.count()) {
-                        printLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
+                        PrintLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
                                      .arg(arrayStr)
                                      .arg(lineID));
                     }
@@ -1832,7 +1832,7 @@ bool Compilerv3::readSwitchCase(QString &text)
                 }
 
                 if (s == -1) {
-                    printLog(QString("WARNING: Unknown StageName \"%1\", on line %2")
+                    PrintLog(QString("WARNING: Unknown StageName \"%1\", on line %2")
                                  .arg(arrayStr)
                                  .arg(lineID));
                     s = 0;
@@ -1874,18 +1874,18 @@ bool Compilerv3::convertStringToInteger(QString &text, int *value)
 
     if (text.startsWith("0x") || text.startsWith("0X")) {
         text.remove(0, 2);
-        *value = text.toInt(&ok, 0x10);
+        *value = text.toLongLong(&ok, 0x10);
     }
     else if (text.startsWith("0b") || text.startsWith("0B")) {
         text.remove(0, 2);
-        *value = text.toInt(&ok, 0b10);
+        *value = text.toLongLong(&ok, 0b10);
     }
     else if (text.startsWith("0o") || text.startsWith("0O")) {
         text.remove(0, 2);
-        *value = text.toInt(&ok, 0010);
+        *value = text.toLongLong(&ok, 0010);
     }
     else {
-        *value = text.toInt(&ok, 10);
+        *value = text.toLongLong(&ok, 10);
     }
 
     if (negative)

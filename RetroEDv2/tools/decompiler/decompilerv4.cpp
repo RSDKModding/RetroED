@@ -882,8 +882,8 @@ RSDKv4::Decompiler::Decompiler()
         "engine.onlineActive",
         "engine.sfxVolume",
         "engine.bgmVolume",
+        "engine.platformID",
         "engine.trialMode",
-        "engine.deviceType",
         "engine.hapticsEnabled",
     };
 
@@ -2240,7 +2240,7 @@ void RSDKv4::Decompiler::decompileSub(Writer writer, RSDKv4::Decompiler::StateSc
                 if (opcode >= functionPtrs->count()) {
                     writer.writeText("ERROR AT: " + QString::number(state.scriptCodePtr) + " : "
                                      + opcode);
-                    printLog("OPCODE ABOVE THE MAX OPCODES");
+                    PrintLog("OPCODE ABOVE THE MAX OPCODES");
                     return;
                 }
 
@@ -2935,7 +2935,7 @@ void RSDKv4::Decompiler::decompileSub(Writer writer, RSDKv4::Decompiler::StateSc
                     bool ok         = false;
                     int jmpOffset   = variableName[0].toInt(&ok) + state.jumpTableOffset;
                     if (!ok) {
-                        printLog("uh oh");
+                        PrintLog("uh oh");
                     }
 
                     sw.jumpTableOffset = jmpOffset;

@@ -164,9 +164,9 @@ extern SceneEditorv5 *v5Editor;
 
 extern QIcon playPauseIco[2];
 
-void printLog(QString msg);
-void setStatus(QString status, bool useStatus = false);
-void addStatusProgress(float percent);
-void setStatusProgress(float percent);
+void PrintLog(QString msg);
+void SetStatus(QString status, bool useStatus = false);
+void AddStatusProgress(float percent);
+void SetStatusProgress(float percent);
 
 #endif // INCLUDES_H

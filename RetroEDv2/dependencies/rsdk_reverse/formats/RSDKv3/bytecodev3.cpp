@@ -41,21 +41,24 @@ void RSDKv3::Bytecode::read(Reader &reader)
     // Fill in "blanks"
     for (int i = 0; i < scriptCount; ++i) {
         scriptList.append(ScriptInfo());
-        scriptList[i].main.scriptCodePos    = 0x3FFFF;
-        scriptList[i].draw.scriptCodePos    = 0x3FFFF;
-        scriptList[i].startup.scriptCodePos = 0x3FFFF;
+        scriptList[i].main.scriptCodePos              = 0x3FFFF;
+        scriptList[i].draw.scriptCodePos              = 0x3FFFF;
+        scriptList[i].playerInteraction.scriptCodePos = 0x3FFFF;
+        scriptList[i].startup.scriptCodePos           = 0x3FFFF;
     }
 
     for (ScriptInfo &script : scriptList) {
-        script.main.scriptCodePos    = reader.read<int>();
-        script.draw.scriptCodePos    = reader.read<int>();
-        script.startup.scriptCodePos = reader.read<int>();
+        script.main.scriptCodePos              = reader.read<int>();
+        script.draw.scriptCodePos              = reader.read<int>();
+        script.playerInteraction.scriptCodePos = reader.read<int>();
+        script.startup.scriptCodePos           = reader.read<int>();
     }
 
     for (ScriptInfo &script : scriptList) {
-        script.main.jumpTablePos    = reader.read<int>();
-        script.draw.jumpTablePos    = reader.read<int>();
-        script.startup.jumpTablePos = reader.read<int>();
+        script.main.jumpTablePos              = reader.read<int>();
+        script.draw.jumpTablePos              = reader.read<int>();
+        script.playerInteraction.jumpTablePos = reader.read<int>();
+        script.startup.jumpTablePos           = reader.read<int>();
     }
 
     ushort functionCount = reader.read<ushort>();

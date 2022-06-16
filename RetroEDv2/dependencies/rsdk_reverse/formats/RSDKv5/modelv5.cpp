@@ -137,10 +137,11 @@ void RSDKv5::Model::writeAsOBJ(QString filePath, int exportFrame)
                 writer.writeLine(QString("vt %1 %2").arg(texCoords[v].x).arg(texCoords[v].y));
         }
 
-        for (int v = 0; v < indices.count(); v += faceVerticesCount) {
+        for (int i = 0; i < indices.count(); i += faceVerticesCount) {
             QList<ushort> verts;
-            for (int ii = 0; ii < faceVerticesCount; ++ii) verts.append(indices[v + ii]);
-            writer.writeLine(QString("usemtl RSDKModelv5.Color.%1").arg(indices[v]));
+            for (int v = 0; v < faceVerticesCount; ++v) verts.append(indices[i + v]);
+
+            writer.writeLine(QString("usemtl RSDKModelv5.Color.%1").arg(indices[i]));
             writer.writeLine(
                 QString("f %1 %2 %3").arg(verts[0] + 1).arg(verts[1] + 1).arg(verts[2] + 1));
             if (faceVerticesCount == 4)
@@ -1000,7 +1001,7 @@ void RSDKv5::Model::writeAsPLY(QString filePath, int exportFrame)
 
             for (int i = 0; i < indices.count(); i += faceVerticesCount) {
                 writer.write<byte>(faceVerticesCount);
-                for (int ii = 0; ii < faceVerticesCount; ++ii) writer.write<ushort>(indices[i + ii]);
+                for (int v = 0; v < faceVerticesCount; ++v) writer.write<ushort>(indices[i + v]);
             }
         }
         else {
@@ -1039,9 +1040,9 @@ void RSDKv5::Model::writeAsPLY(QString filePath, int exportFrame)
 
                 face += QString::number(faceVerticesCount) + " ";
 
-                for (int ii = 0; ii < faceVerticesCount; ++ii) {
-                    face += QString::number(indices[i + ii]);
-                    if (ii + 1 < faceVerticesCount)
+                for (int v = 0; v < faceVerticesCount; ++v) {
+                    face += QString::number(indices[i + v]);
+                    if (v + 1 < faceVerticesCount)
                         face += " ";
                 }
 

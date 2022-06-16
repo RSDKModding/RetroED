@@ -86,7 +86,7 @@ public:
         QByteArray string;
 
         char c, prev;
-        while (true) {
+        while (!isEOF()) {
             prev = c;
             c    = read<char>();
             if (c == '\n') {
