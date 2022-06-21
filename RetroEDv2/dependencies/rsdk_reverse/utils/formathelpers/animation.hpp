@@ -71,6 +71,8 @@ public:
     QList<AnimationEntry> animations;
     QList<Hitbox> hitboxes;
     QList<QString> hitboxTypes;
+
+    byte readVer = 0;
 };
 
 } // namespace FormatHelpers

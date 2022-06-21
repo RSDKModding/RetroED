@@ -236,6 +236,8 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
             break;
         }
     }
+
+    readVer = ver;
 }
 
 void FormatHelpers::Animation::write(byte ver, QString filename)
@@ -302,8 +304,8 @@ void FormatHelpers::Animation::write(byte ver, QString filename)
             for (int aID = 0; aID < animations.count(); ++aID) {
                 auto &a = animations[aID];
                 RSDKv2::Animation::AnimationEntry animEntry;
-                animEntry.speed = a.speed;
-                animEntry.loopIndex       = a.loopIndex;
+                animEntry.speed     = a.speed;
+                animEntry.loopIndex = a.loopIndex;
 
                 for (auto &f : a.frames) {
                     RSDKv2::Animation::Frame frame;
@@ -343,10 +345,10 @@ void FormatHelpers::Animation::write(byte ver, QString filename)
             for (int aID = 0; aID < animations.count(); ++aID) {
                 auto &a = animations[aID];
                 RSDKv3::Animation::AnimationEntry animEntry;
-                animEntry.name            = a.name;
-                animEntry.speed = a.speed;
-                animEntry.loopIndex       = a.loopIndex;
-                animEntry.rotationStyle   = a.rotationStyle;
+                animEntry.name          = a.name;
+                animEntry.speed         = a.speed;
+                animEntry.loopIndex     = a.loopIndex;
+                animEntry.rotationStyle = a.rotationStyle;
 
                 for (auto &f : a.frames) {
                     RSDKv3::Animation::Frame frame;
@@ -386,10 +388,10 @@ void FormatHelpers::Animation::write(byte ver, QString filename)
             for (int aID = 0; aID < animations.count(); ++aID) {
                 auto &a = animations[aID];
                 RSDKv4::Animation::AnimationEntry animEntry;
-                animEntry.name            = a.name;
-                animEntry.speed = a.speed;
-                animEntry.loopIndex       = a.loopIndex;
-                animEntry.rotationStyle   = a.rotationStyle;
+                animEntry.name          = a.name;
+                animEntry.speed         = a.speed;
+                animEntry.loopIndex     = a.loopIndex;
+                animEntry.rotationStyle = a.rotationStyle;
 
                 for (auto &f : a.frames) {
                     RSDKv4::Animation::Frame frame;
@@ -429,45 +431,69 @@ void FormatHelpers::Animation::write(byte ver, QString filename)
             for (int aID = 0; aID < animations.count(); ++aID) {
                 auto &a = animations[aID];
                 RSDKv5::Animation::AnimationEntry animEntry;
-                animEntry.name            = a.name;
-                animEntry.speed = a.speed;
-                animEntry.loopIndex       = a.loopIndex;
-                animEntry.rotationStyle   = a.rotationStyle;
+                animEntry.name          = a.name;
+                animEntry.speed         = a.speed;
+                animEntry.loopIndex     = a.loopIndex;
+                animEntry.rotationStyle = a.rotationStyle;
 
                 for (auto &f : a.frames) {
                     RSDKv5::Animation::Frame frame;
-                    frame.sheet  = f.sheet;
-                    frame.duration  = f.duration;
-                    frame.unicodeChar     = f.id;
-                    frame.sprX   = f.sprX;
-                    frame.sprY   = f.sprY;
-                    frame.width  = f.width;
-                    frame.height = f.height;
-                    frame.pivotX = f.pivotX;
-                    frame.pivotY = f.pivotY;
+                    frame.sheet       = f.sheet;
+                    frame.duration    = f.duration;
+                    frame.unicodeChar = f.id;
+                    frame.sprX        = f.sprX;
+                    frame.sprY        = f.sprY;
+                    frame.width       = f.width;
+                    frame.height      = f.height;
+                    frame.pivotX      = f.pivotX;
+                    frame.pivotY      = f.pivotY;
 
-                    for (int h = 0; h < hitboxTypes.count(); ++h) {
+                    if (readVer == ENGINE_v4 || readVer == ENGINE_v3 || readVer == ENGINE_v2) {
                         RSDKv5::Animation::Hitbox hitbox;
-                        if (h >= f.hitboxes.count()) {
-                            hitbox.left   = 0;
-                            hitbox.top    = 0;
-                            hitbox.right  = 0;
-                            hitbox.bottom = 0;
-                        }
-                        else {
-                            hitbox.left   = f.hitboxes[h].left;
-                            hitbox.top    = f.hitboxes[h].top;
-                            hitbox.right  = f.hitboxes[h].right;
-                            hitbox.bottom = f.hitboxes[h].bottom;
-                        }
-                        frame.hitboxes.count();
+
+                        // Outer box
+                        hitbox.left   = hitboxes[f.collisionBox].hitboxes[0].left;
+                        hitbox.top    = hitboxes[f.collisionBox].hitboxes[0].top;
+                        hitbox.right  = hitboxes[f.collisionBox].hitboxes[0].right;
+                        hitbox.bottom = hitboxes[f.collisionBox].hitboxes[0].bottom;
+                        frame.hitboxes.append(hitbox);
+
+                        // Inner box
+                        hitbox.left   = hitboxes[f.collisionBox].hitboxes[1].left;
+                        hitbox.top    = hitboxes[f.collisionBox].hitboxes[1].top;
+                        hitbox.right  = hitboxes[f.collisionBox].hitboxes[1].right;
+                        hitbox.bottom = hitboxes[f.collisionBox].hitboxes[1].bottom;
+                        frame.hitboxes.append(hitbox);
                     }
+                    else {
+                        for (int h = 0; h < hitboxTypes.count(); ++h) {
+                            RSDKv5::Animation::Hitbox hitbox;
+                            if (h >= f.hitboxes.count()) {
+                                hitbox.left   = 0;
+                                hitbox.top    = 0;
+                                hitbox.right  = 0;
+                                hitbox.bottom = 0;
+                            }
+                            else {
+                                hitbox.left   = f.hitboxes[h].left;
+                                hitbox.top    = f.hitboxes[h].top;
+                                hitbox.right  = f.hitboxes[h].right;
+                                hitbox.bottom = f.hitboxes[h].bottom;
+                            }
+                            frame.hitboxes.append(hitbox);
+                        }
+                    }
+
                     animEntry.frames.append(frame);
                 }
                 animFile.animations.append(animEntry);
             }
 
-            for (auto &h : hitboxTypes) animFile.hitboxTypes.append(h);
+            if (readVer == ENGINE_v4 || readVer == ENGINE_v3 || readVer == ENGINE_v2) {
+                animFile.hitboxTypes.clear();
+                animFile.hitboxTypes.append("Outer Box");
+                animFile.hitboxTypes.append("Inner Box");
+            }
 
             animFile.write(filename);
             break;

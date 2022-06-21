@@ -1693,7 +1693,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         setupUI();
 
         ui->animationList->blockSignals(true);
-        ui->animationList->setCurrentItem(item);
+        ui->animationList->setCurrentRow(c);
         ui->animationList->blockSignals(false);
 
         ui->addAnim->setDisabled(animFile.animations.count() >= 0x100);
@@ -2302,6 +2302,9 @@ void AnimationEditor::processAnimation()
 
                     if (currentFrame >= frameCount)
                         currentFrame = animFile.animations[currentAnim].loopIndex;
+                    if (animFile.animations[currentAnim].loopIndex >= frameCount)
+                        currentFrame = 0;
+
                     duration = animFile.animations[currentAnim].frames[currentFrame].duration;
                     changed  = true;
                 }
@@ -2320,6 +2323,8 @@ void AnimationEditor::processAnimation()
 
                     if (currentFrame >= frameCount)
                         currentFrame = animFile.animations[currentAnim].loopIndex;
+                    if (animFile.animations[currentAnim].loopIndex >= frameCount)
+                        currentFrame = 0;
                     changed = true;
                 }
                 break;
@@ -2335,6 +2340,8 @@ void AnimationEditor::processAnimation()
 
                     if (currentFrame >= frameCount)
                         currentFrame = animFile.animations[currentAnim].loopIndex;
+                    if (animFile.animations[currentAnim].loopIndex >= frameCount)
+                        currentFrame = 0;
                     changed = true;
                 }
                 break;
@@ -2633,7 +2640,7 @@ bool AnimationEditor::event(QEvent *event)
         }
 
         case QEvent::MouseMove: {
-            //bool status         = false;
+            // bool status         = false;
             QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
 
             mousePos.x = mEvent->pos().x();
@@ -2645,7 +2652,7 @@ bool AnimationEditor::event(QEvent *event)
                 ui->frameOffLabel->setText(
                     QString("Frame Offset: (%1, %2)").arg(offset.x).arg(offset.y));
                 reference = mEvent->pos();
-                //status    = true;
+                // status    = true;
                 updateView();
             }
             break;
