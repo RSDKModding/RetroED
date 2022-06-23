@@ -1424,7 +1424,6 @@ RSDKv4::Decompiler::Decompiler()
         "engine.bgmVolume",
         "engine.trialMode",
         "engine.deviceType",
-        "engine.hapticsEnabled",
 
         // Extras
         "screen.currentID",
@@ -1434,6 +1433,9 @@ RSDKv4::Decompiler::Decompiler()
         "camera.xpos",
         "camera.ypos",
         "camera.adjustY",
+
+        // Haptics
+        "engine.hapticsEnabled",
     };
 
     // clang-format off

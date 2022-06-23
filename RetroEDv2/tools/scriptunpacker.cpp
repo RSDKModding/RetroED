@@ -278,16 +278,23 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                         decompilerv3.functionList = bc.functionList;
                         decompilerv3.bytecodePath = bc.filePath;
                     }
-                    decompilerv3.scriptList.prepend(RSDKv3::Bytecode::ScriptInfo()); // blank object
 
-                    decompilerv3.decompile(outputPath);
+                    if (bc.scriptList.count()) {
+                        decompilerv3.scriptList.prepend(RSDKv3::Bytecode::ScriptInfo()); // blank object
 
-                    if (!b) {
-                        globalFunctionCount = bc.functionList.count();
+                        decompilerv3.decompile(outputPath);
 
-                        globalFunctionNames.clear();
-                        globalFunctionScripts.clear();
-                        for (auto &n : decompilerv3.scriptFunctionNames) globalFunctionNames.append(n);
+                        if (!b) {
+                            globalFunctionCount = bc.functionList.count();
+
+                            globalFunctionNames.clear();
+                            globalFunctionScripts.clear();
+                            for (auto &n : decompilerv3.scriptFunctionNames)
+                                globalFunctionNames.append(n);
+                        }
+                    }
+                    else {
+                        PrintLog("Unable to find bytecode for: " + bytecodeList[b].path);
                     }
                     SetStatusProgress((float)b + 1 / bytecodeList.count());
                 }
@@ -407,11 +414,11 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                             for (auto &n : decompilerv4.staticVars) globalConstants.append(n);
                             for (auto &n : decompilerv4.tables) globalArrays.append(n);
                         }
-                        SetStatusProgress((float)b + 1 / bytecodeList.count());
                     }
                     else {
                         PrintLog("Unable to find bytecode for: " + bytecodeList[b].path);
                     }
+                    SetStatusProgress((float)b + 1 / bytecodeList.count());
                 }
             }
             SetStatus("Finished decompiling scripts!");
