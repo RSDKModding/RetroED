@@ -387,25 +387,31 @@ ScriptUnpacker::ScriptUnpacker(QWidget *parent) : QDialog(parent), ui(new Ui::Sc
                         decompilerv4.functionList = bc.functionList;
                         decompilerv4.bytecodePath = bc.filePath;
                     }
-                    decompilerv4.scriptList.prepend(RSDKv4::Bytecode::ScriptInfo()); // blank object
 
-                    decompilerv4.decompile(outputPath);
+                    if (bc.scriptList.count()) {
+                        decompilerv4.scriptList.prepend(RSDKv4::Bytecode::ScriptInfo()); // blank object
 
-                    if (!b) {
-                        globalFunctionCount = bc.functionList.count();
-                        globalConstantCount = decompilerv4.staticVars.count();
-                        globalArrayCount    = decompilerv4.tables.count();
-                        globalOffset        = decompilerv4.lastOffset;
+                        decompilerv4.decompile(outputPath);
 
-                        globalFunctionNames.clear();
-                        globalFunctionScripts.clear();
-                        globalConstants.clear();
-                        globalArrays.clear();
-                        for (auto &n : decompilerv4.functionNames) globalFunctionNames.append(n);
-                        for (auto &n : decompilerv4.staticVars) globalConstants.append(n);
-                        for (auto &n : decompilerv4.tables) globalArrays.append(n);
+                        if (!b) {
+                            globalFunctionCount = bc.functionList.count();
+                            globalConstantCount = decompilerv4.staticVars.count();
+                            globalArrayCount    = decompilerv4.tables.count();
+                            globalOffset        = decompilerv4.lastOffset;
+
+                            globalFunctionNames.clear();
+                            globalFunctionScripts.clear();
+                            globalConstants.clear();
+                            globalArrays.clear();
+                            for (auto &n : decompilerv4.functionNames) globalFunctionNames.append(n);
+                            for (auto &n : decompilerv4.staticVars) globalConstants.append(n);
+                            for (auto &n : decompilerv4.tables) globalArrays.append(n);
+                        }
+                        SetStatusProgress((float)b + 1 / bytecodeList.count());
                     }
-                    SetStatusProgress((float)b + 1 / bytecodeList.count());
+                    else {
+                        PrintLog("Unable to find bytecode for: " + bytecodeList[b].path);
+                    }
                 }
             }
             SetStatus("Finished decompiling scripts!");

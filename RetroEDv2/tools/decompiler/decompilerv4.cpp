@@ -1157,6 +1157,473 @@ RSDKv4::Decompiler::Decompiler()
         "engine.hapticsEnabled",
     };
 
+    variableList_rev03 = {
+        // Internal Script Values
+        "temp0",
+        "temp1",
+        "temp2",
+        "temp3",
+        "temp4",
+        "temp5",
+        "temp6",
+        "temp7",
+        "checkResult",
+        "arrayPos0",
+        "arrayPos1",
+        "arrayPos2",
+        "arrayPos3",
+        "arrayPos4",
+        "arrayPos5",
+        "arrayPos6",
+        "arrayPos7",
+        "global",
+        "local",
+
+        // Object Properties
+        "object.entityPos",
+        "object.groupID",
+        "object.type",
+        "object.propertyValue",
+        "object.xpos",
+        "object.ypos",
+        "object.ixpos",
+        "object.iypos",
+        "object.xvel",
+        "object.yvel",
+        "object.speed",
+        "object.state",
+        "object.rotation",
+        "object.scale",
+        "object.priority",
+        "object.drawOrder",
+        "object.direction",
+        "object.inkEffect",
+        "object.alpha",
+        "object.frame",
+        "object.animation",
+        "object.prevAnimation",
+        "object.animationSpeed",
+        "object.animationTimer",
+        "object.angle",
+        "object.lookPosX",
+        "object.lookPosY",
+        "object.collisionMode",
+        "object.collisionPlane",
+        "object.controlMode",
+        "object.controlLock",
+        "object.pushing",
+        "object.visible",
+        "object.tileCollisions",
+        "object.interaction",
+        "object.gravity",
+        "object.up",
+        "object.down",
+        "object.left",
+        "object.right",
+        "object.jumpPress",
+        "object.jumpHold",
+        "object.scrollTracking",
+        "object.floorSensorL",
+        "object.floorSensorC",
+        "object.floorSensorR",
+        "object.floorSensorLC",
+        "object.floorSensorRC",
+        "object.collisionLeft",
+        "object.collisionTop",
+        "object.collisionRight",
+        "object.collisionBottom",
+        "object.outOfBounds",
+        "object.spriteSheet",
+
+        // Object Values
+        "object.value0",
+        "object.value1",
+        "object.value2",
+        "object.value3",
+        "object.value4",
+        "object.value5",
+        "object.value6",
+        "object.value7",
+        "object.value8",
+        "object.value9",
+        "object.value10",
+        "object.value11",
+        "object.value12",
+        "object.value13",
+        "object.value14",
+        "object.value15",
+        "object.value16",
+        "object.value17",
+        "object.value18",
+        "object.value19",
+        "object.value20",
+        "object.value21",
+        "object.value22",
+        "object.value23",
+        "object.value24",
+        "object.value25",
+        "object.value26",
+        "object.value27",
+        "object.value28",
+        "object.value29",
+        "object.value30",
+        "object.value31",
+        "object.value32",
+        "object.value33",
+        "object.value34",
+        "object.value35",
+        "object.value36",
+        "object.value37",
+        "object.value38",
+        "object.value39",
+        "object.value40",
+        "object.value41",
+        "object.value42",
+        "object.value43",
+        "object.value44",
+        "object.value45",
+        "object.value46",
+        "object.value47",
+
+        // Stage Properties
+        "stage.state",
+        "stage.activeList",
+        "stage.listPos",
+        "stage.timeEnabled",
+        "stage.milliSeconds",
+        "stage.seconds",
+        "stage.minutes",
+        "stage.actNum",
+        "stage.pauseEnabled",
+        "stage.listSize",
+        "stage.newXBoundary1",
+        "stage.newXBoundary2",
+        "stage.newYBoundary1",
+        "stage.newYBoundary2",
+        "stage.curXBoundary1",
+        "stage.curXBoundary2",
+        "stage.curYBoundary1",
+        "stage.curYBoundary2",
+        "stage.deformationData0",
+        "stage.deformationData1",
+        "stage.deformationData2",
+        "stage.deformationData3",
+        "stage.waterLevel",
+        "stage.activeLayer",
+        "stage.midPoint",
+        "stage.playerListPos",
+        "stage.debugMode",
+        "stage.entityPos",
+
+        // Screen Properties
+        "screen.cameraEnabled",
+        "screen.cameraTarget",
+        "screen.cameraStyle",
+        "screen.cameraX",
+        "screen.cameraY",
+        "screen.drawListSize",
+        "screen.xcenter",
+        "screen.ycenter",
+        "screen.xsize",
+        "screen.ysize",
+        "screen.xoffset",
+        "screen.yoffset",
+        "screen.shakeX",
+        "screen.shakeY",
+        "screen.adjustCameraY",
+
+        "touchscreen.down",
+        "touchscreen.xpos",
+        "touchscreen.ypos",
+
+        // Sound Properties
+        "music.volume",
+        "music.currentTrack",
+        "music.position",
+
+        // Input Properties
+        "inputDown.up",
+        "inputDown.down",
+        "inputDown.left",
+        "inputDown.right",
+        "inputDown.buttonA",
+        "inputDown.buttonB",
+        "inputDown.buttonC",
+        "inputDown.buttonX",
+        "inputDown.buttonY",
+        "inputDown.buttonZ",
+        "inputDown.buttonL",
+        "inputDown.buttonR",
+        "inputDown.start",
+        "inputDown.select",
+        "inputPress.up",
+        "inputPress.down",
+        "inputPress.left",
+        "inputPress.right",
+        "inputPress.buttonA",
+        "inputPress.buttonB",
+        "inputPress.buttonC",
+        "inputPress.buttonX",
+        "inputPress.buttonY",
+        "inputPress.buttonZ",
+        "inputPress.buttonL",
+        "inputPress.buttonR",
+        "inputPress.start",
+        "inputPress.select",
+
+        // Menu Properties
+        "menu1.selection",
+        "menu2.selection",
+
+        // Tile Layer Properties
+        "tileLayer.xsize",
+        "tileLayer.ysize",
+        "tileLayer.type",
+        "tileLayer.angle",
+        "tileLayer.xpos",
+        "tileLayer.ypos",
+        "tileLayer.zpos",
+        "tileLayer.parallaxFactor",
+        "tileLayer.scrollSpeed",
+        "tileLayer.scrollPos",
+        "tileLayer.deformationOffset",
+        "tileLayer.deformationOffsetW",
+        "hParallax.parallaxFactor",
+        "hParallax.scrollSpeed",
+        "hParallax.scrollPos",
+        "vParallax.parallaxFactor",
+        "vParallax.scrollSpeed",
+        "vParallax.scrollPos",
+
+        // 3D Scene Properties
+        "scene3D.vertexCount",
+        "scene3D.faceCount",
+        "scene3D.projectionX",
+        "scene3D.projectionY",
+        "scene3D.fogColor",
+        "scene3D.fogStrength",
+
+        "vertexBuffer.x",
+        "vertexBuffer.y",
+        "vertexBuffer.z",
+        "vertexBuffer.u",
+        "vertexBuffer.v",
+
+        "faceBuffer.a",
+        "faceBuffer.b",
+        "faceBuffer.c",
+        "faceBuffer.d",
+        "faceBuffer.flag",
+        "faceBuffer.color",
+
+        "saveRAM",
+        "engine.state",
+        "engine.language",
+        "engine.onlineActive",
+        "engine.sfxVolume",
+        "engine.bgmVolume",
+        "engine.trialMode",
+        "engine.deviceType",
+        "engine.hapticsEnabled",
+
+        // Extras
+        "screen.currentID",
+        "camera.enabled",
+        "camera.target",
+        "camera.style",
+        "camera.xpos",
+        "camera.ypos",
+        "camera.adjustY",
+    };
+
+    // clang-format off
+    functionList_rev03 = {
+        FunctionInfo("End",	0),         // End of Script
+        FunctionInfo("Equal",2),		// Equal
+        FunctionInfo("Add",2),			// Add
+        FunctionInfo("Sub",2),			// Subtract
+        FunctionInfo("Inc",1),			// Increment
+        FunctionInfo("Dec",1),			// Decrement
+        FunctionInfo("Mul",2),			// Multiply
+        FunctionInfo("Div",2),			// Divide
+        FunctionInfo("ShR",2),			// Bit Shift Right
+        FunctionInfo("ShL",2),			// Bit Shift Left
+        FunctionInfo("And",2),			// Bitwise And
+        FunctionInfo("Or", 2),          // Bitwise Or
+        FunctionInfo("Xor",2),			// Bitwise Xor
+        FunctionInfo("Mod",2),			// Mod
+        FunctionInfo("FlipSign",1),		// Flips the Sign of the value
+
+        FunctionInfo("CheckEqual",2),		// compare a=b, return result in CheckResult Variable
+        FunctionInfo("CheckGreater",2),		// compare a>b, return result in CheckResult Variable
+        FunctionInfo("CheckLower",2),		// compare a<b, return result in CheckResult Variable
+        FunctionInfo("CheckNotEqual",2),	// compare a!=b, return result in CheckResult Variable
+
+        FunctionInfo("IfEqual",3),          // compare a=b, jump if condition met
+        FunctionInfo("IfGreater",3),		// compare a>b, jump if condition met
+        FunctionInfo("IfGreaterOrEqual",3),	// compare a>=b, jump if condition met
+        FunctionInfo("IfLower",3),          // compare a<b, jump if condition met
+        FunctionInfo("IfLowerOrEqual",3),	// compare a<=b, jump if condition met
+        FunctionInfo("IfNotEqual",3),		// compare a!=b, jump if condition met
+        FunctionInfo("else",0),             // The else for an if statement
+        FunctionInfo("endif",0),            // The end if
+
+        FunctionInfo("WEqual",3),           // compare a=b, loop if condition met
+        FunctionInfo("WGreater",3),         // compare a>b, loop if condition met
+        FunctionInfo("WGreaterOrEqual",3),	// compare a>=b, loop if condition met
+        FunctionInfo("WLower",3),           // compare a<b, loop if condition met
+        FunctionInfo("WLowerOrEqual",3),	// compare a<=b, loop if condition met
+        FunctionInfo("WNotEqual",3),		// compare a!=b, loop if condition met
+        FunctionInfo("loop",0),             // While Loop marker
+
+        FunctionInfo("ForEachActive", 3),   // foreach loop, iterates through object group lists only if they are active and interaction is true
+        FunctionInfo("ForEachAll", 3),      // foreach loop, iterates through objects matching type
+        FunctionInfo("next", 0),            // foreach loop, next marker
+
+        FunctionInfo("switch", 2),          // Switch Statement
+        FunctionInfo("break", 0),           //break
+        FunctionInfo("endswitch", 0),       //endswitch
+
+        // Math Functions
+        FunctionInfo("Rand", 2),
+        FunctionInfo("Sin", 2),
+        FunctionInfo("Cos", 2),
+        FunctionInfo("Sin256", 2),
+        FunctionInfo("Cos256", 2),
+        FunctionInfo("ATan2", 3),
+        FunctionInfo("Interpolate", 4),
+        FunctionInfo("InterpolateXY", 7),
+
+        // Graphics Functions
+        FunctionInfo("LoadSpriteSheet", 1),
+        FunctionInfo("RemoveSpriteSheet", 1),
+        FunctionInfo("DrawSprite", 1),
+        FunctionInfo("DrawSpriteXY", 3),
+        FunctionInfo("DrawSpriteScreenXY", 3),
+        FunctionInfo("DrawTintRect", 4),
+        FunctionInfo("DrawNumbers", 7),
+        FunctionInfo("DrawActName", 7),
+        FunctionInfo("DrawMenu", 3),
+        FunctionInfo("SpriteFrame", 6),
+        FunctionInfo("EditFrame", 7),
+        FunctionInfo("LoadPalette", 5),
+        FunctionInfo("RotatePalette", 4),
+        FunctionInfo("SetScreenFade", 4),
+        FunctionInfo("SetActivePalette", 3),
+        FunctionInfo("SetPaletteFade", 6),
+        FunctionInfo("SetPaletteEntry", 3),
+        FunctionInfo("GetPaletteEntry", 3),
+        FunctionInfo("CopyPalette", 5),
+        FunctionInfo("ClearScreen", 1),
+        FunctionInfo("DrawSpriteFX", 4),
+        FunctionInfo("DrawSpriteScreenFX", 4),
+
+        // More Useful Stuff
+        FunctionInfo("LoadAnimation", 1),
+        FunctionInfo("SetupMenu", 4),
+        FunctionInfo("AddMenuEntry", 3),
+        FunctionInfo("EditMenuEntry", 4),
+        FunctionInfo("LoadStage", 0),
+        FunctionInfo("DrawRect", 8),
+        FunctionInfo("ResetObjectEntity", 5),
+        FunctionInfo("BoxCollisionTest", 11),
+        FunctionInfo("CreateTempObject", 4),
+
+        // Player and Animation Functions
+        FunctionInfo("ProcessObjectMovement", 0),
+        FunctionInfo("ProcessObjectControl", 0),
+        FunctionInfo("ProcessAnimation", 0),
+        FunctionInfo("DrawObjectAnimation", 0),
+
+        // Music
+        FunctionInfo("SetMusicTrack", 3),
+        FunctionInfo("PlayMusic", 1),
+        FunctionInfo("StopMusic", 0),
+        FunctionInfo("PauseMusic", 0),
+        FunctionInfo("ResumeMusic", 0),
+        FunctionInfo("SwapMusicTrack", 4),
+
+        // Sound FX
+        FunctionInfo("PlaySfx", 2),
+        FunctionInfo("StopSfx", 1),
+        FunctionInfo("SetSfxAttributes", 3),
+
+        // More Collision Stuff
+        FunctionInfo("ObjectTileCollision", 4),
+        FunctionInfo("ObjectTileGrip", 4),
+
+        // Bitwise Not
+        FunctionInfo("Not", 1),
+
+        // 3D Stuff
+        FunctionInfo("Draw3DScene", 0),
+        FunctionInfo("SetIdentityMatrix", 1),
+        FunctionInfo("MatrixMultiply", 2),
+        FunctionInfo("MatrixTranslateXYZ", 4),
+        FunctionInfo("MatrixScaleXYZ", 4),
+        FunctionInfo("MatrixRotateX", 2),
+        FunctionInfo("MatrixRotateY", 2),
+        FunctionInfo("MatrixRotateZ", 2),
+        FunctionInfo("MatrixRotateXYZ", 4),
+        FunctionInfo("MatrixInverse", 1),
+        FunctionInfo("TransformVertices", 3),
+
+        FunctionInfo("CallFunction", 1),
+        FunctionInfo("return", 0),
+
+        FunctionInfo("SetLayerDeformation", 6),
+        FunctionInfo("CheckTouchRect", 4),
+        FunctionInfo("GetTileLayerEntry", 4),
+        FunctionInfo("SetTileLayerEntry", 4),
+
+        FunctionInfo("GetBit", 3),
+        FunctionInfo("SetBit", 3),
+
+        FunctionInfo("ClearDrawList", 1),
+        FunctionInfo("AddDrawListEntityRef", 2),
+        FunctionInfo("GetDrawListEntityRef", 3),
+        FunctionInfo("SetDrawListEntityRef", 3),
+
+        FunctionInfo("Get16x16TileInfo", 4),
+        FunctionInfo("Set16x16TileInfo", 4),
+        FunctionInfo("Copy16x16Tile", 2),
+        FunctionInfo("GetAnimationByName", 2),
+        FunctionInfo("ReadSaveRAM", 0),
+        FunctionInfo("WriteSaveRAM", 0),
+
+        FunctionInfo("LoadTextFile", 2),
+        FunctionInfo("GetTextInfo", 5),
+        FunctionInfo("GetVersionNumber", 2),
+
+        FunctionInfo("GetTableValue", 3),
+        FunctionInfo("SetTableValue", 3),
+
+        FunctionInfo("CheckCurrentStageFolder", 1),
+        FunctionInfo("Abs", 1),
+
+        FunctionInfo("CallNativeFunction", 1),
+        FunctionInfo("CallNativeFunction2", 3),
+        FunctionInfo("CallNativeFunction4", 5),
+
+        FunctionInfo("SetObjectRange", 1),
+        FunctionInfo("GetObjectValue", 3),
+        FunctionInfo("SetObjectValue", 3),
+        FunctionInfo("CopyObject", 3),
+        FunctionInfo("Print", 3),
+
+        // Extras
+        FunctionInfo("CheckCameraProximity", 4),
+        FunctionInfo("SetScreenCount", 1),
+        FunctionInfo("SetScreenVertices", 5),
+        FunctionInfo("GetInputDeviceID", 2),
+        FunctionInfo("GetFilteredInputDeviceID", 4),
+        FunctionInfo("GetInputDeviceType", 2),
+        FunctionInfo("IsInputDeviceAssigned", 1),
+        FunctionInfo("AssignInputSlotToDevice", 2),
+        FunctionInfo("IsInputSlotAssigned", 1),
+        FunctionInfo("ResetInputSlotAssignments", 0),
+    };
+
     // clang-format off
     functionList_rev02 = {
         FunctionInfo("End",	0),         // End of Script
@@ -2036,18 +2503,22 @@ void RSDKv4::Decompiler::decompileSub(Writer writer, RSDKv4::Decompiler::StateSc
     const QList<FunctionInfo> *functionPtrs = nullptr;
     const QList<QString> *variablePtrs      = nullptr;
     switch (engineRevision) {
-        case 0:
-            functionPtrs = &functionList_rev00;
-            variablePtrs = &variableList_rev00;
-            break;
-        case 1:
-            functionPtrs = &functionList_rev01;
-            variablePtrs = &variableList;
-            break;
-        case 2:
-            functionPtrs = &functionList_rev02;
-            variablePtrs = &variableList;
-            break;
+    case 0:
+        functionPtrs = &functionList_rev00;
+        variablePtrs = &variableList_rev00;
+        break;
+    case 1:
+        functionPtrs = &functionList_rev01;
+        variablePtrs = &variableList;
+        break;
+    case 2:
+        functionPtrs = &functionList_rev02;
+        variablePtrs = &variableList;
+        break;
+case 3:
+    functionPtrs = &functionList_rev03;
+    variablePtrs = &variableList_rev03;
+    break;
     }
 
     while (!state.endFlag) {

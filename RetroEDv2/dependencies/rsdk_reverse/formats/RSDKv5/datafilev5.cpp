@@ -186,8 +186,10 @@ void RSDKv5::Datafile::read(Reader &reader, QList<QString> fileList)
 {
     filePath = reader.filePath;
 
-    if (QByteArray((const char *)signature, 6) != reader.readByteArray(6))
+    if (QByteArray((const char *)signature, 5) != reader.readByteArray(5))
         return;
+
+    version = reader.read<byte>();
 
     files.clear();
     int fileCount = reader.read<ushort>(); // read the header data
@@ -199,7 +201,8 @@ void RSDKv5::Datafile::write(Writer &writer)
 {
     filePath = writer.filePath;
 
-    for (int h = 0; h < 6; ++h) writer.write(signature[h]);
+    for (int h = 0; h < 5; ++h) writer.write(signature[h]);
+    writer.write<byte>(version);
 
     // std::sort(files.begin(), files.end(), [](const FileInfo &a, const FileInfo &b) -> bool {
     // return a.filename < b.filename; });

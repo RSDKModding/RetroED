@@ -99,9 +99,11 @@ public:
     QList<FunctionInfo> functionList_rev00;
     QList<FunctionInfo> functionList_rev01;
     QList<FunctionInfo> functionList_rev02;
+    QList<FunctionInfo> functionList_rev03;
 
     QList<QString> variableList_rev00;
     QList<QString> variableList;
+    QList<QString> variableList_rev03;
 
     QList<QString> functionNames;
     int functionCount       = 0;

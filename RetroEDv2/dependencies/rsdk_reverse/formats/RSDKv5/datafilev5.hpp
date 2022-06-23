@@ -79,7 +79,8 @@ public:
     }
     void write(Writer &writer);
 
-    const byte signature[6] = { 'R', 'S', 'D', 'K', 'v', '5' };
+    const byte signature[6] = { 'R', 'S', 'D', 'K', 'v' };
+    byte version            = '5';
 
     QList<FileInfo> files;
 

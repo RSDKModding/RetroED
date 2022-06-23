@@ -96,7 +96,7 @@
        <item row="2" column="0">
         <widget class="QComboBox" name="engineRev">
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <item>
           <property name="text">
@@ -111,6 +111,11 @@
          <item>
           <property name="text">
            <string>Revision 02</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Revision 03 (Sonic Origins)</string>
           </property>
          </item>
         </widget>
