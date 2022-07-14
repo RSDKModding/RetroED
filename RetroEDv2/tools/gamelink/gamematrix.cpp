@@ -1,6 +1,6 @@
 #include "includes.hpp"
 
-void FunctionTable::setIdentityMatrix(Matrix *matrix)
+void FunctionTable::SetIdentityMatrix(Matrix *matrix)
 {
     matrix->values[0][0] = 0x100;
     matrix->values[1][0] = 0;
@@ -19,7 +19,7 @@ void FunctionTable::setIdentityMatrix(Matrix *matrix)
     matrix->values[2][3] = 0;
     matrix->values[3][3] = 0x100;
 }
-void FunctionTable::matrixMultiply(Matrix *dest, Matrix *matrixA, Matrix *matrixB)
+void FunctionTable::MatrixMultiply(Matrix *dest, Matrix *matrixA, Matrix *matrixB)
 {
     int result[4][4];
     memset(result, 0, 4 * 4 * sizeof(int));
@@ -39,7 +39,7 @@ void FunctionTable::matrixMultiply(Matrix *dest, Matrix *matrixA, Matrix *matrix
         dest->values[rowB][rowA] = result[rowB][rowA];
     }
 }
-void FunctionTable::matrixTranslateXYZ(Matrix *matrix, int x, int y, int z, bool32 setIdentity)
+void FunctionTable::MatrixTranslateXYZ(Matrix *matrix, int x, int y, int z, bool32 setIdentity)
 {
     if (setIdentity) {
         matrix->values[0][0] = 0x100;
@@ -60,7 +60,7 @@ void FunctionTable::matrixTranslateXYZ(Matrix *matrix, int x, int y, int z, bool
     matrix->values[1][3] = y >> 8;
     matrix->values[2][3] = z >> 8;
 }
-void FunctionTable::matrixScaleXYZ(Matrix *matrix, int scaleX, int scaleY, int scaleZ)
+void FunctionTable::MatrixScaleXYZ(Matrix *matrix, int scaleX, int scaleY, int scaleZ)
 {
     matrix->values[0][0] = scaleX;
     matrix->values[1][0] = 0;
@@ -79,10 +79,10 @@ void FunctionTable::matrixScaleXYZ(Matrix *matrix, int scaleX, int scaleY, int s
     matrix->values[2][3] = 0;
     matrix->values[3][3] = 0x100;
 }
-void FunctionTable::matrixRotateX(Matrix *matrix, short rotationX)
+void FunctionTable::MatrixRotateX(Matrix *matrix, short rotationX)
 {
-    int sine   = sinVal1024[rotationX & 0x3FF] >> 2;
-    int cosine = cosVal1024[rotationX & 0x3FF] >> 2;
+    int sine   = sin1024LookupTable[rotationX & 0x3FF] >> 2;
+    int cosine = cos1024LookupTable[rotationX & 0x3FF] >> 2;
 
     matrix->values[0][0] = 0x100;
     matrix->values[1][0] = 0;
@@ -101,10 +101,10 @@ void FunctionTable::matrixRotateX(Matrix *matrix, short rotationX)
     matrix->values[2][3] = 0;
     matrix->values[3][3] = 0x100;
 }
-void FunctionTable::matrixRotateY(Matrix *matrix, short rotationY)
+void FunctionTable::MatrixRotateY(Matrix *matrix, short rotationY)
 {
-    int sine             = sinVal1024[rotationY & 0x3FF] >> 2;
-    int cosine           = cosVal1024[rotationY & 0x3FF] >> 2;
+    int sine             = sin1024LookupTable[rotationY & 0x3FF] >> 2;
+    int cosine           = cos1024LookupTable[rotationY & 0x3FF] >> 2;
     matrix->values[0][0] = cosine;
     matrix->values[1][0] = 0;
     matrix->values[2][0] = sine;
@@ -122,10 +122,10 @@ void FunctionTable::matrixRotateY(Matrix *matrix, short rotationY)
     matrix->values[2][3] = 0;
     matrix->values[3][3] = 0x100;
 }
-void FunctionTable::matrixRotateZ(Matrix *matrix, short rotationZ)
+void FunctionTable::MatrixRotateZ(Matrix *matrix, short rotationZ)
 {
-    int sine             = sinVal1024[rotationZ & 0x3FF] >> 2;
-    int cosine           = cosVal1024[rotationZ & 0x3FF] >> 2;
+    int sine             = sin1024LookupTable[rotationZ & 0x3FF] >> 2;
+    int cosine           = cos1024LookupTable[rotationZ & 0x3FF] >> 2;
     matrix->values[0][0] = cosine;
     matrix->values[1][0] = -sine;
     matrix->values[2][0] = 0;
@@ -143,14 +143,14 @@ void FunctionTable::matrixRotateZ(Matrix *matrix, short rotationZ)
     matrix->values[2][3] = 0;
     matrix->values[3][3] = 0x100;
 }
-void FunctionTable::matrixRotateXYZ(Matrix *matrix, short rotationX, short rotationY, short rotationZ)
+void FunctionTable::MatrixRotateXYZ(Matrix *matrix, short rotationX, short rotationY, short rotationZ)
 {
-    int sinX = sinVal1024[rotationX & 0x3FF] >> 2;
-    int cosX = cosVal1024[rotationX & 0x3FF] >> 2;
-    int sinY = sinVal1024[rotationY & 0x3FF] >> 2;
-    int cosY = cosVal1024[rotationY & 0x3FF] >> 2;
-    int sinZ = sinVal1024[rotationZ & 0x3FF] >> 2;
-    int cosZ = cosVal1024[rotationZ & 0x3FF] >> 2;
+    int sinX = sin1024LookupTable[rotationX & 0x3FF] >> 2;
+    int cosX = cos1024LookupTable[rotationX & 0x3FF] >> 2;
+    int sinY = sin1024LookupTable[rotationY & 0x3FF] >> 2;
+    int cosY = cos1024LookupTable[rotationY & 0x3FF] >> 2;
+    int sinZ = sin1024LookupTable[rotationZ & 0x3FF] >> 2;
+    int cosZ = cos1024LookupTable[rotationZ & 0x3FF] >> 2;
 
     matrix->values[0][0] = (cosZ * cosY >> 8) + (sinZ * (sinY * sinX >> 8) >> 8);
     matrix->values[0][1] = -(sinZ * cosX) >> 8;
@@ -169,7 +169,7 @@ void FunctionTable::matrixRotateXYZ(Matrix *matrix, short rotationX, short rotat
     matrix->values[3][2] = 0;
     matrix->values[3][3] = 0x100;
 }
-void FunctionTable::matrixInverse(Matrix *dest, Matrix *matrix)
+void FunctionTable::MatrixInverse(Matrix *dest, Matrix *matrix)
 {
     double inv[16], det;
     double m[16];
@@ -237,4 +237,7 @@ void FunctionTable::matrixInverse(Matrix *dest, Matrix *matrix)
     for (int i = 0; i < 0x10; ++i) inv[i] = (int)((inv[i] * det) * 256);
     for (int i = 0; i < 0x10; ++i) dest->values[i / 4][i % 4] = inv[i];
 }
-void FunctionTable::matrixCopy(Matrix *matDst, Matrix *matSrc) { memcpy(matDst, matSrc, sizeof(Matrix)); }
+void FunctionTable::MatrixCopy(Matrix *matDst, Matrix *matSrc)
+{
+    memcpy(matDst, matSrc, sizeof(Matrix));
+}

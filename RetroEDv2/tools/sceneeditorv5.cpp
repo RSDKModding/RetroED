@@ -266,36 +266,75 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             return;
 
         if (updateTypes) {
-            for (auto &e : viewer->entities) {
-                if (e.type >= objectID) {
-                    e.type++;
-                    e.gameEntity->objectID = e.type;
-                }
+            switch (viewer->engineRevision) {
+                case 1:
+                    for (auto &e : viewer->entities) {
+                        if (e.type >= objectID) {
+                            e.type++;
+                            AS_ENTITY(e.gameEntity, GameEntityv1)->objectID = e.type;
+                        }
+                    }
+                    break;
+
+                case 2:
+                    for (auto &e : viewer->entities) {
+                        if (e.type >= objectID) {
+                            e.type++;
+                            AS_ENTITY(e.gameEntity, GameEntityv2)->objectID = e.type;
+                        }
+                    }
+                    break;
+
+                default:
+                case 3:
+                    for (auto &e : viewer->entities) {
+                        if (e.type >= objectID) {
+                            e.type++;
+                            AS_ENTITY(e.gameEntity, GameEntityvU)->objectID = e.type;
+                        }
+                    }
+                    break;
             }
 
             for (int i = 0; i < viewer->objects.count(); ++i) {
                 GameObjectInfo *info = getObjectInfo(viewer->objects[i].name);
-                if (info && info->type) {
-                    GameObject *obj = *info->type;
-                    if (obj) {
-                        if (obj->objectID >= objectID) {
-                            obj->objectID++;
+                if (info && info->sVars) {
+                    GameObject *sVars = *info->sVars;
+                    if (sVars) {
+                        if (sVars->objectID >= objectID) {
+                            sVars->objectID++;
                         }
                     }
                 }
             }
         }
-        allocateStorage(v5Editor->dataStorage, info->objectSize, (void **)info->type, DATASET_STG,
+        allocateStorage(v5Editor->dataStorage, info->staticClassSize, (void **)info->sVars, DATASET_STG,
                         true);
 
-        if (info->type && *info->type) {
-            GameObject *gameObj = *info->type;
-            gameObj->objectID   = objectID;
-            gameObj->active     = ACTIVE_NORMAL;
+        if (info->sVars && *info->sVars) {
+            GameObject *sVars = *info->sVars;
+            sVars->objectID   = objectID;
+            sVars->active     = ACTIVE_NORMAL;
+
+            callGameEvent(info->name, SceneViewer::EVENT_STATICLOAD, NULL);
         }
 
-        if (gameConfig.readFilter)
-            FunctionTable::setEditableVar(VAR_UINT8, "filter", objectID, offsetof(GameEntity, filter));
+        if (gameConfig.readFilter) {
+            switch (viewer->engineRevision) {
+                case 1: break;
+
+                case 2:
+                    FunctionTable::SetEditableVar(VAR_UINT8, "filter", objectID,
+                                                  offsetof(GameEntityv2, filter));
+                    break;
+
+                default:
+                case 3:
+                    FunctionTable::SetEditableVar(VAR_UINT8, "filter", objectID,
+                                                  offsetof(GameEntityvU, filter));
+                    break;
+            }
+        }
 
         callGameEvent(info->name, SceneViewer::EVENT_SERIALIZE, NULL);
 
@@ -312,7 +351,14 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
             if (e.type > objectID) {
                 e.type--;
-                e.gameEntity->objectID = e.type;
+                switch (viewer->engineRevision) {
+                    case 1: AS_ENTITY(e.gameEntity, GameEntityvU)->objectID = e.type; break;
+
+                    case 2: AS_ENTITY(e.gameEntity, GameEntityvU)->objectID = e.type; break;
+
+                    default:
+                    case 3: AS_ENTITY(e.gameEntity, GameEntityvU)->objectID = e.type; break;
+                }
             }
             else if (e.type == objectID) {
                 deleteEntity(o, false);
@@ -323,18 +369,18 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         for (int i = 0; i < viewer->objects.count(); ++i) {
             GameObjectInfo *info = getObjectInfo(viewer->objects[i].name);
-            if (info && info->type) {
-                GameObject *obj = *info->type;
-                if (obj) {
-                    if (obj->objectID >= objectID) {
-                        obj->objectID--;
+            if (info && info->sVars) {
+                GameObject *sVars = *info->sVars;
+                if (sVars) {
+                    if (sVars->objectID >= objectID) {
+                        sVars->objectID--;
                     }
                 }
             }
         }
 
-        if (info->type && *info->type)
-            *info->type = NULL;
+        if (info->sVars && *info->sVars)
+            *info->sVars = NULL;
 
         viewer->objects.removeAt(objectID);
     };
@@ -359,17 +405,41 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         viewer->selectedObject = c;
 
-        memset((void *)&createGameEntity, 0, sizeof(GameEntityBase));
-        createGameEntity.position.x = 0;
-        createGameEntity.position.y = 0;
-        createGameEntity.objectID   = viewer->selectedObject;
+        switch (viewer->engineRevision) {
+            case 1:
+                memset((void *)&createGameEntityv1, 0, sizeof(GameEntityBasev1));
+                createGameEntityv1.position.x = 0;
+                createGameEntityv1.position.y = 0;
+                createGameEntityv1.objectID   = viewer->selectedObject;
 
-        createTempEntity.type       = viewer->selectedObject;
-        createTempEntity.pos.x      = 0;
-        createTempEntity.pos.y      = 0;
-        createTempEntity.slotID     = 0xFFFF;
-        createTempEntity.gameEntity = &createGameEntity;
-        createTempEntity.box        = Rect<int>(0, 0, 0, 0);
+                createTempEntity.gameEntity = &createGameEntityv1;
+                break;
+
+            case 2:
+                memset((void *)&createGameEntityv2, 0, sizeof(GameEntityBasev2));
+                createGameEntityv2.position.x = 0;
+                createGameEntityv2.position.y = 0;
+                createGameEntityv2.objectID   = viewer->selectedObject;
+
+                createTempEntity.gameEntity = &createGameEntityv2;
+                break;
+
+            default:
+            case 3:
+                memset((void *)&createGameEntityvU, 0, sizeof(GameEntityBasevU));
+                createGameEntityvU.position.x = 0;
+                createGameEntityvU.position.y = 0;
+                createGameEntityvU.objectID   = viewer->selectedObject;
+
+                createTempEntity.gameEntity = &createGameEntityvU;
+                break;
+        }
+
+        createTempEntity.type   = viewer->selectedObject;
+        createTempEntity.pos.x  = 0;
+        createTempEntity.pos.y  = 0;
+        createTempEntity.slotID = 0xFFFF;
+        createTempEntity.box    = Rect<int>(0, 0, 0, 0);
 
         viewer->activeDrawEntity = &createTempEntity;
         callGameEvent(viewer->objects[viewer->selectedObject].name, SceneViewer::EVENT_CREATE,
@@ -974,27 +1044,64 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         }
 
         // start by removing objects we dont need
-        for (int o = viewer->entities.count() - 1; o >= 0; --o) {
-            auto &entity = viewer->entities[o];
+        switch (viewer->engineRevision) {
+            case 1:
+                for (int o = viewer->entities.count() - 1; o >= 0; --o) {
+                    auto &entity = viewer->entities[o];
 
-            int newType = removeFlags[entity.type];
-            if (newType < 0) {
-                deleteEntity(o, false);
-            }
-            else {
-                entity.type = newType;
-                if (entity.gameEntity)
-                    entity.gameEntity->objectID = newType;
-            }
+                    int newType = removeFlags[entity.type];
+                    if (newType < 0) {
+                        deleteEntity(o, false);
+                    }
+                    else {
+                        entity.type = newType;
+                        if (entity.gameEntity)
+                            AS_ENTITY(entity.gameEntity, GameEntityv1)->objectID = newType;
+                    }
+                }
+                break;
+
+            case 2:
+                for (int o = viewer->entities.count() - 1; o >= 0; --o) {
+                    auto &entity = viewer->entities[o];
+
+                    int newType = removeFlags[entity.type];
+                    if (newType < 0) {
+                        deleteEntity(o, false);
+                    }
+                    else {
+                        entity.type = newType;
+                        if (entity.gameEntity)
+                            AS_ENTITY(entity.gameEntity, GameEntityv2)->objectID = newType;
+                    }
+                }
+                break;
+
+            default:
+            case 3:
+                for (int o = viewer->entities.count() - 1; o >= 0; --o) {
+                    auto &entity = viewer->entities[o];
+
+                    int newType = removeFlags[entity.type];
+                    if (newType < 0) {
+                        deleteEntity(o, false);
+                    }
+                    else {
+                        entity.type = newType;
+                        if (entity.gameEntity)
+                            AS_ENTITY(entity.gameEntity, GameEntityvU)->objectID = newType;
+                    }
+                }
+                break;
         }
 
         id = 1;
         for (int i = 1; i < viewer->objects.count(); ++i) {
             GameObjectInfo *info = getObjectInfo(viewer->objects[i].name);
-            if (info && info->type) {
-                GameObject *obj = *info->type;
-                if (obj) {
-                    obj->objectID = id;
+            if (info && info->sVars) {
+                GameObject *sVars = *info->sVars;
+                if (sVars) {
+                    sVars->objectID = id;
                 }
             }
             id++;
@@ -2209,8 +2316,16 @@ void SceneEditorv5::deleteEntity(int slot, bool updateUI)
 {
     const SceneEntity &entity = viewer->entities.takeAt(slot);
 
-    if (entity.gameEntity)
-        entity.gameEntity->objectID = 0;
+    if (entity.gameEntity) {
+        switch (viewer->engineRevision) {
+            case 1: AS_ENTITY(entity.gameEntity, GameEntityvU)->objectID = 0; break;
+
+            case 2: AS_ENTITY(entity.gameEntity, GameEntityvU)->objectID = 0; break;
+
+            default:
+            case 3: AS_ENTITY(entity.gameEntity, GameEntityvU)->objectID = 0; break;
+        }
+    }
 
     if (viewer->entities.count() <= 0) {
         viewer->selectedEntity    = -1;
@@ -2857,20 +2972,56 @@ void SceneEditorv5::loadGameLinks()
 
 void SceneEditorv5::initGameLink()
 {
-    for (int i = 0; i < viewer->objects.count(); ++i) {
-        GameObjectInfo *info = getObjectInfo(viewer->objects[i].name);
-        if (info) {
-            allocateStorage(dataStorage, info->objectSize, (void **)info->type, DATASET_STG, true);
+    viewer->gameEntityList = NULL;
+    viewer->engineRevision = 3;
 
-            GameObject *obj = *info->type;
-            obj->objectID   = i;
-            obj->active     = ACTIVE_NORMAL;
-        }
+    if (gameLinks.count()) {
+        GameLink &link         = gameLinks.first();
+        viewer->engineRevision = link.revision;
+    }
+
+    switch (viewer->engineRevision) {
+        case 1: viewer->gameEntityList = viewer->gameEntityListv1; break;
+
+        case 2: viewer->gameEntityList = viewer->gameEntityListv2; break;
+
+        default:
+        case 3: viewer->gameEntityList = viewer->gameEntityListvU; break;
     }
 
     for (int i = 0; i < viewer->objects.count(); ++i) {
-        if (gameConfig.readFilter)
-            FunctionTable::setEditableVar(VAR_UINT8, "filter", i, offsetof(GameEntity, filter));
+        GameObjectInfo *info = getObjectInfo(viewer->objects[i].name);
+        if (info) {
+            allocateStorage(dataStorage, info->staticClassSize, (void **)info->sVars, DATASET_STG,
+                            true);
+
+            callGameEvent(info->name, SceneViewer::EVENT_STATICLOAD, NULL);
+
+            GameObject *sVars = *info->sVars;
+            sVars->objectID   = i;
+            sVars->active     = ACTIVE_NORMAL;
+        }
+    }
+
+    switch (viewer->engineRevision) {
+        case 1: break;
+
+        case 2:
+            for (int i = 0; i < viewer->objects.count(); ++i) {
+                if (gameConfig.readFilter)
+                    FunctionTable::SetEditableVar(VAR_UINT8, "filter", i,
+                                                  offsetof(GameEntityv2, filter));
+            }
+            break;
+
+        default:
+        case 3:
+            for (int i = 0; i < viewer->objects.count(); ++i) {
+                if (gameConfig.readFilter)
+                    FunctionTable::SetEditableVar(VAR_UINT8, "filter", i,
+                                                  offsetof(GameEntityvU, filter));
+            }
+            break;
     }
 
     for (auto &entity : viewer->entities) {
@@ -3264,12 +3415,14 @@ GameObjectInfo *SceneEditorv5::getObjectInfo(QString name)
     return NULL;
 }
 
-void SceneEditorv5::setGameEntityVariables(SceneEntity *entity, GameEntity *gameEntity)
+void SceneEditorv5::setGameEntityVariables(SceneEntity *entity, void *gameEntity)
 {
+    byte *entityBytes = (byte *)gameEntity;
+
     for (int o = 0; o < entity->variables.length(); o++) {
         auto var    = viewer->objects[entity->type].variables[o];
         auto val    = entity->variables[o];
-        auto offset = &((byte *)gameEntity)[var.offset];
+        auto offset = &entityBytes[var.offset];
 
         switch (var.type) {
             case VAR_UINT8: memcpy(offset, &val.value_uint8, sizeof(byte)); break;
@@ -3280,8 +3433,8 @@ void SceneEditorv5::setGameEntityVariables(SceneEntity *entity, GameEntity *game
             case VAR_INT32: memcpy(offset, &val.value_int32, sizeof(int)); break;
             case VAR_ENUM: memcpy(offset, &val.value_enum, sizeof(int)); break;
             case VAR_STRING: {
-                FunctionTable::setText((TextInfo *)offset,
-                                       (char *)val.value_string.toStdString().c_str(), false);
+                // FunctionTable::setText((TextInfo *)offset,
+                //                        (char *)val.value_string.toStdString().c_str(), false);
                 break;
             }
             case VAR_VECTOR2: memcpy(offset, &val.value_vector2.x, sizeof(Vector2<int>)); break;
@@ -3301,12 +3454,14 @@ void SceneEditorv5::setGameEntityVariables(SceneEntity *entity, GameEntity *game
     }
 }
 
-void SceneEditorv5::getGameEntityVariables(SceneEntity *entity, GameEntity *gameEntity)
+void SceneEditorv5::getGameEntityVariables(SceneEntity *entity, void *gameEntity)
 {
+    byte *entityBytes = (byte *)gameEntity;
+
     for (int o = 0; o < entity->variables.length(); o++) {
         auto var    = viewer->objects[entity->type].variables[o];
         auto &val   = entity->variables[o];
-        auto offset = &((byte *)gameEntity)[var.offset];
+        auto offset = &entityBytes[var.offset];
         switch (var.type) {
             case VAR_UINT8: memcpy(&val.value_uint8, offset, sizeof(byte)); break;
             case VAR_INT8: memcpy(&val.value_int8, offset, sizeof(sbyte)); break;
@@ -3316,9 +3471,9 @@ void SceneEditorv5::getGameEntityVariables(SceneEntity *entity, GameEntity *game
             case VAR_INT32: memcpy(&val.value_int32, offset, sizeof(int)); break;
             case VAR_ENUM: memcpy(&val.value_enum, offset, sizeof(int)); break;
             case VAR_STRING: {
-                char buffer[0x100];
-                FunctionTable::getCString(buffer, (TextInfo *)offset);
-                val.value_string = buffer;
+                // char buffer[0x100];
+                // FunctionTable::getCString(buffer, (TextInfo *)offset);
+                // val.value_string = buffer;
                 break;
             }
             case VAR_VECTOR2:
@@ -3356,6 +3511,13 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
     switch (eventID) {
         default: break;
 
+        case SceneViewer::EVENT_STATICLOAD:
+            if (info->staticLoad) {
+                info->staticLoad(*info->sVars);
+                called = true;
+            }
+            break;
+
         case SceneViewer::EVENT_LOAD:
             if (info->editorLoad) {
                 info->editorLoad();
@@ -3367,20 +3529,69 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
             if (!entity)
                 return called;
 
-            GameEntity *entityPtr =
-                entity->slotID == 0xFFFF ? entity->gameEntity : &viewer->gameEntityList[entity->slotID];
-            memset((void *)entityPtr, 0, sizeof(GameEntityBase));
-            entityPtr->position.x    = Utils::floatToFixed(entity->pos.x);
-            entityPtr->position.y    = Utils::floatToFixed(entity->pos.y);
-            entityPtr->interaction   = true;
-            entityPtr->active        = ACTIVE_BOUNDS;
-            entityPtr->updateRange.x = 0x800000;
-            entityPtr->updateRange.y = 0x800000;
-            entityPtr->scale.x       = 0x200;
-            entityPtr->scale.y       = 0x200;
-            entityPtr->objectID      = entity->type;
+            switch (viewer->engineRevision) {
+                case 1: {
+                    GameEntityv1 *entityPtr =
+                        entity->slotID == 0xFFFF
+                            ? AS_ENTITY(entity->gameEntity, GameEntityBasev1)
+                            : &AS_ENTITY(viewer->gameEntityList, GameEntityBasev1)[entity->slotID];
+                    memset((void *)entityPtr, 0, sizeof(GameEntityBasev1));
+                    entityPtr->position.x    = Utils::floatToFixed(entity->pos.x);
+                    entityPtr->position.y    = Utils::floatToFixed(entity->pos.y);
+                    entityPtr->interaction   = true;
+                    entityPtr->active        = ACTIVE_BOUNDS;
+                    entityPtr->updateRange.x = 0x800000;
+                    entityPtr->updateRange.y = 0x800000;
+                    entityPtr->scale.x       = 0x200;
+                    entityPtr->scale.y       = 0x200;
+                    entityPtr->objectID      = entity->type;
 
-            entity->gameEntity = (GameEntityBase *)entityPtr;
+                    entity->gameEntity = (void *)entityPtr;
+                    break;
+                }
+
+                case 2: {
+                    GameEntityv2 *entityPtr =
+                        entity->slotID == 0xFFFF
+                            ? AS_ENTITY(entity->gameEntity, GameEntityBasev2)
+                            : &AS_ENTITY(viewer->gameEntityList, GameEntityBasev2)[entity->slotID];
+                    memset((void *)entityPtr, 0, sizeof(GameEntityBasev2));
+                    entityPtr->position.x    = Utils::floatToFixed(entity->pos.x);
+                    entityPtr->position.y    = Utils::floatToFixed(entity->pos.y);
+                    entityPtr->interaction   = true;
+                    entityPtr->active        = ACTIVE_BOUNDS;
+                    entityPtr->updateRange.x = 0x800000;
+                    entityPtr->updateRange.y = 0x800000;
+                    entityPtr->scale.x       = 0x200;
+                    entityPtr->scale.y       = 0x200;
+                    entityPtr->objectID      = entity->type;
+
+                    entity->gameEntity = (void *)entityPtr;
+                    break;
+                }
+
+                default:
+                case 3: {
+                    GameEntityvU *entityPtr =
+                        entity->slotID == 0xFFFF
+                            ? AS_ENTITY(entity->gameEntity, GameEntityBasevU)
+                            : &AS_ENTITY(viewer->gameEntityList, GameEntityBasevU)[entity->slotID];
+                    memset((void *)entityPtr, 0, sizeof(GameEntityBasevU));
+                    entityPtr->position.x    = Utils::floatToFixed(entity->pos.x);
+                    entityPtr->position.y    = Utils::floatToFixed(entity->pos.y);
+                    entityPtr->interaction   = true;
+                    entityPtr->active        = ACTIVE_BOUNDS;
+                    entityPtr->updateRange.x = 0x800000;
+                    entityPtr->updateRange.y = 0x800000;
+                    entityPtr->scale.x       = 0x200;
+                    entityPtr->scale.y       = 0x200;
+                    entityPtr->objectID      = entity->type;
+
+                    entity->gameEntity = (void *)entityPtr;
+                    break;
+                }
+            }
+
             setGameEntityVariables(entity, entity->gameEntity);
 
             viewer->sceneInfo.entity     = entity->gameEntity;
@@ -3420,17 +3631,39 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                 ex *= viewer->invZoom();
                 ey *= viewer->invZoom();
 
-                validDraw                   = false;
-                createGameEntity.position.x = (ex + viewer->cameraPos.x) * 65536.0f;
-                createGameEntity.position.y = (ey + viewer->cameraPos.y) * 65536.0f;
-                createGameEntity.objectID   = viewer->selectedObject;
+                validDraw = false;
+                switch (viewer->engineRevision) {
+                    case 1:
+                        createGameEntityv1.position.x = (ex + viewer->cameraPos.x) * 65536.0f;
+                        createGameEntityv1.position.y = (ey + viewer->cameraPos.y) * 65536.0f;
+                        createGameEntityv1.objectID   = viewer->selectedObject;
 
-                createTempEntity.type       = viewer->selectedObject;
-                createTempEntity.pos.x      = ex + viewer->cameraPos.x;
-                createTempEntity.pos.y      = ey + viewer->cameraPos.y;
-                createTempEntity.slotID     = 0xFFFF;
-                createTempEntity.gameEntity = &createGameEntity;
-                createTempEntity.box        = Rect<int>(0, 0, 0, 0);
+                        createTempEntity.gameEntity = &createGameEntityv1;
+                        break;
+
+                    case 2:
+                        createGameEntityv2.position.x = (ex + viewer->cameraPos.x) * 65536.0f;
+                        createGameEntityv2.position.y = (ey + viewer->cameraPos.y) * 65536.0f;
+                        createGameEntityv2.objectID   = viewer->selectedObject;
+
+                        createTempEntity.gameEntity = &createGameEntityv2;
+                        break;
+
+                    default:
+                    case 3:
+                        createGameEntityvU.position.x = (ex + viewer->cameraPos.x) * 65536.0f;
+                        createGameEntityvU.position.y = (ey + viewer->cameraPos.y) * 65536.0f;
+                        createGameEntityvU.objectID   = viewer->selectedObject;
+
+                        createTempEntity.gameEntity = &createGameEntityvU;
+                        break;
+                }
+
+                createTempEntity.type   = viewer->selectedObject;
+                createTempEntity.pos.x  = ex + viewer->cameraPos.x;
+                createTempEntity.pos.y  = ey + viewer->cameraPos.y;
+                createTempEntity.slotID = 0xFFFF;
+                createTempEntity.box    = Rect<int>(0, 0, 0, 0);
 
                 viewer->activeDrawEntity = &createTempEntity;
 
@@ -3438,9 +3671,32 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
             }
 
             if (entity->gameEntity) {
-                entity->gameEntity->objectID   = entity->type;
-                entity->gameEntity->position.x = Utils::floatToFixed(entity->pos.x);
-                entity->gameEntity->position.y = Utils::floatToFixed(entity->pos.y);
+                switch (viewer->engineRevision) {
+                    case 1:
+                        AS_ENTITY(entity->gameEntity, GameEntityv1)->objectID = entity->type;
+                        AS_ENTITY(entity->gameEntity, GameEntityv1)->position.x =
+                            Utils::floatToFixed(entity->pos.x);
+                        AS_ENTITY(entity->gameEntity, GameEntityv1)->position.y =
+                            Utils::floatToFixed(entity->pos.y);
+                        break;
+
+                    case 2:
+                        AS_ENTITY(entity->gameEntity, GameEntityv2)->objectID = entity->type;
+                        AS_ENTITY(entity->gameEntity, GameEntityv2)->position.x =
+                            Utils::floatToFixed(entity->pos.x);
+                        AS_ENTITY(entity->gameEntity, GameEntityv2)->position.y =
+                            Utils::floatToFixed(entity->pos.y);
+                        break;
+
+                    default:
+                    case 3:
+                        AS_ENTITY(entity->gameEntity, GameEntityvU)->objectID = entity->type;
+                        AS_ENTITY(entity->gameEntity, GameEntityvU)->position.x =
+                            Utils::floatToFixed(entity->pos.x);
+                        AS_ENTITY(entity->gameEntity, GameEntityvU)->position.y =
+                            Utils::floatToFixed(entity->pos.y);
+                        break;
+                }
 
                 setGameEntityVariables(entity, entity->gameEntity);
             }

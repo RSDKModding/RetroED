@@ -1,83 +1,88 @@
 #include "includes.hpp"
 
-int sinVal1024[0x400];
-int cosVal1024[0x400];
-int tanVal1024[0x400];
-int aSinVal1024[0x400];
-int aCosVal1024[0x400];
+int sin1024LookupTable[0x400];
+int cos1024LookupTable[0x400];
+int tan1024LookupTable[0x400];
+int asin1024LookupTable[0x400];
+int acos1024LookupTable[0x400];
 
-int sinVal512[0x200];
-int cosVal512[0x200];
-int tanVal512[0x200];
-int aSinVal512[0x200];
-int aCosVal512[0x200];
+int sin512LookupTable[0x200];
+int cos512LookupTable[0x200];
+int tan512LookupTable[0x200];
+int asin512LookupTable[0x200];
+int acos512LookupTable[0x200];
 
-int sinVal256[0x100];
-int cosVal256[0x100];
-int tanVal256[0x100];
-int aSinVal256[0x100];
-int aCosVal256[0x100];
+int sin256LookupTable[0x100];
+int cos256LookupTable[0x100];
+int tan256LookupTable[0x100];
+int asin256LookupTable[0x100];
+int acos256LookupTable[0x100];
 
-byte atanVal256[0x100 * 0x100];
+byte arcTan256LookupTable[0x100 * 0x100];
 
-uint randKey = 0;
+uint randSeed = 0;
 
-void FunctionTable::calculateTrigAngles()
+void FunctionTable::CalculateTrigAngles()
 {
-    randKey = rand();
+    srand((uint)time(NULL));
+    randSeed = rand();
 
     for (int i = 0; i < 0x400; ++i) {
-        sinVal1024[i]  = (int)(sinf((i / 512.0) * M_PI) * 1024.0);
-        cosVal1024[i]  = (int)(cosf((i / 512.0) * M_PI) * 1024.0);
-        tanVal1024[i]  = (int)(tanf((i / 512.0) * M_PI) * 1024.0);
-        aSinVal1024[i] = (int)((asin(i / 1023.0) * 512.0) / M_PI);
-        aCosVal1024[i] = (int)((acos(i / 1023.0) * 512.0) / M_PI);
+        sin1024LookupTable[i]  = (int)(sinf((i / 512.0) * RSDK_PI) * 1024.0);
+        cos1024LookupTable[i]  = (int)(cosf((i / 512.0) * RSDK_PI) * 1024.0);
+        tan1024LookupTable[i]  = (int)(tanf((i / 512.0) * RSDK_PI) * 1024.0);
+        asin1024LookupTable[i] = (int)((asinf(i / 1023.0) * 512.0) / RSDK_PI);
+        acos1024LookupTable[i] = (int)((acosf(i / 1023.0) * 512.0) / RSDK_PI);
     }
 
-    cosVal1024[0x000] = 0x400;
-    cosVal1024[0x100] = 0;
-    cosVal1024[0x200] = -0x400;
-    cosVal1024[0x300] = 0;
-    sinVal1024[0x000] = 0;
-    sinVal1024[0x100] = 0x400;
-    sinVal1024[0x200] = 0;
-    sinVal1024[0x300] = -0x400;
+    cos1024LookupTable[0x000] = 0x400;
+    cos1024LookupTable[0x100] = 0;
+    cos1024LookupTable[0x200] = -0x400;
+    cos1024LookupTable[0x300] = 0;
+
+    sin1024LookupTable[0x000] = 0;
+    sin1024LookupTable[0x100] = 0x400;
+    sin1024LookupTable[0x200] = 0;
+    sin1024LookupTable[0x300] = -0x400;
 
     for (int i = 0; i < 0x200; ++i) {
-        sinVal512[i]  = (int)(sinf((i / 256.0) * M_PI) * 512.0);
-        cosVal512[i]  = (int)(cosf((i / 256.0) * M_PI) * 512.0);
-        tanVal512[i]  = (int)(tanf((i / 256.0) * M_PI) * 512.0);
-        aSinVal512[i] = (int)((asin(i / 511.0) * 256.0) / M_PI);
-        aCosVal512[i] = (int)((acos(i / 511.0) * 256.0) / M_PI);
+        sin512LookupTable[i]  = (int)(sinf((i / 256.0) * RSDK_PI) * 512.0);
+        cos512LookupTable[i]  = (int)(cosf((i / 256.0) * RSDK_PI) * 512.0);
+        tan512LookupTable[i]  = (int)(tanf((i / 256.0) * RSDK_PI) * 512.0);
+        asin512LookupTable[i] = (int)((asinf(i / 511.0) * 256.0) / RSDK_PI);
+        acos512LookupTable[i] = (int)((acosf(i / 511.0) * 256.0) / RSDK_PI);
     }
 
-    cosVal512[0x00]  = 0x200;
-    cosVal512[0x80]  = 0;
-    cosVal512[0x100] = -0x200;
-    cosVal512[0x180] = 0;
-    sinVal512[0x00]  = 0;
-    sinVal512[0x80]  = 0x200;
-    sinVal512[0x100] = 0;
-    sinVal512[0x180] = -0x200;
+    cos512LookupTable[0x00]  = 0x200;
+    cos512LookupTable[0x80]  = 0;
+    cos512LookupTable[0x100] = -0x200;
+    cos512LookupTable[0x180] = 0;
+
+    sin512LookupTable[0x00]  = 0;
+    sin512LookupTable[0x80]  = 0x200;
+    sin512LookupTable[0x100] = 0;
+    sin512LookupTable[0x180] = -0x200;
 
     for (int i = 0; i < 0x100; i++) {
-        sinVal256[i]  = (int)((sinVal512[i * 2] >> 1));
-        cosVal256[i]  = (int)((cosVal512[i * 2] >> 1));
-        tanVal256[i]  = (int)((tanVal512[i * 2] >> 1));
-        aSinVal256[i] = (int)((asin(i / 255.0) * 128.0) / M_PI);
-        aCosVal256[i] = (int)((acos(i / 255.0) * 128.0) / M_PI);
+        sin256LookupTable[i]  = (int)((sin512LookupTable[i * 2] >> 1));
+        cos256LookupTable[i]  = (int)((cos512LookupTable[i * 2] >> 1));
+        tan256LookupTable[i]  = (int)((tan512LookupTable[i * 2] >> 1));
+        asin256LookupTable[i] = (int)((asinf(i / 255.0) * 128.0) / RSDK_PI);
+        acos256LookupTable[i] = (int)((acosf(i / 255.0) * 128.0) / RSDK_PI);
     }
 
     for (int y = 0; y < 0x100; ++y) {
-        byte *arcTan = (byte *)&atanVal256[y];
+        byte *arcTan = (byte *)&arcTan256LookupTable[y];
+
         for (int x = 0; x < 0x100; ++x) {
+            // 40.743664 = 0x100 / (2 * M_PI) (roughly)
             *arcTan = (int)(float)((float)atan2((float)y, x) * 40.743664);
             arcTan += 0x100;
         }
     }
 }
 
-byte FunctionTable::arcTanLookup(int X, int Y)
+byte FunctionTable::ArcTanLookup(int X, int Y)
 {
     int x = abs(X);
     int y = abs(Y);
@@ -96,12 +101,12 @@ byte FunctionTable::arcTanLookup(int X, int Y)
     }
     if (X <= 0) {
         if (Y <= 0)
-            return atanVal256[(x << 8) + y] + -0x80;
+            return arcTan256LookupTable[(x << 8) + y] + 0x80;
         else
-            return -0x80 - atanVal256[(x << 8) + y];
+            return 0x80 - arcTan256LookupTable[(x << 8) + y];
     }
     else if (Y <= 0)
-        return -atanVal256[(x << 8) + y];
+        return -arcTan256LookupTable[(x << 8) + y];
     else
-        return atanVal256[(x << 8) + y];
+        return arcTan256LookupTable[(x << 8) + y];
 }

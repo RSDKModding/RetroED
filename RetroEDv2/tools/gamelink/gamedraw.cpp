@@ -11,7 +11,7 @@ enum RotationFlags {
     ROTFLAG_STATICFRAMES
 };
 
-short FunctionTable::loadSpriteAnimation(const char *filename, Scopes scope)
+short FunctionTable::LoadSpriteAnimation(const char *filename, Scopes scope)
 {
     if (!v5Editor)
         return -1;
@@ -60,7 +60,7 @@ short FunctionTable::loadSpriteAnimation(const char *filename, Scopes scope)
         byte sheetCount = reader.read<byte>();
         for (int s = 0; s < sheetCount; ++s) {
             QString sheet = reader.readString();
-            sheetIDs[s]   = loadSpriteSheet(sheet.toStdString().c_str(), scope);
+            sheetIDs[s]   = LoadSpriteSheet(sheet.toStdString().c_str(), scope);
         }
 
         byte hitboxCount = reader.read<byte>();
@@ -109,7 +109,7 @@ short FunctionTable::loadSpriteAnimation(const char *filename, Scopes scope)
     return -1;
 }
 
-short FunctionTable::createSpriteAnimation(const char *filename, uint frameCount, uint animCount,
+short FunctionTable::CreateSpriteAnimation(const char *filename, uint frameCount, uint animCount,
                                            Scopes scope)
 {
     if (!v5Editor)
@@ -150,7 +150,7 @@ short FunctionTable::createSpriteAnimation(const char *filename, uint frameCount
     return id;
 }
 
-ushort FunctionTable::getSpriteAnimation(ushort aniFrames, const char *name)
+ushort FunctionTable::FindSpriteAnimation(ushort aniFrames, const char *name)
 {
     if (!v5Editor)
         return -1;
@@ -170,7 +170,7 @@ ushort FunctionTable::getSpriteAnimation(ushort aniFrames, const char *name)
     return -1;
 }
 
-SpriteFrame *FunctionTable::getFrame(ushort aniFrames, ushort anim, int frame)
+SpriteFrame *FunctionTable::GetFrame(ushort aniFrames, ushort anim, int frame)
 {
     if (aniFrames >= v5_SPRFILE_COUNT)
         return NULL;
@@ -180,7 +180,7 @@ SpriteFrame *FunctionTable::getFrame(ushort aniFrames, ushort anim, int frame)
     return &spr->frames[frame + spr->animations[anim].frameListOffset];
 }
 
-Hitbox *FunctionTable::getHitbox(Animator *animator, byte hitboxID)
+Hitbox *FunctionTable::GetHitbox(Animator *animator, byte hitboxID)
 {
     if (!v5Editor)
         return NULL;
@@ -191,7 +191,7 @@ Hitbox *FunctionTable::getHitbox(Animator *animator, byte hitboxID)
         return NULL;
 }
 
-short FunctionTable::getFrameID(Animator *animator)
+short FunctionTable::GetFrameID(Animator *animator)
 {
     if (animator && animator->framePtrs)
         return animator->framePtrs[animator->frameID].id;
@@ -199,7 +199,7 @@ short FunctionTable::getFrameID(Animator *animator)
         return 0;
 }
 
-void FunctionTable::processAnimation(Animator *animator)
+void FunctionTable::ProcessAnimation(Animator *animator)
 {
     if (!v5Editor)
         return;
@@ -229,7 +229,7 @@ void FunctionTable::processAnimation(Animator *animator)
     }
 }
 
-void FunctionTable::setSpriteAnimation(ushort aniFrames, ushort animationID, Animator *animator,
+void FunctionTable::SetSpriteAnimation(ushort aniFrames, ushort animationID, Animator *animator,
                                        bool32 forceApply, short frameID)
 {
     if (!v5Editor)
@@ -263,7 +263,7 @@ void FunctionTable::setSpriteAnimation(ushort aniFrames, ushort animationID, Ani
     animator->animationID     = animationID;
 }
 
-void FunctionTable::editSpriteAnimation(ushort aniFrames, ushort animID, const char *name,
+void FunctionTable::EditSpriteAnimation(ushort aniFrames, ushort animID, const char *name,
                                         int frameOffset, ushort frameCount, short speed, byte loopIndex,
                                         byte rotationFlag)
 {
@@ -284,7 +284,7 @@ void FunctionTable::editSpriteAnimation(ushort aniFrames, ushort animID, const c
     }
 }
 
-int FunctionTable::getStringWidth(ushort aniFrames, ushort animID, TextInfo *info, int startIndex,
+int FunctionTable::GetStringWidth(ushort aniFrames, ushort animID, TextInfo *info, int startIndex,
                                   int length, int spacing)
 {
     if (!v5Editor)
@@ -332,7 +332,7 @@ int FunctionTable::getStringWidth(ushort aniFrames, ushort animID, TextInfo *inf
     return 0;
 }
 
-void FunctionTable::setSpriteString(ushort aniFrames, ushort animID, TextInfo *info)
+void FunctionTable::SetSpriteString(ushort aniFrames, ushort animID, TextInfo *info)
 {
     if (!v5Editor)
         return;
@@ -359,7 +359,7 @@ void FunctionTable::setSpriteString(ushort aniFrames, ushort animID, TextInfo *i
     }
 }
 
-ushort FunctionTable::loadSpriteSheet(const char *filename, int scope)
+ushort FunctionTable::LoadSpriteSheet(const char *filename, int scope)
 {
     if (!v5Editor)
         return -1;
@@ -389,36 +389,7 @@ ushort FunctionTable::loadSpriteSheet(const char *filename, int scope)
     return v5Editor->viewer->addGraphicsFile(buffer, id, scope);
 }
 
-void FunctionTable::setClipBounds(byte screenID, int x1, int y1, int x2, int y2)
-{
-    ScreenInfo *screen;
-
-    if (screenID < 4) {
-        screen = &v5Editor->viewer->screens[screenID];
-
-        if (x1 <= screen->width)
-            screen->clipBound_X1 = x1 >= 0 ? x1 : 0;
-        else
-            screen->clipBound_X1 = screen->width;
-
-        if (y1 <= screen->height)
-            screen->clipBound_Y1 = y1 >= 0 ? y1 : 0;
-        else
-            screen->clipBound_Y1 = screen->height;
-
-        if (x2 >= 0)
-            screen->clipBound_X2 = x2 < screen->width ? x2 : screen->width;
-        else
-            screen->clipBound_X2 = 0;
-
-        if (y2 >= 0)
-            screen->clipBound_Y2 = y2 < screen->height ? y2 : screen->height;
-        else
-            screen->clipBound_Y2 = 0;
-    }
-}
-
-void FunctionTable::drawLine(int x1, int y1, int x2, int y2, uint color, int alpha,
+void FunctionTable::DrawLine(int x1, int y1, int x2, int y2, uint color, int alpha,
                              InkEffects inkEffect, bool32 screenRelative)
 {
     if (!v5Editor)
@@ -492,7 +463,7 @@ void FunctionTable::drawLine(int x1, int y1, int x2, int y2, uint color, int alp
     v5Editor->viewer->drawLine(x1p, y1p, x2p, y2p, rcolor, alpha, inkEffect);
 }
 
-void FunctionTable::drawRect(int x, int y, int width, int height, uint color, int alpha,
+void FunctionTable::DrawRect(int x, int y, int width, int height, uint color, int alpha,
                              InkEffects inkEffect, bool32 screenRelative)
 {
     if (!v5Editor)
@@ -583,67 +554,40 @@ void FunctionTable::drawRect(int x, int y, int width, int height, uint color, in
     v5Editor->viewer->drawRect(xf, yf, widthf, heightf, rcolor, false, alpha, inkEffect);
 }
 
-void FunctionTable::drawCircle(int x, int y, int radius, uint color, int alpha, InkEffects inkEffect,
-                               bool32 screenRelative)
-{
-    if (!v5Editor)
-        return;
-
-    float xf = x;
-    float yf = y;
-
-    if (!screenRelative) {
-        xf = (x / (float)(1 << 16)) - v5Editor->viewer->cameraPos.x;
-        yf = (y / (float)(1 << 16)) - v5Editor->viewer->cameraPos.y;
-    }
-    Vector4<float> rcolor = { ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f,
-                              (color & 0xFF) / 255.0f, alpha / 255.0f };
-    // v5Editor->viewer->drawCircle(xf, yf, 0, radius, rcolor, alpha, inkEffect);
-}
-void FunctionTable::drawCircleOutline(int x, int y, int innerRadius, int outerRadius, uint color,
-                                      int alpha, InkEffects inkEffect, bool32 screenRelative)
-{
-    if (!v5Editor)
-        return;
-
-    float xf = x;
-    float yf = y;
-
-    if (!screenRelative) {
-        xf = (x / (float)(1 << 16)) - v5Editor->viewer->cameraPos.x;
-        yf = (y / (float)(1 << 16)) - v5Editor->viewer->cameraPos.y;
-    }
-    Vector4<float> rcolor = { ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f,
-                              (color & 0xFF) / 255.0f, alpha / 255.0f };
-    // v5Editor->viewer->drawCircle(xf, yf, innerRadius, outerRadius, rcolor, alpha, inkEffect);
-}
-
-void FunctionTable::drawFace(Vector2<int> *vertices, int vertCount, int r, int g, int b, int alpha,
-                             InkEffects inkEffect)
-{
-    if (!v5Editor)
-        return;
-    v5Editor->viewer->drawFace(vertices, vertCount, r, g, b, alpha, inkEffect);
-}
-void FunctionTable::drawBlendedFace(Vector2<int> *vertices, uint *colors, int vertCount, int alpha,
-                                    InkEffects inkEffect)
-{
-    if (!v5Editor)
-        return;
-    v5Editor->viewer->drawBlendedFace(vertices, colors, vertCount, alpha, inkEffect);
-}
-
-void FunctionTable::drawSprite(Animator *animator, Vector2<int> *position, bool32 screenRelative)
+void FunctionTable::DrawSprite(Animator *animator, Vector2<int> *position, bool32 screenRelative)
 {
     if (animator && animator->framePtrs && v5Editor) {
         if ((uint)animator->frameID >= (uint)animator->frameCount)
             return;
 
+        SceneInfo &sceneInfo = v5Editor->viewer->sceneInfo;
+
         SpriteFrame *frame = &animator->framePtrs[animator->frameID];
         Vector2<float> pos;
         if (!position) {
-            pos.x = Utils::fixedToFloat(v5Editor->viewer->sceneInfo.entity->position.x);
-            pos.y = Utils::fixedToFloat(v5Editor->viewer->sceneInfo.entity->position.y);
+            switch (v5Editor->viewer->engineRevision) {
+                case 1:
+                    pos.x =
+                        Utils::fixedToFloat(AS_ENTITY(sceneInfo.entity, GameEntityBasev1)->position.x);
+                    pos.y =
+                        Utils::fixedToFloat(AS_ENTITY(sceneInfo.entity, GameEntityBasev1)->position.y);
+                    break;
+
+                case 2:
+                    pos.x =
+                        Utils::fixedToFloat(AS_ENTITY(sceneInfo.entity, GameEntityBasev2)->position.x);
+                    pos.y =
+                        Utils::fixedToFloat(AS_ENTITY(sceneInfo.entity, GameEntityBasev2)->position.y);
+                    break;
+
+                default:
+                case 3:
+                    pos.x =
+                        Utils::fixedToFloat(AS_ENTITY(sceneInfo.entity, GameEntityBasevU)->position.x);
+                    pos.y =
+                        Utils::fixedToFloat(AS_ENTITY(sceneInfo.entity, GameEntityBasevU)->position.y);
+                    break;
+            }
         }
         else {
             pos.x = Utils::fixedToFloat(position->x);
@@ -655,56 +599,89 @@ void FunctionTable::drawSprite(Animator *animator, Vector2<int> *position, bool3
             pos.y -= v5Editor->viewer->cameraPos.y;
         }
 
-        SceneInfo &sceneInfo = v5Editor->viewer->sceneInfo;
+        int rotation  = 0;
+        int drawFX    = 0;
+        int direction = FLIP_NONE;
+        int alpha     = 0x00;
+        int inkEffect = INK_NONE;
+        Vector2<int> scale;
 
-        int rotation = sceneInfo.entity->rotation;
-        int drawFX   = sceneInfo.entity->drawFX;
-        if (sceneInfo.entity->drawFX & FX_ROTATE) {
+        switch (v5Editor->viewer->engineRevision) {
+            case 1:
+                scale     = AS_ENTITY(sceneInfo.entity, GameEntityBasev1)->scale;
+                rotation  = AS_ENTITY(sceneInfo.entity, GameEntityBasev1)->rotation;
+                drawFX    = AS_ENTITY(sceneInfo.entity, GameEntityBasev1)->drawFX;
+                direction = AS_ENTITY(sceneInfo.entity, GameEntityBasev1)->direction;
+                alpha     = AS_ENTITY(sceneInfo.entity, GameEntityBasev1)->alpha;
+                inkEffect = AS_ENTITY(sceneInfo.entity, GameEntityBasev1)->inkEffect;
+                break;
+
+            case 2:
+                scale     = AS_ENTITY(sceneInfo.entity, GameEntityBasev2)->scale;
+                rotation  = AS_ENTITY(sceneInfo.entity, GameEntityBasev2)->rotation;
+                drawFX    = AS_ENTITY(sceneInfo.entity, GameEntityBasev2)->drawFX;
+                direction = AS_ENTITY(sceneInfo.entity, GameEntityBasev2)->direction;
+                alpha     = AS_ENTITY(sceneInfo.entity, GameEntityBasev2)->alpha;
+                inkEffect = AS_ENTITY(sceneInfo.entity, GameEntityBasev2)->inkEffect;
+                break;
+
+            default:
+            case 3:
+                scale     = AS_ENTITY(sceneInfo.entity, GameEntityBasevU)->scale;
+                rotation  = AS_ENTITY(sceneInfo.entity, GameEntityBasevU)->rotation;
+                drawFX    = AS_ENTITY(sceneInfo.entity, GameEntityBasevU)->drawFX;
+                direction = AS_ENTITY(sceneInfo.entity, GameEntityBasevU)->direction;
+                alpha     = AS_ENTITY(sceneInfo.entity, GameEntityBasevU)->alpha;
+                inkEffect = AS_ENTITY(sceneInfo.entity, GameEntityBasevU)->inkEffect;
+                break;
+        }
+
+        if (drawFX & FX_ROTATE) {
             switch (animator->rotationFlag) {
                 case ROTFLAG_NONE:
                     rotation = 0;
-                    if ((sceneInfo.entity->drawFX & FX_ROTATE) != FX_NONE)
+                    if ((drawFX & FX_ROTATE) != FX_NONE)
                         drawFX ^= FX_ROTATE;
                     break;
                 case ROTFLAG_FULL:
-                    rotation = sceneInfo.entity->rotation & 0x1FF;
+                    rotation = rotation & 0x1FF;
                     if (rotation == 0)
                         drawFX ^= FX_ROTATE;
                     break;
                 case ROTFLAG_45DEG: // 0x00, 0x40, 0x80, 0xC0, 0x100, 0x140, 0x180, 0x1C0
-                    rotation = (sceneInfo.entity->rotation + 0x20) & 0x1C0;
+                    rotation = (rotation + 0x20) & 0x1C0;
                     if (rotation == 0)
                         drawFX ^= FX_ROTATE;
                     break;
                 case ROTFLAG_90DEG: // 0x00, 0x80, 0x100, 0x180
-                    rotation = (sceneInfo.entity->rotation + 0x40) & 0x180;
+                    rotation = (rotation + 0x40) & 0x180;
                     if (rotation == 0)
                         drawFX ^= FX_ROTATE;
                     break;
                 case ROTFLAG_180DEG: // 0x00, 0x100
-                    rotation = (sceneInfo.entity->rotation + 0x80) & 0x100;
+                    rotation = (rotation + 0x80) & 0x100;
                     if (rotation == 0)
                         drawFX ^= FX_ROTATE;
                     break;
                 case ROTFLAG_STATICFRAMES:
-                    if (sceneInfo.entity->rotation >= 0x100) {
-                        rotation = 0x08 - ((0x214 - sceneInfo.entity->rotation) >> 6);
+                    if (rotation >= 0x100) {
+                        rotation = 0x08 - ((0x214 - rotation) >> 6);
                     }
                     else {
-                        rotation = (sceneInfo.entity->rotation + 20) >> 6;
+                        rotation = (rotation + 20) >> 6;
                     }
 
                     switch (rotation) {
                         case 0: // 0 deg
                         case 8: // 360 deg
                             rotation = 0x00;
-                            if ((sceneInfo.entity->drawFX & FX_SCALE) != FX_NONE)
+                            if ((drawFX & FX_SCALE) != FX_NONE)
                                 drawFX ^= FX_ROTATE;
                             break;
                         case 1: // 45 deg
                             rotation = 0x80;
                             frame += animator->frameCount;
-                            if (sceneInfo.entity->direction)
+                            if (direction)
                                 rotation = 0x00;
                             break;
                         case 2: // 90 deg
@@ -713,7 +690,7 @@ void FunctionTable::drawSprite(Animator *animator, Vector2<int> *position, bool3
                         case 3: // 135 deg
                             rotation = 0x100;
                             frame += animator->frameCount;
-                            if (sceneInfo.entity->direction)
+                            if (direction)
                                 rotation = 0x80;
                             break;
                         case 4: // 180 deg
@@ -722,7 +699,7 @@ void FunctionTable::drawSprite(Animator *animator, Vector2<int> *position, bool3
                         case 5: // 225 deg
                             rotation = 0x180;
                             frame += animator->frameCount;
-                            if (sceneInfo.entity->direction)
+                            if (direction)
                                 rotation = 0x100;
                             break;
                         case 6: // 270 deg
@@ -731,7 +708,7 @@ void FunctionTable::drawSprite(Animator *animator, Vector2<int> *position, bool3
                         case 7: // 315 deg
                             rotation = 0x180;
                             frame += animator->frameCount;
-                            if (!sceneInfo.entity->direction)
+                            if (!direction)
                                 rotation = 0;
                             break;
                         default: break;
@@ -745,208 +722,84 @@ void FunctionTable::drawSprite(Animator *animator, Vector2<int> *position, bool3
             case FX_NONE:
                 v5Editor->viewer->drawSpriteFlipped(
                     pos.x + frame->pivotX, pos.y + frame->pivotY, frame->width, frame->height,
-                    frame->sprX, frame->sprY, FLIP_NONE, (InkEffects)sceneInfo.entity->inkEffect,
-                    sceneInfo.entity->alpha, frame->sheetID);
+                    frame->sprX, frame->sprY, FLIP_NONE, (InkEffects)inkEffect, alpha, frame->sheetID);
                 break;
+
             case FX_FLIP:
-                switch (sceneInfo.entity->direction) {
+                switch (direction) {
                     case FLIP_NONE:
                         v5Editor->viewer->drawSpriteFlipped(
                             pos.x + frame->pivotX, pos.y + frame->pivotY, frame->width, frame->height,
-                            frame->sprX, frame->sprY, FLIP_NONE,
-                            (InkEffects)sceneInfo.entity->inkEffect, sceneInfo.entity->alpha,
+                            frame->sprX, frame->sprY, FLIP_NONE, (InkEffects)inkEffect, alpha,
                             frame->sheetID);
                         break;
+
                     case FLIP_X:
                         v5Editor->viewer->drawSpriteFlipped(
                             pos.x - frame->width - frame->pivotX, pos.y + frame->pivotY, frame->width,
-                            frame->height, frame->sprX, frame->sprY, FLIP_X,
-                            (InkEffects)sceneInfo.entity->inkEffect, sceneInfo.entity->alpha,
-                            frame->sheetID);
+                            frame->height, frame->sprX, frame->sprY, FLIP_X, (InkEffects)inkEffect,
+                            alpha, frame->sheetID);
                         break;
+
                     case FLIP_Y:
                         v5Editor->viewer->drawSpriteFlipped(
                             pos.x + frame->pivotX, pos.y - frame->height - frame->pivotY, frame->width,
-                            frame->height, frame->sprX, frame->sprY, FLIP_Y,
-                            (InkEffects)sceneInfo.entity->inkEffect, sceneInfo.entity->alpha,
-                            frame->sheetID);
+                            frame->height, frame->sprX, frame->sprY, FLIP_Y, (InkEffects)inkEffect,
+                            alpha, frame->sheetID);
                         break;
+
                     case FLIP_XY:
                         v5Editor->viewer->drawSpriteFlipped(
                             pos.x - frame->width - frame->pivotX, pos.y - frame->height - frame->pivotY,
                             frame->width, frame->height, frame->sprX, frame->sprY, FLIP_XY,
-                            (InkEffects)sceneInfo.entity->inkEffect, sceneInfo.entity->alpha,
-                            frame->sheetID);
+                            (InkEffects)inkEffect, alpha, frame->sheetID);
                         break;
+
                     default: break;
                 }
                 break;
             case FX_ROTATE:
-                v5Editor->viewer->drawSpriteRotozoom(
-                    pos.x, pos.y, frame->pivotX, frame->pivotY, frame->width, frame->height,
-                    frame->sprX, frame->sprY, 0x200, 0x200, FLIP_NONE, rotation,
-                    (InkEffects)sceneInfo.entity->inkEffect, sceneInfo.entity->alpha, frame->sheetID);
+                v5Editor->viewer->drawSpriteRotozoom(pos.x, pos.y, frame->pivotX, frame->pivotY,
+                                                     frame->width, frame->height, frame->sprX,
+                                                     frame->sprY, 0x200, 0x200, FLIP_NONE, rotation,
+                                                     (InkEffects)inkEffect, alpha, frame->sheetID);
                 break;
             case FX_ROTATE | FX_FLIP:
                 v5Editor->viewer->drawSpriteRotozoom(
                     pos.x, pos.y, frame->pivotX, frame->pivotY, frame->width, frame->height,
-                    frame->sprX, frame->sprY, 0x200, 0x200,
-                    FlipFlags(sceneInfo.entity->direction & FLIP_X), rotation,
-                    (InkEffects)sceneInfo.entity->inkEffect, sceneInfo.entity->alpha, frame->sheetID);
+                    frame->sprX, frame->sprY, 0x200, 0x200, FlipFlags(direction & FLIP_X), rotation,
+                    (InkEffects)inkEffect, alpha, frame->sheetID);
                 break;
             case FX_SCALE:
-                v5Editor->viewer->drawSpriteRotozoom(
-                    pos.x, pos.y, frame->pivotX, frame->pivotY, frame->width, frame->height,
-                    frame->sprX, frame->sprY, sceneInfo.entity->scale.x, sceneInfo.entity->scale.y,
-                    FLIP_NONE, 0, (InkEffects)sceneInfo.entity->inkEffect, sceneInfo.entity->alpha,
-                    frame->sheetID);
+                v5Editor->viewer->drawSpriteRotozoom(pos.x, pos.y, frame->pivotX, frame->pivotY,
+                                                     frame->width, frame->height, frame->sprX,
+                                                     frame->sprY, scale.x, scale.y, FLIP_NONE, 0,
+                                                     (InkEffects)inkEffect, alpha, frame->sheetID);
                 break;
             case FX_SCALE | FX_FLIP:
                 v5Editor->viewer->drawSpriteRotozoom(
                     pos.x, pos.y, frame->pivotX, frame->pivotY, frame->width, frame->height,
-                    frame->sprX, frame->sprY, sceneInfo.entity->scale.x, sceneInfo.entity->scale.y,
-                    FlipFlags(sceneInfo.entity->direction & FLIP_X), 0,
-                    (InkEffects)sceneInfo.entity->inkEffect, sceneInfo.entity->alpha, frame->sheetID);
+                    frame->sprX, frame->sprY, scale.x, scale.y, FlipFlags(direction & FLIP_X), 0,
+                    (InkEffects)inkEffect, alpha, frame->sheetID);
                 break;
             case FX_SCALE | FX_ROTATE:
-                v5Editor->viewer->drawSpriteRotozoom(
-                    pos.x, pos.y, frame->pivotX, frame->pivotY, frame->width, frame->height,
-                    frame->sprX, frame->sprY, sceneInfo.entity->scale.x, sceneInfo.entity->scale.y,
-                    FLIP_NONE, rotation, (InkEffects)sceneInfo.entity->inkEffect,
-                    sceneInfo.entity->alpha, frame->sheetID);
+                v5Editor->viewer->drawSpriteRotozoom(pos.x, pos.y, frame->pivotX, frame->pivotY,
+                                                     frame->width, frame->height, frame->sprX,
+                                                     frame->sprY, scale.x, scale.y, FLIP_NONE, rotation,
+                                                     (InkEffects)inkEffect, alpha, frame->sheetID);
                 break;
             case FX_SCALE | FX_ROTATE | FX_FLIP:
                 v5Editor->viewer->drawSpriteRotozoom(
                     pos.x, pos.y, frame->pivotX, frame->pivotY, frame->width, frame->height,
-                    frame->sprX, frame->sprY, sceneInfo.entity->scale.x, sceneInfo.entity->scale.y,
-                    FlipFlags(sceneInfo.entity->direction & FLIP_X), rotation,
-                    (InkEffects)sceneInfo.entity->inkEffect, sceneInfo.entity->alpha, frame->sheetID);
+                    frame->sprX, frame->sprY, scale.x, scale.y, FlipFlags(direction & FLIP_X), rotation,
+                    (InkEffects)inkEffect, alpha, frame->sheetID);
                 break;
             default: break;
         }
     }
 }
 
-void FunctionTable::drawTile(ushort *tileInfo, int countX, int countY, GameEntity *entityPtr,
-                             Vector2<int> *position, bool32 screenRelative)
-{
-    if (!v5Editor)
-        return;
-}
-
-void FunctionTable::drawText(Animator *animator, Vector2<int> *position, TextInfo *info, int startFrame,
-                             int endFrame, byte align, int spacing, int a8, Vector2<int> *charOffsets,
-                             bool32 screenRelative)
-{
-    if (animator && info && info->text && animator->framePtrs && v5Editor) {
-        SceneInfo &sceneInfo = v5Editor->viewer->sceneInfo;
-
-        if (!position)
-            position = &sceneInfo.entity->position;
-        GameEntity *entity = sceneInfo.entity;
-
-        float x = 0;
-        float y = 0;
-
-        if (!position) {
-            x = Utils::fixedToFloat(sceneInfo.entity->position.x);
-            y = Utils::fixedToFloat(sceneInfo.entity->position.y);
-        }
-        else {
-            x = Utils::fixedToFloat(position->x);
-            y = Utils::fixedToFloat(position->y);
-        }
-
-        if (!screenRelative) {
-            x -= v5Editor->viewer->cameraPos.x;
-            y -= v5Editor->viewer->cameraPos.y;
-        }
-
-        if (startFrame >= 0) {
-            if (startFrame >= info->textLength)
-                startFrame = info->textLength - 1;
-        }
-        else {
-            startFrame = 0;
-        }
-
-        if (endFrame > 0) {
-            if (endFrame > info->textLength)
-                endFrame = info->textLength;
-        }
-        else {
-            endFrame = info->textLength;
-        }
-
-        switch (align) {
-            case 0:
-                if (charOffsets) {
-                    for (; startFrame < endFrame; ++startFrame) {
-                        ushort curChar = info->text[startFrame];
-                        if (curChar < animator->frameCount) {
-                            SpriteFrame *frame = &animator->framePtrs[curChar];
-                            v5Editor->viewer->drawSpriteFlipped(
-                                x + (charOffsets->x >> 0x10),
-                                y + frame->pivotY + (charOffsets->y >> 0x10), frame->width,
-                                frame->height, frame->sprX, frame->sprY, FLIP_NONE,
-                                (InkEffects)entity->inkEffect, entity->alpha, frame->sheetID);
-                            x += spacing + frame->width;
-                            ++charOffsets;
-                        }
-                    }
-                }
-                else {
-                    for (; startFrame < endFrame; ++startFrame) {
-                        ushort curChar = info->text[startFrame];
-                        if (curChar < animator->frameCount) {
-                            SpriteFrame *frame = &animator->framePtrs[curChar];
-                            v5Editor->viewer->drawSpriteFlipped(
-                                x, y + frame->pivotY, frame->width, frame->height, frame->sprX,
-                                frame->sprY, FLIP_NONE, (InkEffects)entity->inkEffect, entity->alpha,
-                                frame->sheetID);
-                            x += spacing + frame->width;
-                        }
-                    }
-                }
-                break;
-            case 1:
-            case 2:
-                --endFrame;
-                if (charOffsets) {
-                    for (Vector2<int> *charOffset = &charOffsets[endFrame]; endFrame >= startFrame;
-                         --endFrame) {
-                        ushort curChar = info->text[endFrame];
-                        if (curChar < animator->frameCount) {
-                            SpriteFrame *frame = &animator->framePtrs[curChar];
-                            v5Editor->viewer->drawSpriteFlipped(
-                                x - frame->width + (charOffset->x >> 0x10),
-                                y + frame->pivotY + (charOffset->y >> 0x10), frame->width,
-                                frame->height, frame->sprX, frame->sprY, FLIP_NONE,
-                                (InkEffects)entity->inkEffect, entity->alpha, frame->sheetID);
-                            x = (x - frame->width) - spacing;
-                            --charOffset;
-                        }
-                    }
-                }
-                else {
-                    for (; endFrame >= startFrame; --endFrame) {
-                        ushort curChar = info->text[endFrame];
-                        if (curChar < animator->frameCount) {
-                            SpriteFrame *frame = &animator->framePtrs[curChar];
-                            v5Editor->viewer->drawSpriteFlipped(
-                                x - frame->width, y + frame->pivotY, frame->width, frame->height,
-                                frame->sprX, frame->sprY, FLIP_NONE, (InkEffects)entity->inkEffect,
-                                entity->alpha, frame->sheetID);
-                            x = (x - frame->width) - spacing;
-                        }
-                    }
-                }
-                break;
-        }
-    }
-}
-
-int FunctionTable::checkStageFolder(const char *folder)
+int FunctionTable::CheckSceneFolder(const char *folder)
 {
     if (!v5Editor)
         return 0;

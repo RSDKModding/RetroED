@@ -35,44 +35,36 @@ struct TypeGroupList {
 
 namespace FunctionTable
 {
-void registerObject(GameObject **structPtr, const char *name, uint entitySize, uint objectSize,
-                    void (*update)(void), void (*lateUpdate)(void), void (*staticUpdate)(void),
-                    void (*draw)(void), void (*create)(void *), void (*stageLoad)(void),
-                    void (*editorDraw)(void), void (*editorLoad)(void), void (*serialize)(void));
+void RegisterObjectv5(GameObject **sVars, const char *name, uint entityClassSize, uint staticClassSize,
+                      void (*update)(void), void (*lateUpdate)(void), void (*staticUpdate)(void),
+                      void (*draw)(void), void (*create)(void *), void (*stageLoad)(void),
+                      void (*editorDraw)(void), void (*editorLoad)(void), void (*serialize)(void));
+void RegisterObjectv5U(GameObject **sVars, const char *name, uint entityClassSize, uint staticClassSize,
+                       void (*update)(void), void (*lateUpdate)(void), void (*staticUpdate)(void),
+                       void (*draw)(void), void (*create)(void *), void (*stageLoad)(void),
+                       void (*editorDraw)(void), void (*editorLoad)(void), void (*serialize)(void),
+                       void (*staticLoad)(void *sVars));
 
-void registerObjectContainer(GameObject **structPtr, const char *name, uint objectSize);
+void RegisterStaticVariables(GameObject **sVars, const char *name, uint classSize);
 
-void setEditableVar(byte type, const char *name, byte obkect, int offset);
+void SetEditableVar(byte type, const char *name, byte obkect, int offset);
 
-void setActiveVariable(int objectID, const char *name);
-void addEnumVar(const char *name);
+void SetActiveVariable(int objectID, const char *name);
+void AddEnumVariable(const char *name);
 
-ushort getObjectByName(const char *name);
-GameEntity *getEntityByID(ushort objectID);
+ushort FindObject(const char *name);
+void *GetEntity(ushort objectID);
 
-int getEntityID(GameEntityBase *entityPtr);
+int GetEntitySlot(void *entityPtr);
 
-int getEntityCount(ushort type, bool32 isActive);
+int GetEntityCount(ushort type, bool32 isActive);
 
-void resetEntityPtr(GameEntity *entity, ushort type, void *data);
-void resetEntitySlot(ushort slotID, ushort type, void *data);
-void createEntity(ushort type, void *data, int x, int y);
+bool32 GetActiveEntities(ushort group, void **entity);
+bool32 GetAllEntities(ushort type, void **entity);
 
-inline void copyEntity(void *destEntity, void *srcEntity, bool32 clearSrcEntity)
-{
-    if (destEntity && srcEntity) {
-        memcpy(destEntity, srcEntity, sizeof(GameEntityBase));
-        if (clearSrcEntity)
-            memset(srcEntity, 0, sizeof(GameEntityBase));
-    }
-}
+void BreakForeachLoop();
 
-bool32 getActiveEntities(ushort group, GameEntity **entity);
-bool32 getEntities(ushort type, GameEntity **entity);
-
-void breakForeachLoop();
-
-bool32 checkOnScreen(GameEntity *entity, Vector2<int> *range);
-bool32 checkPosOnScreen(Vector2<int> *position, Vector2<int> *range);
+bool32 CheckOnScreen(void *entity, Vector2<int> *range);
+bool32 CheckPosOnScreen(Vector2<int> *position, Vector2<int> *range);
 } // namespace FunctionTable
 #endif

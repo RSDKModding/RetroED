@@ -259,7 +259,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         SetStatus("Opened Scene Editor!");
     });
 
-    scn->addAction("v5 (Sonic Mania)", [this] {
+    scn->addAction("v5 (Sonic Mania/Sonic 3)", [this] {
         SetStatus("Opening Scene Editor...");
         SceneEditorv5 *tool = new SceneEditorv5();
         tool->installEventFilter(this);
@@ -301,7 +301,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         addTab(tool, "GameConfig Editor");
         SetStatus("Opened GameConfig Editor!");
     });
-    gc->addAction("v5 (Sonic Mania)", [this] {
+    gc->addAction("v5 (Sonic Mania/Sonic 3)", [this] {
         SetStatus("Opening GameConfig Editor...");
         GameConfigEditorv5 *tool = new GameConfigEditorv5("", 0, false);
         addTab(tool, "GameConfig Editor");

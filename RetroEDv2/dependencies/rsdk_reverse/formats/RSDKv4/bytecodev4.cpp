@@ -41,19 +41,19 @@ void RSDKv4::Bytecode::read(Reader &reader)
     // Fill in "blanks"
     for (int i = 0; i < scriptCount; ++i) {
         scriptList.append(ScriptInfo());
-        scriptList[i].main.scriptCodePos    = 0x3FFFF;
+        scriptList[i].update.scriptCodePos  = 0x3FFFF;
         scriptList[i].draw.scriptCodePos    = 0x3FFFF;
         scriptList[i].startup.scriptCodePos = 0x3FFFF;
     }
 
     for (ScriptInfo &script : scriptList) {
-        script.main.scriptCodePos    = reader.read<int>();
+        script.update.scriptCodePos  = reader.read<int>();
         script.draw.scriptCodePos    = reader.read<int>();
         script.startup.scriptCodePos = reader.read<int>();
     }
 
     for (ScriptInfo &script : scriptList) {
-        script.main.jumpTablePos    = reader.read<int>();
+        script.update.jumpTablePos  = reader.read<int>();
         script.draw.jumpTablePos    = reader.read<int>();
         script.startup.jumpTablePos = reader.read<int>();
     }
@@ -168,13 +168,13 @@ void RSDKv4::Bytecode::write(Writer &writer)
     writer.write((ushort)scriptList.count());
 
     for (ScriptInfo &script : scriptList) {
-        writer.write(script.main.scriptCodePos);
+        writer.write(script.update.scriptCodePos);
         writer.write(script.draw.scriptCodePos);
         writer.write(script.startup.scriptCodePos);
     }
 
     for (ScriptInfo &script : scriptList) {
-        writer.write(script.main.jumpTablePos);
+        writer.write(script.update.jumpTablePos);
         writer.write(script.draw.jumpTablePos);
         writer.write(script.startup.jumpTablePos);
     }

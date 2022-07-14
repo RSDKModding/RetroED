@@ -89,7 +89,9 @@ public:
     TileSelector *tileSel             = nullptr;
     TilesetEditor *tsetEdit           = nullptr;
 
-    GameEntityBase createGameEntity;
+    GameEntityBasev1 createGameEntityv1;
+    GameEntityBasev2 createGameEntityv2;
+    GameEntityBasevU createGameEntityvU;
     SceneEntity createTempEntity;
 
     void createNewScene();
@@ -158,8 +160,8 @@ private:
     void loadGameLinks();
     void initGameLink();
 
-    void setGameEntityVariables(SceneEntity *entity, GameEntity *gameEntity);
-    void getGameEntityVariables(SceneEntity *entity, GameEntity *gameEntity);
+    void setGameEntityVariables(SceneEntity *entity, void *gameEntity);
+    void getGameEntityVariables(SceneEntity *entity, void *gameEntity);
 
     bool callGameEvent(QString objName, byte eventID, SceneEntity *entity);
 

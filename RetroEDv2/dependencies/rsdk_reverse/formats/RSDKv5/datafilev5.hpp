@@ -11,9 +11,12 @@ public:
     {
     public:
         FileInfo() {}
-        FileInfo(Reader &reader, QList<QString> fileList, int cnt = 0) { read(reader, fileList, cnt); }
+        FileInfo(Reader &reader, QList<QString> &fileList, QList<QByteArray> &hashList, int id = 0)
+        {
+            read(reader, fileList, hashList, id);
+        }
 
-        void read(Reader &reader, QList<QString> fileList, int cnt = 0);
+        void read(Reader &reader, QList<QString> &fileList, QList<QByteArray> &hashList, int id = 0);
         void writeHeader(Writer &writer);
         void writeData(Writer &writer);
 
@@ -41,11 +44,6 @@ public:
             return QCryptographicHash::hash(input.toLatin1(), QCryptographicHash::Md5).toHex();
         }
 
-        inline QByteArray calculateMD5Hash(QString input)
-        {
-            return QCryptographicHash::hash(input.toLatin1(), QCryptographicHash::Md5);
-        }
-
         void generateELoadKeys(QString filename, uint size);
         QByteArray decrypt(QByteArray data, bool encrypting);
 
@@ -56,6 +54,11 @@ public:
         int eKeyPosB;
         int eNybbleSwap;
     };
+
+    static inline QByteArray calculateMD5Hash(QString input)
+    {
+        return QCryptographicHash::hash(input.toLatin1(), QCryptographicHash::Md5);
+    }
 
     Datafile() {}
     Datafile(QString filename, QList<QString> fileList) { read(filename, fileList); }
@@ -68,7 +71,7 @@ public:
     }
     void read(Reader &reader, QList<QString> fileList);
 
-    inline void write(QString filename)
+    inline void write(QString filename, byte ver = 0)
     {
         if (filename == "")
             filename = filePath;
@@ -77,7 +80,7 @@ public:
         Writer writer(filename);
         write(writer);
     }
-    void write(Writer &writer);
+    void write(Writer &writer, byte ver = 0);
 
     const byte signature[6] = { 'R', 'S', 'D', 'K', 'v' };
     byte version            = '5';

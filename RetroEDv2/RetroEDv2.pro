@@ -44,7 +44,6 @@ SOURCES += \
     tools/gamelink/gamematrix.cpp \
     tools/gamelink/gamedraw.cpp \
     tools/gamelink/gamestorage.cpp \
-    tools/gamelink/gametext.cpp \
     tools/modelmanager.cpp \
     tools/paletteeditor/colourdialog.cpp \
     tools/rsvtool.cpp \
@@ -111,7 +110,6 @@ HEADERS += \
     tools/gamelink/gamematrix.hpp \
     tools/gamelink/gamedraw.hpp \
     tools/gamelink/gamestorage.hpp \
-    tools/gamelink/gametext.hpp \
     tools/modelmanager.hpp \
     tools/paletteeditor/colourdialog.hpp \
     tools/rsvtool.hpp \

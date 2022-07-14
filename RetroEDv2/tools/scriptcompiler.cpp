@@ -316,9 +316,9 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 
                     for (int s = 0; s < count; ++s) {
                         RSDKv4::Bytecode::ScriptInfo script;
-                        script.main.scriptCodePos =
+                        script.update.scriptCodePos =
                             compilerv4.objectScriptList[offset + s].eventMain.scriptCodePtr;
-                        script.main.jumpTablePos =
+                        script.update.jumpTablePos =
                             compilerv4.objectScriptList[offset + s].eventMain.jumpTablePtr;
                         script.draw.scriptCodePos =
                             compilerv4.objectScriptList[offset + s].eventDraw.scriptCodePtr;

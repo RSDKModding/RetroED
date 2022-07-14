@@ -31,6 +31,17 @@ Data/Game/CreditsMobile.txt
 Data/Game/GameConfig.bin
 Data/Game/StringList.txt
 Data/Game/SystemText.gif
+Data/Game/Demo/ScreenDE.png
+Data/Game/Demo/ScreenEN.png
+Data/Game/Demo/ScreenES.png
+Data/Game/Demo/ScreenFR.png
+Data/Game/Demo/ScreenIT.png
+Data/Game/Demo/ScreenJA.png
+Data/Game/Demo/ScreenKO.png
+Data/Game/Demo/ScreenPT.png
+Data/Game/Demo/ScreenRU.png
+Data/Game/Demo/ScreenZH.png
+Data/Game/Demo/ScreenZHS.png
 Data/Game/Menu/Generic.png
 Data/Game/Menu/Text_KO@1x.png
 Data/Game/Menu/Generic.png
@@ -46,6 +57,7 @@ Data/Game/Menu/Heading_EN.fnt
 Data/Game/Menu/Heading_EN.png
 Data/Game/Menu/Heading_EN@1x.png
 Data/Game/Menu/Heading_JA.fnt
+Data/Game/Menu/Heading_JA.png
 Data/Game/Menu/Heading_JA@1x.png
 Data/Game/Menu/Heading_KO.fnt
 Data/Game/Menu/Heading_KO@1x.png
@@ -62,6 +74,7 @@ Data/Game/Menu/Label_EN.fnt
 Data/Game/Menu/Label_EN.png
 Data/Game/Menu/Label_EN@1x.png
 Data/Game/Menu/Label_JA.fnt
+Data/Game/Menu/Label_JA.png
 Data/Game/Menu/Label_JA@1x.png
 Data/Game/Menu/Label_KO.fnt
 Data/Game/Menu/Label_KO@1x.png
@@ -80,11 +93,13 @@ Data/Game/Menu/Sega@2x.png
 Data/Game/Menu/SegaID.png
 Data/Game/Menu/SegaJP.png
 Data/Game/Menu/SegaJP@2x.png
+Data/Game/Menu/Sonic.png
 Data/Game/Menu/SonicLogo.png
 Data/Game/Menu/Symbols.png
 Data/Game/Menu/Text_EN.fnt
 Data/Game/Menu/Text_EN.png
 Data/Game/Menu/Text_JA.fnt
+Data/Game/Menu/Text_JA.png
 Data/Game/Menu/Text_JA@1x.png
 Data/Game/Menu/Text_KO.fnt
 Data/Game/Menu/Text_KO.png
@@ -97,6 +112,7 @@ Data/Game/Menu/TimeAttack2.png
 Data/Game/Menu/TimeAttack3.png
 Data/Game/Menu/TimeAttack4.png
 Data/Game/Menu/VirtualDPad.png
+Data/Game/Misc/CLedgeMask.bin
 Data/Game/Models/2PVS.bin
 Data/Game/Models/Achievements.bin
 Data/Game/Models/BackArrow.bin
@@ -137,7 +153,7 @@ Data/Music/Marble_F.ogg
 Data/Music/MenuIntro.ogg
 Data/Music/ScrapBrain.ogg
 Data/Music/ScrapBrain_F.ogg
-Data/Music/Specialstage.ogg
+Data/Music/SpecialStage.ogg
 Data/Music/SpringYard.ogg
 Data/Music/SpringYard_F.ogg
 Data/Music/StarLight.ogg

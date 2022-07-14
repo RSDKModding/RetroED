@@ -19,7 +19,7 @@ public:
     public:
         ScriptInfo() {}
 
-        FunctionInfo main;
+        FunctionInfo update;
         FunctionInfo draw;
         FunctionInfo startup;
     };

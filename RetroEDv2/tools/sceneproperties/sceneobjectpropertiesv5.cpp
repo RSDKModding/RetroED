@@ -66,13 +66,39 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
 
     connect(posGroup[0], &Property::changed, [entity] {
         if (entity->gameEntity) {
-            entity->gameEntity->position.x = entity->pos.x * 65536.0f;
+            switch (v5Editor->viewer->engineRevision) {
+                case 1:
+                    AS_ENTITY(entity->gameEntity, GameEntityv1)->position.x = entity->pos.x * 65536.0f;
+                    break;
+
+                case 2:
+                    AS_ENTITY(entity->gameEntity, GameEntityv2)->position.x = entity->pos.x * 65536.0f;
+                    break;
+
+                default:
+                case 3:
+                    AS_ENTITY(entity->gameEntity, GameEntityvU)->position.x = entity->pos.x * 65536.0f;
+                    break;
+            }
         }
     });
 
     connect(posGroup[1], &Property::changed, [entity] {
         if (entity->gameEntity) {
-            entity->gameEntity->position.y = entity->pos.y * 65536.0f;
+            switch (v5Editor->viewer->engineRevision) {
+                case 1:
+                    AS_ENTITY(entity->gameEntity, GameEntityv1)->position.y = entity->pos.y * 65536.0f;
+                    break;
+
+                case 2:
+                    AS_ENTITY(entity->gameEntity, GameEntityv2)->position.y = entity->pos.y * 65536.0f;
+                    break;
+
+                default:
+                case 3:
+                    AS_ENTITY(entity->gameEntity, GameEntityvU)->position.y = entity->pos.y * 65536.0f;
+                    break;
+            }
         }
     });
 
@@ -259,10 +285,12 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     disconnect(prop, nullptr, nullptr, nullptr);
                     connect(prop, &Property::changed, [prop, v, entity, object] {
                         if (object && entity->gameEntity) {
-                            TextInfo *dataPtr =
-                                (TextInfo *)&((byte *)entity->gameEntity)[object->variables[v].offset];
-                            QString val = *((QString *)prop->valuePtr);
-                            FunctionTable::setText(dataPtr, (char *)val.toStdString().c_str(), false);
+                            // TextInfo *dataPtr =
+                            //     (TextInfo *)&((byte
+                            //     *)entity->gameEntity)[object->variables[v].offset];
+                            // QString val = *((QString *)prop->valuePtr);
+                            // FunctionTable::setText(dataPtr, (char *)val.toStdString().c_str(),
+                            // false);
                         }
                     });
                     break;

@@ -7,9 +7,9 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
 
     connect(ui->selectDatafile, &QPushButton::clicked, [this] {
         QList<QString> types = {
-            "RSDKv5 Datafiles (*data*.rsdk*)", "RSDKv4 Datafiles (*data*.rsdk*)",
-            "RSDKv3 Datafiles (*data*.rsdk*)", "RSDKv2 Datafiles (*data*.bin*)",
-            "RSDKv1 Datafiles (*data*.bin*)",  "RSDKv3 Arc Containers (*.arc*)",
+            "RSDKv5 Datafiles (*.rsdk*)", "RSDKv4 Datafiles (*.rsdk*)",
+            "RSDKv3 Datafiles (*.rsdk*)", "RSDKv2 Datafiles (*.bin*)",
+            "RSDKv1 Datafiles (*.bin*)",  "RSDKv3 Arc Containers (*.arc*)",
         };
 
         QFileDialog filedialog(this, tr("Open Datafile"), "",
@@ -139,9 +139,8 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
     });
     connect(ui->buildDatafile, &QPushButton::clicked, [this] {
         QList<QString> types = {
-            "RSDKv5 Datafiles (*data*.rsdk)", "RSDKv4 Datafiles (*data*.rsdk)",
-            "RSDKv3 Datafiles (*data*.rsdk)", "RSDKv2 Datafiles (*data*.bin)",
-            "RSDKv1 Datafiles (*data*.bin)",  "RSDKv3 Arc Containers (*.arc)",
+            "RSDKv5 Datafiles (*.rsdk)", "RSDKv4 Datafiles (*.rsdk)", "RSDKv3 Datafiles (*.rsdk)",
+            "RSDKv2 Datafiles (*.bin)",  "RSDKv1 Datafiles (*.bin)",  "RSDKv3 Arc Containers (*.arc)",
         };
 
         QFileDialog filedialog(this, tr("Save Datafile"), "",
@@ -270,6 +269,12 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
                 ui->fileList->addItem(file.fileName);
                 SetStatusProgress(++count / total);
             }
+
+            Writer writer(homeDir + "fileListDump.txt");
+            for (RSDKv5::Datafile::FileInfo &file : datafilev5.files) {
+                writer.writeLine(QString("%1 - %2").arg(file.filenameHash).arg(file.fileName));
+            }
+            writer.flush();
             break;
         }
         case ENGINE_v4: // RSDKv4

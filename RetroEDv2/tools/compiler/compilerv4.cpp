@@ -1402,8 +1402,8 @@ void Compilerv4::convertForeachStatement(QString &text)
 {
     if (findStringToken(text, "foreach", 1))
         return;
-    QString dest   = "";
-    //int destStrPos = 0;
+    QString dest = "";
+    // int destStrPos = 0;
 
     if (findStringToken(text, "ACTIVE_ENTITIES", 1)
         > 0) { // foreach (just actively interacting entities)
@@ -1411,8 +1411,8 @@ void Compilerv4::convertForeachStatement(QString &text)
         dest += "(";
         dest += QString::number(jumpTableDataPos - jumpTableDataOffset);
         dest += ",";
-        //destStrPos = dest.length();
-        int cnt    = 0;
+        // destStrPos = dest.length();
+        int cnt = 0;
         for (int i = 8; i < text.length(); ++i) {
             if (text[i] != '(' && text[i] != ')' && text[i] != ',') {
                 dest += text[i];
@@ -1436,8 +1436,8 @@ void Compilerv4::convertForeachStatement(QString &text)
         dest += "(";
         dest += QString::number(jumpTableDataPos - jumpTableDataOffset);
         dest += ",";
-        //destStrPos = dest.length();
-        int cnt    = 0;
+        // destStrPos = dest.length();
+        int cnt = 0;
         for (int i = 8; i < text.length(); ++i) {
             if (text[i] != '(' && text[i] != ')' && text[i] != ',') {
                 dest += text[i];
@@ -2611,7 +2611,7 @@ void Compilerv4::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                         }
                     }
                     else {
-                        if (strComp(scriptText, "eventObjectMain")) {
+                        if (strComp(scriptText, "eventObjectUpdate")) {
                             parseMode                                          = PARSEMODE_FUNCTION;
                             objectScriptList[scriptID].eventMain.scriptCodePtr = scriptDataPos;
                             objectScriptList[scriptID].eventMain.jumpTablePtr  = jumpTableDataPos;
@@ -2874,8 +2874,8 @@ void Compilerv4::writeBytecode(QString path)
     for (int i = globalScriptCount; i < scriptCount; ++i) {
         RSDKv4::Bytecode::ScriptInfo scr;
 
-        scr.main.scriptCodePos = objectScriptList[i].eventMain.scriptCodePtr;
-        scr.main.jumpTablePos  = objectScriptList[i].eventMain.jumpTablePtr;
+        scr.update.scriptCodePos = objectScriptList[i].eventMain.scriptCodePtr;
+        scr.update.jumpTablePos  = objectScriptList[i].eventMain.jumpTablePtr;
 
         scr.draw.scriptCodePos = objectScriptList[i].eventDraw.scriptCodePtr;
         scr.draw.jumpTablePos  = objectScriptList[i].eventDraw.jumpTablePtr;

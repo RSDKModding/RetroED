@@ -1,122 +1,136 @@
-#ifndef GAMEMATH_HPP
-#define GAMEMATH_HPP
+#ifndef GAMEMATH_H
+#define GAMEMATH_H
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846264338327950288
-#endif
+// M_PI is *too* accurate, so use this instead
+#define RSDK_PI (3.1415927)
 
 #include <math.h>
 
-extern int sinVal1024[0x400];
-extern int cosVal1024[0x400];
-extern int tanVal1024[0x400];
-extern int aSinVal1024[0x400];
-extern int aCosVal1024[0x400];
+extern int sin1024LookupTable[0x400];
+extern int cos1024LookupTable[0x400];
+extern int tan1024LookupTable[0x400];
+extern int asin1024LookupTable[0x400];
+extern int acos1024LookupTable[0x400];
 
-extern int sinVal512[0x200];
-extern int cosVal512[0x200];
-extern int tanVal512[0x200];
-extern int aSinVal512[0x200];
-extern int aCosVal512[0x200];
+extern int sin512LookupTable[0x200];
+extern int cos512LookupTable[0x200];
+extern int tan512LookupTable[0x200];
+extern int asin512LookupTable[0x200];
+extern int acos512LookupTable[0x200];
 
-extern int sinVal256[0x100];
-extern int cosVal256[0x100];
-extern int tanVal256[0x100];
-extern int aSinVal256[0x100];
-extern int aCosVal256[0x100];
+extern int sin256LookupTable[0x100];
+extern int cos256LookupTable[0x100];
+extern int tan256LookupTable[0x100];
+extern int asin256LookupTable[0x100];
+extern int acos256LookupTable[0x100];
 
-extern byte atanVal256[0x100 * 0x100];
-extern uint randKey;
+extern byte arcTan256LookupTable[0x100 * 0x100];
+extern uint randSeed;
 
-namespace FunctionTable {
-    void calculateTrigAngles();
-    byte arcTanLookup(int x, int y);
-    inline int sin1024(int angle) { return sinVal1024[angle & 0x3FF]; }
-    inline int cos1024(int angle) { return cosVal1024[angle & 0x3FF]; }
-    inline int tan1024(short angle) { return tanVal1024[angle & 0x3FF]; }
-    inline int aSin1024(int angle)
-    {
-        if (angle > 0x3FF)
-            return 0;
-        if (angle < 0)
-            return -aSinVal1024[-angle];
-        return aSinVal1024[angle];
-    }
-    inline int aCos1024(int angle)
-    {
-        if (angle > 0x3FF)
-            return 0;
-        if (angle < 0)
-            return -aCosVal1024[-angle];
-        return aCosVal1024[angle];
-    }
+namespace FunctionTable
+{
+void CalculateTrigAngles();
 
-    inline int sin512(int angle) { return sinVal512[angle & 0x1FF]; }
-    inline int cos512(int angle) { return cosVal512[angle & 0x1FF]; }
-    inline int tan512(short angle) { return tanVal512[angle & 0x1FF]; }
-    inline int aSin512(int angle)
-    {
-        if (angle > 0x1FF)
-            return 0;
-        if (angle < 0)
-            return -aSinVal512[-angle];
-        return aSinVal512[angle];
-    }
-    inline int aCos512(int angle)
-    {
-        if (angle > 0x1FF)
-            return 0;
-        if (angle < 0)
-            return -aCosVal512[-angle];
-        return aCosVal512[angle];
-    }
-
-    inline int sin256(int angle) { return sinVal256[angle & 0xFF]; }
-    inline int cos256(int angle) { return cosVal256[angle & 0xFF]; }
-    inline int tan256(byte angle) { return tanVal256[angle & 0xFF]; }
-    inline int aSin256(int angle)
-    {
-        if (angle > 0xFF)
-            return 0;
-        if (angle < 0)
-            return -aSinVal256[-angle];
-        return aSinVal256[angle];
-    }
-    inline int aCos256(int angle)
-    {
-        if (angle > 0xFF)
-            return 0;
-        if (angle < 0)
-            return -aCosVal256[-angle];
-        return aCosVal256[angle];
-    }
-    inline void setRandKey(int key) { randKey = key; }
-    inline int random(int min, int max)
-    {
-        uint v2 = 1103515245 * randKey + 12345;
-        uint v3 = 1103515245 * v2 + 12345;
-        randKey = 1103515245 * v3 + 12345;
-        signed int v4 =
-            ((randKey >> 16) & 0x7FF) ^ ((((v3 >> 16) & 0x7FF) ^ ((v2 >> 6) & 0x1FFC00)) << 10);
-        if (min >= max)
-            return (uint)(v4 - v4 / abs(max - min) * abs(max - min) + max);
-        else
-            return (uint)(v4 - v4 / abs(max - min) * abs(max - min) + min);
-    }
-    inline int random2(int min, int max, int *randKey)
-    {
-        if (!randKey)
-            return 0;
-        uint v2  = 1103515245 * *randKey + 12345;
-        uint v3  = 1103515245 * v2 + 12345;
-        *randKey = 1103515245 * v3 + 12345;
-        signed int v4 =
-            ((*randKey >> 16) & 0x7FF) ^ ((((v3 >> 16) & 0x7FF) ^ ((v2 >> 6) & 0x1FFC00)) << 10);
-        if (min >= max)
-            return (uint)(v4 - v4 / abs(max - min) * abs(max - min) + max);
-        else
-            return (uint)(v4 - v4 / abs(max - min) * abs(max - min) + min);
-    }
+inline int Sin1024(int angle) { return sin1024LookupTable[angle & 0x3FF]; }
+inline int Cos1024(int angle) { return cos1024LookupTable[angle & 0x3FF]; }
+inline int Tan1024(int angle) { return tan1024LookupTable[angle & 0x3FF]; }
+inline int ASin1024(int angle)
+{
+    if (angle > 0x3FF)
+        return 0;
+    if (angle < 0)
+        return -asin1024LookupTable[-angle];
+    return asin1024LookupTable[angle];
 }
+inline int ACos1024(int angle)
+{
+    if (angle > 0x3FF)
+        return 0;
+    if (angle < 0)
+        return -acos1024LookupTable[-angle];
+    return acos1024LookupTable[angle];
+}
+
+inline int Sin512(int angle) { return sin512LookupTable[angle & 0x1FF]; }
+inline int Cos512(int angle) { return cos512LookupTable[angle & 0x1FF]; }
+inline int Tan512(int angle) { return tan512LookupTable[angle & 0x1FF]; }
+inline int ASin512(int angle)
+{
+    if (angle > 0x1FF)
+        return 0;
+    if (angle < 0)
+        return -asin512LookupTable[-angle];
+    return asin512LookupTable[angle];
+}
+inline int ACos512(int angle)
+{
+    if (angle > 0x1FF)
+        return 0;
+    if (angle < 0)
+        return -acos512LookupTable[-angle];
+    return acos512LookupTable[angle];
+}
+
+inline int Sin256(int angle) { return sin256LookupTable[angle & 0xFF]; }
+inline int Cos256(int angle) { return cos256LookupTable[angle & 0xFF]; }
+inline int Tan256(int angle) { return tan256LookupTable[angle & 0xFF]; }
+inline int ASin256(int angle)
+{
+    if (angle > 0xFF)
+        return 0;
+    if (angle < 0)
+        return -asin256LookupTable[-angle];
+    return asin256LookupTable[angle];
+}
+inline int ACos256(int angle)
+{
+    if (angle > 0xFF)
+        return 0;
+    if (angle < 0)
+        return -acos256LookupTable[-angle];
+    return acos256LookupTable[angle];
+}
+
+byte ArcTanLookup(int x, int y);
+
+inline void SetRandSeed(int key) { randSeed = key; }
+inline int Rand(int min, int max)
+{
+    int seed1 = 1103515245 * randSeed + 12345;
+    int seed2 = 1103515245 * seed1 + 12345;
+    randSeed  = 1103515245 * seed2 + 12345;
+
+    int result =
+        ((randSeed >> 16) & 0x7FF) ^ ((((seed1 >> 6) & 0x1FFC00) ^ ((seed2 >> 16) & 0x7FF)) << 10);
+    int size = abs(max - min);
+
+    if (min > max)
+        return (result - result / size * size + max);
+    else if (min < max)
+        return (result - result / size * size + min);
+    else
+        return max;
+}
+inline int RandSeeded(int min, int max, int *randSeed)
+{
+    if (!randSeed)
+        return 0;
+
+    int seed1 = 1103515245 * *randSeed + 12345;
+    int seed2 = 1103515245 * seed1 + 12345;
+    *randSeed = 1103515245 * seed2 + 12345;
+
+    int result =
+        ((*randSeed >> 16) & 0x7FF) ^ ((((seed1 >> 6) & 0x1FFC00) ^ ((seed2 >> 16) & 0x7FF)) << 10);
+    int size = abs(max - min);
+
+    if (min > max)
+        return (result - result / size * size + max);
+    else if (min < max)
+        return (result - result / size * size + min);
+    else
+        return max;
+}
+} // namespace FunctionTable
 
 #endif

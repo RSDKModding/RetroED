@@ -1,38 +1,49 @@
 #include "includes.hpp"
 
-void FunctionTable::registerObject(GameObject **structPtr, const char *name, uint entitySize,
-                                   uint objectSize, void (*update)(void), void (*lateUpdate)(void),
-                                   void (*staticUpdate)(void), void (*draw)(void),
-                                   void (*create)(void *), void (*stageLoad)(void),
-                                   void (*editorDraw)(void), void (*editorLoad)(void),
-                                   void (*serialize)(void))
+void FunctionTable::RegisterObjectv5(GameObject **sVars, const char *name, uint entityClassSize,
+                                     uint staticClassSize, void (*update)(void),
+                                     void (*lateUpdate)(void), void (*staticUpdate)(void),
+                                     void (*draw)(void), void (*create)(void *),
+                                     void (*stageLoad)(void), void (*editorDraw)(void),
+                                     void (*editorLoad)(void), void (*serialize)(void))
 {
-
+    RegisterObjectv5U(sVars, name, entityClassSize, staticClassSize, update, lateUpdate, staticUpdate,
+                      draw, create, stageLoad, editorDraw, editorLoad, serialize, NULL);
+}
+void FunctionTable::RegisterObjectv5U(GameObject **sVars, const char *name, uint entityClassSize,
+                                      uint staticClassSize, void (*update)(void),
+                                      void (*lateUpdate)(void), void (*staticUpdate)(void),
+                                      void (*draw)(void), void (*create)(void *),
+                                      void (*stageLoad)(void), void (*editorDraw)(void),
+                                      void (*editorLoad)(void), void (*serialize)(void),
+                                      void (*staticLoad)(void *sVars))
+{
     GameObjectInfo info;
-    if (entitySize > sizeof(GameEntityBase))
+    if (entityClassSize > sizeof(GameEntityBasev1))
         PrintLog("Class exceeds max entity memory: " + QString(name));
     QByteArray hashData = Utils::getMd5HashByteArray(QString(name));
     byte data[0x10];
     for (int i = 0; i < 0x10; ++i) data[i] = hashData[i];
 
     memcpy(info.hash, data, 0x10 * sizeof(byte));
-    info.type         = structPtr;
-    info.entitySize   = entitySize;
-    info.objectSize   = objectSize;
-    info.update       = update;
-    info.lateUpdate   = lateUpdate;
-    info.staticUpdate = staticUpdate;
-    info.draw         = draw;
-    info.create       = create;
-    info.stageLoad    = stageLoad;
-    info.editorDraw   = editorDraw;
-    info.editorLoad   = editorLoad;
-    info.serialize    = serialize;
-    info.name         = name;
+    info.sVars           = sVars;
+    info.entityClassSize = entityClassSize;
+    info.staticClassSize = staticClassSize;
+    info.update          = update;
+    info.lateUpdate      = lateUpdate;
+    info.staticUpdate    = staticUpdate;
+    info.draw            = draw;
+    info.create          = create;
+    info.stageLoad       = stageLoad;
+    info.editorDraw      = editorDraw;
+    info.editorLoad      = editorLoad;
+    info.serialize       = serialize;
+    info.staticLoad      = staticLoad;
+    info.name            = name;
     v5Editor->gameLinks.last().gameObjectList.append(info);
 }
 
-void FunctionTable::registerObjectContainer(GameObject **structPtr, const char *name, uint objectSize)
+void FunctionTable::RegisterStaticVariables(GameObject **sVars, const char *name, uint classSize)
 {
     if (!v5Editor)
         return;
@@ -42,27 +53,27 @@ void FunctionTable::registerObjectContainer(GameObject **structPtr, const char *
     uint hash[4];
     memcpy(hash, data, 0x10 * sizeof(byte));
 
-    allocateStorage(v5Editor->dataStorage, objectSize, (void **)structPtr, DATASET_STG, true);
+    allocateStorage(v5Editor->dataStorage, classSize, (void **)sVars, DATASET_STG, true);
 
     GameObjectInfo info;
     memcpy(info.hash, data, 0x10 * sizeof(byte));
-    info.type         = structPtr;
-    info.entitySize   = 0;
-    info.objectSize   = objectSize;
-    info.update       = NULL;
-    info.lateUpdate   = NULL;
-    info.staticUpdate = NULL;
-    info.draw         = NULL;
-    info.create       = NULL;
-    info.stageLoad    = NULL;
-    info.editorDraw   = NULL;
-    info.editorLoad   = NULL;
-    info.serialize    = NULL;
-    info.name         = name;
+    info.sVars           = sVars;
+    info.entityClassSize = 0;
+    info.staticClassSize = classSize;
+    info.update          = NULL;
+    info.lateUpdate      = NULL;
+    info.staticUpdate    = NULL;
+    info.draw            = NULL;
+    info.create          = NULL;
+    info.stageLoad       = NULL;
+    info.editorDraw      = NULL;
+    info.editorLoad      = NULL;
+    info.serialize       = NULL;
+    info.name            = name;
     v5Editor->gameLinks.last().gameObjectList.append(info);
 }
 
-void FunctionTable::setEditableVar(byte type, const char *name, byte object, int offset)
+void FunctionTable::SetEditableVar(byte type, const char *name, byte object, int offset)
 {
     if (!v5Editor)
         return;
@@ -129,7 +140,7 @@ void FunctionTable::setEditableVar(byte type, const char *name, byte object, int
     }
 }
 
-void FunctionTable::setActiveVariable(int objectID, const char *name)
+void FunctionTable::SetActiveVariable(int objectID, const char *name)
 {
     if (!v5Editor)
         return;
@@ -150,7 +161,7 @@ void FunctionTable::setActiveVariable(int objectID, const char *name)
         ++v;
     }
 }
-void FunctionTable::addEnumVar(const char *name)
+void FunctionTable::AddEnumVariable(const char *name)
 {
     if (!v5Editor)
         return;
@@ -167,7 +178,7 @@ void FunctionTable::addEnumVar(const char *name)
     }
 }
 
-ushort FunctionTable::getObjectByName(const char *name)
+ushort FunctionTable::FindObject(const char *name)
 {
     if (!v5Editor)
         return 0;
@@ -181,7 +192,7 @@ ushort FunctionTable::getObjectByName(const char *name)
     for (int o = 0; o < v5Editor->viewer->objects.count(); ++o) {
         GameObjectInfo *info = v5Editor->getObjectInfo(name);
         if (info) {
-            if (info->type && *info->type) {
+            if (info->sVars && *info->sVars) {
                 return o;
             }
         }
@@ -189,7 +200,7 @@ ushort FunctionTable::getObjectByName(const char *name)
     return 0;
 }
 
-GameEntity *FunctionTable::getEntityByID(ushort entityID)
+void *FunctionTable::GetEntity(ushort entityID)
 {
     if (!v5Editor)
         return NULL;
@@ -203,7 +214,7 @@ GameEntity *FunctionTable::getEntityByID(ushort entityID)
     return NULL;
 }
 
-int FunctionTable::getEntityID(GameEntityBase *entityPtr)
+int FunctionTable::GetEntitySlot(void *entityPtr)
 {
     if (!v5Editor)
         return 0;
@@ -219,7 +230,7 @@ int FunctionTable::getEntityID(GameEntityBase *entityPtr)
     return 0;
 }
 
-int FunctionTable::getEntityCount(ushort type, bool32 isActive)
+int FunctionTable::GetEntityCount(ushort type, bool32 isActive)
 {
     if (!v5Editor)
         return 0;
@@ -230,111 +241,34 @@ int FunctionTable::getEntityCount(ushort type, bool32 isActive)
         return v5Editor->viewer->typeGroups[type].entries.count();
 
     int cnt = 0;
-    for (int i = 0; i < ENTITY_COUNT; ++i) {
-        if (v5Editor->viewer->gameEntityList[i].objectID == type)
-            cnt++;
+    switch (v5Editor->viewer->engineRevision) {
+        case 1:
+            for (int i = 0; i < ENTITY_COUNT; ++i) {
+                if (AS_ENTITY(v5Editor->viewer->gameEntityList, GameEntityv1)[i].objectID == type)
+                    cnt++;
+            }
+            break;
+
+        case 2:
+            for (int i = 0; i < ENTITY_COUNT; ++i) {
+                if (AS_ENTITY(v5Editor->viewer->gameEntityList, GameEntityv2)[i].objectID == type)
+                    cnt++;
+            }
+            break;
+
+        default:
+        case 3:
+            for (int i = 0; i < ENTITY_COUNT; ++i) {
+                if (AS_ENTITY(v5Editor->viewer->gameEntityList, GameEntityvU)[i].objectID == type)
+                    cnt++;
+            }
+            break;
     }
+
     return cnt;
 }
 
-void FunctionTable::resetEntityPtr(GameEntity *entity, ushort type, void *data)
-{
-    if (!v5Editor)
-        return;
-
-    if (entity) {
-        GameObjectInfo *info = v5Editor->getObjectInfo(v5Editor->viewer->objects[type].name);
-        if (!info)
-            return;
-        memset((void*)entity, 0, info->entitySize);
-        if (info->create) {
-            GameEntity *curEnt                              = v5Editor->viewer->sceneInfo.entity;
-            v5Editor->viewer->sceneInfo.entity              = entity;
-            v5Editor->viewer->sceneInfo.entity->interaction = true;
-            info->create(data);
-            v5Editor->viewer->sceneInfo.entity->objectID = type;
-            v5Editor->viewer->sceneInfo.entity           = curEnt;
-        }
-        entity->objectID = type;
-    }
-}
-
-void FunctionTable::resetEntitySlot(ushort slotID, ushort type, void *data)
-{
-    if (!v5Editor)
-        return;
-
-    short slot              = ENTITY_COUNT - 1;
-    GameObjectInfo *objInfo = v5Editor->getObjectInfo(v5Editor->viewer->objects[type].name);
-    if (!objInfo)
-        return;
-    if (slotID < ENTITY_COUNT)
-        slot = slotID;
-    GameEntity *entityPtr = &v5Editor->viewer->gameEntityList[slot];
-    memset((void*)&v5Editor->viewer->gameEntityList[slot], 0, objInfo->entitySize);
-    if (objInfo->create) {
-        GameEntity *curEnt                 = v5Editor->viewer->sceneInfo.entity;
-        v5Editor->viewer->sceneInfo.entity = entityPtr;
-        entityPtr->interaction             = true;
-        objInfo->create(data);
-        v5Editor->viewer->sceneInfo.entity = curEnt;
-        entityPtr->objectID                = type;
-    }
-    else {
-        entityPtr->objectID = type;
-    }
-}
-
-void FunctionTable::createEntity(ushort type, void *data, int x, int y)
-{
-    if (!v5Editor)
-        return;
-
-    GameObjectInfo *objInfo = v5Editor->getObjectInfo(v5Editor->viewer->objects[type].name);
-    if (!objInfo)
-        return;
-    GameEntity *entityPtr = &v5Editor->viewer->gameEntityList[v5Editor->viewer->sceneInfo.createSlot];
-
-    int permCnt = 0, loopCnt = 0;
-    while (entityPtr->objectID) {
-        // after 16 loops, the game says fuck it and will start overwriting non-temp objects
-        if (!entityPtr->isPermanent && loopCnt >= 16)
-            break;
-        if (entityPtr->isPermanent)
-            ++permCnt;
-        v5Editor->viewer->sceneInfo.createSlot++;
-        if (v5Editor->viewer->sceneInfo.createSlot == ENTITY_COUNT) {
-            v5Editor->viewer->sceneInfo.createSlot = TEMPENTITY_START;
-            entityPtr = &v5Editor->viewer->gameEntityList[v5Editor->viewer->sceneInfo.createSlot];
-        }
-        else {
-            entityPtr = &v5Editor->viewer->gameEntityList[v5Editor->viewer->sceneInfo.createSlot];
-        }
-        if (permCnt >= v5_TEMPENTITY_COUNT)
-            break;
-        ++loopCnt;
-    }
-
-    memset((void*)entityPtr, 0, objInfo->entitySize);
-    entityPtr->position.x  = x;
-    entityPtr->position.y  = y;
-    entityPtr->interaction = true;
-
-    if (objInfo->create) {
-        GameEntity *curEnt                 = v5Editor->viewer->sceneInfo.entity;
-        v5Editor->viewer->sceneInfo.entity = entityPtr;
-        objInfo->create(data);
-        v5Editor->viewer->sceneInfo.entity = curEnt;
-        entityPtr->objectID                = type;
-    }
-    else {
-        entityPtr->objectID = type;
-        entityPtr->active   = ACTIVE_NORMAL;
-        entityPtr->visible  = true;
-    }
-}
-
-bool32 FunctionTable::getActiveEntities(ushort group, GameEntity **entity)
+bool32 FunctionTable::GetActiveEntities(ushort group, void **entity)
 {
     if (!v5Editor)
         return false;
@@ -352,22 +286,59 @@ bool32 FunctionTable::getActiveEntities(ushort group, GameEntity **entity)
         v5Editor->viewer->foreachStackPtr->id = 0;
     }
 
-    auto *entityList = v5Editor->viewer->gameEntityList;
+    void *entityList = v5Editor->viewer->gameEntityList;
     auto *typeGroups = v5Editor->viewer->typeGroups;
     auto *stackPtr   = v5Editor->viewer->foreachStackPtr;
 
-    for (GameEntity *nextEnt = &entityList[v5Editor->viewer->typeGroups[group].entries[stackPtr->id]];
-         stackPtr->id < typeGroups[group].entries.count();
-         ++stackPtr->id, nextEnt = &entityList[typeGroups[group].entries[stackPtr->id]]) {
-        if (nextEnt->objectID == group) {
-            *entity = nextEnt;
-            return true;
-        }
+    switch (v5Editor->viewer->engineRevision) {
+        case 1:
+            for (GameEntityv1 *nextEnt = &AS_ENTITY(
+                     entityList,
+                     GameEntityv1)[v5Editor->viewer->typeGroups[group].entries[stackPtr->id]];
+                 stackPtr->id < typeGroups[group].entries.count(); ++stackPtr->id,
+                              nextEnt = &AS_ENTITY(
+                                  entityList, GameEntityv1)[typeGroups[group].entries[stackPtr->id]]) {
+                if (nextEnt->objectID == group) {
+                    *entity = nextEnt;
+                    return true;
+                }
+            }
+            break;
+
+        case 2:
+            for (GameEntityv2 *nextEnt = &AS_ENTITY(
+                     entityList,
+                     GameEntityv2)[v5Editor->viewer->typeGroups[group].entries[stackPtr->id]];
+                 stackPtr->id < typeGroups[group].entries.count(); ++stackPtr->id,
+                              nextEnt = &AS_ENTITY(
+                                  entityList, GameEntityv2)[typeGroups[group].entries[stackPtr->id]]) {
+                if (nextEnt->objectID == group) {
+                    *entity = nextEnt;
+                    return true;
+                }
+            }
+            break;
+
+        default:
+        case 3:
+            for (GameEntityvU *nextEnt = &AS_ENTITY(
+                     entityList,
+                     GameEntityvU)[v5Editor->viewer->typeGroups[group].entries[stackPtr->id]];
+                 stackPtr->id < typeGroups[group].entries.count(); ++stackPtr->id,
+                              nextEnt = &AS_ENTITY(
+                                  entityList, GameEntityvU)[typeGroups[group].entries[stackPtr->id]]) {
+                if (nextEnt->objectID == group) {
+                    *entity = nextEnt;
+                    return true;
+                }
+            }
+            break;
     }
+
     v5Editor->viewer->foreachStackPtr--;
     return false;
 }
-bool32 FunctionTable::getEntities(ushort type, GameEntity **entity)
+bool32 FunctionTable::GetAllEntities(ushort type, void **entity)
 {
     if (!v5Editor)
         return false;
@@ -385,29 +356,57 @@ bool32 FunctionTable::getEntities(ushort type, GameEntity **entity)
         v5Editor->viewer->foreachStackPtr->id = 0;
     }
 
-    auto *entityList = v5Editor->viewer->gameEntityList;
+    void *entityList = v5Editor->viewer->gameEntityList;
     auto *stackPtr   = v5Editor->viewer->foreachStackPtr;
 
-    for (GameEntity *nextEnt = &entityList[stackPtr->id]; stackPtr->id < ENTITY_COUNT;
-         ++stackPtr->id, nextEnt = &entityList[stackPtr->id]) {
-        if (nextEnt->objectID == type) {
-            *entity = nextEnt;
-            return true;
-        }
+    switch (v5Editor->viewer->engineRevision) {
+        case 1:
+            for (GameEntityv1 *nextEnt = &AS_ENTITY(entityList, GameEntityv1)[stackPtr->id];
+                 stackPtr->id < ENTITY_COUNT;
+                 ++stackPtr->id, nextEnt = &AS_ENTITY(entityList, GameEntityv1)[stackPtr->id]) {
+                if (nextEnt->objectID == type) {
+                    *entity = nextEnt;
+                    return true;
+                }
+            }
+            break;
+
+        case 2:
+            for (GameEntityv2 *nextEnt = &AS_ENTITY(entityList, GameEntityv2)[stackPtr->id];
+                 stackPtr->id < ENTITY_COUNT;
+                 ++stackPtr->id, nextEnt = &AS_ENTITY(entityList, GameEntityv2)[stackPtr->id]) {
+                if (nextEnt->objectID == type) {
+                    *entity = nextEnt;
+                    return true;
+                }
+            }
+            break;
+
+        default:
+        case 3:
+            for (GameEntityvU *nextEnt = &AS_ENTITY(entityList, GameEntityvU)[stackPtr->id];
+                 stackPtr->id < ENTITY_COUNT;
+                 ++stackPtr->id, nextEnt = &AS_ENTITY(entityList, GameEntityvU)[stackPtr->id]) {
+                if (nextEnt->objectID == type) {
+                    *entity = nextEnt;
+                    return true;
+                }
+            }
+            break;
     }
 
     v5Editor->viewer->foreachStackPtr--;
     return false;
 }
 
-void FunctionTable::breakForeachLoop()
+void FunctionTable::BreakForeachLoop()
 {
     if (!v5Editor)
         return;
     --v5Editor->viewer->foreachStackPtr;
 }
 
-bool32 FunctionTable::checkOnScreen(GameEntity *entity, Vector2<int> *range)
+bool32 FunctionTable::CheckOnScreen(void *entity, Vector2<int> *range)
 {
     if (!entity)
         return false;
@@ -434,7 +433,7 @@ bool32 FunctionTable::checkOnScreen(GameEntity *entity, Vector2<int> *range)
 
     return false;
 }
-bool32 FunctionTable::checkPosOnScreen(Vector2<int> *position, Vector2<int> *range)
+bool32 FunctionTable::CheckPosOnScreen(Vector2<int> *position, Vector2<int> *range)
 {
     if (!position || !range)
         return false;

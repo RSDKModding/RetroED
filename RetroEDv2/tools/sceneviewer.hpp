@@ -1,6 +1,8 @@
 #ifndef SCENEVIEWER_H
 #define SCENEVIEWER_H
 
+#define AS_ENTITY(var, type) ((type *)var)
+
 class SceneViewer : public QOpenGLWidget
 {
     Q_OBJECT
@@ -15,7 +17,15 @@ public:
         TOOL_ENTITY,
     };
 
-    enum EventTypes { EVENT_LOAD, EVENT_CREATE, EVENT_UPDATE, EVENT_DRAW, EVENT_SERIALIZE, EVENT_EDIT };
+    enum EventTypes {
+        EVENT_STATICLOAD,
+        EVENT_LOAD,
+        EVENT_CREATE,
+        EVENT_UPDATE,
+        EVENT_DRAW,
+        EVENT_SERIALIZE,
+        EVENT_EDIT
+    };
 
     struct DrawVertex {
         DrawVertex() {}
@@ -85,6 +95,7 @@ public:
     QList<SceneEntity> entities;
 
     // Stuff for game link
+    int engineRevision = 3;
     SceneInfo sceneInfo;
     EngineInfo gameInfo;
     SKUInfo skuInfo;
@@ -196,7 +207,11 @@ public:
     int prevSprite = -1;
 
     // Game Logic
-    GameEntityBase gameEntityList[v5_ENTITY_COUNT * 2];
+    GameEntityBasev1 *gameEntityListv1;
+    GameEntityBasev2 *gameEntityListv2;
+    GameEntityBasevU *gameEntityListvU;
+
+    void *gameEntityList;
 
     ForeachStackInfo foreachStackList[FOREACH_STACK_COUNT];
     ForeachStackInfo *foreachStackPtr;

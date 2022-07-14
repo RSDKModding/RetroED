@@ -14,7 +14,8 @@ enum ExtensionTypes {
     TIL,
 };
 
-void RSDKv5::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, int cnt)
+void RSDKv5::Datafile::FileInfo::read(Reader &reader, QList<QString> &fileList,
+                                      QList<QByteArray> &hashList, int id)
 {
     for (int y = 0; y < 16; y += 4) {
         hash[y + 3] = reader.read<byte>();
@@ -24,22 +25,10 @@ void RSDKv5::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, i
     }
     filenameHash = QByteArray((const char *)hash, 0x10).toHex();
 
-    fileName = "File " + QString::number(cnt + 1) + ".bin"; // Make a base name
+    fileName = "File " + QString::number(id) + ".bin"; // Make a base name
 
-    for (int i = 0; i < fileList.count(); ++i) {
-        // RSDKv5 hashes all strings as lower case
-        QString fp = fileList[i];
-        fp         = fp.toLower();
-
-        bool match = true;
-
-        for (int z = 0; z < 16; ++z) {
-            match = (byte)calculateMD5Hash(fp)[z] == hash[z];
-            if (!match)
-                break;
-        }
-
-        if (match) {
+    for (int i = 0; i < hashList.count(); ++i) {
+        if (memcmp(hash, hashList[i].data(), sizeof(hash)) == 0) {
             fileName = fileList[i];
             break;
         }
@@ -68,7 +57,7 @@ void RSDKv5::Datafile::FileInfo::writeHeader(Writer &writer)
     fileName = fileName.replace('\\', '/');
 
     QString fn     = fileName;
-    QByteArray md5 = calculateMD5Hash(fn.toLower());
+    QByteArray md5 = Datafile::calculateMD5Hash(fn.toLower());
 
     for (int y = 0; y < 16; y += 4) {
         hash[y + 3] = md5[y + 0];
@@ -96,7 +85,7 @@ void RSDKv5::Datafile::FileInfo::generateELoadKeys(QString filename, uint size)
     QByteArray md5Buf;
 
     QString filenameCaps = filename.toUpper();
-    md5Buf               = calculateMD5Hash(filenameCaps);
+    md5Buf               = Datafile::calculateMD5Hash(filenameCaps);
     encryptionKeyA.resize(0x10);
     encryptionKeyB.resize(0x10);
 
@@ -109,7 +98,7 @@ void RSDKv5::Datafile::FileInfo::generateELoadKeys(QString filename, uint size)
     }
 
     QString fsize = QString::number(size);
-    md5Buf        = calculateMD5Hash(fsize);
+    md5Buf        = Datafile::calculateMD5Hash(fsize);
 
     for (int y = 0; y < 16; y += 4) {
         // convert every 32-bit word to Little Endian
@@ -191,14 +180,23 @@ void RSDKv5::Datafile::read(Reader &reader, QList<QString> fileList)
 
     version = reader.read<byte>();
 
+    QList<QByteArray> hashList;
+    for (int i = 0; i < fileList.count(); ++i) {
+        QString path = fileList[i];
+        hashList.append(calculateMD5Hash(path.toLower()));
+    }
+
     files.clear();
     int fileCount = reader.read<ushort>(); // read the header data
     for (int i = 0; i < fileCount; ++i)
-        files.append(FileInfo(reader, fileList, i)); // read each file's header
+        files.append(FileInfo(reader, fileList, hashList, i)); // read each file
 }
 
-void RSDKv5::Datafile::write(Writer &writer)
+void RSDKv5::Datafile::write(Writer &writer, byte ver)
 {
+    if (!ver)
+        ver = version;
+
     filePath = writer.filePath;
 
     for (int h = 0; h < 5; ++h) writer.write(signature[h]);

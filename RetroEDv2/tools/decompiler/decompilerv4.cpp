@@ -408,8 +408,8 @@ static QList<QString> FXAliases = {
 static QList<QString> stagesAliases = {
     "PRESENTATION_STAGE",
     "REGULAR_STAGE",
-    "BONUS_STAGE",
     "SPECIAL_STAGE",
+    "BONUS_STAGE",
 };
 
 static QList<QString> menuAliases = {
@@ -419,8 +419,8 @@ static QList<QString> menuAliases = {
 
 static QList<QString> collisionAliases = {
     "C_TOUCH",
-    "C_BOX",
-    "C_BOX2",
+    "C_SOLID",
+    "C_SOLID2",
     "C_PLATFORM",
 };
 
@@ -444,13 +444,12 @@ static QList<QString> engineStateAliases = {
 static QList<QString> stageStateAliases = {
     "STAGE_RUNNING",
     "STAGE_PAUSED",
+    "STAGE_FROZEN",
+    "STAGE_2P_MODE",
 };
 
-static QList<QString> platformAliases = {
-    //"RETRO_WIN", "RETRO_OSX", "RETRO_XBOX_360", "RETRO_PS3", "RETRO_IOS", "RETRO_ANDROID",
-    //"RETRO_WP7",
-    "RETRO_STANDARD", "RETRO_MOBILE"
-};
+static QList<QString> platformAliases = { "STANDARD",   "MOBILE",     "DEVICE_XBOX",
+                                          "DEVICE_PSN", "DEVICE_IOS", "DEVICE_ANDROID" };
 
 static QList<QString> inkAliases = {
     "INK_NONE", "INK_BLEND", "INK_ALPHA", "INK_ADD", "INK_SUB",
@@ -2158,7 +2157,7 @@ void RSDKv4::Decompiler::decompile(QString destPath)
     funcIDv4 = globalFunctionCount; // what function to use
     for (int i = globalScriptCount; i < sourceNames.count(); ++i) {
         RSDKv4::Bytecode::ScriptInfo &objectScript = scriptList[i];
-        int scriptCodePtrs[3]    = { objectScript.main.scriptCodePos, objectScript.draw.scriptCodePos,
+        int scriptCodePtrs[3]    = { objectScript.update.scriptCodePos, objectScript.draw.scriptCodePos,
                                   objectScript.startup.scriptCodePos };
         int lowestScriptCodePtr  = 0x3FFFF;
         int highestScriptCodePtr = 0;
@@ -2214,7 +2213,7 @@ void RSDKv4::Decompiler::decompile(QString destPath)
 
         RSDKv4::Bytecode::ScriptInfo &objectScript = scriptList[o];
 
-        int scriptCodePtrs[3]    = { objectScript.main.scriptCodePos, objectScript.draw.scriptCodePos,
+        int scriptCodePtrs[3]    = { objectScript.update.scriptCodePos, objectScript.draw.scriptCodePos,
                                   objectScript.startup.scriptCodePos };
         int lowestScriptCodePtr  = 0x3FFFF;
         int highestScriptCodePtr = 0;
@@ -2234,9 +2233,9 @@ void RSDKv4::Decompiler::decompile(QString destPath)
 
         scriptPtrs.clear();
 
-        if (objectScript.main.scriptCodePos < 0x3FFFF)
-            scriptPtrs.append(ScriptPtrv4("ObjectMain", objectScript.main.scriptCodePos,
-                                          objectScript.main.jumpTablePos, false));
+        if (objectScript.update.scriptCodePos < 0x3FFFF)
+            scriptPtrs.append(ScriptPtrv4("ObjectUpdate", objectScript.update.scriptCodePos,
+                                          objectScript.update.jumpTablePos, false));
 
         if (objectScript.draw.scriptCodePos < 0x3FFFF)
             scriptPtrs.append(ScriptPtrv4("ObjectDraw", objectScript.draw.scriptCodePos,
@@ -2268,9 +2267,9 @@ void RSDKv4::Decompiler::decompile(QString destPath)
             funcIDv4 = functionList.count();
         }
 
-        if (objectScript.main.scriptCodePos < 0x3FFFF)
-            scriptPtrs.append(ScriptPtrv4("ObjectMain", objectScript.main.scriptCodePos,
-                                          objectScript.main.jumpTablePos, false));
+        if (objectScript.update.scriptCodePos < 0x3FFFF)
+            scriptPtrs.append(ScriptPtrv4("ObjectUpdate", objectScript.update.scriptCodePos,
+                                          objectScript.update.jumpTablePos, false));
 
         if (objectScript.draw.scriptCodePos < 0x3FFFF)
             scriptPtrs.append(ScriptPtrv4("ObjectDraw", objectScript.draw.scriptCodePos,
@@ -2289,7 +2288,7 @@ void RSDKv4::Decompiler::decompile(QString destPath)
         int fCnt      = 0;
         debugNameFlag = 0;
         for (int s = 0; s < scriptPtrs.count(); ++s) {
-            if (scriptPtrs[s].name != "ObjectMain" && scriptPtrs[s].name != "ObjectDraw"
+            if (scriptPtrs[s].name != "ObjectUpdate" && scriptPtrs[s].name != "ObjectDraw"
                 && scriptPtrs[s].name != "ObjectStartup") {
                 fCnt++;
             }
@@ -2340,7 +2339,6 @@ void RSDKv4::Decompiler::decompile(QString destPath)
                          LINE_CRLF);
         if (o == 1) {
             writer.writeLine("public alias 256 : GROUP_PLAYERS", LINE_CRLF);
-            writer.writeLine("public alias 65536 : HITBOX_AUTO", LINE_CRLF);
             writer.writeLine("public alias arrayPos6 : currentPlayer", LINE_CRLF);
             writer.writeLine("public alias arrayPos7 : playerCount", LINE_CRLF);
         }
@@ -2351,7 +2349,7 @@ void RSDKv4::Decompiler::decompile(QString destPath)
             writer.writeLine("// Function declarations", LINE_CRLF);
 
         for (int s = 0; s < unsortedPtrs.count(); ++s) {
-            if (unsortedPtrs[s].name != "ObjectMain" && unsortedPtrs[s].name != "ObjectDraw"
+            if (unsortedPtrs[s].name != "ObjectUpdate" && unsortedPtrs[s].name != "ObjectDraw"
                 && unsortedPtrs[s].name != "ObjectStartup") {
                 writer.writeLine("reserve function " + unsortedPtrs[s].name, LINE_CRLF);
             }
@@ -2484,7 +2482,7 @@ int RSDKv4::Decompiler::decompileScript(Writer &writer, int scriptCodePtr, int j
     if (!isFunction)
         writer.writeLine("event " + subName, LINE_CRLF);
     else
-        writer.writeLine("function " + subName, LINE_CRLF);
+        writer.writeLine("public function " + subName, LINE_CRLF);
 
     StateScriptEngine state;
     state.scriptCodePtr = state.scriptCodeOffset = scriptCodePtr;
@@ -2794,6 +2792,7 @@ case 3:
                     "GetVersionNumber", "GetTextInfo",         "LoadOnlineMenu",
                     "Get16x16TileInfo", "Set16x16TileInfo",
                 };
+
                 int opID = operandSwitchList.indexOf(operand);
                 switch (opID) {
                     default: break;
@@ -2827,7 +2826,7 @@ case 3:
                             id = variableName[h].toInt(&ok);
                             if (ok) {
                                 if (id == 0x10000)
-                                    variableName[h] = "HITBOX_AUTO";
+                                    variableName[h] = "C_BOX";
                             }
                         }
 
@@ -2836,7 +2835,7 @@ case 3:
                             id = variableName[h].toInt(&ok);
                             if (ok) {
                                 if (id == 0x10000)
-                                    variableName[h] = "HITBOX_AUTO";
+                                    variableName[h] = "C_BOX";
                             }
                         }
                         break;
@@ -2907,7 +2906,7 @@ case 3:
                         bool ok = false;
                         int id  = variableName[0].toInt(&ok);
                         if (ok)
-                            if (id < cSideAliases.count())
+                            if (useCustomAliases && id < cSideAliases.count())
                                 variableName[0] = cSideAliases[id];
                         break;
                     }
@@ -2916,7 +2915,7 @@ case 3:
                         bool ok = false;
                         int id  = variableName[0].toInt(&ok);
                         if (ok)
-                            if (id < cSideAliases.count())
+                            if (useCustomAliases && id < cSideAliases.count())
                                 variableName[0] = cSideAliases[id];
                         break;
                     }
@@ -2972,11 +2971,12 @@ case 3:
                     {
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
-                        if (ok && id < menuAliases.count())
+                        if (ok && useCustomAliases && id < menuAliases.count())
                             variableName[1] = menuAliases[id];
+
                         ok = false;
                         id = variableName[2].toInt(&ok);
-                        if (ok && id < textInfoAliases.count())
+                        if (ok && useCustomAliases && id < textInfoAliases.count())
                             variableName[2] = textInfoAliases[id];
 
                         break;
@@ -2986,7 +2986,7 @@ case 3:
                     {
                         bool ok = false;
                         int id  = variableName[3].toInt(&ok);
-                        if (ok && id < tileInfoAliases.count())
+                        if (ok &&useCustomAliases &&  id < tileInfoAliases.count())
                             variableName[3] = tileInfoAliases[id];
 
                         break;
@@ -3032,25 +3032,13 @@ case 3:
                             }
                             break;
                         }
-                        case 4: // Engine.Message
-                        {
-                            // bool ok = false;
-                            // int id  = variableName[1].toInt(&ok);
-                            // if (ok) {
-                            //    if (id < 0 || id > messageAliases.count())
-                            //        variableName[1] = "MESSAGE_" + QString::number(id);
-                            //    else
-                            //        variableName[1] = messageAliases[id];
-                            //}
-                            break;
-                        }
                     }
 
                     if (variableName[0].contains(".direction")) {
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok) {
-                            if (id < directionAliases.count()) {
+                            if (useCustomAliases && id < directionAliases.count()) {
                                 variableName[1] = directionAliases[id];
                             }
                         }
@@ -3060,7 +3048,7 @@ case 3:
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
-                            if (id < inkAliases.count())
+                            if (useCustomAliases && id < inkAliases.count())
                                 variableName[1] = inkAliases[id];
                     }
 
@@ -3068,7 +3056,7 @@ case 3:
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
-                            if (id < faceFlagAliases.count())
+                            if (useCustomAliases && id < faceFlagAliases.count())
                                 variableName[1] = faceFlagAliases[id];
                     }
 
@@ -3076,7 +3064,7 @@ case 3:
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
-                            if (id < priorityAliases.count())
+                            if (useCustomAliases && id < priorityAliases.count())
                                 variableName[1] = priorityAliases[id];
                     }
 
@@ -3085,7 +3073,7 @@ case 3:
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
-                            if (id < gravityAliases.count())
+                            if (useCustomAliases && id < gravityAliases.count())
                                 variableName[1] = gravityAliases[id];
                     }
 
@@ -3093,7 +3081,7 @@ case 3:
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
-                            if (id < cModeAliases.count())
+                            if (useCustomAliases && id < cModeAliases.count())
                                 variableName[1] = cModeAliases[id];
                     }
 
@@ -3101,7 +3089,7 @@ case 3:
                         bool ok = false;
                         int id  = variableName[1].toInt(&ok);
                         if (ok)
-                            if (id < cPathAliases.count())
+                            if (useCustomAliases && id < cPathAliases.count())
                                 variableName[1] = cPathAliases[id];
                     }
 
@@ -3141,24 +3129,12 @@ case 3:
                             }
                             break;
                         }
-                        case 4: // Engine.Message
-                        {
-                            // bool ok = false;
-                            // int id  = variableName[2].toInt(&ok);
-                            // if (ok) {
-                            //    if (id < 0 || id > messageAliases.count())
-                            //        variableName[2] = "MESSAGE_" + QString::number(id);
-                            //    else
-                            //        variableName[2] = messageAliases[id];
-                            //}
-                            break;
-                        }
                     }
 
                     if (variableName[1].contains(".direction")) {
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
-                        if (ok && id < directionAliases.count())
+                        if (ok &&useCustomAliases &&  id < directionAliases.count())
                             variableName[2] = directionAliases[id];
                     }
 
@@ -3166,7 +3142,7 @@ case 3:
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
-                            if (id < inkAliases.count())
+                            if (useCustomAliases && id < inkAliases.count())
                                 variableName[2] = inkAliases[id];
                         }
                     }
@@ -3176,7 +3152,7 @@ case 3:
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
-                            if (id < gravityAliases.count())
+                            if (useCustomAliases && id < gravityAliases.count())
                                 variableName[2] = gravityAliases[id];
                         }
                     }
@@ -3185,7 +3161,7 @@ case 3:
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
-                            if (id < faceFlagAliases.count())
+                            if (useCustomAliases && id < faceFlagAliases.count())
                                 variableName[2] = faceFlagAliases[id];
                         }
                     }
@@ -3194,7 +3170,7 @@ case 3:
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
-                            if (id < priorityAliases.count())
+                            if (useCustomAliases && id < priorityAliases.count())
                                 variableName[2] = priorityAliases[id];
                         }
                     }
@@ -3203,7 +3179,7 @@ case 3:
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
-                            if (id < cModeAliases.count())
+                            if (useCustomAliases && id < cModeAliases.count())
                                 variableName[2] = cModeAliases[id];
                         }
                     }
@@ -3212,7 +3188,7 @@ case 3:
                         bool ok = false;
                         int id  = variableName[2].toInt(&ok);
                         if (ok) {
-                            if (id < cPathAliases.count())
+                            if (useCustomAliases && id < cPathAliases.count())
                                 variableName[2] = cPathAliases[id];
                         }
                     }

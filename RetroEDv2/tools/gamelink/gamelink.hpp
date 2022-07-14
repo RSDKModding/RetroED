@@ -44,7 +44,40 @@ struct GameObject {
     byte active;
 };
 
-struct GameEntity {
+struct GameEntityv1 {
+    Vector2<int> position;
+    Vector2<int> scale;
+    Vector2<int> velocity;
+    Vector2<int> updateRange;
+    int angle;
+    int alpha;
+    int rotation;
+    int groundVel;
+    int depth;
+    ushort group;
+    ushort objectID;
+    bool32 inBounds;
+    bool32 isPermanent;
+    bool32 tileCollisions;
+    bool32 interaction;
+    bool32 onGround;
+    byte active;
+    byte direction;
+    byte drawOrder;
+    byte collisionLayers;
+    byte collisionPlane;
+    byte collisionMode;
+    byte drawFX;
+    byte inkEffect;
+    byte visible;
+    byte activeScreens;
+};
+
+struct GameEntityBasev1 : GameEntityv1 {
+    void *data[0x100];
+};
+
+struct GameEntityv2 {
     Vector2<int> position;
     Vector2<int> scale;
     Vector2<int> velocity;
@@ -74,7 +107,42 @@ struct GameEntity {
     byte activeScreens;
 };
 
-struct GameEntityBase : GameEntity {
+struct GameEntityBasev2 : GameEntityv2 {
+    void *data[0x100];
+};
+
+struct GameEntityvU {
+    void *vfTable;
+    Vector2<int> position;
+    Vector2<int> scale;
+    Vector2<int> velocity;
+    Vector2<int> updateRange;
+    int angle;
+    int alpha;
+    int rotation;
+    int groundVel;
+    int depth;
+    ushort group;
+    ushort objectID;
+    bool32 inBounds;
+    bool32 isPermanent;
+    bool32 tileCollisions;
+    bool32 interaction;
+    bool32 onGround;
+    byte active;
+    byte filter;
+    byte direction;
+    byte drawOrder;
+    byte collisionLayers;
+    byte collisionPlane;
+    byte collisionMode;
+    byte drawFX;
+    byte inkEffect;
+    byte visible;
+    byte activeScreens;
+};
+
+struct GameEntityBasevU : GameEntityvU {
     void *data[0x100];
 };
 
@@ -89,14 +157,15 @@ struct GameObjectInfo {
     void (*editorDraw)(void);
     void (*editorLoad)(void);
     void (*serialize)(void);
-    GameObject **type;
-    int entitySize;
-    int objectSize;
+    void (*staticLoad)(void *sVars);
+    GameObject **sVars;
+    int entityClassSize;
+    int staticClassSize;
     const char *name;
 };
 
 struct SceneInfo {
-    GameEntity *entity;
+    void *entity;
     void *listData;
     void *listCategory;
     int timeCounter;
@@ -291,33 +360,10 @@ struct TileLayer {
     byte *lineScroll;
 };
 
-struct GameInfo {
-    void *functionPtrs;
-    void *APIPtrs;
-    SKUInfo *currentSKU;
-    EngineInfo *engineInfo;
-    SceneInfo *sceneInfo;
-    ControllerState *controller;
-    AnalogState *stickL;
-    AnalogState *stickR;
-    TriggerState *triggerL;
-    TriggerState *triggerR;
-    TouchMouseData *touchMouse;
-    UnknownInfo *unknown;
-    ScreenInfo *screenInfo;
-    void *modPtrs;
-};
-
-namespace FunctionTable
-{
-void initGameOptions(void **options, int size);
-} // namespace FunctionTable
-
 #include "gamestorage.hpp"
 #include "gamemath.hpp"
 #include "gameobjects.hpp"
 #include "gamematrix.hpp"
-#include "gametext.hpp"
 #include "gamedraw.hpp"
 
 class GameLink
@@ -329,7 +375,9 @@ public:
     void LinkGameObjects(QString gameName = "Game");
     void unload();
 
-    byte *gameGlobalVariablesPtr = nullptr;
+    int revision                            = 3;
+    byte *globalVariablesPtr                = nullptr;
+    void (*globalVarsInitCB)(void *globals) = nullptr;
 
     QList<GameObjectInfo> gameObjectList;
 
