@@ -217,6 +217,9 @@ void GameLink::LinkGameObjects(QString gameName)
         globalVariablesPtr = gameGlobalVariablesPtr;
         globalVarsInitCB   = gameGlobalVarsInitCB;
 
+        if (globalVarsInitCB)
+            globalVarsInitCB(globalVariablesPtr);
+
         printf("sucessfully linked game logic!\n");
         printf("linked %d objects!\n", gameObjectList.count());
     }
