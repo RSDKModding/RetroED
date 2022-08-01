@@ -1326,10 +1326,16 @@ void RSDKv3::Decompiler::decompile(QString destPath)
                             scriptPtrs[s].function);
         }
 
-        writer.writeLine("sub RSDK", LINE_CRLF);
-        writer.writeLine(QString("\tLoadSpriteSheet(") + "\"Global/Display.gif\"" + ")", LINE_CRLF);
-        writer.writeLine("\tSetEditorIcon(Icon0,SingleIcon,-16,-16,32,32,1,143)", LINE_CRLF);
-        writer.writeLine("endsub", LINE_CRLF);
+        writer.writeLine("sub RSDKDraw", LINE_CRLF);
+        writer.writeLine("\tDrawSprite(0)", LINE_CRLF);
+        writer.writeLine("end sub", LINE_CRLF);
+
+        writer.writeLine("", LINE_CRLF);
+
+        writer.writeLine("sub RSDKLoad", LINE_CRLF);
+        writer.writeLine("\tLoadSpriteSheet(\"Global/Display.gif\")", LINE_CRLF);
+        writer.writeLine("\tSpriteFrame(-16, -16, 32, 32, 1, 143)", LINE_CRLF);
+        writer.writeLine("end sub", LINE_CRLF);
 
         writer.flush();
     }
@@ -1501,9 +1507,9 @@ void RSDKv3::Decompiler::decompileSub(Writer writer, RSDKv3::Decompiler::StateSc
 
         if (operand == "End" || operand == "EndFunction") {
             if (isFunction)
-                writer.writeText("endfunction");
+                writer.writeText("end function");
             else
-                writer.writeText("endsub");
+                writer.writeText("end sub");
             state.endFlag    = true;
             state.scopeDepth = 0;
         }
@@ -2078,118 +2084,119 @@ void RSDKv3::Decompiler::decompileSub(Writer writer, RSDKv3::Decompiler::StateSc
             switch (opcode) {
                 case FUNC_END:
                     if (isFunction)
-                        writer.writeText("endfunction");
+                        writer.writeText("end function");
                     else
-                        writer.writeText("endsub");
+                        writer.writeText("end sub");
                     state.endFlag    = true;
                     state.scopeDepth = 0;
                     break;
                 case FUNC_EQUAL:
-                    writer.writeText(toHexString(variableName[0]) + "=" + toHexString(variableName[1]));
+                    writer.writeText(toHexString(variableName[0]) + " = "
+                                     + toHexString(variableName[1]));
                     break;
                 case FUNC_ADD:
                     writer.writeText(toHexString(variableName[0])
-                                     + "+=" + toHexString(variableName[1]));
+                                     + " += " + toHexString(variableName[1]));
                     break;
                 case FUNC_SUB:
                     writer.writeText(toHexString(variableName[0])
-                                     + "-=" + toHexString(variableName[1]));
+                                     + " -= " + toHexString(variableName[1]));
                     break;
                 case FUNC_INC: writer.writeText(toHexString(variableName[0]) + "++"); break;
                 case FUNC_DEC: writer.writeText(toHexString(variableName[0]) + "--"); break;
                 case FUNC_MUL:
                     writer.writeText(toHexString(variableName[0])
-                                     + "*=" + toHexString(variableName[1]));
+                                     + " *= " + toHexString(variableName[1]));
                     break;
                 case FUNC_DIV:
                     writer.writeText(toHexString(variableName[0])
-                                     + "/=" + toHexString(variableName[1]));
+                                     + " /= " + toHexString(variableName[1]));
                     break;
                 case FUNC_SHR:
                     writer.writeText(toHexString(variableName[0])
-                                     + ">>=" + toHexString(variableName[1]));
+                                     + " >>= " + toHexString(variableName[1]));
                     break;
                 case FUNC_SHL:
                     writer.writeText(toHexString(variableName[0])
-                                     + "<<=" + toHexString(variableName[1]));
+                                     + " <<= " + toHexString(variableName[1]));
                     break;
                 case FUNC_AND:
                     writer.writeText(toHexString(variableName[0])
-                                     + "&=" + toHexString(variableName[1]));
+                                     + " &= " + toHexString(variableName[1]));
                     break;
                 case FUNC_OR:
                     writer.writeText(toHexString(variableName[0])
-                                     + "|=" + toHexString(variableName[1]));
+                                     + " |= " + toHexString(variableName[1]));
                     break;
                 case FUNC_XOR:
                     writer.writeText(toHexString(variableName[0])
-                                     + "^=" + toHexString(variableName[1]));
+                                     + " ^= " + toHexString(variableName[1]));
                     break;
                 case FUNC_MOD:
                     writer.writeText(toHexString(variableName[0])
-                                     + "%=" + toHexString(variableName[1]));
+                                     + " %= " + toHexString(variableName[1]));
                     break;
                 case FUNC_IFEQUAL:
                     writer.writeText("if " + toHexString(variableName[1])
-                                     + "==" + toHexString(variableName[2]));
+                                     + " == " + toHexString(variableName[2]));
                     ++state.scopeDepth;
                     break;
                 case FUNC_IFGREATER:
-                    writer.writeText("if " + toHexString(variableName[1]) + ">"
+                    writer.writeText("if " + toHexString(variableName[1]) + " > "
                                      + toHexString(variableName[2]));
                     ++state.scopeDepth;
                     break;
                 case FUNC_IFGREATEROREQUAL:
                     writer.writeText("if " + toHexString(variableName[1])
-                                     + ">=" + toHexString(variableName[2]));
+                                     + " >= " + toHexString(variableName[2]));
                     ++state.scopeDepth;
                     break;
                 case FUNC_IFLOWER:
-                    writer.writeText("if " + toHexString(variableName[1]) + "<"
+                    writer.writeText("if " + toHexString(variableName[1]) + " < "
                                      + toHexString(variableName[2]));
                     ++state.scopeDepth;
                     break;
                 case FUNC_IFLOWEROREQUAL:
                     writer.writeText("if " + toHexString(variableName[1])
-                                     + "<=" + toHexString(variableName[2]));
+                                     + " <= " + toHexString(variableName[2]));
                     ++state.scopeDepth;
                     break;
                 case FUNC_IFNOTEQUAL:
                     writer.writeText("if " + toHexString(variableName[1])
-                                     + "!=" + toHexString(variableName[2]));
+                                     + " != " + toHexString(variableName[2]));
                     ++state.scopeDepth;
                     break;
                 case FUNC_ELSE: writer.writeText("else"); break;
-                case FUNC_ENDIF: writer.writeText("endif"); break;
+                case FUNC_ENDIF: writer.writeText("end if"); break;
                 case FUNC_WEQUAL:
                     writer.writeText("while " + toHexString(variableName[1])
-                                     + "==" + toHexString(variableName[2]));
+                                     + " == " + toHexString(variableName[2]));
                     ++state.scopeDepth;
                     break;
                 case FUNC_WGREATER:
-                    writer.writeText("while " + toHexString(variableName[1]) + ">"
+                    writer.writeText("while " + toHexString(variableName[1]) + " > "
                                      + toHexString(variableName[2]));
                     ++state.scopeDepth;
                     break;
                 case FUNC_WGREATEROREQUAL:
                     writer.writeText("while " + toHexString(variableName[1])
-                                     + ">=" + toHexString(variableName[2]));
+                                     + " >= " + toHexString(variableName[2]));
                     ++state.scopeDepth;
                     break;
                 case FUNC_WLOWER:
                     // JumpTableOffset = Int32.Parse(variableName[0]);
-                    writer.writeText("while " + toHexString(variableName[1]) + "<"
+                    writer.writeText("while " + toHexString(variableName[1]) + " < "
                                      + toHexString(variableName[2]));
                     ++state.scopeDepth;
                     break;
                 case FUNC_WLOWEROREQUAL:
                     writer.writeText("while " + toHexString(variableName[1])
-                                     + "<=" + toHexString(variableName[2]));
+                                     + " <= " + toHexString(variableName[2]));
                     ++state.scopeDepth;
                     break;
                 case FUNC_WNOTEQUAL:
                     writer.writeText("while " + toHexString(variableName[1])
-                                     + "!=" + toHexString(variableName[2]));
+                                     + " != " + toHexString(variableName[2]));
                     ++state.scopeDepth;
                     break;
                 case FUNC_LOOP: writer.writeText("loop"); break;
@@ -2280,7 +2287,7 @@ void RSDKv3::Decompiler::decompileSub(Writer writer, RSDKv3::Decompiler::StateSc
                 }
                 case FUNC_BREAK: writer.writeText("break"); break;
                 case FUNC_ENDSWITCH:
-                    writer.writeText("endswitch");
+                    writer.writeText("end switch");
                     state.switchDeep--;
                     break;
                 default:
@@ -2301,7 +2308,7 @@ void RSDKv3::Decompiler::decompileSub(Writer writer, RSDKv3::Decompiler::StateSc
                         for (int i = 0; i < paramsCount; i++) {
                             writer.writeText(toHexString(variableName[i]));
                             if (i + 1 < paramsCount)
-                                writer.writeText(",");
+                                writer.writeText(", ");
                         }
                         writer.writeText(")");
                     }

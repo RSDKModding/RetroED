@@ -271,7 +271,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                     for (auto &e : viewer->entities) {
                         if (e.type >= objectID) {
                             e.type++;
-                            AS_ENTITY(e.gameEntity, GameEntityv1)->objectID = e.type;
+                            AS_ENTITY(e.gameEntity, GameEntityv1)->classID = e.type;
                         }
                     }
                     break;
@@ -280,7 +280,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                     for (auto &e : viewer->entities) {
                         if (e.type >= objectID) {
                             e.type++;
-                            AS_ENTITY(e.gameEntity, GameEntityv2)->objectID = e.type;
+                            AS_ENTITY(e.gameEntity, GameEntityv2)->classID = e.type;
                         }
                     }
                     break;
@@ -290,7 +290,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                     for (auto &e : viewer->entities) {
                         if (e.type >= objectID) {
                             e.type++;
-                            AS_ENTITY(e.gameEntity, GameEntityvU)->objectID = e.type;
+                            AS_ENTITY(e.gameEntity, GameEntityvU)->classID = e.type;
                         }
                     }
                     break;
@@ -352,12 +352,12 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             if (e.type > objectID) {
                 e.type--;
                 switch (viewer->engineRevision) {
-                    case 1: AS_ENTITY(e.gameEntity, GameEntityvU)->objectID = e.type; break;
+                    case 1: AS_ENTITY(e.gameEntity, GameEntityvU)->classID = e.type; break;
 
-                    case 2: AS_ENTITY(e.gameEntity, GameEntityvU)->objectID = e.type; break;
+                    case 2: AS_ENTITY(e.gameEntity, GameEntityvU)->classID = e.type; break;
 
                     default:
-                    case 3: AS_ENTITY(e.gameEntity, GameEntityvU)->objectID = e.type; break;
+                    case 3: AS_ENTITY(e.gameEntity, GameEntityvU)->classID = e.type; break;
                 }
             }
             else if (e.type == objectID) {
@@ -410,7 +410,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 memset((void *)&createGameEntityv1, 0, sizeof(GameEntityBasev1));
                 createGameEntityv1.position.x = 0;
                 createGameEntityv1.position.y = 0;
-                createGameEntityv1.objectID   = viewer->selectedObject;
+                createGameEntityv1.classID    = viewer->selectedObject;
 
                 createTempEntity.gameEntity = &createGameEntityv1;
                 break;
@@ -419,7 +419,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 memset((void *)&createGameEntityv2, 0, sizeof(GameEntityBasev2));
                 createGameEntityv2.position.x = 0;
                 createGameEntityv2.position.y = 0;
-                createGameEntityv2.objectID   = viewer->selectedObject;
+                createGameEntityv2.classID    = viewer->selectedObject;
 
                 createTempEntity.gameEntity = &createGameEntityv2;
                 break;
@@ -429,7 +429,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 memset((void *)&createGameEntityvU, 0, sizeof(GameEntityBasevU));
                 createGameEntityvU.position.x = 0;
                 createGameEntityvU.position.y = 0;
-                createGameEntityvU.objectID   = viewer->selectedObject;
+                createGameEntityvU.classID    = viewer->selectedObject;
 
                 createTempEntity.gameEntity = &createGameEntityvU;
                 break;
@@ -1056,7 +1056,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                     else {
                         entity.type = newType;
                         if (entity.gameEntity)
-                            AS_ENTITY(entity.gameEntity, GameEntityv1)->objectID = newType;
+                            AS_ENTITY(entity.gameEntity, GameEntityv1)->classID = newType;
                     }
                 }
                 break;
@@ -1072,7 +1072,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                     else {
                         entity.type = newType;
                         if (entity.gameEntity)
-                            AS_ENTITY(entity.gameEntity, GameEntityv2)->objectID = newType;
+                            AS_ENTITY(entity.gameEntity, GameEntityv2)->classID = newType;
                     }
                 }
                 break;
@@ -1089,7 +1089,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                     else {
                         entity.type = newType;
                         if (entity.gameEntity)
-                            AS_ENTITY(entity.gameEntity, GameEntityvU)->objectID = newType;
+                            AS_ENTITY(entity.gameEntity, GameEntityvU)->classID = newType;
                     }
                 }
                 break;
@@ -2318,12 +2318,12 @@ void SceneEditorv5::deleteEntity(int slot, bool updateUI)
 
     if (entity.gameEntity) {
         switch (viewer->engineRevision) {
-            case 1: AS_ENTITY(entity.gameEntity, GameEntityvU)->objectID = 0; break;
+            case 1: AS_ENTITY(entity.gameEntity, GameEntityvU)->classID = 0; break;
 
-            case 2: AS_ENTITY(entity.gameEntity, GameEntityvU)->objectID = 0; break;
+            case 2: AS_ENTITY(entity.gameEntity, GameEntityvU)->classID = 0; break;
 
             default:
-            case 3: AS_ENTITY(entity.gameEntity, GameEntityvU)->objectID = 0; break;
+            case 3: AS_ENTITY(entity.gameEntity, GameEntityvU)->classID = 0; break;
         }
     }
 
@@ -3544,7 +3544,7 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                     entityPtr->updateRange.y = 0x800000;
                     entityPtr->scale.x       = 0x200;
                     entityPtr->scale.y       = 0x200;
-                    entityPtr->objectID      = entity->type;
+                    entityPtr->classID       = entity->type;
 
                     entity->gameEntity = (void *)entityPtr;
                     break;
@@ -3564,7 +3564,7 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                     entityPtr->updateRange.y = 0x800000;
                     entityPtr->scale.x       = 0x200;
                     entityPtr->scale.y       = 0x200;
-                    entityPtr->objectID      = entity->type;
+                    entityPtr->classID       = entity->type;
 
                     entity->gameEntity = (void *)entityPtr;
                     break;
@@ -3585,7 +3585,7 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                     entityPtr->updateRange.y = 0x800000;
                     entityPtr->scale.x       = 0x200;
                     entityPtr->scale.y       = 0x200;
-                    entityPtr->objectID      = entity->type;
+                    entityPtr->classID       = entity->type;
 
                     entity->gameEntity = (void *)entityPtr;
                     break;
@@ -3636,7 +3636,7 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                     case 1:
                         createGameEntityv1.position.x = (ex + viewer->cameraPos.x) * 65536.0f;
                         createGameEntityv1.position.y = (ey + viewer->cameraPos.y) * 65536.0f;
-                        createGameEntityv1.objectID   = viewer->selectedObject;
+                        createGameEntityv1.classID    = viewer->selectedObject;
 
                         createTempEntity.gameEntity = &createGameEntityv1;
                         break;
@@ -3644,7 +3644,7 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                     case 2:
                         createGameEntityv2.position.x = (ex + viewer->cameraPos.x) * 65536.0f;
                         createGameEntityv2.position.y = (ey + viewer->cameraPos.y) * 65536.0f;
-                        createGameEntityv2.objectID   = viewer->selectedObject;
+                        createGameEntityv2.classID    = viewer->selectedObject;
 
                         createTempEntity.gameEntity = &createGameEntityv2;
                         break;
@@ -3653,7 +3653,7 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                     case 3:
                         createGameEntityvU.position.x = (ex + viewer->cameraPos.x) * 65536.0f;
                         createGameEntityvU.position.y = (ey + viewer->cameraPos.y) * 65536.0f;
-                        createGameEntityvU.objectID   = viewer->selectedObject;
+                        createGameEntityvU.classID    = viewer->selectedObject;
 
                         createTempEntity.gameEntity = &createGameEntityvU;
                         break;
@@ -3673,7 +3673,7 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
             if (entity->gameEntity) {
                 switch (viewer->engineRevision) {
                     case 1:
-                        AS_ENTITY(entity->gameEntity, GameEntityv1)->objectID = entity->type;
+                        AS_ENTITY(entity->gameEntity, GameEntityv1)->classID = entity->type;
                         AS_ENTITY(entity->gameEntity, GameEntityv1)->position.x =
                             Utils::floatToFixed(entity->pos.x);
                         AS_ENTITY(entity->gameEntity, GameEntityv1)->position.y =
@@ -3681,7 +3681,7 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                         break;
 
                     case 2:
-                        AS_ENTITY(entity->gameEntity, GameEntityv2)->objectID = entity->type;
+                        AS_ENTITY(entity->gameEntity, GameEntityv2)->classID = entity->type;
                         AS_ENTITY(entity->gameEntity, GameEntityv2)->position.x =
                             Utils::floatToFixed(entity->pos.x);
                         AS_ENTITY(entity->gameEntity, GameEntityv2)->position.y =
@@ -3690,7 +3690,7 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
 
                     default:
                     case 3:
-                        AS_ENTITY(entity->gameEntity, GameEntityvU)->objectID = entity->type;
+                        AS_ENTITY(entity->gameEntity, GameEntityvU)->classID = entity->type;
                         AS_ENTITY(entity->gameEntity, GameEntityvU)->position.x =
                             Utils::floatToFixed(entity->pos.x);
                         AS_ENTITY(entity->gameEntity, GameEntityvU)->position.y =

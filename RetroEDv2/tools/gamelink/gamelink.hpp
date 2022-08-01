@@ -53,24 +53,24 @@ struct GameEntityv1 {
     int alpha;
     int rotation;
     int groundVel;
-    int depth;
+    int zdepth;
     ushort group;
-    ushort objectID;
-    bool32 inBounds;
+    ushort classID;
+    bool32 inRange;
     bool32 isPermanent;
     bool32 tileCollisions;
     bool32 interaction;
     bool32 onGround;
     byte active;
     byte direction;
-    byte drawOrder;
+    byte drawGroup;
     byte collisionLayers;
     byte collisionPlane;
     byte collisionMode;
     byte drawFX;
     byte inkEffect;
     byte visible;
-    byte activeScreens;
+    byte onScreen;
 };
 
 struct GameEntityBasev1 : GameEntityv1 {
@@ -86,10 +86,10 @@ struct GameEntityv2 {
     int alpha;
     int rotation;
     int groundVel;
-    int depth;
+    int zdepth;
     ushort group;
-    ushort objectID;
-    bool32 inBounds;
+    ushort classID;
+    bool32 inRange;
     bool32 isPermanent;
     bool32 tileCollisions;
     bool32 interaction;
@@ -97,14 +97,14 @@ struct GameEntityv2 {
     byte active;
     byte filter;
     byte direction;
-    byte drawOrder;
+    byte drawGroup;
     byte collisionLayers;
     byte collisionPlane;
     byte collisionMode;
     byte drawFX;
     byte inkEffect;
     byte visible;
-    byte activeScreens;
+    byte onScreen;
 };
 
 struct GameEntityBasev2 : GameEntityv2 {
@@ -121,10 +121,10 @@ struct GameEntityvU {
     int alpha;
     int rotation;
     int groundVel;
-    int depth;
+    int zdepth;
     ushort group;
-    ushort objectID;
-    bool32 inBounds;
+    ushort classID;
+    bool32 inRange;
     bool32 isPermanent;
     bool32 tileCollisions;
     bool32 interaction;
@@ -132,14 +132,14 @@ struct GameEntityvU {
     byte active;
     byte filter;
     byte direction;
-    byte drawOrder;
+    byte drawGroup;
     byte collisionLayers;
     byte collisionPlane;
     byte collisionMode;
     byte drawFX;
     byte inkEffect;
     byte visible;
-    byte activeScreens;
+    byte onScreen;
 };
 
 struct GameEntityBasevU : GameEntityvU {

@@ -218,7 +218,7 @@ public:
 
     TypeGroupList typeGroups[TYPEGROUP_COUNT];
 
-    DrawList drawLayers[v5_DRAWLAYER_COUNT];
+    DrawList drawLayers[v5_DRAWGROUP_COUNT];
 
     SpriteAnimation spriteAnimationList[v5_SPRFILE_COUNT];
     GFXSurface gfxSurface[v5_SURFACE_MAX];

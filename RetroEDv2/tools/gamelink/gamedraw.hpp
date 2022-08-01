@@ -5,7 +5,7 @@
 #define v5_FRAMEHITBOX_COUNT (0x8)
 
 #define v5_SURFACE_MAX     (0x40)
-#define v5_DRAWLAYER_COUNT (16)
+#define v5_DRAWGROUP_COUNT (16)
 
 struct SpriteAnimationEntry {
     uint hash[4];

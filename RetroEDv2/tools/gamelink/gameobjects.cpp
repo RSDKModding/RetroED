@@ -244,14 +244,14 @@ int FunctionTable::GetEntityCount(ushort type, bool32 isActive)
     switch (v5Editor->viewer->engineRevision) {
         case 1:
             for (int i = 0; i < ENTITY_COUNT; ++i) {
-                if (AS_ENTITY(v5Editor->viewer->gameEntityList, GameEntityv1)[i].objectID == type)
+                if (AS_ENTITY(v5Editor->viewer->gameEntityList, GameEntityv1)[i].classID == type)
                     cnt++;
             }
             break;
 
         case 2:
             for (int i = 0; i < ENTITY_COUNT; ++i) {
-                if (AS_ENTITY(v5Editor->viewer->gameEntityList, GameEntityv2)[i].objectID == type)
+                if (AS_ENTITY(v5Editor->viewer->gameEntityList, GameEntityv2)[i].classID == type)
                     cnt++;
             }
             break;
@@ -259,7 +259,7 @@ int FunctionTable::GetEntityCount(ushort type, bool32 isActive)
         default:
         case 3:
             for (int i = 0; i < ENTITY_COUNT; ++i) {
-                if (AS_ENTITY(v5Editor->viewer->gameEntityList, GameEntityvU)[i].objectID == type)
+                if (AS_ENTITY(v5Editor->viewer->gameEntityList, GameEntityvU)[i].classID == type)
                     cnt++;
             }
             break;
@@ -298,7 +298,7 @@ bool32 FunctionTable::GetActiveEntities(ushort group, void **entity)
                  stackPtr->id < typeGroups[group].entries.count(); ++stackPtr->id,
                               nextEnt = &AS_ENTITY(
                                   entityList, GameEntityv1)[typeGroups[group].entries[stackPtr->id]]) {
-                if (nextEnt->objectID == group) {
+                if (nextEnt->classID == group) {
                     *entity = nextEnt;
                     return true;
                 }
@@ -312,7 +312,7 @@ bool32 FunctionTable::GetActiveEntities(ushort group, void **entity)
                  stackPtr->id < typeGroups[group].entries.count(); ++stackPtr->id,
                               nextEnt = &AS_ENTITY(
                                   entityList, GameEntityv2)[typeGroups[group].entries[stackPtr->id]]) {
-                if (nextEnt->objectID == group) {
+                if (nextEnt->classID == group) {
                     *entity = nextEnt;
                     return true;
                 }
@@ -327,7 +327,7 @@ bool32 FunctionTable::GetActiveEntities(ushort group, void **entity)
                  stackPtr->id < typeGroups[group].entries.count(); ++stackPtr->id,
                               nextEnt = &AS_ENTITY(
                                   entityList, GameEntityvU)[typeGroups[group].entries[stackPtr->id]]) {
-                if (nextEnt->objectID == group) {
+                if (nextEnt->classID == group) {
                     *entity = nextEnt;
                     return true;
                 }
@@ -364,7 +364,7 @@ bool32 FunctionTable::GetAllEntities(ushort type, void **entity)
             for (GameEntityv1 *nextEnt = &AS_ENTITY(entityList, GameEntityv1)[stackPtr->id];
                  stackPtr->id < ENTITY_COUNT;
                  ++stackPtr->id, nextEnt = &AS_ENTITY(entityList, GameEntityv1)[stackPtr->id]) {
-                if (nextEnt->objectID == type) {
+                if (nextEnt->classID == type) {
                     *entity = nextEnt;
                     return true;
                 }
@@ -375,7 +375,7 @@ bool32 FunctionTable::GetAllEntities(ushort type, void **entity)
             for (GameEntityv2 *nextEnt = &AS_ENTITY(entityList, GameEntityv2)[stackPtr->id];
                  stackPtr->id < ENTITY_COUNT;
                  ++stackPtr->id, nextEnt = &AS_ENTITY(entityList, GameEntityv2)[stackPtr->id]) {
-                if (nextEnt->objectID == type) {
+                if (nextEnt->classID == type) {
                     *entity = nextEnt;
                     return true;
                 }
@@ -387,7 +387,7 @@ bool32 FunctionTable::GetAllEntities(ushort type, void **entity)
             for (GameEntityvU *nextEnt = &AS_ENTITY(entityList, GameEntityvU)[stackPtr->id];
                  stackPtr->id < ENTITY_COUNT;
                  ++stackPtr->id, nextEnt = &AS_ENTITY(entityList, GameEntityvU)[stackPtr->id]) {
-                if (nextEnt->objectID == type) {
+                if (nextEnt->classID == type) {
                     *entity = nextEnt;
                     return true;
                 }
