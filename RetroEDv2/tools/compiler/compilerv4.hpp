@@ -1,7 +1,7 @@
 #ifndef Compilerv4_H
 #define Compilerv4_H
 
-#define SCRIPTDATA_COUNT_v4 (0x40000)
+#define SCRIPTCODE_COUNT_v4 (0x40000)
 #define JUMPTABLE_COUNT_v4  (0x4000)
 #define FUNCTION_COUNT_v4   (0x200)
 
@@ -11,21 +11,80 @@
 
 #define SPRITEFRAME_COUNT_v4 (0x1000)
 
+#define COMMON_SCRIPT_VAR_COUNT_v4 (110 + 6)
+#define SCRIPT_VAR_COUNT_v4        (COMMON_SCRIPT_VAR_COUNT_v4 + 0x1DF)
+
 class Compilerv4
 {
 public:
     Compilerv4();
 
 public:
+    enum ScriptVarType { VAR_ALIAS, VAR_STATICVALUE, VAR_TABLE };
+    enum ScriptVarAccessModifier { ACCESS_NONE, ACCESS_PUBLIC, ACCESS_PRIVATE };
+
+    struct ScriptVariableInfo {
+        ScriptVariableInfo()
+        {
+            type   = VAR_ALIAS;
+            access = ACCESS_NONE;
+            StrCopy(name, "");
+            StrCopy(value, "");
+        }
+
+        ScriptVariableInfo(byte type, byte access, const char *name, const char *value)
+        {
+            this->type   = type;
+            this->access = access;
+            StrCopy(this->name, name);
+            StrCopy(this->value, value);
+        }
+
+        byte type;
+        byte access;
+        char name[0x20];
+        char value[0x20];
+    };
+
+    struct VariableInfo {
+        VariableInfo() { name = ""; }
+        VariableInfo(const char *functionName) { name = functionName; }
+
+        const char *name = "";
+    };
+
+    struct FunctionInfo {
+        FunctionInfo()
+        {
+            name       = "";
+            opcodeSize = 0;
+        }
+        FunctionInfo(const char *functionName, int opSize)
+        {
+            name       = functionName;
+            opcodeSize = opSize;
+        }
+
+        const char *name = "";
+        int opcodeSize   = 0;
+    };
+
     struct ScriptPtr {
         int scriptCodePtr;
         int jumpTablePtr;
     };
 
+    struct ScriptFunction {
+
+        byte access;
+        char name[0x20];
+        ScriptPtr ptr;
+    };
+
     struct ObjectScript {
         // Game
         ScriptPtr eventDraw;
-        ScriptPtr eventMain;
+        ScriptPtr eventUpdate;
         ScriptPtr eventStartup;
 
         // Editor
@@ -117,10 +176,10 @@ public:
     enum ScriptEditorEvents { EVENT_RSDKDRAW = 0, EVENT_RSDKLOAD = 1, EVENT_RSDKEDIT = 2 };
 
     ObjectScript objectScriptList[OBJECT_COUNT];
-    ScriptPtr functionList[FUNCTION_COUNT_v4];
+    ScriptFunction functionList[FUNCTION_COUNT_v4];
 
-    int scriptData[SCRIPTDATA_COUNT_v4];
-    int jumpTableData[JUMPTABLE_COUNT_v4];
+    int scriptCode[SCRIPTCODE_COUNT_v4];
+    int jumpTable[JUMPTABLE_COUNT_v4];
 
     int jumpTableStack[JUMPSTACK_COUNT_v4];
     int jumpTableStackPos = 0;
@@ -130,12 +189,12 @@ public:
 
     TypeGroupList objectTypeGroupList[TYPEGROUP_COUNT];
 
-    QString scriptText = "";
+    char scriptText[0x1000];
 
-    int scriptDataPos       = 0;
-    int scriptDataOffset    = 0;
-    int jumpTableDataPos    = 0;
-    int jumpTableDataOffset = 0;
+    int scriptCodePos    = 0;
+    int scriptCodeOffset = 0;
+    int jumpTablePos     = 0;
+    int jumpTableOffset  = 0;
 
     int functionStack[FUNCSTACK_COUNT_v4];
     int functionStackPos = 0;
@@ -143,21 +202,29 @@ public:
     int functionCount = 0;
     QString functionNames[FUNCTION_COUNT_v4];
 
-    int publicAliasCount  = 0;
-    int privateAliasCount = 0;
+    int scriptValueListCount = 0;
+    static ScriptVariableInfo scriptValueList[SCRIPT_VAR_COUNT_v4];
 
-    int publicStaticVarCount  = 0;
-    int privateStaticVarCount = 0;
+    static FunctionInfo functionList_rev00[];
+    static FunctionInfo functionList_rev01[];
+    static FunctionInfo functionList_rev02[];
+    static FunctionInfo functionList_rev03[];
 
-    int publicTableCount  = 0;
-    int privateTableCount = 0;
+    FunctionInfo *opcodeFunctionList;
+
+    static VariableInfo variableNames_rev00[];
+    static VariableInfo variableNames_rev01[];
+    static VariableInfo variableNames_rev02[];
+    static VariableInfo variableNames_rev03[];
+
+    VariableInfo *variableNames;
 
     int lineID = 0;
 
     int scriptCount = 0;
 
     int globalScriptCount     = 0;
-    int globalScriptDataCount = 0;
+    int globalScriptCodeCount = 0;
     int globalJumpTableCount  = 0;
 
     bool scriptError = false;
@@ -166,38 +233,33 @@ public:
     QString errorScr = "";
     int errorLine    = 0;
 
-    QString gamePlatform      = "EDITOR";
-    QString gameRenderType    = "EDITOR_RENDERING";
-    QString gameHapticSetting = "NO_F_FEEDBACK";
+    const char *gamePlatform      = "EDITOR";
+    const char *gameRenderType    = "EDITOR_RENDERING";
+    const char *gameHapticSetting = "NO_F_FEEDBACK";
+    const char *releaseType       = "USE_STANDALONE";
 
     QList<QString> globalVariables;
 
-    QString typeNames[OBJECT_COUNT];
-    QString sfxNames[SFX_COUNT];
+    char typeNames[OBJECT_COUNT][0x40];
+    char sfxNames[SFX_COUNT][0x40];
 
-    bool strComp(QString strA, QString strB);
-    int findStringToken(QString &string, QString token, char stopID);
+    void CheckAliasText(char *text);
+    void CheckStaticText(char *text);
+    bool CheckTableText(char *text);
+    void ConvertArithmaticSyntax(char *text);
+    void ConvertConditionalStatement(char *text);
+    bool ConvertSwitchStatement(char *text);
+    void ConvertFunctionText(char *text);
+    void CheckCaseNumber(char *text);
+    bool ReadSwitchCase(char *text);
+    void ReadTableValues(char *text);
+    void CopyAliasStr(char *dest, char *text, bool arrayIndex);
 
-    void checkAliasText(QString &text);
-    void checkStaticText(QString &text);
-    void *checkTableText(QString &text);
-    void convertArithmaticSyntax(QString &text);
-    void convertIfWhileStatement(QString &text);
-    void convertForeachStatement(QString &text);
-    bool convertSwitchStatement(QString &text);
-    void convertFunctionText(QString &text);
-    void checkCaseNumber(QString &text);
-    bool readSwitchCase(QString &text);
-    void readTableValues(QString &text);
-    void appendIntegerToString(QString &text, int value);
-    bool convertStringToInteger(QString &text, int *value);
-    void copyAliasStr(QString &dest, QString text, bool arrayIndex);
+    void ParseScriptFile(QString scriptName, int scriptID, bool inEditor = true);
 
-    void parseScriptFile(QString scriptName, int scriptID, bool inEditor = true);
+    void ClearScriptData();
 
-    void clearScriptData();
-
-    void writeBytecode(QString path);
+    void WriteBytecode(QString path);
 
     int objectEntityPos = 0;
 
@@ -211,7 +273,7 @@ public:
 
     void *editor = nullptr;
 
-    void processScript(int scriptCodePtr, int jumpTablePtr, byte scriptEvent);
+    void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent);
 
     RSDKv4::Bytecode bytecode;
 

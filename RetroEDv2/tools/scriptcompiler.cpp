@@ -139,10 +139,11 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 
                 SetStatus("Compiling " + bytecodeName + ".bin...", true);
 
-                compilerv4.clearScriptData();
+                compilerv4.ClearScriptData();
                 compilerv4.gamePlatform      = "STANDARD";
                 compilerv4.gameRenderType    = "SW_RENDERING";
                 compilerv4.gameHapticSetting = "NO_F_FEEDBACK";
+                compilerv4.releaseType       = "USE_STANDALONE";
 
                 if (ui->platformType->currentIndex() == 1)
                     compilerv4.gameHapticSetting = "MOBILE";
@@ -155,32 +156,29 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 
                 compilerv4.gameConfig = gameConfig;
 
-                int id                     = 0;
-                compilerv4.typeNames[id++] = "BlankObject";
+                int id = 0;
+                SetScriptTypeName("BlankObject", compilerv4.typeNames[id++]);
+
                 for (auto &obj : gameConfig.objects) {
-                    compilerv4.typeNames[id] = obj.name;
-                    compilerv4.typeNames[id].replace(" ", "");
+                    SetScriptTypeName(obj.name.toStdString().c_str(), compilerv4.typeNames[id++]);
 
                     id++;
                 }
                 for (auto &obj : stageConfig.objects) {
-                    compilerv4.typeNames[id] = obj.name;
-                    compilerv4.typeNames[id].replace(" ", "");
+                    SetScriptTypeName(obj.name.toStdString().c_str(), compilerv4.typeNames[id++]);
 
                     id++;
                 }
 
                 id = 0;
                 for (auto &sfx : gameConfig.soundFX) {
-                    compilerv4.sfxNames[id] = sfx.name;
-                    compilerv4.sfxNames[id].replace(" ", "");
+                    SetScriptTypeName(sfx.name.toStdString().c_str(), compilerv4.sfxNames[id++]);
 
                     id++;
                 }
 
                 for (auto &sfx : stageConfig.soundFX) {
-                    compilerv4.sfxNames[id] = sfx.name;
-                    compilerv4.sfxNames[id].replace(" ", "");
+                    SetScriptTypeName(sfx.name.toStdString().c_str(), compilerv4.sfxNames[id++]);
 
                     id++;
                 }
@@ -195,7 +193,7 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                         QString scriptPath = scriptsFolder + gameConfig.objects[i].script;
                         scriptPath =
                             WorkingDirManager::GetPath(gameConfig.objects[i].script, scriptPath);
-                        compilerv4.parseScriptFile(scriptPath, scrID++, false);
+                        compilerv4.ParseScriptFile(scriptPath, scrID++, false);
 
                         if (compilerv4.scriptError) {
                             PrintLog(compilerv4.errorMsg);
@@ -221,16 +219,16 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                             msgBox.exec();
 
                             SetStatus("Failed to compile script: " + dirFile);
-                            compilerv4.objectScriptList[scrID - 1].eventMain.scriptCodePtr =
-                                SCRIPTDATA_COUNT_v4 - 1;
-                            compilerv4.objectScriptList[scrID - 1].eventMain.jumpTablePtr =
+                            compilerv4.objectScriptList[scrID - 1].eventUpdate.scriptCodePtr =
+                                SCRIPTCODE_COUNT_v4 - 1;
+                            compilerv4.objectScriptList[scrID - 1].eventUpdate.jumpTablePtr =
                                 JUMPTABLE_COUNT_v4 - 1;
                             compilerv4.objectScriptList[scrID - 1].eventDraw.scriptCodePtr =
-                                SCRIPTDATA_COUNT_v4 - 1;
+                                SCRIPTCODE_COUNT_v4 - 1;
                             compilerv4.objectScriptList[scrID - 1].eventDraw.jumpTablePtr =
                                 JUMPTABLE_COUNT_v4 - 1;
                             compilerv4.objectScriptList[scrID - 1].eventStartup.scriptCodePtr =
-                                SCRIPTDATA_COUNT_v4 - 1;
+                                SCRIPTCODE_COUNT_v4 - 1;
                             compilerv4.objectScriptList[scrID - 1].eventStartup.jumpTablePtr =
                                 JUMPTABLE_COUNT_v4 - 1;
 
@@ -240,14 +238,14 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                         SetStatusProgress(((float)i + 1 / gameConfig.objects.count()) / 2);
                     }
                 }
-                int globalScriptCodePos = compilerv4.scriptDataPos;
-                int globalJumpTablePos  = compilerv4.jumpTableDataPos;
+                int globalScriptCodePos = compilerv4.scriptCodePos;
+                int globalJumpTablePos  = compilerv4.jumpTablePos;
 
                 for (int i = 0;
                      !hasError && !ui->isGlobal->isChecked() && i < stageConfig.objects.count(); ++i) {
                     QString scriptPath = scriptsFolder + stageConfig.objects[i].script;
                     scriptPath = WorkingDirManager::GetPath(stageConfig.objects[i].script, scriptPath);
-                    compilerv4.parseScriptFile(scriptPath, scrID++, false);
+                    compilerv4.ParseScriptFile(scriptPath, scrID++, false);
 
                     if (compilerv4.scriptError) {
                         PrintLog(compilerv4.errorMsg);
@@ -274,16 +272,16 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                                            QMessageBox::Ok);
                         msgBox.exec();
 
-                        compilerv4.objectScriptList[scrID - 1].eventMain.scriptCodePtr =
-                            SCRIPTDATA_COUNT_v4 - 1;
-                        compilerv4.objectScriptList[scrID - 1].eventMain.jumpTablePtr =
+                        compilerv4.objectScriptList[scrID - 1].eventUpdate.scriptCodePtr =
+                            SCRIPTCODE_COUNT_v4 - 1;
+                        compilerv4.objectScriptList[scrID - 1].eventUpdate.jumpTablePtr =
                             JUMPTABLE_COUNT_v4 - 1;
                         compilerv4.objectScriptList[scrID - 1].eventDraw.scriptCodePtr =
-                            SCRIPTDATA_COUNT_v4 - 1;
+                            SCRIPTCODE_COUNT_v4 - 1;
                         compilerv4.objectScriptList[scrID - 1].eventDraw.jumpTablePtr =
                             JUMPTABLE_COUNT_v4 - 1;
                         compilerv4.objectScriptList[scrID - 1].eventStartup.scriptCodePtr =
-                            SCRIPTDATA_COUNT_v4 - 1;
+                            SCRIPTCODE_COUNT_v4 - 1;
                         compilerv4.objectScriptList[scrID - 1].eventStartup.jumpTablePtr =
                             JUMPTABLE_COUNT_v4 - 1;
                         hasError = true;
@@ -291,8 +289,8 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     }
                     SetStatusProgress(((float)i + 1 / stageConfig.objects.count()) / 2 + .5);
                 }
-                int scriptCodePos = compilerv4.scriptDataPos;
-                int jumpTablePos  = compilerv4.jumpTableDataPos;
+                int scriptCodePos = compilerv4.scriptCodePos;
+                int jumpTablePos  = compilerv4.jumpTablePos;
 
                 if (!hasError) {
                     RSDKv4::Bytecode bytecode;
@@ -309,17 +307,17 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     }
 
                     for (int c = scriptCodeOffset; c < scriptCodePos; ++c)
-                        bytecode.scriptCode.append(compilerv4.scriptData[c]);
+                        bytecode.scriptCode.append(compilerv4.scriptCode[c]);
 
                     for (int j = jumpTableOffset; j < jumpTablePos; ++j)
-                        bytecode.jumpTable.append(compilerv4.jumpTableData[j]);
+                        bytecode.jumpTable.append(compilerv4.jumpTable[j]);
 
                     for (int s = 0; s < count; ++s) {
                         RSDKv4::Bytecode::ScriptInfo script;
                         script.update.scriptCodePos =
-                            compilerv4.objectScriptList[offset + s].eventMain.scriptCodePtr;
+                            compilerv4.objectScriptList[offset + s].eventUpdate.scriptCodePtr;
                         script.update.jumpTablePos =
-                            compilerv4.objectScriptList[offset + s].eventMain.jumpTablePtr;
+                            compilerv4.objectScriptList[offset + s].eventUpdate.jumpTablePtr;
                         script.draw.scriptCodePos =
                             compilerv4.objectScriptList[offset + s].eventDraw.scriptCodePtr;
                         script.draw.jumpTablePos =
@@ -334,8 +332,8 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 
                     for (int f = 0; f < compilerv4.functionCount; ++f) {
                         RSDKv4::Bytecode::FunctionInfo func;
-                        func.scriptCodePos = compilerv4.functionList[f].scriptCodePtr;
-                        func.jumpTablePos  = compilerv4.functionList[f].jumpTablePtr;
+                        func.scriptCodePos = compilerv4.functionList[f].ptr.scriptCodePtr;
+                        func.jumpTablePos  = compilerv4.functionList[f].ptr.jumpTablePtr;
 
                         bytecode.functionList.append(func);
                     }
@@ -372,10 +370,11 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 
                 SetStatus("Compiling " + bytecodeName + ".bin...", true);
 
-                compilerv3.clearScriptData();
+                compilerv3.ClearScriptData();
                 compilerv3.gamePlatform      = "Standard";
                 compilerv3.gameRenderType    = "SW_Rendering";
                 compilerv3.gameHapticSetting = "No_Haptics";
+                compilerv3.gameRenderType    = "Use_Standalone";
 
                 if (ui->platformType->currentIndex() == 1)
                     compilerv3.gameHapticSetting = "Mobile";
@@ -388,17 +387,15 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 
                 compilerv3.gameConfig = gameConfig;
 
-                int id                     = 0;
-                compilerv3.typeNames[id++] = "BlankObject";
+                int id = 0;
+                SetScriptTypeName("BlankObject", compilerv3.typeNames[id++]);
                 for (auto &obj : gameConfig.objects) {
-                    compilerv3.typeNames[id] = obj.name;
-                    compilerv3.typeNames[id].replace(" ", "");
+                    SetScriptTypeName(obj.name.toStdString().c_str(), compilerv3.typeNames[id++]);
 
                     id++;
                 }
                 for (auto &obj : stageConfig.objects) {
-                    compilerv3.typeNames[id] = obj.name;
-                    compilerv3.typeNames[id].replace(" ", "");
+                    SetScriptTypeName(obj.name.toStdString().c_str(), compilerv3.typeNames[id++]);
 
                     id++;
                 }
@@ -419,7 +416,7 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                         QString scriptPath = scriptsFolder + gameConfig.objects[i].script;
                         scriptPath =
                             WorkingDirManager::GetPath(gameConfig.objects[i].script, scriptPath);
-                        compilerv3.parseScriptFile(scriptPath, scrID++, false);
+                        compilerv3.ParseScriptFile(scriptPath, scrID++, false);
 
                         if (compilerv3.scriptError) {
                             PrintLog(compilerv3.errorMsg);
@@ -452,14 +449,14 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                         SetStatusProgress(((float)i + 1 / gameConfig.objects.count()) / 2);
                     }
                 }
-                int globalScriptCodePos = compilerv3.scriptDataPos;
-                int globalJumpTablePos  = compilerv3.jumpTableDataPos;
+                int globalScriptCodePos = compilerv3.scriptCodePos;
+                int globalJumpTablePos  = compilerv3.jumpTablePos;
 
                 for (int i = 0;
                      !hasError && !ui->isGlobal->isChecked() && i < stageConfig.objects.count(); ++i) {
                     QString scriptPath = scriptsFolder + stageConfig.objects[i].script;
                     scriptPath = WorkingDirManager::GetPath(stageConfig.objects[i].script, scriptPath);
-                    compilerv3.parseScriptFile(scriptPath, scrID++, false);
+                    compilerv3.ParseScriptFile(scriptPath, scrID++, false);
 
                     if (compilerv3.scriptError) {
                         PrintLog(compilerv3.errorMsg);
@@ -491,8 +488,8 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     }
                     SetStatusProgress(((float)i + 1 / stageConfig.objects.count()) / 2 + .5);
                 }
-                int scriptCodePos = compilerv3.scriptDataPos;
-                int jumpTablePos  = compilerv3.jumpTableDataPos;
+                int scriptCodePos = compilerv3.scriptCodePos;
+                int jumpTablePos  = compilerv3.jumpTablePos;
 
                 if (!hasError) {
                     RSDKv3::Bytecode bytecode;
@@ -509,10 +506,10 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     }
 
                     for (int c = scriptCodeOffset; c < scriptCodePos; ++c)
-                        bytecode.scriptCode.append(compilerv3.scriptData[c]);
+                        bytecode.scriptCode.append(compilerv3.scriptCode[c]);
 
                     for (int j = jumpTableOffset; j < jumpTablePos; ++j)
-                        bytecode.jumpTable.append(compilerv3.jumpTableData[j]);
+                        bytecode.jumpTable.append(compilerv3.jumpTable[j]);
 
                     for (int s = 0; s < count; ++s) {
                         RSDKv3::Bytecode::ScriptInfo script;
@@ -541,8 +538,8 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 
                     for (int f = 0; f < compilerv3.functionCount; ++f) {
                         RSDKv3::Bytecode::FunctionInfo func;
-                        func.scriptCodePos = compilerv3.functionList[f].scriptCodePtr;
-                        func.jumpTablePos  = compilerv3.functionList[f].jumpTablePtr;
+                        func.scriptCodePos = compilerv3.functionList[f].ptr.scriptCodePtr;
+                        func.jumpTablePos  = compilerv3.functionList[f].ptr.jumpTablePtr;
 
                         bytecode.functionList.append(func);
                     }

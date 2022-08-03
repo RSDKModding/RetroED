@@ -88,6 +88,7 @@ SOURCES += \
     utils/shaders.cpp \
     main.cpp \
     utils/staticobjectinfo.cpp \
+    utils/stringhelpers.cpp \
     utils/workingdirmanager.cpp
 
 HEADERS += \
@@ -155,6 +156,7 @@ HEADERS += \
     utils/shaders.hpp \
     includes.hpp \
     utils/staticobjectinfo.hpp \
+    utils/stringhelpers.hpp \
     utils/workingdirmanager.hpp \
     version.hpp
 

@@ -1,279 +1,245 @@
 #include "includes.hpp"
 
-#define COMMONALIAS_COUNT (0x22)
-#define ALIAS_COUNT       (COMMONALIAS_COUNT + 0x60)
+Compilerv3::VariableInfo Compilerv3::variableList[] = {
+    VariableInfo("TempValue0"),
+    VariableInfo("TempValue1"),
+    VariableInfo("TempValue2"),
+    VariableInfo("TempValue3"),
+    VariableInfo("TempValue4"),
+    VariableInfo("TempValue5"),
+    VariableInfo("TempValue6"),
+    VariableInfo("TempValue7"),
+    VariableInfo("CheckResult"),
+    VariableInfo("ArrayPos0"),
+    VariableInfo("ArrayPos1"),
+    VariableInfo("Global"),
+    VariableInfo("Object.EntityNo"),
+    VariableInfo("Object.Type"),
+    VariableInfo("Object.PropertyValue"),
+    VariableInfo("Object.XPos"),
+    VariableInfo("Object.YPos"),
+    VariableInfo("Object.iXPos"),
+    VariableInfo("Object.iYPos"),
+    VariableInfo("Object.State"),
+    VariableInfo("Object.Rotation"),
+    VariableInfo("Object.Scale"),
+    VariableInfo("Object.Priority"),
+    VariableInfo("Object.DrawOrder"),
+    VariableInfo("Object.Direction"),
+    VariableInfo("Object.InkEffect"),
+    VariableInfo("Object.Alpha"),
+    VariableInfo("Object.Frame"),
+    VariableInfo("Object.Animation"),
+    VariableInfo("Object.PrevAnimation"),
+    VariableInfo("Object.AnimationSpeed"),
+    VariableInfo("Object.AnimationTimer"),
+    VariableInfo("Object.Value0"),
+    VariableInfo("Object.Value1"),
+    VariableInfo("Object.Value2"),
+    VariableInfo("Object.Value3"),
+    VariableInfo("Object.Value4"),
+    VariableInfo("Object.Value5"),
+    VariableInfo("Object.Value6"),
+    VariableInfo("Object.Value7"),
+    VariableInfo("Object.OutOfBounds"),
+    VariableInfo("Player.State"),
+    VariableInfo("Player.ControlMode"),
+    VariableInfo("Player.ControlLock"),
+    VariableInfo("Player.CollisionMode"),
+    VariableInfo("Player.CollisionPlane"),
+    VariableInfo("Player.XPos"),
+    VariableInfo("Player.YPos"),
+    VariableInfo("Player.iXPos"),
+    VariableInfo("Player.iYPos"),
+    VariableInfo("Player.ScreenXPos"),
+    VariableInfo("Player.ScreenYPos"),
+    VariableInfo("Player.Speed"),
+    VariableInfo("Player.XVelocity"),
+    VariableInfo("Player.YVelocity"),
+    VariableInfo("Player.Gravity"),
+    VariableInfo("Player.Angle"),
+    VariableInfo("Player.Skidding"),
+    VariableInfo("Player.Pushing"),
+    VariableInfo("Player.TrackScroll"),
+    VariableInfo("Player.Up"),
+    VariableInfo("Player.Down"),
+    VariableInfo("Player.Left"),
+    VariableInfo("Player.Right"),
+    VariableInfo("Player.JumpPress"),
+    VariableInfo("Player.JumpHold"),
+    VariableInfo("Player.FollowPlayer1"),
+    VariableInfo("Player.LookPos"),
+    VariableInfo("Player.Water"),
+    VariableInfo("Player.TopSpeed"),
+    VariableInfo("Player.Acceleration"),
+    VariableInfo("Player.Deceleration"),
+    VariableInfo("Player.AirAcceleration"),
+    VariableInfo("Player.AirDeceleration"),
+    VariableInfo("Player.GravityStrength"),
+    VariableInfo("Player.JumpStrength"),
+    VariableInfo("Player.JumpCap"),
+    VariableInfo("Player.RollingAcceleration"),
+    VariableInfo("Player.RollingDeceleration"),
+    VariableInfo("Player.EntityNo"),
+    VariableInfo("Player.CollisionLeft"),
+    VariableInfo("Player.CollisionTop"),
+    VariableInfo("Player.CollisionRight"),
+    VariableInfo("Player.CollisionBottom"),
+    VariableInfo("Player.Flailing"),
+    VariableInfo("Player.Timer"),
+    VariableInfo("Player.TileCollisions"),
+    VariableInfo("Player.ObjectInteraction"),
+    VariableInfo("Player.Visible"),
+    VariableInfo("Player.Rotation"),
+    VariableInfo("Player.Scale"),
+    VariableInfo("Player.Priority"),
+    VariableInfo("Player.DrawOrder"),
+    VariableInfo("Player.Direction"),
+    VariableInfo("Player.InkEffect"),
+    VariableInfo("Player.Alpha"),
+    VariableInfo("Player.Frame"),
+    VariableInfo("Player.Animation"),
+    VariableInfo("Player.PrevAnimation"),
+    VariableInfo("Player.AnimationSpeed"),
+    VariableInfo("Player.AnimationTimer"),
+    VariableInfo("Player.Value0"),
+    VariableInfo("Player.Value1"),
+    VariableInfo("Player.Value2"),
+    VariableInfo("Player.Value3"),
+    VariableInfo("Player.Value4"),
+    VariableInfo("Player.Value5"),
+    VariableInfo("Player.Value6"),
+    VariableInfo("Player.Value7"),
+    VariableInfo("Player.Value8"),
+    VariableInfo("Player.Value9"),
+    VariableInfo("Player.Value10"),
+    VariableInfo("Player.Value11"),
+    VariableInfo("Player.Value12"),
+    VariableInfo("Player.Value13"),
+    VariableInfo("Player.Value14"),
+    VariableInfo("Player.Value15"),
+    VariableInfo("Player.OutOfBounds"),
+    VariableInfo("Stage.State"),
+    VariableInfo("Stage.ActiveList"),
+    VariableInfo("Stage.ListPos"),
+    VariableInfo("Stage.TimeEnabled"),
+    VariableInfo("Stage.MilliSeconds"),
+    VariableInfo("Stage.Seconds"),
+    VariableInfo("Stage.Minutes"),
+    VariableInfo("Stage.ActNo"),
+    VariableInfo("Stage.PauseEnabled"),
+    VariableInfo("Stage.ListSize"),
+    VariableInfo("Stage.NewXBoundary1"),
+    VariableInfo("Stage.NewXBoundary2"),
+    VariableInfo("Stage.NewYBoundary1"),
+    VariableInfo("Stage.NewYBoundary2"),
+    VariableInfo("Stage.XBoundary1"),
+    VariableInfo("Stage.XBoundary2"),
+    VariableInfo("Stage.YBoundary1"),
+    VariableInfo("Stage.YBoundary2"),
+    VariableInfo("Stage.DeformationData0"),
+    VariableInfo("Stage.DeformationData1"),
+    VariableInfo("Stage.DeformationData2"),
+    VariableInfo("Stage.DeformationData3"),
+    VariableInfo("Stage.WaterLevel"),
+    VariableInfo("Stage.ActiveLayer"),
+    VariableInfo("Stage.MidPoint"),
+    VariableInfo("Stage.PlayerListPos"),
+    VariableInfo("Stage.ActivePlayer"),
+    VariableInfo("Screen.CameraEnabled"),
+    VariableInfo("Screen.CameraTarget"),
+    VariableInfo("Screen.CameraStyle"),
+    VariableInfo("Screen.DrawListSize"),
+    VariableInfo("Screen.CenterX"),
+    VariableInfo("Screen.CenterY"),
+    VariableInfo("Screen.XSize"),
+    VariableInfo("Screen.YSize"),
+    VariableInfo("Screen.XOffset"),
+    VariableInfo("Screen.YOffset"),
+    VariableInfo("Screen.ShakeX"),
+    VariableInfo("Screen.ShakeY"),
+    VariableInfo("Screen.AdjustCameraY"),
+    VariableInfo("TouchScreen.Down"),
+    VariableInfo("TouchScreen.XPos"),
+    VariableInfo("TouchScreen.YPos"),
+    VariableInfo("Music.Volume"),
+    VariableInfo("Music.CurrentTrack"),
+    VariableInfo("KeyDown.Up"),
+    VariableInfo("KeyDown.Down"),
+    VariableInfo("KeyDown.Left"),
+    VariableInfo("KeyDown.Right"),
+    VariableInfo("KeyDown.ButtonA"),
+    VariableInfo("KeyDown.ButtonB"),
+    VariableInfo("KeyDown.ButtonC"),
+    VariableInfo("KeyDown.Start"),
+    VariableInfo("KeyPress.Up"),
+    VariableInfo("KeyPress.Down"),
+    VariableInfo("KeyPress.Left"),
+    VariableInfo("KeyPress.Right"),
+    VariableInfo("KeyPress.ButtonA"),
+    VariableInfo("KeyPress.ButtonB"),
+    VariableInfo("KeyPress.ButtonC"),
+    VariableInfo("KeyPress.Start"),
+    VariableInfo("Menu1.Selection"),
+    VariableInfo("Menu2.Selection"),
+    VariableInfo("TileLayer.XSize"),
+    VariableInfo("TileLayer.YSize"),
+    VariableInfo("TileLayer.Type"),
+    VariableInfo("TileLayer.Angle"),
+    VariableInfo("TileLayer.XPos"),
+    VariableInfo("TileLayer.YPos"),
+    VariableInfo("TileLayer.ZPos"),
+    VariableInfo("TileLayer.ParallaxFactor"),
+    VariableInfo("TileLayer.ScrollSpeed"),
+    VariableInfo("TileLayer.ScrollPos"),
+    VariableInfo("TileLayer.DeformationOffset"),
+    VariableInfo("TileLayer.DeformationOffsetW"),
+    VariableInfo("HParallax.ParallaxFactor"),
+    VariableInfo("HParallax.ScrollSpeed"),
+    VariableInfo("HParallax.ScrollPos"),
+    VariableInfo("VParallax.ParallaxFactor"),
+    VariableInfo("VParallax.ScrollSpeed"),
+    VariableInfo("VParallax.ScrollPos"),
+    VariableInfo("3DScene.NoVertices"),
+    VariableInfo("3DScene.NoFaces"),
+    VariableInfo("VertexBuffer.x"),
+    VariableInfo("VertexBuffer.y"),
+    VariableInfo("VertexBuffer.z"),
+    VariableInfo("VertexBuffer.u"),
+    VariableInfo("VertexBuffer.v"),
+    VariableInfo("FaceBuffer.a"),
+    VariableInfo("FaceBuffer.b"),
+    VariableInfo("FaceBuffer.c"),
+    VariableInfo("FaceBuffer.d"),
+    VariableInfo("FaceBuffer.Flag"),
+    VariableInfo("FaceBuffer.Color"),
+    VariableInfo("3DScene.ProjectionX"),
+    VariableInfo("3DScene.ProjectionY"),
+    VariableInfo("Engine.State"),
+    VariableInfo("Stage.DebugMode"),
+    VariableInfo("Engine.Message"),
+    VariableInfo("SaveRAM"),
+    VariableInfo("Engine.Language"),
+    VariableInfo("Object.SpriteSheet"),
+    VariableInfo("Engine.OnlineActive"),
+    VariableInfo("Engine.FrameSkipTimer"),
+    VariableInfo("Engine.FrameSkipSetting"),
+    VariableInfo("Engine.SFXVolume"),
+    VariableInfo("Engine.BGMVolume"),
+    VariableInfo("Engine.PlatformID"),
+    VariableInfo("Engine.TrialMode"),
+    VariableInfo("KeyPress.AnyStart"),
+    VariableInfo("Engine.HapticsEnabled"),
 
-struct AliasInfo {
-    AliasInfo()
-    {
-        name  = "";
-        value = "";
-    }
-    AliasInfo(QString aliasName, QString aliasVal)
-    {
-        name  = aliasName;
-        value = aliasVal;
-    }
-
-    QString name  = "";
-    QString value = "";
-};
-
-struct FunctionInfo {
-    FunctionInfo()
-    {
-        name       = "";
-        opcodeSize = 0;
-    }
-    FunctionInfo(QString functionName, int opSize)
-    {
-        name       = functionName;
-        opcodeSize = opSize;
-    }
-
-    QString name   = "";
-    int opcodeSize = 0;
-};
-
-const QString variableNames[] = {
-    "TempValue0",
-    "TempValue1",
-    "TempValue2",
-    "TempValue3",
-    "TempValue4",
-    "TempValue5",
-    "TempValue6",
-    "TempValue7",
-    "CheckResult",
-    "ArrayPos0",
-    "ArrayPos1",
-    "Global",
-    "Object.EntityNo",
-    "Object.Type",
-    "Object.PropertyValue",
-    "Object.XPos",
-    "Object.YPos",
-    "Object.iXPos",
-    "Object.iYPos",
-    "Object.State",
-    "Object.Rotation",
-    "Object.Scale",
-    "Object.Priority",
-    "Object.DrawOrder",
-    "Object.Direction",
-    "Object.InkEffect",
-    "Object.Alpha",
-    "Object.Frame",
-    "Object.Animation",
-    "Object.PrevAnimation",
-    "Object.AnimationSpeed",
-    "Object.AnimationTimer",
-    "Object.Value0",
-    "Object.Value1",
-    "Object.Value2",
-    "Object.Value3",
-    "Object.Value4",
-    "Object.Value5",
-    "Object.Value6",
-    "Object.Value7",
-    "Object.OutOfBounds",
-    "Player.State",
-    "Player.ControlMode",
-    "Player.ControlLock",
-    "Player.CollisionMode",
-    "Player.CollisionPlane",
-    "Player.XPos",
-    "Player.YPos",
-    "Player.iXPos",
-    "Player.iYPos",
-    "Player.ScreenXPos",
-    "Player.ScreenYPos",
-    "Player.Speed",
-    "Player.XVelocity",
-    "Player.YVelocity",
-    "Player.Gravity",
-    "Player.Angle",
-    "Player.Skidding",
-    "Player.Pushing",
-    "Player.TrackScroll",
-    "Player.Up",
-    "Player.Down",
-    "Player.Left",
-    "Player.Right",
-    "Player.JumpPress",
-    "Player.JumpHold",
-    "Player.FollowPlayer1",
-    "Player.LookPos",
-    "Player.Water",
-    "Player.TopSpeed",
-    "Player.Acceleration",
-    "Player.Deceleration",
-    "Player.AirAcceleration",
-    "Player.AirDeceleration",
-    "Player.GravityStrength",
-    "Player.JumpStrength",
-    "Player.JumpCap",
-    "Player.RollingAcceleration",
-    "Player.RollingDeceleration",
-    "Player.EntityNo",
-    "Player.CollisionLeft",
-    "Player.CollisionTop",
-    "Player.CollisionRight",
-    "Player.CollisionBottom",
-    "Player.Flailing",
-    "Player.Timer",
-    "Player.TileCollisions",
-    "Player.ObjectInteraction",
-    "Player.Visible",
-    "Player.Rotation",
-    "Player.Scale",
-    "Player.Priority",
-    "Player.DrawOrder",
-    "Player.Direction",
-    "Player.InkEffect",
-    "Player.Alpha",
-    "Player.Frame",
-    "Player.Animation",
-    "Player.PrevAnimation",
-    "Player.AnimationSpeed",
-    "Player.AnimationTimer",
-    "Player.Value0",
-    "Player.Value1",
-    "Player.Value2",
-    "Player.Value3",
-    "Player.Value4",
-    "Player.Value5",
-    "Player.Value6",
-    "Player.Value7",
-    "Player.Value8",
-    "Player.Value9",
-    "Player.Value10",
-    "Player.Value11",
-    "Player.Value12",
-    "Player.Value13",
-    "Player.Value14",
-    "Player.Value15",
-    "Player.OutOfBounds",
-    "Stage.State",
-    "Stage.ActiveList",
-    "Stage.ListPos",
-    "Stage.TimeEnabled",
-    "Stage.MilliSeconds",
-    "Stage.Seconds",
-    "Stage.Minutes",
-    "Stage.ActNo",
-    "Stage.PauseEnabled",
-    "Stage.ListSize",
-    "Stage.NewXBoundary1",
-    "Stage.NewXBoundary2",
-    "Stage.NewYBoundary1",
-    "Stage.NewYBoundary2",
-    "Stage.XBoundary1",
-    "Stage.XBoundary2",
-    "Stage.YBoundary1",
-    "Stage.YBoundary2",
-    "Stage.DeformationData0",
-    "Stage.DeformationData1",
-    "Stage.DeformationData2",
-    "Stage.DeformationData3",
-    "Stage.WaterLevel",
-    "Stage.ActiveLayer",
-    "Stage.MidPoint",
-    "Stage.PlayerListPos",
-    "Stage.ActivePlayer",
-    "Screen.CameraEnabled",
-    "Screen.CameraTarget",
-    "Screen.CameraStyle",
-    "Screen.DrawListSize",
-    "Screen.CenterX",
-    "Screen.CenterY",
-    "Screen.XSize",
-    "Screen.YSize",
-    "Screen.XOffset",
-    "Screen.YOffset",
-    "Screen.ShakeX",
-    "Screen.ShakeY",
-    "Screen.AdjustCameraY",
-    "TouchScreen.Down",
-    "TouchScreen.XPos",
-    "TouchScreen.YPos",
-    "Music.Volume",
-    "Music.CurrentTrack",
-    "KeyDown.Up",
-    "KeyDown.Down",
-    "KeyDown.Left",
-    "KeyDown.Right",
-    "KeyDown.ButtonA",
-    "KeyDown.ButtonB",
-    "KeyDown.ButtonC",
-    "KeyDown.Start",
-    "KeyPress.Up",
-    "KeyPress.Down",
-    "KeyPress.Left",
-    "KeyPress.Right",
-    "KeyPress.ButtonA",
-    "KeyPress.ButtonB",
-    "KeyPress.ButtonC",
-    "KeyPress.Start",
-    "Menu1.Selection",
-    "Menu2.Selection",
-    "TileLayer.XSize",
-    "TileLayer.YSize",
-    "TileLayer.Type",
-    "TileLayer.Angle",
-    "TileLayer.XPos",
-    "TileLayer.YPos",
-    "TileLayer.ZPos",
-    "TileLayer.ParallaxFactor",
-    "TileLayer.ScrollSpeed",
-    "TileLayer.ScrollPos",
-    "TileLayer.DeformationOffset",
-    "TileLayer.DeformationOffsetW",
-    "HParallax.ParallaxFactor",
-    "HParallax.ScrollSpeed",
-    "HParallax.ScrollPos",
-    "VParallax.ParallaxFactor",
-    "VParallax.ScrollSpeed",
-    "VParallax.ScrollPos",
-    "3DScene.NoVertices",
-    "3DScene.NoFaces",
-    "VertexBuffer.x",
-    "VertexBuffer.y",
-    "VertexBuffer.z",
-    "VertexBuffer.u",
-    "VertexBuffer.v",
-    "FaceBuffer.a",
-    "FaceBuffer.b",
-    "FaceBuffer.c",
-    "FaceBuffer.d",
-    "FaceBuffer.Flag",
-    "FaceBuffer.Color",
-    "3DScene.ProjectionX",
-    "3DScene.ProjectionY",
-    "Engine.State",
-    "Stage.DebugMode",
-    "Engine.Message",
-    "SaveRAM",
-    "Engine.Language",
-    "Object.SpriteSheet",
-    "Engine.OnlineActive",
-    "Engine.FrameSkipTimer",
-    "Engine.FrameSkipSetting",
-    "Engine.SFXVolume",
-    "Engine.BGMVolume",
-    "Engine.PlatformID",
-    "Engine.TrialMode",
-    "KeyPress.AnyStart",
-    "Engine.HapticsEnabled",
     // EDITOR ONLY
-    "Editor.VariableID",
-    "Editor.VariableValue",
-    "Editor.ReturnVariable",
-    "Editor.ShowGizmos",
-    "editor.drawingOverlay",
+    VariableInfo("Editor.VariableID"),
+    VariableInfo("Editor.VariableValue"),
+    VariableInfo("Editor.ReturnVariable"),
+    VariableInfo("Editor.ShowGizmos"),
+    VariableInfo("Editor.DrawingOverlay"),
 };
 
-const FunctionInfo functions[] = {
+Compilerv3::FunctionInfo Compilerv3::opcodeFunctionList[] = {
     FunctionInfo("End", 0),
     FunctionInfo("Equal", 2),
     FunctionInfo("Add", 2),
@@ -422,7 +388,7 @@ const FunctionInfo functions[] = {
     FunctionInfo("CheckCurrentStageFolder", 1),
 };
 
-AliasInfo aliases[ALIAS_COUNT] = {
+Compilerv3::AliasInfo Compilerv3::aliases[ALIAS_COUNT] = {
     AliasInfo("true", "1"),
     AliasInfo("false", "0"),
     AliasInfo("FX_SCALE", "0"),
@@ -455,13 +421,15 @@ AliasInfo aliases[ALIAS_COUNT] = {
     AliasInfo("RETRO_iOS", "4"),
     AliasInfo("RETRO_ANDROID", "5"),
     AliasInfo("RETRO_WP7", "6"),
+
     // EDITOR-ONLY
     AliasInfo("EDIT_VAR_PROPVAL", "-1"),
     AliasInfo("ALIAS_VAR_PROPVAL", "0"),
 };
 
-const QString scriptEvaluationTokens[] = { "=",  "+=", "-=", "++", "--", "*=", "/=", ">>=", "<<=", "&=",
-                                           "|=", "^=", "%=", "==", ">",  ">=", "<",  "<=",  "!=" };
+const char scriptEvaluationTokens[][0x4] = { "=",   "+=",  "-=", "++", "--", "*=", "/=",
+                                             ">>=", "<<=", "&=", "|=", "^=", "%=", "==",
+                                             ">",   ">=",  "<",  "<=", "!=" };
 
 enum ScriptReadModes {
     READMODE_NORMAL      = 0,
@@ -908,90 +876,50 @@ Compilerv3::Compilerv3()
     }
 }
 
-bool Compilerv3::strComp(QString strA, QString strB)
+void Compilerv3::CheckAliasText(char *text)
 {
-    if (strA.length() == 0 && strB.length() == 0)
-        return true;
-    if (strA.length() == 0 || strB.length() == 0 || strA.length() != strB.length())
-        return false;
-
-    bool match  = true;
-    int strPosA = 0, strPosB = 0;
-
-    while (strPosA < strA.length() && strPosB < strB.length()) {
-        if (strA[strPosA] == strB[strPosB] || strA[strPosA] == strB[strPosB].toLatin1() + ' '
-            || strA[strPosA] == strB[strPosB].toLatin1() - ' ') {
-            ++strPosA;
-            ++strPosB;
-        }
-        else {
-            match = false;
-            break;
-        }
-    }
-    return match;
-}
-
-int Compilerv3::findStringToken(QString &string, QString token, char stopID)
-{
-    int tokenCharID  = 0;
-    bool tokenMatch  = true;
-    int stringCharID = 0;
-    int foundTokenID = 0;
-
-    while (stringCharID < string.length()) {
-        tokenCharID = 0;
-        tokenMatch  = true;
-        while (tokenCharID < token.length()) {
-            if (tokenCharID + stringCharID >= string.length())
-                return -1;
-
-            if (string[tokenCharID + stringCharID] != token[tokenCharID])
-                tokenMatch = false;
-
-            ++tokenCharID;
-        }
-        if (tokenMatch && ++foundTokenID == stopID)
-            return stringCharID;
-
-        ++stringCharID;
-    }
-    return -1;
-}
-
-void Compilerv3::checkAliasText(QString &text)
-{
-    if (findStringToken(text, "#alias", 1))
+    if (FindStringToken(text, "#alias", 1) != 0)
         return;
-    int textPos    = 6;
-    int aliasMatch = 0;
-    while (aliasMatch < 2) {
-        if (aliasMatch) {
-            if (aliasMatch == 1) {
-                aliases[aliasCount].name += text[textPos];
-                if (textPos + 1 >= text.length())
-                    ++aliasMatch;
+
+    int textPos     = 6;
+    int aliasStrPos = 0;
+    int parseMode   = 0;
+
+    while (parseMode < 2) {
+        if (parseMode) {
+            if (parseMode == 1) {
+                aliases[aliasCount].name[aliasStrPos] = text[textPos];
+                if (text[textPos]) {
+                    aliasStrPos++;
+                }
+                else {
+                    aliasStrPos = 0;
+                    ++parseMode;
+                }
             }
         }
         else if (text[textPos] == ':') {
-            aliasMatch = 1;
+            aliases[aliasCount].value[aliasStrPos] = 0;
+            aliasStrPos                            = 0;
+            parseMode                              = 1;
         }
         else {
-            aliases[aliasCount].value += text[textPos];
+            aliases[aliasCount].value[aliasStrPos++] = text[textPos];
         }
         ++textPos;
     }
+
     ++aliasCount;
 }
-void Compilerv3::convertArithmaticSyntax(QString &text)
+void Compilerv3::ConvertArithmaticSyntax(char *text)
 {
-    int token    = 0;
-    int offset   = 0;
-    int findID   = 0;
-    QString dest = "";
+    int token  = 0;
+    int offset = 0;
+    int findID = 0;
+    char dest[260];
 
     for (int i = FUNC_EQUAL; i <= FUNC_MOD; ++i) {
-        findID = findStringToken(text, scriptEvaluationTokens[i - 1], 1);
+        findID = FindStringToken(text, scriptEvaluationTokens[i - 1], 1);
         if (findID > -1) {
             offset = findID;
             token  = i;
@@ -999,116 +927,137 @@ void Compilerv3::convertArithmaticSyntax(QString &text)
     }
 
     if (token > 0) {
-        dest = functions[token].name + "(";
-        for (int i = 0; i < offset; ++i) dest += text[i];
-        if (functions[token].opcodeSize > 1) {
-            dest += ',';
-            offset += scriptEvaluationTokens[token - 1].length();
+        StrCopy(dest, opcodeFunctionList[token].name);
+        StrAdd(dest, "(");
+        findID = StrLength(dest);
+        for (int i = 0; i < offset; ++i) dest[findID++] = text[i];
+        if (opcodeFunctionList[token].opcodeSize > 1) {
+            dest[findID] = ',';
+            int len      = StrLength(scriptEvaluationTokens[token - 1]);
+            offset += len;
             ++findID;
-            while (offset < text.length()) dest += text[offset++];
+            while (text[offset]) dest[findID++] = text[offset++];
         }
-
-        dest = dest + ")";
-        text = dest;
+        dest[findID] = 0;
+        StrAdd(dest, ")");
+        StrCopy(text, dest);
     }
 }
-void Compilerv3::convertIfWhileStatement(QString &text)
+void Compilerv3::ConvertIfWhileStatement(char *text)
 {
-    QString dest  = "";
-    int compareOp = -1;
-    int strPos    = 0;
-    if (findStringToken(text, "if", 1)) {
-        if (!findStringToken(text, "while", 1)) {
-            for (int i = 0; i < 6; ++i) {
-                int tPos = findStringToken(text, scriptEvaluationTokens[i + FUNC_MOD], 1);
-                if (tPos > -1) {
-                    strPos    = tPos;
-                    compareOp = i;
-                }
-            }
-            if (compareOp > -1) {
-                text.replace(strPos, 1, ',');
-                dest = functions[compareOp + FUNC_WEQUAL].name + "(";
-                appendIntegerToString(dest, jumpTableDataPos - jumpTableDataOffset);
-                dest += ",";
-                for (int i = 5; i < text.length(); ++i) {
-                    if (text[i] != '=' && text[i] != '(' && text[i] != ')')
-                        dest += text[i];
-                }
-                dest += ")";
-                text                                = dest;
-                jumpTableStack[++jumpTableStackPos] = jumpTableDataPos;
-                jumpTableData[jumpTableDataPos++]   = scriptDataPos - scriptDataOffset;
-                jumpTableData[jumpTableDataPos++]   = 0;
-            }
-        }
-    }
-    else {
+    char dest[260];
+    int compareOp  = -1;
+    int strPos     = 0;
+    int destStrPos = 0;
+
+    if (FindStringToken(text, "if", 1) == 0) {
         for (int i = 0; i < 6; ++i) {
-            int tPos = findStringToken(text, scriptEvaluationTokens[i + FUNC_MOD], 1);
-            if (tPos > -1) {
-                strPos    = tPos;
+            destStrPos = FindStringToken(text, scriptEvaluationTokens[i + FUNC_MOD], 1);
+            if (destStrPos > -1) {
+                strPos    = destStrPos;
                 compareOp = i;
             }
         }
+
         if (compareOp > -1) {
-            text.replace(strPos, 1, ',');
-            dest = functions[compareOp + FUNC_IFEQUAL].name + "(";
-            appendIntegerToString(dest, jumpTableDataPos - jumpTableDataOffset);
-            dest += ",";
-            for (int i = 2; i < text.length(); ++i) {
+            text[strPos] = ',';
+
+            StrCopy(dest, opcodeFunctionList[compareOp + FUNC_IFEQUAL].name);
+            StrAdd(dest, "(");
+            AppendIntegerToString(dest, jumpTablePos - jumpTableOffset);
+            StrAdd(dest, ",");
+
+            destStrPos = StrLength(dest);
+            for (int i = 2; text[i]; ++i) {
                 if (text[i] != '=' && text[i] != '(' && text[i] != ')')
-                    dest += text[i];
+                    dest[destStrPos++] = text[i];
             }
-            dest += ")";
-            text                                = dest;
-            jumpTableStack[++jumpTableStackPos] = jumpTableDataPos;
-            jumpTableData[jumpTableDataPos++]   = -1;
-            jumpTableData[jumpTableDataPos++]   = 0;
+            dest[destStrPos] = 0;
+
+            StrAdd(dest, ")");
+            StrCopy(text, dest);
+
+            jumpTableStack[++jumpTableStackPos] = jumpTablePos;
+            jumpTable[jumpTablePos++]           = -1;
+            jumpTable[jumpTablePos++]           = 0;
+        }
+    }
+    else if (FindStringToken(text, "while", 1) == 0) {
+        for (int i = 0; i < 6; ++i) {
+            destStrPos = FindStringToken(text, scriptEvaluationTokens[i + FUNC_MOD], 1);
+            if (destStrPos > -1) {
+                strPos    = destStrPos;
+                compareOp = i;
+            }
+        }
+
+        if (compareOp > -1) {
+            text[strPos] = ',';
+
+            StrCopy(dest, opcodeFunctionList[compareOp + FUNC_WEQUAL].name);
+            StrAdd(dest, "(");
+            AppendIntegerToString(dest, jumpTablePos - jumpTableOffset);
+            StrAdd(dest, ",");
+
+            destStrPos = StrLength(dest);
+            for (int i = 5; text[i]; ++i) {
+                if (text[i] != '=' && text[i] != '(' && text[i] != ')')
+                    dest[destStrPos++] = text[i];
+            }
+            dest[destStrPos] = 0;
+
+            StrAdd(dest, ")");
+            StrCopy(text, dest);
+
+            jumpTableStack[++jumpTableStackPos] = jumpTablePos;
+            jumpTable[jumpTablePos++]           = scriptCodePos - scriptCodeOffset;
+            jumpTable[jumpTablePos++]           = 0;
         }
     }
 }
-bool Compilerv3::convertSwitchStatement(QString &text)
+bool Compilerv3::ConvertSwitchStatement(char *text)
 {
-    if (findStringToken(text, "switch", 1))
+    if (FindStringToken(text, "switch", 1))
         return false;
-    QString switchText = "";
-    switchText         = "switch(";
-    appendIntegerToString(switchText, jumpTableDataPos - jumpTableDataOffset);
-    switchText += ",";
-    for (int i = 6; i < text.length(); ++i) {
+
+    char switchText[260];
+    StrCopy(switchText, "switch");
+    StrAdd(switchText, "(");
+    AppendIntegerToString(switchText, jumpTablePos - jumpTableOffset);
+    StrAdd(switchText, ",");
+    int pos = StrLength(switchText);
+    for (int i = 6; text[i]; ++i) {
         if (text[i] != '=' && text[i] != '(' && text[i] != ')')
-            switchText += text[i];
+            switchText[pos++] = text[i];
     }
-    switchText += ")";
-    text                                = switchText;
-    jumpTableStack[++jumpTableStackPos] = jumpTableDataPos;
-    jumpTableData[jumpTableDataPos++]   = 0x10000;
-    jumpTableData[jumpTableDataPos++]   = -0x10000;
-    jumpTableData[jumpTableDataPos++]   = -1;
-    jumpTableData[jumpTableDataPos++]   = 0;
+    switchText[pos] = 0;
+    StrAdd(switchText, ")");
+    StrCopy(text, switchText);
+
+    jumpTableStack[++jumpTableStackPos] = jumpTablePos;
+    jumpTable[jumpTablePos++]           = 0x10000;
+    jumpTable[jumpTablePos++]           = -0x10000;
+    jumpTable[jumpTablePos++]           = -1;
+    jumpTable[jumpTablePos++]           = 0;
+
     return true;
 }
-void Compilerv3::convertFunctionText(QString &text)
+void Compilerv3::ConvertFunctionText(char *text)
 {
-    QString arrayStr = "";
-    QString funcName = "";
-    int opcode       = 0;
-    int opcodeSize   = 0;
-    int textPos      = 0;
-    int namePos      = 0;
-    for (namePos = 0; namePos < text.length(); ++namePos) {
-        if (text[namePos] == '(')
-            break;
-
-        funcName += text[namePos];
-    }
-
+    char arrayStr[128];
+    char funcName[132];
+    int opcode     = 0;
+    int opcodeSize = 0;
+    int textPos    = 0;
+    int namePos    = 0;
+    for (namePos = 0; text[namePos] != '(' && text[namePos]; ++namePos)
+        funcName[namePos] = text[namePos];
+    funcName[namePos] = 0;
     for (int i = 0; i < FUNC_MAX_CNT; ++i) {
-        if (strComp(funcName, functions[i].name)) {
+        if (StrComp(funcName, opcodeFunctionList[i].name)) {
             opcode     = i;
-            opcodeSize = functions[i].opcodeSize;
-            textPos    = functions[i].name.length();
+            opcodeSize = opcodeFunctionList[i].opcodeSize;
+            textPos    = StrLength(opcodeFunctionList[i].name);
             i          = FUNC_MAX_CNT;
         }
     }
@@ -1119,59 +1068,59 @@ void Compilerv3::convertFunctionText(QString &text)
         errorPos    = funcName;
     }
     else {
-        scriptData[scriptDataPos++] = opcode;
-        if (strComp(functions[opcode].name, "else"))
-            jumpTableData[jumpTableStack[jumpTableStackPos]] = scriptDataPos - scriptDataOffset;
+        scriptCode[scriptCodePos++] = opcode;
+        if (StrComp("else", opcodeFunctionList[opcode].name))
+            jumpTable[jumpTableStack[jumpTableStackPos]] = scriptCodePos - scriptCodeOffset;
 
-        if (strComp(functions[opcode].name, "endif")) {
-            int jPos                = jumpTableStack[jumpTableStackPos];
-            jumpTableData[jPos + 1] = scriptDataPos - scriptDataOffset;
-            if (jumpTableData[jPos] == -1)
-                jumpTableData[jPos] = (scriptDataPos - scriptDataOffset) - 1;
+        if (StrComp("endif", opcodeFunctionList[opcode].name) == 1) {
+            int jPos            = jumpTableStack[jumpTableStackPos];
+            jumpTable[jPos + 1] = scriptCodePos - scriptCodeOffset;
+            if (jumpTable[jPos] == -1)
+                jumpTable[jPos] = (scriptCodePos - scriptCodeOffset) - 1;
             --jumpTableStackPos;
         }
 
-        if (strComp(functions[opcode].name, "endswitch")) {
-            int jPos                = jumpTableStack[jumpTableStackPos];
-            jumpTableData[jPos + 3] = scriptDataPos - scriptDataOffset;
-            if (jumpTableData[jPos + 2] == -1) {
-                jumpTableData[jPos + 2] = (scriptDataPos - scriptDataOffset) - 1;
-                int caseCnt             = abs(jumpTableData[jPos + 1] - jumpTableData[jPos]) + 1;
+        if (StrComp("endswitch", opcodeFunctionList[opcode].name)) {
+            int jPos            = jumpTableStack[jumpTableStackPos];
+            jumpTable[jPos + 3] = scriptCodePos - scriptCodeOffset;
+            if (jumpTable[jPos + 2] == -1) {
+                jumpTable[jPos + 2] = (scriptCodePos - scriptCodeOffset) - 1;
+                int caseCnt         = abs(jumpTable[jPos + 1] - jumpTable[jPos]) + 1;
 
                 int jOffset = jPos + 4;
                 for (int c = 0; c < caseCnt; ++c) {
-                    if (jumpTableData[jOffset + c] < 0)
-                        jumpTableData[jOffset + c] = jumpTableData[jPos + 2];
+                    if (jumpTable[jOffset + c] < 0)
+                        jumpTable[jOffset + c] = jumpTable[jPos + 2];
                 }
             }
             --jumpTableStackPos;
         }
 
-        if (strComp(functions[opcode].name, "loop")) {
-            jumpTableData[jumpTableStack[jumpTableStackPos--] + 1] = scriptDataPos - scriptDataOffset;
+        if (StrComp("loop", opcodeFunctionList[opcode].name)) {
+            jumpTable[jumpTableStack[jumpTableStackPos--] + 1] = scriptCodePos - scriptCodeOffset;
         }
 
         for (int i = 0; i < opcodeSize; ++i) {
             ++textPos;
-            int mode     = 0;
-            int prevMode = 0;
-            funcName     = "";
-            arrayStr     = "";
-            while (((text[textPos] != ',' && text[textPos] != ')') || mode == 2)
-                   && textPos < text.length()) {
+            int funcNamePos = 0;
+            int mode        = 0;
+            int prevMode    = 0;
+            int arrayStrPos = 0;
+            while (((text[textPos] != ',' && text[textPos] != ')') || mode == 2) && text[textPos]) {
                 switch (mode) {
                     case 0: // normal
                         if (text[textPos] == '[')
                             mode = 1;
                         else if (text[textPos] == '"') {
-                            prevMode = mode;
-                            mode     = 2;
-                            funcName += '"';
+                            prevMode                = mode;
+                            mode                    = 2;
+                            funcName[funcNamePos++] = '"';
                         }
                         else
-                            funcName += text[textPos];
+                            funcName[funcNamePos++] = text[textPos];
                         ++textPos;
                         break;
+
                     case 1: // array val
                         if (text[textPos] == ']')
                             mode = 0;
@@ -1180,227 +1129,121 @@ void Compilerv3::convertFunctionText(QString &text)
                             mode     = 2;
                         }
                         else
-                            arrayStr += text[textPos];
+                            arrayStr[arrayStrPos++] = text[textPos];
                         ++textPos;
                         break;
+
                     case 2: // string
                         if (text[textPos] == '"') {
-                            mode = prevMode;
-                            funcName += '"';
+                            mode                    = prevMode;
+                            funcName[funcNamePos++] = '"';
                         }
                         else
-                            funcName += text[textPos];
+                            funcName[funcNamePos++] = text[textPos];
                         ++textPos;
                         break;
                 }
             }
+            funcName[funcNamePos] = 0;
+            arrayStr[arrayStrPos] = 0;
 
-            int value = 0;
             // Eg: TempValue0 = FX_SCALE
             for (int a = 0; a < aliasCount; ++a) {
-                if (strComp(funcName, aliases[a].name)) {
-                    copyAliasStr(funcName, aliases[a].value, 0);
-                    if (findStringToken(aliases[a].value, "[", 1) > -1)
-                        copyAliasStr(arrayStr, aliases[a].value, 1);
-                }
-            }
-
-            // Aliases (array value)
-            char prefix = 0;
-            if (arrayStr.length() > 0) {
-                if (arrayStr[0] == '+' || arrayStr[0] == '-') {
-                    prefix = arrayStr[0].toLatin1();
-                    arrayStr.remove(0, 1);
-                }
-
-                // Eg: TempValue0 = FX_SCALE
-                for (int a = 0; a < aliasCount; ++a) {
-                    if (strComp(arrayStr, aliases[a].name)) {
-                        copyAliasStr(arrayStr, aliases[a].value, 0);
-                    }
+                if (StrComp(funcName, aliases[a].name)) {
+                    CopyAliasStr(funcName, aliases[a].value, 0);
+                    if (FindStringToken(aliases[a].value, "[", 1) > -1)
+                        CopyAliasStr(arrayStr, aliases[a].value, 1);
                 }
             }
 
             // Eg: TempValue0 = Game.Variable
             for (int v = 0; v < globalVariables.count(); ++v) {
-                if (strComp(funcName, globalVariables[v])) {
-                    funcName = "Global";
-                    arrayStr = "";
-                    appendIntegerToString(arrayStr, v);
+                if (StrComp(funcName, globalVariables[v].toStdString().c_str())) {
+                    StrCopy(funcName, "Global");
+                    arrayStr[0] = 0;
+                    AppendIntegerToString(arrayStr, v);
                 }
             }
 
             // Eg: TempValue0 = Function1
             for (int f = 0; f < functionCount; ++f) {
-                if (strComp(funcName, functionNames[f])) {
-                    funcName = "";
-                    appendIntegerToString(funcName, f);
+                if (StrComp(funcName, functionList[f].name)) {
+                    funcName[0] = 0;
+                    AppendIntegerToString(funcName, f);
                 }
             }
+
             // Eg: TempValue0 = TypeName[PlayerObject]
-            if (strComp(funcName, "TypeName")) {
-                funcName = "";
-                appendIntegerToString(funcName, 0);
+            if (StrComp(funcName, "TypeName")) {
+                funcName[0] = 0;
+                AppendIntegerToString(funcName, 0);
                 for (int o = 0; o < OBJECT_COUNT; ++o) {
-                    if (strComp(arrayStr, typeNames[o])) {
-                        funcName = "";
-                        appendIntegerToString(funcName, o);
+                    if (StrComp(arrayStr, typeNames[o])) {
+                        funcName[0] = 0;
+                        AppendIntegerToString(funcName, o);
                     }
                 }
             }
 
             // Eg: TempValue0 = SfxName[Jump]
-            if (strComp(funcName, "SfxName")) {
-                funcName = "";
-                appendIntegerToString(funcName, 0);
-                int s = 0;
-                for (; s < globalSfxNames.count(); ++s) {
-                    if (strComp(arrayStr, globalSfxNames[s])) {
-                        funcName = "";
-                        appendIntegerToString(funcName, s);
-                        break;
-                    }
-                }
-
-                if (s == globalSfxNames.count()) {
-                    for (; s < stageSfxNames.count(); ++s) {
-                        if (strComp(arrayStr, stageSfxNames[s])) {
-                            funcName = "";
-                            appendIntegerToString(funcName, s);
-                            break;
-                        }
-                    }
-
-                    if (s == stageSfxNames.count()) {
-                        PrintLog(QString("WARNING: Unknown sfxName \"%1\", on line %2")
-                                     .arg(arrayStr)
-                                     .arg(lineID));
-                    }
-                }
+            if (StrComp(funcName, "SfxName")) {
+                funcName[0] = '0';
             }
 
-            // Eg: TempValue0 = AchievementName[Ring King]
-            if (strComp(funcName, "AchievementName")) {
-                funcName = "";
-                appendIntegerToString(funcName, 0);
-                // default to 0, we don't know what these are
+            // Eg: TempValue0 = AchievementName[88 Miles Per Hour]
+            if (StrComp(funcName, "AchievementName")) {
+                funcName[0] = '0';
             }
 
             // Eg: TempValue0 = PlayerName[SONIC]
-            if (strComp(funcName, "PlayerName")) {
-                funcName = "";
-                appendIntegerToString(funcName, 0);
-                int p = 0;
-                if (editor) {
-                    for (; p < ((SceneEditor *)editor)->gameConfig.players.count(); ++p) {
-                        QString name = ((SceneEditor *)editor)->gameConfig.players[p].name;
-                        name         = name.replace(" ", "");
-
-                        if (strComp(arrayStr, name)) {
-                            funcName = "";
-                            appendIntegerToString(funcName, p);
-                            break;
-                        }
-                    }
-
-                    if (p == ((SceneEditor *)editor)->gameConfig.players.count()) {
-                        // printLog("WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
-                    }
-                }
-                else {
-                    for (; p < gameConfig.players.count(); ++p) {
-                        QString name = gameConfig.players[p];
-                        name         = name.replace(" ", "");
-
-                        if (strComp(arrayStr, name)) {
-                            funcName = "";
-                            appendIntegerToString(funcName, p);
-                            break;
-                        }
-                    }
-
-                    if (p == gameConfig.players.count()) {
-                        PrintLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
-                                     .arg(arrayStr)
-                                     .arg(lineID));
-                    }
-                }
+            if (StrComp(funcName, "PlayerName")) {
+                funcName[0] = '0';
             }
 
-            // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
-            if (strComp(funcName, "StageName")) {
-                funcName = "";
-                int s    = -1;
-                if (arrayStr.length() >= 2) {
-                    char list = arrayStr[0].toLatin1();
-                    switch (list) {
-                        default: list = 0xFF; break;
-                        case 'P': list = 0; break;
-                        case 'R': list = 1; break;
-                        case 'S': list = 2; break;
-                        case 'B': list = 3; break;
-                    }
-
-                    s = -1;
-                    if (list <= 3) {
-                        QString scnName = arrayStr;
-                        scnName.replace(" ", "");
-                        scnName = scnName.mid(2, scnName.length() - 2);
-
-                        for (; s < gameConfig.stageLists[list].scenes.count(); ++s) {
-                            QString name = gameConfig.stageLists[list].scenes[s].name;
-                            name         = name.replace(" ", "");
-                            if (strComp(scnName, name))
-                                break;
-                        }
-
-                        if (s == gameConfig.stageLists[list].scenes.count())
-                            s = -1;
-                    }
-                }
-
-                if (s == -1) {
-                    PrintLog(QString("WARNING: Unknown StageName \"%1\", on line %2")
-                                 .arg(arrayStr)
-                                 .arg(lineID));
-                    s = 0;
-                }
-                funcName = "";
-                appendIntegerToString(funcName, s);
+            // Eg: TempValue0 = StageName[R - PALMTREE PANIC ZONE 1 A]
+            if (StrComp(funcName, "StageName")) {
+                funcName[0] = '0';
             }
 
-            if (convertStringToInteger(funcName, &value)) {
-                scriptData[scriptDataPos++] = SCRIPTVAR_INTCONST;
-                scriptData[scriptDataPos++] = value;
+            int constant = 0;
+            if (ConvertStringToInteger(funcName, &constant)) {
+                scriptCode[scriptCodePos++] = SCRIPTVAR_INTCONST;
+                scriptCode[scriptCodePos++] = constant;
             }
             else if (funcName[0] == '"') {
-                scriptData[scriptDataPos++] = SCRIPTVAR_STRCONST;
-                scriptData[scriptDataPos++] = funcName.length() - 2;
-                int scriptTextPos           = 1;
-                int scriptTextByteID        = 0;
+                scriptCode[scriptCodePos++] = SCRIPTVAR_STRCONST;
+                scriptCode[scriptCodePos++] = StrLength(funcName) - 2;
+
+                int scriptTextPos = 1;
+                arrayStrPos       = 0;
                 while (scriptTextPos > -1) {
-                    switch (scriptTextByteID) {
+                    switch (arrayStrPos) {
                         case 0:
-                            scriptData[scriptDataPos] = (byte)funcName[scriptTextPos].toLatin1() << 24;
-                            ++scriptTextByteID;
+                            scriptCode[scriptCodePos] = funcName[scriptTextPos] << 24;
+                            ++arrayStrPos;
                             break;
+
                         case 1:
-                            scriptData[scriptDataPos] |= (byte)funcName[scriptTextPos].toLatin1() << 16;
-                            ++scriptTextByteID;
+                            scriptCode[scriptCodePos] += funcName[scriptTextPos] << 16;
+                            ++arrayStrPos;
                             break;
+
                         case 2:
-                            scriptData[scriptDataPos] |= (byte)funcName[scriptTextPos].toLatin1() << 8;
-                            ++scriptTextByteID;
+                            scriptCode[scriptCodePos] += funcName[scriptTextPos] << 8;
+                            ++arrayStrPos;
                             break;
+
                         case 3:
-                            scriptData[scriptDataPos++] |= (byte)funcName[scriptTextPos].toLatin1();
-                            scriptTextByteID = 0;
+                            scriptCode[scriptCodePos++] += funcName[scriptTextPos];
+                            arrayStrPos = 0;
                             break;
+
                         default: break;
                     }
+
                     if (funcName[scriptTextPos] == '"') {
-                        if (scriptTextByteID > 0)
-                            ++scriptDataPos;
+                        if (arrayStrPos > 0)
+                            ++scriptCodePos;
                         scriptTextPos = -1;
                     }
                     else {
@@ -1409,502 +1252,155 @@ void Compilerv3::convertFunctionText(QString &text)
                 }
             }
             else {
-                scriptData[scriptDataPos++] = SCRIPTVAR_VAR;
-                if (arrayStr.length()) {
-                    scriptData[scriptDataPos] = VARARR_ARRAY;
-                    if (prefix == '+')
-                        scriptData[scriptDataPos] = VARARR_ENTNOPLUS1;
-                    if (prefix == '-')
-                        scriptData[scriptDataPos] = VARARR_ENTNOMINUS1;
-                    ++scriptDataPos;
+                scriptCode[scriptCodePos++] = SCRIPTVAR_VAR;
+                if (arrayStr[0]) {
+                    scriptCode[scriptCodePos] = VARARR_ARRAY;
 
-                    if (convertStringToInteger(arrayStr, &value) == 1) {
-                        scriptData[scriptDataPos++] = 0;
-                        scriptData[scriptDataPos++] = value;
+                    if (arrayStr[0] == '+')
+                        scriptCode[scriptCodePos] = VARARR_ENTNOPLUS1;
+
+                    if (arrayStr[0] == '-')
+                        scriptCode[scriptCodePos] = VARARR_ENTNOMINUS1;
+
+                    ++scriptCodePos;
+
+                    if (arrayStr[0] == '-' || arrayStr[0] == '+') {
+                        for (int i = 0; i < StrLength(arrayStr); ++i) arrayStr[i] = arrayStr[i + 1];
+                    }
+
+                    if (ConvertStringToInteger(arrayStr, &constant)) {
+                        scriptCode[scriptCodePos++] = 0;
+                        scriptCode[scriptCodePos++] = constant;
                     }
                     else {
-                        if (strComp(arrayStr, "ArrayPos0"))
-                            value = 0;
-                        if (strComp(arrayStr, "ArrayPos1"))
-                            value = 1;
-                        if (strComp(arrayStr, "TempObjectPos"))
-                            value = 2;
-                        scriptData[scriptDataPos++] = VARARR_ARRAY;
-                        scriptData[scriptDataPos++] = value;
+                        if (StrComp(arrayStr, "ArrayPos0"))
+                            constant = 0;
+                        if (StrComp(arrayStr, "ArrayPos1"))
+                            constant = 1;
+                        if (StrComp(arrayStr, "TempObjectPos"))
+                            constant = 2;
+
+                        scriptCode[scriptCodePos++] = 1;
+                        scriptCode[scriptCodePos++] = constant;
                     }
                 }
                 else {
-                    scriptData[scriptDataPos++] = VARARR_NONE;
-                }
-                value = -1;
-                for (int i = 0; i < VAR_MAX_CNT; ++i) {
-                    if (strComp(funcName, variableNames[i]))
-                        value = i;
+                    scriptCode[scriptCodePos++] = VARARR_NONE;
                 }
 
-                if (value == -1 && !scriptError) {
+                constant = -1;
+                for (int i = 0; i < VAR_MAX_CNT; ++i) {
+                    if (StrComp(funcName, variableList[i].name))
+                        constant = i;
+                }
+
+                if (constant == -1 && !scriptError) {
                     scriptError = true;
                     errorMsg    = "OPERAND NOT FOUND";
                     errorPos    = funcName;
                     errorLine   = lineID;
-                    value       = 0;
+                    constant    = 0;
                 }
-                scriptData[scriptDataPos++] = value;
+
+                scriptCode[scriptCodePos++] = constant;
             }
         }
     }
 }
-void Compilerv3::checkCaseNumber(QString &text)
+void Compilerv3::CheckCaseNumber(char *text)
 {
-    if (findStringToken(text, "case", 1))
+    if (FindStringToken(text, "case", 1))
         return;
 
-    QString caseString = "";
-    if (text.length() > 4) {
-        int textPos = 4;
+    char dest[128];
+    int destStrPos = 0;
+    char caseChar  = text[4];
+    if (text[4]) {
+        int textPos = 5;
         do {
-            if (text[textPos] != ':')
-                caseString += text[textPos];
-        } while (++textPos < text.length());
-    }
-
-    bool flag = false;
-
-    if (findStringToken(caseString, "[", 1) >= 0) {
-        QString caseValue = "";
-        QString arrayStr  = "";
-
-        int textPos = 0;
-        int mode    = 0;
-
-        while (caseString[textPos] != ':' && textPos < caseString.length()) {
-            switch (mode) {
-                case 0: // normal
-                    if (caseString[textPos] == '[')
-                        mode = 1;
-                    else
-                        caseValue += caseString[textPos];
-                    ++textPos;
-                    break;
-                case 1: // array val
-                    if (caseString[textPos] == ']')
-                        mode = 0;
-                    else
-                        arrayStr += caseString[textPos];
-                    ++textPos;
-                    break;
-            }
-        }
-
-        // Eg: TempValue0 = TypeName[PlayerObject]
-        if (strComp(caseValue, "TypeName")) {
-            caseValue = "";
-            appendIntegerToString(caseValue, 0);
-            for (int o = 0; o < OBJECT_COUNT; ++o) {
-                if (strComp(arrayStr, typeNames[o])) {
-                    caseValue = "";
-                    appendIntegerToString(caseValue, o);
-                }
-            }
-        }
-
-        // Eg: TempValue0 = SfxName[Jump]
-        if (strComp(caseValue, "SfxName")) {
-            caseValue = "";
-            appendIntegerToString(caseValue, 0);
-            int s = 0;
-            for (; s < globalSfxNames.count(); ++s) {
-                if (strComp(arrayStr, globalSfxNames[s])) {
-                    caseValue = "";
-                    appendIntegerToString(caseValue, s);
-                    break;
-                }
-            }
-
-            if (s == globalSfxNames.count()) {
-                for (; s < stageSfxNames.count(); ++s) {
-                    if (strComp(arrayStr, stageSfxNames[s])) {
-                        caseValue = "";
-                        appendIntegerToString(caseValue, s);
-                        break;
-                    }
-                }
-
-                if (s == stageSfxNames.count()) {
-                    PrintLog(QString("WARNING: Unknown sfxName \"%1\", on line %2")
-                                 .arg(arrayStr)
-                                 .arg(lineID));
-                }
-            }
-        }
-
-        // Eg: TempValue0 = AchievementName[Ring King]
-        if (strComp(caseValue, "AchievementName")) {
-            caseValue = "";
-            appendIntegerToString(caseValue, 0);
-            // default to 0, we don't know what these are
-        }
-
-        // Eg: TempValue0 = PlayerName[SONIC]
-        if (strComp(caseValue, "PlayerName")) {
-            caseValue = "";
-            appendIntegerToString(caseValue, 0);
-            int p = 0;
-            if (editor) {
-                for (; p < ((SceneEditor *)editor)->gameConfig.players.count(); ++p) {
-                    QString name = ((SceneEditor *)editor)->gameConfig.players[p].name;
-                    name         = name.replace(" ", "");
-
-                    if (strComp(arrayStr, name)) {
-                        caseValue = "";
-                        appendIntegerToString(caseValue, p);
-                        break;
-                    }
-                }
-
-                if (p == ((SceneEditor *)editor)->gameConfig.players.count()) {
-                    // printLog("WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
-                }
-            }
-            else {
-                for (; p < gameConfig.players.count(); ++p) {
-                    QString name = gameConfig.players[p];
-                    name         = name.replace(" ", "");
-
-                    if (strComp(arrayStr, name)) {
-                        caseValue = "";
-                        appendIntegerToString(caseValue, p);
-                        break;
-                    }
-                }
-
-                if (p == gameConfig.players.count()) {
-                    PrintLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
-                                 .arg(arrayStr)
-                                 .arg(lineID));
-                }
-            }
-        }
-
-        // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
-        if (strComp(caseValue, "StageName")) {
-            caseValue = "";
-            int s     = -1;
-            if (arrayStr.length() >= 2) {
-                char list = arrayStr[0].toLatin1();
-                switch (list) {
-                    default: list = 0xFF; break;
-                    case 'P': list = 0; break;
-                    case 'R': list = 1; break;
-                    case 'S': list = 2; break;
-                    case 'B': list = 3; break;
-                }
-
-                s = -1;
-                if (list <= 3) {
-                    QString scnName = arrayStr;
-                    scnName.replace(" ", "");
-                    scnName = scnName.mid(2, scnName.length() - 2);
-
-                    for (; s < gameConfig.stageLists[list].scenes.count(); ++s) {
-                        QString name = gameConfig.stageLists[list].scenes[s].name;
-                        name         = name.replace(" ", "");
-                        if (strComp(scnName, name))
-                            break;
-                    }
-
-                    if (s == gameConfig.stageLists[list].scenes.count())
-                        s = -1;
-                }
-            }
-
-            if (s == -1) {
-                PrintLog(
-                    QString("WARNING: Unknown StageName \"%1\", on line %2").arg(arrayStr).arg(lineID));
-                s = 0;
-            }
-            caseValue = "";
-            appendIntegerToString(caseValue, s);
-        }
-
-        caseString = caseValue;
-        flag       = true;
-    }
-
-    for (int a = 0; a < aliasCount && !flag; ++a) {
-        if (strComp(caseString, aliases[a].name)) {
-            caseString = aliases[a].value;
-            break;
-        }
-    }
-
-    int caseID = 0;
-    if (convertStringToInteger(caseString, &caseID)) {
-        int stackValue = jumpTableStack[jumpTableStackPos];
-        if (caseID < jumpTableData[stackValue])
-            jumpTableData[stackValue] = caseID;
-        stackValue++;
-        if (caseID > jumpTableData[stackValue])
-            jumpTableData[stackValue] = caseID;
+            if (caseChar != ':')
+                dest[destStrPos++] = caseChar;
+            caseChar = text[textPos++];
+        } while (caseChar);
     }
     else {
-        PrintLog(QString("WARNING: unable to convert case string \"%1\" to int, on line %2")
-                     .arg(caseString)
-                     .arg(lineID));
+        destStrPos = 0;
     }
+    dest[destStrPos] = 0;
+    int aliasVarID   = 0;
+    if (aliasCount) {
+        aliasVarID = 0;
+        do {
+            while (!StrComp(dest, aliases[aliasVarID].name)) {
+                if (aliasCount <= ++aliasVarID)
+                    goto CONV_VAL;
+            }
+            StrCopy(dest, aliases[aliasVarID++].value);
+        } while (aliasCount > aliasVarID);
+    }
+
+CONV_VAL:
+    if (ConvertStringToInteger(dest, &aliasVarID) != 1)
+        return;
+    int stackValue = jumpTableStack[jumpTableStackPos];
+    if (aliasVarID < jumpTable[stackValue])
+        jumpTable[stackValue] = aliasVarID;
+    stackValue++;
+    if (aliasVarID > jumpTable[stackValue])
+        jumpTable[stackValue] = aliasVarID;
 }
-bool Compilerv3::readSwitchCase(QString &text)
+bool Compilerv3::ReadSwitchCase(char *text)
 {
-    QString caseText = "";
-    if (findStringToken(text, "case", 1)) {
-        if (findStringToken(text, "default", 1)) {
-            return false;
-        }
-        else {
-            int jumpTablepos                = jumpTableStack[jumpTableStackPos];
-            jumpTableData[jumpTablepos + 2] = scriptDataPos - scriptDataOffset;
-            int cnt = abs(jumpTableData[jumpTablepos + 1] - jumpTableData[jumpTablepos]) + 1;
-
-            int jOffset = jumpTablepos + 4;
-            for (int i = 0; i < cnt; ++i) {
-                if (jumpTableData[jOffset + i] < 0)
-                    jumpTableData[jOffset + i] = scriptDataPos - scriptDataOffset;
-            }
-            return true;
-        }
-    }
-    else {
-        int textPos = 4;
-        while (textPos < text.length()) {
+    char caseText[0x80];
+    if (FindStringToken(text, "case", 1) == 0) {
+        int textPos       = 4;
+        int caseStringPos = 0;
+        while (text[textPos]) {
             if (text[textPos] != ':')
-                caseText += text[textPos];
+                caseText[caseStringPos++] = text[textPos];
             ++textPos;
         }
-
-        bool flag = false;
-
-        if (findStringToken(caseText, "[", 1) >= 0) {
-            QString caseValue = "";
-            QString arrayStr  = "";
-
-            int textPos = 0;
-            int mode    = 0;
-
-            while (caseText[textPos] != ':' && textPos < caseText.length()) {
-                switch (mode) {
-                    case 0: // normal
-                        if (caseText[textPos] == '[')
-                            mode = 1;
-                        else
-                            caseValue += caseText[textPos];
-                        ++textPos;
-                        break;
-                    case 1: // array val
-                        if (caseText[textPos] == ']')
-                            mode = 0;
-                        else
-                            arrayStr += caseText[textPos];
-                        ++textPos;
-                        break;
-                }
-            }
-
-            // Eg: TempValue0 = TypeName[PlayerObject]
-            if (strComp(caseValue, "TypeName")) {
-                caseValue = "";
-                appendIntegerToString(caseValue, 0);
-                for (int o = 0; o < OBJECT_COUNT; ++o) {
-                    if (strComp(arrayStr, typeNames[o])) {
-                        caseValue = "";
-                        appendIntegerToString(caseValue, o);
-                    }
-                }
-            }
-
-            // Eg: TempValue0 = SfxName[Jump]
-            if (strComp(caseValue, "SfxName")) {
-                caseValue = "";
-                appendIntegerToString(caseValue, 0);
-                int s = 0;
-                for (; s < globalSfxNames.count(); ++s) {
-                    if (strComp(arrayStr, globalSfxNames[s])) {
-                        caseValue = "";
-                        appendIntegerToString(caseValue, s);
-                        break;
-                    }
-                }
-
-                if (s == globalSfxNames.count()) {
-                    for (; s < stageSfxNames.count(); ++s) {
-                        if (strComp(arrayStr, stageSfxNames[s])) {
-                            caseValue = "";
-                            appendIntegerToString(caseValue, s);
-                            break;
-                        }
-                    }
-
-                    if (s == stageSfxNames.count()) {
-                        PrintLog(QString("WARNING: Unknown sfxName \"%1\", on line %2")
-                                     .arg(arrayStr)
-                                     .arg(lineID));
-                    }
-                }
-            }
-
-            // Eg: TempValue0 = AchievementName[Ring King]
-            if (strComp(caseValue, "AchievementName")) {
-                caseValue = "";
-                appendIntegerToString(caseValue, 0);
-                // default to 0, we don't know what these are
-            }
-
-            // Eg: TempValue0 = PlayerName[SONIC]
-            if (strComp(caseValue, "PlayerName")) {
-                caseValue = "";
-                appendIntegerToString(caseValue, 0);
-                int p = 0;
-                if (editor) {
-                    for (; p < ((SceneEditor *)editor)->gameConfig.players.count(); ++p) {
-                        QString name = ((SceneEditor *)editor)->gameConfig.players[p].name;
-                        name         = name.replace(" ", "");
-
-                        if (strComp(arrayStr, name)) {
-                            caseValue = "";
-                            appendIntegerToString(caseValue, p);
-                            break;
-                        }
-                    }
-
-                    if (p == ((SceneEditor *)editor)->gameConfig.players.count()) {
-                        // printLog("WARNING: Unknown PlayerName \"%s\", on line %d", arrayStr, lineID);
-                    }
-                }
-                else {
-                    for (; p < gameConfig.players.count(); ++p) {
-                        QString name = gameConfig.players[p];
-                        name         = name.replace(" ", "");
-
-                        if (strComp(arrayStr, name)) {
-                            caseValue = "";
-                            appendIntegerToString(caseValue, p);
-                            break;
-                        }
-                    }
-
-                    if (p == gameConfig.players.count()) {
-                        PrintLog(QString("WARNING: Unknown PlayerName \"%1\", on line %2")
-                                     .arg(arrayStr)
-                                     .arg(lineID));
-                    }
-                }
-            }
-
-            // Eg: TempValue0 = StageName[GREEN HILL ZONE 1]
-            if (strComp(caseValue, "StageName")) {
-                caseValue = "";
-                int s     = -1;
-                if (arrayStr.length() >= 2) {
-                    char list = arrayStr[0].toLatin1();
-                    switch (list) {
-                        default: list = 0xFF; break;
-                        case 'P': list = 0; break;
-                        case 'R': list = 1; break;
-                        case 'S': list = 2; break;
-                        case 'B': list = 3; break;
-                    }
-
-                    s = -1;
-                    if (list <= 3) {
-                        QString scnName = arrayStr;
-                        scnName.replace(" ", "");
-                        scnName = scnName.mid(2, scnName.length() - 2);
-
-                        for (; s < gameConfig.stageLists[list].scenes.count(); ++s) {
-                            QString name = gameConfig.stageLists[list].scenes[s].name;
-                            name         = name.replace(" ", "");
-                            if (strComp(scnName, name))
-                                break;
-                        }
-
-                        if (s == gameConfig.stageLists[list].scenes.count())
-                            s = -1;
-                    }
-                }
-
-                if (s == -1) {
-                    PrintLog(QString("WARNING: Unknown StageName \"%1\", on line %2")
-                                 .arg(arrayStr)
-                                 .arg(lineID));
-                    s = 0;
-                }
-                caseValue = "";
-                appendIntegerToString(caseValue, s);
-            }
-
-            caseText = caseValue;
-            flag     = true;
-        }
-
-        for (int a = 0; a < aliasCount && !flag; ++a) {
-            if (strComp(caseText, aliases[a].name))
-                caseText = aliases[a].value;
+        caseText[caseStringPos] = 0;
+        for (int a = 0; a < aliasCount; ++a) {
+            if (StrComp(caseText, aliases[a].name))
+                StrCopy(caseText, aliases[a].value);
         }
 
         int val = 0;
 
         int jPos    = jumpTableStack[jumpTableStackPos];
         int jOffset = jPos + 4;
-        if (convertStringToInteger(caseText, &val))
-            jumpTableData[val - jumpTableData[jPos] + jOffset] = scriptDataPos - scriptDataOffset;
+        if (ConvertStringToInteger(caseText, &val))
+            jumpTable[val - jumpTable[jPos] + jOffset] = scriptCodePos - scriptCodeOffset;
         return true;
     }
+    else if (FindStringToken(text, "default", 1) == 0) {
+        int jumpTablepos            = jumpTableStack[jumpTableStackPos];
+        jumpTable[jumpTablepos + 2] = scriptCodePos - scriptCodeOffset;
+        int cnt                     = abs(jumpTable[jumpTablepos + 1] - jumpTable[jumpTablepos]) + 1;
+
+        int jOffset = jumpTablepos + 4;
+        for (int i = 0; i < cnt; ++i) {
+            if (jumpTable[jOffset + i] < 0)
+                jumpTable[jOffset + i] = scriptCodePos - scriptCodeOffset;
+        }
+        return true;
+    }
+
     return false;
 }
-void Compilerv3::appendIntegerToString(QString &text, int value) { text += QString::number(value); }
-bool Compilerv3::convertStringToInteger(QString &text, int *value)
-{
-    *value  = 0;
-    bool ok = false;
-
-    bool negative = false;
-    if (text.startsWith("-")) {
-        negative = true;
-        text.remove(0, 1);
-    }
-
-    if (text.startsWith("0x") || text.startsWith("0X")) {
-        text.remove(0, 2);
-        *value = text.toLongLong(&ok, 0x10);
-    }
-    else if (text.startsWith("0b") || text.startsWith("0B")) {
-        text.remove(0, 2);
-        *value = text.toLongLong(&ok, 0b10);
-    }
-    else if (text.startsWith("0o") || text.startsWith("0O")) {
-        text.remove(0, 2);
-        *value = text.toLongLong(&ok, 0010);
-    }
-    else {
-        *value = text.toLongLong(&ok, 10);
-    }
-
-    if (negative)
-        *value = -*value;
-
-    return ok;
-}
-void Compilerv3::copyAliasStr(QString &dest, QString text, bool arrayIndex)
+void Compilerv3::CopyAliasStr(char *dest, char *text, bool arrayIndex)
 {
     int textPos     = 0;
+    int destPos     = 0;
     bool arrayValue = false;
-    dest            = "";
     if (arrayIndex) {
-        while (textPos < text.length()) {
+        while (text[textPos]) {
             if (arrayValue) {
                 if (text[textPos] == ']')
                     arrayValue = false;
                 else
-                    dest += text[textPos];
+                    dest[destPos++] = text[textPos];
                 ++textPos;
             }
             else {
@@ -1915,7 +1411,7 @@ void Compilerv3::copyAliasStr(QString &dest, QString text, bool arrayIndex)
         }
     }
     else {
-        while (textPos < text.length()) {
+        while (text[textPos]) {
             if (arrayValue) {
                 if (text[textPos] == ']')
                     arrayValue = false;
@@ -1925,14 +1421,15 @@ void Compilerv3::copyAliasStr(QString &dest, QString text, bool arrayIndex)
                 if (text[textPos] == '[')
                     arrayValue = true;
                 else
-                    dest += text[textPos];
+                    dest[destPos++] = text[textPos];
                 ++textPos;
             }
         }
     }
+    dest[destPos] = 0;
 }
 
-void Compilerv3::parseScriptFile(QString scriptName, int scriptID, bool inEditor)
+void Compilerv3::ParseScriptFile(QString scriptName, int scriptID, bool inEditor)
 {
     this->inEditor = inEditor;
 
@@ -1940,8 +1437,8 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID, bool inEditor
     lineID            = 0;
     aliasCount        = COMMONALIAS_COUNT;
     for (int i = COMMONALIAS_COUNT; i < ALIAS_COUNT; ++i) {
-        aliases[i].name  = "";
-        aliases[i].value = "";
+        StrCopy(aliases[i].name, "");
+        StrCopy(aliases[i].value, "");
     }
 
     scriptError = false;
@@ -1956,10 +1453,9 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID, bool inEditor
         int storePos   = 0;
 
         while (readMode < READMODE_EOF) {
-            scriptText    = "";
-            int textPos   = 0;
-            readMode      = READMODE_NORMAL;
-            bool semiFlag = false;
+            int textPos = 0;
+            readMode    = READMODE_NORMAL;
+
             while (readMode < READMODE_ENDLINE) {
                 prevChar = curChar;
                 curChar  = reader.read<char>();
@@ -1967,171 +1463,126 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                 if (readMode == READMODE_STRING) {
                     if (curChar == '\t' || curChar == '\r' || curChar == '\n' || curChar == ';'
                         || readMode >= READMODE_COMMENTLINE) {
-                        if (curChar == '\r') {
-                            size_t pos = reader.tell();
-                            char chr   = reader.read<char>();
-                            if (chr != '\n') {
-                                reader.seek(pos);
-                            }
-                            else {
-                                curChar  = '\n';
-                                prevChar = '\r';
-                            }
-                        }
-
                         if ((curChar == '\n' && prevChar != '\r')
-                            || (curChar == '\n' && prevChar == '\r') || curChar == ';') {
-                            readMode = READMODE_ENDLINE;
-                            if (curChar == ';')
-                                semiFlag = true;
+                            || (curChar == '\n' && prevChar == '\r')) {
+                            readMode            = READMODE_ENDLINE;
+                            scriptText[textPos] = 0;
                         }
                     }
                     else if (curChar != '/' || textPos <= 0) {
-                        scriptText += curChar;
-                        textPos++;
+                        scriptText[textPos++] = curChar;
                         if (curChar == '"')
                             readMode = READMODE_NORMAL;
                     }
                     else if (curChar == '/' && prevChar == '/') {
-                        readMode = READMODE_COMMENTLINE;
-                        scriptText.remove(--textPos, 1);
+                        readMode              = READMODE_COMMENTLINE;
+                        scriptText[--textPos] = 0;
                     }
                     else {
-                        scriptText += curChar;
-                        textPos++;
+                        scriptText[textPos++] = curChar;
                     }
                 }
                 else if (curChar == ' ' || curChar == '\t' || curChar == '\r' || curChar == '\n'
                          || curChar == ';' || readMode >= READMODE_COMMENTLINE) {
-                    if (curChar == '\r') {
-                        size_t pos = reader.tell();
-                        char chr   = reader.read<char>();
-                        if (chr != '\n') {
-                            reader.seek(pos);
-                        }
-                        else {
-                            curChar  = '\n';
-                            prevChar = '\r';
-                        }
-                    }
-
                     if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r')
                         || curChar == ';') {
-                        readMode = READMODE_ENDLINE;
-                        if (curChar == ';')
-                            semiFlag = true;
-                        textPos++;
+                        readMode            = READMODE_ENDLINE;
+                        scriptText[textPos] = 0;
                     }
                 }
                 else if (curChar != '/' || textPos <= 0) {
-                    scriptText += curChar;
-                    textPos++;
+                    scriptText[textPos++] = curChar;
                     if (curChar == '"' && !readMode)
                         readMode = READMODE_STRING;
                 }
                 else if (curChar == '/' && prevChar == '/') {
-                    readMode = READMODE_COMMENTLINE;
-                    scriptText.remove(--textPos, 1);
+                    readMode              = READMODE_COMMENTLINE;
+                    scriptText[--textPos] = 0;
                 }
                 else {
-                    scriptText += curChar;
-                    textPos++;
+                    scriptText[textPos++] = curChar;
                 }
-                if (reader.isEOF())
-                    readMode = READMODE_EOF;
+
+                if (reader.isEOF()) {
+                    scriptText[textPos] = 0;
+                    readMode            = READMODE_EOF;
+                }
             }
 
             switch (parseMode) {
                 case PARSEMODE_SCOPELESS:
-                    if (!semiFlag)
-                        ++lineID;
-                    checkAliasText(scriptText);
+                    ++lineID;
+                    CheckAliasText(scriptText);
+
                     if (inEditor) {
-                        if (strComp(scriptText, "subRSDKDraw")) {
+                        if (StrComp(scriptText, "subRSDKDraw")) {
                             parseMode                                            = PARSEMODE_FUNCTION;
-                            objectScriptList[scriptID].subRSDKDraw.scriptCodePtr = scriptDataPos;
-                            objectScriptList[scriptID].subRSDKDraw.jumpTablePtr  = jumpTableDataPos;
-                            scriptDataOffset                                     = scriptDataPos;
-                            jumpTableDataOffset                                  = jumpTableDataPos;
+                            objectScriptList[scriptID].subRSDKDraw.scriptCodePtr = scriptCodePos;
+                            objectScriptList[scriptID].subRSDKDraw.jumpTablePtr  = jumpTablePos;
+                            scriptCodeOffset                                     = scriptCodePos;
+                            jumpTableOffset                                      = jumpTablePos;
                         }
 
-                        if (strComp(scriptText, "subRSDKLoad")) {
+                        if (StrComp(scriptText, "subRSDKLoad")) {
                             parseMode                                            = PARSEMODE_FUNCTION;
-                            objectScriptList[scriptID].subRSDKLoad.scriptCodePtr = scriptDataPos;
-                            objectScriptList[scriptID].subRSDKLoad.jumpTablePtr  = jumpTableDataPos;
-                            scriptDataOffset                                     = scriptDataPos;
-                            jumpTableDataOffset                                  = jumpTableDataPos;
+                            objectScriptList[scriptID].subRSDKLoad.scriptCodePtr = scriptCodePos;
+                            objectScriptList[scriptID].subRSDKLoad.jumpTablePtr  = jumpTablePos;
+                            scriptCodeOffset                                     = scriptCodePos;
+                            jumpTableOffset                                      = jumpTablePos;
                         }
 
-                        if (strComp(scriptText, "subRSDKEdit")) {
+                        if (StrComp(scriptText, "subRSDKEdit")) {
                             parseMode                                            = PARSEMODE_FUNCTION;
-                            objectScriptList[scriptID].subRSDKEdit.scriptCodePtr = scriptDataPos;
-                            objectScriptList[scriptID].subRSDKEdit.jumpTablePtr  = jumpTableDataPos;
-                            scriptDataOffset                                     = scriptDataPos;
-                            jumpTableDataOffset                                  = jumpTableDataPos;
+                            objectScriptList[scriptID].subRSDKEdit.scriptCodePtr = scriptCodePos;
+                            objectScriptList[scriptID].subRSDKEdit.jumpTablePtr  = jumpTablePos;
+                            scriptCodeOffset                                     = scriptCodePos;
+                            jumpTableOffset                                      = jumpTablePos;
                         }
                     }
                     else {
-                        if (strComp(scriptText, "subObjectMain")) {
+                        if (StrComp(scriptText, "subObjectMain")) {
                             parseMode                                        = PARSEMODE_FUNCTION;
-                            objectScriptList[scriptID].subMain.scriptCodePtr = scriptDataPos;
-                            objectScriptList[scriptID].subMain.jumpTablePtr  = jumpTableDataPos;
-                            scriptDataOffset                                 = scriptDataPos;
-                            jumpTableDataOffset                              = jumpTableDataPos;
+                            objectScriptList[scriptID].subMain.scriptCodePtr = scriptCodePos;
+                            objectScriptList[scriptID].subMain.jumpTablePtr  = jumpTablePos;
+                            scriptCodeOffset                                 = scriptCodePos;
+                            jumpTableOffset                                  = jumpTablePos;
                         }
 
-                        if (strComp(scriptText, "subObjectPlayerInteraction")) {
+                        if (StrComp(scriptText, "subObjectPlayerInteraction")) {
                             parseMode = PARSEMODE_FUNCTION;
                             objectScriptList[scriptID].subPlayerInteraction.scriptCodePtr =
-                                scriptDataPos;
-                            objectScriptList[scriptID].subPlayerInteraction.jumpTablePtr =
-                                jumpTableDataPos;
-                            scriptDataOffset    = scriptDataPos;
-                            jumpTableDataOffset = jumpTableDataPos;
+                                scriptCodePos;
+                            objectScriptList[scriptID].subPlayerInteraction.jumpTablePtr = jumpTablePos;
+                            scriptCodeOffset = scriptCodePos;
+                            jumpTableOffset  = jumpTablePos;
                         }
 
-                        if (strComp(scriptText, "subObjectDraw")) {
+                        if (StrComp(scriptText, "subObjectDraw")) {
                             parseMode                                        = PARSEMODE_FUNCTION;
-                            objectScriptList[scriptID].subDraw.scriptCodePtr = scriptDataPos;
-                            objectScriptList[scriptID].subDraw.jumpTablePtr  = jumpTableDataPos;
-                            scriptDataOffset                                 = scriptDataPos;
-                            jumpTableDataOffset                              = jumpTableDataPos;
+                            objectScriptList[scriptID].subDraw.scriptCodePtr = scriptCodePos;
+                            objectScriptList[scriptID].subDraw.jumpTablePtr  = jumpTablePos;
+                            scriptCodeOffset                                 = scriptCodePos;
+                            jumpTableOffset                                  = jumpTablePos;
                         }
 
-                        if (strComp(scriptText, "subObjectStartup")) {
+                        if (StrComp(scriptText, "subObjectStartup")) {
                             parseMode                                           = PARSEMODE_FUNCTION;
-                            objectScriptList[scriptID].subStartup.scriptCodePtr = scriptDataPos;
-                            objectScriptList[scriptID].subStartup.jumpTablePtr  = jumpTableDataPos;
-                            scriptDataOffset                                    = scriptDataPos;
-                            jumpTableDataOffset                                 = jumpTableDataPos;
+                            objectScriptList[scriptID].subStartup.scriptCodePtr = scriptCodePos;
+                            objectScriptList[scriptID].subStartup.jumpTablePtr  = jumpTablePos;
+                            scriptCodeOffset                                    = scriptCodePos;
+                            jumpTableOffset                                     = jumpTablePos;
                         }
                     }
 
-                    if (findStringToken(scriptText, "function", 1)) {
-                        if (findStringToken(scriptText, "function", 1) == 1) {
-                            QString funcName = "";
-                            for (textPos = 9; textPos < scriptText.length(); ++textPos)
-                                funcName += scriptText[textPos];
-
-                            int funcID = -1;
-                            for (int f = 0; f < functionCount; ++f) {
-                                if (strComp(funcName, functionNames[f]))
-                                    funcID = f;
-                            }
-                            if (functionCount < FUNCTION_COUNT && funcID == -1) {
-                                functionNames[functionCount++] = funcName;
-                            }
-                            parseMode = PARSEMODE_SCOPELESS;
-                        }
-                    }
-                    else {
-                        QString funcName = "";
-                        for (textPos = 8; textPos < scriptText.length(); ++textPos)
-                            funcName += scriptText[textPos];
+                    if (FindStringToken(scriptText, "function", 1) == 0) { // regular decl.
+                        char funcName[0x20];
+                        for (textPos = 8; scriptText[textPos]; ++textPos)
+                            funcName[textPos - 8] = scriptText[textPos];
+                        funcName[textPos - 8] = 0;
 
                         int funcID = -1;
                         for (int f = 0; f < functionCount; ++f) {
-                            if (strComp(funcName, functionNames[f]))
+                            if (StrComp(funcName, functionList[f].name))
                                 funcID = f;
                         }
 
@@ -2140,93 +1591,119 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID, bool inEditor
                                 parseMode = PARSEMODE_SCOPELESS;
                             }
                             else {
-                                functionNames[functionCount]              = funcName;
-                                functionList[functionCount].scriptCodePtr = scriptDataPos;
-                                functionList[functionCount].jumpTablePtr  = jumpTableDataPos;
-                                scriptDataOffset                          = scriptDataPos;
-                                jumpTableDataOffset                       = jumpTableDataPos;
-                                parseMode                                 = PARSEMODE_FUNCTION;
+                                StrCopy(functionList[functionCount].name, funcName);
+                                functionList[functionCount].ptr.scriptCodePtr = scriptCodePos;
+                                functionList[functionCount].ptr.jumpTablePtr  = jumpTablePos;
+                                scriptCodeOffset                              = scriptCodePos;
+                                jumpTableOffset                               = jumpTablePos;
+                                parseMode                                     = PARSEMODE_FUNCTION;
                                 ++functionCount;
                             }
                         }
                         else {
-                            functionNames[funcID]              = funcName;
-                            functionList[funcID].scriptCodePtr = scriptDataPos;
-                            functionList[funcID].jumpTablePtr  = jumpTableDataPos;
-                            scriptDataOffset                   = scriptDataPos;
-                            jumpTableDataOffset                = jumpTableDataPos;
-                            parseMode                          = PARSEMODE_FUNCTION;
+                            StrCopy(functionList[funcID].name, funcName);
+                            functionList[funcID].ptr.scriptCodePtr = scriptCodePos;
+                            functionList[funcID].ptr.jumpTablePtr  = jumpTablePos;
+                            scriptCodeOffset                       = scriptCodePos;
+                            jumpTableOffset                        = jumpTablePos;
+                            parseMode                              = PARSEMODE_FUNCTION;
                         }
                     }
+                    else if (FindStringToken(scriptText, "function", 1) == 1) { // forward decl.
+                        char funcName[0x20];
+                        for (textPos = 9; scriptText[textPos]; ++textPos)
+                            funcName[textPos - 9] = scriptText[textPos];
+                        funcName[textPos - 9] = 0;
+
+                        int funcID = -1;
+                        for (int f = 0; f < functionCount; ++f) {
+                            if (StrComp(funcName, functionList[f].name))
+                                funcID = f;
+                        }
+
+                        if (functionCount < FUNCTION_COUNT && funcID == -1) {
+                            StrCopy(functionList[functionCount++].name, funcName);
+                        }
+
+                        parseMode = PARSEMODE_SCOPELESS;
+                    }
                     break;
+
                 case PARSEMODE_PLATFORMSKIP:
-                    if (!semiFlag)
-                        ++lineID;
-                    if (!findStringToken(scriptText, "#endplatform", 1))
+                    ++lineID;
+
+                    if (FindStringToken(scriptText, "#endplatform", 1) == 0)
                         parseMode = PARSEMODE_FUNCTION;
                     break;
+
                 case PARSEMODE_FUNCTION:
-                    if (!semiFlag)
-                        ++lineID;
-                    if (scriptText.length()) {
-                        if (strComp(scriptText, "endsub")) {
-                            scriptData[scriptDataPos++] = FUNC_END;
+                    ++lineID;
+
+                    if (scriptText[0]) {
+                        if (StrComp(scriptText, "endsub")) {
+                            scriptCode[scriptCodePos++] = FUNC_END;
                             parseMode                   = PARSEMODE_SCOPELESS;
                         }
-                        else if (strComp(scriptText, "endfunction")) {
-                            scriptData[scriptDataPos++] = FUNC_ENDFUNCTION;
+                        else if (StrComp(scriptText, "endfunction")) {
+                            scriptCode[scriptCodePos++] = FUNC_ENDFUNCTION;
                             parseMode                   = PARSEMODE_SCOPELESS;
                         }
-                        else if (findStringToken(scriptText, "#platform:", 1)) {
-                            // layed out like ass, but this means "if we did not find "#platform:"
-                            if (findStringToken(scriptText, "#endplatform", 1) == -1) {
-                                // if we did NOT find "#endplatform"
-                                convertIfWhileStatement(scriptText);
-                                if (convertSwitchStatement(scriptText)) {
-                                    parseMode  = PARSEMODE_SWITCHREAD;
-                                    storePos   = (int)reader.tell();
-                                    switchDeep = 0;
-                                }
-                                convertArithmaticSyntax(scriptText);
-                                if (!readSwitchCase(scriptText)) {
-                                    convertFunctionText(scriptText);
-                                    if (scriptError) {
-                                        errorScr  = scriptName;
-                                        parseMode = PARSEMODE_ERROR;
-                                    }
+                        else if (FindStringToken(scriptText, "#platform:", 1) == 0) {
+                            if (FindStringToken(scriptText, gamePlatform, 1) == -1
+                                && FindStringToken(scriptText, gameRenderType, 1) == -1
+                                && FindStringToken(scriptText, gameHapticSetting, 1) == -1
+                                && FindStringToken(scriptText, releaseType, 1) == -1
+                                && FindStringToken(scriptText, "Use_Decomp", 1)
+                                       == -1) { // if NONE of these checks succeeded, then we skip
+                                                // everything until "end
+                                // platform"
+                                parseMode = PARSEMODE_PLATFORMSKIP;
+                            }
+                        }
+                        else if (FindStringToken(scriptText, "#endplatform", 1) == -1) {
+                            ConvertIfWhileStatement(scriptText);
+
+                            if (ConvertSwitchStatement(scriptText)) {
+                                parseMode  = PARSEMODE_SWITCHREAD;
+                                storePos   = (int)reader.tell();
+                                switchDeep = 0;
+                            }
+
+                            ConvertArithmaticSyntax(scriptText);
+
+                            if (!ReadSwitchCase(scriptText)) {
+                                ConvertFunctionText(scriptText);
+
+                                if (scriptError) {
+                                    errorScr  = scriptName;
+                                    parseMode = PARSEMODE_ERROR;
                                 }
                             }
                         }
-                        else if (findStringToken(scriptText, gamePlatform, 1) == -1
-                                 && findStringToken(scriptText, gameRenderType, 1) == -1
-                                 && findStringToken(scriptText, gameHapticSetting, 1) == -1
-                                 && findStringToken(scriptText, "Use_Decomp", 1) == -1
-                                 && findStringToken(scriptText, "Use_Editor", 1) == -1) {
-                            // if NONE of these checks succeeded, then we skip everything until "end
-                            // platform"
-                            parseMode = PARSEMODE_PLATFORMSKIP;
-                        }
                     }
                     break;
+
                 case PARSEMODE_SWITCHREAD:
-                    if (!findStringToken(scriptText, "switch", 1))
+                    if (FindStringToken(scriptText, "switch", 1) == 0)
                         ++switchDeep;
+
                     if (switchDeep) {
-                        if (!findStringToken(scriptText, "endswitch", 1))
+                        if (FindStringToken(scriptText, "endswitch", 1) == 0)
                             --switchDeep;
                     }
-                    else if (findStringToken(scriptText, "endswitch", 1)) {
-                        checkCaseNumber(scriptText);
-                    }
-                    else {
+                    else if (FindStringToken(scriptText, "endswitch", 1) == 0) {
                         reader.seek(storePos);
                         parseMode  = PARSEMODE_FUNCTION;
                         int jPos   = jumpTableStack[jumpTableStackPos];
-                        switchDeep = abs(jumpTableData[jPos + 1] - jumpTableData[jPos]) + 1;
+                        switchDeep = abs(jumpTable[jPos + 1] - jumpTable[jPos]) + 1;
                         for (textPos = 0; textPos < switchDeep; ++textPos)
-                            jumpTableData[jumpTableDataPos++] = -1;
+                            jumpTable[jumpTablePos++] = -1;
+                    }
+                    else {
+                        CheckCaseNumber(scriptText);
                     }
                     break;
+
                 default: break;
             }
         }
@@ -2235,66 +1712,67 @@ void Compilerv3::parseScriptFile(QString scriptName, int scriptID, bool inEditor
     }
 }
 
-void Compilerv3::clearScriptData()
+void Compilerv3::ClearScriptData()
 {
-    memset(scriptData, 0, SCRIPTDATA_COUNT * sizeof(int));
-    memset(jumpTableData, 0, JUMPTABLE_COUNT * sizeof(int));
+    memset(scriptCode, 0, SCRIPTCODE_COUNT * sizeof(int));
+    memset(jumpTable, 0, JUMPTABLE_COUNT * sizeof(int));
     memset(functionStack, 0, FUNCSTACK_COUNT * sizeof(int));
 
     globalVariables.clear();
 
     jumpTableStackPos = 0;
 
-    scriptDataPos       = 0;
-    scriptDataOffset    = 0;
-    jumpTableDataPos    = 0;
-    jumpTableDataOffset = 0;
+    scriptCodePos    = 0;
+    scriptCodeOffset = 0;
+    jumpTablePos     = 0;
+    jumpTableOffset  = 0;
 
     functionCount = 0;
 
     for (int o = 0; o < OBJECT_COUNT; ++o) {
         ObjectScript *scriptInfo = &objectScriptList[o];
 
-        scriptInfo->subMain.scriptCodePtr              = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subMain.scriptCodePtr              = SCRIPTCODE_COUNT - 1;
         scriptInfo->subMain.jumpTablePtr               = JUMPTABLE_COUNT - 1;
-        scriptInfo->subPlayerInteraction.scriptCodePtr = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subPlayerInteraction.scriptCodePtr = SCRIPTCODE_COUNT - 1;
         scriptInfo->subPlayerInteraction.jumpTablePtr  = JUMPTABLE_COUNT - 1;
-        scriptInfo->subDraw.scriptCodePtr              = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subDraw.scriptCodePtr              = SCRIPTCODE_COUNT - 1;
         scriptInfo->subDraw.jumpTablePtr               = JUMPTABLE_COUNT - 1;
-        scriptInfo->subStartup.scriptCodePtr           = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subStartup.scriptCodePtr           = SCRIPTCODE_COUNT - 1;
         scriptInfo->subStartup.jumpTablePtr            = JUMPTABLE_COUNT - 1;
 
-        scriptInfo->subRSDKDraw.scriptCodePtr = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subRSDKDraw.scriptCodePtr = SCRIPTCODE_COUNT - 1;
         scriptInfo->subRSDKDraw.jumpTablePtr  = JUMPTABLE_COUNT - 1;
-        scriptInfo->subRSDKLoad.scriptCodePtr = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subRSDKLoad.scriptCodePtr = SCRIPTCODE_COUNT - 1;
         scriptInfo->subRSDKLoad.jumpTablePtr  = JUMPTABLE_COUNT - 1;
-        scriptInfo->subRSDKEdit.scriptCodePtr = SCRIPTDATA_COUNT - 1;
+        scriptInfo->subRSDKEdit.scriptCodePtr = SCRIPTCODE_COUNT - 1;
         scriptInfo->subRSDKEdit.jumpTablePtr  = JUMPTABLE_COUNT - 1;
-        typeNames[o]                          = "";
+
+        typeNames[o][0] = 0;
     }
 
     for (int f = 0; f < FUNCTION_COUNT; ++f) {
-        functionList[f].scriptCodePtr = SCRIPTDATA_COUNT - 1;
-        functionList[f].jumpTablePtr  = JUMPTABLE_COUNT - 1;
+        functionList[f].ptr.scriptCodePtr = SCRIPTCODE_COUNT - 1;
+        functionList[f].ptr.jumpTablePtr  = JUMPTABLE_COUNT - 1;
     }
     globalSfxNames.clear();
     stageSfxNames.clear();
 
-    typeNames[0] = "BlankObject";
+    SetScriptTypeName("Blank Object", typeNames[0]);
 }
 
-void Compilerv3::writeBytecode(QString path)
+void Compilerv3::WriteBytecode(QString path)
 {
     bytecode = RSDKv3::Bytecode();
 
     bytecode.scriptCode.clear();
-    for (int i = globalScriptDataCount; i < scriptDataPos; ++i) {
-        bytecode.scriptCode.append(scriptData[i]);
+    for (int i = globalScriptCodeCount; i < scriptCodePos; ++i) {
+        bytecode.scriptCode.append(scriptCode[i]);
     }
 
     bytecode.jumpTable.clear();
-    for (int i = globalJumpTableCount; i < jumpTableDataPos; ++i) {
-        bytecode.jumpTable.append(jumpTableData[i]);
+    for (int i = globalJumpTableCount; i < jumpTablePos; ++i) {
+        bytecode.jumpTable.append(jumpTable[i]);
     }
 
     bytecode.scriptList.clear();
@@ -2319,54 +1797,58 @@ void Compilerv3::writeBytecode(QString path)
     bytecode.functionList.clear();
     for (int f = 0; f < functionCount; ++f) {
         RSDKv3::Bytecode::FunctionInfo func;
-        func.scriptCodePos = functionList[f].scriptCodePtr;
-        func.jumpTablePos  = functionList[f].jumpTablePtr;
+        func.scriptCodePos = functionList[f].ptr.scriptCodePtr;
+        func.jumpTablePos  = functionList[f].ptr.jumpTablePtr;
         bytecode.functionList.append(func);
     }
 
     bytecode.write(path);
 }
 
-void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub)
+void Compilerv3::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptSub)
 {
     bool running        = true;
-    int scriptDataPtr   = scriptCodePtr;
+    int scriptCodePtr   = scriptCodeStart;
     jumpTableStackPos   = 0;
     functionStackPos    = 0;
     SceneEditor *editor = (SceneEditor *)this->editor;
 
     while (running) {
-        int opcode           = scriptData[scriptDataPtr++];
-        int opcodeSize       = functions[opcode].opcodeSize;
-        int scriptCodeOffset = scriptDataPtr;
+        int opcode           = scriptCode[scriptCodePtr++];
+        int opcodeSize       = opcodeFunctionList[opcode].opcodeSize;
+        int scriptCodeOffset = scriptCodePtr;
         // Get Values
         for (int i = 0; i < opcodeSize; ++i) {
-            int opcodeType = scriptData[scriptDataPtr++];
+            int opcodeType = scriptCode[scriptCodePtr++];
 
             if (opcodeType == SCRIPTVAR_VAR) {
                 int arrayVal = 0;
-                switch (scriptData[scriptDataPtr++]) {
+                switch (scriptCode[scriptCodePtr++]) {
                     case VARARR_NONE: arrayVal = objectLoop; break;
+
                     case VARARR_ARRAY:
-                        if (scriptData[scriptDataPtr++] == 1)
-                            arrayVal = scriptEng.arrayPosition[scriptData[scriptDataPtr++]];
+                        if (scriptCode[scriptCodePtr++] == 1)
+                            arrayVal = scriptEng.arrayPosition[scriptCode[scriptCodePtr++]];
                         else
-                            arrayVal = scriptData[scriptDataPtr++];
+                            arrayVal = scriptCode[scriptCodePtr++];
                         break;
+
                     case VARARR_ENTNOPLUS1:
-                        if (scriptData[scriptDataPtr++] == 1)
+                        if (scriptCode[scriptCodePtr++] == 1)
                             arrayVal =
-                                scriptEng.arrayPosition[scriptData[scriptDataPtr++]] + objectLoop;
+                                scriptEng.arrayPosition[scriptCode[scriptCodePtr++]] + objectLoop;
                         else
-                            arrayVal = scriptData[scriptDataPtr++] + objectLoop;
+                            arrayVal = scriptCode[scriptCodePtr++] + objectLoop;
                         break;
+
                     case VARARR_ENTNOMINUS1:
-                        if (scriptData[scriptDataPtr++] == 1)
+                        if (scriptCode[scriptCodePtr++] == 1)
                             arrayVal =
-                                objectLoop - scriptEng.arrayPosition[scriptData[scriptDataPtr++]];
+                                objectLoop - scriptEng.arrayPosition[scriptCode[scriptCodePtr++]];
                         else
-                            arrayVal = objectLoop - scriptData[scriptDataPtr++];
+                            arrayVal = objectLoop - scriptCode[scriptCodePtr++];
                         break;
+
                     default: break;
                 }
 
@@ -2381,7 +1863,7 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                 }
 
                 // Variables
-                switch (scriptData[scriptDataPtr++]) {
+                switch (scriptCode[scriptCodePtr++]) {
                     default: break;
                     case VAR_TEMPVALUE0: scriptEng.operands[i] = scriptEng.tempValue[0]; break;
                     case VAR_TEMPVALUE1: scriptEng.operands[i] = scriptEng.tempValue[1]; break;
@@ -2881,33 +2363,25 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant
-                scriptEng.operands[i] = scriptData[scriptDataPtr++];
+                scriptEng.operands[i] = scriptCode[scriptCodePtr++];
             }
             else if (opcodeType == SCRIPTVAR_STRCONST) { // string constant
-                int strLen = scriptData[scriptDataPtr++];
-                scriptText = "";
+                int strLen         = scriptCode[scriptCodePtr++];
+                scriptText[strLen] = 0;
                 for (int c = 0; c < strLen; ++c) {
                     switch (c % 4) {
-                        case 0: {
-                            scriptText += (char)(scriptData[scriptDataPtr] >> 24);
-                            break;
-                        }
-                        case 1: {
-                            scriptText += (char)((0xFFFFFF & scriptData[scriptDataPtr]) >> 16);
-                            break;
-                        }
-                        case 2: {
-                            scriptText += (char)((0xFFFF & scriptData[scriptDataPtr]) >> 8);
-                            break;
-                        }
-                        case 3: {
-                            scriptText += (char)scriptData[scriptDataPtr++];
-                            break;
-                        }
+                        case 0: scriptText[c] = scriptCode[scriptCodePtr] >> 24; break;
+
+                        case 1: scriptText[c] = (0xFFFFFF & scriptCode[scriptCodePtr]) >> 16; break;
+
+                        case 2: scriptText[c] = (0xFFFF & scriptCode[scriptCodePtr]) >> 8; break;
+
+                        case 3: scriptText[c] = scriptCode[scriptCodePtr++]; break;
+
                         default: break;
                     }
                 }
-                scriptDataPtr++;
+                scriptCodePtr++;
             }
         }
 
@@ -2951,44 +2425,44 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                 break;
             case FUNC_IFEQUAL:
                 if (scriptEng.operands[1] != scriptEng.operands[2])
-                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0]];
+                    scriptCodePtr = scriptCodeStart + jumpTable[jumpTableStart + scriptEng.operands[0]];
                 jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
                 opcodeSize                          = 0;
                 break;
             case FUNC_IFGREATER:
                 if (scriptEng.operands[1] <= scriptEng.operands[2])
-                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0]];
+                    scriptCodePtr = scriptCodeStart + jumpTable[jumpTableStart + scriptEng.operands[0]];
                 jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
                 opcodeSize                          = 0;
                 break;
             case FUNC_IFGREATEROREQUAL:
                 if (scriptEng.operands[1] < scriptEng.operands[2])
-                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0]];
+                    scriptCodePtr = scriptCodeStart + jumpTable[jumpTableStart + scriptEng.operands[0]];
                 jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
                 opcodeSize                          = 0;
                 break;
             case FUNC_IFLOWER:
                 if (scriptEng.operands[1] >= scriptEng.operands[2])
-                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0]];
+                    scriptCodePtr = scriptCodeStart + jumpTable[jumpTableStart + scriptEng.operands[0]];
                 jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
                 opcodeSize                          = 0;
                 break;
             case FUNC_IFLOWEROREQUAL:
                 if (scriptEng.operands[1] > scriptEng.operands[2])
-                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0]];
+                    scriptCodePtr = scriptCodeStart + jumpTable[jumpTableStart + scriptEng.operands[0]];
                 jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
                 opcodeSize                          = 0;
                 break;
             case FUNC_IFNOTEQUAL:
                 if (scriptEng.operands[1] == scriptEng.operands[2])
-                    scriptDataPtr = scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0]];
+                    scriptCodePtr = scriptCodeStart + jumpTable[jumpTableStart + scriptEng.operands[0]];
                 jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
                 opcodeSize                          = 0;
                 break;
             case FUNC_ELSE:
                 opcodeSize    = 0;
-                scriptDataPtr = scriptCodePtr
-                                + jumpTableData[jumpTablePtr + jumpTableStack[jumpTableStackPos--] + 1];
+                scriptCodePtr = scriptCodeStart
+                                + jumpTable[jumpTableStart + jumpTableStack[jumpTableStackPos--] + 1];
                 break;
             case FUNC_ENDIF:
                 opcodeSize = 0;
@@ -2996,75 +2470,75 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                 break;
             case FUNC_WEQUAL:
                 if (scriptEng.operands[1] != scriptEng.operands[2])
-                    scriptDataPtr =
-                        scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                    scriptCodePtr =
+                        scriptCodeStart + jumpTable[jumpTableStart + scriptEng.operands[0] + 1];
                 else
                     jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
                 opcodeSize = 0;
                 break;
             case FUNC_WGREATER:
                 if (scriptEng.operands[1] <= scriptEng.operands[2])
-                    scriptDataPtr =
-                        scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                    scriptCodePtr =
+                        scriptCodeStart + jumpTable[jumpTableStart + scriptEng.operands[0] + 1];
                 else
                     jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
                 opcodeSize = 0;
                 break;
             case FUNC_WGREATEROREQUAL:
                 if (scriptEng.operands[1] < scriptEng.operands[2])
-                    scriptDataPtr =
-                        scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                    scriptCodePtr =
+                        scriptCodeStart + jumpTable[jumpTableStart + scriptEng.operands[0] + 1];
                 else
                     jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
                 opcodeSize = 0;
                 break;
             case FUNC_WLOWER:
                 if (scriptEng.operands[1] >= scriptEng.operands[2])
-                    scriptDataPtr =
-                        scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                    scriptCodePtr =
+                        scriptCodeStart + jumpTable[jumpTableStart + scriptEng.operands[0] + 1];
                 else
                     jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
                 opcodeSize = 0;
                 break;
             case FUNC_WLOWEROREQUAL:
                 if (scriptEng.operands[1] > scriptEng.operands[2])
-                    scriptDataPtr =
-                        scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                    scriptCodePtr =
+                        scriptCodeStart + jumpTable[jumpTableStart + scriptEng.operands[0] + 1];
                 else
                     jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
                 opcodeSize = 0;
                 break;
             case FUNC_WNOTEQUAL:
                 if (scriptEng.operands[1] == scriptEng.operands[2])
-                    scriptDataPtr =
-                        scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1];
+                    scriptCodePtr =
+                        scriptCodeStart + jumpTable[jumpTableStart + scriptEng.operands[0] + 1];
                 else
                     jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
                 opcodeSize = 0;
                 break;
             case FUNC_LOOP:
                 opcodeSize = 0;
-                scriptDataPtr =
-                    scriptCodePtr + jumpTableData[jumpTablePtr + jumpTableStack[jumpTableStackPos--]];
+                scriptCodePtr =
+                    scriptCodeStart + jumpTable[jumpTableStart + jumpTableStack[jumpTableStackPos--]];
                 break;
             case FUNC_SWITCH:
                 jumpTableStack[++jumpTableStackPos] = scriptEng.operands[0];
-                if (scriptEng.operands[1] < jumpTableData[jumpTablePtr + scriptEng.operands[0]]
-                    || scriptEng.operands[1] > jumpTableData[jumpTablePtr + scriptEng.operands[0] + 1])
-                    scriptDataPtr =
-                        scriptCodePtr + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 2];
+                if (scriptEng.operands[1] < jumpTable[jumpTableStart + scriptEng.operands[0]]
+                    || scriptEng.operands[1] > jumpTable[jumpTableStart + scriptEng.operands[0] + 1])
+                    scriptCodePtr =
+                        scriptCodeStart + jumpTable[jumpTableStart + scriptEng.operands[0] + 2];
                 else
-                    scriptDataPtr =
-                        scriptCodePtr
-                        + jumpTableData[jumpTablePtr + scriptEng.operands[0] + 4
-                                        + (scriptEng.operands[1]
-                                           - jumpTableData[jumpTablePtr + scriptEng.operands[0]])];
+                    scriptCodePtr =
+                        scriptCodeStart
+                        + jumpTable[jumpTableStart + scriptEng.operands[0] + 4
+                                    + (scriptEng.operands[1]
+                                       - jumpTable[jumpTableStart + scriptEng.operands[0]])];
                 opcodeSize = 0;
                 break;
             case FUNC_BREAK:
                 opcodeSize    = 0;
-                scriptDataPtr = scriptCodePtr
-                                + jumpTableData[jumpTablePtr + jumpTableStack[jumpTableStackPos--] + 3];
+                scriptCodePtr = scriptCodeStart
+                                + jumpTable[jumpTableStart + jumpTableStack[jumpTableStackPos--] + 3];
                 break;
             case FUNC_ENDSWITCH:
                 opcodeSize = 0;
@@ -3510,19 +2984,19 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
             case FUNC_TRANSFORMVERTICES: opcodeSize = 0; break;
             case FUNC_CALLFUNCTION:
                 opcodeSize                        = 0;
-                functionStack[functionStackPos++] = scriptDataPtr;
-                functionStack[functionStackPos++] = jumpTablePtr;
                 functionStack[functionStackPos++] = scriptCodePtr;
-                scriptCodePtr                     = functionList[scriptEng.operands[0]].scriptCodePtr;
-                jumpTablePtr                      = functionList[scriptEng.operands[0]].jumpTablePtr;
-                scriptDataPtr                     = scriptCodePtr;
+                functionStack[functionStackPos++] = jumpTableStart;
+                functionStack[functionStackPos++] = scriptCodeStart;
+                scriptCodeStart = functionList[scriptEng.operands[0]].ptr.scriptCodePtr;
+                jumpTableStart  = functionList[scriptEng.operands[0]].ptr.jumpTablePtr;
+                scriptCodePtr   = scriptCodeStart;
                 break;
                 break;
             case FUNC_ENDFUNCTION:
-                opcodeSize    = 0;
-                scriptCodePtr = functionStack[--functionStackPos];
-                jumpTablePtr  = functionStack[--functionStackPos];
-                scriptDataPtr = functionStack[--functionStackPos];
+                opcodeSize      = 0;
+                scriptCodeStart = functionStack[--functionStackPos];
+                jumpTableStart  = functionStack[--functionStackPos];
+                scriptCodePtr   = functionStack[--functionStackPos];
                 break;
             case FUNC_SETLAYERDEFORMATION: opcodeSize = 0; break;
             case FUNC_CHECKTOUCHRECT: opcodeSize = 0; break;
@@ -3677,7 +3151,7 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
             case FUNC_GETOBJECTTYPE: {
                 scriptEng.operands[0] = -1;
                 for (int o = 0; o < OBJECT_COUNT; ++o) {
-                    if (strComp(scriptText, typeNames[o])) {
+                    if (StrComp(scriptText, typeNames[o])) {
                         scriptEng.operands[0] = 0;
                     }
                 }
@@ -3691,33 +3165,36 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
 
         // Set Values
         if (opcodeSize > 0)
-            scriptDataPtr -= scriptDataPtr - scriptCodeOffset;
+            scriptCodePtr -= scriptCodePtr - scriptCodeOffset;
         for (int i = 0; i < opcodeSize; ++i) {
-            int opcodeType = scriptData[scriptDataPtr++];
+            int opcodeType = scriptCode[scriptCodePtr++];
             if (opcodeType == SCRIPTVAR_VAR) {
                 int arrayVal = 0;
-                switch (scriptData[scriptDataPtr++]) { // variable
+                switch (scriptCode[scriptCodePtr++]) { // variable
                     case VARARR_NONE: arrayVal = objectLoop; break;
                     case VARARR_ARRAY:
-                        if (scriptData[scriptDataPtr++] == 1)
-                            arrayVal = scriptEng.arrayPosition[scriptData[scriptDataPtr++]];
+                        if (scriptCode[scriptCodePtr++] == 1)
+                            arrayVal = scriptEng.arrayPosition[scriptCode[scriptCodePtr++]];
                         else
-                            arrayVal = scriptData[scriptDataPtr++];
+                            arrayVal = scriptCode[scriptCodePtr++];
                         break;
+
                     case VARARR_ENTNOPLUS1:
-                        if (scriptData[scriptDataPtr++] == 1)
+                        if (scriptCode[scriptCodePtr++] == 1)
                             arrayVal =
-                                scriptEng.arrayPosition[scriptData[scriptDataPtr++]] + objectLoop;
+                                scriptEng.arrayPosition[scriptCode[scriptCodePtr++]] + objectLoop;
                         else
-                            arrayVal = scriptData[scriptDataPtr++] + objectLoop;
+                            arrayVal = scriptCode[scriptCodePtr++] + objectLoop;
                         break;
+
                     case VARARR_ENTNOMINUS1:
-                        if (scriptData[scriptDataPtr++] == 1)
+                        if (scriptCode[scriptCodePtr++] == 1)
                             arrayVal =
-                                objectLoop - scriptEng.arrayPosition[scriptData[scriptDataPtr++]];
+                                objectLoop - scriptEng.arrayPosition[scriptCode[scriptCodePtr++]];
                         else
-                            arrayVal = objectLoop - scriptData[scriptDataPtr++];
+                            arrayVal = objectLoop - scriptCode[scriptCodePtr++];
                         break;
+
                     default: break;
                 }
 
@@ -3732,7 +3209,7 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                 }
 
                 // Variables
-                switch (scriptData[scriptDataPtr++]) {
+                switch (scriptCode[scriptCodePtr++]) {
                     default: break;
                     case VAR_TEMPVALUE0: scriptEng.tempValue[0] = scriptEng.operands[i]; break;
                     case VAR_TEMPVALUE1: scriptEng.tempValue[1] = scriptEng.operands[i]; break;
@@ -4203,20 +3680,20 @@ void Compilerv3::processScript(int scriptCodePtr, int jumpTablePtr, byte scriptS
                 }
             }
             else if (opcodeType == SCRIPTVAR_INTCONST) { // int constant
-                scriptDataPtr++;
+                scriptCodePtr++;
             }
             else if (opcodeType == SCRIPTVAR_STRCONST) { // string constant
-                int strLen = scriptData[scriptDataPtr++];
+                int strLen = scriptCode[scriptCodePtr++];
                 for (int c = 0; c < strLen; ++c) {
                     switch (c % 4) {
                         case 0: break;
                         case 1: break;
                         case 2: break;
-                        case 3: ++scriptDataPtr; break;
+                        case 3: ++scriptCodePtr; break;
                         default: break;
                     }
                 }
-                scriptDataPtr++;
+                scriptCodePtr++;
             }
         }
     }

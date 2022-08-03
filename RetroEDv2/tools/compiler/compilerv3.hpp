@@ -6,7 +6,7 @@
 #define ENTITY_COUNT     (0x4A0)
 #define TEMPENTITY_START (ENTITY_COUNT - 0x80)
 
-#define SCRIPTDATA_COUNT (0x40000)
+#define SCRIPTCODE_COUNT (0x40000)
 #define JUMPTABLE_COUNT  (0x4000)
 #define FUNCTION_COUNT   (0x200)
 
@@ -15,15 +15,62 @@
 
 #define SPRITEFRAME_COUNT (0x1000)
 
+#define COMMONALIAS_COUNT (0x22)
+#define ALIAS_COUNT       (COMMONALIAS_COUNT + 0x60)
+
 class Compilerv3
 {
 public:
     Compilerv3();
 
 public:
+    struct AliasInfo {
+        AliasInfo()
+        {
+            StrCopy(name, "");
+            StrCopy(value, "");
+        }
+        AliasInfo(const char *aliasName, const char *aliasVal)
+        {
+            StrCopy(name, aliasName);
+            StrCopy(value, aliasVal);
+        }
+
+        char name[0x20];
+        char value[0x20];
+    };
+
+    struct FunctionInfo {
+        FunctionInfo()
+        {
+            name       = "";
+            opcodeSize = 0;
+        }
+        FunctionInfo(const char *functionName, int opSize)
+        {
+            name       = functionName;
+            opcodeSize = opSize;
+        }
+
+        const char *name = "";
+        int opcodeSize   = 0;
+    };
+
+    struct VariableInfo {
+        VariableInfo() { name = ""; }
+        VariableInfo(const char *functionName) { name = functionName; }
+
+        const char *name = "";
+    };
+
     struct ScriptPtr {
         int scriptCodePtr;
         int jumpTablePtr;
+    };
+
+    struct ScriptFunction {
+        char name[0x20];
+        ScriptPtr ptr;
     };
 
     struct ObjectScript {
@@ -88,35 +135,38 @@ public:
     enum ScriptSubs { SUB_RSDKDRAW = 0, SUB_RSDKLOAD = 1, SUB_RSDKEDIT = 2 };
 
     ObjectScript objectScriptList[OBJECT_COUNT];
-    ScriptPtr functionList[FUNCTION_COUNT];
 
-    int scriptData[SCRIPTDATA_COUNT];
-    int jumpTableData[JUMPTABLE_COUNT];
+    ScriptFunction functionList[FUNCTION_COUNT];
+    int functionCount = 0;
+
+    int scriptCode[SCRIPTCODE_COUNT];
+    int jumpTable[JUMPTABLE_COUNT];
 
     int jumpTableStack[JUMPSTACK_COUNT];
 
     int jumpTableStackPos = 0;
 
-    QString scriptText = "";
+    char scriptText[0x100];
 
-    int scriptDataPos       = 0;
-    int scriptDataOffset    = 0;
-    int jumpTableDataPos    = 0;
-    int jumpTableDataOffset = 0;
+    int scriptCodePos    = 0;
+    int scriptCodeOffset = 0;
+    int jumpTablePos     = 0;
+    int jumpTableOffset  = 0;
 
     int functionStack[FUNCSTACK_COUNT];
     int functionStackPos = 0;
 
-    int functionCount = 0;
-    QString functionNames[FUNCTION_COUNT];
+    static FunctionInfo opcodeFunctionList[];
+    static VariableInfo variableList[];
 
+    static AliasInfo aliases[ALIAS_COUNT];
     int aliasCount = 0;
     int lineID     = 0;
 
     int scriptCount = 0;
 
     int globalScriptCount     = 0;
-    int globalScriptDataCount = 0;
+    int globalScriptCodeCount = 0;
     int globalJumpTableCount  = 0;
 
     bool scriptError = false;
@@ -125,35 +175,32 @@ public:
     QString errorScr = "";
     int errorLine    = 0;
 
-    QString gamePlatform      = "Editor";
-    QString gameRenderType    = "Editor_Rendering";
-    QString gameHapticSetting = "No_Haptics";
+    const char *gamePlatform      = "Editor";
+    const char *gameRenderType    = "Editor_Rendering";
+    const char *gameHapticSetting = "No_Haptics";
+    const char *releaseType       = "Use_Standalone";
 
     QList<QString> globalVariables;
 
-    QString typeNames[OBJECT_COUNT];
+    char typeNames[OBJECT_COUNT][0x40];
+
     QList<QString> globalSfxNames;
     QList<QString> stageSfxNames;
 
-    bool strComp(QString strA, QString strB);
-    int findStringToken(QString &string, QString token, char stopID);
+    void CheckAliasText(char *text);
+    void ConvertArithmaticSyntax(char *text);
+    void ConvertIfWhileStatement(char *text);
+    bool ConvertSwitchStatement(char *text);
+    void ConvertFunctionText(char *text);
+    void CheckCaseNumber(char *text);
+    bool ReadSwitchCase(char *text);
+    void CopyAliasStr(char *dest, char *text, bool arrayIndex);
 
-    void checkAliasText(QString &text);
-    void convertArithmaticSyntax(QString &text);
-    void convertIfWhileStatement(QString &text);
-    bool convertSwitchStatement(QString &text);
-    void convertFunctionText(QString &text);
-    void checkCaseNumber(QString &text);
-    bool readSwitchCase(QString &text);
-    void appendIntegerToString(QString &text, int value);
-    bool convertStringToInteger(QString &text, int *value);
-    void copyAliasStr(QString &dest, QString text, bool arrayIndex);
+    void ParseScriptFile(QString scriptName, int scriptID, bool inEditor = true);
 
-    void parseScriptFile(QString scriptName, int scriptID, bool inEditor = true);
+    void ClearScriptData();
 
-    void clearScriptData();
-
-    void writeBytecode(QString path);
+    void WriteBytecode(QString path);
 
     int objectLoop = 0;
 
@@ -167,7 +214,7 @@ public:
 
     void *editor = nullptr;
 
-    void processScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub);
+    void ProcessScript(int scriptCodePtr, int jumpTablePtr, byte scriptSub);
 
     RSDKv3::Bytecode bytecode;
 

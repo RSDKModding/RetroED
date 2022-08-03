@@ -71,8 +71,8 @@ public:
 
     ObjectScript objectScriptList[OBJECT_COUNT_v2];
 
-    int scriptData[SCRIPTDATA_COUNT_v2];
-    int jumpTableData[JUMPTABLE_COUNT_v2];
+    int scriptCode[SCRIPTDATA_COUNT_v2];
+    int jumpTable[JUMPTABLE_COUNT_v2];
 
     int jumpTableStack[JUMPSTACK_COUNT_v2];
 
@@ -80,10 +80,10 @@ public:
 
     QString scriptText = "";
 
-    int scriptDataPos       = 0;
-    int scriptDataOffset    = 0;
-    int jumpTableDataPos    = 0;
-    int jumpTableDataOffset = 0;
+    int scriptCodePos    = 0;
+    int scriptCodeOffset = 0;
+    int jumpTablePos     = 0;
+    int jumpTableOffset  = 0;
 
     int aliasCount = 0;
     int lineID     = 0;
@@ -91,7 +91,7 @@ public:
     int scriptCount = 0;
 
     int globalScriptCount     = 0;
-    int globalScriptDataCount = 0;
+    int globalScriptCodeCount = 0;
     int globalJumpTableCount  = 0;
 
     bool scriptError = false;
@@ -102,24 +102,24 @@ public:
 
     QList<QString> globalVariables;
 
-    int findStringToken(QString &string, QString token, char stopID);
+    int FindStringToken(QString &string, QString token, char stopID);
 
-    void checkAliasText(QString &text);
-    void convertArithmaticSyntax(QString &text);
-    void convertIfWhileStatement(QString &text);
-    bool convertSwitchStatement(QString &text);
-    void convertFunctionText(QString &text);
-    void checkCaseNumber(QString &text);
-    bool readSwitchCase(QString &text);
-    void appendIntegerToSting(QString &text, int value);
-    bool convertStringToInteger(QString &text, int *value);
-    void copyAliasStr(QString &dest, QString text, bool arrayIndex);
+    void CheckAliasText(QString &text);
+    void ConvertArithmaticSyntax(QString &text);
+    void ConvertIfWhileStatement(QString &text);
+    bool ConvertSwitchStatement(QString &text);
+    void ConvertFunctionText(QString &text);
+    void CheckCaseNumber(QString &text);
+    bool ReadSwitchCase(QString &text);
+    void AppendIntegerToSting(QString &text, int value);
+    bool ConvertStringToInteger(QString &text, int *value);
+    void CopyAliasStr(QString &dest, QString text, bool arrayIndex);
 
-    void parseScriptFile(QString scriptName, int scriptID);
+    void ParseScriptFile(QString scriptName, int scriptID);
 
-    void clearScriptData();
+    void ClearScriptData();
 
-    void writeBytecode(QString path);
+    void WriteBytecode(QString path);
 
     int objectLoop = 0;
 
@@ -133,7 +133,7 @@ public:
 
     void *editor = nullptr;
 
-    void processScript(int scriptCodePtr, int jumpTablePtr);
+    void ProcessScript(int scriptCodePtr, int jumpTablePtr);
 
     RSDKv2::Bytecode bytecode;
 

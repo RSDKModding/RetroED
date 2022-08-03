@@ -65,8 +65,8 @@ public:
     }
     void write(Writer &writer);
 
-    QList<int> scriptData;
-    QList<int> jumpTableData;
+    QList<int> scriptCode;
+    QList<int> jumpTable;
     QList<ObjectScript> scriptList;
     PlayerScript playerScript;
 

@@ -69,6 +69,7 @@ public:
 #include "utils/colour.hpp"
 #include "utils/palette.hpp"
 #include "utils/shaders.hpp"
+#include "utils/stringhelpers.hpp"
 #include "utils/workingdirmanager.hpp"
 
 // RSDKv5 Link

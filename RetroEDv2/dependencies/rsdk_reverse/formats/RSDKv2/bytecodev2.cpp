@@ -4,14 +4,14 @@ void RSDKv2::Bytecode::read(Reader &reader, int scriptCount, bool clear)
 {
     filePath = reader.filePath;
     if (clear) {
-        scriptData.clear();
-        jumpTableData.clear();
+        scriptCode.clear();
+        jumpTable.clear();
         scriptList.clear();
         playerScript.playerStates.clear();
     }
     else {
-        globalScriptDataCount = scriptData.count();
-        globalJumpTableCount  = jumpTableData.count();
+        globalScriptDataCount = scriptCode.count();
+        globalJumpTableCount  = jumpTable.count();
     }
 
     for (int opcount = reader.read<int>(); opcount > 0;) {
@@ -19,11 +19,11 @@ void RSDKv2::Bytecode::read(Reader &reader, int scriptCount, bool clear)
         int dataCount = (flags & 0x7F);
 
         if ((flags & 0x80) == 0) {
-            for (int i = 0; i < dataCount; ++i) scriptData.append(reader.read<byte>());
+            for (int i = 0; i < dataCount; ++i) scriptCode.append(reader.read<byte>());
             opcount -= dataCount;
         }
         else {
-            for (int i = 0; i < dataCount; ++i) scriptData.append(reader.read<int>());
+            for (int i = 0; i < dataCount; ++i) scriptCode.append(reader.read<int>());
             opcount -= dataCount;
         }
     }
@@ -32,11 +32,11 @@ void RSDKv2::Bytecode::read(Reader &reader, int scriptCount, bool clear)
         byte flags    = reader.read<byte>();
         int dataCount = (flags & 0x7F);
         if ((flags & 0x80) == 0) {
-            for (int i = 0; i < dataCount; ++i) jumpTableData.append(reader.read<byte>());
+            for (int i = 0; i < dataCount; ++i) jumpTable.append(reader.read<byte>());
             opcount -= dataCount;
         }
         else {
-            for (int i = 0; i < dataCount; ++i) jumpTableData.append(reader.read<int>());
+            for (int i = 0; i < dataCount; ++i) jumpTable.append(reader.read<int>());
             opcount -= dataCount;
         }
     }
@@ -97,24 +97,24 @@ void RSDKv2::Bytecode::write(Writer &writer)
 
     // Script Data
     dataInfo.clear();
-    for (int dataPos = globalScriptDataCount; dataPos < scriptData.count();) {
+    for (int dataPos = globalScriptDataCount; dataPos < scriptCode.count();) {
         DataInfov2 info;
         info.data.clear();
-        info.readInt = scriptData[dataPos] < 0 || scriptData[dataPos] >= 0x100;
+        info.readInt = scriptCode[dataPos] < 0 || scriptCode[dataPos] >= 0x100;
         if (!info.readInt) {
-            for (int i = 0; (scriptData[dataPos] >= 0 && scriptData[dataPos] < 0x100) && i < 0x7F;
+            for (int i = 0; (scriptCode[dataPos] >= 0 && scriptCode[dataPos] < 0x100) && i < 0x7F;
                  ++i) {
-                info.data.append(scriptData[dataPos++]);
-                if (dataPos >= scriptData.count())
+                info.data.append(scriptCode[dataPos++]);
+                if (dataPos >= scriptCode.count())
                     break;
             }
             dataInfo.append(info);
         }
         else {
-            for (int i = 0; (scriptData[dataPos] < 0 || scriptData[dataPos] >= 0x100) && i < 0x7F;
+            for (int i = 0; (scriptCode[dataPos] < 0 || scriptCode[dataPos] >= 0x100) && i < 0x7F;
                  ++i) {
-                info.data.append(scriptData[dataPos++]);
-                if (dataPos >= scriptData.count())
+                info.data.append(scriptCode[dataPos++]);
+                if (dataPos >= scriptCode.count())
                     break;
             }
             dataInfo.append(info);
@@ -138,24 +138,24 @@ void RSDKv2::Bytecode::write(Writer &writer)
 
     // Jump Table
     dataInfo.clear();
-    for (int dataPos = globalJumpTableCount; dataPos < jumpTableData.count();) {
+    for (int dataPos = globalJumpTableCount; dataPos < jumpTable.count();) {
         DataInfov2 info;
         info.data.clear();
-        info.readInt = jumpTableData[dataPos] < 0 || jumpTableData[dataPos] >= 0x100;
+        info.readInt = jumpTable[dataPos] < 0 || jumpTable[dataPos] >= 0x100;
         if (!info.readInt) {
-            for (int i = 0; (jumpTableData[dataPos] >= 0 && jumpTableData[dataPos] < 0x100) && i < 0x7F;
+            for (int i = 0; (jumpTable[dataPos] >= 0 && jumpTable[dataPos] < 0x100) && i < 0x7F;
                  ++i) {
-                info.data.append(jumpTableData[dataPos++]);
-                if (dataPos >= jumpTableData.count())
+                info.data.append(jumpTable[dataPos++]);
+                if (dataPos >= jumpTable.count())
                     break;
             }
             dataInfo.append(info);
         }
         else {
-            for (int i = 0; (jumpTableData[dataPos] < 0 || jumpTableData[dataPos] >= 0x100) && i < 0x7F;
+            for (int i = 0; (jumpTable[dataPos] < 0 || jumpTable[dataPos] >= 0x100) && i < 0x7F;
                  ++i) {
-                info.data.append(jumpTableData[dataPos++]);
-                if (dataPos >= jumpTableData.count())
+                info.data.append(jumpTable[dataPos++]);
+                if (dataPos >= jumpTable.count())
                     break;
             }
             dataInfo.append(info);
