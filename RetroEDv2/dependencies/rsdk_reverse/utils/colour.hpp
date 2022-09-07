@@ -56,7 +56,7 @@ struct PaletteColor {
         writer.write(b);
     }
 
-    const inline QColor toQColor() { return QColor(r, g, b); }
+    inline QColor toQColor() { return QColor(r, g, b); }
 
     byte r = 0xFF;
     byte g = 0x00;

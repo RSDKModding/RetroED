@@ -269,12 +269,6 @@ void RSDKUnpacker::loadPack(QString filepath, byte ver, QString fileNameList)
                 ui->fileList->addItem(file.fileName);
                 SetStatusProgress(++count / total);
             }
-
-            Writer writer(homeDir + "fileListDump.txt");
-            for (RSDKv5::Datafile::FileInfo &file : datafilev5.files) {
-                writer.writeLine(QString("%1 - %2").arg(file.filenameHash).arg(file.fileName));
-            }
-            writer.flush();
             break;
         }
         case ENGINE_v4: // RSDKv4

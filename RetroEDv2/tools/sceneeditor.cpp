@@ -1881,7 +1881,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     for (auto &layer : background.layers) {
         SceneHelpers::TileLayer viewLayer;
 
-        viewLayer.name           = "Background" + QString::number(layerID);
+        viewLayer.name           = "Background " + QString::number(8 - layerID);
         viewLayer.width          = layer.width;
         viewLayer.height         = layer.height;
         viewLayer.drawOrder      = layerID--;
@@ -3913,12 +3913,43 @@ void SceneEditor::readXMLLayers(QXmlStreamReader &xmlReader)
 
 void SceneEditor::writeXMLScrollInfo(Writer &writer, int layerID, int indentPos)
 {
+    if (!layerID)
+        return;
+
     auto &layer = viewer->layers[layerID];
 
-    if (layer.scrollInfos.count()) {
+    if (layer.type == SceneHelpers::TileLayer::LAYER_HSCROLL && viewer->hScroll.count()) {
         writeXMLIndentation(writer, indentPos++);
         writer.writeLine("<scrollingInfo>");
-        for (auto &scroll : layer.scrollInfos) {
+        for (auto &scroll : viewer->hScroll) {
+            writeXMLIndentation(writer, indentPos);
+
+            writer.writeLine(QString("<scrollInfo parallaxFactor=\"%1\" "
+                                     "scrollSpeed=\"%2\" deform=\"%3\">")
+                                 .arg(scroll.parallaxFactor)
+                                 .arg(scroll.scrollSpeed)
+                                 .arg(scroll.deform ? "true" : "false"));
+            ++indentPos;
+            for (auto instance : scroll.instances) {
+                writeXMLIndentation(writer, indentPos);
+                writer.writeLine(QString("<scrollInstance startLine=\"%1\" "
+                                         "length=\"%2\"></scrollInstance>")
+                                     .arg(instance.startLine)
+                                     .arg(instance.length));
+            }
+            --indentPos;
+            writeXMLIndentation(writer, indentPos);
+            writer.writeLine(QString("</scrollInfo>"));
+        }
+        writeXMLIndentation(writer, --indentPos);
+        writer.writeLine("</scrollingInfo>");
+        writer.writeLine();
+    }
+
+    if (layer.type == SceneHelpers::TileLayer::LAYER_VSCROLL && viewer->vScroll.count()) {
+        writeXMLIndentation(writer, indentPos++);
+        writer.writeLine("<scrollingInfo>");
+        for (auto &scroll : viewer->vScroll) {
             writeXMLIndentation(writer, indentPos);
 
             writer.writeLine(QString("<scrollInfo parallaxFactor=\"%1\" "
@@ -3976,7 +4007,7 @@ void SceneEditor::writeXMLLayer(Writer &writer, int layerID, int indentPos)
     writer.writeLine(QString("<layer name=\"%1\" type=\"%2\" drawOrder=\"%3\" width=\"%4\" "
                              "height=\"%5\" parallaxFactor=\"%6\" scrollSpeed=\"%7\" "
                              "visible=\"%8\">")
-                         .arg("Background " + QString::number(layerID))
+                         .arg(viewer->layers[layerID].name)
                          .arg(layerTypes[layer.type])
                          .arg(drawOrder)
                          .arg(layer.width)
@@ -4067,8 +4098,9 @@ void SceneEditor::writeXMLEntity(Writer &writer, int entityID, int indentPos)
                          .arg(entity.pos.y));
 
     writeXMLIndentation(writer, indentPos + 1);
-    writer.writeLine(QString("<variable name=\"%1\" type=\"uint8\">%2</variable>")
+    writer.writeLine(QString("<variable name=\"%1\" type=\"uint8\" value=\"%2\">%2</variable>")
                          .arg(viewer->objects[entity.type].variablesAliases[VAR_ALIAS_PROPVAL])
+                         .arg(entity.propertyValue)
                          .arg(entity.propertyValue));
 
     if (viewer->gameType == ENGINE_v4) {
@@ -4084,7 +4116,7 @@ void SceneEditor::writeXMLEntity(Writer &writer, int entityID, int indentPos)
             }
 
             writeXMLIndentation(writer, indentPos + 1);
-            writer.writeLine(QString("<variable name=\"%1\" type=\"%2\">%3</variable>")
+            writer.writeLine(QString("<variable name=\"%1\" type=\"%2\" type=\"%3\">%3</variable>")
                                  .arg(name)
                                  .arg(RSDKv4::objectVariableTypes[v])
                                  .arg(entity.sceneVariables[v].value));
@@ -4095,9 +4127,10 @@ void SceneEditor::writeXMLEntity(Writer &writer, int entityID, int indentPos)
         int value = objProp->callRSDKEdit(this, true, entityID, v, 0);
 
         writeXMLIndentation(writer, indentPos + 1);
-        writer.writeText(QString("<variable name=\"%1\" type=\"%2\">")
+        writer.writeText(QString("<variable name=\"%1\" type=\"%2\" value=\"%3\">")
                              .arg(viewer->objects[entity.type].variables[v].name)
-                             .arg("enum"));
+                             .arg("enum")
+                             .arg(value));
 
         if (!viewer->objects[entity.type].variables[v].values.count()) {
             writer.writeText(QString::number(value));
@@ -4192,15 +4225,15 @@ void SceneEditor::writeXMLScene(Writer &writer)
 
         int id = 0;
         for (auto &layer : viewer->layers) {
-            ++id;
             if (layer.width == 0 || layer.height == 0)
                 continue;
 
             writeXMLLayer(writer, id, indentPos + 1);
+            ++id;
         }
 
         writeXMLIndentation(writer, indentPos);
-        writer.writeLine("<layers>");
+        writer.writeLine("</layers>");
     }
     indentPos--;
 

@@ -291,17 +291,32 @@ void PaletteWidget::mouseDoubleClickEvent(QMouseEvent *)
     PaletteEditor *editor = (PaletteEditor *)parent();
 
     PaletteColor prev = palette->at(selection);
-    ColorDialog dlg(palette->at(selection));
-    if (dlg.exec() == QDialog::Accepted) {
+    ColorDialog *dlg  = new ColorDialog(palette->at(selection));
+    if (dlg->exec() == QDialog::Accepted) {
         PaletteColor clr;
-        clr.r = dlg.color().r;
-        clr.g = dlg.color().g;
-        clr.b = dlg.color().b;
+        clr.r = dlg->color().r;
+        clr.g = dlg->color().g;
+        clr.b = dlg->color().b;
         palette->replace(selection, clr);
 
         if (prev.r != clr.r && prev.g != clr.g && prev.b != clr.b)
             editor->doAction("Changed color", true);
     }
+    delete dlg;
+
+    // QColorDialog *dlg = new QColorDialog(
+    //     QColor(palette->at(selection).r, palette->at(selection).g, palette->at(selection).b));
+    // if (dlg->exec() == QDialog::Accepted) {
+    //     PaletteColor clr;
+    //     clr.r = dlg->currentColor().red();
+    //     clr.g = dlg->currentColor().green();
+    //     clr.b = dlg->currentColor().blue();
+    //     palette->replace(selection, clr);
+    //
+    //     if (prev.r != clr.r && prev.g != clr.g && prev.b != clr.b)
+    //         editor->doAction("Changed color", true);
+    // }
+    // delete dlg;
 }
 
 void PaletteWidget::mouseReleaseEvent(QMouseEvent *) { pressed = false; }

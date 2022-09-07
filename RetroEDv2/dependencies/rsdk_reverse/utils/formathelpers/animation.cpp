@@ -489,10 +489,15 @@ void FormatHelpers::Animation::write(byte ver, QString filename)
                 animFile.animations.append(animEntry);
             }
 
+            animFile.hitboxTypes.clear();
             if (readVer == ENGINE_v4 || readVer == ENGINE_v3 || readVer == ENGINE_v2) {
-                animFile.hitboxTypes.clear();
                 animFile.hitboxTypes.append("Outer Box");
                 animFile.hitboxTypes.append("Inner Box");
+            }
+            else {
+                for (int h = 0; h < hitboxTypes.count(); ++h) {
+                    animFile.hitboxTypes.append(hitboxTypes[h]);
+                }
             }
 
             animFile.write(filename);

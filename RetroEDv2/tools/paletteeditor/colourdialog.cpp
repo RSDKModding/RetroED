@@ -8,13 +8,11 @@ ColorDialog::ColorDialog(PaletteColor color, QWidget *parent)
     ui->setupUi(this);
     setFixedSize(550, 300);
     ui->oldPreview->setColor(m_color.toQColor());
-    // connect(rSlider, &color_widgets::GradientSlider::)
     connect(ui->wheel, &color_widgets::ColorWheel::colorChanged, this, &ColorDialog::setColor);
     connect(ui->hSlider, &QSlider::valueChanged, this, &ColorDialog::setHsv);
     connect(ui->sSlider, &QSlider::valueChanged, this, &ColorDialog::setHsv);
     connect(ui->vSlider, &QSlider::valueChanged, this, &ColorDialog::setHsv);
-    connect(ui->hSpin, SIGNAL(valueChanged(int)), ui->hSlider,
-            SLOT(setValue(int))); // fucking new style syntax not working
+    connect(ui->hSpin, SIGNAL(valueChanged(int)), ui->hSlider, SLOT(setValue(int)));
     connect(ui->sSpin, SIGNAL(valueChanged(int)), ui->sSlider, SLOT(setValue(int)));
     connect(ui->vSpin, SIGNAL(valueChanged(int)), ui->vSlider, SLOT(setValue(int)));
     connect(ui->rSlider, &QSlider::valueChanged, this, &ColorDialog::setRGB);
