@@ -222,6 +222,7 @@ void PaletteEditor::redoAction()
 }
 void PaletteEditor::resetAction()
 {
+#if RE_USE_UNSTABLE
     palette       = actions[actionIndex].palette;
     stageConfigv1 = actions[actionIndex].stageConfigv1;
     stageConfigv2 = actions[actionIndex].stageConfigv2;
@@ -233,6 +234,7 @@ void PaletteEditor::resetAction()
     gameConfigv5 = actions[actionIndex].gameConfigv5;
 
     update();
+#endif
 
     updateTitle(actionIndex > 0);
 }
@@ -242,6 +244,7 @@ void PaletteEditor::doAction(QString name, bool setModified)
 
     action.name = name;
 
+#if RE_USE_UNSTABLE
     action.palette       = palette;
     action.stageConfigv1 = stageConfigv1;
     action.stageConfigv2 = stageConfigv2;
@@ -251,6 +254,7 @@ void PaletteEditor::doAction(QString name, bool setModified)
 
     action.gameConfigv4 = gameConfigv4;
     action.gameConfigv5 = gameConfigv5;
+#endif
 
     // Actions
     for (int i = actions.count() - 1; i > actionIndex; --i) {
@@ -290,8 +294,8 @@ void PaletteWidget::mouseDoubleClickEvent(QMouseEvent *)
 {
     PaletteEditor *editor = (PaletteEditor *)parent();
 
-    PaletteColor prev = palette->at(selection);
-    ColorDialog *dlg  = new ColorDialog(palette->at(selection));
+    PaletteColor prev    = palette->at(selection);
+    RSDKColorDialog *dlg = new RSDKColorDialog(palette->at(selection));
     if (dlg->exec() == QDialog::Accepted) {
         PaletteColor clr;
         clr.r = dlg->color().r;

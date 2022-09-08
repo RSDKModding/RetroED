@@ -3,16 +3,16 @@
 
 namespace Ui
 {
-class ColorDialog;
+class RSDKColorDialog;
 }
 
-class ColorDialog : public QDialog
+class RSDKColorDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit ColorDialog(PaletteColor color, QWidget *parent = nullptr);
-    ~ColorDialog();
+    explicit RSDKColorDialog(PaletteColor color, QWidget *parent = nullptr);
+    ~RSDKColorDialog();
     static PaletteColor getColor(PaletteColor color, bool *ok, QWidget *parent = nullptr);
 
     inline PaletteColor color() { return m_color; }
@@ -23,7 +23,7 @@ private slots:
     void setRGB();
 
 private:
-    Ui::ColorDialog *ui;
+    Ui::RSDKColorDialog *ui;
     PaletteColor m_color;
 };
 

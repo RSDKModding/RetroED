@@ -289,7 +289,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
 
     mdlClrSel->setColor(viewer->modelColor);
     connect(mdlClrSel, &color_widgets::ColorPreview::clicked, [this] {
-        ColorDialog dlg(viewer->modelColor);
+        RSDKColorDialog dlg(viewer->modelColor);
         if (dlg.exec() == QDialog::Accepted) {
             viewer->modelColor = dlg.color().toQColor();
             mdlClrSel->setColor(viewer->modelColor);

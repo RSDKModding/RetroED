@@ -1,23 +1,23 @@
 #include "includes.hpp"
 #include "ui_colourdialog.h"
 
-ColorDialog::ColorDialog(PaletteColor color, QWidget *parent)
-    : QDialog(parent), ui(new Ui::ColorDialog), m_color(color)
+RSDKColorDialog::RSDKColorDialog(PaletteColor color, QWidget *parent)
+    : QDialog(parent), ui(new Ui::RSDKColorDialog), m_color(color)
 {
     setWindowFlags(this->windowFlags() & ~Qt::WindowContextHelpButtonHint);
     ui->setupUi(this);
     setFixedSize(550, 300);
     ui->oldPreview->setColor(m_color.toQColor());
-    connect(ui->wheel, &color_widgets::ColorWheel::colorChanged, this, &ColorDialog::setColor);
-    connect(ui->hSlider, &QSlider::valueChanged, this, &ColorDialog::setHsv);
-    connect(ui->sSlider, &QSlider::valueChanged, this, &ColorDialog::setHsv);
-    connect(ui->vSlider, &QSlider::valueChanged, this, &ColorDialog::setHsv);
+    connect(ui->wheel, &color_widgets::ColorWheel::colorChanged, this, &RSDKColorDialog::setColor);
+    connect(ui->hSlider, &QSlider::valueChanged, this, &RSDKColorDialog::setHsv);
+    connect(ui->sSlider, &QSlider::valueChanged, this, &RSDKColorDialog::setHsv);
+    connect(ui->vSlider, &QSlider::valueChanged, this, &RSDKColorDialog::setHsv);
     connect(ui->hSpin, SIGNAL(valueChanged(int)), ui->hSlider, SLOT(setValue(int)));
     connect(ui->sSpin, SIGNAL(valueChanged(int)), ui->sSlider, SLOT(setValue(int)));
     connect(ui->vSpin, SIGNAL(valueChanged(int)), ui->vSlider, SLOT(setValue(int)));
-    connect(ui->rSlider, &QSlider::valueChanged, this, &ColorDialog::setRGB);
-    connect(ui->gSlider, &QSlider::valueChanged, this, &ColorDialog::setRGB);
-    connect(ui->bSlider, &QSlider::valueChanged, this, &ColorDialog::setRGB);
+    connect(ui->rSlider, &QSlider::valueChanged, this, &RSDKColorDialog::setRGB);
+    connect(ui->gSlider, &QSlider::valueChanged, this, &RSDKColorDialog::setRGB);
+    connect(ui->bSlider, &QSlider::valueChanged, this, &RSDKColorDialog::setRGB);
     connect(ui->rSpin, SIGNAL(valueChanged(int)), ui->rSlider, SLOT(setValue(int)));
     connect(ui->gSpin, SIGNAL(valueChanged(int)), ui->gSlider, SLOT(setValue(int)));
     connect(ui->bSpin, SIGNAL(valueChanged(int)), ui->bSlider, SLOT(setValue(int)));
@@ -31,7 +31,7 @@ ColorDialog::ColorDialog(PaletteColor color, QWidget *parent)
     setColor(m_color.toQColor());
 }
 
-void ColorDialog::setHsv()
+void RSDKColorDialog::setHsv()
 {
     if (signalsBlocked())
         return;
@@ -40,7 +40,7 @@ void ColorDialog::setHsv()
     setColor(col);
 }
 
-void ColorDialog::setRGB()
+void RSDKColorDialog::setRGB()
 {
     if (signalsBlocked())
         return;
@@ -50,7 +50,7 @@ void ColorDialog::setRGB()
     setColor(col);
 }
 
-void ColorDialog::setColor(QColor col)
+void RSDKColorDialog::setColor(QColor col)
 {
 
     bool blocked = signalsBlocked();
@@ -111,12 +111,12 @@ void ColorDialog::setColor(QColor col)
     // emit selectedColorModified(col);
 }
 
-ColorDialog::~ColorDialog() { delete ui; }
+RSDKColorDialog::~RSDKColorDialog() { delete ui; }
 
-PaletteColor ColorDialog::getColor(PaletteColor color, bool *ok, QWidget *parent)
+PaletteColor RSDKColorDialog::getColor(PaletteColor color, bool *ok, QWidget *parent)
 {
     PaletteColor clr = PaletteColor(color);
-    ColorDialog c(clr, parent);
+    RSDKColorDialog c(clr, parent);
     *ok = (c.exec() == DialogCode::Accepted);
     return clr;
 }

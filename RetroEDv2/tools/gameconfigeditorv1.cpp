@@ -520,9 +520,11 @@ void GameConfigEditorv1::redoAction()
 }
 void GameConfigEditorv1::resetAction()
 {
+#if RE_USE_UNSTABLE
     copyConfig(NULL, &actions[actionIndex]);
 
     setupUI(false);
+#endif
 
     updateTitle(actionIndex > 0);
 }
@@ -532,7 +534,9 @@ void GameConfigEditorv1::doAction(QString name, bool setModified)
 
     action.name = name;
 
+#if RE_USE_UNSTABLE
     copyConfig(&action, NULL);
+#endif
 
     // Actions
     for (int i = actions.count() - 1; i > actionIndex; --i) {

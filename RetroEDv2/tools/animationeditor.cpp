@@ -2061,7 +2061,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     });
 
     connect(ui->bgColor, &QToolButton::clicked, [this] {
-        ColorDialog dlg(bgColor);
+        RSDKColorDialog dlg(bgColor);
         if (dlg.exec() == QDialog::Accepted) {
             bgColor = dlg.color().toQColor();
             updateView();
@@ -2769,22 +2769,25 @@ void AnimationEditor::redoAction()
 }
 void AnimationEditor::resetAction()
 {
+#if RE_USE_UNSTABLE
     copyAnimFile(actions[actionIndex].animFile, animFile);
     hitboxVisible.clear();
     for (int h = 0; h < animFile.hitboxTypes.count(); ++h) hitboxVisible.append(false);
 
     setupUI(true);
+#endif
 
     updateTitle(actionIndex > 0);
 }
 void AnimationEditor::doAction(QString name, bool setModified)
 {
     ActionState action;
-
     action.name = name;
 
+#if RE_USE_UNSTABLE
     copyAnimFile(animFile, action.animFile);
 
+#endif
     // Actions
     for (int i = actions.count() - 1; i > actionIndex; --i) {
         actions.removeAt(i);

@@ -285,9 +285,11 @@ void StageConfigEditorv5::redoAction()
 }
 void StageConfigEditorv5::resetAction()
 {
+#if RE_USE_UNSTABLE
     copyConfig(NULL, &actions[actionIndex]);
 
     setupUI(false);
+#endif
 }
 void StageConfigEditorv5::doAction(QString name, bool setModified)
 {
@@ -297,7 +299,9 @@ void StageConfigEditorv5::doAction(QString name, bool setModified)
 
     action.name = name;
 
+#if RE_USE_UNSTABLE
     copyConfig(&action, NULL);
+#endif
 
     // Actions
     for (int i = actions.count() - 1; i > actionIndex; --i) {
@@ -327,8 +331,7 @@ void StageConfigEditorv5::copyConfig(ActionState *stateDst, ActionState *stateSr
     for (int i = 0; i < 8; ++i) {
         for (int r = 0; r < 16; ++r) {
             dst->palettes[i].activeRows[r] = src->palettes[i].activeRows[r];
-            for (int c = 0; c < 16; ++c)
-                dst->palettes[i].colors[r][c] = src->palettes[i].colors[r][c];
+            for (int c = 0; c < 16; ++c) dst->palettes[i].colors[r][c] = src->palettes[i].colors[r][c];
         }
     }
 

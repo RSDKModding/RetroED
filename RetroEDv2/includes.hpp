@@ -3,6 +3,9 @@
 
 #include "version.hpp"
 
+// Dev temp stuff
+#define RE_USE_UNSTABLE (0)
+
 // QT
 #include <QtCore>
 #include <QStringList>

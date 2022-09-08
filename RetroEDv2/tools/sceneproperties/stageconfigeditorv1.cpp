@@ -565,9 +565,11 @@ void StageConfigEditorv1::redoAction()
 }
 void StageConfigEditorv1::resetAction()
 {
+#if RE_USE_UNSTABLE
     copyConfig(NULL, &actions[actionIndex]);
 
     setupUI(false);
+#endif
 }
 void StageConfigEditorv1::doAction(QString name, bool setModified)
 {
@@ -577,7 +579,9 @@ void StageConfigEditorv1::doAction(QString name, bool setModified)
 
     action.name = name;
 
+#if RE_USE_UNSTABLE
     copyConfig(&action, NULL);
+#endif
 
     // Actions
     for (int i = actions.count() - 1; i > actionIndex; --i) {

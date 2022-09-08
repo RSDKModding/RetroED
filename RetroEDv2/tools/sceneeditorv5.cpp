@@ -1143,7 +1143,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
     scnProp->bgSel->setColor(viewer->metadata.backgroundColor1);
     connect(scnProp->bgSel, &color_widgets::ColorPreview::clicked, [this] {
-        ColorDialog dlg(viewer->metadata.backgroundColor1);
+        RSDKColorDialog dlg(viewer->metadata.backgroundColor1);
         if (dlg.exec() == QDialog::Accepted) {
             viewer->metadata.backgroundColor1 = dlg.color().toQColor();
             scnProp->bgSel->setColor(viewer->metadata.backgroundColor1);
@@ -1152,7 +1152,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
     scnProp->altBGSel->setColor(viewer->metadata.backgroundColor2);
     connect(scnProp->altBGSel, &color_widgets::ColorPreview::clicked, [this] {
-        ColorDialog dlg(viewer->metadata.backgroundColor2);
+        RSDKColorDialog dlg(viewer->metadata.backgroundColor2);
         if (dlg.exec() == QDialog::Accepted) {
             viewer->metadata.backgroundColor2 = dlg.color().toQColor();
             scnProp->altBGSel->setColor(viewer->metadata.backgroundColor2);
@@ -3832,6 +3832,7 @@ void SceneEditorv5::redoAction()
 
 void SceneEditorv5::resetAction()
 {
+#if RE_USE_UNSTABLE
     viewer->tilePalette = actions[actionIndex].tilePalette;
     viewer->tiles       = actions[actionIndex].tiles;
 
@@ -3913,6 +3914,7 @@ void SceneEditorv5::resetAction()
     // ui->selToolBox->blockSignals(true);
     // ui->selToolBox->setCurrentIndex(viewer->curTool);
     // ui->selToolBox->blockSignals(false);
+#endif
 
     updateTitle(actionIndex > 0);
 
@@ -3922,12 +3924,11 @@ void SceneEditorv5::resetAction()
 void SceneEditorv5::doAction(QString name, bool setModified)
 {
     // TODO: THIS IS VERY SLOW!! FIX IT!!
-    // return;
-
     ActionState action;
 
     action.name = name;
 
+#if RE_USE_UNSTABLE
     action.tilePalette = viewer->tilePalette;
     action.tiles       = viewer->tiles;
 
@@ -3962,6 +3963,7 @@ void SceneEditorv5::doAction(QString name, bool setModified)
     // Parallax Editing
     action.showParallax       = viewer->showParallax;
     action.selectedScrollInfo = viewer->selectedHScrollInfo;
+#endif
 
     // Actions
     for (int i = actions.count() - 1; i > actionIndex; --i) {

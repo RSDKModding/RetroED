@@ -830,7 +830,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     scnProp->bgSel->setColor(viewer->metadata.backgroundColor1);
     connect(scnProp->bgSel, &color_widgets::ColorPreview::clicked, [this] {
-        ColorDialog dlg(viewer->metadata.backgroundColor1);
+        RSDKColorDialog dlg(viewer->metadata.backgroundColor1);
         if (dlg.exec() == QDialog::Accepted) {
             viewer->metadata.backgroundColor1 = dlg.color().toQColor();
             scnProp->bgSel->setColor(viewer->metadata.backgroundColor1);
@@ -839,7 +839,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     scnProp->altBGSel->setColor(viewer->metadata.backgroundColor2);
     connect(scnProp->altBGSel, &color_widgets::ColorPreview::clicked, [this] {
-        ColorDialog dlg(viewer->metadata.backgroundColor2);
+        RSDKColorDialog dlg(viewer->metadata.backgroundColor2);
         if (dlg.exec() == QDialog::Accepted) {
             viewer->metadata.backgroundColor2 = dlg.color().toQColor();
             scnProp->altBGSel->setColor(viewer->metadata.backgroundColor2);
@@ -3587,6 +3587,7 @@ void SceneEditor::redoAction()
 }
 void SceneEditor::resetAction()
 {
+#if RE_USE_UNSTABLE
     viewer->tilePalette = actions[actionIndex].tilePalette;
     viewer->tiles       = actions[actionIndex].tiles;
     viewer->chunks      = actions[actionIndex].chunks;
@@ -3655,6 +3656,7 @@ void SceneEditor::resetAction()
     // ui->selToolBox->blockSignals(true);
     // ui->selToolBox->setCurrentIndex(viewer->curTool);
     // ui->selToolBox->blockSignals(false);
+#endif
 
     updateTitle(actionIndex > 0);
 }
@@ -3664,6 +3666,7 @@ void SceneEditor::doAction(QString name, bool setModified)
 
     action.name = name;
 
+#if RE_USE_UNSTABLE
     action.tilePalette = viewer->tilePalette;
     action.tiles       = viewer->tiles;
     action.chunks      = viewer->chunks;
@@ -3711,6 +3714,7 @@ void SceneEditor::doAction(QString name, bool setModified)
     // action.compilerv2 = viewer->compilerv2;
     // action.compilerv3 = viewer->compilerv3;
     // action.compilerv4 = viewer->compilerv4;
+#endif
 
     // Actions
     for (int i = actions.count() - 1; i > actionIndex; --i) {

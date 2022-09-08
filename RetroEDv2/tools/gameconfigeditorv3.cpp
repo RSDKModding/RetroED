@@ -1136,7 +1136,9 @@ void GameConfigEditorv3::doAction(QString name, bool setModified)
 
     action.name = name;
 
+#if RE_USE_UNSTABLE
     copyConfig(&action, NULL);
+#endif
 
     // Actions
     for (int i = actions.count() - 1; i > actionIndex; --i) {

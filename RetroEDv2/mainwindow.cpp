@@ -95,6 +95,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     };
     file->addAction("Save As", saveAsAction);
 
+#if RE_USE_UNSTABLE
     auto undoAction = [this] {
         if (!ui->toolTabs->currentWidget())
             return;
@@ -112,6 +113,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         QApplication::sendEvent(ui->toolTabs->currentWidget(), &e);
     };
     // file->addAction("Redo", redoAction);
+#endif
 
     // SHORTCUTS
     QShortcut *shortcut_new = new QShortcut(this);
@@ -130,6 +132,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     shortcut_saveAs->setKey(Qt::CTRL + Qt::ALT + Qt::Key_S);
     connect(shortcut_saveAs, &QShortcut::activated, [saveAsAction] { saveAsAction(); });
 
+#if RE_USE_UNSTABLE
     QShortcut *shortcut_undo = new QShortcut(this);
     shortcut_undo->setKey(Qt::CTRL + Qt::Key_Z);
     connect(shortcut_undo, &QShortcut::activated, [undoAction] { undoAction(); });
@@ -137,6 +140,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     QShortcut *shortcut_redo = new QShortcut(this);
     shortcut_redo->setKey(Qt::CTRL + Qt::Key_Y);
     connect(shortcut_redo, &QShortcut::activated, [redoAction] { redoAction(); });
+#endif
 
     file->addSeparator();
 
