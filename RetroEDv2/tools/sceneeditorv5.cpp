@@ -1325,11 +1325,11 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 for (auto &layer : viewer->layers) {
                     writer.writeText(
                         QString(
-                            "\t\t<layer name=\"%1\" type=\"%2\" drawOrder=\"%3\" width=\"%4\" "
+                            "\t\t<layer name=\"%1\" type=\"%2\" drawGroup=\"%3\" width=\"%4\" "
                             "height=\"%5\" parallaxFactor=\"%6\" scrollSpeed=\"%7\" visible=\"%8\">")
                             .arg(layer.name)
                             .arg(layerTypes[layer.type])
-                            .arg(layer.drawOrder)
+                            .arg(layer.drawGroup)
                             .arg(layer.width)
                             .arg(layer.height)
                             .arg(layer.parallaxFactor)
@@ -2415,7 +2415,7 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
         viewLayer.name           = layer.name;
         viewLayer.width          = layer.width;
         viewLayer.height         = layer.height;
-        viewLayer.drawOrder      = layer.drawOrder;
+        viewLayer.drawGroup      = layer.drawGroup;
         viewLayer.visible        = layer.visible;
         viewLayer.parallaxFactor = layer.parallaxFactor / 256.0f;
         viewLayer.scrollSpeed    = layer.scrollSpeed / 256.0f;
@@ -2647,7 +2647,7 @@ void SceneEditorv5::saveScene(QString path)
         layer.name           = viewLayer.name;
         layer.width          = viewLayer.width;
         layer.height         = viewLayer.height;
-        layer.drawOrder      = viewLayer.drawOrder;
+        layer.drawGroup      = viewLayer.drawGroup;
         layer.visible        = viewLayer.visible;
         layer.parallaxFactor = viewLayer.parallaxFactor * 256;
         layer.scrollSpeed    = viewLayer.scrollSpeed * 256;

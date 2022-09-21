@@ -56,7 +56,7 @@ public:
     QString name = "TileLayer";
 
     byte type            = LAYER_NONE;
-    byte drawOrder       = 2;
+    byte drawGroup       = 2;
     ushort width         = 0;
     ushort height        = 0;
     bool visible         = true;

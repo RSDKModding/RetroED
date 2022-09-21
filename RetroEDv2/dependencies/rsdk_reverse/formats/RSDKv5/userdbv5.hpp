@@ -66,21 +66,42 @@ public:
     class TableColumn
     {
     public:
+        enum Types {
+            Invalid,
+            Bool,
+            UInt8,
+            UInt16,
+            UInt32,
+            UInt64,
+            Int8,
+            Int16,
+            Int32,
+            Int64,
+            Float,
+            Double,
+            Vector2,
+            Vector3,
+            Vector4,
+            Color,
+            String,
+            HashMD5,
+        };
+
         QString name = "";
-        byte type    = 0;
+        Types type   = Invalid;
 
         TableColumn() {}
         TableColumn(Reader &reader) { read(reader); }
 
         void read(Reader &reader)
         {
-            type = reader.read<byte>();
+            type = (Types)reader.read<byte>();
             name = QString(reader.readByteArray(0x10)).replace("\0", "");
         }
 
         void write(Writer &writer)
         {
-            writer.write(type);
+            writer.write((byte)type);
 
             int i = 0;
             for (; i < name.length(); ++i) writer.write<byte>(name[i].toLatin1());

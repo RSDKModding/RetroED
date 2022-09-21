@@ -1860,7 +1860,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
         viewLayer.name           = "Foreground";
         viewLayer.width          = scene.width;
         viewLayer.height         = scene.height;
-        viewLayer.drawOrder      = layerID--;
+        viewLayer.drawGroup      = layerID--;
         viewLayer.visible        = false;
         viewLayer.parallaxFactor = 1.0f;
         viewLayer.scrollSpeed    = 0.0f;
@@ -1884,7 +1884,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
         viewLayer.name           = "Background " + QString::number(8 - layerID);
         viewLayer.width          = layer.width;
         viewLayer.height         = layer.height;
-        viewLayer.drawOrder      = layerID--;
+        viewLayer.drawGroup      = layerID--;
         viewLayer.visible        = false;
         viewLayer.parallaxFactor = layer.parallaxFactor;
         viewLayer.scrollSpeed    = layer.scrollSpeed;
@@ -3862,7 +3862,7 @@ void SceneEditor::readXMLLayers(QXmlStreamReader &xmlReader)
             else if (mode) {
                 if (name == "layer") {
                     QString name = "", type = "";
-                    int width = 0, height = 0, drawOrder = 0;
+                    int width = 0, height = 0, drawGroup = 0;
                     float parallaxFactor = 1.0f, scrollSpeed = 0.0f;
                     bool visible = false;
                     for (const QXmlStreamAttribute &attr : xmlReader.attributes()) {
@@ -3870,8 +3870,8 @@ void SceneEditor::readXMLLayers(QXmlStreamReader &xmlReader)
                             name = attr.value().toString();
                         if (attr.name().toString() == QLatin1String("type"))
                             type = attr.value().toString();
-                        if (attr.name().toString() == QLatin1String("drawOrder"))
-                            drawOrder = attr.value().toInt();
+                        if (attr.name().toString() == QLatin1String("drawGroup"))
+                            drawGroup = attr.value().toInt();
                         if (attr.name().toString() == QLatin1String("width"))
                             width = attr.value().toInt();
                         if (attr.name().toString() == QLatin1String("height"))
@@ -4005,15 +4005,70 @@ void SceneEditor::writeXMLLayer(Writer &writer, int layerID, int indentPos)
 
     auto &layer = viewer->layers[layerID];
 
-    int drawOrder = 0;
+    int drawGroup = 16;
+
+    if (viewer->gameType != ENGINE_v4) {
+        // Draw Object Groups 0
+        if (drawGroup == 16 && layerID == scene.activeLayer[0] && scene.activeLayer[0] < 9)
+            drawGroup = 0;
+
+        // Draw Object Groups 1
+        if (drawGroup == 16 && layerID == scene.activeLayer[1] && scene.activeLayer[1] < 9)
+            drawGroup = 1;
+
+        // Draw Object Groups 2
+        if (drawGroup == 16 && layerID == scene.activeLayer[2] && scene.activeLayer[2] < 9)
+            drawGroup = 2;
+
+        // Draw Object Groups 3, 4
+        if (drawGroup == 16 && layerID == scene.activeLayer[3] && scene.activeLayer[3] < 9)
+            drawGroup = 6;
+
+        // Draw Object Groups 5, 6
+    }
+    else {
+        if (scene.midpoint < 6) {
+            // Draw Object Groups 0
+            if (drawGroup == 16 && layerID == scene.activeLayer[0] && scene.activeLayer[0] < 9)
+                drawGroup = 0;
+
+            // Draw Object Groups 1
+            if (drawGroup == 16 && layerID == scene.activeLayer[1] && scene.activeLayer[1] < 9)
+                drawGroup = 1;
+        }
+
+        if (scene.midpoint < 3) {
+            // Draw Object Groups 2, 3, 4
+
+            if (drawGroup == 16 && layerID == scene.activeLayer[2] && scene.activeLayer[2] < 9)
+                drawGroup = 4;
+        }
+        else if (scene.midpoint < 6) {
+            // Draw Object Groups 2
+            if (drawGroup == 16 && layerID == scene.activeLayer[2] && scene.activeLayer[2] < 9)
+                drawGroup = 2;
+
+            // Draw Object Groups 3, 4
+        }
+
+        if (scene.midpoint < 6) {
+            if (drawGroup == 16 && layerID == scene.activeLayer[3] && scene.activeLayer[3] < 9)
+                drawGroup = 6;
+
+            // Draw Object Groups 5, 6
+        }
+    }
+
+    if ((layer.width == 0 || layer.height == 0) && drawGroup == 16)
+        return;
 
     writeXMLIndentation(writer, indentPos);
-    writer.writeLine(QString("<layer name=\"%1\" type=\"%2\" drawOrder=\"%3\" width=\"%4\" "
+    writer.writeLine(QString("<layer name=\"%1\" type=\"%2\" drawGroup=\"%3\" width=\"%4\" "
                              "height=\"%5\" parallaxFactor=\"%6\" scrollSpeed=\"%7\" "
                              "visible=\"%8\">")
                          .arg(viewer->layers[layerID].name)
                          .arg(layerTypes[layer.type])
-                         .arg(drawOrder)
+                         .arg(drawGroup)
                          .arg(layer.width)
                          .arg(layer.height)
                          .arg(layer.parallaxFactor)
@@ -4079,7 +4134,7 @@ void SceneEditor::writeXMLObject(Writer &writer, int objID, int indentPos)
             writeXMLIndentation(writer, indentPos + 1);
             writer.writeLine(QString("<variable name=\"%1\" type=\"%2\"> </variable>")
                                  .arg(variable.name)
-                                 .arg("int32"));
+                                 .arg("enum"));
         }
     }
     writeXMLIndentation(writer, indentPos);
@@ -4120,7 +4175,7 @@ void SceneEditor::writeXMLEntity(Writer &writer, int entityID, int indentPos)
             }
 
             writeXMLIndentation(writer, indentPos + 1);
-            writer.writeLine(QString("<variable name=\"%1\" type=\"%2\" type=\"%3\">%3</variable>")
+            writer.writeLine(QString("<variable name=\"%1\" type=\"%2\" value=\"%3\">%3</variable>")
                                  .arg(name)
                                  .arg(RSDKv4::objectVariableTypes[v])
                                  .arg(entity.sceneVariables[v].value));
@@ -4229,8 +4284,7 @@ void SceneEditor::writeXMLScene(Writer &writer)
 
         int id = 0;
         for (auto &layer : viewer->layers) {
-            if (layer.width == 0 || layer.height == 0)
-                continue;
+            (void)layer;
 
             writeXMLLayer(writer, id, indentPos + 1);
             ++id;

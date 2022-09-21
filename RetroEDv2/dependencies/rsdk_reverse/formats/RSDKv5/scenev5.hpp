@@ -112,7 +112,7 @@ public:
         QString name = "";
 
         byte type      = 0;
-        byte drawOrder = 2;
+        byte drawGroup = 2;
         ushort width   = 16;
         ushort height  = 16;
 

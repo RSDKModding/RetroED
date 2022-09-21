@@ -23,7 +23,7 @@ void SceneLayerPropertiesv5::setupUI(RSDKv5::Scene *scn, byte lID)
     ui->width->setValue(scene->layers[lID].width);
     ui->height->setValue(scene->layers[lID].height);
     ui->type->setCurrentIndex(scene->layers[lID].type);
-    ui->drawOrder->setValue(scene->layers[lID].drawOrder);
+    ui->drawOrder->setValue(scene->layers[lID].drawGroup);
     ui->parallaxFactor->setValue(scene->layers[lID].parallaxFactor / 256.0f);
     ui->scrollSpeed->setValue(scene->layers[lID].scrollSpeed / 256.0f);
 
@@ -70,7 +70,7 @@ void SceneLayerPropertiesv5::setupUI(RSDKv5::Scene *scn, byte lID)
             [this](int v) { scene->layers[layerID].type = (byte)v; });
 
     connect(ui->drawOrder, QOverload<int>::of(&QSpinBox::valueChanged),
-            [this](int v) { scene->layers[layerID].drawOrder = (byte)v; });
+            [this](int v) { scene->layers[layerID].drawGroup = (byte)v; });
 
     connect(ui->parallaxFactor, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             [this](double v) { scene->layers[layerID].parallaxFactor = v * 256; });

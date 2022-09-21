@@ -26,7 +26,7 @@ Property::Property(QString name, signed char *value)
     type     = SBYTE_MANAGER;
     valuePtr = value;
 
-    //int v = *value;
+    // int v = *value;
     connect(m, &QtIntPropertyManager::valueChanged, this, [=](QtProperty *, int x) {
         *value = x;
         emit changed();
@@ -100,6 +100,7 @@ Property::Property(QString name, float *value)
     p                          = m->addProperty(name);
     m->setValue(p, *value);
     m->setRange(p, 3.4 * pow(10, 38), -3.4 * pow(10, 38));
+    m->setDecimals(p, 5);
     type     = FLOAT_MANAGER;
     valuePtr = value;
     connect(m, &QtDoublePropertyManager::valueChanged, this, [=](QtProperty *, float x) {
@@ -561,10 +562,11 @@ void PropertyBrowser::assignDelegate(Property *property)
             this->setFactoryForManager(static_cast<QtIntPropertyManager *>(property->typeManager),
                                        new QtSpinBoxFactory);
             break;
-        case Property::FLOAT_MANAGER:
+        case Property::FLOAT_MANAGER: {
             this->setFactoryForManager(static_cast<QtDoublePropertyManager *>(property->typeManager),
                                        new QtDoubleSpinBoxFactory);
             break;
+        }
         case Property::BOOL_MANAGER:
             this->setFactoryForManager(static_cast<QtBoolPropertyManager *>(property->typeManager),
                                        new QtCheckBoxFactory);

@@ -37,6 +37,15 @@ void RSDKv5::UserDB::write(Writer &writer)
     QDataStream *cmem = new QDataStream(&buffer);
     Writer cwriter(cmem);
 
+    // entry limits
+    ushort rowCount = rows.count();
+    if (rowCount > 0x400)
+        rowCount = 0x400;
+
+    byte colCount = columns.count();
+    if (colCount > 8)
+        colCount = 8;
+
     cwriter.write(signature);
     int loop = 0;
     while (loop++ < 2) {
@@ -45,12 +54,12 @@ void RSDKv5::UserDB::write(Writer &writer)
         else
             cwriter.write(0x00); // data size (fake)
 
-        cwriter.write((ushort)rows.count());
-        cwriter.write((byte)columns.count());
+        cwriter.write(rowCount);
+        cwriter.write(colCount);
 
-        for (int i = 0; i < columns.count(); i++) columns[i].write(cwriter);
+        for (int c = 0; c < colCount; c++) columns[c].write(cwriter);
 
-        for (int i = 0; i < rows.count(); i++) rows[i].write(cwriter);
+        for (int r = 0; r < rowCount; r++) rows[r].write(cwriter);
 
         if (loop == 1)
             cwriter.seek(4);

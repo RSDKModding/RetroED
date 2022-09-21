@@ -65,7 +65,7 @@ void RSDKv5::Scene::SceneLayer::read(Reader &reader)
     name = reader.readString();
 
     type      = reader.read<byte>();
-    drawOrder = reader.read<byte>();
+    drawGroup = reader.read<byte>();
 
     width  = reader.read<ushort>();
     height = reader.read<ushort>();
@@ -97,7 +97,7 @@ void RSDKv5::Scene::SceneLayer::write(Writer &writer)
     writer.write(name + '\0');
 
     writer.write(type);
-    writer.write(drawOrder);
+    writer.write(drawGroup);
 
     writer.write(width);
     writer.write(height);

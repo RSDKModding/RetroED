@@ -377,7 +377,7 @@ void SceneViewer::drawScene()
     }
 
     for (int t = 0; t < layers.count(); ++t) {
-        byte drawOrder = layers[t].drawOrder;
+        byte drawOrder = layers[t].drawGroup;
         if (drawOrder < v5_DRAWGROUP_COUNT)
             drawLayers[drawOrder].layerDrawList.append(t);
     }
@@ -392,7 +392,7 @@ void SceneViewer::drawScene()
         // so BGLayer 8 is order 0, BGLayer 0 is order 7 & FG is 8, etc etc
 
         for (int l = layers.count() - 1; l >= 0; --l) {
-            if (layers[l].drawOrder != p && !(p == 15 && layers[l].drawOrder >= 16)) {
+            if (layers[l].drawGroup != p && !(p == 15 && layers[l].drawGroup >= 16)) {
                 if (!(selectedLayer == l && p == 15))
                     continue;
             }
@@ -865,33 +865,33 @@ void SceneViewer::drawScene()
                                   0xFF, 1);
             }
         }
+    }
 
-        // Draw Selected Entity above the rest
-        if (selectedEntity >= 0 && selectedEntity < entities.count()) {
-            SceneEntity *entity = &entities[selectedEntity];
-            activeDrawEntity    = entity;
-            entity->box         = Rect<int>(0, 0, 0, 0);
+    // Draw Selected Entity above the rest
+    if (selectedEntity >= 0 && selectedEntity < entities.count()) {
+        SceneEntity *entity = &entities[selectedEntity];
+        activeDrawEntity    = entity;
+        entity->box         = Rect<int>(0, 0, 0, 0);
 
-            validDraw = false;
+        validDraw = false;
 
-            if (entity->type != 0) {
-                if (gameType == ENGINE_v5)
-                    emit callGameEventv5(objects[entity->type].name, EVENT_DRAW, entity);
-                else
-                    emit callGameEvent(EVENT_DRAW, selectedEntity);
-            }
+        if (entity->type != 0) {
+            if (gameType == ENGINE_v5)
+                emit callGameEventv5(objects[entity->type].name, EVENT_DRAW, entity);
+            else
+                emit callGameEvent(EVENT_DRAW, selectedEntity);
+        }
 
-            // Draw Default Object Sprite if invalid
-            if (!validDraw) {
-                entity->box = Rect<int>(-0x10, -0x10, 0x10, 0x10);
+        // Draw Default Object Sprite if invalid
+        if (!validDraw) {
+            entity->box = Rect<int>(-0x10, -0x10, 0x10, 0x10);
 
-                float xpos = entity->pos.x - (cameraPos.x);
-                float ypos = entity->pos.y - (cameraPos.y);
+            float xpos = entity->pos.x - (cameraPos.x);
+            float ypos = entity->pos.y - (cameraPos.y);
 
-                drawSpriteFlipped(xpos - (gfxSurface[1].width >> 1), ypos - (gfxSurface[1].height >> 1),
-                                  gfxSurface[1].width, gfxSurface[1].height, 0, 0, FLIP_NONE, INK_NONE,
-                                  0xFF, 1);
-            }
+            drawSpriteFlipped(xpos - (gfxSurface[1].width >> 1), ypos - (gfxSurface[1].height >> 1),
+                              gfxSurface[1].width, gfxSurface[1].height, 0, 0, FLIP_NONE, INK_NONE,
+                              0xFF, 1);
         }
     }
 
