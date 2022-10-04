@@ -79,7 +79,7 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColor> &pal, 
         tiles.move(c, n);
         ui->tileList->insertItem(n, item);
 
-        // doAction("Moved tile", true);
+        // DoAction("Moved tile", true);
 
         ui->tileList->setCurrentRow(n);
     };

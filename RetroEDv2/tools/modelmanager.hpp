@@ -22,17 +22,17 @@ public:
     void loadModel(QString filePath, bool usev5Format);
     bool saveModel(bool forceSaveAs = false);
 
-    inline void updateTitle(bool modified)
+    inline void UpdateTitle(bool modified)
     {
         this->modified = modified;
         if (modified)
-            emit titleChanged(tabTitle + " *");
+            emit TitleChanged(tabTitle + " *");
         else
-            emit titleChanged(tabTitle);
+            emit TitleChanged(tabTitle);
     }
 
 signals:
-    void titleChanged(QString title);
+    void TitleChanged(QString title);
 
 protected:
     bool event(QEvent *event);

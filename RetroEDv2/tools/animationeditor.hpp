@@ -23,14 +23,13 @@ public:
     explicit AnimationEditor(QString filepath = "", byte type = 0xFF, QWidget *parent = nullptr);
     ~AnimationEditor();
 
-    void setupUI(bool setFrame = false, bool setRow = false);
-    void updateView();
-    void processAnimation();
+    void SetupUI(bool setFrame = false, bool setRow = false);
+    void UpdateView();
+    void ProcessAnimation();
 
     bool event(QEvent *event) override;
 
-    inline int animCount() { return animFile.animations.count(); }
-    inline int frameCount()
+    inline int FrameCount()
     {
         if (currentAnim < animFile.animations.count()) {
             return animFile.animations[currentAnim].frames.count();
@@ -38,17 +37,17 @@ public:
         return 0;
     }
 
-    inline void updateTitle(bool modified)
+    inline void UpdateTitle(bool modified)
     {
         this->modified = modified;
         if (modified)
-            emit titleChanged(tabTitle + " *");
+            emit TitleChanged(tabTitle + " *");
         else
-            emit titleChanged(tabTitle);
+            emit TitleChanged(tabTitle);
     }
 
 signals:
-    void titleChanged(QString title);
+    void TitleChanged(QString title);
 
 private:
     Ui::AnimationEditor *ui;
@@ -62,7 +61,7 @@ private:
     ushort currentHitbox  = -1;
     byte currentSubHitbox = -1;
 
-    inline void startAnim()
+    inline void StartAnim()
     {
         playingAnim  = true;
         animFinished = false;
@@ -80,8 +79,8 @@ private:
 
         updateTimer->stop();
     }
-    void setFramePreview();
-    void setupFrameList(QList<FormatHelpers::Animation::Frame> &frames);
+    void SetFramePreview();
+    void SetupFrameList(QList<FormatHelpers::Animation::Frame> &frames);
 
     bool showTransparentClr = true;
     QColor bgColor          = QColor(0xA0, 0xA0, 0xA0, 0xFF);
@@ -104,25 +103,25 @@ private:
     QTimer *updateTimer            = nullptr;
     QStandardItemModel *frameModel = nullptr;
 
-    void loadSheet(QString filepath, int index, bool addSource = true);
-    void removeSheet(int index, bool removeSource = true);
-    void moveSheet(int from, int to);
+    void LoadSheet(QString filepath, int index, bool addSource = true);
+    void RemoveSheet(int index, bool removeSource = true);
+    void MoveSheet(int from, int to);
 
-    QString getBaseDir();
+    QString GetBaseDir();
 
-    void loadAnim(QString filepath, int aniType);
+    void LoadAnim(QString filepath, int aniType);
 
     QVector<QImage> sheets;
 
     QPixmap missingImg;
 
-    void undoAction();
-    void redoAction();
-    void resetAction();
-    void doAction(QString name = "Action", bool setModified = true);
-    void clearActions();
+    void UndoAction();
+    void RedoAction();
+    void ResetAction();
+    void DoAction(QString name = "Action", bool setModified = true);
+    void ClearActions();
 
-    void copyAnimFile(FormatHelpers::Animation &src, FormatHelpers::Animation &dst);
+    void CopyAnimFile(FormatHelpers::Animation &src, FormatHelpers::Animation &dst);
 
     QList<ActionState> actions;
     int actionIndex = 0;

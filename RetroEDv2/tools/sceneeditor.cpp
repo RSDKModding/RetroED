@@ -223,7 +223,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->objectList->setCurrentItem(item);
-        doAction();
+        DoAction();
     });
 
     connect(ui->rmObj, &QToolButton::clicked, [this] {
@@ -249,7 +249,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         }
 
         createEntityList();
-        doAction();
+        DoAction();
     });
 
     connect(ui->entityFilter, &QLineEdit::textChanged, [this](QString s) { filterEntityList(s); });
@@ -283,7 +283,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         addEntity(viewer->selectedObject, 0xFFFF, 0xFFFF);
 
         ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
-        doAction();
+        DoAction();
     });
 
     connect(ui->upEnt, &QToolButton::clicked, [this] {
@@ -345,7 +345,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         ui->rmEnt->setDisabled(viewer->entities.count() <= 0);
         ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
-        doAction();
+        DoAction();
     });
 
     connect(ui->hScrollList, &QListWidget::currentRowChanged, [this](int c) {
@@ -373,7 +373,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         viewer->hScroll.append(scr);
 
         createScrollList();
-        doAction("Added HScroll");
+        DoAction("Added HScroll");
     });
 
     connect(ui->rmScrH, &QToolButton::clicked, [this] {
@@ -384,7 +384,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         ui->hScrollList->blockSignals(true);
         ui->hScrollList->setCurrentRow(n);
         ui->hScrollList->blockSignals(false);
-        doAction("Removed HScroll");
+        DoAction("Removed HScroll");
     });
 
     connect(ui->impScrH, &QToolButton::clicked, [this] {
@@ -409,7 +409,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             xmlReader.clear();
 
             createScrollList();
-            doAction("Imported HScroll");
+            DoAction("Imported HScroll");
         }
     });
 
@@ -453,7 +453,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         viewer->vScroll.append(scr);
 
         createScrollList();
-        doAction("Added VScroll");
+        DoAction("Added VScroll");
     });
 
     connect(ui->rmScrV, &QToolButton::clicked, [this] {
@@ -464,7 +464,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         ui->vScrollList->blockSignals(true);
         ui->vScrollList->setCurrentRow(n);
         ui->vScrollList->blockSignals(false);
-        doAction("Removed VScroll");
+        DoAction("Removed VScroll");
     });
 
     connect(ui->impScrV, &QToolButton::clicked, [this] {
@@ -489,7 +489,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             xmlReader.clear();
 
             createScrollList();
-            doAction("Imported VScroll");
+            DoAction("Imported VScroll");
         }
     });
 
@@ -574,7 +574,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         objProp->unsetUI();
         createEntityList();
-        doAction();
+        DoAction();
     });
 
     connect(ui->showParallax, &QPushButton::clicked, [this] { viewer->showParallax ^= 1; });
@@ -604,7 +604,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             }
 
             chkProp->refreshList();
-            doAction();
+            DoAction();
             chunkEdit = nullptr;
         });
     });
@@ -737,7 +737,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 scnProp->musBox->addItem(stageConfig.music[o]);
             scnProp->musBox->blockSignals(false);
         }
-        doAction();
+        DoAction();
     });
 
     connect(scnProp->editTSet, &QPushButton::clicked, [this] {
@@ -794,7 +794,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         chkProp->refreshList();
 
-        doAction("Edited Tiles");
+        DoAction("Edited Tiles");
         SetStatus("Finished rebuilding tiles!"); // done!
 
         viewer->startTimer();
@@ -806,7 +806,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             new PaletteEditor(stageConfig.filePath, viewer->gameType + PALTYPE_STAGECONFIGv4);
         edit->setWindowTitle("Edit StageConfig Palette");
         edit->show();
-        doAction();
+        DoAction();
     });
 
     connect(ui->exportScn, &QPushButton::clicked, [this] {
@@ -995,7 +995,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         }
     });
 
-    clearActions();
+    ClearActions();
     for (QWidget *w : findChildren<QWidget *>()) {
         w->installEventFilter(this);
     }
@@ -1080,8 +1080,8 @@ bool SceneEditor::event(QEvent *event)
             break;
         }
 
-        case RE_EVENT_UNDO: undoAction(); return true;
-        case RE_EVENT_REDO: redoAction(); return true;
+        case RE_EVENT_UNDO: UndoAction(); return true;
+        case RE_EVENT_REDO: RedoAction(); return true;
 
         case RE_EVENT_TAB_GAIN_FOCUS: viewer->startTimer(); break;
         case RE_EVENT_TAB_LOSE_FOCUS: viewer->stopTimer(); break;
@@ -1155,7 +1155,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     case SceneViewer::TOOL_PENCIL: {
                         if (viewer->selectedTile != 0xFFFF && viewer->isSelecting) {
                             setTile(mEvent->pos().x(), mEvent->pos().y());
-                            doAction();
+                            DoAction();
                         }
                         break;
                     }
@@ -1163,7 +1163,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         if (viewer->isSelecting) {
                             viewer->selectedTile = 0x00;
                             setTile(mEvent->pos().x(), mEvent->pos().y());
-                            doAction();
+                            DoAction();
                         }
                         break;
                     }
@@ -1203,7 +1203,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                         &compilerv4->objectEntityList[entity->gameEntitySlot],
                                         viewer->gameType);
                                     ui->propertiesBox->setCurrentWidget(ui->objPropPage);
-                                    // doAction();
+                                    // DoAction();
                                     break;
                                 }
                             }
@@ -1250,7 +1250,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
                                 addEntity(viewer->selectedObject, x, y);
 
-                                doAction("Added Entity");
+                                DoAction("Added Entity");
                             }
                             else if (viewer->entities.count() >= FormatHelpers::Scene::entityLimit) {
                                 QMessageBox msgBox =
@@ -1561,7 +1561,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     case SceneViewer::TOOL_PENCIL: {
                         if (viewer->selectedTile != 0xFFFF && viewer->isSelecting) {
                             setTile(viewer->mousePos.x, viewer->mousePos.y);
-                            doAction();
+                            DoAction();
                         }
                         break;
                     }
@@ -1570,7 +1570,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         if (viewer->isSelecting) {
                             viewer->selectedTile = 0x0;
                             setTile(viewer->mousePos.x, viewer->mousePos.y);
-                            doAction();
+                            DoAction();
                         }
                         break;
                     }
@@ -1609,7 +1609,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                 entity.pos.y * 65536;
 
                             objProp->updateUI();
-                            // doAction();
+                            // DoAction();
                         }
                         break;
                     }
@@ -1632,7 +1632,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 case SceneViewer::TOOL_SELECT: viewer->isSelecting = false; break;
                 case SceneViewer::TOOL_PENCIL: {
                     if (viewer->selectedTile != 0xFFFF && viewer->isSelecting) {
-                        doAction(QString("Placed Chunk(s): (%1, %2)")
+                        DoAction(QString("Placed Chunk(s): (%1, %2)")
                                      .arg(mEvent->pos().x())
                                      .arg(mEvent->pos().y()));
                     }
@@ -1640,7 +1640,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 }
                 case SceneViewer::TOOL_ERASER: {
                     if (viewer->isSelecting) {
-                        doAction(QString("Erased Chunk(s): (%1, %2)")
+                        DoAction(QString("Erased Chunk(s): (%1, %2)")
                                      .arg(mEvent->pos().x())
                                      .arg(mEvent->pos().y()));
                     }
@@ -1726,7 +1726,7 @@ void SceneEditor::createNewScene()
 
     tabTitle = "Scene Editor";
 
-    clearActions();
+    ClearActions();
     SetStatus("Created new scene!"); // done!
 
     viewer->startTimer();
@@ -2127,7 +2127,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     viewer->objectsLoaded    = true;
     viewer->startTimer();
 
-    clearActions();
+    ClearActions();
     appConfig.addRecentFile(viewer->gameType, TOOL_SCENEEDITOR, scnPath, QList<QString>{ gcfPath });
     SetStatus("Loaded scene " + QFileInfo(scnPath).fileName()); // done!
 }
@@ -2382,7 +2382,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
     }
 
     tabTitle = Utils::getFilenameAndFolder(savePath);
-    clearActions();
+    ClearActions();
     SetStatus("Saved scene to " + Utils::getFilenameAndFolder(savePath));
     viewer->disableDrawScene = false;
     return true;
@@ -2954,7 +2954,7 @@ bool SceneEditor::handleKeyPress(QKeyEvent *event)
                                 (viewer->tilePos.y * viewer->invZoom()) + viewer->cameraPos.y);
                             if (box.contains(pos)) {
                                 viewer->layers[viewer->selectedLayer].layout[y][x] = 0;
-                                doAction();
+                                DoAction();
 
                                 // reset context
                                 break;
@@ -2973,7 +2973,7 @@ bool SceneEditor::handleKeyPress(QKeyEvent *event)
                     deleteEntity(viewer->selectedEntity);
                     viewer->selectedEntity = -1;
 
-                    doAction();
+                    DoAction();
                 }
             }
 
@@ -3571,21 +3571,21 @@ void SceneEditor::parseGameXML(QString path)
     xmlReader.clear();
 }
 
-void SceneEditor::undoAction()
+void SceneEditor::UndoAction()
 {
     if (actionIndex > 0) {
         actionIndex--;
-        resetAction();
+        ResetAction();
     }
 }
-void SceneEditor::redoAction()
+void SceneEditor::RedoAction()
 {
     if (actionIndex + 1 < actions.count()) {
         actionIndex++;
-        resetAction();
+        ResetAction();
     }
 }
-void SceneEditor::resetAction()
+void SceneEditor::ResetAction()
 {
 #if RE_USE_UNSTABLE
     viewer->tilePalette = actions[actionIndex].tilePalette;
@@ -3658,9 +3658,9 @@ void SceneEditor::resetAction()
     // ui->selToolBox->blockSignals(false);
 #endif
 
-    updateTitle(actionIndex > 0);
+    UpdateTitle(actionIndex > 0);
 }
-void SceneEditor::doAction(QString name, bool setModified)
+void SceneEditor::DoAction(QString name, bool setModified)
 {
     ActionState action;
 
@@ -3724,15 +3724,15 @@ void SceneEditor::doAction(QString name, bool setModified)
     actions.append(action);
     actionIndex = actions.count() - 1;
 
-    updateTitle(setModified);
+    UpdateTitle(setModified);
 
     // setStatus("Did Action: " + name);
 }
-void SceneEditor::clearActions()
+void SceneEditor::ClearActions()
 {
     actions.clear();
     actionIndex = 0;
-    doAction("Action Setup", false); // first action, cant be undone
+    DoAction("Action Setup", false); // first action, cant be undone
 }
 
 // XML Management

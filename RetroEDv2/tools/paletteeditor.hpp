@@ -72,13 +72,13 @@ public:
 
     bool event(QEvent *event) override;
 
-    inline void updateTitle(bool modified)
+    inline void UpdateTitle(bool modified)
     {
         this->modified = modified;
         if (modified)
-            emit titleChanged(tabTitle + " *");
+            emit TitleChanged(tabTitle + " *");
         else
-            emit titleChanged(tabTitle);
+            emit TitleChanged(tabTitle);
     }
 
     QList<PaletteColor> palette;
@@ -97,7 +97,7 @@ public:
     byte bankID  = 0;
 
 signals:
-    void titleChanged(QString title);
+    void TitleChanged(QString title);
 
 protected:
     QSize sizeHint() const override { return QSize(500, 450); }
@@ -115,11 +115,11 @@ private:
     bool firstInit = true;
 
 public:
-    void undoAction();
-    void redoAction();
-    void resetAction();
-    void doAction(QString name = "Action", bool setModified = true);
-    void clearActions();
+    void UndoAction();
+    void RedoAction();
+    void ResetAction();
+    void DoAction(QString name = "Action", bool setModified = true);
+    void ClearActions();
 
 private:
     QList<ActionState> actions;

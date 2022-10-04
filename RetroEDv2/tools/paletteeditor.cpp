@@ -159,7 +159,7 @@ void PaletteEditor::load(QString path, byte type)
         }
     }
 
-    clearActions();
+    ClearActions();
 }
 
 void PaletteEditor::switchBank(int id)
@@ -204,23 +204,23 @@ void PaletteEditor::switchBank(int id)
     update();
 }
 
-void PaletteEditor::undoAction()
+void PaletteEditor::UndoAction()
 {
     if (actionIndex > 0) {
         // setStatus("Undid Action: " + actions[actionIndex].name);
         actionIndex--;
-        resetAction();
+        ResetAction();
     }
 }
-void PaletteEditor::redoAction()
+void PaletteEditor::RedoAction()
 {
     if (actionIndex + 1 < actions.count()) {
         // setStatus("Redid Action: " + actions[actionIndex].name);
         actionIndex++;
-        resetAction();
+        ResetAction();
     }
 }
-void PaletteEditor::resetAction()
+void PaletteEditor::ResetAction()
 {
 #if RE_USE_UNSTABLE
     palette       = actions[actionIndex].palette;
@@ -236,9 +236,9 @@ void PaletteEditor::resetAction()
     update();
 #endif
 
-    updateTitle(actionIndex > 0);
+    UpdateTitle(actionIndex > 0);
 }
-void PaletteEditor::doAction(QString name, bool setModified)
+void PaletteEditor::DoAction(QString name, bool setModified)
 {
     ActionState action;
 
@@ -264,15 +264,15 @@ void PaletteEditor::doAction(QString name, bool setModified)
     actions.append(action);
     actionIndex = actions.count() - 1;
 
-    updateTitle(setModified);
+    UpdateTitle(setModified);
 
     // setStatus("Did Action: " + name);
 }
-void PaletteEditor::clearActions()
+void PaletteEditor::ClearActions()
 {
     actions.clear();
     actionIndex = 0;
-    doAction("Action Setup", false); // first action, cant be undone
+    DoAction("Action Setup", false); // first action, cant be undone
 }
 
 PaletteWidget::PaletteWidget(QWidget *parent) : QWidget(parent) { setMouseTracking(true); }
@@ -304,7 +304,7 @@ void PaletteWidget::mouseDoubleClickEvent(QMouseEvent *)
         palette->replace(selection, clr);
 
         if (prev.r != clr.r && prev.g != clr.g && prev.b != clr.b)
-            editor->doAction("Changed color", true);
+            editor->DoAction("Changed color", true);
     }
     delete dlg;
 
@@ -318,7 +318,7 @@ void PaletteWidget::mouseDoubleClickEvent(QMouseEvent *)
     //     palette->replace(selection, clr);
     //
     //     if (prev.r != clr.r && prev.g != clr.g && prev.b != clr.b)
-    //         editor->doAction("Changed color", true);
+    //         editor->DoAction("Changed color", true);
     // }
     // delete dlg;
 }
@@ -342,7 +342,7 @@ void PaletteWidget::mouseMoveEvent(QMouseEvent *event)
             editor->gameConfigv5.palettes[editor->bankID].activeRows[y] = enabling;
 
             if (prev != enabling)
-                editor->doAction("Changed row active", true);
+                editor->DoAction("Changed row active", true);
         }
     }
     else if (editor->palType == PALTYPE_STAGECONFIGv5) {
@@ -351,7 +351,7 @@ void PaletteWidget::mouseMoveEvent(QMouseEvent *event)
             editor->stageConfigv5.palettes[editor->bankID].activeRows[y] = enabling;
 
             if (prev != enabling)
-                editor->doAction("Changed row active", true);
+                editor->DoAction("Changed row active", true);
         }
     }
 
@@ -426,7 +426,7 @@ bool PaletteEditor::event(QEvent *event)
     if (event->type() == (QEvent::Type)RE_EVENT_NEW) {
         palette.clear();
         reinit();
-        clearActions();
+        ClearActions();
         return true;
     }
 
@@ -458,7 +458,7 @@ bool PaletteEditor::event(QEvent *event)
                 QString filepath = filedialog.selectedFiles()[0];
                 savePalette(filepath);
 
-                clearActions();
+                ClearActions();
                 appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
                 return true;
             }
@@ -467,7 +467,7 @@ bool PaletteEditor::event(QEvent *event)
             QString filepath = filePath;
             savePalette(filepath);
 
-            clearActions();
+            ClearActions();
             appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
             return true;
         }
@@ -492,18 +492,18 @@ bool PaletteEditor::event(QEvent *event)
             QString filepath = filedialog.selectedFiles()[0];
             savePalette(filepath);
 
-            clearActions();
+            ClearActions();
             appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
             return true;
         }
     }
 
     if (event->type() == (QEvent::Type)RE_EVENT_UNDO) {
-        undoAction();
+        UndoAction();
         return true;
     }
     if (event->type() == (QEvent::Type)RE_EVENT_REDO) {
-        redoAction();
+        RedoAction();
         return true;
     }
 
@@ -521,7 +521,7 @@ bool PaletteEditor::event(QEvent *event)
                             QString filepath = filedialog.selectedFiles()[0];
                             savePalette(filepath);
 
-                            clearActions();
+                            ClearActions();
                             appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath,
                                                     QList<QString>{});
                             return true;
@@ -531,7 +531,7 @@ bool PaletteEditor::event(QEvent *event)
                         QString filepath = filePath;
                         savePalette(filepath);
 
-                        clearActions();
+                        ClearActions();
                         appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
                         return true;
                     }

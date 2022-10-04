@@ -107,13 +107,13 @@ public:
     QList<GameLink> gameLinks;
     GameObjectInfo *getObjectInfo(QString name);
 
-    inline void updateTitle(bool modified)
+    inline void UpdateTitle(bool modified)
     {
         this->modified = modified;
         if (modified)
-            emit titleChanged(tabTitle + " *");
+            emit TitleChanged(tabTitle + " *");
         else
-            emit titleChanged(tabTitle);
+            emit TitleChanged(tabTitle);
     }
 
     QString dataPath = "";
@@ -121,14 +121,14 @@ public:
     // Game Data Storage
     DataStorage dataStorage[DATASET_MAX];
 
-    void undoAction();
-    void redoAction();
-    void resetAction();
-    void doAction(QString name = "Action", bool setModified = true);
-    void clearActions();
+    void UndoAction();
+    void RedoAction();
+    void ResetAction();
+    void DoAction(QString name = "Action", bool setModified = true);
+    void ClearActions();
 
 signals:
-    void titleChanged(QString title);
+    void TitleChanged(QString title);
 
 protected:
     bool event(QEvent *event);

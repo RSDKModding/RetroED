@@ -92,7 +92,7 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
         sceneModel->insertRow(c, catItem);
         ui->gcScnTree->setCurrentIndex(sceneModel->indexFromItem(catItem));
 
-        doAction("Added Category");
+        DoAction("Added Category");
         setupInitCategories();
     };
 
@@ -116,7 +116,7 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
         scnItem->setFlags(scnItem->flags() | Qt::ItemIsEditable);
         ui->gcScnTree->setCurrentIndex(sceneModel->indexFromItem(scnItem));
 
-        doAction("Added Scene");
+        DoAction("Added Scene");
         setupInitScenes();
     });
 
@@ -124,11 +124,11 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
         const QModelIndex &index = sceneModel->indexFromItem(item);
         if (index.parent().isValid()) { // Scene
             gameConfig.categories[index.parent().row()].scenes[index.row()].name = item->text();
-            doAction("Changed Scene Name");
+            DoAction("Changed Scene Name");
             return;
         }
         gameConfig.categories[index.row()].name = item->text();
-        doAction("Changed Category Name");
+        DoAction("Changed Category Name");
     });
 
     ui->gcAddScn->setMenu(scnAddMenu);
@@ -140,14 +140,14 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
             gameConfig.categories[index.parent().row()].scenes.removeAt(index.row());
             sceneModel->itemFromIndex(index.parent())->removeRow(index.row());
             setupInitScenes();
-            doAction("Removed Scene");
+            DoAction("Removed Scene");
             return;
         }
         gameConfig.categories.removeAt(index.row());
         sceneModel->removeRow(index.row());
 
         setupInitCategories();
-        doAction("Removed Category");
+        DoAction("Removed Category");
     });
 
     auto moveScn = [this, setupInitCategories, setupInitScenes](char translation) {
@@ -170,7 +170,7 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
             ui->gcScnTree->setExpanded(sceneModel->indexFromItem(item.first()), expand);
             setupInitCategories();
         }
-        doAction(isScn ? "Moved Scene" : "Moved Category");
+        DoAction(isScn ? "Moved Scene" : "Moved Category");
         ui->gcScnTree->setCurrentIndex(sceneModel->indexFromItem(item.first()));
     };
 
@@ -221,24 +221,24 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
 
                 connect(ui->gcScnName, &QLineEdit::textEdited, [this, c](QString s) {
                     gameConfig.categories[c.parent().row()].scenes[c.row()].name = s;
-                    doAction("Changed Scene Name");
+                    DoAction("Changed Scene Name");
 
                     // TODO: edit text
                 });
 
                 connect(ui->gcScnFolder, &QLineEdit::textEdited, [this, c](QString s) {
                     gameConfig.categories[c.parent().row()].scenes[c.row()].folder = s;
-                    doAction("Changed Scene Folder");
+                    DoAction("Changed Scene Folder");
                 });
 
                 connect(ui->gcScnID, &QLineEdit::textEdited, [this, c](QString s) {
                     gameConfig.categories[c.parent().row()].scenes[c.row()].id = s;
-                    doAction("Changed Scene ID");
+                    DoAction("Changed Scene ID");
                 });
 
                 connect(ui->gcScnMode, QOverload<int>::of(&QSpinBox::valueChanged), [this, c](int v) {
                     gameConfig.categories[c.parent().row()].scenes[c.row()].filter = v;
-                    doAction("Changed Scene Filter");
+                    DoAction("Changed Scene Filter");
                 });
             }
 
@@ -261,7 +261,7 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
             stageConfig = RSDKv5::StageConfig();
 
             tabTitle = Utils::getFilenameAndFolder(gameConfig.filePath);
-            clearActions();
+            ClearActions();
 
             appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR, configPath,
                                     QList<QString>{
@@ -275,7 +275,7 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
             rsdkConfig = RSDKv5::RSDKConfig();
 
             tabTitle = Utils::getFilenameAndFolder(stageConfig.filePath);
-            clearActions();
+            ClearActions();
 
             appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR, configPath,
                                     QList<QString>{ "StageConfig", "rev02" });
@@ -449,25 +449,25 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
     // ----------------
     connect(ui->gcGameName, &QLineEdit::textChanged, [this](QString s) {
         gameConfig.gameTitle = s;
-        doAction("Changed Game Title");
+        DoAction("Changed Game Title");
     });
     connect(ui->gcGameSubname, &QLineEdit::textChanged, [this](QString s) {
         gameConfig.gameSubtitle = s;
-        doAction("Changed Game SubTitle");
+        DoAction("Changed Game SubTitle");
     });
     connect(ui->gcGameVersion, &QLineEdit::textChanged, [this](QString s) {
         gameConfig.version = s;
-        doAction("Changed Game Version");
+        DoAction("Changed Game Version");
     });
     connect(ui->gcStartingCategory, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this, setupInitScenes](int i) {
                 gameConfig.startSceneCategoryIndex = i;
-                doAction("Changed Start Category");
+                DoAction("Changed Start Category");
                 setupInitScenes();
             });
     connect(ui->gcStartingScene, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int i) {
         gameConfig.startSceneIndex = i;
-        doAction("Changed Start Scene");
+        DoAction("Changed Start Scene");
     });
 
     // ----------------
@@ -507,7 +507,7 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->gcObjList->setCurrentItem(item);
-        doAction("Added Object");
+        DoAction("Added Object");
     });
 
     connect(ui->gcUpObj, &QToolButton::clicked, [this] {
@@ -516,7 +516,7 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
         gameConfig.objects.move(c, c - 1);
         ui->gcObjList->insertItem(c - 1, item);
         ui->gcObjList->setCurrentRow(c - 1);
-        doAction("Moved Object Up");
+        DoAction("Moved Object Up");
     });
 
     connect(ui->gcDownObj, &QToolButton::clicked, [this] {
@@ -525,7 +525,7 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
         gameConfig.objects.move(c, c + 1);
         ui->gcObjList->insertItem(c + 1, item);
         ui->gcObjList->setCurrentRow(c + 1);
-        doAction("Moved Object Down");
+        DoAction("Moved Object Down");
     });
 
     connect(ui->gcRmObj, &QToolButton::clicked, [this] {
@@ -536,14 +536,14 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
         ui->gcObjList->blockSignals(true);
         ui->gcObjList->setCurrentRow(n);
         ui->gcObjList->blockSignals(false);
-        doAction("Removed Object");
+        DoAction("Removed Object");
     });
     connect(ui->gcObjName, &QLineEdit::textChanged, [this](QString s) {
         gameConfig.objects[ui->gcObjList->currentRow()] = s;
 
         ui->gcObjList->item(ui->gcObjList->currentRow())
             ->setText(gameConfig.objects[ui->gcObjList->currentRow()]);
-        doAction("Changed Object Name");
+        DoAction("Changed Object Name");
     });
 
     // ----------------
@@ -586,7 +586,7 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->gcSfxList->setCurrentItem(item);
-        doAction("Added SoundFX");
+        DoAction("Added SoundFX");
     });
 
     connect(ui->gcUpSfx, &QToolButton::clicked, [this] {
@@ -595,7 +595,7 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
         gameConfig.soundFX.move(c, c - 1);
         ui->gcSfxList->insertItem(c - 1, item);
         ui->gcSfxList->setCurrentRow(c - 1);
-        doAction("Moved SoundFX Up");
+        DoAction("Moved SoundFX Up");
     });
 
     connect(ui->gcDownSfx, &QToolButton::clicked, [this] {
@@ -604,7 +604,7 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
         gameConfig.soundFX.move(c, c + 1);
         ui->gcSfxList->insertItem(c + 1, item);
         ui->gcSfxList->setCurrentRow(c + 1);
-        doAction("Moved SoundFX Down");
+        DoAction("Moved SoundFX Down");
     });
 
     connect(ui->gcRmSfx, &QToolButton::clicked, [this] {
@@ -615,18 +615,18 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
         ui->gcSfxList->blockSignals(true);
         ui->gcSfxList->setCurrentRow(n);
         ui->gcSfxList->blockSignals(false);
-        doAction("Removed SoundFX");
+        DoAction("Removed SoundFX");
     });
     connect(ui->gcSfxName, &QLineEdit::textChanged, [this](QString s) {
         gameConfig.soundFX[ui->gcSfxList->currentRow()].path = s;
 
         ui->gcSfxList->item(ui->gcSfxList->currentRow())
             ->setText(gameConfig.soundFX[ui->gcSfxList->currentRow()].path);
-        doAction("Changed SoundFX Path");
+        DoAction("Changed SoundFX Path");
     });
     connect(ui->gcMaxConcurrentPlays, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
         gameConfig.soundFX[ui->gcSfxList->currentRow()].maxConcurrentPlay = v;
-        doAction("Changed SoundFX Plays");
+        DoAction("Changed SoundFX Plays");
     });
 
     // ------------------
@@ -681,7 +681,7 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
     connect(ui->gcVarValue, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
         if (gameConfig.globalVariables[ui->gcVarList->currentRow()].values.count() > 0) {
             gameConfig.globalVariables[ui->gcVarList->currentRow()].values[ui->gcVarIndex->value()] = v;
-            doAction("Changed Variable Value");
+            DoAction("Changed Variable Value");
         }
         else
             ui->gcVarValue->setValue(0);
@@ -729,7 +729,7 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
     // ----------------
     connect(ui->scLoadGlobals, &QCheckBox::clicked, [this](int c) {
         stageConfig.loadGlobalObjects = c;
-        doAction("Changed Load Globals");
+        DoAction("Changed Load Globals");
     });
 
     // ----------------
@@ -769,7 +769,7 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->scObjList->setCurrentItem(item);
-        doAction("Added Object");
+        DoAction("Added Object");
     });
 
     connect(ui->scUpObj, &QToolButton::clicked, [this] {
@@ -778,7 +778,7 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
         stageConfig.objects.move(c, c - 1);
         ui->scObjList->insertItem(c - 1, item);
         ui->scObjList->setCurrentRow(c - 1);
-        doAction("Moved Object Up");
+        DoAction("Moved Object Up");
     });
 
     connect(ui->scDownObj, &QToolButton::clicked, [this] {
@@ -787,7 +787,7 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
         stageConfig.objects.move(c, c + 1);
         ui->scObjList->insertItem(c + 1, item);
         ui->scObjList->setCurrentRow(c + 1);
-        doAction("Moved Object Down");
+        DoAction("Moved Object Down");
     });
 
     connect(ui->scRmObj, &QToolButton::clicked, [this] {
@@ -798,14 +798,14 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
         ui->scObjList->blockSignals(true);
         ui->scObjList->setCurrentRow(n);
         ui->scObjList->blockSignals(false);
-        doAction("Removed Object");
+        DoAction("Removed Object");
     });
     connect(ui->scObjName, &QLineEdit::textChanged, [this](QString s) {
         stageConfig.objects[ui->scObjList->currentRow()] = s;
 
         ui->scObjList->item(ui->scObjList->currentRow())
             ->setText(stageConfig.objects[ui->scObjList->currentRow()]);
-        doAction("Changed Object Name");
+        DoAction("Changed Object Name");
     });
 
     // ----------------
@@ -848,7 +848,7 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->scSfxList->setCurrentItem(item);
-        doAction("Added SoundFX");
+        DoAction("Added SoundFX");
     });
 
     connect(ui->scUpSfx, &QToolButton::clicked, [this] {
@@ -857,7 +857,7 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
         stageConfig.soundFX.move(c, c - 1);
         ui->scSfxList->insertItem(c - 1, item);
         ui->scSfxList->setCurrentRow(c - 1);
-        doAction("Moved SoundFX Up");
+        DoAction("Moved SoundFX Up");
     });
 
     connect(ui->scDownSfx, &QToolButton::clicked, [this] {
@@ -866,7 +866,7 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
         stageConfig.soundFX.move(c, c + 1);
         ui->scSfxList->insertItem(c + 1, item);
         ui->scSfxList->setCurrentRow(c + 1);
-        doAction("Moved SoundFX Down");
+        DoAction("Moved SoundFX Down");
     });
 
     connect(ui->scRmSfx, &QToolButton::clicked, [this] {
@@ -877,18 +877,18 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
         ui->scSfxList->blockSignals(true);
         ui->scSfxList->setCurrentRow(n);
         ui->scSfxList->blockSignals(false);
-        doAction("Removed SoundFX");
+        DoAction("Removed SoundFX");
     });
     connect(ui->scSfxName, &QLineEdit::textChanged, [this](QString s) {
         stageConfig.soundFX[ui->scSfxList->currentRow()].path = s;
 
         ui->scSfxList->item(ui->scSfxList->currentRow())
             ->setText(stageConfig.soundFX[ui->scSfxList->currentRow()].path);
-        doAction("Changed SoundFX Name");
+        DoAction("Changed SoundFX Name");
     });
     connect(ui->scMaxConcurrentPlays, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
         stageConfig.soundFX[ui->scSfxList->currentRow()].maxConcurrentPlay = v;
-        doAction("Changed SoundFX Plays");
+        DoAction("Changed SoundFX Plays");
     });
 }
 
@@ -914,7 +914,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                 ui->stackedWidget->setCurrentIndex(1);
                 setupUI();
             }
-            clearActions();
+            ClearActions();
             return true;
         case RE_EVENT_OPEN: {
             QList<QString> filters = { "rev02 (plus) RSDKv5 GameConfig files (*GameConfig*.bin);;rev01 "
@@ -945,7 +945,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                         rsdkConfig = RSDKv5::RSDKConfig();
                     stageConfig = RSDKv5::StageConfig();
                     tabTitle    = Utils::getFilenameAndFolder(gameConfig.filePath);
-                    clearActions();
+                    ClearActions();
 
                     appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR,
                                             filedialog.selectedFiles()[0],
@@ -959,7 +959,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                     gameConfig = RSDKv5::GameConfig();
                     rsdkConfig = RSDKv5::RSDKConfig();
                     tabTitle   = Utils::getFilenameAndFolder(stageConfig.filePath);
-                    clearActions();
+                    ClearActions();
 
                     appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR,
                                             filedialog.selectedFiles()[0],
@@ -974,7 +974,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                 if (gameConfig.filePath != "") {
                     SetStatus("Saving GameConfig...", true);
                     gameConfig.write("");
-                    clearActions();
+                    ClearActions();
                     SetStatus("Saved GameConfig to " + gameConfig.filePath);
 
                     return true;
@@ -993,7 +993,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                     gameConfig.readFilter = !oldVer;
                     gameConfig.write(filedialog.selectedFiles()[0]);
                     tabTitle = Utils::getFilenameAndFolder(gameConfig.filePath);
-                    clearActions();
+                    ClearActions();
                     appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR,
                                             filedialog.selectedFiles()[0],
                                             QList<QString>{ "GameConfig", oldVer ? "rev01" : "rev02" });
@@ -1003,7 +1003,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                 if (stageConfig.filePath != "") {
                     SetStatus("Saving StageConfig...", true);
                     stageConfig.write("");
-                    clearActions();
+                    ClearActions();
                     SetStatus("Saved StageConfig to " + stageConfig.filePath);
 
                     return true;
@@ -1018,7 +1018,7 @@ bool GameConfigEditorv5::event(QEvent *event)
 
                     stageConfig.write(filedialog.selectedFiles()[0]);
                     tabTitle = Utils::getFilenameAndFolder(gameConfig.filePath);
-                    clearActions();
+                    ClearActions();
                     appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR,
                                             filedialog.selectedFiles()[0],
                                             QList<QString>{ "StageConfig", "rev02" });
@@ -1347,7 +1347,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                         }
                     }
 
-                    clearActions();
+                    ClearActions();
                 }
             }
             else {
@@ -1360,7 +1360,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                     stageConfig.write(filedialog.selectedFiles()[0]);
                     SetStatus("Saved StageConfig to " + filedialog.selectedFiles()[0]);
                     tabTitle = Utils::getFilenameAndFolder(gameConfig.filePath);
-                    clearActions();
+                    ClearActions();
                     appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR,
                                             filedialog.selectedFiles()[0],
                                             QList<QString>{ "StageConfig", "rev02" });
@@ -1368,8 +1368,8 @@ bool GameConfigEditorv5::event(QEvent *event)
             }
             break;
 
-        case RE_EVENT_UNDO: undoAction(); break;
-        case RE_EVENT_REDO: redoAction(); break;
+        case RE_EVENT_UNDO: UndoAction(); break;
+        case RE_EVENT_REDO: RedoAction(); break;
 
         case QEvent::Close:
             if (modified) {
@@ -1381,7 +1381,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                             gameConfig.write("");
                             SetStatus("Saved GameConfig to " + gameConfig.filePath);
 
-                            clearActions();
+                            ClearActions();
                             return true;
                         }
 
@@ -1402,7 +1402,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                             SetStatus("Saved GameConfig to " + filedialog.selectedFiles()[0]);
 
                             tabTitle = Utils::getFilenameAndFolder(gameConfig.filePath);
-                            clearActions();
+                            ClearActions();
                             appConfig.addRecentFile(
                                 ENGINE_v5, TOOL_GAMECONFIGEDITOR, filedialog.selectedFiles()[0],
                                 QList<QString>{ "GameConfig", oldVer ? "rev01" : "rev02" });
@@ -1412,7 +1412,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                         if (stageConfig.filePath != "") {
                             SetStatus("Saving StageConfig...", true);
                             stageConfig.write("");
-                            clearActions();
+                            ClearActions();
                             SetStatus("Saved StageConfig to " + stageConfig.filePath);
 
                             return true;
@@ -1429,7 +1429,7 @@ bool GameConfigEditorv5::event(QEvent *event)
 
                             stageConfig.write(filedialog.selectedFiles()[0]);
                             tabTitle = Utils::getFilenameAndFolder(gameConfig.filePath);
-                            clearActions();
+                            ClearActions();
                             appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR,
                                                     filedialog.selectedFiles()[0],
                                                     QList<QString>{ "StageConfig", "rev02" });
@@ -1448,31 +1448,31 @@ bool GameConfigEditorv5::event(QEvent *event)
     return QWidget::event(event);
 }
 
-void GameConfigEditorv5::undoAction()
+void GameConfigEditorv5::UndoAction()
 {
     if (actionIndex > 0) {
         // setStatus("Undid Action: " + actions[actionIndex].name);
         actionIndex--;
-        resetAction();
+        ResetAction();
     }
 }
-void GameConfigEditorv5::redoAction()
+void GameConfigEditorv5::RedoAction()
 {
     if (actionIndex + 1 < actions.count()) {
         // setStatus("Redid Action: " + actions[actionIndex].name);
         actionIndex++;
-        resetAction();
+        ResetAction();
     }
 }
-void GameConfigEditorv5::resetAction()
+void GameConfigEditorv5::ResetAction()
 {
     copyConfig(NULL, &actions[actionIndex]);
 
     setupUI(false);
 
-    updateTitle(actionIndex > 0);
+    UpdateTitle(actionIndex > 0);
 }
-void GameConfigEditorv5::doAction(QString name, bool setModified)
+void GameConfigEditorv5::DoAction(QString name, bool setModified)
 {
     ActionState action;
 
@@ -1490,15 +1490,15 @@ void GameConfigEditorv5::doAction(QString name, bool setModified)
     actions.append(action);
     actionIndex = actions.count() - 1;
 
-    updateTitle(setModified);
+    UpdateTitle(setModified);
 
     // setStatus("Did Action: " + name);
 }
-void GameConfigEditorv5::clearActions()
+void GameConfigEditorv5::ClearActions()
 {
     actions.clear();
     actionIndex = 0;
-    doAction("Action Setup", false); // first action, cant be undone
+    DoAction("Action Setup", false); // first action, cant be undone
 }
 
 void GameConfigEditorv5::copyConfig(ActionState *stateDst, ActionState *stateSrc)

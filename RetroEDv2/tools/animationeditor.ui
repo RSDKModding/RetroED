@@ -509,7 +509,7 @@
         <item>
          <widget class="QToolButton" name="upFrame">
           <property name="toolTip">
-           <string>Move Frame Up</string>
+           <string>Move Frame Left</string>
           </property>
           <property name="text">
            <string>U</string>
@@ -529,7 +529,7 @@
         <item>
          <widget class="QToolButton" name="downFrame">
           <property name="toolTip">
-           <string>Move Frame Down</string>
+           <string>Move Frame Right</string>
           </property>
           <property name="text">
            <string>D</string>
@@ -666,6 +666,12 @@
           <height>128</height>
          </size>
         </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::AllEditTriggers</set>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectItems</enum>
+        </property>
         <property name="iconSize">
          <size>
           <width>64</width>
@@ -752,7 +758,7 @@
        </rect>
       </property>
       <attribute name="label">
-       <string>Animation (0 of 0, ID: 0)</string>
+       <string>Animations (0 of 0, ID: 0)</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <property name="leftMargin">
@@ -948,7 +954,7 @@
        </rect>
       </property>
       <attribute name="label">
-       <string>Frame (0 of 0, ID: 0)</string>
+       <string>Frames (0 of 0, ID: 0)</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <property name="leftMargin">
@@ -1452,11 +1458,11 @@
        </rect>
       </property>
       <attribute name="label">
-       <string>Source (0 of 0, ID: 0)</string>
+       <string>Sheets (0 of 0, ID: 0)</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_14">
        <item row="0" column="0" colspan="2">
-        <widget class="QListWidget" name="sourceList">
+        <widget class="QListWidget" name="sheetList">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -1481,7 +1487,7 @@
         </widget>
        </item>
        <item row="2" column="0" colspan="2">
-        <widget class="QPushButton" name="importSource">
+        <widget class="QPushButton" name="importSheet">
          <property name="text">
           <string>Import Source</string>
          </property>
@@ -1571,7 +1577,7 @@
        </rect>
       </property>
       <attribute name="label">
-       <string>Hitbox (0 of 0, ID: 0)</string>
+       <string>Hitboxes (0 of 0, ID: 0)</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_11">
        <property name="leftMargin">

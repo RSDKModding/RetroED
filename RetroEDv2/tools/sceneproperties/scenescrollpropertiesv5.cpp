@@ -68,7 +68,7 @@ void SceneScrollPropertiesv5::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *
                                             .arg(instance.length));
         ui->instanceList->blockSignals(false);
 
-        // doAction("Add Instance: " + QString::number(info->instances.count() - 1));
+        // DoAction("Add Instance: " + QString::number(info->instances.count() - 1));
     });
 
     connect(ui->rmInst, &QToolButton::clicked, [this, info] {
@@ -82,7 +82,7 @@ void SceneScrollPropertiesv5::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *
         ui->instanceList->setCurrentRow(n);
         ui->instanceList->blockSignals(false);
 
-        // doAction("Remove Instance: " + QString::number(c));
+        // DoAction("Remove Instance: " + QString::number(c));
     });
 
     connect(ui->startLine, QOverload<int>::of(&QSpinBox::valueChanged), [this, info](int v) {
@@ -98,7 +98,7 @@ void SceneScrollPropertiesv5::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *
                 .arg(info->instances[c].length));
         ui->instanceList->blockSignals(false);
 
-        // doAction("Changed Instance Start Line");
+        // DoAction("Changed Instance Start Line");
     });
     connect(ui->length, QOverload<int>::of(&QSpinBox::valueChanged), [this, info](int v) {
         int c = ui->instanceList->currentRow();
@@ -113,7 +113,7 @@ void SceneScrollPropertiesv5::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *
                 .arg(info->instances[c].length));
         ui->instanceList->blockSignals(false);
 
-        // doAction("Changed Instance Length");
+        // DoAction("Changed Instance Length");
     });
 }
 

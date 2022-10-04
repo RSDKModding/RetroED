@@ -67,7 +67,7 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->objList->setCurrentItem(item);
         ui->objList->blockSignals(false);
-        doAction("Added Object");
+        DoAction("Added Object");
     });
 
     connect(ui->upObj, &QToolButton::clicked, [this] {
@@ -76,7 +76,7 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
         stageConfig->objects.move(c, c - 1);
         ui->objList->insertItem(c - 1, item);
         ui->objList->setCurrentRow(c - 1);
-        doAction("Moved Object Up");
+        DoAction("Moved Object Up");
     });
 
     connect(ui->downObj, &QToolButton::clicked, [this] {
@@ -85,7 +85,7 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
         stageConfig->objects.move(c, c + 1);
         ui->objList->insertItem(c + 1, item);
         ui->objList->setCurrentRow(c + 1);
-        doAction("Moved Object Down");
+        DoAction("Moved Object Down");
     });
 
     connect(ui->rmObj, &QToolButton::clicked, [this] {
@@ -96,7 +96,7 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
         ui->objList->blockSignals(true);
         ui->objList->setCurrentRow(n);
         ui->objList->blockSignals(false);
-        doAction("Removed Object");
+        DoAction("Removed Object");
     });
 
     connect(ui->objList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -105,7 +105,7 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
         ui->objName->blockSignals(true);
         ui->objName->setText(stageConfig->objects[ui->objList->row(item)]);
         ui->objName->blockSignals(false);
-        doAction("Changed Object Name");
+        DoAction("Changed Object Name");
     });
 
     connect(ui->objName, &QLineEdit::textEdited, [this](QString s) {
@@ -113,7 +113,7 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
 
         ui->objList->item(ui->objList->currentRow())
             ->setText(stageConfig->objects[ui->objList->currentRow()]);
-        doAction("Changed Object Name");
+        DoAction("Changed Object Name");
     });
 
     // ----------------
@@ -158,7 +158,7 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->sfxList->setCurrentItem(item);
         ui->sfxList->blockSignals(false);
-        doAction("Added Sfx");
+        DoAction("Added Sfx");
     });
 
     connect(ui->upSfx, &QToolButton::clicked, [this] {
@@ -167,7 +167,7 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
         stageConfig->soundFX.move(c, c - 1);
         ui->sfxList->insertItem(c - 1, item);
         ui->sfxList->setCurrentRow(c - 1);
-        doAction("Moved Sfx Up");
+        DoAction("Moved Sfx Up");
     });
 
     connect(ui->downSfx, &QToolButton::clicked, [this] {
@@ -176,7 +176,7 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
         stageConfig->soundFX.move(c, c + 1);
         ui->sfxList->insertItem(c + 1, item);
         ui->sfxList->setCurrentRow(c + 1);
-        doAction("Moved Sfx Down");
+        DoAction("Moved Sfx Down");
     });
 
     connect(ui->rmSfx, &QToolButton::clicked, [this] {
@@ -187,7 +187,7 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
         ui->sfxList->blockSignals(true);
         ui->sfxList->setCurrentRow(n);
         ui->sfxList->blockSignals(false);
-        doAction("Removed Sfx");
+        DoAction("Removed Sfx");
     });
 
     connect(ui->sfxList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -196,12 +196,12 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
         ui->sfxPath->blockSignals(true);
         ui->sfxPath->setText(stageConfig->soundFX[ui->sfxList->currentRow()].path);
         ui->sfxPath->blockSignals(false);
-        doAction("Changed Sfx Path");
+        DoAction("Changed Sfx Path");
     });
 
     connect(ui->sfxPath, &QLineEdit::textEdited, [this](QString s) {
         stageConfig->soundFX[ui->sfxList->currentRow()].path = s;
-        doAction("Changed Sfx Path");
+        DoAction("Changed Sfx Path");
     });
 
     connect(ui->maxPlays, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
@@ -209,7 +209,7 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
 
         ui->sfxList->item(ui->sfxList->currentRow())
             ->setText(stageConfig->soundFX[ui->sfxList->currentRow()].path);
-        doAction("Changed Sfx Plays");
+        DoAction("Changed Sfx Plays");
     });
 }
 
@@ -220,8 +220,8 @@ bool StageConfigEditorv5::event(QEvent *event)
 
     switch ((int)event->type()) {
         default: break;
-        case RE_EVENT_UNDO: undoAction(); break;
-        case RE_EVENT_REDO: redoAction(); break;
+        case RE_EVENT_UNDO: UndoAction(); break;
+        case RE_EVENT_REDO: RedoAction(); break;
     }
 
     return QWidget::event(event);
@@ -267,23 +267,23 @@ void StageConfigEditorv5::setupUI(bool allowRowChange)
     ui->sfxList->blockSignals(false);
 }
 
-void StageConfigEditorv5::undoAction()
+void StageConfigEditorv5::UndoAction()
 {
     if (actionIndex > 0) {
         // setStatus("Undid Action: " + actions[actionIndex].name);
         actionIndex--;
-        resetAction();
+        ResetAction();
     }
 }
-void StageConfigEditorv5::redoAction()
+void StageConfigEditorv5::RedoAction()
 {
     if (actionIndex + 1 < actions.count()) {
         // setStatus("Redid Action: " + actions[actionIndex].name);
         actionIndex++;
-        resetAction();
+        ResetAction();
     }
 }
-void StageConfigEditorv5::resetAction()
+void StageConfigEditorv5::ResetAction()
 {
 #if RE_USE_UNSTABLE
     copyConfig(NULL, &actions[actionIndex]);
@@ -291,7 +291,7 @@ void StageConfigEditorv5::resetAction()
     setupUI(false);
 #endif
 }
-void StageConfigEditorv5::doAction(QString name, bool setModified)
+void StageConfigEditorv5::DoAction(QString name, bool setModified)
 {
     Q_UNUSED(setModified);
 
@@ -313,11 +313,11 @@ void StageConfigEditorv5::doAction(QString name, bool setModified)
 
     // setStatus("Did Action: " + name);
 }
-void StageConfigEditorv5::clearActions()
+void StageConfigEditorv5::ClearActions()
 {
     actions.clear();
     actionIndex = 0;
-    doAction("Action Setup", false); // first action, cant be undone
+    DoAction("Action Setup", false); // first action, cant be undone
 }
 
 void StageConfigEditorv5::copyConfig(ActionState *stateDst, ActionState *stateSrc)

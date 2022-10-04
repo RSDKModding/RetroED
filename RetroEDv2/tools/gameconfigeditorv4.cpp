@@ -42,11 +42,11 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
 
     connect(ui->gameName, &QLineEdit::textEdited, [this](QString s) {
         gameConfig.gameWindowText = s;
-        doAction("Changed Game Title");
+        DoAction("Changed Game Title");
     });
     connect(ui->gameDescription, &QPlainTextEdit::textChanged, [this] {
         gameConfig.gameDescriptionText = ui->gameDescription->toPlainText();
-        doAction("Changed Game Description");
+        DoAction("Changed Game Description");
     });
 
     // ----------------
@@ -92,7 +92,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->objList->setCurrentItem(item);
-        doAction("Added Object");
+        DoAction("Added Object");
     });
 
     connect(ui->upObj, &QToolButton::clicked, [this] {
@@ -101,7 +101,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         gameConfig.objects.move(c, c - 1);
         ui->objList->insertItem(c - 1, item);
         ui->objList->setCurrentRow(c - 1);
-        doAction("Moved Object Up");
+        DoAction("Moved Object Up");
     });
 
     connect(ui->downObj, &QToolButton::clicked, [this] {
@@ -110,7 +110,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         gameConfig.objects.move(c, c + 1);
         ui->objList->insertItem(c + 1, item);
         ui->objList->setCurrentRow(c + 1);
-        doAction("Moved Object Down");
+        DoAction("Moved Object Down");
     });
 
     connect(ui->rmObj, &QToolButton::clicked, [this] {
@@ -121,7 +121,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         ui->objList->blockSignals(true);
         ui->objList->setCurrentRow(n);
         ui->objList->blockSignals(false);
-        doAction("Removed Object");
+        DoAction("Removed Object");
     });
 
     connect(ui->objList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -130,7 +130,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         ui->objName->blockSignals(true);
         ui->objName->setText(gameConfig.objects[ui->objList->row(item)].name);
         ui->objName->blockSignals(false);
-        doAction("Changed Object Name");
+        DoAction("Changed Object Name");
     });
 
     connect(ui->objName, &QLineEdit::textEdited, [this](QString s) {
@@ -138,11 +138,11 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
 
         ui->objList->item(ui->objList->currentRow())
             ->setText(gameConfig.objects[ui->objList->currentRow()].name);
-        doAction("Changed Object Name");
+        DoAction("Changed Object Name");
     });
     connect(ui->objScript, &QLineEdit::textEdited, [this](QString s) {
         gameConfig.objects[ui->objList->currentRow()].script = s;
-        doAction("Changed Object Script");
+        DoAction("Changed Object Script");
     });
 
     // ----------------
@@ -190,7 +190,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->sfxList->setCurrentItem(item);
-        doAction("Added Sfx");
+        DoAction("Added Sfx");
     });
 
     connect(ui->upSfx, &QToolButton::clicked, [this] {
@@ -199,7 +199,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         gameConfig.soundFX.move(c, c - 1);
         ui->sfxList->insertItem(c - 1, item);
         ui->sfxList->setCurrentRow(c - 1);
-        doAction("Moved Sfx Up");
+        DoAction("Moved Sfx Up");
     });
 
     connect(ui->downSfx, &QToolButton::clicked, [this] {
@@ -208,7 +208,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         gameConfig.soundFX.move(c, c + 1);
         ui->sfxList->insertItem(c + 1, item);
         ui->sfxList->setCurrentRow(c + 1);
-        doAction("Moved Sfx Down");
+        DoAction("Moved Sfx Down");
     });
 
     connect(ui->rmSfx, &QToolButton::clicked, [this] {
@@ -219,7 +219,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         ui->sfxList->blockSignals(true);
         ui->sfxList->setCurrentRow(n);
         ui->sfxList->blockSignals(false);
-        doAction("Removed Sfx");
+        DoAction("Removed Sfx");
     });
 
     connect(ui->sfxList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -228,7 +228,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         ui->sfxName->blockSignals(true);
         ui->sfxName->setText(gameConfig.soundFX[ui->sfxList->row(item)].name);
         ui->sfxName->blockSignals(false);
-        doAction("Changed Sfx Name");
+        DoAction("Changed Sfx Name");
     });
 
     connect(ui->sfxName, &QLineEdit::textEdited, [this](QString s) {
@@ -236,12 +236,12 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
 
         ui->sfxList->item(ui->sfxList->currentRow())
             ->setText(gameConfig.soundFX[ui->sfxList->currentRow()].name);
-        doAction("Changed Sfx Name");
+        DoAction("Changed Sfx Name");
     });
 
     connect(ui->sfxPath, &QLineEdit::textEdited, [this](QString s) {
         gameConfig.soundFX[ui->sfxList->currentRow()].path = s;
-        doAction("Changed Sfx Path");
+        DoAction("Changed Sfx Path");
     });
 
     // ----------------
@@ -285,7 +285,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->varList->setCurrentItem(item);
-        doAction("Added Variable");
+        DoAction("Added Variable");
     });
 
     connect(ui->upVar, &QToolButton::clicked, [this] {
@@ -294,7 +294,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         gameConfig.globalVariables.move(c, c - 1);
         ui->varList->insertItem(c - 1, item);
         ui->varList->setCurrentRow(c - 1);
-        doAction("Moved Variable Up");
+        DoAction("Moved Variable Up");
     });
 
     connect(ui->downVar, &QToolButton::clicked, [this] {
@@ -303,7 +303,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         gameConfig.globalVariables.move(c, c + 1);
         ui->varList->insertItem(c + 1, item);
         ui->varList->setCurrentRow(c + 1);
-        doAction("Moved Variable Down");
+        DoAction("Moved Variable Down");
     });
 
     connect(ui->rmVar, &QToolButton::clicked, [this] {
@@ -314,7 +314,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         ui->varList->blockSignals(true);
         ui->varList->setCurrentRow(n);
         ui->varList->blockSignals(false);
-        doAction("Removed Variable");
+        DoAction("Removed Variable");
     });
 
     connect(ui->varList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -323,7 +323,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         ui->varName->blockSignals(true);
         ui->varName->setText(gameConfig.globalVariables[ui->varList->row(item)].name);
         ui->varName->blockSignals(false);
-        doAction("Changed Variable Name");
+        DoAction("Changed Variable Name");
     });
 
     connect(ui->varName, &QLineEdit::textEdited, [this](QString s) {
@@ -331,12 +331,12 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
 
         ui->varList->item(ui->varList->currentRow())
             ->setText(gameConfig.globalVariables[ui->varList->currentRow()].name);
-        doAction("Changed Variable Name");
+        DoAction("Changed Variable Name");
     });
 
     connect(ui->varValue, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
         gameConfig.globalVariables[ui->varList->currentRow()].value = v;
-        doAction("Changed Variable Value");
+        DoAction("Changed Variable Value");
     });
 
     // ----------------
@@ -374,7 +374,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->plrList->setCurrentItem(item);
-        doAction("Added Player");
+        DoAction("Added Player");
     });
 
     connect(ui->upPlr, &QToolButton::clicked, [this] {
@@ -383,7 +383,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         gameConfig.players.move(c, c - 1);
         ui->plrList->insertItem(c - 1, item);
         ui->plrList->setCurrentRow(c - 1);
-        doAction("Moved Player Up");
+        DoAction("Moved Player Up");
     });
 
     connect(ui->downPlr, &QToolButton::clicked, [this] {
@@ -392,7 +392,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         gameConfig.players.move(c, c + 1);
         ui->plrList->insertItem(c + 1, item);
         ui->plrList->setCurrentRow(c + 1);
-        doAction("Moved Player Down");
+        DoAction("Moved Player Down");
     });
 
     connect(ui->rmPlr, &QToolButton::clicked, [this] {
@@ -403,7 +403,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         ui->plrList->blockSignals(true);
         ui->plrList->setCurrentRow(n);
         ui->plrList->blockSignals(false);
-        doAction("Removed Player");
+        DoAction("Removed Player");
     });
 
     connect(ui->plrList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -412,7 +412,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         ui->plrName->blockSignals(true);
         ui->plrName->setText(gameConfig.players[ui->plrList->row(item)]);
         ui->plrName->blockSignals(false);
-        doAction("Changed Player Name");
+        DoAction("Changed Player Name");
     });
 
     connect(ui->plrName, &QLineEdit::textEdited, [this](QString s) {
@@ -420,7 +420,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
 
         ui->plrList->item(ui->plrList->currentRow())
             ->setText(gameConfig.players[ui->plrList->currentRow()]);
-        doAction("Changed Player Name");
+        DoAction("Changed Player Name");
     });
 
     // ----------------
@@ -457,7 +457,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
             sceneModel->itemFromIndex(index)->insertRow(scn, scnItem);
         scnItem->setFlags(scnItem->flags() | Qt::ItemIsEditable);
         ui->scnTree->setCurrentIndex(sceneModel->indexFromItem(scnItem));
-        doAction("Added Scene");
+        DoAction("Added Scene");
     });
 
     connect(ui->rmScn, &QToolButton::clicked, [this] {
@@ -466,7 +466,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         if (index.parent().isValid()) { // Scene
             gameConfig.stageLists[index.parent().row()].scenes.removeAt(index.row());
             sceneModel->itemFromIndex(index.parent())->removeRow(index.row());
-            doAction("Removed Scene");
+            DoAction("Removed Scene");
             return;
         }
     });
@@ -481,7 +481,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
             QStandardItem *parentItem = sceneModel->itemFromIndex(ui->scnTree->currentIndex().parent());
             item                      = parentItem->takeRow(c);
             parentItem->insertRow(c + translation, item);
-            doAction("Moved Scene");
+            DoAction("Moved Scene");
         }
         else
             return;
@@ -542,22 +542,22 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
                     gameConfig.stageLists[c.parent().row()].scenes[c.row()].name = s;
 
                     // TODO: edit text
-                    doAction("Changed Scene Name");
+                    DoAction("Changed Scene Name");
                 });
 
                 connect(ui->scnFolder, &QLineEdit::textEdited, [this, c](QString s) {
                     gameConfig.stageLists[c.parent().row()].scenes[c.row()].folder = s;
-                    doAction("Changed Scene Folder");
+                    DoAction("Changed Scene Folder");
                 });
 
                 connect(ui->scnID, &QLineEdit::textEdited, [this, c](QString s) {
                     gameConfig.stageLists[c.parent().row()].scenes[c.row()].id = s;
-                    doAction("Changed Scene ID");
+                    DoAction("Changed Scene ID");
                 });
 
                 connect(ui->scnHighlighted, &QCheckBox::toggled, [this, c](bool v) {
                     gameConfig.stageLists[c.parent().row()].scenes[c.row()].highlighted = v;
-                    doAction("Changed Scene Highlight");
+                    DoAction("Changed Scene Highlight");
                 });
             }
 
@@ -585,7 +585,7 @@ void GameConfigEditorv4::load(QString filename)
         gameConfig = RSDKv4::GameConfig();
         tabTitle   = "GameConfig Editor";
     }
-    clearActions();
+    ClearActions();
 
     setupUI();
 }
@@ -710,8 +710,8 @@ bool GameConfigEditorv4::event(QEvent *event)
         case RE_EVENT_SAVE: return saveGameConfig();
         case RE_EVENT_SAVE_AS: return saveGameConfig(true);
 
-        case RE_EVENT_UNDO: undoAction(); break;
-        case RE_EVENT_REDO: redoAction(); break;
+        case RE_EVENT_UNDO: UndoAction(); break;
+        case RE_EVENT_REDO: RedoAction(); break;
 
         case QEvent::Close:
             if (modified) {
@@ -1084,7 +1084,7 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                 }
             }
 
-            clearActions();
+            ClearActions();
             return true;
         }
     }
@@ -1092,38 +1092,38 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
         SetStatus("Saving GameConfig...", true);
         gameConfig.write("");
         SetStatus("Saved GameConfig to " + gameConfig.filePath);
-        clearActions();
+        ClearActions();
         return true;
     }
 
     return false;
 }
 
-void GameConfigEditorv4::undoAction()
+void GameConfigEditorv4::UndoAction()
 {
     if (actionIndex > 0) {
         // setStatus("Undid Action: " + actions[actionIndex].name);
         actionIndex--;
-        resetAction();
+        ResetAction();
     }
 }
-void GameConfigEditorv4::redoAction()
+void GameConfigEditorv4::RedoAction()
 {
     if (actionIndex + 1 < actions.count()) {
         // setStatus("Redid Action: " + actions[actionIndex].name);
         actionIndex++;
-        resetAction();
+        ResetAction();
     }
 }
-void GameConfigEditorv4::resetAction()
+void GameConfigEditorv4::ResetAction()
 {
     copyConfig(NULL, &actions[actionIndex]);
 
     setupUI(false);
 
-    updateTitle(actionIndex > 0);
+    UpdateTitle(actionIndex > 0);
 }
-void GameConfigEditorv4::doAction(QString name, bool setModified)
+void GameConfigEditorv4::DoAction(QString name, bool setModified)
 {
     ActionState action;
 
@@ -1141,15 +1141,15 @@ void GameConfigEditorv4::doAction(QString name, bool setModified)
     actions.append(action);
     actionIndex = actions.count() - 1;
 
-    updateTitle(setModified);
+    UpdateTitle(setModified);
 
     // setStatus("Did Action: " + name);
 }
-void GameConfigEditorv4::clearActions()
+void GameConfigEditorv4::ClearActions()
 {
     actions.clear();
     actionIndex = 0;
-    doAction("Action Setup", false); // first action, cant be undone
+    DoAction("Action Setup", false); // first action, cant be undone
 }
 
 void GameConfigEditorv4::copyConfig(ActionState *stateDst, ActionState *stateSrc)

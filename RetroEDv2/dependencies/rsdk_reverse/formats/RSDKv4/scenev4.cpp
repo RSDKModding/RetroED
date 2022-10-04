@@ -5,9 +5,9 @@ QList<QString> RSDKv4::objectVariableNames = { "state",          "direction", "s
                                                "animationSpeed", "frame",     "inkEffect", "value0",
                                                "value1",         "value2",    "value3" };
 
-QList<QString> RSDKv4::objectVariableTypes = { "int",   "uint8", "int",   "int", "uint8",
-                                               "uint8", "uint8", "uint8", "int", "uint8",
-                                               "uint8", "int",   "int",   "int", "int" };
+QList<QString> RSDKv4::objectVariableTypes = { "int32", "uint8", "int32", "int32", "uint8",
+                                               "uint8", "uint8", "uint8", "int32", "uint8",
+                                               "uint8", "int32", "int32", "int32", "int32" };
 
 void RSDKv4::Scene::read(Reader &reader)
 {

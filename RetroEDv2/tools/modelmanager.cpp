@@ -86,7 +86,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
         viewer->setFrame(n);
 
         viewer->repaint();
-        // doAction("Added animation", true);
+        // DoAction("Added animation", true);
     });
 
     connect(ui->rmFrame, &QToolButton::clicked, [this] {
@@ -102,7 +102,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
         viewer->setFrame(n);
 
         viewer->repaint();
-        // doAction("Removed frame", true);
+        // DoAction("Removed frame", true);
 
         ui->frameList->blockSignals(true);
         ui->frameList->setCurrentRow(n);
@@ -122,7 +122,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
         viewer->setFrame(n);
 
         viewer->repaint();
-        // doAction("Moved frame", true);
+        // DoAction("Moved frame", true);
 
         ui->frameList->setCurrentRow(n);
     };
@@ -144,7 +144,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
             ui->frameList->setCurrentRow(c);
             ui->frameList->blockSignals(false);
 
-            // doAction("Copied frame", true);
+            // DoAction("Copied frame", true);
         }
     });
 
@@ -627,7 +627,7 @@ void ModelManager::loadModel(QString filePath, bool usev5Format)
         viewer->modelFormat = 1;
     }
 
-    updateTitle(false);
+    UpdateTitle(false);
     SetStatus("Loaded model " + tabTitle);
 
     appConfig.addRecentFile(usev5Format ? ENGINE_v5 : ENGINE_v4, TOOL_MODELMANAGER, filePath,
@@ -667,7 +667,7 @@ bool ModelManager::saveModel(bool forceSaveAs)
                 appConfig.addRecentFile(ENGINE_v4, TOOL_MODELMANAGER, filepath, QList<QString>{});
             }
 
-            updateTitle(false);
+            UpdateTitle(false);
             return true;
         }
     }
@@ -691,7 +691,7 @@ bool ModelManager::saveModel(bool forceSaveAs)
             appConfig.addRecentFile(ENGINE_v5, TOOL_MODELMANAGER, mdl.filePath, QList<QString>{});
         }
 
-        updateTitle(false);
+        UpdateTitle(false);
         return true;
     }
 

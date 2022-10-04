@@ -58,7 +58,7 @@ private:
         if (!toolTabs)
             return;
 
-        connect(tab, &T::titleChanged, [this, tab](QString t) {
+        connect(tab, &T::TitleChanged, [this, tab](QString t) {
             tab->setWindowTitle(t);
             int i = getTab(tab);
             if (i >= 0)
@@ -67,7 +67,7 @@ private:
 
         tab->setWindowTitle(name);
         toolTabs->setCurrentIndex(toolTabs->addTab(tab, name));
-        tab->updateTitle(false);
+        tab->UpdateTitle(false);
     }
 
     QString gamePath = "";

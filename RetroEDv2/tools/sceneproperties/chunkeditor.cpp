@@ -308,7 +308,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         chunkImgList.move(c, n);
         ui->chunkList->insertItem(n, item);
 
-        // doAction("Moved chunk", true);
+        // DoAction("Moved chunk", true);
 
         ui->chunkList->setCurrentRow(n);
     };

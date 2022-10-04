@@ -96,23 +96,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     file->addAction("Save As", saveAsAction);
 
 #if RE_USE_UNSTABLE
-    auto undoAction = [this] {
+    auto UndoAction = [this] {
         if (!ui->toolTabs->currentWidget())
             return;
 
         REAppEvent e = REAppEvent(RE_EVENT_UNDO);
         QApplication::sendEvent(ui->toolTabs->currentWidget(), &e);
     };
-    // file->addAction("Undo", undoAction);
+    // file->addAction("Undo", UndoAction);
 
-    auto redoAction = [this] {
+    auto RedoAction = [this] {
         if (!ui->toolTabs->currentWidget())
             return;
 
         REAppEvent e = REAppEvent(RE_EVENT_REDO);
         QApplication::sendEvent(ui->toolTabs->currentWidget(), &e);
     };
-    // file->addAction("Redo", redoAction);
+    // file->addAction("Redo", RedoAction);
 #endif
 
     // SHORTCUTS
@@ -135,11 +135,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 #if RE_USE_UNSTABLE
     QShortcut *shortcut_undo = new QShortcut(this);
     shortcut_undo->setKey(Qt::CTRL + Qt::Key_Z);
-    connect(shortcut_undo, &QShortcut::activated, [undoAction] { undoAction(); });
+    connect(shortcut_undo, &QShortcut::activated, [UndoAction] { UndoAction(); });
 
     QShortcut *shortcut_redo = new QShortcut(this);
     shortcut_redo->setKey(Qt::CTRL + Qt::Key_Y);
-    connect(shortcut_redo, &QShortcut::activated, [redoAction] { redoAction(); });
+    connect(shortcut_redo, &QShortcut::activated, [RedoAction] { RedoAction(); });
 #endif
 
     file->addSeparator();
@@ -263,7 +263,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         SetStatus("Opened Scene Editor!");
     });
 
-    scn->addAction("v5 (Sonic Mania/Sonic 3)", [this] {
+    scn->addAction("v5", [this] {
         SetStatus("Opening Scene Editor...");
         SceneEditorv5 *tool = new SceneEditorv5();
         tool->installEventFilter(this);
@@ -281,31 +281,31 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     });
 
     QMenu *gc = new QMenu("GameConfig Editor");
-    gc->addAction("v1 (Retro-Sonic)", [this] {
+    gc->addAction("v1", [this] {
         SetStatus("Opening Game Configuration Editor...");
         GameConfigEditorv1 *tool = new GameConfigEditorv1;
         addTab(tool, "GameConfig Editor");
         SetStatus("Opened Game Configuration Editor!");
     });
-    gc->addAction("v2 (Sonic Nexus)", [this] {
+    gc->addAction("v2", [this] {
         SetStatus("Opening GameConfig Editor...");
         GameConfigEditorv2 *tool = new GameConfigEditorv2;
         addTab(tool, "GameConfig Editor");
         SetStatus("Opened GameConfig Editor!");
     });
-    gc->addAction("v3 (Sonic CD)", [this] {
+    gc->addAction("v3", [this] {
         SetStatus("Opening GameConfig Editor...");
         GameConfigEditorv3 *tool = new GameConfigEditorv3;
         addTab(tool, "GameConfig Editor");
         SetStatus("Opened GameConfig Editor!");
     });
-    gc->addAction("v4 (Sonic 1/Sonic 2)", [this] {
+    gc->addAction("v4", [this] {
         SetStatus("Opening GameConfig Editor...");
         GameConfigEditorv4 *tool = new GameConfigEditorv4;
         addTab(tool, "GameConfig Editor");
         SetStatus("Opened GameConfig Editor!");
     });
-    gc->addAction("v5 (Sonic Mania/Sonic 3)", [this] {
+    gc->addAction("v5", [this] {
         SetStatus("Opening GameConfig Editor...");
         GameConfigEditorv5 *tool = new GameConfigEditorv5("", 0, false);
         addTab(tool, "GameConfig Editor");

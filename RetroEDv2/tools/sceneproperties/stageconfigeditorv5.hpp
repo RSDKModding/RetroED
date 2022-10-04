@@ -30,11 +30,11 @@ protected:
     bool event(QEvent *event);
 
 private:
-    void undoAction();
-    void redoAction();
-    void resetAction();
-    void doAction(QString name = "Action", bool setModified = true);
-    void clearActions();
+    void UndoAction();
+    void RedoAction();
+    void ResetAction();
+    void DoAction(QString name = "Action", bool setModified = true);
+    void ClearActions();
 
     void copyConfig(ActionState *stateDst, ActionState *stateSrc);
 

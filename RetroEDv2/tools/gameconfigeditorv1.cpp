@@ -76,7 +76,7 @@ GameConfigEditorv1::GameConfigEditorv1(QString path, QWidget *parent)
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->plrList->setCurrentItem(item);
-        doAction("Added Player");
+        DoAction("Added Player");
     });
 
     connect(ui->upPlr, &QToolButton::clicked, [this] {
@@ -85,7 +85,7 @@ GameConfigEditorv1::GameConfigEditorv1(QString path, QWidget *parent)
         characters.players.move(c, c - 1);
         ui->plrList->insertItem(c - 1, item);
         ui->plrList->setCurrentRow(c - 1);
-        doAction("Moved Player Up");
+        DoAction("Moved Player Up");
     });
 
     connect(ui->downPlr, &QToolButton::clicked, [this] {
@@ -94,7 +94,7 @@ GameConfigEditorv1::GameConfigEditorv1(QString path, QWidget *parent)
         characters.players.move(c, c + 1);
         ui->plrList->insertItem(c + 1, item);
         ui->plrList->setCurrentRow(c + 1);
-        doAction("Moved Player Down");
+        DoAction("Moved Player Down");
     });
 
     connect(ui->rmPlr, &QToolButton::clicked, [this] {
@@ -105,7 +105,7 @@ GameConfigEditorv1::GameConfigEditorv1(QString path, QWidget *parent)
         ui->plrList->blockSignals(true);
         ui->plrList->setCurrentRow(n);
         ui->plrList->blockSignals(false);
-        doAction("Removed Player");
+        DoAction("Removed Player");
     });
 
     connect(ui->plrList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -114,7 +114,7 @@ GameConfigEditorv1::GameConfigEditorv1(QString path, QWidget *parent)
         ui->plrNameDisplay->blockSignals(true);
         ui->plrNameDisplay->setText(characters.players[ui->plrList->row(item)].displayName);
         ui->plrNameDisplay->blockSignals(false);
-        doAction("Changed Display Name");
+        DoAction("Changed Display Name");
     });
 
     connect(ui->plrNameDisplay, &QLineEdit::textEdited, [this](QString s) {
@@ -122,28 +122,28 @@ GameConfigEditorv1::GameConfigEditorv1(QString path, QWidget *parent)
 
         ui->plrList->item(ui->plrList->currentRow())
             ->setText(characters.players[ui->plrList->currentRow()].displayName);
-        doAction("Changed Display Name");
+        DoAction("Changed Display Name");
     });
 
     connect(ui->plrName, &QLineEdit::textEdited, [this](QString s) {
         characters.players[ui->plrList->currentRow()].playerName = s.toUpper();
-        doAction("Changed Player Name");
+        DoAction("Changed Player Name");
     });
 
     connect(ui->plrAnim, &QLineEdit::textEdited, [this](QString s) {
         characters.players[ui->plrList->currentRow()].player1Anim = s;
-        doAction("Changed Player 1 Anim");
+        DoAction("Changed Player 1 Anim");
     });
 
     connect(ui->hasP2, &QCheckBox::toggled, [this](bool c) {
         characters.players[ui->plrList->currentRow()].hasP2 = c;
         ui->plr2Anim->setDisabled(!characters.players[ui->plrList->currentRow()].hasP2);
-        doAction("Changed HasP2");
+        DoAction("Changed HasP2");
     });
 
     connect(ui->plr2Anim, &QLineEdit::textEdited, [this](QString s) {
         characters.players[ui->plrList->currentRow()].player2Anim = s;
-        doAction("Changed Player 2 Anim");
+        DoAction("Changed Player 2 Anim");
     });
 
     // ----------------
@@ -159,7 +159,7 @@ GameConfigEditorv1::GameConfigEditorv1(QString path, QWidget *parent)
         const QModelIndex &index = sceneModel->indexFromItem(item);
         if (index.parent().isValid()) { // Scene
             stageList[index.parent().row()].stages[index.row()].name = item->text();
-            doAction("Changed Scene Name");
+            DoAction("Changed Scene Name");
             return;
         }
     });
@@ -180,7 +180,7 @@ GameConfigEditorv1::GameConfigEditorv1(QString path, QWidget *parent)
             sceneModel->itemFromIndex(index)->insertRow(scn, scnItem);
         scnItem->setFlags(scnItem->flags() | Qt::ItemIsEditable);
         ui->scnTree->setCurrentIndex(sceneModel->indexFromItem(scnItem));
-        doAction("Added Scene");
+        DoAction("Added Scene");
     });
 
     connect(ui->rmScn, &QToolButton::clicked, [this] {
@@ -189,7 +189,7 @@ GameConfigEditorv1::GameConfigEditorv1(QString path, QWidget *parent)
         if (index.parent().isValid()) { // Scene
             stageList[index.parent().row()].stages.removeAt(index.row());
             sceneModel->itemFromIndex(index.parent())->removeRow(index.row());
-            doAction("Removed Scene");
+            DoAction("Removed Scene");
             return;
         }
     });
@@ -204,7 +204,7 @@ GameConfigEditorv1::GameConfigEditorv1(QString path, QWidget *parent)
             QStandardItem *parentItem = sceneModel->itemFromIndex(ui->scnTree->currentIndex().parent());
             item                      = parentItem->takeRow(c);
             parentItem->insertRow(c + translation, item);
-            doAction("Moved Scene");
+            DoAction("Moved Scene");
         }
         else
             return;
@@ -260,22 +260,22 @@ GameConfigEditorv1::GameConfigEditorv1(QString path, QWidget *parent)
                     stageList[c.parent().row()].stages[c.row()].name = s;
 
                     // TODO: edit text
-                    doAction("Changed Scene Name");
+                    DoAction("Changed Scene Name");
                 });
 
                 connect(ui->scnFolder, &QLineEdit::textEdited, [this, c](QString s) {
                     stageList[c.parent().row()].stages[c.row()].folder = s;
-                    doAction("Changed Scene Folder");
+                    DoAction("Changed Scene Folder");
                 });
 
                 connect(ui->scnID, &QLineEdit::textEdited, [this, c](QString s) {
                     stageList[c.parent().row()].stages[c.row()].id = s;
-                    doAction("Changed Scene ID");
+                    DoAction("Changed Scene ID");
                 });
 
                 connect(ui->scnHighlighted, &QCheckBox::toggled, [this, c](bool v) {
                     stageList[c.parent().row()].stages[c.row()].highlighted = v;
-                    doAction("Changed Scene Highlight");
+                    DoAction("Changed Scene Highlight");
                 });
             }
 
@@ -311,7 +311,7 @@ void GameConfigEditorv1::load(QString filename)
         characters = RSDKv1::CharacterList();
         tabTitle   = "GameConfig Editor";
     }
-    clearActions();
+    ClearActions();
 
     setupUI();
 }
@@ -399,7 +399,7 @@ bool GameConfigEditorv1::event(QEvent *event)
                         AddStatusProgress(.2);
                     }
 
-                    clearActions();
+                    ClearActions();
 
                     SetStatus("Saved game configuration");
 
@@ -415,7 +415,7 @@ bool GameConfigEditorv1::event(QEvent *event)
                     stageList[l].write(baseDir + "/" + listFileNames[l]);
                 }
 
-                clearActions();
+                ClearActions();
                 return true;
             }
             break;
@@ -452,13 +452,13 @@ bool GameConfigEditorv1::event(QEvent *event)
                     }
                 }
 
-                clearActions();
+                ClearActions();
                 return true;
             }
             break;
         }
-        case RE_EVENT_UNDO: undoAction(); break;
-        case RE_EVENT_REDO: redoAction(); break;
+        case RE_EVENT_UNDO: UndoAction(); break;
+        case RE_EVENT_REDO: RedoAction(); break;
         case QEvent::Close:
             if (modified) {
                 bool cancelled = false;
@@ -476,7 +476,7 @@ bool GameConfigEditorv1::event(QEvent *event)
                                                     QList<QString>{ /**/ });
                             Writer writer(filedialog.selectedFiles()[0]);
                             characters.write(writer);
-                            clearActions();
+                            ClearActions();
                         }
                     }
                     else {
@@ -488,7 +488,7 @@ bool GameConfigEditorv1::event(QEvent *event)
                             stageList[l].write(baseDir + "/" + listFileNames[l]);
                         }
 
-                        clearActions();
+                        ClearActions();
                     }
                 }
                 else if (cancelled) {
@@ -502,23 +502,23 @@ bool GameConfigEditorv1::event(QEvent *event)
     return QWidget::event(event);
 }
 
-void GameConfigEditorv1::undoAction()
+void GameConfigEditorv1::UndoAction()
 {
     if (actionIndex > 0) {
         // setStatus("Undid Action: " + actions[actionIndex].name);
         actionIndex--;
-        resetAction();
+        ResetAction();
     }
 }
-void GameConfigEditorv1::redoAction()
+void GameConfigEditorv1::RedoAction()
 {
     if (actionIndex + 1 < actions.count()) {
         // setStatus("Redid Action: " + actions[actionIndex].name);
         actionIndex++;
-        resetAction();
+        ResetAction();
     }
 }
-void GameConfigEditorv1::resetAction()
+void GameConfigEditorv1::ResetAction()
 {
 #if RE_USE_UNSTABLE
     copyConfig(NULL, &actions[actionIndex]);
@@ -526,9 +526,9 @@ void GameConfigEditorv1::resetAction()
     setupUI(false);
 #endif
 
-    updateTitle(actionIndex > 0);
+    UpdateTitle(actionIndex > 0);
 }
-void GameConfigEditorv1::doAction(QString name, bool setModified)
+void GameConfigEditorv1::DoAction(QString name, bool setModified)
 {
     ActionState action;
 
@@ -546,15 +546,15 @@ void GameConfigEditorv1::doAction(QString name, bool setModified)
     actions.append(action);
     actionIndex = actions.count() - 1;
 
-    updateTitle(setModified);
+    UpdateTitle(setModified);
 
     // setStatus("Did Action: " + name);
 }
-void GameConfigEditorv1::clearActions()
+void GameConfigEditorv1::ClearActions()
 {
     actions.clear();
     actionIndex = 0;
-    doAction("Action Setup", false); // first action, cant be undone
+    DoAction("Action Setup", false); // first action, cant be undone
 }
 
 void GameConfigEditorv1::copyConfig(ActionState *stateDst, ActionState *stateSrc)
