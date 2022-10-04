@@ -64,7 +64,7 @@ public:
 };
 
 // RSDK
-#include "dependencies/rsdk_reverse/rsdkreverse.hpp"
+#include "dependencies/libRSDK/libRSDK.hpp"
 
 // Misc/Utils
 #include "utils/retroedutils.hpp"

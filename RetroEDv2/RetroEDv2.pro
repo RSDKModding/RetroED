@@ -10,7 +10,7 @@ DEFINES += QT_DEPRECATED_WARNINGS \
 include(dependencies/phantom/phantom.pri)
 include(dependencies/qtgifimage/src/gifimage/qtgifimage.pri)
 include(dependencies/qtcolorwidgets/color_widgets.pri)
-include(dependencies/rsdk_reverse/rsdk_reverse.pri)
+include(dependencies/libRSDK/libRSDK.pri)
 include(dependencies/imageviewer/imageviewer.pri)
 include(dependencies/QtPropertyBrowser/QtPropertyBrowser.pri)
 
