@@ -1,0 +1,25 @@
+/*!
+    \example creategif
+    \title Create .gif Example
+    \brief This is a simplest example.
+    \ingroup qtgifimage-examples
+
+    This example demonstrates how to create a new
+     .gif file from a list of QImage.
+    So lets see how this is achieved.
+    \image demo1.gif
+
+    This creates a new instance of the all important QGifImage class.
+    \snippet creategif/main.cpp 0
+
+    Let's start by setting the global color table, background color and
+    the default transparent color.
+    \snippet creategif/main.cpp 1
+
+    Now we create a QImage object, draw something on it. Then add it to
+    the gif canvas ten times with defferent offset.
+    \snippet creategif/main.cpp 2
+
+    Now save the file and all its components.
+    \snippet creategif/main.cpp 3
+*/

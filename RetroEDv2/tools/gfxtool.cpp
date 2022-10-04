@@ -1,7 +1,7 @@
 #include "includes.hpp"
 #include "ui_gfxtool.h"
 
-#include "dependencies/qtgifimage/src/gifimage/qgifimage.h"
+#include "dependencies/QtGifImage/src/gifimage/qgifimage.h"
 
 GFXTool::GFXTool(QWidget *parent) : QDialog(parent), ui(new Ui::GFXTool)
 {

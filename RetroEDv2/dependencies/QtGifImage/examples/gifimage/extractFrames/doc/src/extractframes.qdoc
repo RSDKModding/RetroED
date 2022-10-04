@@ -1,0 +1,9 @@
+/*!
+    \example extractframes
+    \title Extract Frames Example
+    \brief This is a simplest example.
+    \ingroup qtgifimage-examples
+
+    This example demonstrates how to extract QImage from .gif file.
+    So lets see how this is achieved.
+*/
