@@ -67,7 +67,7 @@ HEADERS +=    \
     $$PWD/formats/RSDKv5/userdbv5.hpp \
     $$PWD/io/reader.hpp \
     $$PWD/io/writer.hpp \
-    $$PWD/rsdkreverse.hpp \
+    $$PWD/libRSDK.hpp \
     $$PWD/utils/formathelpers/gif.hpp \
     $$PWD/utils/utils.hpp \
     $$PWD/utils/vectors.hpp \

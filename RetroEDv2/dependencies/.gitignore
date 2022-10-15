@@ -2,4 +2,7 @@
 !.gitignore
 !README.md
 
+!libRSDK/*
 !imageviewer/*
+!phantom/*
+!qtcolorwidgets/*

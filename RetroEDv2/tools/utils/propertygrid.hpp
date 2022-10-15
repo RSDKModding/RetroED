@@ -2,10 +2,10 @@
 #define PROPERTYWIDGET_H
 
 // Crap for PropertyGrid
-#include "qttreepropertybrowser.h"
-#include "qtpropertybrowser.h"
-#include "qtpropertymanager.h"
-#include "qteditorfactory.h"
+#include "dependencies/QtPropertyBrowser/src/qttreepropertybrowser.h"
+#include "dependencies/QtPropertyBrowser/src/qtpropertybrowser.h"
+#include "dependencies/QtPropertyBrowser/src/qtpropertymanager.h"
+#include "dependencies/QtPropertyBrowser/src/qteditorfactory.h"
 
 struct PropertyValue {
     QString name;

@@ -4,14 +4,12 @@
 
 * imageviewer: originally from [here](https://github.com/palacaze/image-viewer/), but custom-edited to allow for bounding box selection
 
-* phantom: https://github.com/randrew/phantomstyle/tree/master/src/phantom/
-  * Download it and unzip it in "./phantom/"
+* phantom: originally from [here](https://github.com/randrew/phantomstyle/), but custom-edited to work with Qt5
 
-* QtColorWidgets: https://gitlab.com/mattbas/Qt-Color-Widgets/
-  * Download it and unzip it in "./QtColorWidgets/"
+* QtColorWidgets: originally from [here](https://gitlab.com/mattbas/Qt-Color-Widgets/), but custom-edited to work with the workflow
 
 * QtGifImage: https://github.com/dbzhang800/QtGifImage/
   * Download it and unzip it in "./QtGifImage/"
 
-* QtPropertyBrowser: https://github.com/airpaio/QtPropertyBrowser/ (TODO: is it this one?)
+* QtPropertyBrowser: https://github.com/qtproject/qt-solutions/tree/master/qtpropertybrowser
   * Download it and unzip it in "./QtPropertyBrowser/"
