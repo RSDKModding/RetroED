@@ -1,4 +1,4 @@
-#include "rsdkreverse.hpp"
+#include "libRSDK.hpp"
 
 void RSDKv3::StageConfig::read(Reader &reader)
 {

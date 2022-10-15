@@ -1,4 +1,4 @@
-#include "rsdkreverse.hpp"
+#include "libRSDK.hpp"
 
 void RSDKv2::Bytecode::read(Reader &reader, int scriptCount, bool clear)
 {

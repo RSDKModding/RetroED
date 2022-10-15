@@ -1,4 +1,4 @@
-#include "rsdkreverse.hpp"
+#include "libRSDK.hpp"
 
 QList<QString> RSDKv1::Script::variableList = {
     "[NULL]",                   // 0x00

@@ -1,4 +1,4 @@
-#include "rsdkreverse.hpp"
+#include "libRSDK.hpp"
 
 QList<QString> RSDKv4::objectVariableNames = { "state",          "direction", "scale",     "rotation",
                                                "drawOrder",      "priority",  "alpha",     "animation",

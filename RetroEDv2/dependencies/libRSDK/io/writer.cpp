@@ -1,4 +1,4 @@
-#include "rsdkreverse.hpp"
+#include "libRSDK.hpp"
 
 Writer::Writer(QString filename)
     : file(new QSaveFile(filename)), stream(new QDataStream(file.data()))

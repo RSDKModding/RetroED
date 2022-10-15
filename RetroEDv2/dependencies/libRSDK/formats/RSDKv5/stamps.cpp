@@ -1,4 +1,4 @@
-#include "rsdkreverse.hpp"
+#include "libRSDK.hpp"
 
 void RSDKv5::Stamps::read(Reader &reader)
 {

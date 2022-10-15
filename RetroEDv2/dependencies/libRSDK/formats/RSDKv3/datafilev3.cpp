@@ -1,4 +1,4 @@
-#include "rsdkreverse.hpp"
+#include "libRSDK.hpp"
 
 QString readDataFileDirNamev3(Reader &reader)
 {

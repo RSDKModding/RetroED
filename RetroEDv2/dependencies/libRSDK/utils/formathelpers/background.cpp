@@ -1,4 +1,4 @@
-#include "rsdkreverse.hpp"
+#include "libRSDK.hpp"
 
 void FormatHelpers::Background::read(byte ver, QString filename)
 {

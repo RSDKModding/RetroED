@@ -1,4 +1,4 @@
-#include "rsdkreverse.hpp"
+#include "libRSDK.hpp"
 
 void RSDKv1::GFX::read(Reader &reader, bool dcGFX)
 {

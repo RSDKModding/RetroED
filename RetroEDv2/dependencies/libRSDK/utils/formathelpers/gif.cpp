@@ -1,4 +1,4 @@
-#include "rsdkreverse.hpp"
+#include "libRSDK.hpp"
 
 const int FormatHelpers::Gif::codeMasks[16] = {
     0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095

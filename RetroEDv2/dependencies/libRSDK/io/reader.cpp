@@ -1,4 +1,4 @@
-#include "rsdkreverse.hpp"
+#include "libRSDK.hpp"
 
 Reader::Reader(QString filepath) : file(new QFile(filepath)), stream(new QDataStream(file.data()))
 {

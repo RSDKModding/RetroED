@@ -1,4 +1,4 @@
-#include "rsdkreverse.hpp"
+#include "libRSDK.hpp"
 
 QList<QString> animNamesv2 = QList<QString>{
     "Stopped",

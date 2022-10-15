@@ -1,4 +1,4 @@
-#include "rsdkreverse.hpp"
+#include "libRSDK.hpp"
 
 void RSDKv4::Datafile::read(Reader &reader, QList<QString> fileList)
 {
