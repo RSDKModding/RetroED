@@ -2,8 +2,7 @@
 
 ## Dependencies:
 
-* imageviewer: https://github.com/palacaze/image-viewer/
-  * Download it and unzip it in "./imageviewer/"
+* imageviewer: originally from [here](https://github.com/palacaze/image-viewer/), but custom-edited to allow for bounding box selection
 
 * phantom: https://github.com/randrew/phantomstyle/tree/master/src/phantom/
   * Download it and unzip it in "./phantom/"
