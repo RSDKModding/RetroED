@@ -78,7 +78,7 @@ public:
         if (filename == "")
             return;
         Writer writer(filename);
-        write(writer);
+        write(writer, ver);
     }
     void write(Writer &writer, byte ver = 0);
 
