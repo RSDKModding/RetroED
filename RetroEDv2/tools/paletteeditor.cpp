@@ -48,7 +48,7 @@ void PaletteEditor::init()
                 int type         = typesList.indexOf(filedialog.selectedNameFilter());
                 QString fileName = filedialog.selectedFiles()[0];
 
-                disconnect(ui->importPal, nullptr, nullptr, nullptr);
+                // disconnect(ui->importPal, nullptr, nullptr, nullptr);
 
                 load(fileName, type);
                 init();
