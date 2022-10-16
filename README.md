@@ -1,6 +1,6 @@
-//TODO: add a header img here like what we have for decomps
+// TODO: add a header img here like what we have for decomps
 
-// RetroED Description goes here
+RetroED is a general purpose tool suite for the Retro Engine.
 
 # How to build
 ## Windows
