@@ -14,26 +14,7 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QComboBox" name="selEngineType">
-     <item>
-      <property name="text">
-       <string>RSDKv3 (Sonic CD)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>RSDKv4 (Sonic 1/Sonic 2)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>RSDKv1 (Retro-Sonic)</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QStackedWidget" name="stackedWidget">
      <widget class="QWidget" name="page_v3v4">
       <layout class="QGridLayout" name="gridLayout_2">
@@ -255,7 +236,14 @@
      </widget>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Engine Version</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
     <widget class="QPushButton" name="compileScr">
      <property name="enabled">
       <bool>false</bool>
@@ -263,6 +251,25 @@
      <property name="text">
       <string>Compile Bytecode</string>
      </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QComboBox" name="selEngineType">
+     <item>
+      <property name="text">
+       <string>RSDKv3</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>RSDKv4</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>RSDKv1</string>
+      </property>
+     </item>
     </widget>
    </item>
   </layout>

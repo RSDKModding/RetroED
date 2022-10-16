@@ -112,6 +112,7 @@ int main(int argc, char *argv[])
     if (!QDir(homeDir).exists())
         QDir(homeDir).mkpath(homeDir);
 
+    // copy RSDKv4 file list if it doesn't exist
     if (!QFile(homeDir + "RSDKv4FileList.txt").exists()) {
         Reader reader(":/resources/RSDKv4FileList.txt");
         QByteArray bytes = reader.readByteArray(reader.filesize);
@@ -122,6 +123,7 @@ int main(int argc, char *argv[])
         writer.flush();
     }
 
+    // copy RSDKv5 file list if it doesn't exist
     if (!QFile(homeDir + "RSDKv5FileList.txt").exists()) {
         Reader reader(":/resources/RSDKv5FileList.txt");
         QByteArray bytes = reader.readByteArray(reader.filesize);
@@ -132,6 +134,7 @@ int main(int argc, char *argv[])
         writer.flush();
     }
 
+    // copy RSDKv5U file list if it doesn't exist
     if (!QFile(homeDir + "RSDKv5UFileList.txt").exists()) {
         Reader reader(":/resources/RSDKv5UFileList.txt");
         QByteArray bytes = reader.readByteArray(reader.filesize);
