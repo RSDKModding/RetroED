@@ -328,14 +328,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         SetStatus("Opened Model Manager!");
     });
 
-#if !RE_BUILD_TYPE
-    tools->addAction("Script Decompiler", [] {
-        SetStatus("Opening Script Decompiler...");
-        ScriptUnpacker *tool = new ScriptUnpacker();
-        tool->exec();
-    });
-#endif
-
     tools->addAction("Script Compiler", [this] {
         SetStatus("Opening Script Compiler...");
         ScriptCompiler *tool = new ScriptCompiler();

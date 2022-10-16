@@ -88,11 +88,6 @@ public:
 #include "tools/compiler/compilerv3.hpp"
 #include "tools/compiler/compilerv4.hpp"
 
-// Decompilers
-#include "tools/decompiler/decompilerv1.hpp"
-#include "tools/decompiler/decompilerv3.hpp"
-#include "tools/decompiler/decompilerv4.hpp"
-
 // Form Utils
 #include "tools/utils/propertygrid.hpp"
 
@@ -143,7 +138,6 @@ public:
 #include "tools/paletteeditor/colourdialog.hpp"
 #include "tools/rsdkunpacker.hpp"
 #include "tools/scriptcompiler.hpp"
-#include "tools/scriptunpacker.hpp"
 #include "tools/sceneeditor.hpp"
 #include "tools/sceneeditorv5.hpp"
 #include "tools/userdbmanager.hpp"

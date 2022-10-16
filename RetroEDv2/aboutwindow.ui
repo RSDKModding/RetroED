@@ -32,7 +32,7 @@
     <enum>Qt::Horizontal</enum>
    </property>
    <property name="standardButtons">
-    <set>QDialogButtonBox::Ok|QDialogButtonBox::Open</set>
+    <set>QDialogButtonBox::Ok</set>
    </property>
   </widget>
   <widget class="QLabel" name="icon">

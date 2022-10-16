@@ -33,9 +33,6 @@ SOURCES += \
     tools/compiler/compilerv2.cpp \
     tools/compiler/compilerv3.cpp \
     tools/compiler/compilerv4.cpp \
-    tools/decompiler/decompilerv3.cpp \
-    tools/decompiler/decompilerv4.cpp \
-    tools/decompiler/decompilerv1.cpp \
     tools/gameconfigeditorv1.cpp \
     tools/gameconfigeditorv5.cpp \
     tools/gamelink/gamelink.cpp \
@@ -79,7 +76,6 @@ SOURCES += \
     tools/sceneproperties/tileseteditor.cpp \
     tools/sceneviewer.cpp \
     tools/scriptcompiler.cpp \
-    tools/scriptunpacker.cpp \
     tools/userdbmanager.cpp \
     tools/utils/modelviewer.cpp \
     tools/utils/propertygrid.cpp \
@@ -100,9 +96,6 @@ HEADERS += \
     tools/compiler/compilerv2.hpp \
     tools/compiler/compilerv3.hpp \
     tools/compiler/compilerv4.hpp \
-    tools/decompiler/decompilerv3.hpp \
-    tools/decompiler/decompilerv4.hpp \
-    tools/decompiler/decompilerv1.hpp \
     tools/gameconfigeditorv1.hpp \
     tools/gameconfigeditorv5.hpp \
     tools/gamelink/gamelink.hpp \
@@ -147,7 +140,6 @@ HEADERS += \
     tools/sceneproperties/tileseteditor.hpp \
     tools/sceneviewer.hpp \
     tools/scriptcompiler.hpp \
-    tools/scriptunpacker.hpp \
     tools/userdbmanager.hpp \
     tools/utils/modelviewer.hpp \
     tools/utils/propertygrid.hpp \
@@ -201,7 +193,6 @@ FORMS += \
     tools/sceneproperties/tilereplaceoptions.ui \
     tools/sceneproperties/tileseteditor.ui \
     tools/scriptcompiler.ui \
-    tools/scriptunpacker.ui \
     tools/userdbmanager.ui
 
 # Default rules for deployment.
