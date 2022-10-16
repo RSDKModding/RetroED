@@ -146,10 +146,10 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                 compilerv4.releaseType       = "USE_STANDALONE";
 
                 if (ui->platformType->currentIndex() == 1)
-                    compilerv4.gameHapticSetting = "MOBILE";
+                    compilerv4.gamePlatform = "MOBILE";
 
                 if (ui->renderType->currentIndex() == 1)
-                    compilerv4.gameHapticSetting = "HW_RENDERING";
+                    compilerv4.gameRenderType = "HW_RENDERING";
 
                 if (ui->useHaptics->isChecked())
                     compilerv4.gameHapticSetting = "USE_F_FEEDBACK";
@@ -374,13 +374,13 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                 compilerv3.gamePlatform      = "Standard";
                 compilerv3.gameRenderType    = "SW_Rendering";
                 compilerv3.gameHapticSetting = "No_Haptics";
-                compilerv3.gameRenderType    = "Use_Standalone";
+                compilerv3.releaseType       = "Use_Standalone";
 
                 if (ui->platformType->currentIndex() == 1)
-                    compilerv3.gameHapticSetting = "Mobile";
+                    compilerv3.gamePlatform = "Mobile";
 
                 if (ui->renderType->currentIndex() == 1)
-                    compilerv3.gameHapticSetting = "HW_Rendering";
+                    compilerv3.gameRenderType = "HW_Rendering";
 
                 if (ui->useHaptics->isChecked())
                     compilerv3.gameHapticSetting = "Use_Haptics";
@@ -389,6 +389,7 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 
                 int id = 0;
                 SetScriptTypeName("BlankObject", compilerv3.typeNames[id++]);
+				
                 for (auto &obj : gameConfig.objects) {
                     SetScriptTypeName(obj.name.toStdString().c_str(), compilerv3.typeNames[id++]);
 
