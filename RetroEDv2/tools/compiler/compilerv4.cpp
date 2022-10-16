@@ -5579,6 +5579,15 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
             case FUNC_CHECKCURRENTSTAGEFOLDER:
                 opcodeSize            = 0;
                 scriptEng.checkResult = editor->viewer->currentFolder == scriptText;
+
+                // prompting for a review from RDC
+                if (!scriptEng.checkResult) {
+                    int targetSize = editor->viewer->currentFolder.size();
+                    int currentSize = strlen(scriptText);
+                    if (targetSize > currentSize) {
+                        scriptEng.checkResult = editor->viewer->currentFolder.chopped(currentSize) == scriptText;
+                    }
+                }
                 break;
             case FUNC_ABS: {
                 scriptEng.operands[0] = abs(scriptEng.operands[0]);
