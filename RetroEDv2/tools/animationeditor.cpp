@@ -798,7 +798,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
     connect(ui->impFile, &QToolButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Import Anim File"),
-                               QFileInfo(animFile.filePath).absolutePath(), tr("json Files (*.json)"));
+                               QFileInfo(animFile.filePath).absolutePath(), tr("JSON Files (*.json)"));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() != QDialog::Accepted)
             return;
@@ -1008,7 +1008,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
     connect(ui->expFile, &QToolButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Export Anim File"),
-                               QFileInfo(animFile.filePath).absolutePath(), tr("json Files (*.json)"));
+                               QFileInfo(animFile.filePath).absolutePath(), tr("JSON Files (*.json)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() != QDialog::Accepted)
             return;
@@ -1105,7 +1105,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
     connect(ui->impAnim, &QToolButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Import Anim"), QFileInfo(animFile.filePath).absolutePath(),
-                               tr("json Files (*.json)"));
+                               tr("JSON Files (*.json)"));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() != QDialog::Accepted)
             return;
@@ -1298,7 +1298,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         if (ui->animationList->currentRow() == -1)
             return;
         QFileDialog filedialog(this, tr("Export Anim"), QFileInfo(animFile.filePath).absolutePath(),
-                               tr("json Files (*.json);;RetroScript SpriteFrames (*.txt)"));
+                               tr("JSON Files (*.json);;RetroScript SpriteFrames (*.txt)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() != QDialog::Accepted)
             return;
@@ -1306,7 +1306,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         QString selectedFilter = filedialog.selectedNameFilter();
         QString filename       = filedialog.selectedFiles()[0];
 
-        if (selectedFilter == "json Files (*.json)") {
+        if (selectedFilter == "JSON Files (*.json)") {
             // export json
             QJsonObject aniFileObj;
 
@@ -1404,7 +1404,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
     connect(ui->impFrame, &QToolButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Import Frame"), QFileInfo(animFile.filePath).absolutePath(),
-                               tr("json Files (*.json)"));
+                               tr("JSON Files (*.json)"));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() != QDialog::Accepted)
             return;
@@ -1584,7 +1584,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         if (ui->animationList->currentRow() == -1)
             return;
         QFileDialog filedialog(this, tr("Export Frame"), QFileInfo(animFile.filePath).absolutePath(),
-                               tr("json Files (*.json);;RetroScript SpriteFrames (*.txt)"));
+                               tr("JSON Files (*.json);;RetroScript SpriteFrames (*.txt)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() != QDialog::Accepted)
             return;
@@ -1592,7 +1592,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         QString selectedFilter = filedialog.selectedNameFilter();
         QString filename       = filedialog.selectedFiles()[0];
 
-        if (selectedFilter == "json Files (*.json)") {
+        if (selectedFilter == "JSON Files (*.json)") {
             // export json
             QJsonObject aniFileObj;
 

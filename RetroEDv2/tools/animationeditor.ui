@@ -75,7 +75,7 @@
       <item>
        <widget class="QToolButton" name="impFile">
         <property name="text">
-         <string>Import Json File</string>
+         <string>Import JSON File</string>
         </property>
        </widget>
       </item>
@@ -134,7 +134,7 @@
       <item>
        <widget class="QToolButton" name="expFile">
         <property name="text">
-         <string>Export Json File</string>
+         <string>Export JSON File</string>
         </property>
        </widget>
       </item>
