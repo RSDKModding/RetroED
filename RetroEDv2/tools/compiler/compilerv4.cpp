@@ -5585,7 +5585,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                     int targetSize = editor->viewer->currentFolder.size();
                     int currentSize = strlen(scriptText);
                     if (targetSize > currentSize) {
-                        scriptEng.checkResult = editor->viewer->currentFolder.chopped(currentSize) == scriptText;
+                        scriptEng.checkResult = editor->viewer->currentFolder.endsWith(scriptText);
                     }
                 }
                 break;
@@ -5729,7 +5729,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                 scriptEng.operands[0] = -1;
                 for (int o = 0; o < OBJECT_COUNT; ++o) {
                     if (StrComp(scriptText, typeNames[o])) {
-                        scriptEng.operands[0] = 0;
+                        scriptEng.operands[0] = o;
                     }
                 }
                 break;
