@@ -147,12 +147,12 @@ void SceneObjectProperties::setupUI(SceneEntity *entity, int entityID, Compilerv
                                             PropertyValue("Subtractive", 4) };
         QList<PropertyValue> priorityFlags = { PropertyValue("Bounds", 0),
                                                PropertyValue("Active", 1),
-                                               PropertyValue("Active (Paused)", 2),
+                                               PropertyValue("Always", 2),
                                                PropertyValue("X Bounds", 3),
-                                               PropertyValue("X Bounds (Remove)", 4),
+                                               PropertyValue("X Bounds (Destroy)", 4),
                                                PropertyValue("Inactive", 5),
                                                PropertyValue("Bounds (Small)", 6),
-                                               PropertyValue("Unknown", 7) };
+                                               PropertyValue("Active (Small)", 7) };
 
         QList<Property *> varGroup = {};
 
