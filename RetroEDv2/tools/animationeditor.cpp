@@ -706,12 +706,12 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         boundingRect.setHeight(frame.height);
 
         auto *item = new QStandardItem();
+        item->setEditable(false);
         item->setData((frame.width == 0 || frame.height == 0 || frame.sheet >= sheets.count())
                           ? missingImg
                           : QPixmap::fromImage(sheets[frame.sheet].copy(boundingRect)),
                       ROLE_PIXMAP);
         frameModel->insertRow(c, item);
-        item->setFlags(item->flags() & ~Qt::ItemIsEditable);
         ui->frameList->setCurrentIndex(item->index());
 
         UpdateView();
@@ -1565,7 +1565,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             item->setIcon(QPixmap::fromImage(sheets[frame.sheet].copy(boundingRect)));
         }
         frameModel->insertRow(c, item);
-        item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+        item->setEditable(false);
         animFile.animations[currentAnim].frames.insert(c, frame);
         ui->frameList->blockSignals(false);
 
@@ -2078,6 +2078,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                 boundingRect.setHeight(frame.height);
 
                 auto *item = new QStandardItem();
+                item->setEditable(false);
                 item->setData((frame.width == 0 || frame.height == 0)
                                   ? missingImg
                                   : QPixmap::fromImage(sheets[frame.sheet].copy(boundingRect)),
