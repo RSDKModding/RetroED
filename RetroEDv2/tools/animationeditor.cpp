@@ -543,9 +543,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         offset.y = 0;
         ui->frameOffLabel->setText(QString("Frame Offset: (%1, %2)").arg(offset.x).arg(offset.y));
 
-        if (playingAnim) {
-            emit ui->play->clicked();
-        }
+        if (playingAnim)
+            ui->play->clicked();
 
         currentAnim = c;
         disconnect(ui->animName, nullptr, nullptr, nullptr);
