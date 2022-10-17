@@ -5580,9 +5580,8 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                 opcodeSize            = 0;
                 scriptEng.checkResult = editor->viewer->currentFolder == scriptText;
 
-                // prompting for a review from RDC
                 if (!scriptEng.checkResult) {
-                    int targetSize = editor->viewer->currentFolder.size();
+                    int targetSize  = editor->viewer->currentFolder.size();
                     int currentSize = strlen(scriptText);
                     if (targetSize > currentSize) {
                         scriptEng.checkResult = editor->viewer->currentFolder.endsWith(scriptText);
