@@ -236,7 +236,7 @@ void SceneObjectProperties::setupUI(SceneEntity *entity, int entityID, Compilerv
             varGroup.append(group);
         }
 
-        entityGroup.append(new Property("Variables"));
+        entityGroup.append(new Property("variables"));
         entityGroup[2]->setSubProperties(varGroup);
     }
 
