@@ -127,10 +127,13 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         viewer->screens->position.y = v;
     });
 
-    connect(ui->sceneFilter, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
-        viewer->sceneFilter      = v;
-        viewer->sceneInfo.filter = v;
-    });
+    QCheckBox *filterToggles[] = { ui->filterBox1, ui->filterBox2, ui->filterBox3, ui->filterBox4,
+                                   ui->filterBox5, ui->filterBox6, ui->filterBox7, ui->filterBox8 };
+
+    for (int f = 0; f < 8; ++f) {
+        filterToggles[f]->setChecked(Utils::getBit(viewer->sceneFilter, f));
+        connect(filterToggles[f], &QCheckBox::toggled, [this, f] { viewer->sceneFilter ^= (1 << f); });
+    }
 
     connect(ui->useGizmos, &QPushButton::clicked, [this] { viewer->sceneInfo.effectGizmo ^= 1; });
 

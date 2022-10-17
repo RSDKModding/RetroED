@@ -239,7 +239,8 @@ void SceneViewer::updateScene()
     if (statusLabel) {
         int mx = (int)((mousePos.x * invZoom()) + cameraPos.x);
         int my = (int)((mousePos.y * invZoom()) + cameraPos.y);
-        statusLabel->setText(
+
+        QString status =
             QString("Zoom: %1%, Mouse Position: (%2, %3), Tile Position: (%4, %5), Selected Tile: "
                     "%6, Selected Layer: %7 (%8), Selected Object: %9")
                 .arg(zoom * 100)
@@ -250,10 +251,16 @@ void SceneViewer::updateScene()
                 .arg(selectedTile)
                 .arg(selectedLayer)
                 .arg(selectedLayer >= 0 && selectedLayer < layers.count() ? layers[selectedLayer].name
-                                                                          : "")
+                                                                          : "[None]")
                 .arg(selectedObject >= 0 && selectedObject < objects.count()
                          ? objects[selectedObject].name
-                         : ""));
+                         : "[None]");
+
+        if (gameType == ENGINE_v5) {
+            status += QString(", Filter: %1").arg(sceneFilter);
+        }
+
+        statusLabel->setText(status);
     }
 
     if (v5Editor) {

@@ -76,6 +76,10 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
         ui->gcStartingCategory->blockSignals(false);
     };
 
+    QCheckBox *filterToggles[] = { ui->gcScnFilter1, ui->gcScnFilter2, ui->gcScnFilter3,
+                                   ui->gcScnFilter4, ui->gcScnFilter5, ui->gcScnFilter6,
+                                   ui->gcScnFilter7, ui->gcScnFilter8 };
+
     sceneModel = new QStandardItemModel(ui->gcScnTree);
 
     QMenu *scnAddMenu = new QMenu(ui->gcAddScn);
@@ -182,20 +186,24 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
 
     connect(
         ui->gcScnTree->selectionModel(), &QItemSelectionModel::currentChanged,
-        [this](const QModelIndex &c) {
+        [this, filterToggles](const QModelIndex &c) {
             ui->gcUpScn->setDisabled(!c.isValid());
             ui->gcDownScn->setDisabled(!c.isValid());
             ui->gcRmScn->setDisabled(!c.isValid());
 
-            disconnect(ui->gcScnMode, nullptr, nullptr, nullptr);
             disconnect(ui->gcScnID, nullptr, nullptr, nullptr);
             disconnect(ui->gcScnFolder, nullptr, nullptr, nullptr);
             disconnect(ui->gcScnName, nullptr, nullptr, nullptr);
 
+            disconnect(ui->gcScnFilterValue, nullptr, nullptr, nullptr);
+            for (int f = 0; f < 8; ++f) disconnect(filterToggles[f], nullptr, nullptr, nullptr);
+
             ui->gcScnID->setDisabled(!c.parent().isValid());
             ui->gcScnFolder->setDisabled(!c.parent().isValid());
             ui->gcScnName->setDisabled(!c.parent().isValid());
-            ui->gcScnMode->setDisabled(!c.parent().isValid());
+
+            ui->gcScnFilterValue->setDisabled(!c.parent().isValid());
+            for (int f = 0; f < 8; ++f) filterToggles[f]->setDisabled(!c.parent().isValid());
 
             if (!c.isValid())
                 return;
@@ -207,17 +215,31 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
                                              >= gameConfig.categories[c.parent().row()].scenes.count());
                 ui->gcScnName->setDisabled(c.row()
                                            >= gameConfig.categories[c.parent().row()].scenes.count());
-                ui->gcScnMode->setDisabled(c.row()
-                                           >= gameConfig.categories[c.parent().row()].scenes.count());
+
+                ui->gcScnFilterValue->setDisabled(
+                    c.row() >= gameConfig.categories[c.parent().row()].scenes.count());
+
+                for (int f = 0; f < 8; ++f) {
+                    filterToggles[f]->setDisabled(
+                        c.row() >= gameConfig.categories[c.parent().row()].scenes.count());
+                }
 
                 if (c.row() >= gameConfig.categories[c.parent().row()].scenes.count())
                     return;
 
                 ui->gcScnID->setText(gameConfig.categories[c.parent().row()].scenes[c.row()].id);
-                ui->gcScnMode->setValue(gameConfig.categories[c.parent().row()].scenes[c.row()].filter);
                 ui->gcScnFolder->setText(
                     gameConfig.categories[c.parent().row()].scenes[c.row()].folder);
                 ui->gcScnName->setText(gameConfig.categories[c.parent().row()].scenes[c.row()].name);
+
+                ui->gcScnFilterValue->setText(
+                    QString("Filter Value: %1")
+                        .arg(gameConfig.categories[c.parent().row()].scenes[c.row()].filter));
+
+                for (int f = 0; f < 8; ++f) {
+                    filterToggles[f]->setChecked(Utils::getBit(
+                        gameConfig.categories[c.parent().row()].scenes[c.row()].filter, f));
+                }
 
                 connect(ui->gcScnName, &QLineEdit::textEdited, [this, c](QString s) {
                     gameConfig.categories[c.parent().row()].scenes[c.row()].name = s;
@@ -236,10 +258,17 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
                     DoAction("Changed Scene ID");
                 });
 
-                connect(ui->gcScnMode, QOverload<int>::of(&QSpinBox::valueChanged), [this, c](int v) {
-                    gameConfig.categories[c.parent().row()].scenes[c.row()].filter = v;
-                    DoAction("Changed Scene Filter");
-                });
+                for (int f = 0; f < 8; ++f) {
+                    connect(filterToggles[f], &QCheckBox::toggled, [this, c, f] {
+                        gameConfig.categories[c.parent().row()].scenes[c.row()].filter ^= (1 << f);
+
+                        ui->gcScnFilterValue->setText(
+                            QString("Filter Value: %1")
+                                .arg(gameConfig.categories[c.parent().row()].scenes[c.row()].filter));
+
+                        DoAction(QString("Changed Scene Filter (%1)").arg(f));
+                    });
+                }
             }
 
             ui->gcDownScn->setDisabled(
@@ -347,7 +376,13 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
     disconnect(ui->gcScnName, nullptr, nullptr, nullptr);
     disconnect(ui->gcScnFolder, nullptr, nullptr, nullptr);
     disconnect(ui->gcScnID, nullptr, nullptr, nullptr);
-    disconnect(ui->gcScnMode, nullptr, nullptr, nullptr);
+
+    QCheckBox *filterToggles[] = { ui->gcScnFilter1, ui->gcScnFilter2, ui->gcScnFilter3,
+                                   ui->gcScnFilter4, ui->gcScnFilter5, ui->gcScnFilter6,
+                                   ui->gcScnFilter7, ui->gcScnFilter8 };
+
+    disconnect(ui->gcScnFilterValue, nullptr, nullptr, nullptr);
+    for (int f = 0; f < 8; ++f) disconnect(filterToggles[f], nullptr, nullptr, nullptr);
 
     disconnect(ui->gcVarList, nullptr, nullptr, nullptr);
     disconnect(ui->gcVarValue, nullptr, nullptr, nullptr);
@@ -410,7 +445,9 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
     ui->gcScnName->setText("");
     ui->gcScnFolder->setText("");
     ui->gcScnID->setText("");
-    ui->gcScnMode->setValue(0x00);
+
+    ui->gcScnFilterValue->setText("Filter Value: 0");
+    for (int f = 0; f < 8; ++f) filterToggles[f]->setChecked(false);
 
     prevIndex = ui->gcVarList->currentRow();
     ui->gcVarList->clear();
