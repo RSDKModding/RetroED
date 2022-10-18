@@ -1,5 +1,4 @@
-#ifndef GAMECONFIG_V2_H
-#define GAMECONFIG_V2_H
+#pragma once
 
 namespace RSDKv2
 {
@@ -155,4 +154,4 @@ public:
 
 } // namespace RSDKv2
 
-#endif // GAMECONFIG_V2_H
+

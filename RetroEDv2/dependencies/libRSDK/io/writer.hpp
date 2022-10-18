@@ -1,5 +1,4 @@
-#ifndef WRITER_H
-#define WRITER_H
+#pragma once
 
 class Writer
 {
@@ -119,4 +118,4 @@ private:
     QSharedPointer<QDataStream> stream;
 };
 
-#endif // WRITER_H
+

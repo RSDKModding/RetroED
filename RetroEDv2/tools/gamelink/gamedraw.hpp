@@ -1,5 +1,4 @@
-#ifndef GAMEDRAW_H
-#define GAMEDRAW_H
+#pragma once
 
 #define v5_SPRFILE_COUNT     (0x400)
 #define v5_FRAMEHITBOX_COUNT (0x8)
@@ -71,5 +70,3 @@ void DrawSprite(Animator *data, Vector2<int> *position, bool32 screenRelative);
 
 int CheckSceneFolder(const char *folder);
 } // namespace FunctionTable
-
-#endif

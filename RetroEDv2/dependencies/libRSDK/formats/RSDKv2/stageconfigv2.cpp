@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "stageconfigv2.hpp"
+
 void RSDKv2::StageConfig::read(Reader &reader)
 {
     filePath = reader.filePath;

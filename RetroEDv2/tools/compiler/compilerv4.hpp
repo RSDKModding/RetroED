@@ -1,5 +1,10 @@
-#ifndef Compilerv4_H
-#define Compilerv4_H
+#pragma once
+
+#define ENTITY_COUNT_v4     (0x4A0)
+#define TEMPENTITY_START_v4 (ENTITY_COUNT_v4 - 0x80)
+#define OBJECT_COUNT_v4     (0x100)
+#define TYPEGROUP_COUNT_v4  (0x103)
+#define SFX_COUNT_v4   (0x100)
 
 #define SCRIPTCODE_COUNT_v4 (0x40000)
 #define JUMPTABLE_COUNT_v4  (0x4000)
@@ -13,6 +18,9 @@
 
 #define COMMON_SCRIPT_VAR_COUNT_v4 (110 + 6)
 #define SCRIPT_VAR_COUNT_v4        (COMMON_SCRIPT_VAR_COUNT_v4 + 0x1DF)
+
+#include <RSDKv4/bytecodev4.hpp>
+#include <RSDKv4/gameconfigv4.hpp>
 
 class Compilerv4
 {
@@ -104,7 +112,7 @@ public:
     };
 
     struct TypeGroupList {
-        int entityRefs[ENTITY_COUNT];
+        int entityRefs[ENTITY_COUNT_v4];
         int listSize = 0;
     };
 
@@ -175,7 +183,7 @@ public:
     enum ScriptEvents { EVENT_MAIN = 0, EVENT_DRAW = 1, EVENT_STARTUP = 2 };
     enum ScriptEditorEvents { EVENT_RSDKDRAW = 0, EVENT_RSDKLOAD = 1, EVENT_RSDKEDIT = 2 };
 
-    ObjectScript objectScriptList[OBJECT_COUNT];
+    ObjectScript objectScriptList[OBJECT_COUNT_v4];
     ScriptFunction functionList[FUNCTION_COUNT_v4];
 
     int scriptCode[SCRIPTCODE_COUNT_v4];
@@ -187,7 +195,7 @@ public:
     int foreachStack[FORSTACK_COUNT_v4];
     int foreachStackPos;
 
-    TypeGroupList objectTypeGroupList[TYPEGROUP_COUNT];
+    TypeGroupList objectTypeGroupList[TYPEGROUP_COUNT_v4];
 
     char scriptText[0x1000];
 
@@ -240,8 +248,8 @@ public:
 
     QList<QString> globalVariables;
 
-    char typeNames[OBJECT_COUNT][0x40];
-    char sfxNames[SFX_COUNT][0x40];
+    char typeNames[OBJECT_COUNT_v4][0x40];
+    char sfxNames[SFX_COUNT_v4][0x40];
 
     void CheckAliasText(char *text);
     void CheckStaticText(char *text);
@@ -264,7 +272,7 @@ public:
     int objectEntityPos = 0;
 
     ScriptEngine scriptEng;
-    Entity objectEntityList[ENTITY_COUNT];
+    Entity objectEntityList[ENTITY_COUNT_v4];
     SpriteFrame scriptFrames[SPRITEFRAME_COUNT_v4];
     int scriptFrameCount = 0;
 
@@ -326,4 +334,4 @@ private:
     bool inEditor = false;
 };
 
-#endif // Compilerv4_H
+

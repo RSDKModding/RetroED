@@ -1,8 +1,16 @@
 QT += core
 
-INCLUDEPATH += $$PWD
+INCLUDEPATH += \
+    $$PWD \
+    $$PWD/formats
 
 HEADERS +=    \
+    $$PWD/RSDKLegacy.hpp \
+    $$PWD/RSDKv1.hpp \
+    $$PWD/RSDKv2.hpp \
+    $$PWD/RSDKv3.hpp \
+    $$PWD/RSDKv4.hpp \
+    $$PWD/RSDKv5.hpp \
     $$PWD/formats/RSDKv1/animationv1.hpp \
     $$PWD/formats/RSDKv1/backgroundv1.hpp \
     $$PWD/formats/RSDKv1/characterlistv1.hpp \
@@ -83,72 +91,51 @@ HEADERS +=    \
 SOURCES +=  \
     $$PWD/formats/RSDKv1/animationv1.cpp \
     $$PWD/formats/RSDKv1/backgroundv1.cpp \
-    $$PWD/formats/RSDKv1/characterlistv1.cpp \
-    $$PWD/formats/RSDKv1/chunksv1.cpp \
     $$PWD/formats/RSDKv1/datafilev1.cpp \
     $$PWD/formats/RSDKv1/gfxv1.cpp \
-    $$PWD/formats/RSDKv1/savefilev1.cpp \
     $$PWD/formats/RSDKv1/scenev1.cpp \
     $$PWD/formats/RSDKv1/scriptv1.cpp \
     $$PWD/formats/RSDKv1/stageconfigv1.cpp \
-    $$PWD/formats/RSDKv1/tileconfigv1.cpp \
-    $$PWD/formats/RSDKv1/zonelistv1.cpp \
     $$PWD/formats/RSDKv2/animationv2.cpp \
     $$PWD/formats/RSDKv2/backgroundv2.cpp \
     $$PWD/formats/RSDKv2/bytecodev2.cpp \
-    $$PWD/formats/RSDKv2/chunksv2.cpp \
     $$PWD/formats/RSDKv2/datafilev2.cpp \
     $$PWD/formats/RSDKv2/gameconfigv2.cpp \
     $$PWD/formats/RSDKv2/gfxv2.cpp \
     $$PWD/formats/RSDKv2/scenev2.cpp \
     $$PWD/formats/RSDKv2/stageconfigv2.cpp \
-    $$PWD/formats/RSDKv2/tileconfigv2.cpp \
     $$PWD/formats/RSDKv2/videov2.cpp \
     $$PWD/formats/RSDKv3/animationv3.cpp \
+    $$PWD/formats/RSDKv3/arccontainerv3.cpp \
     $$PWD/formats/RSDKv3/backgroundv3.cpp \
     $$PWD/formats/RSDKv3/bytecodev3.cpp \
-    $$PWD/formats/RSDKv3/chunksv3.cpp \
     $$PWD/formats/RSDKv3/datafilev3.cpp \
     $$PWD/formats/RSDKv3/gameconfigv3.cpp \
     $$PWD/formats/RSDKv3/gfxv3.cpp \
     $$PWD/formats/RSDKv3/scenev3.cpp \
     $$PWD/formats/RSDKv3/stageconfigv3.cpp \
-    $$PWD/formats/RSDKv3/tileconfigv3.cpp \
-    $$PWD/formats/RSDKv3/arccontainerv3.cpp \
-    $$PWD/formats/RSDKv3/configv3.cpp \
-    $$PWD/formats/RSDKv3/savefilev3.cpp \
     $$PWD/formats/RSDKv3/videov3.cpp \
     $$PWD/formats/RSDKv4/animationv4.cpp \
     $$PWD/formats/RSDKv4/backgroundv4.cpp \
     $$PWD/formats/RSDKv4/bytecodev4.cpp \
-    $$PWD/formats/RSDKv4/chunksv4.cpp \
     $$PWD/formats/RSDKv4/datafilev4.cpp \
     $$PWD/formats/RSDKv4/gameconfigv4.cpp \
     $$PWD/formats/RSDKv4/scenev4.cpp \
     $$PWD/formats/RSDKv4/stageconfigv4.cpp \
-    $$PWD/formats/RSDKv4/tileconfigv4.cpp \
     $$PWD/formats/RSDKv4/modelv4.cpp \
-    $$PWD/formats/RSDKv4/savefilev4.cpp \
     $$PWD/formats/RSDKv5/animationv5.cpp \
     $$PWD/formats/RSDKv5/datafilev5.cpp \
     $$PWD/formats/RSDKv5/gameconfigv5.cpp \
     $$PWD/formats/RSDKv5/modelv5.cpp \
-    $$PWD/formats/RSDKv5/palettev5.cpp \
     $$PWD/formats/RSDKv5/replayv5.cpp \
-    $$PWD/formats/RSDKv5/rsdkconfigv5.cpp \
-    $$PWD/formats/RSDKv5/savefilev5.cpp \
     $$PWD/formats/RSDKv5/scenev5.cpp \
     $$PWD/formats/RSDKv5/stageconfigv5.cpp \
     $$PWD/formats/RSDKv5/stamps.cpp \
     $$PWD/formats/RSDKv5/staticobjectv5.cpp \
-    $$PWD/formats/RSDKv5/tileconfigv5.cpp \
     $$PWD/formats/RSDKv5/userdbv5.cpp \
     $$PWD/io/reader.cpp \
     $$PWD/io/writer.cpp \
     $$PWD/utils/formathelpers/gif.cpp \
-    $$PWD/utils/utils.cpp \
-    $$PWD/utils/vectors.cpp \
-    $$PWD/utils/colour.cpp \
     $$PWD/utils/palette.cpp \
     $$PWD/utils/formathelpers/animation.cpp \
     $$PWD/utils/formathelpers/background.cpp \

@@ -1,7 +1,8 @@
-#ifndef SCENELAYERPROPERTIES_V5_H
-#define SCENELAYERPROPERTIES_V5_H
+#pragma once
 
 #include <QWidget>
+
+#include <RSDKv5/scenev5.hpp>
 
 namespace Ui
 {
@@ -26,4 +27,4 @@ private:
     int layerID          = 0;
 };
 
-#endif // SCENELAYERPROPERTIES_V5_H
+

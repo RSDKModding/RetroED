@@ -1,5 +1,4 @@
-#ifndef ANIMATION_V3_H
-#define ANIMATION_V3_H
+#pragma once
 
 namespace RSDKv3
 {
@@ -159,4 +158,4 @@ public:
 
 } // namespace RSDKv3
 
-#endif // ANIMATION_V3_H
+

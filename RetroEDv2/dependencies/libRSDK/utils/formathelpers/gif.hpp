@@ -1,5 +1,4 @@
-#ifndef RSDK_GIF_H
-#define RSDK_GIF_H
+#pragma once
 
 namespace FormatHelpers
 {
@@ -138,4 +137,4 @@ private:
 
 } // namespace FormatHelpers
 
-#endif // RSDK_GIF_H
+

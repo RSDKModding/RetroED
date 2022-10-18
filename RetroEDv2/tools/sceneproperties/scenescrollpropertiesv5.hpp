@@ -1,7 +1,8 @@
-#ifndef SCENESCROLLPROPERTIES_V5_H
-#define SCENESCROLLPROPERTIES_V5_H
+#pragma once
 
 #include <QWidget>
+
+#include "sceneincludesv5.hpp"
 
 namespace Ui
 {
@@ -23,4 +24,4 @@ private:
     Ui::SceneScrollPropertiesv5 *ui;
 };
 
-#endif // SCENESCROLLPROPERTIES_V5_H
+

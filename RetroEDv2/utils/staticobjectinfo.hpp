@@ -1,5 +1,4 @@
-#ifndef STATICOBJECTINFO_H
-#define STATICOBJECTINFO_H
+#pragma once
 
 class StaticObjectInfo
 {
@@ -60,4 +59,4 @@ public:
     byte m_fileVer = 1;
 };
 
-#endif // STATICOBJECTINFO_H
+

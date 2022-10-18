@@ -1,5 +1,4 @@
-#ifndef SCENE_V4_H
-#define SCENE_V4_H
+#pragma once
 
 namespace RSDKv4
 {
@@ -98,4 +97,4 @@ public:
 
 } // namespace RSDKv4
 
-#endif // SCENE_V4_H
+

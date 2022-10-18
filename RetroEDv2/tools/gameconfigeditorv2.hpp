@@ -1,7 +1,8 @@
-#ifndef GAMECONFIGEDITOR_V2_H
-#define GAMECONFIGEDITOR_V2_H
+#pragma once
 
 #include <QWidget>
+
+#include <RSDKv2/gameconfigv2.hpp>
 
 namespace Ui
 {
@@ -65,4 +66,4 @@ private:
     QString tabTitle = "GameConfig Editor";
 };
 
-#endif // GAMECONFIGEDITOR_V2_H
+

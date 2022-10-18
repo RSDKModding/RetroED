@@ -1,5 +1,4 @@
-#ifndef RSDK_COLOR_H
-#define RSDK_COLOR_H
+#pragma once
 
 class Color
 {
@@ -63,4 +62,4 @@ struct PaletteColor {
     byte b = 0xFF;
 };
 
-#endif // RSDK_COLOR_H
+

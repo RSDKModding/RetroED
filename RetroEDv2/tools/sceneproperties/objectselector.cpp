@@ -1,5 +1,6 @@
 #include "includes.hpp"
 #include "ui_objectselector.h"
+#include "objectselector.hpp"
 
 ObjectSelectorv5::ObjectSelectorv5(QList<QString> list, QList<GameObjectInfo> objList, QWidget *parent)
     : QDialog(parent), ui(new Ui::ObjectSelectorv5)

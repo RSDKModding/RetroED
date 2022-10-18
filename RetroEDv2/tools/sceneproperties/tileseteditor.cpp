@@ -1,5 +1,6 @@
 #include "includes.hpp"
 #include "ui_tileseteditor.h"
+#include "tileseteditor.hpp"
 
 #include "qgifimage.h"
 

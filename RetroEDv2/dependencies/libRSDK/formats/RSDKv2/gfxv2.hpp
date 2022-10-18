@@ -1,5 +1,4 @@
-#ifndef GFX_V2_H
-#define GFX_V2_H
+#pragma once
 
 namespace RSDKv2
 {
@@ -45,4 +44,4 @@ public:
 
 } // namespace RSDKv2
 
-#endif // GFX_V2_H
+

@@ -1,5 +1,4 @@
-#ifndef COLORDIALOG_H
-#define COLORDIALOG_H
+#pragma once
 
 namespace Ui
 {
@@ -27,4 +26,4 @@ private:
     PaletteColor m_color;
 };
 
-#endif // COLORDIALOG_H
+

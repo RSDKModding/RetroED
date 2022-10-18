@@ -1,5 +1,4 @@
-#ifndef STATICOBJECT_V5_H
-#define STATICOBJECT_V5_H
+#pragma once
 
 namespace RSDKv5
 {
@@ -64,4 +63,4 @@ public:
 
 } // namespace RSDKv5
 
-#endif // STATICOBJECT_V5_H
+

@@ -1,6 +1,32 @@
 #include "includes.hpp"
 #include "ui_sceneeditor.h"
 #include "qgifimage.h"
+#include "sceneeditor.hpp"
+
+#include "sceneproperties/sceneincludesv5.hpp"
+
+#include "sceneproperties/sceneproperties.hpp"
+#include "sceneproperties/scenelayerproperties.hpp"
+#include "sceneproperties/sceneobjectproperties.hpp"
+#include "sceneproperties/scenescrollproperties.hpp"
+#include "sceneproperties/scenetileproperties.hpp"
+#include "sceneproperties/tilereplaceoptions.hpp"
+
+#include "sceneproperties/stageconfigeditorv1.hpp"
+#include "sceneproperties/stageconfigeditorv2.hpp"
+#include "sceneproperties/stageconfigeditorv3.hpp"
+#include "sceneproperties/stageconfigeditorv4.hpp"
+
+#include "paletteeditor.hpp"
+#include "paletteeditor/colourdialog.hpp"
+
+#include "sceneproperties/chunkeditor.hpp"
+#include "sceneproperties/tileseteditor.hpp"
+
+#include <RSDKv1/gfxv1.hpp>
+#include <RSDKv1/tileconfigv1.hpp>
+#include <RSDKv4/tileconfigv4.hpp>
+#include <RSDKv4/scenev4.hpp>
 
 // RSDKv4 SOLIDITY TYPES
 // 0 - ALL SOLID
@@ -2394,7 +2420,7 @@ void SceneEditor::initGameLink()
     compilerv3->ClearScriptData();
     compilerv4->ClearScriptData();
 
-    for (int i = 0; i < ENTITY_COUNT; ++i) {
+    for (int i = 0; i < ENTITY_COUNT_v4; ++i) { // v2 == v3 == v4
         memset((void *)&compilerv2->objectEntityList[i], 0, sizeof(compilerv2->objectEntityList[i]));
         memset((void *)&compilerv3->objectEntityList[i], 0, sizeof(compilerv3->objectEntityList[i]));
         memset((void *)&compilerv4->objectEntityList[i], 0, sizeof(compilerv4->objectEntityList[i]));
@@ -2723,8 +2749,8 @@ void SceneEditor::initGameLink()
         }
     }
 
-    compilerv3->objectLoop      = ENTITY_COUNT - 1;
-    compilerv4->objectEntityPos = ENTITY_COUNT - 1;
+    compilerv3->objectLoop      = ENTITY_COUNT_v3 - 1;
+    compilerv4->objectEntityPos = ENTITY_COUNT_v4 - 1;
     for (int o = 0; o < viewer->objects.count(); ++o) {
         viewer->objects[o].variables.clear();
         viewer->objects[o].variablesAliases[VAR_ALIAS_PROPVAL] = "propertyValue";
@@ -3139,7 +3165,7 @@ void SceneEditor::createEntityList(int startSlot)
     }
     ui->entityList->blockSignals(false);
 
-    for (int i = 0; i < ENTITY_COUNT; ++i) {
+    for (int i = 0; i < ENTITY_COUNT_v4; ++i) { // v2 == v3 == v4
         memset((void *)&compilerv2->objectEntityList[i], 0, sizeof(compilerv2->objectEntityList[i]));
         memset((void *)&compilerv3->objectEntityList[i], 0, sizeof(compilerv3->objectEntityList[i]));
         memset((void *)&compilerv4->objectEntityList[i], 0, sizeof(compilerv4->objectEntityList[i]));
@@ -3239,10 +3265,10 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
                     auto &curObj           = compilerv3->objectScriptList[id];
                     curObj.frameListOffset = compilerv3->scriptFrameCount;
                     curObj.spriteSheetID   = 0;
-                    compilerv3->objectEntityList[ENTITY_COUNT - 1].type = id;
+                    compilerv3->objectEntityList[ENTITY_COUNT_v3 - 1].type = id;
 
                     auto &curSub = curObj.subRSDKLoad;
-                    if (curSub.scriptCodePtr != SCRIPTCODE_COUNT - 1) {
+                    if (curSub.scriptCodePtr != SCRIPTCODE_COUNT_v3 - 1) {
                         compilerv3->ProcessScript(curSub.scriptCodePtr, curSub.jumpTablePtr,
                                                   Compilerv3::SUB_RSDKLOAD);
                         called = true;
@@ -3263,15 +3289,15 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
                             ex *= viewer->invZoom();
                             ey *= viewer->invZoom();
 
-                            compilerv3->objectEntityList[ENTITY_COUNT - 1].type =
+                            compilerv3->objectEntityList[ENTITY_COUNT_v3 - 1].type =
                                 viewer->selectedObject;
-                            compilerv3->objectEntityList[ENTITY_COUNT - 1].propertyValue = 0;
-                            compilerv3->objectEntityList[ENTITY_COUNT - 1].XPos =
+                            compilerv3->objectEntityList[ENTITY_COUNT_v3 - 1].propertyValue = 0;
+                            compilerv3->objectEntityList[ENTITY_COUNT_v3 - 1].XPos =
                                 (ex + viewer->cameraPos.x) * 65536.0f;
-                            compilerv3->objectEntityList[ENTITY_COUNT - 1].YPos =
+                            compilerv3->objectEntityList[ENTITY_COUNT_v3 - 1].YPos =
                                 (ey + viewer->cameraPos.y) * 65536.0f;
-                            compilerv3->objectLoop = ENTITY_COUNT - 1;
-                            id                     = ENTITY_COUNT - 1;
+                            compilerv3->objectLoop = ENTITY_COUNT_v3 - 1;
+                            id                     = ENTITY_COUNT_v3 - 1;
 
                             createTempEntity.type           = viewer->selectedObject;
                             createTempEntity.propertyValue  = 0;
@@ -3300,7 +3326,7 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
 
                     auto &curObj = compilerv3->objectScriptList[entity->type];
 
-                    if (curObj.subRSDKDraw.scriptCodePtr != SCRIPTCODE_COUNT - 1 && entity->type != 0) {
+                    if (curObj.subRSDKDraw.scriptCodePtr != SCRIPTCODE_COUNT_v3 - 1 && entity->type != 0) {
                         viewer->sceneInfo.debugMode = false; // always start with overlay mode off
                         compilerv3->objectLoop      = entity->gameEntitySlot;
                         compilerv3->ProcessScript(curObj.subRSDKDraw.scriptCodePtr,
@@ -3313,7 +3339,7 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
                 case SceneViewer::EVENT_EDIT: {
                     auto &curObj = compilerv3->objectScriptList[viewer->entities[id].type];
 
-                    if (curObj.subRSDKEdit.scriptCodePtr != SCRIPTCODE_COUNT - 1
+                    if (curObj.subRSDKEdit.scriptCodePtr != SCRIPTCODE_COUNT_v3 - 1
                         && viewer->entities[id].type != 0) {
                         compilerv3->objectLoop = viewer->entities[id].gameEntitySlot;
                         viewer->activeVarObj   = viewer->entities[id].type;
@@ -3334,10 +3360,10 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
                     auto &curObj           = compilerv4->objectScriptList[id];
                     curObj.frameListOffset = compilerv4->scriptFrameCount;
                     curObj.spriteSheetID   = 0;
-                    compilerv4->objectEntityList[ENTITY_COUNT - 1].type = id;
+                    compilerv4->objectEntityList[ENTITY_COUNT_v4 - 1].type = id;
 
                     auto &curSub = curObj.eventRSDKLoad;
-                    if (curSub.scriptCodePtr != SCRIPTCODE_COUNT - 1) {
+                    if (curSub.scriptCodePtr != SCRIPTCODE_COUNT_v3 - 1) {
                         compilerv4->ProcessScript(curSub.scriptCodePtr, curSub.jumpTablePtr,
                                                   Compilerv4::EVENT_RSDKLOAD);
                         called = true;
@@ -3358,15 +3384,15 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
                             ex *= viewer->invZoom();
                             ey *= viewer->invZoom();
 
-                            compilerv4->objectEntityList[ENTITY_COUNT - 1].type =
+                            compilerv4->objectEntityList[ENTITY_COUNT_v4 - 1].type =
                                 viewer->selectedObject;
-                            compilerv4->objectEntityList[ENTITY_COUNT - 1].propertyValue = 0;
-                            compilerv4->objectEntityList[ENTITY_COUNT - 1].XPos =
+                            compilerv4->objectEntityList[ENTITY_COUNT_v4 - 1].propertyValue = 0;
+                            compilerv4->objectEntityList[ENTITY_COUNT_v4 - 1].XPos =
                                 (ex + viewer->cameraPos.x) * 65536.0f;
-                            compilerv4->objectEntityList[ENTITY_COUNT - 1].YPos =
+                            compilerv4->objectEntityList[ENTITY_COUNT_v4 - 1].YPos =
                                 (ey + viewer->cameraPos.y) * 65536.0f;
-                            compilerv4->objectEntityPos = ENTITY_COUNT - 1;
-                            id                          = ENTITY_COUNT - 1;
+                            compilerv4->objectEntityPos = ENTITY_COUNT_v4 - 1;
+                            id                          = ENTITY_COUNT_v4 - 1;
 
                             createTempEntity.type           = viewer->selectedObject;
                             createTempEntity.propertyValue  = 0;
@@ -3395,7 +3421,7 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
 
                     auto &curObj = compilerv4->objectScriptList[entity->type];
 
-                    if (curObj.eventRSDKDraw.scriptCodePtr != SCRIPTCODE_COUNT - 1
+                    if (curObj.eventRSDKDraw.scriptCodePtr != SCRIPTCODE_COUNT_v3 - 1
                         && entity->type != 0) {
                         viewer->sceneInfo.debugMode = false; // always start with overlay mode off
                         compilerv4->objectEntityPos = entity->gameEntitySlot;
@@ -3409,7 +3435,7 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
                 case SceneViewer::EVENT_EDIT: {
                     auto &curObj = compilerv4->objectScriptList[viewer->entities[id].type];
 
-                    if (curObj.eventRSDKEdit.scriptCodePtr != SCRIPTCODE_COUNT - 1
+                    if (curObj.eventRSDKEdit.scriptCodePtr != SCRIPTCODE_COUNT_v3 - 1
                         && viewer->entities[id].type != 0) {
                         compilerv4->objectEntityPos = viewer->entities[id].gameEntitySlot;
                         viewer->activeVarObj        = viewer->entities[id].type;

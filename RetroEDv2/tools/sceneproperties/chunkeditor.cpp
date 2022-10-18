@@ -1,5 +1,6 @@
 #include "includes.hpp"
 #include "ui_chunkeditor.h"
+#include "chunkeditor.hpp"
 
 ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, QList<QImage> &tiles,
                          byte gameVer, QWidget *parent)

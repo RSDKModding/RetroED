@@ -1,6 +1,23 @@
 #include "includes.hpp"
 #include "ui_mainwindow.h"
 
+#include "tools/rsdkunpacker.hpp"
+#include "tools/rsvtool.hpp"
+#include "tools/sceneeditor.hpp"
+#include "tools/sceneeditorv5.hpp"
+#include "tools/scriptcompiler.hpp"
+#include "tools/gameconfigeditorv1.hpp"
+#include "tools/gameconfigeditorv2.hpp"
+#include "tools/gameconfigeditorv3.hpp"
+#include "tools/gameconfigeditorv4.hpp"
+#include "tools/gameconfigeditorv5.hpp"
+#include "tools/userdbmanager.hpp"
+#include "tools/paletteeditor.hpp"
+#include "tools/gfxtool.hpp"
+#include "tools/modelmanager.hpp"
+#include "tools/animationeditor.hpp"
+
+
 SceneEditor *scnEditor  = nullptr;
 SceneEditorv5 *v5Editor = nullptr;
 

@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "animationv3.hpp"
+
 void RSDKv3::Animation::read(Reader &reader)
 {
     filePath = reader.filePath;

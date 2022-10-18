@@ -1,5 +1,4 @@
-#ifndef ANIMATION_V4_H
-#define ANIMATION_V4_H
+#pragma once
 
 namespace RSDKv4
 {
@@ -158,4 +157,4 @@ public:
 
 } // namespace RSDKv4
 
-#endif // ANIMATION_V4_H
+

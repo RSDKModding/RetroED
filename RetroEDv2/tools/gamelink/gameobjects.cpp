@@ -1,4 +1,7 @@
 #include "includes.hpp"
+#include "tools/sceneeditorv5.hpp"
+
+#include <RSDKv5/scenev5.hpp>
 
 void FunctionTable::RegisterObjectv5(GameObject **sVars, const char *name, uint entityClassSize,
                                      uint staticClassSize, void (*update)(void),
@@ -243,14 +246,14 @@ int FunctionTable::GetEntityCount(ushort type, bool32 isActive)
     int cnt = 0;
     switch (v5Editor->viewer->engineRevision) {
         case 1:
-            for (int i = 0; i < ENTITY_COUNT; ++i) {
+            for (int i = 0; i < ENTITY_COUNT_v5; ++i) {
                 if (AS_ENTITY(v5Editor->viewer->gameEntityList, GameEntityv1)[i].classID == type)
                     cnt++;
             }
             break;
 
         case 2:
-            for (int i = 0; i < ENTITY_COUNT; ++i) {
+            for (int i = 0; i < ENTITY_COUNT_v5; ++i) {
                 if (AS_ENTITY(v5Editor->viewer->gameEntityList, GameEntityv2)[i].classID == type)
                     cnt++;
             }
@@ -258,7 +261,7 @@ int FunctionTable::GetEntityCount(ushort type, bool32 isActive)
 
         default:
         case 3:
-            for (int i = 0; i < ENTITY_COUNT; ++i) {
+            for (int i = 0; i < ENTITY_COUNT_v5; ++i) {
                 if (AS_ENTITY(v5Editor->viewer->gameEntityList, GameEntityvU)[i].classID == type)
                     cnt++;
             }
@@ -273,7 +276,7 @@ bool32 FunctionTable::GetActiveEntities(ushort group, void **entity)
     if (!v5Editor)
         return false;
 
-    if (group >= TYPEGROUP_COUNT)
+    if (group >= TYPEGROUP_COUNT_v5)
         return false;
     if (!entity)
         return false;
@@ -343,7 +346,7 @@ bool32 FunctionTable::GetAllEntities(ushort type, void **entity)
     if (!v5Editor)
         return false;
 
-    if (type >= OBJECT_COUNT)
+    if (type >= OBJECT_COUNT_v5)
         return false;
     if (!entity)
         return false;
@@ -362,7 +365,7 @@ bool32 FunctionTable::GetAllEntities(ushort type, void **entity)
     switch (v5Editor->viewer->engineRevision) {
         case 1:
             for (GameEntityv1 *nextEnt = &AS_ENTITY(entityList, GameEntityv1)[stackPtr->id];
-                 stackPtr->id < ENTITY_COUNT;
+                 stackPtr->id < ENTITY_COUNT_v5;
                  ++stackPtr->id, nextEnt = &AS_ENTITY(entityList, GameEntityv1)[stackPtr->id]) {
                 if (nextEnt->classID == type) {
                     *entity = nextEnt;
@@ -373,7 +376,7 @@ bool32 FunctionTable::GetAllEntities(ushort type, void **entity)
 
         case 2:
             for (GameEntityv2 *nextEnt = &AS_ENTITY(entityList, GameEntityv2)[stackPtr->id];
-                 stackPtr->id < ENTITY_COUNT;
+                 stackPtr->id < ENTITY_COUNT_v5;
                  ++stackPtr->id, nextEnt = &AS_ENTITY(entityList, GameEntityv2)[stackPtr->id]) {
                 if (nextEnt->classID == type) {
                     *entity = nextEnt;
@@ -385,7 +388,7 @@ bool32 FunctionTable::GetAllEntities(ushort type, void **entity)
         default:
         case 3:
             for (GameEntityvU *nextEnt = &AS_ENTITY(entityList, GameEntityvU)[stackPtr->id];
-                 stackPtr->id < ENTITY_COUNT;
+                 stackPtr->id < ENTITY_COUNT_v5;
                  ++stackPtr->id, nextEnt = &AS_ENTITY(entityList, GameEntityvU)[stackPtr->id]) {
                 if (nextEnt->classID == type) {
                     *entity = nextEnt;

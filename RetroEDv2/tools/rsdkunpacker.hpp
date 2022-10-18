@@ -1,5 +1,4 @@
-#ifndef RSDKUNPACKER_H
-#define RSDKUNPACKER_H
+#pragma once
 
 #include <QWidget>
 
@@ -48,4 +47,4 @@ private:
     char gameVer = -1;
 };
 
-#endif // RSDKUNPACKER_H
+

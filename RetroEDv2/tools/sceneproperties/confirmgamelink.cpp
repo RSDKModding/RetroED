@@ -1,6 +1,8 @@
 #include "includes.hpp"
 #include "ui_confirmgamelink.h"
 
+#include "confirmgamelink.hpp"
+
 ConfirmGameLink::ConfirmGameLink(QWidget *parent) : QDialog(parent), ui(new Ui::ConfirmGameLink)
 {
     ui->setupUi(this);

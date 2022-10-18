@@ -1,5 +1,7 @@
 #include "includes.hpp"
 
+#include "tools/sceneeditorv5.hpp"
+
 void BlankFunction() {}
 
 #define ADD_RSDK_FUNCTION(id, func) RSDKFunctionTable[id] = (void *)func;

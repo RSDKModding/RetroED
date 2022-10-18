@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "userdbv5.hpp"
+
 void RSDKv5::UserDB::read(Reader &reader)
 {
     filePath       = reader.filePath;

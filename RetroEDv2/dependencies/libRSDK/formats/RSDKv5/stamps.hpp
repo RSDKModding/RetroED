@@ -1,5 +1,4 @@
-#ifndef STAMPS_V5_H
-#define STAMPS_V5_H
+#pragma once
 
 namespace RSDKv5
 {
@@ -52,4 +51,4 @@ public:
 
 }; // namespace RSDKv5
 
-#endif // STAMPS_V5_H
+

@@ -1,5 +1,4 @@
-#ifndef TILEREPLACEOPTIONS_H
-#define TILEREPLACEOPTIONS_H
+#pragma once
 
 #include <QDialog>
 
@@ -49,4 +48,4 @@ private:
     Ui::TileReplaceOptions *ui;
 };
 
-#endif // TILEREPLACEOPTIONS_H
+

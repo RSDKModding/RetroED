@@ -1,6 +1,11 @@
 #include "includes.hpp"
 #include "ui_scenescrollpropertiesv5.h"
 
+#include "scenescrollpropertiesv5.hpp"
+
+#include "sceneincludesv5.hpp"
+
+
 SceneScrollPropertiesv5::SceneScrollPropertiesv5(QWidget *parent)
     : QWidget(parent), ui(new Ui::SceneScrollPropertiesv5)
 {

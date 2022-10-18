@@ -1,5 +1,8 @@
 #include "includes.hpp"
 #include "ui_sceneproperties.h"
+#include "sceneproperties.hpp"
+
+#include "tools/sceneeditor.hpp"
 
 SceneProperties::SceneProperties(QWidget *parent) : QWidget(parent), ui(new Ui::SceneProperties)
 {

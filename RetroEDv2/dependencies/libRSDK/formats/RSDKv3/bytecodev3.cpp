@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "bytecodev3.hpp"
+
 void RSDKv3::Bytecode::read(Reader &reader)
 {
     filePath = reader.filePath;

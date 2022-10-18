@@ -1,5 +1,6 @@
 #include "includes.hpp"
 #include "ui_stageconfigeditorv1.h"
+#include "stageconfigeditorv1.hpp"
 
 StageConfigEditorv1::StageConfigEditorv1(FormatHelpers::StageConfig *scf, QWidget *parent)
     : QDialog(parent), ui(new Ui::StageConfigEditorv1), stageConfig(scf)

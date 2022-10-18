@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "datafilev3.hpp"
+
 QString readDataFileDirNamev3(Reader &reader)
 {
     byte ss     = reader.read<byte>();

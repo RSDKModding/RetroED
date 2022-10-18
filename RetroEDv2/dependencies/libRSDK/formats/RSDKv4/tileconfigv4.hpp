@@ -1,5 +1,4 @@
-#ifndef TILECONFIG_V4_H
-#define TILECONFIG_V4_H
+#pragma once
 
 namespace RSDKv4
 {
@@ -121,4 +120,4 @@ public:
 
 } // namespace RSDKv4
 
-#endif // TILECONFIG_V4_H
+

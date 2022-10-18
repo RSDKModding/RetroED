@@ -1,5 +1,4 @@
-#ifndef DATAFILE_V1_H
-#define DATAFILE_V1_H
+#pragma once
 
 namespace RSDKv1
 {
@@ -66,4 +65,4 @@ public:
 
 } // namespace RSDKv1
 
-#endif // DATAFILE_V1_H
+

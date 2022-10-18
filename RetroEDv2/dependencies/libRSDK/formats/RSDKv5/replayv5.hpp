@@ -1,5 +1,4 @@
-#ifndef REPLAY_V5_H
-#define REPLAY_V5_H
+#pragma once
 
 namespace RSDKv5
 {
@@ -69,4 +68,4 @@ public:
 
 } // namespace RSDKv5
 
-#endif // REPLAY_V5_H
+

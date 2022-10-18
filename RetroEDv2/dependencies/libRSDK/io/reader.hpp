@@ -1,5 +1,4 @@
-#ifndef READER_H
-#define READER_H
+#pragma once
 
 class Reader
 {
@@ -153,4 +152,4 @@ private:
     QSharedPointer<QDataStream> stream;
 };
 
-#endif // READER_H
+

@@ -1,5 +1,4 @@
-#ifndef MODEL_V5_H
-#define MODEL_V5_H
+#pragma once
 
 namespace RSDKv5
 {
@@ -160,4 +159,4 @@ private:
 
 } // namespace RSDKv5
 
-#endif // MODEL_V5_H
+

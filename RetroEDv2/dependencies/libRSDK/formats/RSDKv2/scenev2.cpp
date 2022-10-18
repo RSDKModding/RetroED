@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "scenev2.hpp"
+
 void RSDKv2::Scene::read(Reader &reader)
 {
     filePath = reader.filePath;

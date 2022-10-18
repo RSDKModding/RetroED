@@ -1,5 +1,4 @@
-#ifndef CONFIRMGAMELINK_H
-#define CONFIRMGAMELINK_H
+#pragma once
 
 #include <QDialog>
 
@@ -20,4 +19,4 @@ private:
     Ui::ConfirmGameLink *ui;
 };
 
-#endif // CONFIRMGAMELINK_H
+

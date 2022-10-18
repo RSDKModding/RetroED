@@ -1,8 +1,9 @@
-#ifndef SCENESTAMPPROPERTIES_V5_H
-#define SCENESTAMPPROPERTIES_V5_H
+#pragma once
 
 #include <QWidget>
 #include <QDialog>
+
+#include <RSDKv5/stamps.hpp>
 
 namespace Ui
 {
@@ -26,4 +27,4 @@ private:
     RSDKv5::Stamps *stampsPtr = nullptr;
 };
 
-#endif // SCENESTAMPPROPERTIES_V5_H
+

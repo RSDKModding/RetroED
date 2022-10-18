@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "gfxv2.hpp"
+
 void RSDKv2::GFX::read(Reader &reader, bool dcGFX)
 {
     filePath = reader.filePath;

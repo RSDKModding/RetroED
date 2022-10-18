@@ -1,5 +1,4 @@
-#ifndef MODEL_V4_H
-#define MODEL_V4_H
+#pragma once
 
 namespace RSDKv4
 {
@@ -127,4 +126,4 @@ private:
 
 } // namespace RSDKv4
 
-#endif // MODEL_V4_H
+

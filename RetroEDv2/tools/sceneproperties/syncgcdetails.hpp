@@ -1,5 +1,4 @@
-#ifndef SYNCGCDETAILS_H
-#define SYNCGCDETAILS_H
+#pragma once
 
 #include <QDialog>
 
@@ -23,4 +22,4 @@ private:
     Ui::SyncGCDetails *ui;
 };
 
-#endif // SYNCGCDETAILS_H
+

@@ -1,5 +1,4 @@
-#ifndef CHUNKS_V4_H
-#define CHUNKS_V4_H
+#pragma once
 
 namespace RSDKv4
 {
@@ -123,4 +122,4 @@ public:
 
 } // namespace RSDKv4
 
-#endif // CHUNKS_V4_H
+

@@ -1,6 +1,10 @@
 #include "includes.hpp"
 #include "ui_sceneobjectpropertiesv5.h"
 
+#include "sceneobjectpropertiesv5.hpp"
+
+#include "tools/sceneeditorv5.hpp"
+
 SceneObjectPropertiesv5::SceneObjectPropertiesv5(QWidget *parent)
     : QWidget(parent), ui(new Ui::SceneObjectPropertiesv5)
 {

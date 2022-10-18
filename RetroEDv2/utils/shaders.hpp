@@ -1,5 +1,4 @@
-#ifndef SHADERS_H
-#define SHADERS_H
+#pragma once
 
 class Shader
 {
@@ -247,4 +246,4 @@ public:
     QString name       = "Shader";
 };
 
-#endif // SHADERS_H
+

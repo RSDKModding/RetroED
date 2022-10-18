@@ -1,5 +1,4 @@
-#ifndef GAMELINK_H
-#define GAMELINK_H
+#pragma once
 
 typedef uint bool32;
 
@@ -387,4 +386,4 @@ private:
     QLibrary *logicLib = nullptr;
 };
 
-#endif // GAMELINK_H
+

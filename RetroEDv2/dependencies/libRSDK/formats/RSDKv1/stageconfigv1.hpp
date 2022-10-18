@@ -1,5 +1,4 @@
-#ifndef STAGECONFIG_V1_H
-#define STAGECONFIG_V1_H
+#pragma once
 
 namespace RSDKv1
 {
@@ -49,4 +48,4 @@ public:
 
 } // namespace RSDKv1
 
-#endif // STAGECONFIG_V1_H
+

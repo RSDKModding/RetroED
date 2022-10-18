@@ -1,6 +1,14 @@
 #include "includes.hpp"
 #include "ui_gameconfigeditorv4.h"
 
+#include "tools/gameconfigeditorv4.hpp"
+
+#include <RSDKv2/gameconfigv2.hpp>
+#include <RSDKv3/gameconfigv3.hpp>
+#include <RSDKv4/gameconfigv4.hpp>
+#include <RSDKv5/gameconfigv5.hpp>
+#include <RSDKv5/rsdkconfigv5.hpp>
+
 GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
     : QWidget(parent), ui(new Ui::GameConfigEditorv4)
 {

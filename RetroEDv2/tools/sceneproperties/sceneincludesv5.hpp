@@ -1,5 +1,6 @@
-#ifndef SCENEINCLUDES_V5_H
-#define SCENEINCLUDES_V5_H
+#pragma once
+
+#include <RSDKv5/scenev5.hpp>
 
 namespace SceneHelpers
 {
@@ -151,4 +152,4 @@ struct SceneObject {
     }
 };
 
-#endif // SCENEINCLUDES_V5_H
+

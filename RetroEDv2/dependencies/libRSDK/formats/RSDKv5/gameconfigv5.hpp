@@ -1,5 +1,6 @@
-#ifndef GAMECONFIG_V5_H
-#define GAMECONFIG_V5_H
+#pragma once
+
+#include "palettev5.hpp"
 
 namespace RSDKv5
 {
@@ -165,4 +166,4 @@ public:
 
 } // namespace RSDKv5
 
-#endif // GAMECONFIG_V5_H
+

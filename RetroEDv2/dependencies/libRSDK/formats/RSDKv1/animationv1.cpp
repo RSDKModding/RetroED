@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "animationv1.hpp"
+
 QList<QString> animNamesv1 = QList<QString>{
     "Stopped",       "Waiting",
     "Looking Up",    "Looking Down",

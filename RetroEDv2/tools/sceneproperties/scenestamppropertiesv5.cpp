@@ -1,5 +1,8 @@
 #include "includes.hpp"
 #include "ui_scenestamppropertiesv5.h"
+#include "scenestamppropertiesv5.hpp"
+
+#include <RSDKv5/stamps.hpp>
 
 SceneStampPropertiesv5::SceneStampPropertiesv5(QWidget *parent)
     : QWidget(parent), ui(new Ui::SceneStampPropertiesv5)

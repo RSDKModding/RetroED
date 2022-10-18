@@ -2,6 +2,29 @@
 #include "ui_sceneeditorv5.h"
 #include "qgifimage.h"
 
+#include "sceneeditorv5.hpp"
+
+#include "sceneproperties/sceneincludesv5.hpp"
+#include "sceneproperties/scenepropertiesv5.hpp"
+#include "sceneproperties/scenelayerpropertiesv5.hpp"
+#include "sceneproperties/sceneobjectpropertiesv5.hpp"
+#include "sceneproperties/scenescrollpropertiesv5.hpp"
+#include "sceneproperties/scenetilepropertiesv5.hpp"
+#include "sceneproperties/scenestamppropertiesv5.hpp"
+#include "sceneproperties/objectselector.hpp"
+#include "sceneproperties/tilereplaceoptions.hpp"
+
+#include "sceneproperties/stageconfigeditorv5.hpp"
+
+#include "paletteeditor.hpp"
+#include "paletteeditor/colourdialog.hpp"
+
+#include "sceneproperties/tileseteditor.hpp"
+
+#include "sceneproperties/confirmgamelink.hpp"
+#include "sceneproperties/syncgcdetails.hpp"
+
+
 TileSelector::TileSelector(QWidget *parent) : QWidget(parent), parentPtr((SceneEditorv5 *)parent)
 {
     QScrollArea *scrollArea = new QScrollArea(this);

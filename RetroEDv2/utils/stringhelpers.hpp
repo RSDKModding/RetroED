@@ -1,5 +1,4 @@
-#ifndef STRINGHELPERS_H
-#define STRINGHELPERS_H
+#pragma once
 
 #define MEM_ZERO(x)  memset(&(x), 0, sizeof((x)))
 #define MEM_ZEROP(x) memset((x), 0, sizeof(*(x)))
@@ -110,4 +109,4 @@ void AppendIntegerToString(char *text, int value);
 
 void SetScriptTypeName(const char *name, char *buffer);
 
-#endif // STRINGHELPERS_H
+

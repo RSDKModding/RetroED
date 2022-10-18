@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "backgroundv1.hpp"
+
 void RSDKv1::Background::read(Reader &reader)
 {
     filePath = reader.filePath;

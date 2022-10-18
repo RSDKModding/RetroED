@@ -1,6 +1,8 @@
 #include "includes.hpp"
 #include "ui_syncgcdetails.h"
 
+#include "syncgcdetails.hpp"
+
 SyncGCDetails::SyncGCDetails(int curObjCount, QWidget *parent)
     : QDialog(parent), ui(new Ui::SyncGCDetails)
 {

@@ -1,5 +1,4 @@
-#ifndef UTILS_H
-#define UTILS_H
+#pragma once
 
 namespace Utils
 {
@@ -9,4 +8,4 @@ QIcon getColoredIcon(QString filename);
 
 } // namespace Utils
 
-#endif // UTILS_H
+

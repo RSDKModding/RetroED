@@ -1,6 +1,8 @@
 #include "includes.hpp"
 #include "ui_gameconfigeditorv1.h"
 
+#include "tools/gameconfigeditorv1.hpp"
+
 GameConfigEditorv1::GameConfigEditorv1(QString path, QWidget *parent)
     : QWidget(parent), ui(new Ui::GameConfigEditorv1)
 {

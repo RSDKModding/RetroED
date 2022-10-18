@@ -1,5 +1,18 @@
 #include "includes.hpp"
 #include "ui_sceneobjectproperties.h"
+#include "sceneobjectproperties.hpp"
+
+#include "tools/sceneeditor.hpp"
+#include "tools/sceneviewer.hpp"
+
+#include "tools/sceneproperties/sceneincludesv5.hpp"
+
+#include "tools/compiler/compilerv2.hpp"
+#include "tools/compiler/compilerv3.hpp"
+#include "tools/compiler/compilerv4.hpp"
+
+#include <RSDKv4/scenev4.hpp>
+
 
 SceneObjectProperties::SceneObjectProperties(QWidget *parent)
     : QWidget(parent), ui(new Ui::SceneObjectProperties)

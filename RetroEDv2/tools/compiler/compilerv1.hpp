@@ -1,5 +1,7 @@
-#ifndef COMPILER_V1_H
-#define COMPILER_V1_H
+#pragma once
+
+#define COMMONALIAS_COUNT_v1 (75)
+#define ALIAS_COUNT_v1       (COMMONALIAS_COUNT_v1 + 0x80)
 
 #define SCRIPTDATA_COUNT_v1 (0xFFF)
 #define LABEL_COUNT_v1      (0xFFF)
@@ -8,6 +10,8 @@
 #define JUMPSTACK_COUNT_v1 (0x40)
 
 #define SPRITEFRAME_COUNT_v1 (0x100)
+
+#include <RSDKv1/scriptv1.hpp>
 
 class Compilerv1
 {
@@ -55,4 +59,4 @@ private:
     QList<int> jumpTableStack;
 };
 
-#endif // COMPILER_V1_H
+

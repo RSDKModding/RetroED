@@ -1,5 +1,4 @@
-#ifndef RSDK_BACKGROUNDS_H
-#define RSDK_BACKGROUNDS_H
+#pragma once
 
 namespace FormatHelpers
 {
@@ -84,4 +83,4 @@ public:
 
 } // namespace FormatHelpers
 
-#endif // RSDK_BACKGROUNDS_H
+

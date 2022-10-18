@@ -1,6 +1,11 @@
 #include "includes.hpp"
 #include "ui_scenepropertiesv5.h"
 
+#include "scenepropertiesv5.hpp"
+
+#include <RSDKv5/scenev5.hpp>
+#include <RSDKv5/stageconfigv5.hpp>
+
 ScenePropertiesv5::ScenePropertiesv5(QWidget *parent) : QWidget(parent), ui(new Ui::ScenePropertiesv5)
 {
     ui->setupUi(this);

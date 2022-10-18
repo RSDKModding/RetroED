@@ -1,6 +1,8 @@
 #include "includes.hpp"
 #include "ui_colourdialog.h"
 
+#include "colourdialog.hpp"
+
 RSDKColorDialog::RSDKColorDialog(PaletteColor color, QWidget *parent)
     : QDialog(parent), ui(new Ui::RSDKColorDialog), m_color(color)
 {

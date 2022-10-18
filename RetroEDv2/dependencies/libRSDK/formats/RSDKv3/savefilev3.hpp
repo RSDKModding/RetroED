@@ -1,5 +1,4 @@
-#ifndef SAVEFILE_V3_H
-#define SAVEFILE_V3_H
+#pragma once
 
 namespace RSDKv3
 {
@@ -45,4 +44,4 @@ public:
 
 } // namespace RSDKv3
 
-#endif // SAVEFILE_V3_H
+

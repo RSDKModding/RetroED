@@ -1,7 +1,12 @@
-#ifndef SCENEOBJECTPROPERTIES_H
-#define SCENEOBJECTPROPERTIES_H
+#pragma once
 
 #include <QWidget>
+
+#include "tools/compiler/compilerv2.hpp"
+#include "tools/compiler/compilerv3.hpp"
+#include "tools/compiler/compilerv4.hpp"
+
+class SceneEntity;
 
 namespace Ui
 {
@@ -35,4 +40,4 @@ private:
     QMessageBox *msgBox = nullptr;
 };
 
-#endif // SCENEOBJECTPROPERTIES_H
+

@@ -1,5 +1,4 @@
-#ifndef RSDK_VECTORS_H
-#define RSDK_VECTORS_H
+#pragma once
 
 template <class T> struct Vector2 {
     Vector2() = default;
@@ -505,5 +504,3 @@ template <class T> struct Rect {
 
     T x = 0, y = 0, w = 0, h = 0;
 };
-
-#endif //! RSDK_

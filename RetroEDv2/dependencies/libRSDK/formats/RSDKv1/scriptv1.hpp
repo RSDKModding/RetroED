@@ -1,5 +1,4 @@
-#ifndef SCRIPT_V1_H
-#define SCRIPT_V1_H
+#pragma once
 
 namespace RSDKv1
 {
@@ -160,4 +159,4 @@ public:
 
 } // namespace RSDKv1
 
-#endif // SCRIPT_V1_H
+

@@ -1,5 +1,4 @@
-#ifndef BACKGROUND_V2_H
-#define BACKGROUND_V2_H
+#pragma once
 
 namespace RSDKv2
 {
@@ -81,4 +80,4 @@ public:
 
 } // namespace RSDKv2
 
-#endif // BACKGROUND_V2_H
+

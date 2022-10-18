@@ -1,5 +1,8 @@
 #include "includes.hpp"
 #include "ui_scenelayerpropertiesv5.h"
+#include "scenelayerpropertiesv5.hpp"
+
+#include <RSDKv5/scenev5.hpp>
 
 SceneLayerPropertiesv5::SceneLayerPropertiesv5(QWidget *parent)
     : QWidget(parent), ui(new Ui::SceneLayerPropertiesv5)

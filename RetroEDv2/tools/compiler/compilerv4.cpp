@@ -1,4 +1,7 @@
 #include "includes.hpp"
+#include "compilerv4.hpp"
+
+#include "tools/sceneeditor.hpp"
 
 Compilerv4::VariableInfo Compilerv4::variableNames_rev00[] = {
     // Internal Script Values
@@ -3142,7 +3145,7 @@ void Compilerv4::ConvertFunctionText(char *text)
                 funcName[0] = '0';
 
                 int o = 0;
-                for (; o < OBJECT_COUNT; ++o) {
+                for (; o < OBJECT_COUNT_v4; ++o) {
                     if (StrComp(arrayStr, typeNames[o])) {
                         funcName[0] = 0;
                         AppendIntegerToString(funcName, o);
@@ -3150,7 +3153,7 @@ void Compilerv4::ConvertFunctionText(char *text)
                     }
                 }
 
-                if (o == OBJECT_COUNT)
+                if (o == OBJECT_COUNT_v4)
                     PrintLog(QString("WARNING: Unknown typename \"%1\", on line %2")
                                  .arg(arrayStr)
                                  .arg(lineID));
@@ -3161,7 +3164,7 @@ void Compilerv4::ConvertFunctionText(char *text)
                 funcName[0] = '0';
 
                 int s = 0;
-                for (; s < SFX_COUNT; ++s) {
+                for (; s < SFX_COUNT_v4; ++s) {
                     if (StrComp(arrayStr, sfxNames[s])) {
                         funcName[0] = 0;
                         AppendIntegerToString(funcName, s);
@@ -3169,7 +3172,7 @@ void Compilerv4::ConvertFunctionText(char *text)
                     }
                 }
 
-                if (s == SFX_COUNT)
+                if (s == SFX_COUNT_v4)
                     PrintLog(QString("WARNING: Unknown sfxName \"%1\", on line %2")
                                  .arg(arrayStr)
                                  .arg(lineID));
@@ -3380,7 +3383,7 @@ void Compilerv4::CheckCaseNumber(char *text)
             caseValue[0] = '0';
 
             int o = 0;
-            for (; o < OBJECT_COUNT; ++o) {
+            for (; o < OBJECT_COUNT_v4; ++o) {
                 if (StrComp(arrayStr, typeNames[o])) {
                     caseValue[0] = 0;
                     AppendIntegerToString(caseValue, o);
@@ -3388,7 +3391,7 @@ void Compilerv4::CheckCaseNumber(char *text)
                 }
             }
 
-            if (o == OBJECT_COUNT)
+            if (o == OBJECT_COUNT_v4)
                 PrintLog(
                     QString("WARNING: Unknown typename \"%1\", on line %2").arg(arrayStr).arg(lineID));
         }
@@ -3398,7 +3401,7 @@ void Compilerv4::CheckCaseNumber(char *text)
             caseValue[0] = '0';
 
             int s = 0;
-            for (; s < SFX_COUNT; ++s) {
+            for (; s < SFX_COUNT_v4; ++s) {
                 if (StrComp(arrayStr, sfxNames[s])) {
                     caseValue[0] = 0;
                     AppendIntegerToString(caseValue, s);
@@ -3406,7 +3409,7 @@ void Compilerv4::CheckCaseNumber(char *text)
                 }
             }
 
-            if (s == SFX_COUNT)
+            if (s == SFX_COUNT_v4)
                 PrintLog(
                     QString("WARNING: Unknown sfxName \"%1\", on line %2").arg(arrayStr).arg(lineID));
         }
@@ -3517,7 +3520,7 @@ bool Compilerv4::ReadSwitchCase(char *text)
                 caseValue[0] = '0';
 
                 int o = 0;
-                for (; o < OBJECT_COUNT; ++o) {
+                for (; o < OBJECT_COUNT_v4; ++o) {
                     if (StrComp(arrayStr, typeNames[o])) {
                         caseValue[0] = 0;
                         AppendIntegerToString(caseValue, o);
@@ -3525,7 +3528,7 @@ bool Compilerv4::ReadSwitchCase(char *text)
                     }
                 }
 
-                if (o == OBJECT_COUNT)
+                if (o == OBJECT_COUNT_v4)
                     PrintLog(QString("WARNING: Unknown typename \"%1\", on line %2")
                                  .arg(arrayStr)
                                  .arg(lineID));
@@ -3536,7 +3539,7 @@ bool Compilerv4::ReadSwitchCase(char *text)
                 caseValue[0] = '0';
 
                 int s = 0;
-                for (; s < SFX_COUNT; ++s) {
+                for (; s < SFX_COUNT_v4; ++s) {
                     if (StrComp(arrayStr, sfxNames[s])) {
                         caseValue[0] = 0;
                         AppendIntegerToString(caseValue, s);
@@ -3544,7 +3547,7 @@ bool Compilerv4::ReadSwitchCase(char *text)
                     }
                 }
 
-                if (s == SFX_COUNT)
+                if (s == SFX_COUNT_v4)
                     PrintLog(QString("WARNING: Unknown sfxName \"%1\", on line %2")
                                  .arg(arrayStr)
                                  .arg(lineID));
@@ -3877,7 +3880,7 @@ void Compilerv4::ParseScriptFile(QString scriptName, int scriptID, bool inEditor
                                 funcID = f;
                         }
 
-                        if (functionCount < FUNCTION_COUNT && funcID == -1) {
+                        if (functionCount < FUNCTION_COUNT_v4 && funcID == -1) {
                             StrCopy(functionList[functionCount++].name, funcName);
                         }
                         else {
@@ -3901,7 +3904,7 @@ void Compilerv4::ParseScriptFile(QString scriptName, int scriptID, bool inEditor
                         }
 
                         if (funcID <= -1) {
-                            if (functionCount >= FUNCTION_COUNT) {
+                            if (functionCount >= FUNCTION_COUNT_v4) {
                                 parseMode = PARSEMODE_SCOPELESS;
                             }
                             else {
@@ -3941,7 +3944,7 @@ void Compilerv4::ParseScriptFile(QString scriptName, int scriptID, bool inEditor
                         }
 
                         if (funcID <= -1) {
-                            if (functionCount >= FUNCTION_COUNT) {
+                            if (functionCount >= FUNCTION_COUNT_v4) {
                                 parseMode = PARSEMODE_SCOPELESS;
                             }
                             else {
@@ -4097,7 +4100,7 @@ void Compilerv4::ClearScriptData()
         MEM_ZERO(scriptValueList[v]);
     }
 
-    for (int o = 0; o < OBJECT_COUNT; ++o) {
+    for (int o = 0; o < OBJECT_COUNT_v4; ++o) {
         ObjectScript *scriptInfo = &objectScriptList[o];
 
         scriptInfo->eventUpdate.scriptCodePtr  = SCRIPTCODE_COUNT_v4 - 1;
@@ -4117,7 +4120,7 @@ void Compilerv4::ClearScriptData()
         typeNames[o][0] = 0;
     }
 
-    for (int f = 0; f < FUNCTION_COUNT; ++f) {
+    for (int f = 0; f < FUNCTION_COUNT_v4; ++f) {
         functionList[f].ptr.scriptCodePtr = SCRIPTCODE_COUNT_v4 - 1;
         functionList[f].ptr.jumpTablePtr  = JUMPTABLE_COUNT_v4 - 1;
     }
@@ -4952,7 +4955,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                 break;
             case FUNC_FOREACHACTIVE: {
                 int typeGroup = scriptEng.operands[1];
-                if (typeGroup < TYPEGROUP_COUNT) {
+                if (typeGroup < TYPEGROUP_COUNT_v4) {
                     int loop                      = foreachStack[++foreachStackPos] + 1;
                     foreachStack[foreachStackPos] = loop;
                     if (loop >= objectTypeGroupList[typeGroup].listSize) {
@@ -4976,13 +4979,13 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
             }
             case FUNC_FOREACHALL: {
                 int objType = scriptEng.operands[1];
-                if (objType < OBJECT_COUNT) {
+                if (objType < OBJECT_COUNT_v4) {
                     int loop                      = foreachStack[++foreachStackPos] + 1;
                     foreachStack[foreachStackPos] = loop;
 
                     if (scriptEvent == EVENT_RSDKLOAD) {
                         while (true) {
-                            if (loop >= TEMPENTITY_START) {
+                            if (loop >= TEMPENTITY_START_v4) {
                                 opcodeSize                      = 0;
                                 foreachStack[foreachStackPos--] = -1;
                                 int off       = jumpTable[jumpTableStart + scriptEng.operands[0] + 1];
@@ -5001,7 +5004,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                     }
                     else {
                         while (true) {
-                            if (loop >= ENTITY_COUNT) {
+                            if (loop >= ENTITY_COUNT_v4) {
                                 opcodeSize                      = 0;
                                 foreachStack[foreachStackPos--] = -1;
                                 scriptCodePtr                   = scriptCodeStart
@@ -5168,7 +5171,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
             case FUNC_DRAWMENU: opcodeSize = 0; break;
             case FUNC_SPRITEFRAME:
                 opcodeSize = 0;
-                if (scriptEvent == EVENT_RSDKLOAD && scriptFrameCount < SPRITEFRAME_COUNT) {
+                if (scriptEvent == EVENT_RSDKLOAD && scriptFrameCount < SPRITEFRAME_COUNT_v4) {
                     scriptFrames[scriptFrameCount].pivotX = scriptEng.operands[0];
                     scriptFrames[scriptFrameCount].pivotY = scriptEng.operands[1];
                     scriptFrames[scriptFrameCount].width  = scriptEng.operands[2];
@@ -5727,7 +5730,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
             }
             case FUNC_GETOBJECTTYPE: {
                 scriptEng.operands[0] = -1;
-                for (int o = 0; o < OBJECT_COUNT; ++o) {
+                for (int o = 0; o < OBJECT_COUNT_v4; ++o) {
                     if (StrComp(scriptText, typeNames[o])) {
                         scriptEng.operands[0] = o;
                     }

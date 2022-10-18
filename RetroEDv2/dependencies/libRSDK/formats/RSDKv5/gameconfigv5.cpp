@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "gameconfigv5.hpp"
+
 void RSDKv5::GameConfig::read(Reader &reader, bool oldVer)
 {
     filePath = reader.filePath;

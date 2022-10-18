@@ -1,5 +1,4 @@
-#ifndef GAMESTORAGE_H
-#define GAMESTORAGE_H
+#pragma once
 
 #define STORAGE_ENTRY_COUNT (0x1000)
 #define STORAGE_HEADER_SIZE (sizeof(DataStorageHeader) / sizeof(int))
@@ -40,4 +39,4 @@ void removeStorageEntry(DataStorage *dataStorage, void **dataPtr);
 void copyStorage(DataStorage *dataStorage, int **src, int **dst);
 void cleanEmptyStorage(DataStorage *dataStorage, StorageDataSets dataSet);
 
-#endif // GAMESTORAGE_H
+

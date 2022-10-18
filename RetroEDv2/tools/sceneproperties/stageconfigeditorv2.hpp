@@ -1,5 +1,4 @@
-#ifndef STAGECONFIGEDITOR_V2_H
-#define STAGECONFIGEDITOR_V2_H
+#pragma once
 
 #include <QWidget>
 
@@ -50,4 +49,4 @@ private:
     int globalSFXCount    = 0;
 };
 
-#endif // STAGECONFIGEDITOR_V2_H
+

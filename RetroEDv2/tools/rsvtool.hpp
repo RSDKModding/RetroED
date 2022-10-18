@@ -1,5 +1,4 @@
-#ifndef RSVUNPACKER_H
-#define RSVUNPACKER_H
+#pragma once
 
 #include <QDialog>
 
@@ -23,4 +22,4 @@ private:
     QString framesPath = "";
 };
 
-#endif // RSVUNPACKER_H
+

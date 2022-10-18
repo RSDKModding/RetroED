@@ -1,5 +1,10 @@
 #include "includes.hpp"
 
+#include "modelviewer.hpp"
+
+#include <RSDKv4/modelv4.hpp>
+#include <RSDKv5/modelv5.hpp>
+
 ModelViewer::ModelViewer(QWidget *parent) : QOpenGLWidget(parent)
 {
     setMouseTracking(true);

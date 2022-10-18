@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "datafilev2.hpp"
+
 void RSDKv2::Datafile::read(Reader &reader)
 {
     filePath = reader.filePath;

@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "datafilev5.hpp"
+
 enum ExtensionTypes {
     UNKNOWN,
     OGG,

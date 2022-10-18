@@ -1,5 +1,13 @@
-#ifndef PALETTEEDITOR_H
-#define PALETTEEDITOR_H
+#pragma once
+
+#include <RSDKv1/stageconfigv1.hpp>
+#include <RSDKv2/stageconfigv2.hpp>
+#include <RSDKv3/stageconfigv3.hpp>
+#include <RSDKv4/stageconfigv4.hpp>
+#include <RSDKv5/stageconfigv5.hpp>
+
+#include <RSDKv4/gameconfigv4.hpp>
+#include <RSDKv5/gameconfigv5.hpp>
 
 namespace Ui
 {
@@ -129,4 +137,4 @@ private:
     QString tabTitle = "Palette Editor";
 };
 
-#endif // PALETTEEDITOR_H
+

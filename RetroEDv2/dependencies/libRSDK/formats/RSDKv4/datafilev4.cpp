@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "datafilev4.hpp"
+
 void RSDKv4::Datafile::read(Reader &reader, QList<QString> fileList)
 {
     filePath = reader.filePath;

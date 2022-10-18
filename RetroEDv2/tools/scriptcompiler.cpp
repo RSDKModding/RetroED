@@ -1,6 +1,11 @@
 #include "includes.hpp"
 #include "ui_scriptcompiler.h"
 
+#include "scriptcompiler.hpp"
+
+#include <RSDKv3.hpp>
+#include <RSDKv4.hpp>
+
 ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::ScriptCompiler)
 {
     ui->setupUi(this);

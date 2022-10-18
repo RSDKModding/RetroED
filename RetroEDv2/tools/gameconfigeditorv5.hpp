@@ -1,7 +1,10 @@
-#ifndef GAMECONFIGEDITOR_V5_H
-#define GAMECONFIGEDITOR_V5_H
+#pragma once
 
 #include <QWidget>
+
+#include <RSDKv5/gameconfigv5.hpp>
+#include <RSDKv5/rsdkconfigv5.hpp>
+#include <RSDKv5/stageconfigv5.hpp>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -73,4 +76,4 @@ private:
 private:
     Ui::GameConfigEditorv5 *ui;
 };
-#endif // GAMECONFIGEDITOR_V5_H
+

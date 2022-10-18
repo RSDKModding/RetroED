@@ -1,5 +1,6 @@
 #include "includes.hpp"
 #include "ui_stageconfigeditorv4.h"
+#include "stageconfigeditorv4.hpp"
 
 StageConfigEditorv4::StageConfigEditorv4(FormatHelpers::StageConfig *scf, int gcCount,
                                          int globalSfxCount, QWidget *parent)

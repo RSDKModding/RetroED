@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "scenev4.hpp"
+
 QList<QString> RSDKv4::objectVariableNames = { "state",          "direction", "scale",     "rotation",
                                                "drawOrder",      "priority",  "alpha",     "animation",
                                                "animationSpeed", "frame",     "inkEffect", "value0",

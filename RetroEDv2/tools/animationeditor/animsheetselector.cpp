@@ -1,6 +1,8 @@
 #include "includes.hpp"
 #include "ui_animsheetselector.h"
 
+#include "animsheetselector.hpp"
+
 #include "dependencies/imageviewer/src/image-viewer.h"
 #include <QTimer>
 

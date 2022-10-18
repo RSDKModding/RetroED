@@ -1,5 +1,4 @@
-#ifndef RSDK_UTILS_H
-#define RSDK_UTILS_H
+#pragma once
 
 namespace Utils
 {
@@ -65,4 +64,4 @@ inline int floatToFixed(float floating) { return (int)round(floating * (1 << 0x1
 
 } // namespace Utils
 
-#endif // RSDK_UTILS_H
+

@@ -1,5 +1,4 @@
-#ifndef WORKINGDIRMANAGER_H
-#define WORKINGDIRMANAGER_H
+#pragma once
 
 class WorkingDirManager
 {
@@ -12,4 +11,4 @@ public:
     static QString workingDir;
 };
 
-#endif // WORKINGDIRMANAGER_H
+

@@ -1,9 +1,22 @@
-#ifndef SCENEEDITOR_V5_H
-#define SCENEEDITOR_V5_H
+#pragma once
 
 #include <QWidget>
 
+#include "tools/sceneviewer.hpp"
+
+class ScenePropertiesv5;
+class SceneLayerPropertiesv5;
+class SceneTilePropertiesv5;
+class SceneStampPropertiesv5;
+class SceneObjectPropertiesv5;
+class SceneScrollPropertiesv5;
 class TileSelector;
+class TilesetEditor;
+
+#include <RSDKv5/gameconfigv5.hpp>
+#include <RSDKv5/scenev5.hpp>
+#include <RSDKv5/tileconfigv5.hpp>
+#include <RSDKv5/stageconfigv5.hpp>
 
 namespace Ui
 {
@@ -225,4 +238,4 @@ private:
     SceneEditorv5 *parentPtr = nullptr;
 };
 
-#endif // SCENEEDITOR_V5_H
+

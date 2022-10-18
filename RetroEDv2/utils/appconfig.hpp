@@ -1,5 +1,4 @@
-#ifndef APPCONFIG_H
-#define APPCONFIG_H
+#pragma once
 
 enum TooIDs {
     TOOL_SCENEEDITOR,
@@ -61,4 +60,4 @@ public:
     const byte m_fileVer = 1;
 };
 
-#endif // APPCONFIG_H
+

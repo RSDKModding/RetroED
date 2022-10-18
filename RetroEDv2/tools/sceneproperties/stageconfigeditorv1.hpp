@@ -1,5 +1,4 @@
-#ifndef STAGECONFIGEDITOR_V1_H
-#define STAGECONFIGEDITOR_V1_H
+#pragma once
 
 #include <QWidget>
 
@@ -46,4 +45,4 @@ private:
     FormatHelpers::StageConfig *stageConfig;
 };
 
-#endif // STAGECONFIGEDITOR_V1_H
+

@@ -1,7 +1,8 @@
-#ifndef SCENELAYERPROPERTIES_H
-#define SCENELAYERPROPERTIES_H
+#pragma once
 
 #include <QWidget>
+
+class SceneViewer;
 
 namespace Ui
 {
@@ -23,4 +24,4 @@ private:
     Ui::SceneLayerProperties *ui;
 };
 
-#endif // SCENELAYERPROPERTIES_H
+

@@ -1,5 +1,4 @@
-#ifndef GAMEMATH_H
-#define GAMEMATH_H
+#pragma once
 
 // M_PI is *too* accurate, so use this instead
 #define RSDK_PI (3.1415927)
@@ -132,5 +131,3 @@ inline int RandSeeded(int min, int max, int *randSeed)
         return max;
 }
 } // namespace FunctionTable
-
-#endif

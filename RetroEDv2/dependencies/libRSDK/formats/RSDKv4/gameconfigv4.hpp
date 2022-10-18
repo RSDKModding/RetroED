@@ -1,5 +1,4 @@
-#ifndef GAMECONFIG_V4_H
-#define GAMECONFIG_V4_H
+#pragma once
 
 namespace RSDKv4
 {
@@ -149,4 +148,4 @@ public:
 
 } // namespace RSDKv4
 
-#endif // GAMECONFIG_V4_H
+

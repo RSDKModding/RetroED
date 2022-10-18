@@ -1,5 +1,4 @@
-#ifndef GAMEMATRIX_H
-#define GAMEMATRIX_H
+#pragma once
 
 namespace FunctionTable
 {
@@ -14,5 +13,3 @@ void MatrixRotateXYZ(Matrix *matrix, short rotationX, short rotationY, short rot
 void MatrixInverse(Matrix *dest, Matrix *matrix);
 void MatrixCopy(Matrix *matDst, Matrix *matSrc);
 } // namespace FunctionTable
-
-#endif

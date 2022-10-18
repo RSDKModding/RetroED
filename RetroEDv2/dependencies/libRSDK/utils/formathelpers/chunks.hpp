@@ -1,5 +1,4 @@
-#ifndef RSDK_CHUNKS_H
-#define RSDK_CHUNKS_H
+#pragma once
 
 namespace FormatHelpers
 {
@@ -42,4 +41,4 @@ public:
 
 } // namespace FormatHelpers
 
-#endif // RSDK_CHUNKS_H
+

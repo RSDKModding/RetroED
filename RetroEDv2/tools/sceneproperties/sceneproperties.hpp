@@ -1,5 +1,4 @@
-#ifndef SCENEPROPERTIES_H
-#define SCENEPROPERTIES_H
+#pragma once
 
 #include <QWidget>
 
@@ -50,4 +49,4 @@ private:
     void *sceneEditor = nullptr;
 };
 
-#endif // SCENEPROPERTIES_H
+

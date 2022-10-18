@@ -1,5 +1,4 @@
-#ifndef GAMECONFIG_V3_H
-#define GAMECONFIG_V3_H
+#pragma once
 
 namespace RSDKv3
 {
@@ -140,4 +139,4 @@ public:
 
 } // namespace RSDKv3
 
-#endif // GAMECONFIG_V3_H
+

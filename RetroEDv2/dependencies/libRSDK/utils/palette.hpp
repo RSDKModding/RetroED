@@ -1,5 +1,4 @@
-#ifndef RSDK_PALETTE_H
-#define RSDK_PALETTE_H
+#pragma once
 
 class Palette
 {
@@ -13,4 +12,4 @@ public:
     QList<Color> colors;
 };
 
-#endif // RSDK_PALETTE_H
+

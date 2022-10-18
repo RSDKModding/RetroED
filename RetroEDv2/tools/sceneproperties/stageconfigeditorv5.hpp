@@ -1,7 +1,8 @@
-#ifndef STAGECONFIGEDITOR_V5_H
-#define STAGECONFIGEDITOR_V5_H
+#pragma once
 
 #include <QWidget>
+
+#include <RSDKv5/stageconfigv5.hpp>
 
 namespace Ui
 {
@@ -46,4 +47,4 @@ private:
     RSDKv5::StageConfig *stageConfig;
 };
 
-#endif // STAGECONFIGEDITOR_V5_H
+

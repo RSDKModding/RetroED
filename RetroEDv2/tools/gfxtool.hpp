@@ -1,5 +1,4 @@
-#ifndef GFXTOOL_H
-#define GFXTOOL_H
+#pragma once
 
 #include <QDialog>
 
@@ -25,4 +24,4 @@ private:
     Ui::GFXTool *ui;
 };
 
-#endif // GFXTOOL_H
+

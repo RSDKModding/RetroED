@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "scenev5.hpp"
+
 void RSDKv5::Scene::VariableValue::read(Reader &reader)
 {
     switch (type) {

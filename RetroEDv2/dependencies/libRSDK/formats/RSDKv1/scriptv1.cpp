@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "scriptv1.hpp"
+
 QList<QString> RSDKv1::Script::variableList = {
     "[NULL]",                   // 0x00
     "Object.Type",              // 0x01

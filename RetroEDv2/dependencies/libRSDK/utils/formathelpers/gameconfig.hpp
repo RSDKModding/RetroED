@@ -1,5 +1,4 @@
-#ifndef RSDK_GAMECONFIG_H
-#define RSDK_GAMECONFIG_H
+#pragma once
 
 namespace FormatHelpers
 {
@@ -89,4 +88,4 @@ public:
 
 } // namespace FormatHelpers
 
-#endif // RSDK_GAMECONFIG_H
+

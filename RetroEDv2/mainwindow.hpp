@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 
@@ -72,4 +71,4 @@ private:
 
     QString gamePath = "";
 };
-#endif // MAINWINDOW_H
+

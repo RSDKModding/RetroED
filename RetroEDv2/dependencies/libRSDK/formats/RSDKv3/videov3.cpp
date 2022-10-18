@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "videov3.hpp"
+
 void RSDKv3::Video::read(Reader &reader)
 {
     filePath = reader.filePath;

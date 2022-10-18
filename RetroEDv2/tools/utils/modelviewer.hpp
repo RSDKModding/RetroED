@@ -1,5 +1,7 @@
-#ifndef MODELVIEWER_H
-#define MODELVIEWER_H
+#pragma once
+
+#include <RSDKv4/modelv4.hpp>
+#include <RSDKv5/modelv5.hpp>
 
 class ModelViewer : public QOpenGLWidget
 {
@@ -340,4 +342,4 @@ private:
     // friend class ModelManager;
 };
 
-#endif // MODELVIEWER_H
+

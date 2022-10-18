@@ -1,7 +1,6 @@
 #include "includes.hpp"
 
-#define COMMONALIAS_COUNT_v1 (75)
-#define ALIAS_COUNT_v1       (COMMONALIAS_COUNT_v1 + 0x80)
+#include "compilerv1.hpp"
 
 struct AliasInfov1 {
     AliasInfov1()

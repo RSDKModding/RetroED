@@ -1,5 +1,8 @@
 #include "includes.hpp"
 #include "ui_stageconfigeditorv5.h"
+#include "stageconfigeditorv5.hpp"
+
+#include <RSDKv5/stageconfigv5.hpp>
 
 StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *parent)
     : QDialog(parent), ui(new Ui::StageConfigEditorv5), stageConfig(scf)

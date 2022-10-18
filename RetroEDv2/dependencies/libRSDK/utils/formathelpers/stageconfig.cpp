@@ -1,5 +1,11 @@
 #include "libRSDK.hpp"
 
+#include "stageconfig.hpp"
+#include "RSDKv1/stageconfigv1.hpp"
+#include "RSDKv2/stageconfigv2.hpp"
+#include "RSDKv3/stageconfigv3.hpp"
+#include "RSDKv4/stageconfigv4.hpp"
+
 void FormatHelpers::StageConfig::read(byte ver, QString filename)
 {
     Reader reader(filename);

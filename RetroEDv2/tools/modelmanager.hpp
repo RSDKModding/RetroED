@@ -1,7 +1,7 @@
-#ifndef MODELMANAGER_H
-#define MODELMANAGER_H
+#pragma once
 
 #include <QWidget>
+#include "tools/utils/modelviewer.hpp"
 
 namespace Ui
 {
@@ -64,4 +64,4 @@ private:
     QString tabTitle = "Model Manager";
 };
 
-#endif // MODELMANAGER_H
+

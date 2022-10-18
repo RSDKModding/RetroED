@@ -1,5 +1,7 @@
 #include "includes.hpp"
 
+#include "tools/sceneeditorv5.hpp"
+
 bool32 validDraw = false;
 
 enum RotationFlags {

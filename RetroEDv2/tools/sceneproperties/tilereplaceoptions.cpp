@@ -1,5 +1,6 @@
 #include "includes.hpp"
 #include "ui_tilereplaceoptions.h"
+#include "tilereplaceoptions.hpp"
 
 TileReplaceOptions::TileReplaceOptions(QWidget *parent)
     : QDialog(parent), ui(new Ui::TileReplaceOptions)

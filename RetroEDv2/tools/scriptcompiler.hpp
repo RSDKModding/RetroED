@@ -1,7 +1,11 @@
-#ifndef SCRIPTCOMPILER_HPP
-#define SCRIPTCOMPILER_HPP
+#pragma once
 
 #include <QWidget>
+
+#include "tools/compiler/compilerv1.hpp"
+#include "tools/compiler/compilerv2.hpp"
+#include "tools/compiler/compilerv3.hpp"
+#include "tools/compiler/compilerv4.hpp"
 
 namespace Ui
 {
@@ -27,4 +31,4 @@ private:
     byte engineType = ENGINE_v3;
 };
 
-#endif // SCRIPTCOMPILER_HPP
+

@@ -2,6 +2,17 @@
 #include <cmath>
 #include "qgifimage.h"
 
+#include "version.hpp"
+
+#include "sceneeditor.hpp"
+#include "sceneeditorv5.hpp"
+#include "sceneviewer.hpp"
+
+#include "sceneproperties/sceneincludesv5.hpp"
+#include "sceneproperties/sceneobjectpropertiesv5.hpp"
+#include "sceneproperties/sceneproperties.hpp"
+#include "sceneproperties/scenepropertiesv5.hpp"
+
 union PlaceArgs {
     byte size[0x80];
     struct {
@@ -30,9 +41,9 @@ SceneViewer::SceneViewer(byte gameType, QWidget *parent) : QOpenGLWidget(parent)
     if (updateTimer)
         delete updateTimer;
 
-    gameEntityListv1 = new GameEntityBasev1[v5_ENTITY_COUNT * 2];
-    gameEntityListv2 = new GameEntityBasev2[v5_ENTITY_COUNT * 2];
-    gameEntityListvU = new GameEntityBasevU[v5_ENTITY_COUNT * 2];
+    gameEntityListv1 = new GameEntityBasev1[ENTITY_COUNT_v5 * 2];
+    gameEntityListv2 = new GameEntityBasev2[ENTITY_COUNT_v5 * 2];
+    gameEntityListvU = new GameEntityBasevU[ENTITY_COUNT_v5 * 2];
 
     updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, QOverload<>::of(&SceneViewer::updateScene));
@@ -920,7 +931,7 @@ void SceneViewer::drawScene()
     }
 
     // TILE PREVIEW
-    if (selectedTile >= 0 && selectedLayer >= 0 && isSelecting && curTool == TOOL_PENCIL) {
+    if (selectedTile != 0xFFFF && selectedLayer >= 0 && isSelecting && curTool == TOOL_PENCIL) {
         float tx = tilePos.x;
         float ty = tilePos.y;
 
@@ -1174,9 +1185,9 @@ void SceneViewer::unloadScene()
     selectedObject      = -1;
     isSelecting         = false;
 
-    memset(gameEntityListv1, 0, v5_ENTITY_COUNT * 2 * sizeof(GameEntityBasev1));
-    memset(gameEntityListv2, 0, v5_ENTITY_COUNT * 2 * sizeof(GameEntityBasev2));
-    memset(gameEntityListvU, 0, v5_ENTITY_COUNT * 2 * sizeof(GameEntityBasevU));
+    memset(gameEntityListv1, 0, ENTITY_COUNT_v5 * 2 * sizeof(GameEntityBasev1));
+    memset(gameEntityListv2, 0, ENTITY_COUNT_v5 * 2 * sizeof(GameEntityBasev2));
+    memset(gameEntityListvU, 0, ENTITY_COUNT_v5 * 2 * sizeof(GameEntityBasevU));
 
     sceneBoundsL = 0;
     sceneBoundsT = 0;
@@ -1277,7 +1288,7 @@ void SceneViewer::processObjects(bool isImage)
                     sceneInfo.entitySlot++;
                 }
 
-                for (int i = 0; i < TYPEGROUP_COUNT; ++i) {
+                for (int i = 0; i < TYPEGROUP_COUNT_v5; ++i) {
                     typeGroups[i].entries.clear();
                 }
 
@@ -1386,7 +1397,7 @@ void SceneViewer::processObjects(bool isImage)
                     sceneInfo.entitySlot++;
                 }
 
-                for (int i = 0; i < TYPEGROUP_COUNT; ++i) {
+                for (int i = 0; i < TYPEGROUP_COUNT_v5; ++i) {
                     typeGroups[i].entries.clear();
                 }
 
@@ -1495,7 +1506,7 @@ void SceneViewer::processObjects(bool isImage)
                     sceneInfo.entitySlot++;
                 }
 
-                for (int i = 0; i < TYPEGROUP_COUNT; ++i) {
+                for (int i = 0; i < TYPEGROUP_COUNT_v5; ++i) {
                     typeGroups[i].entries.clear();
                 }
 
@@ -1613,7 +1624,7 @@ void SceneViewer::processObjects(bool isImage)
             sceneInfo.entitySlot++;
         }
 
-        for (int i = 0; i < TYPEGROUP_COUNT; ++i) {
+        for (int i = 0; i < TYPEGROUP_COUNT_v5; ++i) {
             typeGroups[i].entries.clear();
         }
 

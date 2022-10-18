@@ -1,6 +1,17 @@
 #include "includes.hpp"
 #include "ui_rsdkunpacker.h"
 
+#include "rsdkunpacker.hpp"
+
+#include <RSDKv1/datafilev1.hpp>
+#include <RSDKv2/datafilev2.hpp>
+#include <RSDKv3/datafilev3.hpp>
+#include <RSDKv4/datafilev4.hpp>
+#include <RSDKv5/datafilev5.hpp>
+// special
+#include <RSDKv3/arccontainerv3.hpp>
+
+
 RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUnpacker)
 {
     ui->setupUi(this);

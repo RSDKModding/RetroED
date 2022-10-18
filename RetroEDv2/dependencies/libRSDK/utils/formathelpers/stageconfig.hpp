@@ -1,5 +1,4 @@
-#ifndef RSDK_STAGECONFIG_H
-#define RSDK_STAGECONFIG_H
+#pragma once
 
 namespace FormatHelpers
 {
@@ -44,4 +43,4 @@ public:
 
 } // namespace FormatHelpers
 
-#endif // RSDK_STAGECONFIG_H
+

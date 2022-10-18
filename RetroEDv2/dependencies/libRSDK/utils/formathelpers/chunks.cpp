@@ -1,5 +1,11 @@
 #include "libRSDK.hpp"
 
+#include "chunks.hpp"
+#include "RSDKv1/chunksv1.hpp"
+#include "RSDKv2/chunksv2.hpp"
+#include "RSDKv3/chunksv3.hpp"
+#include "RSDKv4/chunksv4.hpp"
+
 void FormatHelpers::Chunks::read(byte ver, QString filename)
 {
     Reader reader(filename);

@@ -1,7 +1,8 @@
 #include "includes.hpp"
+#include "compilerv2.hpp"
 
-#define ALIAS_COUNT       (0x80)
-#define COMMONALIAS_COUNT (25)
+#include "tools/sceneeditor.hpp"
+
 
 struct AliasInfov2 {
     AliasInfov2()
@@ -1101,8 +1102,8 @@ void Compilerv2::ParseScriptFile(QString scriptName, int scriptID)
 {
     jumpTableStackPos = 0;
     lineID            = 0;
-    aliasCount        = COMMONALIAS_COUNT;
-    for (int i = COMMONALIAS_COUNT; i < ALIAS_COUNT; ++i) {
+    aliasCount        = COMMONALIAS_COUNT_v2;
+    for (int i = COMMONALIAS_COUNT_v2; i < ALIAS_COUNT_v2; ++i) {
         aliasesv2[i].name  = "";
         aliasesv2[i].value = "";
     }
@@ -1270,8 +1271,8 @@ void Compilerv2::ParseScriptFile(QString scriptName, int scriptID)
 
 void Compilerv2::ClearScriptData()
 {
-    memset(scriptCode, 0, SCRIPTCODE_COUNT * sizeof(int));
-    memset(jumpTable, 0, JUMPTABLE_COUNT * sizeof(int));
+    memset(scriptCode, 0, SCRIPTDATA_COUNT_v2 * sizeof(int));
+    memset(jumpTable, 0, JUMPTABLE_COUNT_v2 * sizeof(int));
 
     globalVariables.clear();
 
@@ -1282,10 +1283,10 @@ void Compilerv2::ClearScriptData()
     jumpTablePos     = 0;
     jumpTableOffset  = 0;
 
-    for (int o = 0; o < OBJECT_COUNT; ++o) {
+    for (int o = 0; o < OBJECT_COUNT_v2; ++o) {
         ObjectScript *scriptInfo          = &objectScriptList[o];
-        scriptInfo->subRSDK.scriptCodePtr = SCRIPTCODE_COUNT - 1;
-        scriptInfo->subRSDK.jumpTablePtr  = JUMPTABLE_COUNT - 1;
+        scriptInfo->subRSDK.scriptCodePtr = SCRIPTDATA_COUNT_v2 - 1;
+        scriptInfo->subRSDK.jumpTablePtr  = JUMPTABLE_COUNT_v2 - 1;
     }
 }
 
@@ -1983,7 +1984,7 @@ void Compilerv2::ProcessScript(int scriptCodeStart, int jumpTableStart)
             case FUNC_DRAWMENU: opcodeSize = 0; break;
             case FUNC_SPRITEFRAME:
                 opcodeSize = 0;
-                if (scriptFrameCount < SPRITEFRAME_COUNT) {
+                if (scriptFrameCount < SPRITEFRAME_COUNT_v2) {
                     scriptFrames[scriptFrameCount].pivotX = scriptEng.operands[0];
                     scriptFrames[scriptFrameCount].pivotY = scriptEng.operands[1];
                     scriptFrames[scriptFrameCount].width  = scriptEng.operands[2];

@@ -1,5 +1,4 @@
-#ifndef RSDK_ANIMATION_H
-#define RSDK_ANIMATION_H
+#pragma once
 
 namespace FormatHelpers
 {
@@ -77,4 +76,4 @@ public:
 
 } // namespace FormatHelpers
 
-#endif // RSDK_ANIMATION_H
+

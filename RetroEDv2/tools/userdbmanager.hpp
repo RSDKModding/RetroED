@@ -1,5 +1,4 @@
-#ifndef USERDBMANAGER_HPP
-#define USERDBMANAGER_HPP
+#pragma once
 
 #include <QDialog>
 
@@ -25,4 +24,4 @@ private:
     Ui::UserDBManager *ui;
 };
 
-#endif // USERDBMANAGER_HPP
+

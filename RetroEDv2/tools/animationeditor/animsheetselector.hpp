@@ -1,5 +1,4 @@
-#ifndef ANIMSHEETSELECTOR_H
-#define ANIMSHEETSELECTOR_H
+#pragma once
 
 #include <QDialog>
 
@@ -37,4 +36,4 @@ private:
     Ui::AnimSheetSelector *ui;
 };
 
-#endif // ANIMSHEETSELECTOR_H
+

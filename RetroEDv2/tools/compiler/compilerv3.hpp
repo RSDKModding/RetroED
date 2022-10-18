@@ -1,22 +1,24 @@
-#ifndef COMPILERV3_H
-#define COMPILERV3_H
+#pragma once
 
-#define OBJECT_COUNT     (0x100)
-#define SFX_COUNT        (0x100)
-#define ENTITY_COUNT     (0x4A0)
-#define TEMPENTITY_START (ENTITY_COUNT - 0x80)
+#define OBJECT_COUNT_v3     (0x100)
+#define SFX_COUNT_v3        (0x100)
+#define ENTITY_COUNT_v3     (0x4A0)
+#define TEMPENTITY_START_v3 (ENTITY_COUNT_v3 - 0x80)
 
-#define SCRIPTCODE_COUNT (0x40000)
-#define JUMPTABLE_COUNT  (0x4000)
-#define FUNCTION_COUNT   (0x200)
+#define SCRIPTCODE_COUNT_v3 (0x40000)
+#define JUMPTABLE_COUNT_v3  (0x4000)
+#define FUNCTION_COUNT_v3   (0x200)
 
-#define JUMPSTACK_COUNT (0x400)
-#define FUNCSTACK_COUNT (0x400)
+#define JUMPSTACK_COUNT_v3 (0x400)
+#define FUNCSTACK_COUNT_v3 (0x400)
 
-#define SPRITEFRAME_COUNT (0x1000)
+#define SPRITEFRAME_COUNT_v3 (0x1000)
 
-#define COMMONALIAS_COUNT (0x22)
-#define ALIAS_COUNT       (COMMONALIAS_COUNT + 0x60)
+#define COMMONALIAS_COUNT_v3 (0x22)
+#define ALIAS_COUNT_v3       (COMMONALIAS_COUNT_v3 + 0x60)
+
+#include <RSDKv3/bytecodev3.hpp>
+#include <RSDKv3/gameconfigv3.hpp>
 
 class Compilerv3
 {
@@ -134,15 +136,15 @@ public:
 
     enum ScriptSubs { SUB_RSDKDRAW = 0, SUB_RSDKLOAD = 1, SUB_RSDKEDIT = 2 };
 
-    ObjectScript objectScriptList[OBJECT_COUNT];
+    ObjectScript objectScriptList[OBJECT_COUNT_v3];
 
-    ScriptFunction functionList[FUNCTION_COUNT];
+    ScriptFunction functionList[FUNCTION_COUNT_v3];
     int functionCount = 0;
 
-    int scriptCode[SCRIPTCODE_COUNT];
-    int jumpTable[JUMPTABLE_COUNT];
+    int scriptCode[SCRIPTCODE_COUNT_v3];
+    int jumpTable[JUMPTABLE_COUNT_v3];
 
-    int jumpTableStack[JUMPSTACK_COUNT];
+    int jumpTableStack[JUMPSTACK_COUNT_v3];
 
     int jumpTableStackPos = 0;
 
@@ -153,13 +155,13 @@ public:
     int jumpTablePos     = 0;
     int jumpTableOffset  = 0;
 
-    int functionStack[FUNCSTACK_COUNT];
+    int functionStack[FUNCSTACK_COUNT_v3];
     int functionStackPos = 0;
 
     static FunctionInfo opcodeFunctionList[];
     static VariableInfo variableList[];
 
-    static AliasInfo aliases[ALIAS_COUNT];
+    static AliasInfo aliases[ALIAS_COUNT_v3];
     int aliasCount = 0;
     int lineID     = 0;
 
@@ -182,7 +184,7 @@ public:
 
     QList<QString> globalVariables;
 
-    char typeNames[OBJECT_COUNT][0x40];
+    char typeNames[OBJECT_COUNT_v3][0x40];
 
     QList<QString> globalSfxNames;
     QList<QString> stageSfxNames;
@@ -205,8 +207,8 @@ public:
     int objectLoop = 0;
 
     ScriptEngine scriptEng;
-    Entity objectEntityList[ENTITY_COUNT];
-    SpriteFrame scriptFrames[SPRITEFRAME_COUNT];
+    Entity objectEntityList[ENTITY_COUNT_v3];
+    SpriteFrame scriptFrames[SPRITEFRAME_COUNT_v3];
     int scriptFrameCount = 0;
 
     int xScrollOffset = 0;
@@ -267,4 +269,4 @@ private:
     bool inEditor = true;
 };
 
-#endif // COMPILERV3_H
+

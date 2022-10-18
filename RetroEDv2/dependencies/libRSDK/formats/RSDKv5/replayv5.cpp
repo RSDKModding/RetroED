@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "replayv5.hpp"
+
 void RSDKv5::Replay::read(Reader &reader)
 {
     filePath       = reader.filePath;

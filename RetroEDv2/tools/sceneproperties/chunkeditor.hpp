@@ -1,5 +1,4 @@
-#ifndef CHUNKEDITOR_H
-#define CHUNKEDITOR_H
+#pragma once
 
 #include <QWidget>
 
@@ -88,4 +87,4 @@ private:
     QList<QImage> &chunkImgList;
 };
 
-#endif // CHUNKEDITOR_H
+

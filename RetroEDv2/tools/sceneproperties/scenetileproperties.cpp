@@ -1,5 +1,8 @@
 #include "includes.hpp"
 #include "ui_scenetileproperties.h"
+#include "scenetileproperties.hpp"
+
+#include <RSDKv5/tileconfigv5.hpp>
 
 SceneTileProperties::SceneTileProperties(QWidget *parent)
     : QWidget(parent), ui(new Ui::SceneTileProperties)

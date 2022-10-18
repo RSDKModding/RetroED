@@ -1,16 +1,15 @@
-#ifndef GAMEOBJECTS_HPP
-#define GAMEOBJECTS_HPP
+#pragma once
 
-#define v5_OBJECT_COUNT (0x400)
+#define OBJECT_COUNT_v5 (0x400)
 // 0x800 scene objects, 0x40 reserved ones, and 0x100 spare slots for creation
-#define v5_RESERVE_ENTITY_COUNT (0x40)
-#define v5_TEMPENTITY_COUNT     (0x100)
-#define v5_SCENEENTITY_COUNT    (0x800)
-#define v5_ENTITY_COUNT         (v5_RESERVE_ENTITY_COUNT + v5_SCENEENTITY_COUNT + v5_TEMPENTITY_COUNT)
-#define v5_TEMPENTITY_START     (v5_ENTITY_COUNT - v5_TEMPENTITY_COUNT)
+#define RESERVE_ENTITY_COUNT_v5 (0x40)
+#define TEMPENTITY_COUNT_v5     (0x100)
+#define SCENEENTITY_COUNT_v5    (0x800)
+#define ENTITY_COUNT_v5         (RESERVE_ENTITY_COUNT_v5 + SCENEENTITY_COUNT_v5 + TEMPENTITY_COUNT_v5)
+#define TEMPENTITY_START_v5     (ENTITY_COUNT_v5 - TEMPENTITY_COUNT_v5)
 
 #define TYPE_COUNT      (0x100)
-#define TYPEGROUP_COUNT (0x104)
+#define TYPEGROUP_COUNT_v5 (0x104)
 
 #define FOREACH_STACK_COUNT (0x400)
 
@@ -67,4 +66,3 @@ void BreakForeachLoop();
 bool32 CheckOnScreen(void *entity, Vector2<int> *range);
 bool32 CheckPosOnScreen(Vector2<int> *position, Vector2<int> *range);
 } // namespace FunctionTable
-#endif

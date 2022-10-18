@@ -1,7 +1,12 @@
-#ifndef SCENEVIEWER_H
-#define SCENEVIEWER_H
+#pragma once
+
+#include <RSDKv5.hpp>
+
+#include "sceneproperties/sceneincludesv5.hpp"
 
 #define AS_ENTITY(var, type) ((type *)var)
+
+class SceneObjectPropertiesv5;
 
 class SceneViewer : public QOpenGLWidget
 {
@@ -216,7 +221,7 @@ public:
     ForeachStackInfo foreachStackList[FOREACH_STACK_COUNT];
     ForeachStackInfo *foreachStackPtr;
 
-    TypeGroupList typeGroups[TYPEGROUP_COUNT];
+    TypeGroupList typeGroups[TYPEGROUP_COUNT_v5];
 
     DrawList drawLayers[v5_DRAWGROUP_COUNT];
 
@@ -344,4 +349,4 @@ private:
     friend class SceneEditorv5;
 };
 
-#endif // SCENEVIEWER_H
+

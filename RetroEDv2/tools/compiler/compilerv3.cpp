@@ -1,4 +1,7 @@
 #include "includes.hpp"
+#include "compilerv3.hpp"
+
+#include "tools/sceneeditor.hpp"
 
 Compilerv3::VariableInfo Compilerv3::variableList[] = {
     VariableInfo("TempValue0"),
@@ -388,7 +391,7 @@ Compilerv3::FunctionInfo Compilerv3::opcodeFunctionList[] = {
     FunctionInfo("CheckCurrentStageFolder", 1),
 };
 
-Compilerv3::AliasInfo Compilerv3::aliases[ALIAS_COUNT] = {
+Compilerv3::AliasInfo Compilerv3::aliases[ALIAS_COUNT_v3] = {
     AliasInfo("true", "1"),
     AliasInfo("false", "0"),
     AliasInfo("FX_SCALE", "0"),
@@ -1177,7 +1180,7 @@ void Compilerv3::ConvertFunctionText(char *text)
             if (StrComp(funcName, "TypeName")) {
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, 0);
-                for (int o = 0; o < OBJECT_COUNT; ++o) {
+                for (int o = 0; o < OBJECT_COUNT_v3; ++o) {
                     if (StrComp(arrayStr, typeNames[o])) {
                         funcName[0] = 0;
                         AppendIntegerToString(funcName, o);
@@ -1435,8 +1438,8 @@ void Compilerv3::ParseScriptFile(QString scriptName, int scriptID, bool inEditor
 
     jumpTableStackPos = 0;
     lineID            = 0;
-    aliasCount        = COMMONALIAS_COUNT;
-    for (int i = COMMONALIAS_COUNT; i < ALIAS_COUNT; ++i) {
+    aliasCount        = COMMONALIAS_COUNT_v3;
+    for (int i = COMMONALIAS_COUNT_v3; i < ALIAS_COUNT_v3; ++i) {
         StrCopy(aliases[i].name, "");
         StrCopy(aliases[i].value, "");
     }
@@ -1587,7 +1590,7 @@ void Compilerv3::ParseScriptFile(QString scriptName, int scriptID, bool inEditor
                         }
 
                         if (funcID <= -1) {
-                            if (functionCount >= FUNCTION_COUNT) {
+                            if (functionCount >= FUNCTION_COUNT_v3) {
                                 parseMode = PARSEMODE_SCOPELESS;
                             }
                             else {
@@ -1621,7 +1624,7 @@ void Compilerv3::ParseScriptFile(QString scriptName, int scriptID, bool inEditor
                                 funcID = f;
                         }
 
-                        if (functionCount < FUNCTION_COUNT && funcID == -1) {
+                        if (functionCount < FUNCTION_COUNT_v3 && funcID == -1) {
                             StrCopy(functionList[functionCount++].name, funcName);
                         }
 
@@ -1714,9 +1717,9 @@ void Compilerv3::ParseScriptFile(QString scriptName, int scriptID, bool inEditor
 
 void Compilerv3::ClearScriptData()
 {
-    memset(scriptCode, 0, SCRIPTCODE_COUNT * sizeof(int));
-    memset(jumpTable, 0, JUMPTABLE_COUNT * sizeof(int));
-    memset(functionStack, 0, FUNCSTACK_COUNT * sizeof(int));
+    memset(scriptCode, 0, SCRIPTCODE_COUNT_v3 * sizeof(int));
+    memset(jumpTable, 0, JUMPTABLE_COUNT_v3 * sizeof(int));
+    memset(functionStack, 0, FUNCSTACK_COUNT_v3 * sizeof(int));
 
     globalVariables.clear();
 
@@ -1729,31 +1732,31 @@ void Compilerv3::ClearScriptData()
 
     functionCount = 0;
 
-    for (int o = 0; o < OBJECT_COUNT; ++o) {
+    for (int o = 0; o < OBJECT_COUNT_v3; ++o) {
         ObjectScript *scriptInfo = &objectScriptList[o];
 
-        scriptInfo->subMain.scriptCodePtr              = SCRIPTCODE_COUNT - 1;
-        scriptInfo->subMain.jumpTablePtr               = JUMPTABLE_COUNT - 1;
-        scriptInfo->subPlayerInteraction.scriptCodePtr = SCRIPTCODE_COUNT - 1;
-        scriptInfo->subPlayerInteraction.jumpTablePtr  = JUMPTABLE_COUNT - 1;
-        scriptInfo->subDraw.scriptCodePtr              = SCRIPTCODE_COUNT - 1;
-        scriptInfo->subDraw.jumpTablePtr               = JUMPTABLE_COUNT - 1;
-        scriptInfo->subStartup.scriptCodePtr           = SCRIPTCODE_COUNT - 1;
-        scriptInfo->subStartup.jumpTablePtr            = JUMPTABLE_COUNT - 1;
+        scriptInfo->subMain.scriptCodePtr              = SCRIPTCODE_COUNT_v3 - 1;
+        scriptInfo->subMain.jumpTablePtr               = JUMPTABLE_COUNT_v3 - 1;
+        scriptInfo->subPlayerInteraction.scriptCodePtr = SCRIPTCODE_COUNT_v3 - 1;
+        scriptInfo->subPlayerInteraction.jumpTablePtr  = JUMPTABLE_COUNT_v3 - 1;
+        scriptInfo->subDraw.scriptCodePtr              = SCRIPTCODE_COUNT_v3 - 1;
+        scriptInfo->subDraw.jumpTablePtr               = JUMPTABLE_COUNT_v3 - 1;
+        scriptInfo->subStartup.scriptCodePtr           = SCRIPTCODE_COUNT_v3 - 1;
+        scriptInfo->subStartup.jumpTablePtr            = JUMPTABLE_COUNT_v3 - 1;
 
-        scriptInfo->subRSDKDraw.scriptCodePtr = SCRIPTCODE_COUNT - 1;
-        scriptInfo->subRSDKDraw.jumpTablePtr  = JUMPTABLE_COUNT - 1;
-        scriptInfo->subRSDKLoad.scriptCodePtr = SCRIPTCODE_COUNT - 1;
-        scriptInfo->subRSDKLoad.jumpTablePtr  = JUMPTABLE_COUNT - 1;
-        scriptInfo->subRSDKEdit.scriptCodePtr = SCRIPTCODE_COUNT - 1;
-        scriptInfo->subRSDKEdit.jumpTablePtr  = JUMPTABLE_COUNT - 1;
+        scriptInfo->subRSDKDraw.scriptCodePtr = SCRIPTCODE_COUNT_v3 - 1;
+        scriptInfo->subRSDKDraw.jumpTablePtr  = JUMPTABLE_COUNT_v3 - 1;
+        scriptInfo->subRSDKLoad.scriptCodePtr = SCRIPTCODE_COUNT_v3 - 1;
+        scriptInfo->subRSDKLoad.jumpTablePtr  = JUMPTABLE_COUNT_v3 - 1;
+        scriptInfo->subRSDKEdit.scriptCodePtr = SCRIPTCODE_COUNT_v3 - 1;
+        scriptInfo->subRSDKEdit.jumpTablePtr  = JUMPTABLE_COUNT_v3 - 1;
 
         typeNames[o][0] = 0;
     }
 
-    for (int f = 0; f < FUNCTION_COUNT; ++f) {
-        functionList[f].ptr.scriptCodePtr = SCRIPTCODE_COUNT - 1;
-        functionList[f].ptr.jumpTablePtr  = JUMPTABLE_COUNT - 1;
+    for (int f = 0; f < FUNCTION_COUNT_v3; ++f) {
+        functionList[f].ptr.scriptCodePtr = SCRIPTCODE_COUNT_v3 - 1;
+        functionList[f].ptr.jumpTablePtr  = JUMPTABLE_COUNT_v3 - 1;
     }
     globalSfxNames.clear();
     stageSfxNames.clear();
@@ -2669,7 +2672,7 @@ void Compilerv3::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
             case FUNC_DRAWMENU: opcodeSize = 0; break;
             case FUNC_SPRITEFRAME:
                 opcodeSize = 0;
-                if (scriptSub == SUB_RSDKLOAD && scriptFrameCount < SPRITEFRAME_COUNT) {
+                if (scriptSub == SUB_RSDKLOAD && scriptFrameCount < SPRITEFRAME_COUNT_v3) {
                     scriptFrames[scriptFrameCount].pivotX = scriptEng.operands[0];
                     scriptFrames[scriptFrameCount].pivotY = scriptEng.operands[1];
                     scriptFrames[scriptFrameCount].width  = scriptEng.operands[2];
@@ -3150,7 +3153,7 @@ void Compilerv3::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
             }
             case FUNC_GETOBJECTTYPE: {
                 scriptEng.operands[0] = -1;
-                for (int o = 0; o < OBJECT_COUNT; ++o) {
+                for (int o = 0; o < OBJECT_COUNT_v3; ++o) {
                     if (StrComp(scriptText, typeNames[o])) {
                         scriptEng.operands[0] = o;
                     }

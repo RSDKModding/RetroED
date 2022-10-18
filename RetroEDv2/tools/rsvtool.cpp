@@ -1,6 +1,10 @@
 #include "includes.hpp"
 #include "ui_rsvtool.h"
 
+#include "rsvtool.hpp"
+
+#include <RSDKv3/videov3.hpp>
+
 RSVTool::RSVTool(QWidget *parent) : QDialog(parent), ui(new Ui::RSVTool)
 {
     ui->setupUi(this);

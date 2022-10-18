@@ -1,10 +1,12 @@
-#ifndef COMPILERV2_H
-#define COMPILERV2_H
+#pragma once
+
+#define ALIAS_COUNT_v2       (0x80)
+#define COMMONALIAS_COUNT_v2 (25)
 
 #define OBJECT_COUNT_v2     (0x100)
 #define SFX_COUNT_v2        (0x100)
 #define ENTITY_COUNT_v2     (0x4A0)
-#define TEMPENTITY_START_v2 (ENTITY_COUNT - 0x80)
+#define TEMPENTITY_START_v2 (ENTITY_COUNT_v2 - 0x80)
 
 #define SCRIPTDATA_COUNT_v2 (0x40000)
 #define JUMPTABLE_COUNT_v2  (0x4000)
@@ -12,6 +14,8 @@
 #define JUMPSTACK_COUNT_v2 (0x400)
 
 #define SPRITEFRAME_COUNT_v2 (0x1000)
+
+#include <RSDKv2/bytecodev2.hpp>
 
 class Compilerv2
 {
@@ -182,4 +186,4 @@ private:
     byte ArcTanLookup(int X, int Y);
 };
 
-#endif // COMPILERV2_H
+

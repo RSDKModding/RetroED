@@ -1,9 +1,23 @@
-#ifndef SCENEEDITOR_H
-#define SCENEEDITOR_H
+#pragma once
 
 #include <QWidget>
 
+#include "tools/sceneviewer.hpp"
+
+#include "tools/compiler/compilerv2.hpp"
+#include "tools/compiler/compilerv3.hpp"
+#include "tools/compiler/compilerv4.hpp"
+
+class SceneProperties;
+class SceneLayerProperties;
+class SceneTileProperties;
+class SceneObjectProperties;
+class SceneScrollProperties;
+class ChunkEditor;
 class ChunkSelector;
+class TilesetEditor;
+
+#include <RSDKv5/tileconfigv5.hpp>
 
 namespace Ui
 {
@@ -244,4 +258,4 @@ private:
     ChunkLabel *labels[0x200];
 };
 
-#endif // SCENEEDITOR_H
+

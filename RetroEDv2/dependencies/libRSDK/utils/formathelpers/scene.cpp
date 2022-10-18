@@ -1,5 +1,11 @@
 #include "libRSDK.hpp"
 
+#include "scene.hpp"
+#include "RSDKv1/scenev1.hpp"
+#include "RSDKv2/scenev2.hpp"
+#include "RSDKv3/scenev3.hpp"
+#include "RSDKv4/scenev4.hpp"
+
 void FormatHelpers::Scene::read(byte ver, QString filename)
 {
     Reader reader(filename);

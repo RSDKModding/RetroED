@@ -1,5 +1,4 @@
-#ifndef BYTECODE_V4_H
-#define BYTECODE_V4_H
+#pragma once
 
 namespace RSDKv4
 {
@@ -56,4 +55,4 @@ public:
 
 } // namespace RSDKv4
 
-#endif // BYTECODE_V4_H
+

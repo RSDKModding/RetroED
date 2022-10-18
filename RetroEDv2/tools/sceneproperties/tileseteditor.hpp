@@ -1,5 +1,4 @@
-#ifndef TILESETEDITOR_H
-#define TILESETEDITOR_H
+#pragma once
 
 #include <QWidget>
 
@@ -89,4 +88,4 @@ private:
     TilesetViewer *viewer = nullptr;
 };
 
-#endif // TILESETEDITOR_H
+

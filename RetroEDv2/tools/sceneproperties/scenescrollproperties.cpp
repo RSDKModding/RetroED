@@ -1,5 +1,8 @@
 #include "includes.hpp"
 #include "ui_scenescrollproperties.h"
+#include "scenescrollproperties.hpp"
+
+#include "sceneincludesv5.hpp"
 
 SceneScrollProperties::SceneScrollProperties(QWidget *parent)
     : QWidget(parent), ui(new Ui::SceneScrollProperties)

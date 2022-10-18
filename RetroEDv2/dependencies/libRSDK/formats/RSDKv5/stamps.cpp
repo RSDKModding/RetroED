@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "stamps.hpp"
+
 void RSDKv5::Stamps::read(Reader &reader)
 {
     filePath = reader.filePath;

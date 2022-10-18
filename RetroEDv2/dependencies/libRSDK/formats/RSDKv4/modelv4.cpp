@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "modelv4.hpp"
+
 void RSDKv4::Model::read(Reader &reader)
 {
     filePath = reader.filePath;

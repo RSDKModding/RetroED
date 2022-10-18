@@ -1,5 +1,4 @@
-#ifndef PROPERTYWIDGET_H
-#define PROPERTYWIDGET_H
+#pragma once
 
 // Crap for PropertyGrid
 #include "dependencies/QtPropertyBrowser/src/qttreepropertybrowser.h"
@@ -92,4 +91,4 @@ private:
     void assignDelegate(Property *property);
 };
 
-#endif // !PROPERTYGRID_H
+

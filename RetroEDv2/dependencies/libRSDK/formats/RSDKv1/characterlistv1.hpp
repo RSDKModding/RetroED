@@ -1,5 +1,4 @@
-#ifndef CHARACTERLIST_V1_H
-#define CHARACTERLIST_V1_H
+#pragma once
 
 namespace RSDKv1
 {
@@ -109,4 +108,4 @@ public:
 
 } // namespace RSDKv1
 
-#endif // CHARACTERLIST_V1_H
+

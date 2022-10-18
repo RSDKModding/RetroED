@@ -1,7 +1,12 @@
 #include "includes.hpp"
 #include "ui_animationeditor.h"
+#include "animationeditor.hpp"
 
 #include "qgifimage.h"
+
+#include "animationeditor/animsheetselector.hpp"
+
+#include "paletteeditor/colourdialog.hpp"
 
 enum SolFrameListRole { ROLE_PIXMAP = Qt::UserRole + 278 };
 

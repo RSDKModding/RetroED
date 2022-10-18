@@ -1,5 +1,4 @@
-#ifndef OBJECTSELECTOR_V5_H
-#define OBJECTSELECTOR_V5_H
+#pragma once
 
 #include <QDialog>
 
@@ -26,4 +25,4 @@ private:
     void filterObjectList(QString filter);
 };
 
-#endif // OBJECTSELECTOR_H
+

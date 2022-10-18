@@ -1,9 +1,14 @@
 #include "includes.hpp"
 #include "ui_userdbmanager.h"
 
+#include "userdbmanager.hpp"
+
 #include <time.h>
 #include <iomanip>
 #include <sstream>
+
+#include <RSDKv5/userdbv5.hpp>
+using namespace RSDKv5;
 
 UserDBManager::UserDBManager(QWidget *parent) : QDialog(parent), ui(new Ui::UserDBManager)
 {
@@ -60,7 +65,7 @@ char *UserDBManager::strptime(const char *s, const char *f, struct tm *tm)
 
 void UserDBManager::convertDBToCSV(QString dbPath, QString csvPath)
 {
-    RSDKv5::UserDB userDB(dbPath);
+    UserDB userDB(dbPath);
 
     Writer writer(csvPath);
 
@@ -109,111 +114,111 @@ void UserDBManager::convertDBToCSV(QString dbPath, QString csvPath)
             QDataStream stream(val.data);
             switch (userDB.columns[c].type) {
                 default:
-                case RSDKv5::UserDB::TableColumn::Invalid: writer.writeText("[Invalid]"); break;
+                case UserDB::TableColumn::Invalid: writer.writeText("[Invalid]"); break;
 
-                case RSDKv5::UserDB::TableColumn::Bool: {
+                case UserDB::TableColumn::Bool: {
                     byte value = false;
                     stream >> value;
                     writer.writeText(value ? "y" : "n");
                     break;
                 }
 
-                case RSDKv5::UserDB::TableColumn::UInt8: {
+                case UserDB::TableColumn::UInt8: {
                     byte value = 0;
                     stream >> value;
                     writer.writeText(QString::number(value));
                     break;
                 }
 
-                case RSDKv5::UserDB::TableColumn::UInt16: {
+                case UserDB::TableColumn::UInt16: {
                     ushort value = 0;
                     stream >> value;
                     writer.writeText(QString::number(value));
                     break;
                 }
 
-                case RSDKv5::UserDB::TableColumn::UInt32:
-                case RSDKv5::UserDB::TableColumn::Color: {
+                case UserDB::TableColumn::UInt32:
+                case UserDB::TableColumn::Color: {
                     uint value = 0;
                     stream >> value;
                     writer.writeText("0x" + QString::number(value, 0x10).toUpper());
                     break;
                 }
 
-                case RSDKv5::UserDB::TableColumn::UInt64: {
+                case UserDB::TableColumn::UInt64: {
                     uint64 value = 0;
                     stream >> value;
                     writer.writeText(QString::number(value));
                     break;
                 }
 
-                case RSDKv5::UserDB::TableColumn::Int8: {
+                case UserDB::TableColumn::Int8: {
                     sbyte value = 0;
                     stream >> value;
                     writer.writeText(QString::number(value));
                     break;
                 }
 
-                case RSDKv5::UserDB::TableColumn::Int16: {
+                case UserDB::TableColumn::Int16: {
                     short value = 0;
                     stream >> value;
                     writer.writeText(QString::number(value));
                     break;
                 }
 
-                case RSDKv5::UserDB::TableColumn::Int32: {
+                case UserDB::TableColumn::Int32: {
                     int value = 0;
                     stream >> value;
                     writer.writeText("0x" + QString::number(value, 0x10).toUpper());
                     break;
                 }
 
-                case RSDKv5::UserDB::TableColumn::Int64: {
+                case UserDB::TableColumn::Int64: {
                     int64 value = 0;
                     stream >> value;
                     writer.writeText(QString::number(value));
                     break;
                 }
 
-                case RSDKv5::UserDB::TableColumn::Float: {
+                case UserDB::TableColumn::Float: {
                     float value = 0;
                     stream >> value;
                     writer.writeText(QString::number(value));
                     break;
                 }
 
-                case RSDKv5::UserDB::TableColumn::Double: {
+                case UserDB::TableColumn::Double: {
                     double value = 0;
                     stream >> value;
                     writer.writeText(QString::number(value));
                     break;
                 }
 
-                case RSDKv5::UserDB::TableColumn::Vector2: {
+                case UserDB::TableColumn::Vector2: {
                     QString value(val.data);
                     writer.writeText("[Unimplemented]");
                     break;
                 }
 
-                case RSDKv5::UserDB::TableColumn::Vector3: {
+                case UserDB::TableColumn::Vector3: {
                     QString value(val.data);
                     writer.writeText("[Unimplemented]");
                     break;
                 }
 
-                case RSDKv5::UserDB::TableColumn::Vector4: {
+                case UserDB::TableColumn::Vector4: {
                     QString value(val.data);
                     writer.writeText("[Unimplemented]");
                     break;
                 }
 
-                case RSDKv5::UserDB::TableColumn::String: {
+                case UserDB::TableColumn::String: {
                     QString value(val.data);
                     writer.writeText(value);
                     break;
                 }
 
-                case RSDKv5::UserDB::TableColumn::HashMD5: {
+                case UserDB::TableColumn::HashMD5: {
                     QString value(val.data);
                     writer.writeText("[Unimplemented]");
                     break;
@@ -230,7 +235,7 @@ void UserDBManager::convertDBToCSV(QString dbPath, QString csvPath)
 
 void UserDBManager::convertCSVToDB(QString dbPath, QString csvPath)
 {
-    RSDKv5::UserDB userDB;
+    UserDB userDB;
 
     Reader reader(csvPath);
 
@@ -254,7 +259,7 @@ void UserDBManager::convertCSVToDB(QString dbPath, QString csvPath)
                     mode = 3;
                 }
                 for (int i = 3; i < sep.count(); ++i) {
-                    RSDKv5::UserDB::TableColumn column;
+                    UserDB::TableColumn column;
                     column.name = sep[i];
                     userDB.columns.append(column);
                 }
@@ -269,14 +274,14 @@ void UserDBManager::convertCSVToDB(QString dbPath, QString csvPath)
 
                 for (int i = 3; i < sep.count(); ++i) {
                     userDB.columns[i - 3].type =
-                        (RSDKv5::UserDB::TableColumn::Types)types.indexOf(sep[i]);
+                        (UserDB::TableColumn::Types)types.indexOf(sep[i]);
                 }
                 ++mode;
                 break;
 
             case 2: // read values
             {
-                RSDKv5::UserDB::TableRow row;
+                UserDB::TableRow row;
                 for (int i = 0; i < sep.count(); ++i) {
                     QString value = sep[i];
                     tm tmBuf;
@@ -299,99 +304,99 @@ void UserDBManager::convertCSVToDB(QString dbPath, QString csvPath)
                             break;
 
                         default: {
-                            RSDKv5::UserDB::TableRow::Value entry;
+                            UserDB::TableRow::Value entry;
                             entry.data.clear();
                             QDataStream stream(&entry.data, QIODevice::ReadWrite);
                             switch (userDB.columns[i - 3].type) {
                                 default:
-                                case RSDKv5::UserDB::TableColumn::Invalid:
+                                case UserDB::TableColumn::Invalid:
                                     // Invalid, do nothing
                                     break;
 
-                                case RSDKv5::UserDB::TableColumn::Bool:
+                                case UserDB::TableColumn::Bool:
                                     stream << (byte)(value.toLower().startsWith("y") ? 1 : 0);
                                     break;
 
-                                case RSDKv5::UserDB::TableColumn::UInt8:
+                                case UserDB::TableColumn::UInt8:
                                     if (value.startsWith("0x"))
                                         stream << (byte)value.toInt(nullptr, 0x10);
                                     else
                                         stream << (byte)value.toInt(nullptr, 10);
                                     break;
 
-                                case RSDKv5::UserDB::TableColumn::UInt16:
+                                case UserDB::TableColumn::UInt16:
                                     if (value.startsWith("0x"))
                                         stream << value.toUShort(nullptr, 0x10);
                                     else
                                         stream << value.toUShort(nullptr, 10);
                                     break;
 
-                                case RSDKv5::UserDB::TableColumn::UInt32:
-                                case RSDKv5::UserDB::TableColumn::Color:
+                                case UserDB::TableColumn::UInt32:
+                                case UserDB::TableColumn::Color:
                                     if (value.startsWith("0x"))
                                         stream << value.toUInt(nullptr, 0x10);
                                     else
                                         stream << value.toUInt(nullptr, 10);
                                     break;
 
-                                case RSDKv5::UserDB::TableColumn::UInt64:
+                                case UserDB::TableColumn::UInt64:
                                     if (value.startsWith("0x"))
                                         stream << value.toULongLong(nullptr, 0x10);
                                     else
                                         stream << value.toULongLong(nullptr, 10);
                                     break;
 
-                                case RSDKv5::UserDB::TableColumn::Int8:
+                                case UserDB::TableColumn::Int8:
                                     if (value.startsWith("0x"))
                                         stream << (sbyte)value.toInt(nullptr, 0x10);
                                     else
                                         stream << (sbyte)value.toInt(nullptr, 10);
                                     break;
 
-                                case RSDKv5::UserDB::TableColumn::Int16:
+                                case UserDB::TableColumn::Int16:
                                     if (value.startsWith("0x"))
                                         stream << value.toShort(nullptr, 0x10);
                                     else
                                         stream << value.toShort(nullptr, 10);
                                     break;
 
-                                case RSDKv5::UserDB::TableColumn::Int32:
+                                case UserDB::TableColumn::Int32:
                                     if (value.startsWith("0x"))
                                         stream << value.toInt(nullptr, 0x10);
                                     else
                                         stream << value.toInt(nullptr, 10);
                                     break;
 
-                                case RSDKv5::UserDB::TableColumn::Int64:
+                                case UserDB::TableColumn::Int64:
                                     if (value.startsWith("0x"))
                                         stream << value.toLongLong(nullptr, 0x10);
                                     else
                                         stream << value.toLongLong(nullptr, 10);
                                     break;
 
-                                case RSDKv5::UserDB::TableColumn::Float:
+                                case UserDB::TableColumn::Float:
                                     stream << value.toFloat();
                                     break;
 
-                                case RSDKv5::UserDB::TableColumn::Double:
+                                case UserDB::TableColumn::Double:
                                     stream << value.toDouble();
                                     break;
 
-                                case RSDKv5::UserDB::TableColumn::Vector2:
+                                case UserDB::TableColumn::Vector2:
                                     // Unimplemented, do nothing
                                     break;
 
-                                case RSDKv5::UserDB::TableColumn::Vector3:
+                                case UserDB::TableColumn::Vector3:
                                     // Unimplemented, do nothing
                                     break;
 
-                                case RSDKv5::UserDB::TableColumn::Vector4:
+                                case UserDB::TableColumn::Vector4:
                                     // Unimplemented, do nothing
                                     break;
 
-                                case RSDKv5::UserDB::TableColumn::String: stream << value; break;
+                                case UserDB::TableColumn::String: stream << value; break;
 
-                                case RSDKv5::UserDB::TableColumn::HashMD5:
+                                case UserDB::TableColumn::HashMD5:
                                     // Unimplemented, do nothing
                                     break;
                             }

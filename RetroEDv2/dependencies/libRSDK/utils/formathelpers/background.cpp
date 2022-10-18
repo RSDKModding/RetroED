@@ -1,5 +1,11 @@
 #include "libRSDK.hpp"
 
+#include "background.hpp"
+#include "RSDKv1/backgroundv1.hpp"
+#include "RSDKv2/backgroundv2.hpp"
+#include "RSDKv3/backgroundv3.hpp"
+#include "RSDKv4/backgroundv4.hpp"
+
 void FormatHelpers::Background::read(byte ver, QString filename)
 {
     Reader reader(filename);

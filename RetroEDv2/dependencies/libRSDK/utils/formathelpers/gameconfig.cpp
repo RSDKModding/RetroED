@@ -1,5 +1,10 @@
 #include "libRSDK.hpp"
 
+#include "gameconfig.hpp"
+#include "RSDKv2/gameconfigv2.hpp"
+#include "RSDKv3/gameconfigv3.hpp"
+#include "RSDKv4/gameconfigv4.hpp"
+
 void FormatHelpers::GameConfig::read(byte ver, QString filename)
 {
     filePath = filename;

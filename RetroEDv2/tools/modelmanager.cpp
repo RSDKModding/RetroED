@@ -1,6 +1,13 @@
 #include "includes.hpp"
 #include "ui_modelmanager.h"
 
+#include "modelmanager.hpp"
+
+#include "paletteeditor/colourdialog.hpp"
+
+#include <RSDKv4/modelv4.hpp>
+#include <RSDKv5/modelv5.hpp>
+
 ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
     : QWidget(parent), ui(new Ui::ModelManager)
 {

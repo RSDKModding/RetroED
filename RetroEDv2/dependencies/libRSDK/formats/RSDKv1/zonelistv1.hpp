@@ -1,5 +1,4 @@
-#ifndef STAGELIST_V1_H
-#define STAGELIST_V1_H
+#pragma once
 
 namespace RSDKv1
 {
@@ -104,4 +103,4 @@ public:
 
 } // namespace RSDKv1
 
-#endif // STAGELIST_V1_H
+

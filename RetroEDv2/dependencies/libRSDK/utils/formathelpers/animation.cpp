@@ -1,5 +1,12 @@
 #include "libRSDK.hpp"
 
+#include "animation.hpp"
+#include "RSDKv1/animationv1.hpp"
+#include "RSDKv2/animationv2.hpp"
+#include "RSDKv3/animationv3.hpp"
+#include "RSDKv4/animationv4.hpp"
+#include "RSDKv5/animationv5.hpp"
+
 void FormatHelpers::Animation::read(byte ver, QString filename)
 {
     Reader reader(filename);

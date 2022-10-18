@@ -1,5 +1,4 @@
-#ifndef ANIMATIONEDITOR_H
-#define ANIMATIONEDITOR_H
+#pragma once
 
 #include <QWidget>
 
@@ -130,4 +129,4 @@ private:
     QString tabTitle = "Animation Editor";
 };
 
-#endif // ANIMATIONEDITOR_H
+

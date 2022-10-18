@@ -1,5 +1,4 @@
-#ifndef PALETTE_V5_H
-#define PALETTE_V5_H
+#pragma once
 
 namespace RSDKv5
 {
@@ -80,4 +79,4 @@ public:
 
 } // namespace RSDKv5
 
-#endif // PALETTE_V5_H
+

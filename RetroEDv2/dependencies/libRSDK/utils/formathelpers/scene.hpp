@@ -1,5 +1,4 @@
-#ifndef RSDK_SCENE_H
-#define RSDK_SCENE_H
+#pragma once
 
 namespace FormatHelpers
 {
@@ -67,4 +66,4 @@ public:
 
 } // namespace FormatHelpers
 
-#endif // RSDK_SCENE_H
+

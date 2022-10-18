@@ -1,5 +1,4 @@
-#ifndef VIDEO_V3_H
-#define VIDEO_V3_H
+#pragma once
 
 namespace RSDKv3
 {
@@ -39,4 +38,4 @@ public:
 
 } // namespace RSDKv3
 
-#endif // VIDEO_V3_H
+

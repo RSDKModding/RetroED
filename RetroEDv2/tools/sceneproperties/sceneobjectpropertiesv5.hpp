@@ -1,7 +1,8 @@
-#ifndef SCENEOBJECTPROPERTIES_V5_H
-#define SCENEOBJECTPROPERTIES_V5_H
+#pragma once
 
 #include <QWidget>
+
+#include "sceneincludesv5.hpp"
 
 namespace Ui
 {
@@ -34,4 +35,4 @@ private:
     QMessageBox *msgBox = nullptr;
 };
 
-#endif // SCENEOBJECTPROPERTIES_V5_H
+

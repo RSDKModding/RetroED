@@ -1,5 +1,6 @@
 #include "includes.hpp"
 #include "ui_aboutwindow.h"
+#include "version.hpp"
 
 AboutWindow::AboutWindow(QWidget *parent) : QDialog(parent), ui(new Ui::AboutWindow)
 {
@@ -7,7 +8,7 @@ AboutWindow::AboutWindow(QWidget *parent) : QDialog(parent), ui(new Ui::AboutWin
 
     // remove question mark from the title bar & disable resizing
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    this->setFixedSize(QSize(this->width(), this->height()));
+    setFixedSize(QSize(width(), height()));
 
     ui->versionLabel->setText(RE_VERSION);
 #if RE_BUILD_TYPE != (2)

@@ -1,5 +1,4 @@
-#ifndef RSDKCONFIG_V5_H
-#define RSDKCONFIG_V5_H
+#pragma once
 
 namespace RSDKv5
 {
@@ -108,4 +107,4 @@ public:
 
 } // namespace RSDKv5
 
-#endif // RSDKCONFIG_V5_H
+

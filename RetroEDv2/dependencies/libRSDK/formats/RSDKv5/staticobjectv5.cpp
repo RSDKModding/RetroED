@@ -1,5 +1,8 @@
 #include "libRSDK.hpp"
 
+#include "staticobjectv5.hpp"
+#include "scenev5.hpp"
+
 void RSDKv5::StaticObject::read(Reader &reader)
 {
     filePath = reader.filePath;

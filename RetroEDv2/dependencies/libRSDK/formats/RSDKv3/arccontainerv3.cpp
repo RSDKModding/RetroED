@@ -1,5 +1,7 @@
 #include "libRSDK.hpp"
 
+#include "arccontainerv3.hpp"
+
 int decryptByte(int &key)
 {
     int val = 48271 * (key % 44488) - 3399 * (key / 44488);

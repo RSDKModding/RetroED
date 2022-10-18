@@ -1,6 +1,10 @@
 #include "includes.hpp"
 #include "ui_paletteeditor.h"
 
+#include "paletteeditor.hpp"
+
+#include "paletteeditor/colourdialog.hpp"
+
 PaletteEditor::PaletteEditor(QString filePath, byte type, QWidget *parent)
     : QDialog(parent), widget(new PaletteWidget(this)), ui(new Ui::PaletteEditor)
 {

@@ -1,8 +1,9 @@
-#ifndef SCENETILEPROPERTIES_V5_H
-#define SCENETILEPROPERTIES_V5_H
+#pragma once
 
 #include <QWidget>
 #include <QDialog>
+
+#include <RSDKv5/tileconfigv5.hpp>
 
 namespace Ui
 {
@@ -53,4 +54,4 @@ private:
     RSDKv5::TileConfig::CollisionMask *cmask[2] = { nullptr, nullptr };
 };
 
-#endif // SCENETILEPROPERTIES_V5_H
+

@@ -1,7 +1,9 @@
-#ifndef SCENEPROPERTIES_V5_H
-#define SCENEPROPERTIES_V5_H
+#pragma once
 
 #include <QWidget>
+
+#include <RSDKv5/scenev5.hpp>
+#include <RSDKv5/stageconfigv5.hpp>
 
 namespace Ui
 {
@@ -62,4 +64,4 @@ private:
     Ui::ScenePropertiesv5 *ui;
 };
 
-#endif // SCENEPROPERTIES_V5_H
+
