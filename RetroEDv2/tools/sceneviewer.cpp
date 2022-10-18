@@ -45,6 +45,24 @@ SceneViewer::SceneViewer(byte gameType, QWidget *parent) : QOpenGLWidget(parent)
         gfxSurface[s].scope = SCOPE_NONE;
     }
 
+    memset(&sceneInfo, 0, sizeof(sceneInfo));
+    memset(&skuInfo, 0, sizeof(skuInfo));
+    memset(&gameInfo, 0, sizeof(gameInfo));
+    memset(controller, 0, sizeof(controller));
+    memset(stickL, 0, sizeof(stickL));
+    memset(stickR, 0, sizeof(stickR));
+    memset(triggerL, 0, sizeof(triggerL));
+    memset(triggerR, 0, sizeof(triggerR));
+    memset(&touchMouse, 0, sizeof(touchMouse));
+    memset(&unknownInfo, 0, sizeof(unknownInfo));
+    memset(screens, 0, sizeof(screens));
+
+    memset(&sceneInfoV1, 0, sizeof(sceneInfoV1));
+    memset(&gameInfoV1, 0, sizeof(gameInfoV1));
+    memset(controllerV1, 0, sizeof(controllerV1));
+    memset(stickLV1, 0, sizeof(stickLV1));
+    memset(&touchMouseV1, 0, sizeof(touchMouseV1));
+
     sceneInfo.entity           = 0;
     sceneInfo.listData         = 0;
     sceneInfo.listCategory     = 0;
@@ -68,11 +86,38 @@ SceneViewer::SceneViewer(byte gameType, QWidget *parent) : QOpenGLWidget(parent)
     sceneInfo.seconds          = 0;
     sceneInfo.minutes          = 0;
 
+    sceneInfoV1.entity           = 0;
+    sceneInfoV1.listData         = 0;
+    sceneInfoV1.listCategory     = 0;
+    sceneInfoV1.timeCounter      = 0;
+    sceneInfoV1.currentDrawGroup = 0;
+    sceneInfoV1.currentScreenID  = 0;
+    sceneInfoV1.listPos          = -1;
+    sceneInfoV1.entitySlot       = 0;
+    sceneInfoV1.createSlot       = 0;
+    sceneInfoV1.classCount       = 0;
+    sceneInfoV1.inEditor         = true;
+    sceneInfoV1.effectGizmo      = false;
+    sceneInfoV1.debugMode        = false;
+    sceneInfoV1.useGlobalScripts = false;
+    sceneInfoV1.timeEnabled      = false;
+    sceneInfoV1.activeCategory   = 0;
+    sceneInfoV1.categoryCount    = 0;
+    sceneInfoV1.state            = 1;
+    sceneInfoV1.milliseconds     = 0;
+    sceneInfoV1.seconds          = 0;
+    sceneInfoV1.minutes          = 0;
+
     sprintf(gameInfo.gameTitle, "%s", "RetroED");
     sprintf(gameInfo.gameSubname, "%s", "RetroED");
     sprintf(gameInfo.version, "%s", RE_VERSION);
 
-    skuInfo.platform = 0xFF;
+    sprintf(gameInfoV1.gameTitle, "%s", "RetroED");
+    sprintf(gameInfoV1.gameSubname, "%s", "RetroED");
+    sprintf(gameInfoV1.version, "%s", RE_VERSION);
+
+    skuInfo.platform    = 0xFF;
+    gameInfoV1.platform = 0xFF;
 
     int vID = 0;
     for (int i = 0; i < vertexListLimit; i++) {
@@ -256,7 +301,7 @@ void SceneViewer::updateScene()
                          ? objects[selectedObject].name
                          : "[None]");
 
-        if (gameType == ENGINE_v5) {
+        if (gameType == ENGINE_v5 && engineRevision != 1) {
             status += QString(", Filter: %1").arg(sceneFilter);
         }
 
@@ -827,7 +872,8 @@ void SceneViewer::drawScene()
 
     // ENTITIES
     for (int p = 0; p < v5_DRAWGROUP_COUNT; ++p) {
-        sceneInfo.currentDrawGroup = p;
+        sceneInfo.currentDrawGroup   = p;
+        sceneInfoV1.currentDrawGroup = p;
         for (int o = 0; o < drawLayers[p].entries.count(); ++o) {
             SceneEntity *entity = &entities[drawLayers[p].entries[o]];
             activeDrawEntity    = entity;
@@ -1200,9 +1246,10 @@ void SceneViewer::processObjects(bool isImage)
         drawLayers[i].entries.clear();
     }
 
-    sceneInfo.entitySlot = 0;
-    int centerX          = screens->centerX * invZoom();
-    int centerY          = screens->centerY * invZoom();
+    sceneInfo.entitySlot   = 0;
+    sceneInfoV1.entitySlot = 0;
+    int centerX            = screens->centerX * invZoom();
+    int centerY            = screens->centerY * invZoom();
 
     if (gameType == ENGINE_v5) {
         switch (v5Editor->viewer->engineRevision) {
@@ -1210,10 +1257,12 @@ void SceneViewer::processObjects(bool isImage)
                 for (int e = 0; e < entities.count(); ++e) {
                     if (!entities[e].gameEntity || !entities[e].type || isImage) {
                         drawLayers[15].entries.append(sceneInfo.entitySlot++);
+                        sceneInfoV1.entitySlot = sceneInfo.entitySlot;
                         continue;
                     }
 
                     sceneInfo.entity     = entities[e].gameEntity;
+                    sceneInfoV1.entity   = entities[e].gameEntity;
                     GameEntityv1 *entity = AS_ENTITY(sceneInfo.entity, GameEntityv1);
                     if (entities[e].type) {
                         entity->inRange = false;
@@ -1283,15 +1332,18 @@ void SceneViewer::processObjects(bool isImage)
                         entity->inRange = false;
                     }
                     sceneInfo.entitySlot++;
+                    sceneInfoV1.entitySlot++;
                 }
 
                 for (int i = 0; i < TYPEGROUP_COUNT; ++i) {
                     typeGroups[i].entries.clear();
                 }
 
-                sceneInfo.entitySlot = 0;
+                sceneInfo.entitySlot   = 0;
+                sceneInfoV1.entitySlot = 0;
                 for (int e = 0; e < entities.count(); ++e) {
                     sceneInfo.entity     = entities[e].gameEntity;
+                    sceneInfoV1.entity   = entities[e].gameEntity;
                     GameEntityv1 *entity = AS_ENTITY(sceneInfo.entity, GameEntityv1);
 
                     if (sceneInfo.entity && entity->inRange && entity->interaction) {
@@ -1302,9 +1354,11 @@ void SceneViewer::processObjects(bool isImage)
                         }
                     }
                     sceneInfo.entitySlot++;
+                    sceneInfoV1.entitySlot++;
                 }
 
-                sceneInfo.entitySlot = 0;
+                sceneInfo.entitySlot   = 0;
+                sceneInfoV1.entitySlot = 0;
                 for (int e = 0; e < entities.count(); ++e) {
                     if (entities[e].gameEntity) {
                         AS_ENTITY(entities[e].gameEntity, GameEntityvU)->onScreen = 0;
@@ -1537,6 +1591,7 @@ void SceneViewer::processObjects(bool isImage)
         for (int e = 0; e < entities.count(); ++e) {
             if (!entities[e].type || isImage) {
                 drawLayers[15].entries.append(sceneInfo.entitySlot++);
+                sceneInfoV1.entitySlot = sceneInfo.entitySlot;
                 continue;
             }
 
@@ -1619,6 +1674,7 @@ void SceneViewer::processObjects(bool isImage)
                 }
             }
             sceneInfo.entitySlot++;
+            sceneInfoV1.entitySlot++;
         }
 
         for (int i = 0; i < TYPEGROUP_COUNT; ++i) {
@@ -1626,8 +1682,11 @@ void SceneViewer::processObjects(bool isImage)
         }
 
         // sceneInfo.entitySlot = 0;
+        // sceneInfoV1.entitySlot = 0;
         // for (int e = 0; e < entities.count(); ++e) {
         //     sceneInfo.entity = entities[e].gameEntity;
+        //     sceneInfoV1.entity = entities[e].gameEntity;
+        //
         //     if (sceneInfo.entity && sceneInfo.entity->inBounds && sceneInfo.entity->interaction) {
         //         typeGroups[0].entries.append(e);                          // All active objects
         //         typeGroups[sceneInfo.entity->objectID].entries.append(e); // type-based slots
@@ -1636,6 +1695,7 @@ void SceneViewer::processObjects(bool isImage)
         //         }
         //     }
         //     sceneInfo.entitySlot++;
+        //     sceneInfoV1.entitySlot++;
         // }
     }
 }

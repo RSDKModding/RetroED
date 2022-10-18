@@ -231,7 +231,7 @@ void GameLink::Setup()
     using namespace FunctionTable;
     CalculateTrigAngles();
 
-    // Rev01::InitFunctionTables();
+    Rev01::InitFunctionTables();
     Rev02::InitFunctionTables();
     Rev0U::InitFunctionTables();
 
@@ -269,6 +269,20 @@ void GameLink::LinkGameObjects(QString gameName)
 
         switch (revision) {
             case 1: {
+                void (*linkGameLogicV1)(FunctionTable::Rev01::GameInfo info) =
+                    (void (*)(FunctionTable::Rev01::GameInfo))linkGameLogic;
+
+                FunctionTable::Rev01::GameInfo info;
+                info.rsdkFunctionTable = &FunctionTable::Rev01::RSDKFunctionTable;
+                info.engineInfo        = &v5Editor->viewer->gameInfoV1;
+                info.sceneInfo         = &v5Editor->viewer->sceneInfoV1;
+                info.controller        = v5Editor->viewer->controllerV1;
+                info.stickL            = v5Editor->viewer->stickLV1;
+                info.touchMouse        = &v5Editor->viewer->touchMouseV1;
+                info.screenInfo        = v5Editor->viewer->screens;
+                info.modFunctionTable  = &FunctionTable::modFunctionTable;
+
+                linkGameLogicV1(info);
                 break;
             }
 

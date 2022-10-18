@@ -96,6 +96,7 @@ public:
 
     // Stuff for game link
     int engineRevision = 3;
+
     SceneInfo sceneInfo;
     EngineInfo gameInfo;
     SKUInfo skuInfo;
@@ -107,6 +108,12 @@ public:
     TouchMouseData touchMouse;
     UnknownInfo unknownInfo;
     ScreenInfo screens[4];
+
+    SceneInfoV1 sceneInfoV1;
+    EngineInfoV1 gameInfoV1;
+    ControllerStateV1 controllerV1[5];
+    AnalogStateV1 stickLV1[5];
+    TouchMouseDataV1 touchMouseV1;
 
     inline int activeEntityCount()
     {

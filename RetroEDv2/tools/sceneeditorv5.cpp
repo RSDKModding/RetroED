@@ -131,11 +131,16 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                                    ui->filterBox5, ui->filterBox6, ui->filterBox7, ui->filterBox8 };
 
     for (int f = 0; f < 8; ++f) {
-        filterToggles[f]->setChecked(Utils::getBit(viewer->sceneFilter, f));
+        filterToggles[f]->setDisabled(viewer->engineRevision == 1);
+        filterToggles[f]->setChecked(viewer->engineRevision != 1
+                                     || Utils::getBit(viewer->sceneFilter, f));
         connect(filterToggles[f], &QCheckBox::toggled, [this, f] { viewer->sceneFilter ^= (1 << f); });
     }
 
-    connect(ui->useGizmos, &QPushButton::clicked, [this] { viewer->sceneInfo.effectGizmo ^= 1; });
+    connect(ui->useGizmos, &QPushButton::clicked, [this] {
+        viewer->sceneInfo.effectGizmo ^= 1;
+        viewer->sceneInfoV1.effectGizmo = viewer->sceneInfo.effectGizmo;
+    });
 
     connect(ui->layerList, &QListWidget::currentRowChanged, [this](int c) {
         ui->rmLayer->setDisabled(c == -1);
@@ -538,8 +543,9 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->downEnt->setDisabled(c == viewer->entities.count() - 1);
         ui->upEnt->setDisabled(c == 0);
 
-        viewer->selectedEntity    = c;
-        viewer->sceneInfo.listPos = viewer->entities[viewer->selectedEntity].slotID;
+        viewer->selectedEntity      = c;
+        viewer->sceneInfo.listPos   = viewer->entities[viewer->selectedEntity].slotID;
+        viewer->sceneInfoV1.listPos = viewer->sceneInfo.listPos;
 
         viewer->cameraPos.x = viewer->entities[c].pos.x - ((viewer->storedW / 2) * viewer->invZoom());
         viewer->cameraPos.y = viewer->entities[c].pos.y - ((viewer->storedH / 2) * viewer->invZoom());
@@ -1714,8 +1720,9 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                             int firstSel = -1;
                             Vector2<float> firstPos;
 
-                            viewer->selectedEntity    = -1;
-                            viewer->sceneInfo.listPos = -1;
+                            viewer->selectedEntity      = -1;
+                            viewer->sceneInfo.listPos   = -1;
+                            viewer->sceneInfoV1.listPos = viewer->sceneInfo.listPos;
                             for (int o = 0; o < viewer->entities.count(); ++o) {
                                 int left   = viewer->entities[o].pos.x + viewer->entities[o].box.x;
                                 int top    = viewer->entities[o].pos.y + viewer->entities[o].box.y;
@@ -1752,6 +1759,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                     viewer->selectedEntity = o;
                                     viewer->sceneInfo.listPos =
                                         viewer->entities[viewer->selectedEntity].slotID;
+                                    viewer->sceneInfoV1.listPos = viewer->sceneInfo.listPos;
+
                                     selectionOffset.x = pos.x - viewer->entities[o].pos.x;
                                     selectionOffset.y = pos.y - viewer->entities[o].pos.y;
 
@@ -1770,6 +1779,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                     viewer->selectedEntity = firstSel;
                                     viewer->sceneInfo.listPos =
                                         viewer->entities[viewer->selectedEntity].slotID;
+                                    viewer->sceneInfoV1.listPos = viewer->sceneInfo.listPos;
+
                                     selectionOffset.x =
                                         firstPos.x - viewer->entities[viewer->selectedEntity].pos.x;
                                     selectionOffset.y =
@@ -1904,6 +1915,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 viewer->selectedEntity = o;
                                 viewer->sceneInfo.listPos =
                                     viewer->entities[viewer->selectedEntity].slotID;
+                                viewer->sceneInfoV1.listPos = viewer->sceneInfo.listPos;
+
                                 selectionOffset.x = pos.x - viewer->entities[o].pos.x;
                                 selectionOffset.y = pos.y - viewer->entities[o].pos.y;
                                 found             = true;
@@ -1919,6 +1932,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 viewer->selectedEntity = firstSel;
                                 viewer->sceneInfo.listPos =
                                     viewer->entities[viewer->selectedEntity].slotID;
+                                viewer->sceneInfoV1.listPos = viewer->sceneInfo.listPos;
+
                                 selectionOffset.x =
                                     firstPos.x - viewer->entities[viewer->selectedEntity].pos.x;
                                 selectionOffset.y =
@@ -1927,11 +1942,13 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 ui->propertiesBox->setCurrentWidget(ui->objPropPage);
                             }
                             else {
-                                viewer->selectedEntity    = -1;
-                                viewer->sceneInfo.listPos = -1;
-                                viewer->selectedObject    = -1;
-                                selectionOffset.x         = 0;
-                                selectionOffset.y         = 0;
+                                viewer->selectedEntity      = -1;
+                                viewer->sceneInfo.listPos   = -1;
+                                viewer->sceneInfoV1.listPos = viewer->sceneInfo.listPos;
+
+                                viewer->selectedObject = -1;
+                                selectionOffset.x      = 0;
+                                selectionOffset.y      = 0;
                                 ui->objectList->setCurrentRow(-1);
                                 ui->entityList->setCurrentRow(-1);
 
@@ -2300,8 +2317,9 @@ int SceneEditorv5::addEntity(int type, float x, float y)
     callGameEvent(viewer->objects[entity.type].name, SceneViewer::EVENT_CREATE, &entity);
 
     viewer->entities.append(entity);
-    viewer->selectedEntity    = cnt;
-    viewer->sceneInfo.listPos = viewer->entities[viewer->selectedEntity].slotID;
+    viewer->selectedEntity      = cnt;
+    viewer->sceneInfo.listPos   = viewer->entities[viewer->selectedEntity].slotID;
+    viewer->sceneInfoV1.listPos = viewer->sceneInfo.listPos;
 
     ui->entityList->blockSignals(true);
     ui->entityList->setCurrentRow(viewer->selectedEntity);
@@ -2335,13 +2353,15 @@ void SceneEditorv5::deleteEntity(int slot, bool updateUI)
     }
 
     if (viewer->entities.count() <= 0) {
-        viewer->selectedEntity    = -1;
-        viewer->sceneInfo.listPos = -1;
+        viewer->selectedEntity      = -1;
+        viewer->sceneInfo.listPos   = -1;
+        viewer->sceneInfoV1.listPos = viewer->sceneInfo.listPos;
     }
 
     if (viewer->selectedEntity == slot) {
-        viewer->selectedEntity    = -1;
-        viewer->sceneInfo.listPos = -1;
+        viewer->selectedEntity      = -1;
+        viewer->sceneInfo.listPos   = -1;
+        viewer->sceneInfoV1.listPos = viewer->sceneInfo.listPos;
     }
 
     ui->entityList->blockSignals(true);
@@ -2621,6 +2641,15 @@ void SceneEditorv5::loadScene(QString scnPath, QString gcfPath, byte sceneVer)
     AddStatusProgress(1. / 6); // finish setting up UI stuff
 
     initGameLink();
+
+    QCheckBox *filterToggles[] = { ui->filterBox1, ui->filterBox2, ui->filterBox3, ui->filterBox4,
+                                   ui->filterBox5, ui->filterBox6, ui->filterBox7, ui->filterBox8 };
+
+    for (int f = 0; f < 8; ++f) {
+        filterToggles[f]->setDisabled(viewer->engineRevision == 1);
+        filterToggles[f]->setChecked(viewer->engineRevision != 1
+                                     || Utils::getBit(viewer->sceneFilter, f));
+    }
 
     ui->addEnt->setDisabled(viewer->activeEntityCount() >= 0x800);
 
@@ -3226,9 +3255,11 @@ void SceneEditorv5::resetTools(byte tool)
     ui->entityTool->blockSignals(false);
 
     // Reset
-    viewer->selectedObject    = -1;
-    viewer->selectedEntity    = -1;
-    viewer->sceneInfo.listPos = -1;
+    viewer->selectedObject      = -1;
+    viewer->selectedEntity      = -1;
+    viewer->sceneInfo.listPos   = -1;
+    viewer->sceneInfoV1.listPos = viewer->sceneInfo.listPos;
+
     objProp->unsetUI();
     viewer->isSelecting  = false;
     viewer->selectPos.x  = 0;
@@ -3601,14 +3632,20 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
 
             setGameEntityVariables(entity, entity->gameEntity);
 
-            viewer->sceneInfo.entity     = entity->gameEntity;
-            viewer->sceneInfo.entitySlot = entity->slotID;
+            viewer->sceneInfo.entity       = entity->gameEntity;
+            viewer->sceneInfo.entitySlot   = entity->slotID;
+            viewer->sceneInfoV1.entity     = entity->gameEntity;
+            viewer->sceneInfoV1.entitySlot = entity->slotID;
+
             if (info->create && entity->gameEntity) {
                 info->create(NULL);
                 called = true;
             }
-            viewer->sceneInfo.entity     = NULL;
-            viewer->sceneInfo.entitySlot = 0;
+
+            viewer->sceneInfo.entity       = NULL;
+            viewer->sceneInfo.entitySlot   = 0;
+            viewer->sceneInfoV1.entity     = NULL;
+            viewer->sceneInfoV1.entitySlot = 0;
 
             // editor defaults!
             // getGameEntityVariables(entity, entity->gameEntity);
@@ -3620,14 +3657,20 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
                 return called;
 
             // TODO: this(?)
-            viewer->sceneInfo.entity     = entity->gameEntity;
-            viewer->sceneInfo.entitySlot = entity->slotID;
+            viewer->sceneInfo.entity       = entity->gameEntity;
+            viewer->sceneInfo.entitySlot   = entity->slotID;
+            viewer->sceneInfoV1.entity     = entity->gameEntity;
+            viewer->sceneInfoV1.entitySlot = entity->slotID;
+
             if (info->update && entity->gameEntity) {
                 info->update();
                 called = true;
             }
-            viewer->sceneInfo.entity     = NULL;
-            viewer->sceneInfo.entitySlot = 0;
+
+            viewer->sceneInfo.entity       = NULL;
+            viewer->sceneInfo.entitySlot   = 0;
+            viewer->sceneInfoV1.entity     = NULL;
+            viewer->sceneInfoV1.entitySlot = 0;
             break;
 
         case SceneViewer::EVENT_DRAW:
@@ -3714,12 +3757,23 @@ bool SceneEditorv5::callGameEvent(QString objName, byte eventID, SceneEntity *en
             viewer->sceneInfo.debugMode  = false; // always start with overlay mode off
             viewer->sceneInfo.entity     = entity->gameEntity;
             viewer->sceneInfo.entitySlot = entity->slotID;
+
+            viewer->sceneInfoV1.currentScreenID  = 0;
+            viewer->sceneInfoV1.currentDrawGroup = 0; // TODO
+
+            viewer->sceneInfoV1.debugMode  = false; // always start with overlay mode off
+            viewer->sceneInfoV1.entity     = entity->gameEntity;
+            viewer->sceneInfoV1.entitySlot = entity->slotID;
+
             if (info->editorDraw && entity->gameEntity) {
                 info->editorDraw();
                 called = true;
             }
-            viewer->sceneInfo.entity     = NULL;
-            viewer->sceneInfo.entitySlot = 0;
+
+            viewer->sceneInfo.entity       = NULL;
+            viewer->sceneInfo.entitySlot   = 0;
+            viewer->sceneInfoV1.entity     = NULL;
+            viewer->sceneInfoV1.entitySlot = 0;
             break;
 
         case SceneViewer::EVENT_SERIALIZE:
@@ -3868,9 +3922,10 @@ void SceneEditorv5::ResetAction()
     // viewer->showPlaneB = actions[actionIndex].showPlaneB;
 
     // Entity Editing
-    viewer->selectedObject    = actions[actionIndex].selectedObject; // placing
-    viewer->selectedEntity    = actions[actionIndex].selectedEntity; // viewing
-    viewer->sceneInfo.listPos = viewer->selectedEntity;
+    viewer->selectedObject      = actions[actionIndex].selectedObject; // placing
+    viewer->selectedEntity      = actions[actionIndex].selectedEntity; // viewing
+    viewer->sceneInfo.listPos   = viewer->selectedEntity;
+    viewer->sceneInfoV1.listPos = viewer->selectedEntity;
 
     // Parallax Editing
     // viewer->showParallax       = actions[actionIndex].showParallax;
