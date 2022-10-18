@@ -258,20 +258,19 @@ GameConfigEditorv1::GameConfigEditorv1(QString path, QWidget *parent)
                 ui->scnFolder->setText(stageList[c.parent().row()].stages[c.row()].folder);
                 ui->scnName->setText(stageList[c.parent().row()].stages[c.row()].name);
 
-                connect(ui->scnName, &QLineEdit::textEdited, [this, c](QString s) {
-                    stageList[c.parent().row()].stages[c.row()].name = s;
-
-                    // TODO: edit text
+                connect(ui->scnName, &QLineEdit::editingFinished, [this, c]() {
+                    stageList[c.parent().row()].stages[c.row()].name = ui->scnName->text();
+                    sceneModel->itemFromIndex(c)->setText( ui->scnName->text());
                     DoAction("Changed Scene Name");
                 });
 
-                connect(ui->scnFolder, &QLineEdit::textEdited, [this, c](QString s) {
-                    stageList[c.parent().row()].stages[c.row()].folder = s;
+                connect(ui->scnFolder, &QLineEdit::editingFinished, [this, c]() {
+                    stageList[c.parent().row()].stages[c.row()].folder = ui->scnFolder->text();
                     DoAction("Changed Scene Folder");
                 });
 
-                connect(ui->scnID, &QLineEdit::textEdited, [this, c](QString s) {
-                    stageList[c.parent().row()].stages[c.row()].id = s;
+                connect(ui->scnID, &QLineEdit::editingFinished, [this, c]() {
+                    stageList[c.parent().row()].stages[c.row()].id = ui->scnID->text();
                     DoAction("Changed Scene ID");
                 });
 

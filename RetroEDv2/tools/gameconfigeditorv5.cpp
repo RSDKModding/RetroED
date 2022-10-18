@@ -248,20 +248,19 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
                         gameConfig.categories[c.parent().row()].scenes[c.row()].filter, f));
                 }
 
-                connect(ui->gcScnName, &QLineEdit::textEdited, [this, c](QString s) {
-                    gameConfig.categories[c.parent().row()].scenes[c.row()].name = s;
+                connect(ui->gcScnName, &QLineEdit::editingFinished, [this, c]() {
+                    gameConfig.categories[c.parent().row()].scenes[c.row()].name = ui->gcScnName->text();
+                    sceneModel->itemFromIndex(c)->setText(ui->gcScnName->text());
                     DoAction("Changed Scene Name");
-
-                    // TODO: edit text
                 });
 
-                connect(ui->gcScnFolder, &QLineEdit::textEdited, [this, c](QString s) {
-                    gameConfig.categories[c.parent().row()].scenes[c.row()].folder = s;
+                connect(ui->gcScnFolder, &QLineEdit::editingFinished, [this, c]() {
+                    gameConfig.categories[c.parent().row()].scenes[c.row()].folder = ui->gcScnFolder->text();
                     DoAction("Changed Scene Folder");
                 });
 
-                connect(ui->gcScnID, &QLineEdit::textEdited, [this, c](QString s) {
-                    gameConfig.categories[c.parent().row()].scenes[c.row()].id = s;
+                connect(ui->gcScnID, &QLineEdit::editingFinished, [this, c]() {
+                    gameConfig.categories[c.parent().row()].scenes[c.row()].id = ui->gcScnID->text();
                     DoAction("Changed Scene ID");
                 });
 
