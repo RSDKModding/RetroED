@@ -14,6 +14,7 @@ public:
             return file->pos();
         else if (stream)
             return writePos;
+        return -1;
     };
     inline bool flush()
     {

@@ -415,7 +415,7 @@ bool32 FunctionTable::CheckOnScreen(void *entity, Vector2<int> *range)
         return false;
 
     // TODO!
-    /*if (range) {
+    if (range) {/*
         for (int s = 0; s < cameraCount; ++s) {
             int sx = abs(entity->position.x - cameras[s].position.x);
             int sy = abs(entity->position.y - cameras[s].position.y);
@@ -431,8 +431,8 @@ bool32 FunctionTable::CheckOnScreen(void *entity, Vector2<int> *range)
             if (sx <= entity->updateRange.x + cameras[s].offset.x && sy <= entity->updateRange.y +
     cameras[s].offset.y) { return true;
             }
-        }
-    }*/
+        }//*/
+    }
 
     return false;
 }

@@ -283,7 +283,7 @@ void RSDKv5::Model::loadPLY(QString filePath)
         if (bigEndian) {
             // TODO: this
             for (auto &element : elements) {
-
+                Q_UNUSED(element);
                 // read each property value
             }
         }

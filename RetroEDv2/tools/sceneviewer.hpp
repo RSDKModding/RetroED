@@ -80,6 +80,9 @@ public:
     bool disableObjects   = true;
     bool disableDrawScene = false;
 
+    double fps;
+    QElapsedTimer fpsTimer;
+
     byte gameType = ENGINE_v5;
 
     QString dataPath = "";

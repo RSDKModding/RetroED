@@ -269,7 +269,7 @@ void FormatHelpers::Gif::readLine(Reader &reader, int length, int offset)
                         decoder.stack[stackPtr++] = decoder.suffix[code];
                         code                      = (int)decoder.prefix[code];
                     }
-                    if (c >= LZ_MAX_CODE | code > LZ_MAX_CODE)
+                    if (c >= LZ_MAX_CODE || code > LZ_MAX_CODE)
                         return;
 
                     decoder.stack[stackPtr++] = (byte)code;

@@ -124,13 +124,13 @@ void removeStorageEntry(DataStorage *storages, void **dataPtr)
             DataStorageHeader *entry = (DataStorageHeader *)(*data - STORAGE_HEADER_SIZE);
             int set                  = entry->setID;
 
-            for (int e = 0; e < storages[set].entryCount; ++e) {
+            for (uint e = 0; e < storages[set].entryCount; ++e) {
                 if (data == storages[set].dataEntries[e])
                     storages[set].dataEntries[e] = NULL;
             }
 
-            int newEntryCount = 0;
-            for (int entryID = 0; entryID < storages[set].entryCount; ++entryID) {
+            uint newEntryCount = 0;
+            for (uint entryID = 0; entryID < storages[set].entryCount; ++entryID) {
                 if (storages[set].dataEntries[entryID]) {
                     if (entryID != newEntryCount) {
                         storages[set].dataEntries[newEntryCount] = storages[set].dataEntries[entryID];
@@ -285,7 +285,7 @@ void cleanEmptyStorage(DataStorage *storages, StorageDataSets set)
                 storage->dataEntries[e] = NULL;
         }
 
-        int newEntryCount = 0;
+        uint newEntryCount = 0;
         for (uint entryID = 0; entryID < storage->entryCount; ++entryID) {
             if (storage->dataEntries[entryID]) {
                 if (entryID != newEntryCount) {

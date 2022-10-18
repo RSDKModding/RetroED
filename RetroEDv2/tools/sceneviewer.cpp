@@ -298,7 +298,7 @@ void SceneViewer::updateScene()
 
         QString status =
             QString("Zoom: %1%, Mouse Position: (%2, %3), Tile Position: (%4, %5), Selected Tile: "
-                    "%6, Selected Layer: %7 (%8), Selected Object: %9")
+                    "%6, Selected Layer: %7 (%8), Selected Object: %9, FPS: %10")
                 .arg(zoom * 100)
                 .arg(mx)
                 .arg(my)
@@ -310,7 +310,8 @@ void SceneViewer::updateScene()
                                                                           : "[None]")
                 .arg(selectedObject >= 0 && selectedObject < objects.count()
                          ? objects[selectedObject].name
-                         : "[None]");
+                         : "[None]")
+                .arg(fps, 0, 'f', 1);
 
         if (gameType == ENGINE_v5 && engineRevision != 1) {
             status += QString(", Filter: %1").arg(sceneFilter);
@@ -1957,6 +1958,7 @@ void SceneViewer::resizeGL(int w, int h)
 
 void SceneViewer::paintGL()
 {
+    fpsTimer.restart();
     glFuncs = context()->functions();
 
     int boundsL = 0;
@@ -2118,6 +2120,7 @@ void SceneViewer::paintGL()
     fbiVBO->bind();
     glFuncs->glBlendFunc(GL_ONE, GL_ZERO);
     glFuncs->glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+    fps = 1e9 / fpsTimer.nsecsElapsed();
 }
 
 int SceneViewer::addGraphicsFile(QString sheetPath, int sheetID, byte scope)
