@@ -2625,7 +2625,16 @@ bool AnimationEditor::event(QEvent *event)
             if (!QFile::exists(animFile.filePath)) {
                 QFileDialog filedialog(this, tr("Save Animation"), "",
                                        tr(types.join(";;").toStdString().c_str()));
-                filedialog.selectNameFilter(types[aniType]);
+
+                switch (aniType) {
+                    default:
+                    case ENGINE_v5: filedialog.selectNameFilter(types[0]); break;
+                    case ENGINE_v4:
+                    case ENGINE_v3: filedialog.selectNameFilter(types[1]); break;
+                    case ENGINE_v2: filedialog.selectNameFilter(types[2]); break;
+                    case ENGINE_v1: filedialog.selectNameFilter(types[3]); break;
+                }
+
                 filedialog.setAcceptMode(QFileDialog::AcceptSave);
                 if (filedialog.exec() == QDialog::Accepted) {
                     SetStatus("Saving animation...");
@@ -2636,8 +2645,9 @@ bool AnimationEditor::event(QEvent *event)
                         default:
                         case 0: aniType = ENGINE_v5; break;
                         case 1: aniType = ENGINE_v4; break;
-                        case 2: aniType = ENGINE_v2; break;
-                        case 3: aniType = ENGINE_v1; break;
+                        case 2: aniType = ENGINE_v3; break;
+                        case 3: aniType = ENGINE_v2; break;
+                        case 4: aniType = ENGINE_v1; break;
                     }
                     animFile.write(aniType, filepath);
                     appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
@@ -2673,7 +2683,6 @@ bool AnimationEditor::event(QEvent *event)
                 case ENGINE_v1: filedialog.selectNameFilter(types[3]); break;
             }
 
-            filedialog.selectNameFilter(types[aniType]);
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
                 SetStatus("Saving animation...");
@@ -2684,8 +2693,9 @@ bool AnimationEditor::event(QEvent *event)
                     default:
                     case 0: aniType = ENGINE_v5; break;
                     case 1: aniType = ENGINE_v4; break;
-                    case 2: aniType = ENGINE_v2; break;
-                    case 3: aniType = ENGINE_v1; break;
+                    case 2: aniType = ENGINE_v3; break;
+                    case 3: aniType = ENGINE_v2; break;
+                    case 4: aniType = ENGINE_v1; break;
                 }
 
                 animFile.write(aniType, filepath);

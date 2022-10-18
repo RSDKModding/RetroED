@@ -2176,8 +2176,6 @@ bool SceneEditor::saveScene(bool forceSaveAs)
     QString basePath = savePath;
     basePath         = basePath.replace(QFileInfo(savePath).fileName(), "");
 
-    viewer->disableDrawScene = true;
-
     SetStatus("Saving scene...", true);
     FormatHelpers::Gif tileset(16, 0x400 * 16);
 
