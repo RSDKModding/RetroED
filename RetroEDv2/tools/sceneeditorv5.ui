@@ -230,8 +230,8 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="2">
-       <widget class="QToolButton" name="pencilTool">
+      <item row="0" column="17">
+       <widget class="QToolButton" name="useGizmos">
         <property name="minimumSize">
          <size>
           <width>24</width>
@@ -239,14 +239,17 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Pencil Tool</string>
+         <string>Show Gizmos</string>
         </property>
         <property name="text">
-         <string>P</string>
+         <string>G</string>
         </property>
         <property name="icon">
          <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_mode_edit_48px.svg</normaloff>:/icons/ic_mode_edit_48px.svg</iconset>
+          <normaloff>:/icons/ic_preview_48px.svg</normaloff>:/icons/ic_preview_48px.svg</iconset>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
         </property>
         <property name="autoRaise">
          <bool>true</bool>
@@ -275,31 +278,15 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QToolButton" name="selectTool">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Select Tool</string>
-        </property>
+      <item row="0" column="8">
+       <widget class="QCheckBox" name="filterBox2">
         <property name="text">
-         <string>S</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_highlight_alt_48px.svg</normaloff>:/icons/ic_highlight_alt_48px.svg</iconset>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
+         <string/>
         </property>
        </widget>
       </item>
-      <item row="0" column="20">
-       <widget class="QToolButton" name="showParallax">
+      <item row="0" column="2">
+       <widget class="QToolButton" name="pencilTool">
         <property name="minimumSize">
          <size>
           <width>24</width>
@@ -307,176 +294,14 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Show Parallax Lines</string>
+         <string>Pencil Tool</string>
         </property>
         <property name="text">
-         <string>SP</string>
+         <string>P</string>
         </property>
         <property name="icon">
          <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_horizontal_split_48px.svg</normaloff>:/icons/ic_horizontal_split_48px.svg</iconset>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="5">
-       <widget class="QToolButton" name="entityTool">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Entity Tool</string>
-        </property>
-        <property name="text">
-         <string>E</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_view_in_ar_48px.svg</normaloff>:/icons/ic_view_in_ar_48px.svg</iconset>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="21">
-       <widget class="QToolButton" name="showTileGrid">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Show Grid</string>
-        </property>
-        <property name="text">
-         <string>TLE</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_grid_48px.svg</normaloff>:/icons/ic_grid_48px.svg</iconset>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="17">
-       <widget class="QToolButton" name="useGizmos">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Show Gizmos</string>
-        </property>
-        <property name="text">
-         <string>G</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_preview_48px.svg</normaloff>:/icons/ic_preview_48px.svg</iconset>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="18">
-       <widget class="QToolButton" name="showCollisionA">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Show Collision Plane A</string>
-        </property>
-        <property name="text">
-         <string>A</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="24">
-       <widget class="QToolButton" name="expScene">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Export Scene as XML</string>
-        </property>
-        <property name="text">
-         <string>PXL</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_redo_48px.svg</normaloff>:/icons/ic_redo_48px.svg</iconset>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoRaise">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="16">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="0" column="4">
-       <widget class="QToolButton" name="eraserTool">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Eraser Tool</string>
-        </property>
-        <property name="text">
-         <string>E</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_eraser_48px.svg</normaloff>:/icons/ic_eraser_48px.svg</iconset>
+          <normaloff>:/icons/ic_mode_edit_48px.svg</normaloff>:/icons/ic_mode_edit_48px.svg</iconset>
         </property>
         <property name="autoRaise">
          <bool>true</bool>
@@ -529,22 +354,55 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="7">
-       <widget class="QSpinBox" name="sceneFilter">
+      <item row="0" column="20">
+       <widget class="QToolButton" name="showParallax">
         <property name="minimumSize">
          <size>
-          <width>50</width>
-          <height>0</height>
+          <width>24</width>
+          <height>24</height>
          </size>
         </property>
-        <property name="maximum">
-         <number>255</number>
+        <property name="toolTip">
+         <string>Show Parallax Lines</string>
         </property>
-        <property name="value">
-         <number>255</number>
+        <property name="text">
+         <string>SP</string>
         </property>
-        <property name="displayIntegerBase">
-         <number>16</number>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_horizontal_split_48px.svg</normaloff>:/icons/ic_horizontal_split_48px.svg</iconset>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="21">
+       <widget class="QToolButton" name="showTileGrid">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Show Grid</string>
+        </property>
+        <property name="text">
+         <string>TLE</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_grid_48px.svg</normaloff>:/icons/ic_grid_48px.svg</iconset>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -568,10 +426,189 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="11">
+       <widget class="QCheckBox" name="filterBox5">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="5">
+       <widget class="QToolButton" name="entityTool">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Entity Tool</string>
+        </property>
+        <property name="text">
+         <string>E</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_view_in_ar_48px.svg</normaloff>:/icons/ic_view_in_ar_48px.svg</iconset>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="10">
+       <widget class="QCheckBox" name="filterBox4">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="13">
+       <widget class="QCheckBox" name="filterBox7">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="7">
+       <widget class="QCheckBox" name="filterBox1">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QToolButton" name="eraserTool">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Eraser Tool</string>
+        </property>
+        <property name="text">
+         <string>E</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_eraser_48px.svg</normaloff>:/icons/ic_eraser_48px.svg</iconset>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="18">
+       <widget class="QToolButton" name="showCollisionA">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Show Collision Plane A</string>
+        </property>
+        <property name="text">
+         <string>A</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QToolButton" name="selectTool">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Select Tool</string>
+        </property>
+        <property name="text">
+         <string>S</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_highlight_alt_48px.svg</normaloff>:/icons/ic_highlight_alt_48px.svg</iconset>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="6">
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Filter</string>
+         <string>Filters</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="24">
+       <widget class="QToolButton" name="expScene">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Export Scene as XML</string>
+        </property>
+        <property name="text">
+         <string>PXL</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_redo_48px.svg</normaloff>:/icons/ic_redo_48px.svg</iconset>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoRaise">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="9">
+       <widget class="QCheckBox" name="filterBox3">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="12">
+       <widget class="QCheckBox" name="filterBox6">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="16">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="14">
+       <widget class="QCheckBox" name="filterBox8">
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>

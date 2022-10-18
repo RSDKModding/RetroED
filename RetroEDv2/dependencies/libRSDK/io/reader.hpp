@@ -80,6 +80,15 @@ public:
         return "";
     }
 
+    inline QString readStringV5(int mode = 0)
+    {
+        QString str = readString(mode);
+        if (str.length() && str[str.length() - 1] == QChar('\0'))
+            str = str.left(str.length() - 1);
+
+        return str;
+    }
+
     inline QString readLine()
     {
         QByteArray string;

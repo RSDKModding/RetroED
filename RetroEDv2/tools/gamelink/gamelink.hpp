@@ -188,17 +188,51 @@ struct SceneInfo {
     byte minutes;
 };
 
+struct SceneInfoV1 {
+    void *entity;
+    void *listData;
+    void *listCategory;
+    int timeCounter;
+    int currentDrawGroup;
+    int currentScreenID;
+    ushort listPos;
+    ushort entitySlot;
+    ushort createSlot;
+    ushort classCount;
+    bool32 inEditor;
+    bool32 effectGizmo;
+    bool32 debugMode;
+    bool32 useGlobalScripts;
+    bool32 timeEnabled;
+    byte activeCategory;
+    byte categoryCount;
+    byte state;
+    byte milliseconds;
+    byte seconds;
+    byte minutes;
+};
+
 struct EngineInfo {
     char gameTitle[0x40];
     char gameSubname[0x100];
     char version[0x10];
 };
 
-typedef struct {
+struct EngineInfoV1 {
+    char gameTitle[0x40];
+    char gameSubname[0x100];
+    char version[0x10];
+
+    byte platform;
+    byte language;
+    byte region;
+};
+
+struct SKUInfo {
     int platform;
     int language;
     int region;
-} SKUInfo;
+};
 
 struct InputState {
     bool32 down;
@@ -221,6 +255,29 @@ struct ControllerState {
     InputState keySelect;
 };
 
+struct ControllerStateV1 {
+    InputState keyUp;
+    InputState keyDown;
+    InputState keyLeft;
+    InputState keyRight;
+    InputState keyA;
+    InputState keyB;
+    InputState keyC;
+    InputState keyX;
+    InputState keyY;
+    InputState keyZ;
+    InputState keyStart;
+    InputState keySelect;
+
+    // Rev01 hasn't split these into different structs yet
+    InputState keyBumperL;
+    InputState keyBumperR;
+    InputState keyTriggerL;
+    InputState keyTriggerR;
+    InputState keyStickL;
+    InputState keyStickR;
+};
+
 struct AnalogState {
     InputState keyUp;
     InputState keyDown;
@@ -232,11 +289,26 @@ struct AnalogState {
     float vDelta;
 };
 
+struct AnalogStateV1 {
+    InputState keyUp;
+    InputState keyDown;
+    InputState keyLeft;
+    InputState keyRight;
+
+    float deadzone;
+    float triggerDeltaL;
+    float triggerDeltaR;
+    float hDeltaL;
+    float vDeltaL;
+    float hDeltaR;
+    float vDeltaR;
+};
+
 struct TriggerState {
-    InputState key1;
-    InputState key2;
-    float unknown1;
-    float unknown2;
+    InputState keyBumper;
+    InputState keyTrigger;
+    float bumperDelta;
+    float triggerDelta;
 };
 
 struct TouchMouseData {
@@ -244,6 +316,20 @@ struct TouchMouseData {
     float y[0x10];
     bool32 down[0x10];
     byte count;
+};
+
+struct TouchMouseDataV1 {
+    float x[0x10];
+    float y[0x10];
+    bool32 down[0x10];
+    byte count;
+
+    bool32 pauseHold;
+    bool32 pausePress;
+    bool32 unknown1;
+    bool32 anyKeyHold;
+    bool32 anyKeyPress;
+    bool32 unknown2;
 };
 
 struct UnknownInfo {

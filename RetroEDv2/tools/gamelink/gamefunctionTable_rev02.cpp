@@ -202,7 +202,6 @@ enum FunctionTableIDs {
     FunctionTable_PrintHitbox,
     FunctionTable_SetActiveVariable,
     FunctionTable_AddEnumVariable,
-    FunctionTable_PrintMessage,
     FunctionTable_ClearDebugValues,
     FunctionTable_SetDebugValue,
     FunctionTable_Count,

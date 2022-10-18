@@ -711,12 +711,12 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         boundingRect.setHeight(frame.height);
 
         auto *item = new QStandardItem();
+        item->setEditable(false);
         item->setData((frame.width == 0 || frame.height == 0 || frame.sheet >= sheets.count())
                           ? missingImg
                           : QPixmap::fromImage(sheets[frame.sheet].copy(boundingRect)),
                       ROLE_PIXMAP);
         frameModel->insertRow(c, item);
-        item->setFlags(item->flags() & ~Qt::ItemIsEditable);
         ui->frameList->setCurrentIndex(item->index());
 
         UpdateView();
@@ -1570,7 +1570,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             item->setIcon(QPixmap::fromImage(sheets[frame.sheet].copy(boundingRect)));
         }
         frameModel->insertRow(c, item);
-        item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+        item->setEditable(false);
         animFile.animations[currentAnim].frames.insert(c, frame);
         ui->frameList->blockSignals(false);
 
@@ -2083,6 +2083,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                 boundingRect.setHeight(frame.height);
 
                 auto *item = new QStandardItem();
+                item->setEditable(false);
                 item->setData((frame.width == 0 || frame.height == 0)
                                   ? missingImg
                                   : QPixmap::fromImage(sheets[frame.sheet].copy(boundingRect)),
@@ -2629,7 +2630,16 @@ bool AnimationEditor::event(QEvent *event)
             if (!QFile::exists(animFile.filePath)) {
                 QFileDialog filedialog(this, tr("Save Animation"), "",
                                        tr(types.join(";;").toStdString().c_str()));
-                filedialog.selectNameFilter(types[aniType]);
+
+                switch (aniType) {
+                    default:
+                    case ENGINE_v5: filedialog.selectNameFilter(types[0]); break;
+                    case ENGINE_v4:
+                    case ENGINE_v3: filedialog.selectNameFilter(types[1]); break;
+                    case ENGINE_v2: filedialog.selectNameFilter(types[2]); break;
+                    case ENGINE_v1: filedialog.selectNameFilter(types[3]); break;
+                }
+
                 filedialog.setAcceptMode(QFileDialog::AcceptSave);
                 if (filedialog.exec() == QDialog::Accepted) {
                     SetStatus("Saving animation...");
@@ -2640,11 +2650,13 @@ bool AnimationEditor::event(QEvent *event)
                         default:
                         case 0: aniType = ENGINE_v5; break;
                         case 1: aniType = ENGINE_v4; break;
-                        case 2: aniType = ENGINE_v2; break;
-                        case 3: aniType = ENGINE_v1; break;
+                        case 2: aniType = ENGINE_v3; break;
+                        case 3: aniType = ENGINE_v2; break;
+                        case 4: aniType = ENGINE_v1; break;
                     }
                     animFile.write(aniType, filepath);
                     appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
+                    SetStatus("Saved animation to " + QFile(animFile.filePath).fileName());
                     ClearActions();
                     return true;
                 }
@@ -2655,6 +2667,7 @@ bool AnimationEditor::event(QEvent *event)
                 QString filepath = animFile.filePath;
                 animFile.write(aniType, filepath);
                 appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
+                SetStatus("Saved animation to " + QFile(animFile.filePath).fileName());
                 ClearActions();
                 return true;
             }
@@ -2675,7 +2688,6 @@ bool AnimationEditor::event(QEvent *event)
                 case ENGINE_v1: filedialog.selectNameFilter(types[3]); break;
             }
 
-            filedialog.selectNameFilter(types[aniType]);
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
                 SetStatus("Saving animation...");
@@ -2686,12 +2698,14 @@ bool AnimationEditor::event(QEvent *event)
                     default:
                     case 0: aniType = ENGINE_v5; break;
                     case 1: aniType = ENGINE_v4; break;
-                    case 2: aniType = ENGINE_v2; break;
-                    case 3: aniType = ENGINE_v1; break;
+                    case 2: aniType = ENGINE_v3; break;
+                    case 3: aniType = ENGINE_v2; break;
+                    case 4: aniType = ENGINE_v1; break;
                 }
 
                 animFile.write(aniType, filepath);
                 appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
+                SetStatus("Saved animation to " + QFile(animFile.filePath).fileName());
                 ClearActions();
                 return true;
             }
@@ -2807,6 +2821,7 @@ bool AnimationEditor::event(QEvent *event)
                             animFile.write(aniType, filepath);
                             appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath,
                                                     QList<QString>{});
+                            SetStatus("Saved animation to " + QFile(animFile.filePath).fileName());
                             ClearActions();
                             return true;
                         }
@@ -2818,6 +2833,7 @@ bool AnimationEditor::event(QEvent *event)
                         animFile.write(aniType, filepath);
                         appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath,
                                                 QList<QString>{});
+                        SetStatus("Saved animation to " + QFile(animFile.filePath).fileName());
                         ClearActions();
                         return true;
                     }

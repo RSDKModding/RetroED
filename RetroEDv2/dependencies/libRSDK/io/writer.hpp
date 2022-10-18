@@ -68,10 +68,15 @@ public:
     }
     inline void write(QString string, int mode = 0)
     {
+        bool nullTerminate = (mode & 0x80) != 0;
+        mode &= 0x7F;
+
         if (!mode) {
-            write((byte)string.length());
+            write((byte)(string.length() + (nullTerminate ? 1 : 0)));
             QByteArray ascii = string.toLatin1();
             write(ascii);
+            if (nullTerminate)
+                write((byte)0);
         }
         else if (mode == 1) {
             write((ushort)string.length());
@@ -87,6 +92,8 @@ public:
             write(ascii);
         }
     }
+
+    inline void writeStringV5(QString string, int mode = 0) { write(string, mode | 0x80); }
 
     inline void writeText(QString string = "")
     {

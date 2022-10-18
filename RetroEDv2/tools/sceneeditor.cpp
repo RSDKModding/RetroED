@@ -2160,6 +2160,9 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
 bool SceneEditor::saveScene(bool forceSaveAs)
 {
+    viewer->disableDrawScene = true;
+    viewer->disableObjects   = true;
+
     // byte saveVer     = ENGINE_v4;
     QString savePath = "";
     if (!forceSaveAs && QFile::exists(scene.filepath)) {
@@ -2186,20 +2189,18 @@ bool SceneEditor::saveScene(bool forceSaveAs)
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
 
         if (filedialog.exec() == QDialog::Accepted) {
-            //-saveVer  = types.indexOf(filedialog.selectedNameFilter()) + ENGINE_v4;
             savePath = filedialog.selectedFiles()[0];
-
-            return true;
+            // saveVer  = ENGINE_v4 + types.indexOf(filedialog.selectedNameFilter());
         }
         else {
+            viewer->disableDrawScene = false;
+            viewer->disableObjects   = false;
             return false;
         }
     }
 
     QString basePath = savePath;
     basePath         = basePath.replace(QFileInfo(savePath).fileName(), "");
-
-    viewer->disableDrawScene = true;
 
     SetStatus("Saving scene...", true);
     FormatHelpers::Gif tileset(16, 0x400 * 16);
@@ -2410,7 +2411,9 @@ bool SceneEditor::saveScene(bool forceSaveAs)
     tabTitle = Utils::getFilenameAndFolder(savePath);
     ClearActions();
     SetStatus("Saved scene to " + Utils::getFilenameAndFolder(savePath));
+
     viewer->disableDrawScene = false;
+    viewer->disableObjects   = false;
     return true;
 }
 

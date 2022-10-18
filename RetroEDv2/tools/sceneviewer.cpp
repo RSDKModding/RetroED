@@ -56,6 +56,24 @@ SceneViewer::SceneViewer(byte gameType, QWidget *parent) : QOpenGLWidget(parent)
         gfxSurface[s].scope = SCOPE_NONE;
     }
 
+    memset(&sceneInfo, 0, sizeof(sceneInfo));
+    memset(&skuInfo, 0, sizeof(skuInfo));
+    memset(&gameInfo, 0, sizeof(gameInfo));
+    memset(controller, 0, sizeof(controller));
+    memset(stickL, 0, sizeof(stickL));
+    memset(stickR, 0, sizeof(stickR));
+    memset(triggerL, 0, sizeof(triggerL));
+    memset(triggerR, 0, sizeof(triggerR));
+    memset(&touchMouse, 0, sizeof(touchMouse));
+    memset(&unknownInfo, 0, sizeof(unknownInfo));
+    memset(screens, 0, sizeof(screens));
+
+    memset(&sceneInfoV1, 0, sizeof(sceneInfoV1));
+    memset(&gameInfoV1, 0, sizeof(gameInfoV1));
+    memset(controllerV1, 0, sizeof(controllerV1));
+    memset(stickLV1, 0, sizeof(stickLV1));
+    memset(&touchMouseV1, 0, sizeof(touchMouseV1));
+
     sceneInfo.entity           = 0;
     sceneInfo.listData         = 0;
     sceneInfo.listCategory     = 0;
@@ -79,11 +97,38 @@ SceneViewer::SceneViewer(byte gameType, QWidget *parent) : QOpenGLWidget(parent)
     sceneInfo.seconds          = 0;
     sceneInfo.minutes          = 0;
 
+    sceneInfoV1.entity           = 0;
+    sceneInfoV1.listData         = 0;
+    sceneInfoV1.listCategory     = 0;
+    sceneInfoV1.timeCounter      = 0;
+    sceneInfoV1.currentDrawGroup = 0;
+    sceneInfoV1.currentScreenID  = 0;
+    sceneInfoV1.listPos          = -1;
+    sceneInfoV1.entitySlot       = 0;
+    sceneInfoV1.createSlot       = 0;
+    sceneInfoV1.classCount       = 0;
+    sceneInfoV1.inEditor         = true;
+    sceneInfoV1.effectGizmo      = false;
+    sceneInfoV1.debugMode        = false;
+    sceneInfoV1.useGlobalScripts = false;
+    sceneInfoV1.timeEnabled      = false;
+    sceneInfoV1.activeCategory   = 0;
+    sceneInfoV1.categoryCount    = 0;
+    sceneInfoV1.state            = 1;
+    sceneInfoV1.milliseconds     = 0;
+    sceneInfoV1.seconds          = 0;
+    sceneInfoV1.minutes          = 0;
+
     sprintf(gameInfo.gameTitle, "%s", "RetroED");
     sprintf(gameInfo.gameSubname, "%s", "RetroED");
     sprintf(gameInfo.version, "%s", RE_VERSION);
 
-    skuInfo.platform = 0xFF;
+    sprintf(gameInfoV1.gameTitle, "%s", "RetroED");
+    sprintf(gameInfoV1.gameSubname, "%s", "RetroED");
+    sprintf(gameInfoV1.version, "%s", RE_VERSION);
+
+    skuInfo.platform    = 0xFF;
+    gameInfoV1.platform = 0xFF;
 
     int vID = 0;
     for (int i = 0; i < vertexListLimit; i++) {
@@ -235,7 +280,7 @@ void SceneViewer::initScene(QImage tileset)
         Utils::getHashInt(gfxSurface[2].name, gfxSurface[2].hash);
         gfxSurface[2].width    = missingObj.width();
         gfxSurface[2].height   = missingObj.height();
-        gfxSurface[2].transClr = QColor(0xFF000000);
+        gfxSurface[2].transClr = QColor(0xFFFF00FF);
     }
 }
 
@@ -250,7 +295,8 @@ void SceneViewer::updateScene()
     if (statusLabel) {
         int mx = (int)((mousePos.x * invZoom()) + cameraPos.x);
         int my = (int)((mousePos.y * invZoom()) + cameraPos.y);
-        statusLabel->setText(
+
+        QString status =
             QString("Zoom: %1%, Mouse Position: (%2, %3), Tile Position: (%4, %5), Selected Tile: "
                     "%6, Selected Layer: %7 (%8), Selected Object: %9")
                 .arg(zoom * 100)
@@ -261,10 +307,16 @@ void SceneViewer::updateScene()
                 .arg(selectedTile)
                 .arg(selectedLayer)
                 .arg(selectedLayer >= 0 && selectedLayer < layers.count() ? layers[selectedLayer].name
-                                                                          : "")
+                                                                          : "[None]")
                 .arg(selectedObject >= 0 && selectedObject < objects.count()
                          ? objects[selectedObject].name
-                         : ""));
+                         : "[None]");
+
+        if (gameType == ENGINE_v5 && engineRevision != 1) {
+            status += QString(", Filter: %1").arg(sceneFilter);
+        }
+
+        statusLabel->setText(status);
     }
 
     if (v5Editor) {
@@ -831,7 +883,8 @@ void SceneViewer::drawScene()
 
     // ENTITIES
     for (int p = 0; p < v5_DRAWGROUP_COUNT; ++p) {
-        sceneInfo.currentDrawGroup = p;
+        sceneInfo.currentDrawGroup   = p;
+        sceneInfoV1.currentDrawGroup = p;
         for (int o = 0; o < drawLayers[p].entries.count(); ++o) {
             SceneEntity *entity = &entities[drawLayers[p].entries[o]];
             activeDrawEntity    = entity;
@@ -854,7 +907,8 @@ void SceneViewer::drawScene()
             if (!(filter & sceneFilter) && filter)
                 continue;
 
-            if (drawLayers[p].entries[o] == selectedEntity)
+            if (drawLayers[p].entries[o] == selectedEntity
+                || selectedEntities.indexOf(drawLayers[p].entries[o]) >= 0)
                 continue;
 
             if (entity->type != 0) {
@@ -878,7 +932,7 @@ void SceneViewer::drawScene()
         }
     }
 
-    // Draw Selected Entity above the rest
+    // Draw selected entity (single)
     if (selectedEntity >= 0 && selectedEntity < entities.count()) {
         SceneEntity *entity = &entities[selectedEntity];
         activeDrawEntity    = entity;
@@ -906,15 +960,55 @@ void SceneViewer::drawScene()
         }
     }
 
+    int storedSelectedEntity = selectedEntity;
+    int storedListPos        = sceneInfo.listPos;
+
+    // Draw selected entity (multiple)
+    for (int s = 0; s < selectedEntities.count(); ++s) {
+        if (selectedEntities[s] >= 0 && selectedEntities[s] < entities.count()) {
+            selectedEntity    = selectedEntities[s];
+            sceneInfo.listPos = selectedEntities[s];
+
+            SceneEntity *entity = &entities[selectedEntity];
+            activeDrawEntity    = entity;
+            entity->box         = Rect<int>(0, 0, 0, 0);
+
+            validDraw = false;
+
+            if (entity->type != 0) {
+                if (gameType == ENGINE_v5)
+                    emit callGameEventv5(objects[entity->type].name, EVENT_DRAW, entity);
+                else
+                    emit callGameEvent(EVENT_DRAW, selectedEntity);
+            }
+
+            // Draw Default Object Sprite if invalid
+            if (!validDraw) {
+                entity->box = Rect<int>(-0x10, -0x10, 0x10, 0x10);
+
+                float xpos = entity->pos.x - (cameraPos.x);
+                float ypos = entity->pos.y - (cameraPos.y);
+
+                drawSpriteFlipped(xpos - (gfxSurface[1].width >> 1), ypos - (gfxSurface[1].height >> 1),
+                                  gfxSurface[1].width, gfxSurface[1].height, 0, 0, FLIP_NONE, INK_NONE,
+                                  0xFF, 1);
+            }
+        }
+    }
+
+    selectedEntity    = storedSelectedEntity;
+    sceneInfo.listPos = storedListPos;
+
     // Draw Retro-Sonic Player spawn point
     if (gameType == ENGINE_v1) {
-        float px = playerPos.x;
-        float py = playerPos.y;
+        SceneEntity entityBuffer;
+        entityBuffer.pos.x = Utils::floatToFixed(playerPos.x);
+        entityBuffer.pos.y = Utils::floatToFixed(playerPos.y);
+        entityBuffer.box   = Rect<int>(0, 0, 0, 0);
+        activeDrawEntity   = &entityBuffer;
 
-        px *= iZoom;
-        py *= iZoom;
-        float xpos = px - cameraPos.x;
-        float ypos = py - cameraPos.y;
+        float xpos = playerPos.x - cameraPos.x;
+        float ypos = playerPos.y - cameraPos.y;
 
         // Draw Player Spawn Preview
         drawSpriteFlipped(xpos, ypos, gfxSurface[2].width, gfxSurface[2].height, 0, 0, FLIP_NONE,
@@ -1092,22 +1186,6 @@ void SceneViewer::drawScene()
         }
     }
 
-    if (selectedEntity >= 0 && selectedEntity < entities.count()) {
-        SceneEntity &entity = entities[selectedEntity];
-
-        float left   = entity.pos.x + entity.box.x;
-        float top    = entity.pos.y + entity.box.y;
-        float right  = entity.pos.x + entity.box.w;
-        float bottom = entity.pos.y + entity.box.h;
-
-        float w = fabsf(right - left), h = fabsf(bottom - top);
-
-        drawRect(left - cameraPos.x, top - cameraPos.y, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
-                 false, 0x40, INK_ALPHA);
-        drawRect(left - cameraPos.x, top - cameraPos.y, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
-                 true);
-    }
-
     // Selected Stamp Box
     if (selectedStamp >= 0 && selectedStamp < stamps.stampList.count()) {
         RSDKv5::Stamps::StampEntry &stamp = stamps.stampList[selectedStamp];
@@ -1126,7 +1204,24 @@ void SceneViewer::drawScene()
                  true);
     }
 
-    // Selection Box
+    // Selected Entity Box (Single)
+    if (selectedEntity >= 0 && selectedEntity < entities.count()) {
+        SceneEntity &entity = entities[selectedEntity];
+
+        float left   = entity.pos.x + entity.box.x;
+        float top    = entity.pos.y + entity.box.y;
+        float right  = entity.pos.x + entity.box.w;
+        float bottom = entity.pos.y + entity.box.h;
+
+        float w = fabsf(right - left), h = fabsf(bottom - top);
+
+        drawRect(left - cameraPos.x, top - cameraPos.y, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
+                 false, 0x40, INK_ALPHA);
+        drawRect(left - cameraPos.x, top - cameraPos.y, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
+                 true);
+    }
+
+    // Selected Entity Box (Multiple)
     if (curTool == TOOL_SELECT && (isSelecting || (selectSize.x && selectSize.y))) {
 
         if (isSelecting) {
@@ -1184,6 +1279,7 @@ void SceneViewer::unloadScene()
     selectedHScrollInfo = -1;
     selectedObject      = -1;
     isSelecting         = false;
+    selectedEntities.clear();
 
     memset(gameEntityListv1, 0, ENTITY_COUNT_v5 * 2 * sizeof(GameEntityBasev1));
     memset(gameEntityListv2, 0, ENTITY_COUNT_v5 * 2 * sizeof(GameEntityBasev2));
@@ -1203,9 +1299,10 @@ void SceneViewer::processObjects(bool isImage)
         drawLayers[i].entries.clear();
     }
 
-    sceneInfo.entitySlot = 0;
-    int centerX          = screens->centerX * invZoom();
-    int centerY          = screens->centerY * invZoom();
+    sceneInfo.entitySlot   = 0;
+    sceneInfoV1.entitySlot = 0;
+    int centerX            = screens->centerX * invZoom();
+    int centerY            = screens->centerY * invZoom();
 
     if (gameType == ENGINE_v5) {
         switch (v5Editor->viewer->engineRevision) {
@@ -1213,10 +1310,12 @@ void SceneViewer::processObjects(bool isImage)
                 for (int e = 0; e < entities.count(); ++e) {
                     if (!entities[e].gameEntity || !entities[e].type || isImage) {
                         drawLayers[15].entries.append(sceneInfo.entitySlot++);
+                        sceneInfoV1.entitySlot = sceneInfo.entitySlot;
                         continue;
                     }
 
                     sceneInfo.entity     = entities[e].gameEntity;
+                    sceneInfoV1.entity   = entities[e].gameEntity;
                     GameEntityv1 *entity = AS_ENTITY(sceneInfo.entity, GameEntityv1);
                     if (entities[e].type) {
                         entity->inRange = false;
@@ -1286,15 +1385,18 @@ void SceneViewer::processObjects(bool isImage)
                         entity->inRange = false;
                     }
                     sceneInfo.entitySlot++;
+                    sceneInfoV1.entitySlot++;
                 }
 
                 for (int i = 0; i < TYPEGROUP_COUNT_v5; ++i) {
                     typeGroups[i].entries.clear();
                 }
 
-                sceneInfo.entitySlot = 0;
+                sceneInfo.entitySlot   = 0;
+                sceneInfoV1.entitySlot = 0;
                 for (int e = 0; e < entities.count(); ++e) {
                     sceneInfo.entity     = entities[e].gameEntity;
+                    sceneInfoV1.entity   = entities[e].gameEntity;
                     GameEntityv1 *entity = AS_ENTITY(sceneInfo.entity, GameEntityv1);
 
                     if (sceneInfo.entity && entity->inRange && entity->interaction) {
@@ -1305,9 +1407,11 @@ void SceneViewer::processObjects(bool isImage)
                         }
                     }
                     sceneInfo.entitySlot++;
+                    sceneInfoV1.entitySlot++;
                 }
 
-                sceneInfo.entitySlot = 0;
+                sceneInfo.entitySlot   = 0;
+                sceneInfoV1.entitySlot = 0;
                 for (int e = 0; e < entities.count(); ++e) {
                     if (entities[e].gameEntity) {
                         AS_ENTITY(entities[e].gameEntity, GameEntityvU)->onScreen = 0;
@@ -1540,6 +1644,7 @@ void SceneViewer::processObjects(bool isImage)
         for (int e = 0; e < entities.count(); ++e) {
             if (!entities[e].type || isImage) {
                 drawLayers[15].entries.append(sceneInfo.entitySlot++);
+                sceneInfoV1.entitySlot = sceneInfo.entitySlot;
                 continue;
             }
 
@@ -1622,6 +1727,7 @@ void SceneViewer::processObjects(bool isImage)
                 }
             }
             sceneInfo.entitySlot++;
+            sceneInfoV1.entitySlot++;
         }
 
         for (int i = 0; i < TYPEGROUP_COUNT_v5; ++i) {
@@ -1629,8 +1735,11 @@ void SceneViewer::processObjects(bool isImage)
         }
 
         // sceneInfo.entitySlot = 0;
+        // sceneInfoV1.entitySlot = 0;
         // for (int e = 0; e < entities.count(); ++e) {
         //     sceneInfo.entity = entities[e].gameEntity;
+        //     sceneInfoV1.entity = entities[e].gameEntity;
+        //
         //     if (sceneInfo.entity && sceneInfo.entity->inBounds && sceneInfo.entity->interaction) {
         //         typeGroups[0].entries.append(e);                          // All active objects
         //         typeGroups[sceneInfo.entity->objectID].entries.append(e); // type-based slots
@@ -1639,6 +1748,7 @@ void SceneViewer::processObjects(bool isImage)
         //         }
         //     }
         //     sceneInfo.entitySlot++;
+        //     sceneInfoV1.entitySlot++;
         // }
     }
 }

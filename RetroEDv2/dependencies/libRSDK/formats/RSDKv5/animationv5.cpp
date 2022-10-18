@@ -14,10 +14,10 @@ void RSDKv5::Animation::read(Reader &reader)
     Q_UNUSED(totalFrameCount);
 
     byte sheetCount = reader.read<byte>();
-    for (int s = 0; s < sheetCount; ++s) sheets.append(reader.readString());
+    for (int s = 0; s < sheetCount; ++s) sheets.append(reader.readStringV5());
 
     byte hitboxCount = reader.read<byte>();
-    for (int h = 0; h < hitboxCount; ++h) hitboxTypes.append(reader.readString());
+    for (int h = 0; h < hitboxCount; ++h) hitboxTypes.append(reader.readStringV5());
 
     ushort animCount = reader.read<ushort>();
     for (int a = 0; a < animCount; ++a) animations.append(AnimationEntry(reader, this));
@@ -34,10 +34,10 @@ void RSDKv5::Animation::write(Writer &writer)
     writer.write(totalFrameCount);
 
     writer.write((byte)sheets.count());
-    for (int s = 0; s < sheets.count(); ++s) writer.write(sheets[s]);
+    for (int s = 0; s < sheets.count(); ++s) writer.writeStringV5(sheets[s]);
 
     writer.write((byte)hitboxTypes.count());
-    for (int h = 0; h < hitboxTypes.count(); ++h) writer.write(hitboxTypes[h]);
+    for (int h = 0; h < hitboxTypes.count(); ++h) writer.writeStringV5(hitboxTypes[h]);
 
     writer.write((ushort)animations.count());
     for (int a = 0; a < animations.count(); ++a) animations[a].write(writer, this);

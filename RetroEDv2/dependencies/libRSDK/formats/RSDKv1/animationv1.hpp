@@ -108,7 +108,7 @@ public:
         inline void write(Writer &writer)
         {
             writer.write((byte)frames.count());
-            writer.write(speed / 4);
+            writer.write(speed);
             writer.write(loopIndex);
 
             for (int f = 0; f < frames.count(); ++f) frames[f].write(writer);

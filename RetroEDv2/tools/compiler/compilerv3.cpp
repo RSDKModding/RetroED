@@ -1178,34 +1178,45 @@ void Compilerv3::ConvertFunctionText(char *text)
 
             // Eg: TempValue0 = TypeName[PlayerObject]
             if (StrComp(funcName, "TypeName")) {
-                funcName[0] = 0;
-                AppendIntegerToString(funcName, 0);
-                for (int o = 0; o < OBJECT_COUNT_v3; ++o) {
+                funcName[0] = '0';
+                funcName[1] = 0;
+
+                int o = 0;
+                for (; o < OBJECT_COUNT_v3; ++o) {
                     if (StrComp(arrayStr, typeNames[o])) {
                         funcName[0] = 0;
                         AppendIntegerToString(funcName, o);
                     }
                 }
+
+                if (o == OBJECT_COUNT_v3)
+                    PrintLog(QString("WARNING: Unknown typename \"%1\", on line %2")
+                                 .arg(arrayStr)
+                                 .arg(lineID));
             }
 
             // Eg: TempValue0 = SfxName[Jump]
             if (StrComp(funcName, "SfxName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
             }
 
             // Eg: TempValue0 = AchievementName[88 Miles Per Hour]
             if (StrComp(funcName, "AchievementName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
             }
 
             // Eg: TempValue0 = PlayerName[SONIC]
             if (StrComp(funcName, "PlayerName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
             }
 
             // Eg: TempValue0 = StageName[R - PALMTREE PANIC ZONE 1 A]
             if (StrComp(funcName, "StageName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
             }
 
             int constant = 0;
@@ -1489,8 +1500,11 @@ void Compilerv3::ParseScriptFile(QString scriptName, int scriptID, bool inEditor
                          || curChar == ';' || readMode >= READMODE_COMMENTLINE) {
                     if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r')
                         || curChar == ';') {
-                        readMode            = READMODE_ENDLINE;
-                        scriptText[textPos] = 0;
+                        // don't read commas as endline in comments
+                        if (readMode < READMODE_COMMENTLINE || curChar != ';') {
+                            readMode            = READMODE_ENDLINE;
+                            scriptText[textPos] = 0;
+                        }
                     }
                 }
                 else if (curChar != '/' || textPos <= 0) {
@@ -3164,9 +3178,8 @@ void Compilerv3::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                 opcodeSize            = 0;
                 scriptEng.checkResult = editor->viewer->currentFolder == scriptText;
 
-                // prompting for a review from RDC
                 if (!scriptEng.checkResult) {
-                    int targetSize = editor->viewer->currentFolder.size();
+                    int targetSize  = editor->viewer->currentFolder.size();
                     int currentSize = strlen(scriptText);
                     if (targetSize > currentSize) {
                         scriptEng.checkResult = editor->viewer->currentFolder.endsWith(scriptText);
