@@ -1,6 +1,7 @@
 from datetime import datetime
 import pytz
 import sys
+import re
 
 buildadd = "dev"
 buildtype = 0
@@ -19,8 +20,15 @@ else:
     buildadd = "-dev"
 
 
+
 time = datetime.now(pytz.timezone("US/Eastern"))
 s = time.strftime("v%Y.%m.%d") + buildadd
+
+for line in open("version.hpp", "r").readlines():
+    match = re.match(r"#define\s+RE_VERSION\s+\(\"(.*)\"\)", line)
+    if match and match.groups()[0] == s:
+        print("version matches; nothing to be done")
+        exit()
 
 LINES = [
     "#pragma once\n\n"
@@ -29,3 +37,4 @@ LINES = [
 ]
 
 open("version.hpp", "w").writelines(LINES)
+print(f"wrote version {s}")
