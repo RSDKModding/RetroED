@@ -224,7 +224,7 @@ void SceneViewer::initScene(QImage tileset)
         Utils::getHashInt(gfxSurface[2].name, gfxSurface[2].hash);
         gfxSurface[2].width    = missingObj.width();
         gfxSurface[2].height   = missingObj.height();
-        gfxSurface[2].transClr = QColor(0xFF000000);
+        gfxSurface[2].transClr = QColor(0xFFFF00FF);
     }
 }
 
@@ -904,13 +904,14 @@ void SceneViewer::drawScene()
 
     // Draw Retro-Sonic Player spawn point
     if (gameType == ENGINE_v1) {
-        float px = playerPos.x;
-        float py = playerPos.y;
+        SceneEntity entityBuffer;
+        entityBuffer.pos.x = Utils::floatToFixed(playerPos.x);
+        entityBuffer.pos.y = Utils::floatToFixed(playerPos.y);
+        entityBuffer.box   = Rect<int>(0, 0, 0, 0);
+        activeDrawEntity   = &entityBuffer;
 
-        px *= iZoom;
-        py *= iZoom;
-        float xpos = px - cameraPos.x;
-        float ypos = py - cameraPos.y;
+        float xpos = playerPos.x - cameraPos.x;
+        float ypos = playerPos.y - cameraPos.y;
 
         // Draw Player Spawn Preview
         drawSpriteFlipped(xpos, ypos, gfxSurface[2].width, gfxSurface[2].height, 0, 0, FLIP_NONE,
