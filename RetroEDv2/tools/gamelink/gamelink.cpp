@@ -55,7 +55,59 @@ enum ModFunctionTableIDs {
     ModTable_LoadShader,
     ModTable_StateMachineRun,
     ModTable_RegisterStateHook,
-    ModTable_Count
+    ModTable_HandleRunState_HighPriority,
+    ModTable_HandleRunState_LowPriority,
+
+    // Mod API REV02
+
+    // Mod Settings (Part 2)
+    ModTable_ForeachSetting,
+    ModTable_ForeachSettingCategory,
+
+    // Files
+    ModTable_ExcludeFile,
+    ModTable_ExcludeAllFiles,
+    ModTable_ReloadFile,
+    ModTable_ReloadAllFiles,
+
+    // Graphics
+    ModTable_GetSpriteAnimation,
+    ModTable_GetSpriteSurface,
+    ModTable_GetPaletteBank,
+    ModTable_GetActivePaletteBuffer,
+    ModTable_GetRGB32To16Buffer,
+    ModTable_GetBlendLookupTable,
+    ModTable_GetSubtractLookupTable,
+    ModTable_GetTintLookupTable,
+    ModTable_GetMaskColor,
+    ModTable_GetScanEdgeBuffer,
+    ModTable_GetCamera,
+    ModTable_GetShader,
+    ModTable_GetModel,
+    ModTable_GetScene3D,
+    ModTable_DrawDynamicAniTile,
+
+    // Audio
+    ModTable_GetSfx,
+    ModTable_GetChannel,
+
+    // Objects/Entities
+    ModTable_GetGroupEntities,
+
+    // Collision
+    ModTable_SetPathGripSensors,
+    ModTable_FloorCollision,
+    ModTable_LWallCollision,
+    ModTable_RoofCollision,
+    ModTable_RWallCollision,
+    ModTable_FindFloorPosition,
+    ModTable_FindLWallPosition,
+    ModTable_FindRoofPosition,
+    ModTable_FindRWallPosition,
+    ModTable_CopyCollisionMask,
+    ModTable_GetCollisionInfo,
+
+    ModTable_Count,
 };
 
 void *modFunctionTable[ModTable_Count];
@@ -119,6 +171,57 @@ void InitModFunctionTable()
     // StateMachine
     ADD_MOD_FUNCTION(ModTable_StateMachineRun, BlankFunction);
     ADD_MOD_FUNCTION(ModTable_RegisterStateHook, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_HandleRunState_HighPriority, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_HandleRunState_LowPriority, BlankFunction);
+
+    // MOD API REV02
+
+    // Mod Settings (Part 2)
+    ADD_MOD_FUNCTION(ModTable_ForeachSetting, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_ForeachSettingCategory, BlankFunction);
+
+    // Files
+    ADD_MOD_FUNCTION(ModTable_ExcludeFile, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_ExcludeAllFiles, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_ReloadFile, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_ReloadAllFiles, BlankFunction);
+
+    // Graphics
+    ADD_MOD_FUNCTION(ModTable_GetSpriteAnimation, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_GetSpriteSurface, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_GetPaletteBank, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_GetActivePaletteBuffer, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_GetRGB32To16Buffer, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_GetBlendLookupTable, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_GetSubtractLookupTable, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_GetTintLookupTable, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_GetMaskColor, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_GetScanEdgeBuffer, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_GetCamera, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_GetShader, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_GetModel, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_GetScene3D, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_DrawDynamicAniTile, BlankFunction);
+
+    // Audio
+    ADD_MOD_FUNCTION(ModTable_GetSfx, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_GetChannel, BlankFunction);
+
+    // Objects/Entities
+    ADD_MOD_FUNCTION(ModTable_GetGroupEntities, BlankFunction);
+
+    // Collision
+    ADD_MOD_FUNCTION(ModTable_SetPathGripSensors, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_FloorCollision, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_LWallCollision, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_RoofCollision, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_RWallCollision, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_FindFloorPosition, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_FindLWallPosition, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_FindRoofPosition, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_FindRWallPosition, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_CopyCollisionMask, BlankFunction);
+    ADD_MOD_FUNCTION(ModTable_GetCollisionInfo, BlankFunction);
 }
 
 } // namespace FunctionTable
@@ -149,7 +252,7 @@ void GameLink::LinkGameObjects(QString gameName)
 
     void (*linkGameLogic)(void *) = NULL;
 
-    int revision = 3;
+    revision = 3;
     if (logicLib->isLoaded()) {
         linkGameLogic = (void (*)(void *))logicLib->resolve("LinkGameLogicDLL");
 
