@@ -250,9 +250,8 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
 
                 connect(ui->gcScnName, &QLineEdit::textEdited, [this, c](QString s) {
                     gameConfig.categories[c.parent().row()].scenes[c.row()].name = s;
+                    sceneModel->itemFromIndex(c)->setText(s);
                     DoAction("Changed Scene Name");
-
-                    // TODO: edit text
                 });
 
                 connect(ui->gcScnFolder, &QLineEdit::textEdited, [this, c](QString s) {
