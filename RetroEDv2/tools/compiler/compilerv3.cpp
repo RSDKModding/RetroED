@@ -1497,8 +1497,11 @@ void Compilerv3::ParseScriptFile(QString scriptName, int scriptID, bool inEditor
                          || curChar == ';' || readMode >= READMODE_COMMENTLINE) {
                     if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r')
                         || curChar == ';') {
-                        readMode            = READMODE_ENDLINE;
-                        scriptText[textPos] = 0;
+                        // don't read commas as endline in comments
+                        if (readMode < READMODE_COMMENTLINE || curChar != ';') {
+                            readMode            = READMODE_ENDLINE;
+                            scriptText[textPos] = 0;
+                        }
                     }
                 }
                 else if (curChar != '/' || textPos <= 0) {

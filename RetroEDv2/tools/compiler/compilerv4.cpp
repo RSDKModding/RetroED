@@ -3797,10 +3797,13 @@ void Compilerv4::ParseScriptFile(QString scriptName, int scriptID, bool inEditor
                          || curChar == ';' || readMode >= READMODE_COMMENTLINE) {
                     if ((curChar == '\n' && prevChar != '\r') || (curChar == '\n' && prevChar == '\r')
                         || curChar == ';') {
-                        readMode            = READMODE_ENDLINE;
-                        scriptText[textPos] = 0;
-                        if (curChar == ';')
-                            disableLineIncrement = true;
+                        // don't read commas as endline in comments
+                        if (readMode < READMODE_COMMENTLINE || curChar != ';') {
+                            readMode            = READMODE_ENDLINE;
+                            scriptText[textPos] = 0;
+                            if (curChar == ';')
+                                disableLineIncrement = true;
+                        }
                     }
                 }
                 else if (curChar != '/' || textPos <= 0) {
