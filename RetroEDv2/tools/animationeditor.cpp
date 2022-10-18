@@ -2641,6 +2641,7 @@ bool AnimationEditor::event(QEvent *event)
                     }
                     animFile.write(aniType, filepath);
                     appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
+                    SetStatus("Saved animation to " + QFile(animFile.filePath).fileName());
                     ClearActions();
                     return true;
                 }
@@ -2651,6 +2652,7 @@ bool AnimationEditor::event(QEvent *event)
                 QString filepath = animFile.filePath;
                 animFile.write(aniType, filepath);
                 appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
+                SetStatus("Saved animation to " + QFile(animFile.filePath).fileName());
                 ClearActions();
                 return true;
             }
@@ -2688,6 +2690,7 @@ bool AnimationEditor::event(QEvent *event)
 
                 animFile.write(aniType, filepath);
                 appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
+                SetStatus("Saved animation to " + QFile(animFile.filePath).fileName());
                 ClearActions();
                 return true;
             }
@@ -2803,6 +2806,7 @@ bool AnimationEditor::event(QEvent *event)
                             animFile.write(aniType, filepath);
                             appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath,
                                                     QList<QString>{});
+                            SetStatus("Saved animation to " + QFile(animFile.filePath).fileName());
                             ClearActions();
                             return true;
                         }
@@ -2814,6 +2818,7 @@ bool AnimationEditor::event(QEvent *event)
                         animFile.write(aniType, filepath);
                         appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath,
                                                 QList<QString>{});
+                        SetStatus("Saved animation to " + QFile(animFile.filePath).fileName());
                         ClearActions();
                         return true;
                     }

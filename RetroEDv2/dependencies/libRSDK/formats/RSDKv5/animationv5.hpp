@@ -92,7 +92,7 @@ public:
 
         inline void read(Reader &reader, Animation *parent)
         {
-            name              = reader.readString();
+            name              = reader.readStringV5();
             ushort frameCount = reader.read<ushort>();
             speed             = reader.read<short>();
             loopIndex         = reader.read<byte>();
@@ -104,7 +104,7 @@ public:
 
         inline void write(Writer &writer, Animation *parent)
         {
-            writer.write(name);
+            writer.writeStringV5(name);
             writer.write((ushort)frames.count());
             writer.write(speed);
             writer.write(loopIndex);
