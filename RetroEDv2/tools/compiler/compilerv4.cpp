@@ -3140,6 +3140,7 @@ void Compilerv4::ConvertFunctionText(char *text)
             // Eg: temp0 = TypeName[Player Object]
             if (StrComp(funcName, "TypeName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
 
                 int o = 0;
                 for (; o < OBJECT_COUNT; ++o) {
@@ -3159,6 +3160,7 @@ void Compilerv4::ConvertFunctionText(char *text)
             // Eg: temp0 = SfxName[Jump]
             if (StrComp(funcName, "SfxName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
 
                 int s = 0;
                 for (; s < SFX_COUNT; ++s) {
@@ -3178,6 +3180,7 @@ void Compilerv4::ConvertFunctionText(char *text)
             // Eg: temp0 = VarName[player.lives]
             if (StrComp(funcName, "VarName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
 
                 int v = 0;
                 for (; v < globalVariables.count(); ++v) {
@@ -3197,16 +3200,19 @@ void Compilerv4::ConvertFunctionText(char *text)
             // Eg: temp0 = AchievementName[Ring King]
             if (StrComp(funcName, "AchievementName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
             }
 
             // Eg: temp0 = PlayerName[SONIC]
             if (StrComp(funcName, "PlayerName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
             }
 
             // Eg: temp0 = StageName[R - GREEN HILL ZONE 1]
             if (StrComp(funcName, "StageName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
             }
 
             // Storing Values
@@ -3378,6 +3384,7 @@ void Compilerv4::CheckCaseNumber(char *text)
         // Eg: temp0 = TypeName[Player Object]
         if (StrComp(caseValue, "TypeName")) {
             caseValue[0] = '0';
+            caseValue[1] = 0;
 
             int o = 0;
             for (; o < OBJECT_COUNT; ++o) {
@@ -3396,6 +3403,7 @@ void Compilerv4::CheckCaseNumber(char *text)
         // Eg: temp0 = SfxName[Jump]
         if (StrComp(caseValue, "SfxName")) {
             caseValue[0] = '0';
+            caseValue[1] = 0;
 
             int s = 0;
             for (; s < SFX_COUNT; ++s) {
@@ -3414,6 +3422,7 @@ void Compilerv4::CheckCaseNumber(char *text)
         // Eg: temp0 = VarName[player.lives]
         if (StrComp(caseValue, "VarName")) {
             caseValue[0] = '0';
+            caseValue[1] = 0;
 
             int v = 0;
             for (; v < globalVariables.count(); ++v) {
@@ -3433,16 +3442,19 @@ void Compilerv4::CheckCaseNumber(char *text)
         // Eg: temp0 = AchievementName[Ring King]
         if (StrComp(caseValue, "AchievementName")) {
             caseValue[0] = '0';
+            caseValue[1] = 0;
         }
 
         // Eg: temp0 = PlayerName[SONIC]
         if (StrComp(caseValue, "PlayerName")) {
             caseValue[0] = '0';
+            caseValue[1] = 0;
         }
 
         // Eg: temp0 = StageName[R - GREEN HILL ZONE 1]
         if (StrComp(caseValue, "StageName")) {
             caseValue[0] = '0';
+            caseValue[1] = 0;
         }
 
         StrCopy(caseString, caseValue);
@@ -3515,6 +3527,7 @@ bool Compilerv4::ReadSwitchCase(char *text)
             // Eg: temp0 = TypeName[Player Object]
             if (StrComp(caseValue, "TypeName")) {
                 caseValue[0] = '0';
+                caseValue[1] = 0;
 
                 int o = 0;
                 for (; o < OBJECT_COUNT; ++o) {
@@ -3534,6 +3547,7 @@ bool Compilerv4::ReadSwitchCase(char *text)
             // Eg: temp0 = SfxName[Jump]
             if (StrComp(caseValue, "SfxName")) {
                 caseValue[0] = '0';
+                caseValue[1] = 0;
 
                 int s = 0;
                 for (; s < SFX_COUNT; ++s) {
@@ -3553,6 +3567,7 @@ bool Compilerv4::ReadSwitchCase(char *text)
             // Eg: temp0 = VarName[player.lives]
             if (StrComp(caseValue, "VarName")) {
                 caseValue[0] = '0';
+                caseValue[1] = 0;
 
                 int v = 0;
                 for (; v < globalVariables.count(); ++v) {
@@ -3572,16 +3587,19 @@ bool Compilerv4::ReadSwitchCase(char *text)
             // Eg: temp0 = AchievementName[Ring King]
             if (StrComp(caseValue, "AchievementName")) {
                 caseValue[0] = '0';
+                caseValue[1] = 0;
             }
 
             // Eg: temp0 = PlayerName[SONIC]
             if (StrComp(caseValue, "PlayerName")) {
                 caseValue[0] = '0';
+                caseValue[1] = 0;
             }
 
             // Eg: temp0 = StageName[R - GREEN HILL ZONE 1]
             if (StrComp(caseValue, "StageName")) {
                 caseValue[0] = '0';
+                caseValue[1] = 0;
             }
             StrCopy(caseText, caseValue);
             foundValue = true;

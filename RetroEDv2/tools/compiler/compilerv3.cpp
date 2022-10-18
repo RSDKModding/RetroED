@@ -1175,34 +1175,45 @@ void Compilerv3::ConvertFunctionText(char *text)
 
             // Eg: TempValue0 = TypeName[PlayerObject]
             if (StrComp(funcName, "TypeName")) {
-                funcName[0] = 0;
-                AppendIntegerToString(funcName, 0);
-                for (int o = 0; o < OBJECT_COUNT; ++o) {
+                funcName[0] = '0';
+                funcName[1] = 0;
+
+                int o = 0;
+                for (; o < OBJECT_COUNT; ++o) {
                     if (StrComp(arrayStr, typeNames[o])) {
                         funcName[0] = 0;
                         AppendIntegerToString(funcName, o);
                     }
                 }
+
+                if (o == OBJECT_COUNT)
+                    PrintLog(QString("WARNING: Unknown typename \"%1\", on line %2")
+                                 .arg(arrayStr)
+                                 .arg(lineID));
             }
 
             // Eg: TempValue0 = SfxName[Jump]
             if (StrComp(funcName, "SfxName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
             }
 
             // Eg: TempValue0 = AchievementName[88 Miles Per Hour]
             if (StrComp(funcName, "AchievementName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
             }
 
             // Eg: TempValue0 = PlayerName[SONIC]
             if (StrComp(funcName, "PlayerName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
             }
 
             // Eg: TempValue0 = StageName[R - PALMTREE PANIC ZONE 1 A]
             if (StrComp(funcName, "StageName")) {
                 funcName[0] = '0';
+                funcName[1] = 0;
             }
 
             int constant = 0;
