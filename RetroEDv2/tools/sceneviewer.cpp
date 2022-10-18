@@ -896,7 +896,8 @@ void SceneViewer::drawScene()
             if (!(filter & sceneFilter) && filter)
                 continue;
 
-            if (drawLayers[p].entries[o] == selectedEntity)
+            if (drawLayers[p].entries[o] == selectedEntity
+                || selectedEntities.indexOf(drawLayers[p].entries[o]) >= 0)
                 continue;
 
             if (entity->type != 0) {
@@ -920,7 +921,7 @@ void SceneViewer::drawScene()
         }
     }
 
-    // Draw Selected Entity above the rest
+    // Draw selected entity (single)
     if (selectedEntity >= 0 && selectedEntity < entities.count()) {
         SceneEntity *entity = &entities[selectedEntity];
         activeDrawEntity    = entity;
@@ -947,6 +948,45 @@ void SceneViewer::drawScene()
                               0xFF, 1);
         }
     }
+
+    int storedSelectedEntity = selectedEntity;
+    int storedListPos        = sceneInfo.listPos;
+
+    // Draw selected entity (multiple)
+    for (int s = 0; s < selectedEntities.count(); ++s) {
+        if (selectedEntities[s] >= 0 && selectedEntities[s] < entities.count()) {
+            selectedEntity    = selectedEntities[s];
+            sceneInfo.listPos = selectedEntities[s];
+
+            SceneEntity *entity = &entities[selectedEntity];
+            activeDrawEntity    = entity;
+            entity->box         = Rect<int>(0, 0, 0, 0);
+
+            validDraw = false;
+
+            if (entity->type != 0) {
+                if (gameType == ENGINE_v5)
+                    emit callGameEventv5(objects[entity->type].name, EVENT_DRAW, entity);
+                else
+                    emit callGameEvent(EVENT_DRAW, selectedEntity);
+            }
+
+            // Draw Default Object Sprite if invalid
+            if (!validDraw) {
+                entity->box = Rect<int>(-0x10, -0x10, 0x10, 0x10);
+
+                float xpos = entity->pos.x - (cameraPos.x);
+                float ypos = entity->pos.y - (cameraPos.y);
+
+                drawSpriteFlipped(xpos - (gfxSurface[1].width >> 1), ypos - (gfxSurface[1].height >> 1),
+                                  gfxSurface[1].width, gfxSurface[1].height, 0, 0, FLIP_NONE, INK_NONE,
+                                  0xFF, 1);
+            }
+        }
+    }
+
+    selectedEntity    = storedSelectedEntity;
+    sceneInfo.listPos = storedListPos;
 
     // Draw Retro-Sonic Player spawn point
     if (gameType == ENGINE_v1) {
@@ -1135,22 +1175,6 @@ void SceneViewer::drawScene()
         }
     }
 
-    if (selectedEntity >= 0 && selectedEntity < entities.count()) {
-        SceneEntity &entity = entities[selectedEntity];
-
-        float left   = entity.pos.x + entity.box.x;
-        float top    = entity.pos.y + entity.box.y;
-        float right  = entity.pos.x + entity.box.w;
-        float bottom = entity.pos.y + entity.box.h;
-
-        float w = fabsf(right - left), h = fabsf(bottom - top);
-
-        drawRect(left - cameraPos.x, top - cameraPos.y, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
-                 false, 0x40, INK_ALPHA);
-        drawRect(left - cameraPos.x, top - cameraPos.y, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
-                 true);
-    }
-
     // Selected Stamp Box
     if (selectedStamp >= 0 && selectedStamp < stamps.stampList.count()) {
         RSDKv5::Stamps::StampEntry &stamp = stamps.stampList[selectedStamp];
@@ -1169,7 +1193,24 @@ void SceneViewer::drawScene()
                  true);
     }
 
-    // Selection Box
+    // Selected Entity Box (Single)
+    if (selectedEntity >= 0 && selectedEntity < entities.count()) {
+        SceneEntity &entity = entities[selectedEntity];
+
+        float left   = entity.pos.x + entity.box.x;
+        float top    = entity.pos.y + entity.box.y;
+        float right  = entity.pos.x + entity.box.w;
+        float bottom = entity.pos.y + entity.box.h;
+
+        float w = fabsf(right - left), h = fabsf(bottom - top);
+
+        drawRect(left - cameraPos.x, top - cameraPos.y, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
+                 false, 0x40, INK_ALPHA);
+        drawRect(left - cameraPos.x, top - cameraPos.y, w, h, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f),
+                 true);
+    }
+
+    // Selected Entity Box (Multiple)
     if (curTool == TOOL_SELECT && (isSelecting || (selectSize.x && selectSize.y))) {
 
         if (isSelecting) {
@@ -1227,6 +1268,7 @@ void SceneViewer::unloadScene()
     selectedHScrollInfo = -1;
     selectedObject      = -1;
     isSelecting         = false;
+    selectedEntities.clear();
 
     memset(gameEntityListv1, 0, v5_ENTITY_COUNT * 2 * sizeof(GameEntityBasev1));
     memset(gameEntityListv2, 0, v5_ENTITY_COUNT * 2 * sizeof(GameEntityBasev2));
