@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 import pytz
 import sys
 import re
@@ -24,11 +25,12 @@ else:
 time = datetime.now(pytz.timezone("US/Eastern"))
 s = time.strftime("v%Y.%m.%d") + buildadd
 
-for line in open("version.hpp", "r").readlines():
-    match = re.match(r"#define\s+RE_VERSION\s+\(\"(.*)\"\)", line)
-    if match and match.groups()[0] == s:
-        print("version matches; nothing to be done")
-        exit()
+if os.path.exists("version.hpp"):
+    for line in open("version.hpp", "r").readlines():
+        match = re.match(r"#define\s+RE_VERSION\s+\(\"(.*)\"\)", line)
+        if match and match.groups()[0] == s:
+            print("version matches; nothing to be done")
+            exit()
 
 LINES = [
     "#pragma once\n\n"
