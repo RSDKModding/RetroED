@@ -24,7 +24,6 @@
 #include "sceneproperties/confirmgamelink.hpp"
 #include "sceneproperties/syncgcdetails.hpp"
 
-
 TileSelector::TileSelector(QWidget *parent) : QWidget(parent), parentPtr((SceneEditorv5 *)parent)
 {
     QScrollArea *scrollArea = new QScrollArea(this);
@@ -625,6 +624,14 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         ui->entityList->item(c - 1)->setText(QString::number(viewer->entities[c - 1].slotID) + ": "
                                              + viewer->objects[viewer->entities[c - 1].type].name);
+
+        if (viewer->selectedEntity == (int)c)
+            viewer->selectedEntity = c - 1;
+
+        for (int s = 0; s < viewer->selectedEntities.count(); ++s) {
+            if (viewer->selectedEntities[s] == (int)c)
+                viewer->selectedEntities[s] = c - 1;
+        }
     });
 
     connect(ui->downEnt, &QToolButton::clicked, [this] {
@@ -647,6 +654,14 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         ui->entityList->item(c + 1)->setText(QString::number(viewer->entities[c + 1].slotID) + ": "
                                              + viewer->objects[viewer->entities[c + 1].type].name);
+
+        if (viewer->selectedEntity == (int)c)
+            viewer->selectedEntity = c + 1;
+
+        for (int s = 0; s < viewer->selectedEntities.count(); ++s) {
+            if (viewer->selectedEntities[s] == (int)c)
+                viewer->selectedEntities[s] = c + 1;
+        }
     });
 
     connect(ui->scrollList, &QListWidget::currentRowChanged, [this](int c) {
