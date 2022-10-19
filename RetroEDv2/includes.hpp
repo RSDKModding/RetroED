@@ -77,8 +77,6 @@ public:
 
 // Formats
 #include "utils/appconfig.hpp"
-//!! unused???
-#include "utils/staticobjectinfo.hpp"
 
 // Form Utils
 #include "tools/utils/propertygrid.hpp"

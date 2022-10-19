@@ -86,7 +86,6 @@ SOURCES += \
     utils/retroedutils.cpp \
     utils/shaders.cpp \
     main.cpp \
-    utils/staticobjectinfo.cpp \
     utils/stringhelpers.cpp \
     utils/workingdirmanager.cpp
 
@@ -151,7 +150,6 @@ HEADERS += \
     utils/retroedutils.hpp \
     utils/shaders.hpp \
     includes.hpp \
-    utils/staticobjectinfo.hpp \
     utils/stringhelpers.hpp \
     utils/workingdirmanager.hpp \
     version.hpp
