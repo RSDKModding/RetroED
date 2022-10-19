@@ -23,7 +23,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>5</number>
      </property>
      <widget class="QWidget" name="layerPage">
       <property name="geometry">
@@ -31,7 +31,7 @@
         <x>0</x>
         <y>0</y>
         <width>185</width>
-        <height>202</height>
+        <height>181</height>
        </rect>
       </property>
       <attribute name="label">
@@ -49,7 +49,7 @@
         <x>0</x>
         <y>0</y>
         <width>185</width>
-        <height>202</height>
+        <height>181</height>
        </rect>
       </property>
       <attribute name="label">
@@ -63,7 +63,7 @@
         <x>0</x>
         <y>0</y>
         <width>185</width>
-        <height>202</height>
+        <height>181</height>
        </rect>
       </property>
       <attribute name="label">
@@ -123,7 +123,7 @@
         <x>0</x>
         <y>0</y>
         <width>185</width>
-        <height>202</height>
+        <height>181</height>
        </rect>
       </property>
       <attribute name="label">
@@ -218,7 +218,7 @@
         <x>0</x>
         <y>0</y>
         <width>185</width>
-        <height>202</height>
+        <height>181</height>
        </rect>
       </property>
       <attribute name="label">
@@ -246,7 +246,7 @@
          </property>
          <property name="icon">
           <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_undo_48px.svg</normaloff>:/icons/ic_undo_48px.svg</iconset>
+           <normaloff>:/icons/ic_import_48px.svg</normaloff>:/icons/ic_import_48px.svg</iconset>
          </property>
         </widget>
        </item>
@@ -268,7 +268,7 @@
          </property>
          <property name="icon">
           <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_redo_48px.svg</normaloff>:/icons/ic_redo_48px.svg</iconset>
+           <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
          </property>
         </widget>
        </item>
@@ -306,7 +306,7 @@
         <x>0</x>
         <y>0</y>
         <width>185</width>
-        <height>202</height>
+        <height>181</height>
        </rect>
       </property>
       <attribute name="label">
@@ -347,7 +347,7 @@
          </property>
          <property name="icon">
           <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_undo_48px.svg</normaloff>:/icons/ic_undo_48px.svg</iconset>
+           <normaloff>:/icons/ic_import_48px.svg</normaloff>:/icons/ic_import_48px.svg</iconset>
          </property>
         </widget>
        </item>
@@ -358,7 +358,7 @@
          </property>
          <property name="icon">
           <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_redo_48px.svg</normaloff>:/icons/ic_redo_48px.svg</iconset>
+           <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
          </property>
         </widget>
        </item>
@@ -414,7 +414,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>229</height>
+        <height>211</height>
        </rect>
       </property>
       <attribute name="label">
@@ -440,7 +440,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>229</height>
+        <height>211</height>
        </rect>
       </property>
       <attribute name="label">
@@ -466,7 +466,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>229</height>
+        <height>211</height>
        </rect>
       </property>
       <attribute name="label">
@@ -492,7 +492,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>229</height>
+        <height>211</height>
        </rect>
       </property>
       <attribute name="label">
@@ -518,7 +518,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>229</height>
+        <height>211</height>
        </rect>
       </property>
       <attribute name="label">
@@ -848,7 +848,7 @@
         </property>
         <property name="icon">
          <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_redo_48px.svg</normaloff>:/icons/ic_redo_48px.svg</iconset>
+          <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
         </property>
        </widget>
       </item>
@@ -881,6 +881,41 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>panTool</tabstop>
+  <tabstop>selectTool</tabstop>
+  <tabstop>pencilTool</tabstop>
+  <tabstop>eraserTool</tabstop>
+  <tabstop>entityTool</tabstop>
+  <tabstop>useGizmos</tabstop>
+  <tabstop>showCollisionA</tabstop>
+  <tabstop>showCollisionB</tabstop>
+  <tabstop>showParallax</tabstop>
+  <tabstop>showTileGrid</tabstop>
+  <tabstop>exportSceneImg</tabstop>
+  <tabstop>exportScn</tabstop>
+  <tabstop>layerList</tabstop>
+  <tabstop>objectList</tabstop>
+  <tabstop>objectFilter</tabstop>
+  <tabstop>addObj</tabstop>
+  <tabstop>rmObj</tabstop>
+  <tabstop>entityList</tabstop>
+  <tabstop>entityFilter</tabstop>
+  <tabstop>addEnt</tabstop>
+  <tabstop>upEnt</tabstop>
+  <tabstop>downEnt</tabstop>
+  <tabstop>rmEnt</tabstop>
+  <tabstop>hScrollList</tabstop>
+  <tabstop>addScrH</tabstop>
+  <tabstop>impScrH</tabstop>
+  <tabstop>expScrH</tabstop>
+  <tabstop>rmScrH</tabstop>
+  <tabstop>vScrollList</tabstop>
+  <tabstop>addScrV</tabstop>
+  <tabstop>impScrV</tabstop>
+  <tabstop>expScrV</tabstop>
+  <tabstop>rmScrV</tabstop>
+ </tabstops>
  <resources>
   <include location="../resources.qrc"/>
  </resources>

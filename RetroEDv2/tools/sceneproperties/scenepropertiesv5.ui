@@ -29,9 +29,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>-485</y>
         <width>256</width>
-        <height>1054</height>
+        <height>1145</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
@@ -439,6 +439,33 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>loadGlobals</tabstop>
+  <tabstop>stampName</tabstop>
+  <tabstop>loadStamps</tabstop>
+  <tabstop>saveStamps</tabstop>
+  <tabstop>editChunks</tabstop>
+  <tabstop>editStageConfig</tabstop>
+  <tabstop>editCollision</tabstop>
+  <tabstop>editTSet</tabstop>
+  <tabstop>editPalette</tabstop>
+  <tabstop>syncSC</tabstop>
+  <tabstop>syncGC</tabstop>
+  <tabstop>reloadLink</tabstop>
+  <tabstop>replaceTile</tabstop>
+  <tabstop>gridX</tabstop>
+  <tabstop>gridY</tabstop>
+  <tabstop>unknown1</tabstop>
+  <tabstop>unknown2</tabstop>
+  <tabstop>unknown3</tabstop>
+  <tabstop>unknown4</tabstop>
+  <tabstop>unknown5</tabstop>
+  <tabstop>unknown6</tabstop>
+  <tabstop>unknown7</tabstop>
+  <tabstop>unknown8</tabstop>
+  <tabstop>unknown9</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

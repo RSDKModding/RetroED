@@ -90,6 +90,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>selRSV</tabstop>
+  <tabstop>selExtractFolder</tabstop>
+  <tabstop>selFrames</tabstop>
+  <tabstop>saveRSV</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

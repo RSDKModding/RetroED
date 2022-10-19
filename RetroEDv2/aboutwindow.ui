@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>420</width>
-    <height>181</height>
+    <width>386</width>
+    <height>148</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,10 +22,10 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>220</x>
-     <y>140</y>
+     <x>210</x>
+     <y>116</y>
      <width>166</width>
-     <height>24</height>
+     <height>30</height>
     </rect>
    </property>
    <property name="orientation">
@@ -38,10 +38,10 @@
   <widget class="QLabel" name="icon">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>20</y>
-     <width>90</width>
-     <height>90</height>
+     <x>10</x>
+     <y>10</y>
+     <width>101</width>
+     <height>101</height>
     </rect>
    </property>
    <property name="pixmap">
@@ -54,8 +54,8 @@
   <widget class="QLabel" name="titleLabel">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>30</y>
+     <x>120</x>
+     <y>20</y>
      <width>241</width>
      <height>21</height>
     </rect>
@@ -63,7 +63,6 @@
    <property name="font">
     <font>
      <pointsize>16</pointsize>
-     <weight>75</weight>
      <bold>true</bold>
     </font>
    </property>
@@ -74,8 +73,8 @@
   <widget class="QLabel" name="versionLabel">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>50</y>
+     <x>120</x>
+     <y>40</y>
      <width>111</width>
      <height>20</height>
     </rect>
@@ -93,8 +92,8 @@
   <widget class="QLabel" name="descLabel">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>70</y>
+     <x>120</x>
+     <y>60</y>
      <width>281</width>
      <height>16</height>
     </rect>
@@ -106,7 +105,7 @@
   <widget class="QLabel" name="authorLabel">
    <property name="geometry">
     <rect>
-     <x>130</x>
+     <x>120</x>
      <y>90</y>
      <width>281</width>
      <height>16</height>
@@ -118,21 +117,20 @@
     </font>
    </property>
    <property name="text">
-    <string>By Rubberduckycooly &amp; RMGRich</string>
+    <string>By Rubberduckycooly &amp; chuliRMG</string>
    </property>
   </widget>
   <widget class="QLabel" name="autobuildLabel">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>112</y>
-     <width>381</width>
+     <x>10</x>
+     <y>120</y>
+     <width>270</width>
      <height>20</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <weight>75</weight>
      <italic>true</italic>
      <bold>true</bold>
     </font>

@@ -595,6 +595,35 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>sectionList</tabstop>
+  <tabstop>objList</tabstop>
+  <tabstop>addObj</tabstop>
+  <tabstop>upObj</tabstop>
+  <tabstop>downObj</tabstop>
+  <tabstop>rmObj</tabstop>
+  <tabstop>objName</tabstop>
+  <tabstop>objScript</tabstop>
+  <tabstop>objSheet</tabstop>
+  <tabstop>sfxList</tabstop>
+  <tabstop>addSfx</tabstop>
+  <tabstop>upSfx</tabstop>
+  <tabstop>downSfx</tabstop>
+  <tabstop>rmSfx</tabstop>
+  <tabstop>sfxPath</tabstop>
+  <tabstop>musList</tabstop>
+  <tabstop>addMus</tabstop>
+  <tabstop>upMus</tabstop>
+  <tabstop>downMus</tabstop>
+  <tabstop>rmMus</tabstop>
+  <tabstop>musPath</tabstop>
+  <tabstop>shtList</tabstop>
+  <tabstop>addSht</tabstop>
+  <tabstop>upSht</tabstop>
+  <tabstop>downSht</tabstop>
+  <tabstop>rmSht</tabstop>
+  <tabstop>shtPath</tabstop>
+ </tabstops>
  <resources>
   <include location="../../resources.qrc"/>
  </resources>

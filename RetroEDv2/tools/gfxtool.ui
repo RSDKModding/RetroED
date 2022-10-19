@@ -84,6 +84,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>importGFX</tabstop>
+  <tabstop>exportImage</tabstop>
+  <tabstop>ImportImage</tabstop>
+  <tabstop>exportGFX</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

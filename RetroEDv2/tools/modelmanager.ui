@@ -301,7 +301,7 @@
        </property>
        <property name="icon">
         <iconset resource="../resources.qrc">
-         <normaloff>:/icons/ic_redo_48px.svg</normaloff>:/icons/ic_redo_48px.svg</iconset>
+         <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
        </property>
       </widget>
      </item>
@@ -315,7 +315,7 @@
        </property>
        <property name="icon">
         <iconset resource="../resources.qrc">
-         <normaloff>:/icons/ic_undo_48px.svg</normaloff>:/icons/ic_undo_48px.svg</iconset>
+         <normaloff>:/icons/ic_import_48px.svg</normaloff>:/icons/ic_import_48px.svg</iconset>
        </property>
       </widget>
      </item>
@@ -383,9 +383,9 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>-118</y>
+           <y>-171</y>
            <width>208</width>
-           <height>483</height>
+           <height>534</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
@@ -637,6 +637,32 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>addFrame</tabstop>
+  <tabstop>upFrame</tabstop>
+  <tabstop>downFrame</tabstop>
+  <tabstop>rmFrame</tabstop>
+  <tabstop>frameList</tabstop>
+  <tabstop>skipStart</tabstop>
+  <tabstop>prevFrame</tabstop>
+  <tabstop>play</tabstop>
+  <tabstop>nextFrame</tabstop>
+  <tabstop>skipEnd</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>loopIndex</tabstop>
+  <tabstop>animSpeed</tabstop>
+  <tabstop>useWireframe</tabstop>
+  <tabstop>showNormals</tabstop>
+  <tabstop>loadTexture</tabstop>
+  <tabstop>texPath</tabstop>
+  <tabstop>resetCam</tabstop>
+  <tabstop>hasNormals</tabstop>
+  <tabstop>hasColors</tabstop>
+  <tabstop>hasTextures</tabstop>
+  <tabstop>impMDL</tabstop>
+  <tabstop>copyFrame</tabstop>
+  <tabstop>expMDL</tabstop>
+ </tabstops>
  <resources>
   <include location="../resources.qrc"/>
  </resources>

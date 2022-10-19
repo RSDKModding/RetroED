@@ -195,6 +195,19 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>selectDatafile</tabstop>
+  <tabstop>exportDatafile</tabstop>
+  <tabstop>selectDataFolder</tabstop>
+  <tabstop>buildDatafile</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>fileList</tabstop>
+  <tabstop>addFile</tabstop>
+  <tabstop>rmFile</tabstop>
+  <tabstop>filename</tabstop>
+  <tabstop>filenameHash</tabstop>
+  <tabstop>encrypted</tabstop>
+ </tabstops>
  <resources>
   <include location="../resources.qrc"/>
  </resources>

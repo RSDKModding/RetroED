@@ -154,6 +154,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>width</tabstop>
+  <tabstop>height</tabstop>
+  <tabstop>type</tabstop>
+  <tabstop>drawOrder</tabstop>
+  <tabstop>parallaxFactor</tabstop>
+  <tabstop>scrollSpeed</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

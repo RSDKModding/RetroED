@@ -145,6 +145,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tileList</tabstop>
+  <tabstop>upTile</tabstop>
+  <tabstop>downTile</tabstop>
+  <tabstop>exportImg</tabstop>
+  <tabstop>importImg</tabstop>
+ </tabstops>
  <resources>
   <include location="../../resources.qrc"/>
  </resources>

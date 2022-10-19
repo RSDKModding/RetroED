@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>339</width>
-    <height>394</height>
+    <height>452</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -233,6 +233,27 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>dstTile</tabstop>
+  <tabstop>srcTile</tabstop>
+  <tabstop>replaceTileIndex</tabstop>
+  <tabstop>replaceVisualPlane</tabstop>
+  <tabstop>replaceFlipX</tabstop>
+  <tabstop>replaceFlipY</tabstop>
+  <tabstop>replaceSolidTopB</tabstop>
+  <tabstop>replaceSolidLRBA</tabstop>
+  <tabstop>replaceSolidTopA</tabstop>
+  <tabstop>replaceSolidLRBB</tabstop>
+  <tabstop>replaceCollision</tabstop>
+  <tabstop>replaceGraphics</tabstop>
+  <tabstop>hasFlipX</tabstop>
+  <tabstop>hasFlipY</tabstop>
+  <tabstop>hasSolidATop</tabstop>
+  <tabstop>hasSolidALRB</tabstop>
+  <tabstop>hasSolidBTop</tabstop>
+  <tabstop>hasSolidBLRB</tabstop>
+  <tabstop>hasVisualPlane</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

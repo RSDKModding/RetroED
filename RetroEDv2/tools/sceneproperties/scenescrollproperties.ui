@@ -213,6 +213,17 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>parallaxFactor</tabstop>
+  <tabstop>scrollSpeed</tabstop>
+  <tabstop>useDeform</tabstop>
+  <tabstop>instanceList</tabstop>
+  <tabstop>addInst</tabstop>
+  <tabstop>rmInst</tabstop>
+  <tabstop>startLine</tabstop>
+  <tabstop>length</tabstop>
+  <tabstop>layerID</tabstop>
+ </tabstops>
  <resources>
   <include location="../../resources.qrc"/>
  </resources>

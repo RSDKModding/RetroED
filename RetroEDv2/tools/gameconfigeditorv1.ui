@@ -385,6 +385,28 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>sectionList</tabstop>
+  <tabstop>plrList</tabstop>
+  <tabstop>addPlr</tabstop>
+  <tabstop>upPlr</tabstop>
+  <tabstop>downPlr</tabstop>
+  <tabstop>rmPlr</tabstop>
+  <tabstop>plrNameDisplay</tabstop>
+  <tabstop>plrName</tabstop>
+  <tabstop>plrAnim</tabstop>
+  <tabstop>hasP2</tabstop>
+  <tabstop>plr2Anim</tabstop>
+  <tabstop>scnTree</tabstop>
+  <tabstop>addScn</tabstop>
+  <tabstop>upScn</tabstop>
+  <tabstop>downScn</tabstop>
+  <tabstop>rmScn</tabstop>
+  <tabstop>scnName</tabstop>
+  <tabstop>scnFolder</tabstop>
+  <tabstop>scnID</tabstop>
+  <tabstop>scnHighlighted</tabstop>
+ </tabstops>
  <resources>
   <include location="../resources.qrc"/>
  </resources>

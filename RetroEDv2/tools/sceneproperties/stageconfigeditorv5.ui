@@ -315,6 +315,22 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>sectionList</tabstop>
+  <tabstop>objList</tabstop>
+  <tabstop>addObj</tabstop>
+  <tabstop>upObj</tabstop>
+  <tabstop>downObj</tabstop>
+  <tabstop>rmObj</tabstop>
+  <tabstop>objName</tabstop>
+  <tabstop>sfxList</tabstop>
+  <tabstop>addSfx</tabstop>
+  <tabstop>upSfx</tabstop>
+  <tabstop>downSfx</tabstop>
+  <tabstop>rmSfx</tabstop>
+  <tabstop>sfxPath</tabstop>
+  <tabstop>maxPlays</tabstop>
+ </tabstops>
  <resources>
   <include location="../../resources.qrc"/>
  </resources>

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>211</width>
-    <height>395</height>
+    <height>434</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -226,6 +226,21 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>colPlaneA</tabstop>
+  <tabstop>colPlaneB</tabstop>
+  <tabstop>maskDir</tabstop>
+  <tabstop>floorAngle</tabstop>
+  <tabstop>roofAngle</tabstop>
+  <tabstop>lWallAngle</tabstop>
+  <tabstop>rWallAngle</tabstop>
+  <tabstop>behaviour</tabstop>
+  <tabstop>editCollision</tabstop>
+  <tabstop>calcAngleF</tabstop>
+  <tabstop>calcAngleC</tabstop>
+  <tabstop>calcAngleL</tabstop>
+  <tabstop>calcAngleR</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -419,6 +419,24 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>defFlipX</tabstop>
+  <tabstop>defFlipY</tabstop>
+  <tabstop>defVisPlane</tabstop>
+  <tabstop>defSolidA</tabstop>
+  <tabstop>defSolidB</tabstop>
+  <tabstop>chunkList</tabstop>
+  <tabstop>upChunk</tabstop>
+  <tabstop>downChunk</tabstop>
+  <tabstop>flipX</tabstop>
+  <tabstop>flipY</tabstop>
+  <tabstop>visualPlane</tabstop>
+  <tabstop>tileIndex</tabstop>
+  <tabstop>solidityA</tabstop>
+  <tabstop>solidityB</tabstop>
+  <tabstop>exportImg</tabstop>
+  <tabstop>tileList</tabstop>
+ </tabstops>
  <resources>
   <include location="../../resources.qrc"/>
  </resources>

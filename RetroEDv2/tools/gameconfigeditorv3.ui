@@ -806,6 +806,46 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>sectionList</tabstop>
+  <tabstop>gameName</tabstop>
+  <tabstop>gameDescription</tabstop>
+  <tabstop>objList</tabstop>
+  <tabstop>addObj</tabstop>
+  <tabstop>upObj</tabstop>
+  <tabstop>downObj</tabstop>
+  <tabstop>rmObj</tabstop>
+  <tabstop>objName</tabstop>
+  <tabstop>objScript</tabstop>
+  <tabstop>sfxList</tabstop>
+  <tabstop>addSfx</tabstop>
+  <tabstop>upSfx</tabstop>
+  <tabstop>downSfx</tabstop>
+  <tabstop>rmSfx</tabstop>
+  <tabstop>sfxName</tabstop>
+  <tabstop>varList</tabstop>
+  <tabstop>addVar</tabstop>
+  <tabstop>upVar</tabstop>
+  <tabstop>downVar</tabstop>
+  <tabstop>rmVar</tabstop>
+  <tabstop>varName</tabstop>
+  <tabstop>varValue</tabstop>
+  <tabstop>plrList</tabstop>
+  <tabstop>addPlr</tabstop>
+  <tabstop>upPlr</tabstop>
+  <tabstop>downPlr</tabstop>
+  <tabstop>rmPlr</tabstop>
+  <tabstop>plrName</tabstop>
+  <tabstop>scnTree</tabstop>
+  <tabstop>addScn</tabstop>
+  <tabstop>upScn</tabstop>
+  <tabstop>downScn</tabstop>
+  <tabstop>rmScn</tabstop>
+  <tabstop>scnName</tabstop>
+  <tabstop>scnFolder</tabstop>
+  <tabstop>scnID</tabstop>
+  <tabstop>scnHighlighted</tabstop>
+ </tabstops>
  <resources>
   <include location="../resources.qrc"/>
  </resources>

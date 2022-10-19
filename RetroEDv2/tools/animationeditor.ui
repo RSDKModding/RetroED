@@ -395,7 +395,7 @@
        </property>
        <property name="icon">
         <iconset resource="../resources.qrc">
-         <normaloff>:/icons/ic_redo_48px.svg</normaloff>:/icons/ic_redo_48px.svg</iconset>
+         <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
        </property>
       </widget>
      </item>
@@ -409,7 +409,7 @@
        </property>
        <property name="icon">
         <iconset resource="../resources.qrc">
-         <normaloff>:/icons/ic_undo_48px.svg</normaloff>:/icons/ic_undo_48px.svg</iconset>
+         <normaloff>:/icons/ic_import_48px.svg</normaloff>:/icons/ic_import_48px.svg</iconset>
        </property>
       </widget>
      </item>
@@ -516,7 +516,7 @@
           </property>
           <property name="icon">
            <iconset resource="../resources.qrc">
-            <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
+            <normaloff>:/icons/ic_arrow_left_48px.svg</normaloff>:/icons/ic_arrow_left_48px.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -536,7 +536,7 @@
           </property>
           <property name="icon">
            <iconset resource="../resources.qrc">
-            <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
+            <normaloff>:/icons/ic_arrow_right_48px.svg</normaloff>:/icons/ic_arrow_right_48px.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -580,7 +580,7 @@
           </property>
           <property name="icon">
            <iconset resource="../resources.qrc">
-            <normaloff>:/icons/ic_undo_48px.svg</normaloff>:/icons/ic_undo_48px.svg</iconset>
+            <normaloff>:/icons/ic_import_48px.svg</normaloff>:/icons/ic_import_48px.svg</iconset>
           </property>
          </widget>
         </item>
@@ -640,7 +640,7 @@
           </property>
           <property name="icon">
            <iconset resource="../resources.qrc">
-            <normaloff>:/icons/ic_redo_48px.svg</normaloff>:/icons/ic_redo_48px.svg</iconset>
+            <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
           </property>
          </widget>
         </item>
@@ -753,8 +753,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>300</width>
-        <height>295</height>
+        <width>302</width>
+        <height>264</height>
        </rect>
       </property>
       <attribute name="label">
@@ -948,9 +948,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>-241</y>
         <width>286</width>
-        <height>492</height>
+        <height>519</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1454,7 +1454,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>295</height>
+        <height>278</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1573,7 +1573,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>295</height>
+        <height>278</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1704,6 +1704,65 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>addAnim</tabstop>
+  <tabstop>upAnim</tabstop>
+  <tabstop>downAnim</tabstop>
+  <tabstop>rmAnim</tabstop>
+  <tabstop>impAnim</tabstop>
+  <tabstop>copyAnim</tabstop>
+  <tabstop>expAnim</tabstop>
+  <tabstop>animationList</tabstop>
+  <tabstop>skipStart</tabstop>
+  <tabstop>prevFrame</tabstop>
+  <tabstop>play</tabstop>
+  <tabstop>nextFrame</tabstop>
+  <tabstop>skipEnd</tabstop>
+  <tabstop>addFrame</tabstop>
+  <tabstop>upFrame</tabstop>
+  <tabstop>downFrame</tabstop>
+  <tabstop>rmFrame</tabstop>
+  <tabstop>impFrame</tabstop>
+  <tabstop>copyFrame</tabstop>
+  <tabstop>expFrame</tabstop>
+  <tabstop>frameList</tabstop>
+  <tabstop>animName</tabstop>
+  <tabstop>loopIndex</tabstop>
+  <tabstop>speedMult</tabstop>
+  <tabstop>rotationStyle</tabstop>
+  <tabstop>playerID</tabstop>
+  <tabstop>sheetID</tabstop>
+  <tabstop>boundingBoxX</tabstop>
+  <tabstop>boundingBoxY</tabstop>
+  <tabstop>boundingBoxW</tabstop>
+  <tabstop>boundingBoxH</tabstop>
+  <tabstop>selBoundBox</tabstop>
+  <tabstop>offsetX</tabstop>
+  <tabstop>offsetY</tabstop>
+  <tabstop>duration</tabstop>
+  <tabstop>id</tabstop>
+  <tabstop>hitboxType</tabstop>
+  <tabstop>hitboxID</tabstop>
+  <tabstop>hitboxL</tabstop>
+  <tabstop>hitboxR</tabstop>
+  <tabstop>hitboxT</tabstop>
+  <tabstop>hitboxB</tabstop>
+  <tabstop>sheetList</tabstop>
+  <tabstop>addSheet</tabstop>
+  <tabstop>upSheet</tabstop>
+  <tabstop>downSheet</tabstop>
+  <tabstop>rmSheet</tabstop>
+  <tabstop>importSheet</tabstop>
+  <tabstop>hitboxList</tabstop>
+  <tabstop>addHB</tabstop>
+  <tabstop>upHB</tabstop>
+  <tabstop>downHB</tabstop>
+  <tabstop>rmHB</tabstop>
+  <tabstop>impFile</tabstop>
+  <tabstop>showTransClr</tabstop>
+  <tabstop>bgColor</tabstop>
+  <tabstop>expFile</tabstop>
+ </tabstops>
  <resources>
   <include location="../resources.qrc"/>
  </resources>

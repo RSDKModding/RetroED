@@ -339,6 +339,23 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>sectionList</tabstop>
+  <tabstop>objList</tabstop>
+  <tabstop>addObj</tabstop>
+  <tabstop>upObj</tabstop>
+  <tabstop>downObj</tabstop>
+  <tabstop>rmObj</tabstop>
+  <tabstop>objName</tabstop>
+  <tabstop>objScript</tabstop>
+  <tabstop>sfxList</tabstop>
+  <tabstop>addSfx</tabstop>
+  <tabstop>upSfx</tabstop>
+  <tabstop>downSfx</tabstop>
+  <tabstop>rmSfx</tabstop>
+  <tabstop>sfxName</tabstop>
+  <tabstop>sfxPath</tabstop>
+ </tabstops>
  <resources>
   <include location="../../resources.qrc"/>
  </resources>

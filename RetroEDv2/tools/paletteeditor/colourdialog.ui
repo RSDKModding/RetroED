@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>467</width>
-    <height>352</height>
+    <height>308</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -420,6 +420,21 @@
    <header>color_line_edit.hpp</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>hSlider</tabstop>
+  <tabstop>sSlider</tabstop>
+  <tabstop>vSlider</tabstop>
+  <tabstop>rSlider</tabstop>
+  <tabstop>gSlider</tabstop>
+  <tabstop>bSlider</tabstop>
+  <tabstop>hSpin</tabstop>
+  <tabstop>sSpin</tabstop>
+  <tabstop>vSpin</tabstop>
+  <tabstop>rSpin</tabstop>
+  <tabstop>gSpin</tabstop>
+  <tabstop>bSpin</tabstop>
+  <tabstop>htmlInput</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

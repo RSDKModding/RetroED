@@ -134,6 +134,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>stampName</tabstop>
+  <tabstop>stampX</tabstop>
+  <tabstop>stampY</tabstop>
+  <tabstop>stampSizeX</tabstop>
+  <tabstop>stampSizeY</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

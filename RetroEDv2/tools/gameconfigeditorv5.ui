@@ -18,6 +18,9 @@
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
       <widget class="QStackedWidget" name="stackedWidget">
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
        <widget class="QWidget" name="gameconfigPage">
         <layout class="QGridLayout" name="gridLayout_18">
          <item row="0" column="1">
@@ -1163,6 +1166,65 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>gcSectionList</tabstop>
+  <tabstop>gcGameName</tabstop>
+  <tabstop>gcGameSubname</tabstop>
+  <tabstop>gcGameVersion</tabstop>
+  <tabstop>gcStartingCategory</tabstop>
+  <tabstop>gcStartingScene</tabstop>
+  <tabstop>gcObjList</tabstop>
+  <tabstop>gcAddObj</tabstop>
+  <tabstop>gcUpObj</tabstop>
+  <tabstop>gcDownObj</tabstop>
+  <tabstop>gcRmObj</tabstop>
+  <tabstop>gcObjName</tabstop>
+  <tabstop>gcSfxList</tabstop>
+  <tabstop>gcAddSfx</tabstop>
+  <tabstop>gcUpSfx</tabstop>
+  <tabstop>gcDownSfx</tabstop>
+  <tabstop>gcRmSfx</tabstop>
+  <tabstop>gcSfxName</tabstop>
+  <tabstop>gcMaxConcurrentPlays</tabstop>
+  <tabstop>gcScnTree</tabstop>
+  <tabstop>gcAddScn</tabstop>
+  <tabstop>gcUpScn</tabstop>
+  <tabstop>gcDownScn</tabstop>
+  <tabstop>gcRmScn</tabstop>
+  <tabstop>gcScnName</tabstop>
+  <tabstop>gcScnFolder</tabstop>
+  <tabstop>gcScnID</tabstop>
+  <tabstop>gcScnFilter1</tabstop>
+  <tabstop>gcScnFilter2</tabstop>
+  <tabstop>gcScnFilter3</tabstop>
+  <tabstop>gcScnFilter4</tabstop>
+  <tabstop>gcScnFilter5</tabstop>
+  <tabstop>gcScnFilter6</tabstop>
+  <tabstop>gcScnFilter7</tabstop>
+  <tabstop>gcScnFilter8</tabstop>
+  <tabstop>gcVarList</tabstop>
+  <tabstop>gcVarName</tabstop>
+  <tabstop>gcVarCount</tabstop>
+  <tabstop>gcVarIndex</tabstop>
+  <tabstop>gcVarValue</tabstop>
+  <tabstop>exportGlobals</tabstop>
+  <tabstop>genCStruct</tabstop>
+  <tabstop>scSectionList</tabstop>
+  <tabstop>scLoadGlobals</tabstop>
+  <tabstop>scObjList</tabstop>
+  <tabstop>scAddObj</tabstop>
+  <tabstop>scUpObj</tabstop>
+  <tabstop>scDownObj</tabstop>
+  <tabstop>scRmObj</tabstop>
+  <tabstop>scObjName</tabstop>
+  <tabstop>scSfxList</tabstop>
+  <tabstop>scAddSfx</tabstop>
+  <tabstop>scUpSfx</tabstop>
+  <tabstop>scDownSfx</tabstop>
+  <tabstop>scRmSfx</tabstop>
+  <tabstop>scSfxName</tabstop>
+  <tabstop>scMaxConcurrentPlays</tabstop>
+ </tabstops>
  <resources>
   <include location="../resources.qrc"/>
  </resources>
