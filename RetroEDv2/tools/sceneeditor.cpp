@@ -332,6 +332,13 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         ui->entityList->item(c - 1)->setText(QString::number(viewer->entities[c - 1].slotID) + ": "
                                              + viewer->objects[viewer->entities[c - 1].type].name);
+        if (viewer->selectedEntity == (int)c)
+            viewer->selectedEntity = c - 1;
+
+        for (int s = 0; s < viewer->selectedEntities.count(); ++s) {
+            if (viewer->selectedEntities[s] == (int)c)
+                viewer->selectedEntities[s] = c - 1;
+        }
     });
 
     connect(ui->downEnt, &QToolButton::clicked, [this] {
@@ -354,6 +361,13 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         ui->entityList->item(c + 1)->setText(QString::number(viewer->entities[c + 1].slotID) + ": "
                                              + viewer->objects[viewer->entities[c + 1].type].name);
+        if (viewer->selectedEntity == (int)c)
+            viewer->selectedEntity = c + 1;
+
+        for (int s = 0; s < viewer->selectedEntities.count(); ++s) {
+            if (viewer->selectedEntities[s] == (int)c)
+                viewer->selectedEntities[s] = c + 1;
+        }
     });
 
     connect(ui->rmEnt, &QToolButton::clicked, [this] {
@@ -3329,7 +3343,8 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
 
                     auto &curObj = compilerv3->objectScriptList[entity->type];
 
-                    if (curObj.subRSDKDraw.scriptCodePtr != SCRIPTCODE_COUNT_v3 - 1 && entity->type != 0) {
+                    if (curObj.subRSDKDraw.scriptCodePtr != SCRIPTCODE_COUNT_v3 - 1
+                        && entity->type != 0) {
                         viewer->sceneInfo.debugMode = false; // always start with overlay mode off
                         compilerv3->objectLoop      = entity->gameEntitySlot;
                         compilerv3->ProcessScript(curObj.subRSDKDraw.scriptCodePtr,
