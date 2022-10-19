@@ -31,22 +31,28 @@
         <layout class="QGridLayout" name="gridLayout_7">
          <item row="0" column="2">
           <widget class="QToolButton" name="rmFile">
+           <property name="toolTip">
+            <string>Remove a file</string>
+           </property>
            <property name="text">
             <string>-</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
            </property>
           </widget>
          </item>
          <item row="0" column="0">
           <widget class="QToolButton" name="addFile">
+           <property name="toolTip">
+            <string>Add a file</string>
+           </property>
            <property name="text">
             <string>+</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
            </property>
           </widget>
@@ -81,6 +87,9 @@
         <property name="enabled">
          <bool>true</bool>
         </property>
+        <property name="toolTip">
+         <string>The file's filepath hash</string>
+        </property>
         <property name="readOnly">
          <bool>true</bool>
         </property>
@@ -88,6 +97,9 @@
       </item>
       <item row="2" column="0" colspan="2">
        <widget class="QLabel" name="filesize">
+        <property name="toolTip">
+         <string>The size of the file in bytes</string>
+        </property>
         <property name="text">
          <string>File Size: 0 bytes</string>
         </property>
@@ -97,6 +109,9 @@
        <widget class="QLineEdit" name="filename">
         <property name="enabled">
          <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>The file's filename</string>
         </property>
         <property name="readOnly">
          <bool>true</bool>
@@ -119,6 +134,9 @@
       </item>
       <item row="3" column="0">
        <widget class="QCheckBox" name="encrypted">
+        <property name="toolTip">
+         <string>Determines if the file is encrypted or not</string>
+        </property>
         <property name="text">
          <string>Encrypted</string>
         </property>
@@ -164,27 +182,39 @@
       </item>
       <item row="0" column="1">
        <widget class="QPushButton" name="exportDatafile">
+        <property name="toolTip">
+         <string>Export the loaded datapack to a folder</string>
+        </property>
         <property name="text">
-         <string>Export Datafile</string>
+         <string>Export DataPack</string>
         </property>
        </widget>
       </item>
       <item row="0" column="4">
        <widget class="QPushButton" name="buildDatafile">
+        <property name="toolTip">
+         <string>Build &amp; save the loaded files as a datapack</string>
+        </property>
         <property name="text">
-         <string>Build Datafile</string>
+         <string>Build DataPack</string>
         </property>
        </widget>
       </item>
       <item row="0" column="0">
        <widget class="QPushButton" name="selectDatafile">
+        <property name="toolTip">
+         <string>Select a datapack to load</string>
+        </property>
         <property name="text">
-         <string>Select Datafile</string>
+         <string>Select DataPack</string>
         </property>
        </widget>
       </item>
       <item row="0" column="3">
        <widget class="QPushButton" name="selectDataFolder">
+        <property name="toolTip">
+         <string>Select a data folder to load files from</string>
+        </property>
         <property name="text">
          <string>Select Data Folder</string>
         </property>
@@ -208,8 +238,6 @@
   <tabstop>filenameHash</tabstop>
   <tabstop>encrypted</tabstop>
  </tabstops>
- <resources>
-  <include location="../resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
