@@ -78,7 +78,11 @@
      <widget class="QWidget" name="generalPage">
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="2">
-        <widget class="QLineEdit" name="gameName"/>
+        <widget class="QLineEdit" name="gameName">
+         <property name="toolTip">
+          <string>The game's title</string>
+         </property>
+        </widget>
        </item>
        <item row="4" column="0" colspan="3">
         <widget class="QPushButton" name="editPalette">
@@ -97,7 +101,7 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>Game Name</string>
+          <string>Game Title</string>
          </property>
         </widget>
        </item>
@@ -108,6 +112,9 @@
            <width>16777215</width>
            <height>16777215</height>
           </size>
+         </property>
+         <property name="toolTip">
+          <string>The game's description, shown in the &quot;about&quot; menu</string>
          </property>
         </widget>
        </item>
@@ -165,7 +172,11 @@
         </widget>
        </item>
        <item row="0" column="3">
-        <widget class="QLineEdit" name="objName"/>
+        <widget class="QLineEdit" name="objName">
+         <property name="toolTip">
+          <string>The object's type name, used for TypeName[]</string>
+         </property>
+        </widget>
        </item>
        <item row="3" column="3">
         <spacer name="verticalSpacer_2">
@@ -181,17 +192,24 @@
         </spacer>
        </item>
        <item row="1" column="3">
-        <widget class="QLineEdit" name="objScript"/>
+        <widget class="QLineEdit" name="objScript">
+         <property name="toolTip">
+          <string>The object's script path (relative to Data/Scripts/)</string>
+         </property>
+        </widget>
        </item>
        <item row="4" column="0">
         <layout class="QGridLayout" name="gridLayout_4">
          <item row="1" column="3">
           <widget class="QToolButton" name="downObj">
+           <property name="toolTip">
+            <string>Moves an object down</string>
+           </property>
            <property name="text">
             <string>D</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
            </property>
           </widget>
@@ -211,33 +229,42 @@
          </item>
          <item row="1" column="0">
           <widget class="QToolButton" name="addObj">
+           <property name="toolTip">
+            <string>Adds an object</string>
+           </property>
            <property name="text">
             <string>+</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
            </property>
           </widget>
          </item>
          <item row="1" column="2">
           <widget class="QToolButton" name="upObj">
+           <property name="toolTip">
+            <string>Moves an object up</string>
+           </property>
            <property name="text">
             <string>U</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
            </property>
           </widget>
          </item>
          <item row="1" column="5">
           <widget class="QToolButton" name="rmObj">
+           <property name="toolTip">
+            <string>Removes an object</string>
+           </property>
            <property name="text">
             <string>-</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
            </property>
           </widget>
@@ -259,6 +286,9 @@
        </item>
        <item row="2" column="2" colspan="2">
         <widget class="QLabel" name="objType">
+         <property name="toolTip">
+          <string>The object's type id</string>
+         </property>
          <property name="text">
           <string>Object Type ID: 0</string>
          </property>
@@ -269,7 +299,11 @@
      <widget class="QWidget" name="sfxPage">
       <layout class="QGridLayout" name="gridLayout_6">
        <item row="0" column="2">
-        <widget class="QLineEdit" name="sfxName"/>
+        <widget class="QLineEdit" name="sfxName">
+         <property name="toolTip">
+          <string>The soundFX's sfx name, used for SfxName[]</string>
+         </property>
+        </widget>
        </item>
        <item row="0" column="0" rowspan="4">
         <widget class="QListWidget" name="sfxList">
@@ -304,33 +338,42 @@
         <layout class="QGridLayout" name="gridLayout_5">
          <item row="0" column="0">
           <widget class="QToolButton" name="addSfx">
+           <property name="toolTip">
+            <string>Adds a soundFX</string>
+           </property>
            <property name="text">
             <string>+</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
            </property>
           </widget>
          </item>
          <item row="0" column="2">
           <widget class="QToolButton" name="upSfx">
+           <property name="toolTip">
+            <string>Moves a soundFX up</string>
+           </property>
            <property name="text">
             <string>U</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
            </property>
           </widget>
          </item>
          <item row="0" column="3">
           <widget class="QToolButton" name="downSfx">
+           <property name="toolTip">
+            <string>Moves a soundFX down</string>
+           </property>
            <property name="text">
             <string>D</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
            </property>
           </widget>
@@ -350,11 +393,14 @@
          </item>
          <item row="0" column="5">
           <widget class="QToolButton" name="rmSfx">
+           <property name="toolTip">
+            <string>Removes a soundFX</string>
+           </property>
            <property name="text">
             <string>-</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
            </property>
           </widget>
@@ -395,10 +441,17 @@
         </widget>
        </item>
        <item row="1" column="2">
-        <widget class="QLineEdit" name="sfxPath"/>
+        <widget class="QLineEdit" name="sfxPath">
+         <property name="toolTip">
+          <string>The soundFX's filePath (relative to Data/SoundFX/)</string>
+         </property>
+        </widget>
        </item>
        <item row="2" column="1" colspan="2">
         <widget class="QLabel" name="sfxID">
+         <property name="toolTip">
+          <string>The soundFX's ID</string>
+         </property>
          <property name="text">
           <string>SoundFX ID: 0</string>
          </property>
@@ -409,7 +462,11 @@
      <widget class="QWidget" name="variablesPage">
       <layout class="QGridLayout" name="gridLayout_8">
        <item row="0" column="2">
-        <widget class="QLineEdit" name="varName"/>
+        <widget class="QLineEdit" name="varName">
+         <property name="toolTip">
+          <string>The global variable's name</string>
+         </property>
+        </widget>
        </item>
        <item row="0" column="1">
         <widget class="QLabel" name="label_9">
@@ -422,22 +479,28 @@
         <layout class="QGridLayout" name="gridLayout_7">
          <item row="0" column="5">
           <widget class="QToolButton" name="rmVar">
+           <property name="toolTip">
+            <string>Removes a global variable</string>
+           </property>
            <property name="text">
             <string>-</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
            </property>
           </widget>
          </item>
          <item row="0" column="3">
           <widget class="QToolButton" name="downVar">
+           <property name="toolTip">
+            <string>Moves a global variable down</string>
+           </property>
            <property name="text">
             <string>D</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
            </property>
           </widget>
@@ -457,22 +520,28 @@
          </item>
          <item row="0" column="2">
           <widget class="QToolButton" name="upVar">
+           <property name="toolTip">
+            <string>Moves a global variable up</string>
+           </property>
            <property name="text">
             <string>U</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
            </property>
           </widget>
          </item>
          <item row="0" column="0">
           <widget class="QToolButton" name="addVar">
+           <property name="toolTip">
+            <string>Adds a global variable</string>
+           </property>
            <property name="text">
             <string>+</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
            </property>
           </widget>
@@ -536,6 +605,9 @@
        </item>
        <item row="1" column="2">
         <widget class="QSpinBox" name="varValue">
+         <property name="toolTip">
+          <string>The initial value of the global variable</string>
+         </property>
          <property name="minimum">
           <number>-999999999</number>
          </property>
@@ -562,7 +634,11 @@
         </spacer>
        </item>
        <item row="0" column="2">
-        <widget class="QLineEdit" name="plrName"/>
+        <widget class="QLineEdit" name="plrName">
+         <property name="toolTip">
+          <string>The player's display name on the dev menu</string>
+         </property>
+        </widget>
        </item>
        <item row="0" column="0" rowspan="2">
         <widget class="QListWidget" name="plrList">
@@ -597,11 +673,14 @@
         <layout class="QGridLayout" name="gridLayout_10">
          <item row="0" column="5">
           <widget class="QToolButton" name="rmPlr">
+           <property name="toolTip">
+            <string>Removes a player</string>
+           </property>
            <property name="text">
             <string>-</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
            </property>
           </widget>
@@ -621,33 +700,42 @@
          </item>
          <item row="0" column="3">
           <widget class="QToolButton" name="downPlr">
+           <property name="toolTip">
+            <string>Moves a player down</string>
+           </property>
            <property name="text">
             <string>D</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
            </property>
           </widget>
          </item>
          <item row="0" column="2">
           <widget class="QToolButton" name="upPlr">
+           <property name="toolTip">
+            <string>Moves a player up</string>
+           </property>
            <property name="text">
             <string>U</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
            </property>
           </widget>
          </item>
          <item row="0" column="0">
           <widget class="QToolButton" name="addPlr">
+           <property name="toolTip">
+            <string>Adds a player</string>
+           </property>
            <property name="text">
             <string>+</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
            </property>
           </widget>
@@ -672,7 +760,11 @@
      <widget class="QWidget" name="categoriesPage">
       <layout class="QGridLayout" name="gridLayout_13">
        <item row="0" column="2">
-        <widget class="QLineEdit" name="scnName"/>
+        <widget class="QLineEdit" name="scnName">
+         <property name="toolTip">
+          <string>The scene's display name on the dev menu</string>
+         </property>
+        </widget>
        </item>
        <item row="4" column="2">
         <spacer name="verticalSpacer_6">
@@ -695,39 +787,52 @@
         </widget>
        </item>
        <item row="1" column="2">
-        <widget class="QLineEdit" name="scnFolder"/>
+        <widget class="QLineEdit" name="scnFolder">
+         <property name="toolTip">
+          <string>The scene's folder</string>
+         </property>
+        </widget>
        </item>
        <item row="6" column="0">
         <layout class="QGridLayout" name="gridLayout_12">
          <item row="0" column="0">
           <widget class="QToolButton" name="addScn">
+           <property name="toolTip">
+            <string>Adds a scene</string>
+           </property>
            <property name="text">
             <string>+</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
            </property>
           </widget>
          </item>
          <item row="0" column="6">
           <widget class="QToolButton" name="rmScn">
+           <property name="toolTip">
+            <string>Removes a scene</string>
+           </property>
            <property name="text">
             <string>-</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
            </property>
           </widget>
          </item>
          <item row="0" column="2">
           <widget class="QToolButton" name="upScn">
+           <property name="toolTip">
+            <string>Moves a scene up</string>
+           </property>
            <property name="text">
             <string>U</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
            </property>
           </widget>
@@ -760,11 +865,14 @@
          </item>
          <item row="0" column="3">
           <widget class="QToolButton" name="downScn">
+           <property name="toolTip">
+            <string>Moves a scene down</string>
+           </property>
            <property name="text">
             <string>D</string>
            </property>
            <property name="icon">
-            <iconset resource="../resources.qrc">
+            <iconset>
              <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
            </property>
           </widget>
@@ -786,7 +894,11 @@
         </widget>
        </item>
        <item row="2" column="2">
-        <widget class="QLineEdit" name="scnID"/>
+        <widget class="QLineEdit" name="scnID">
+         <property name="toolTip">
+          <string>The scene's ID</string>
+         </property>
+        </widget>
        </item>
        <item row="0" column="0" rowspan="5">
         <widget class="QTreeView" name="scnTree">
@@ -810,7 +922,7 @@
        <item row="3" column="1" colspan="2">
         <widget class="QCheckBox" name="scnHighlighted">
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;if checked this will be the highlighted text on dev menu (used for act 1's that have entire names e.g. &amp;quot;Green Hill Zone 1&amp;quot; would be highlighted, and &amp;quot;2&amp;quot; (GHZ2) wouldn't be)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>if checked this will be the highlighted text on dev menu (used for act 1's that have entire names e.g. &quot;Green Hill Zone 1&quot; would be highlighted, and &quot;2&quot; (GHZ2) wouldn't be)</string>
          </property>
          <property name="layoutDirection">
           <enum>Qt::LeftToRight</enum>
@@ -868,8 +980,6 @@
   <tabstop>scnID</tabstop>
   <tabstop>scnHighlighted</tabstop>
  </tabstops>
- <resources>
-  <include location="../resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

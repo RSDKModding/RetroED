@@ -35,7 +35,11 @@
            <widget class="QWidget" name="gcGeneralPage">
             <layout class="QGridLayout" name="gridLayout_7">
              <item row="5" column="2">
-              <widget class="QComboBox" name="gcStartingCategory"/>
+              <widget class="QComboBox" name="gcStartingCategory">
+               <property name="toolTip">
+                <string>The category to load when starting the game</string>
+               </property>
+              </widget>
              </item>
              <item row="11" column="0">
               <spacer name="verticalSpacer">
@@ -51,10 +55,18 @@
               </spacer>
              </item>
              <item row="0" column="2">
-              <widget class="QLineEdit" name="gcGameName"/>
+              <widget class="QLineEdit" name="gcGameName">
+               <property name="toolTip">
+                <string>The game's title</string>
+               </property>
+              </widget>
              </item>
              <item row="6" column="2">
-              <widget class="QComboBox" name="gcStartingScene"/>
+              <widget class="QComboBox" name="gcStartingScene">
+               <property name="toolTip">
+                <string>The scene to load when starting the game</string>
+               </property>
+              </widget>
              </item>
              <item row="5" column="0">
               <widget class="QLabel" name="label_6">
@@ -71,12 +83,16 @@
               </widget>
              </item>
              <item row="4" column="2">
-              <widget class="QLineEdit" name="gcGameVersion"/>
+              <widget class="QLineEdit" name="gcGameVersion">
+               <property name="toolTip">
+                <string>The game's version (shown on dev menu)</string>
+               </property>
+              </widget>
              </item>
              <item row="0" column="0">
               <widget class="QLabel" name="label_7">
                <property name="text">
-                <string>Game Name</string>
+                <string>Game Title</string>
                </property>
               </widget>
              </item>
@@ -95,7 +111,11 @@
               </widget>
              </item>
              <item row="3" column="2">
-              <widget class="QLineEdit" name="gcGameSubname"/>
+              <widget class="QLineEdit" name="gcGameSubname">
+               <property name="toolTip">
+                <string>The game's subtitle</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -109,17 +129,24 @@
               </widget>
              </item>
              <item row="0" column="3">
-              <widget class="QLineEdit" name="gcObjName"/>
+              <widget class="QLineEdit" name="gcObjName">
+               <property name="toolTip">
+                <string>The object's name</string>
+               </property>
+              </widget>
              </item>
              <item row="2" column="0">
               <layout class="QGridLayout" name="gridLayout_9">
                <item row="1" column="3">
                 <widget class="QToolButton" name="gcDownObj">
+                 <property name="toolTip">
+                  <string>Moves an object down</string>
+                 </property>
                  <property name="text">
                   <string>D</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
                  </property>
                 </widget>
@@ -139,33 +166,42 @@
                </item>
                <item row="1" column="0">
                 <widget class="QToolButton" name="gcAddObj">
+                 <property name="toolTip">
+                  <string>Adds an object</string>
+                 </property>
                  <property name="text">
                   <string>+</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
                  </property>
                 </widget>
                </item>
                <item row="1" column="2">
                 <widget class="QToolButton" name="gcUpObj">
+                 <property name="toolTip">
+                  <string>Moves an object up</string>
+                 </property>
                  <property name="text">
                   <string>U</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
                  </property>
                 </widget>
                </item>
                <item row="1" column="5">
                 <widget class="QToolButton" name="gcRmObj">
+                 <property name="toolTip">
+                  <string>Removes an object</string>
+                 </property>
                  <property name="text">
                   <string>-</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
                  </property>
                 </widget>
@@ -257,33 +293,42 @@
               <layout class="QGridLayout" name="gridLayout_11">
                <item row="0" column="0">
                 <widget class="QToolButton" name="gcAddSfx">
+                 <property name="toolTip">
+                  <string>Adds a soundFX</string>
+                 </property>
                  <property name="text">
                   <string>+</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
                  </property>
                 </widget>
                </item>
                <item row="0" column="2">
                 <widget class="QToolButton" name="gcUpSfx">
+                 <property name="toolTip">
+                  <string>Moves a soundFX up</string>
+                 </property>
                  <property name="text">
                   <string>U</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
                  </property>
                 </widget>
                </item>
                <item row="0" column="3">
                 <widget class="QToolButton" name="gcDownSfx">
+                 <property name="toolTip">
+                  <string>Moves a soundFX down</string>
+                 </property>
                  <property name="text">
                   <string>D</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
                  </property>
                 </widget>
@@ -303,11 +348,14 @@
                </item>
                <item row="0" column="5">
                 <widget class="QToolButton" name="gcRmSfx">
+                 <property name="toolTip">
+                  <string>Removes a soundFX</string>
+                 </property>
                  <property name="text">
                   <string>-</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
                  </property>
                 </widget>
@@ -341,7 +389,11 @@
               </spacer>
              </item>
              <item row="0" column="2">
-              <widget class="QLineEdit" name="gcSfxName"/>
+              <widget class="QLineEdit" name="gcSfxName">
+               <property name="toolTip">
+                <string>The soundFX's filePath (relative to Data/SoundFX/)</string>
+               </property>
+              </widget>
              </item>
              <item row="1" column="1">
               <widget class="QLabel" name="label_3">
@@ -352,6 +404,9 @@
              </item>
              <item row="1" column="2">
               <widget class="QSpinBox" name="gcMaxConcurrentPlays">
+               <property name="toolTip">
+                <string>How many instances of this soundFX can play at once</string>
+               </property>
                <property name="maximum">
                 <number>255</number>
                </property>
@@ -362,10 +417,17 @@
            <widget class="QWidget" name="gcCategoriesPage">
             <layout class="QGridLayout" name="gridLayout_16">
              <item row="0" column="2" colspan="9">
-              <widget class="QLineEdit" name="gcScnName"/>
+              <widget class="QLineEdit" name="gcScnName">
+               <property name="toolTip">
+                <string>The scene's display name on the dev menu</string>
+               </property>
+              </widget>
              </item>
              <item row="3" column="4">
               <widget class="QCheckBox" name="gcScnFilter2">
+               <property name="toolTip">
+                <string>Determines if scene filter 2 is enabled</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -373,6 +435,9 @@
              </item>
              <item row="3" column="9">
               <widget class="QCheckBox" name="gcScnFilter7">
+               <property name="toolTip">
+                <string>Determines if scene filter 7 is enabled</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -413,6 +478,9 @@
              </item>
              <item row="3" column="6">
               <widget class="QCheckBox" name="gcScnFilter4">
+               <property name="toolTip">
+                <string>Determines if scene filter 4 is enabled</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -420,23 +488,33 @@
              </item>
              <item row="3" column="5">
               <widget class="QCheckBox" name="gcScnFilter3">
+               <property name="toolTip">
+                <string>Determines if scene filter 3 is enabled</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
               </widget>
              </item>
              <item row="2" column="2" colspan="9">
-              <widget class="QLineEdit" name="gcScnID"/>
+              <widget class="QLineEdit" name="gcScnID">
+               <property name="toolTip">
+                <string>The scene's ID</string>
+               </property>
+              </widget>
              </item>
              <item row="7" column="0">
               <layout class="QGridLayout" name="gridLayout_17">
                <item row="0" column="0">
                 <widget class="QToolButton" name="gcAddScn">
+                 <property name="toolTip">
+                  <string>Adds a scene/category</string>
+                 </property>
                  <property name="text">
                   <string>+</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
                  </property>
                  <property name="popupMode">
@@ -446,22 +524,28 @@
                </item>
                <item row="0" column="6">
                 <widget class="QToolButton" name="gcRmScn">
+                 <property name="toolTip">
+                  <string>Removes a scene/category</string>
+                 </property>
                  <property name="text">
                   <string>-</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
                  </property>
                 </widget>
                </item>
                <item row="0" column="2">
                 <widget class="QToolButton" name="gcUpScn">
+                 <property name="toolTip">
+                  <string>Moves a scene/category up</string>
+                 </property>
                  <property name="text">
                   <string>U</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
                  </property>
                 </widget>
@@ -494,11 +578,14 @@
                </item>
                <item row="0" column="3">
                 <widget class="QToolButton" name="gcDownScn">
+                 <property name="toolTip">
+                  <string>Moves a scene/category down</string>
+                 </property>
                  <property name="text">
                   <string>D</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
                  </property>
                 </widget>
@@ -506,10 +593,17 @@
               </layout>
              </item>
              <item row="1" column="2" colspan="9">
-              <widget class="QLineEdit" name="gcScnFolder"/>
+              <widget class="QLineEdit" name="gcScnFolder">
+               <property name="toolTip">
+                <string>The scene's folder</string>
+               </property>
+              </widget>
              </item>
              <item row="3" column="8">
               <widget class="QCheckBox" name="gcScnFilter6">
+               <property name="toolTip">
+                <string>Determines if scene filter 6 is enabled</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -517,6 +611,9 @@
              </item>
              <item row="3" column="7">
               <widget class="QCheckBox" name="gcScnFilter5">
+               <property name="toolTip">
+                <string>Determines if scene filter 5 is enabled</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -524,6 +621,9 @@
              </item>
              <item row="3" column="3">
               <widget class="QCheckBox" name="gcScnFilter1">
+               <property name="toolTip">
+                <string>Determines if scene filter 1 is enabled</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -558,6 +658,9 @@
              </item>
              <item row="3" column="10">
               <widget class="QCheckBox" name="gcScnFilter8">
+               <property name="toolTip">
+                <string>Determines if scene filter 8 is enabled</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -565,6 +668,9 @@
              </item>
              <item row="4" column="1" colspan="10">
               <widget class="QLabel" name="gcScnFilterValue">
+               <property name="toolTip">
+                <string>The scene's filter as a decimal</string>
+               </property>
                <property name="text">
                 <string>Filter Value:</string>
                </property>
@@ -611,6 +717,9 @@
              </item>
              <item row="4" column="2">
               <widget class="QSpinBox" name="gcVarValue">
+               <property name="toolTip">
+                <string>The global variable's value</string>
+               </property>
                <property name="minimum">
                 <number>-2147483647</number>
                </property>
@@ -621,6 +730,9 @@
              </item>
              <item row="1" column="2">
               <widget class="QSpinBox" name="gcVarCount">
+               <property name="toolTip">
+                <string>How many values this global variable has</string>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -634,6 +746,9 @@
              </item>
              <item row="7" column="1" colspan="2">
               <widget class="QPushButton" name="genCStruct">
+               <property name="toolTip">
+                <string>Export the global variables as a C struct</string>
+               </property>
                <property name="text">
                 <string>Generate C Struct</string>
                </property>
@@ -641,6 +756,9 @@
              </item>
              <item row="0" column="2">
               <widget class="QLineEdit" name="gcVarName">
+               <property name="toolTip">
+                <string>The global variable's name</string>
+               </property>
                <property name="readOnly">
                 <bool>true</bool>
                </property>
@@ -669,6 +787,9 @@
              </item>
              <item row="2" column="2">
               <widget class="QSpinBox" name="gcVarIndex">
+               <property name="toolTip">
+                <string>The global variable's array index</string>
+               </property>
                <property name="maximum">
                 <number>2147483647</number>
                </property>
@@ -686,6 +807,9 @@
              </item>
              <item row="6" column="1" colspan="2">
               <widget class="QPushButton" name="exportGlobals">
+               <property name="toolTip">
+                <string>Export the global variables as a binary file</string>
+               </property>
                <property name="text">
                 <string>Export Global Variables</string>
                </property>
@@ -796,6 +920,9 @@
             <layout class="QGridLayout" name="gridLayout_13">
              <item row="0" column="0">
               <widget class="QCheckBox" name="scLoadGlobals">
+               <property name="toolTip">
+                <string>Determines if the game should load global objects or not</string>
+               </property>
                <property name="text">
                 <string>Load Global Objects</string>
                </property>
@@ -822,11 +949,14 @@
               <layout class="QGridLayout" name="gridLayout_4">
                <item row="1" column="3">
                 <widget class="QToolButton" name="scDownObj">
+                 <property name="toolTip">
+                  <string>Moves an object down</string>
+                 </property>
                  <property name="text">
                   <string>D</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
                  </property>
                 </widget>
@@ -846,33 +976,42 @@
                </item>
                <item row="1" column="0">
                 <widget class="QToolButton" name="scAddObj">
+                 <property name="toolTip">
+                  <string>Adds an object</string>
+                 </property>
                  <property name="text">
                   <string>+</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
                  </property>
                 </widget>
                </item>
                <item row="1" column="2">
                 <widget class="QToolButton" name="scUpObj">
+                 <property name="toolTip">
+                  <string>Moves an object up</string>
+                 </property>
                  <property name="text">
                   <string>U</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
                  </property>
                 </widget>
                </item>
                <item row="1" column="5">
                 <widget class="QToolButton" name="scRmObj">
+                 <property name="toolTip">
+                  <string>Removes an object</string>
+                 </property>
                  <property name="text">
                   <string>-</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
                  </property>
                 </widget>
@@ -900,7 +1039,11 @@
               </widget>
              </item>
              <item row="0" column="3">
-              <widget class="QLineEdit" name="scObjName"/>
+              <widget class="QLineEdit" name="scObjName">
+               <property name="toolTip">
+                <string>The object's name</string>
+               </property>
+              </widget>
              </item>
              <item row="2" column="3">
               <spacer name="verticalSpacer_2">
@@ -945,33 +1088,42 @@
               <layout class="QGridLayout" name="gridLayout_5">
                <item row="0" column="0">
                 <widget class="QToolButton" name="scAddSfx">
+                 <property name="toolTip">
+                  <string>Adds a soundFX</string>
+                 </property>
                  <property name="text">
                   <string>+</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
                  </property>
                 </widget>
                </item>
                <item row="0" column="2">
                 <widget class="QToolButton" name="scUpSfx">
+                 <property name="toolTip">
+                  <string>Moves a soundFX up</string>
+                 </property>
                  <property name="text">
                   <string>U</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
                  </property>
                 </widget>
                </item>
                <item row="0" column="3">
                 <widget class="QToolButton" name="scDownSfx">
+                 <property name="toolTip">
+                  <string>Moves a soundFX down</string>
+                 </property>
                  <property name="text">
                   <string>D</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
                  </property>
                 </widget>
@@ -991,11 +1143,14 @@
                </item>
                <item row="0" column="5">
                 <widget class="QToolButton" name="scRmSfx">
+                 <property name="toolTip">
+                  <string>Removes a soundFX</string>
+                 </property>
                  <property name="text">
                   <string>-</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../resources.qrc">
+                  <iconset>
                    <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
                  </property>
                 </widget>
@@ -1045,7 +1200,11 @@
               </widget>
              </item>
              <item row="0" column="3">
-              <widget class="QLineEdit" name="scSfxName"/>
+              <widget class="QLineEdit" name="scSfxName">
+               <property name="toolTip">
+                <string>The soundFX's filePath (relative to Data/SoundFX/)</string>
+               </property>
+              </widget>
              </item>
              <item row="2" column="1">
               <widget class="QLabel" name="label_8">
@@ -1069,6 +1228,9 @@
              </item>
              <item row="2" column="3">
               <widget class="QSpinBox" name="scMaxConcurrentPlays">
+               <property name="toolTip">
+                <string>How many instances of this soundFX can play at once</string>
+               </property>
                <property name="maximum">
                 <number>255</number>
                </property>
@@ -1225,8 +1387,6 @@
   <tabstop>scSfxName</tabstop>
   <tabstop>scMaxConcurrentPlays</tabstop>
  </tabstops>
- <resources>
-  <include location="../resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
