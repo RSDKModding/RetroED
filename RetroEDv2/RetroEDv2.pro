@@ -27,6 +27,7 @@ INCLUDEPATH += \
 
 SOURCES += \
     aboutwindow.cpp \
+    gamemanager.cpp \
     includes.cpp \
     mainwindow.cpp \
     tools/animationeditor.cpp \
@@ -91,6 +92,7 @@ SOURCES += \
 
 HEADERS += \
     aboutwindow.hpp \
+    gamemanager.hpp \
     mainwindow.hpp \
     tools/animationeditor.hpp \
     tools/animationeditor/animsheetselector.hpp \
@@ -156,6 +158,7 @@ HEADERS += \
 
 FORMS += \
     aboutwindow.ui \
+    gamemanager.ui \
     mainwindow.ui \
     tools/animationeditor.ui \
     tools/animationeditor/animsheetselector.ui \

@@ -68,7 +68,4 @@ private:
         toolTabs->setCurrentIndex(toolTabs->addTab(tab, name));
         tab->UpdateTitle(false);
     }
-
-    QString gamePath = "";
 };
-

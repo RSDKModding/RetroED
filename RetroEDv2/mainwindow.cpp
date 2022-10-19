@@ -16,7 +16,7 @@
 #include "tools/gfxtool.hpp"
 #include "tools/modelmanager.hpp"
 #include "tools/animationeditor.hpp"
-
+#include "gamemanager.hpp"
 
 SceneEditor *scnEditor  = nullptr;
 SceneEditorv5 *v5Editor = nullptr;
@@ -387,39 +387,47 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 #ifndef Q_NO_PROCESS
     QMenu *gameManager = new QMenu("Game Manager");
-    gameManager->addAction("Change executable", [this] {
-        QFileDialog filedialog(this, tr("Open Executable"), "",
-                               "Windows Executables (*.exe);;All Files (*)");
-        filedialog.setAcceptMode(QFileDialog::AcceptOpen);
-        if (filedialog.exec() == QDialog::Accepted)
-            gamePath = filedialog.selectedFiles()[0];
+    gameManager->addAction("Open Game Manager", [this] {
+        GameManager *gameManager = new GameManager;
+        gameManager->exec();
+        delete gameManager;
     });
 
-    auto runGame = [this] {
-        if (QFile::exists(gamePath)) {
-            QStringList args;
-            args << "console=true;";
-            if (argInitStage.length())
-                args << QString("stage=%1;").arg(argInitStage);
-            if (argInitScene.length())
-                args << QString("scene=%1;").arg(argInitScene);
-            if (argInitFilter.length())
-                args << QString("filter=%1;").arg(argInitFilter);
-            QProcess proc;
-            proc.setProgram(gamePath);
-            proc.setWorkingDirectory(QFileInfo(gamePath).absolutePath());
-            proc.setArguments(args);
-            proc.startDetached();
-            proc.waitForStarted();
-        }
-    };
-
-    gameManager->addAction("Run executable (F5)", runGame);
     ui->menubar->addMenu(gameManager);
 
-    QShortcut *rgShort = new QShortcut(this);
-    rgShort->setKey(Qt::Key_F5);
-    connect(rgShort, &QShortcut::activated, runGame);
+    // gameManager->addAction("Change executable", [this] {
+    //     QFileDialog filedialog(this, tr("Open Executable"), "",
+    //                            "Windows Executables (*.exe);;All Files (*)");
+    //     filedialog.setAcceptMode(QFileDialog::AcceptOpen);
+    //     if (filedialog.exec() == QDialog::Accepted)
+    //         gamePath = filedialog.selectedFiles()[0];
+    // });
+
+    // auto runGame = [this] {
+    //     if (QFile::exists(gamePath)) {
+    //         QStringList args;
+    //         args << "console=true;";
+    //         if (argInitStage.length())
+    //             args << QString("stage=%1;").arg(argInitStage);
+    //         if (argInitScene.length())
+    //             args << QString("scene=%1;").arg(argInitScene);
+    //         if (argInitFilter.length())
+    //             args << QString("filter=%1;").arg(argInitFilter);
+    //         QProcess proc;
+    //         proc.setProgram(gamePath);
+    //         proc.setWorkingDirectory(QFileInfo(gamePath).absolutePath());
+    //         proc.setArguments(args);
+    //         proc.startDetached();
+    //         proc.waitForStarted();
+    //     }
+    // };
+    //
+    // gameManager->addAction("Run executable (F5)", runGame);
+    // ui->menubar->addMenu(gameManager);
+    //
+    // QShortcut *rgShort = new QShortcut(this);
+    // rgShort->setKey(Qt::Key_F5);
+    // connect(rgShort, &QShortcut::activated, runGame);
 #endif
 
     QMenu *about = new QMenu("About");

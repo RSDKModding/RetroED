@@ -2,7 +2,7 @@
 
 void AppConfig::read(Reader &reader)
 {
-    m_filename = reader.filePath;
+    filePath = reader.filePath;
 
     byte fVer = reader.read<byte>();
 
@@ -14,16 +14,22 @@ void AppConfig::read(Reader &reader)
     byte recentFileCount = reader.read<byte>();
     recentFiles.clear();
     for (int e = 0; e < recentFileCount; ++e) recentFiles.append(RecentFileInfo(reader));
+
+    if (!reader.isEOF()) {
+        for (int v = 0; v <= ENGINE_v1; ++v) gameManager[v].read(reader);
+    }
 }
 
 void AppConfig::write(Writer &writer)
 {
-    m_filename = writer.filePath;
+    filePath = writer.filePath;
 
-    writer.write(m_fileVer);
+    writer.write(fileVer);
 
     writer.write((byte)recentFiles.count());
     for (auto &rf : recentFiles) rf.write(writer);
+
+    for (int v = 0; v <= ENGINE_v1; ++v) gameManager[v].write(writer);
 
     writer.flush();
 }
@@ -32,7 +38,7 @@ void AppConfig::addRecentFile(byte gameVer, byte tool, QString path, QList<QStri
 {
     RecentFileInfo rf;
     rf.gameVer = gameVer;
-    rf.tool  = tool;
+    rf.tool    = tool;
     rf.path    = path;
     rf.extra   = extra;
 
@@ -54,7 +60,7 @@ void AppConfig::addRecentFile(byte gameVer, byte tool, QString path, QList<QStri
 void AppConfig::RecentFileInfo::read(Reader &reader)
 {
     gameVer = reader.read<byte>();
-    tool  = reader.read<byte>();
+    tool    = reader.read<byte>();
     path    = reader.readString();
 
     byte extraCount = reader.read<byte>();
@@ -71,3 +77,7 @@ void AppConfig::RecentFileInfo::write(Writer &writer)
     writer.write((byte)extra.count());
     for (auto &s : extra) writer.write(s);
 }
+
+void AppConfig::GameManagerInfo::read(Reader &reader) { exePath = reader.readString(); }
+
+void AppConfig::GameManagerInfo::write(Writer &writer) { writer.write(exePath); }

@@ -30,6 +30,16 @@ public:
         QList<QString> extra;
     };
 
+    struct GameManagerInfo {
+        GameManagerInfo() {}
+        GameManagerInfo(Reader &reader) { read(reader); }
+
+        void read(Reader &reader);
+        void write(Writer &writer);
+
+        QString exePath = "";
+    };
+
     AppConfig() {}
     AppConfig(QString filename) { read(filename); }
     AppConfig(Reader &reader) { read(reader); }
@@ -41,10 +51,10 @@ public:
     }
     void read(Reader &reader);
 
-    inline void write(QString filename)
+    inline void write(QString filename = "")
     {
         if (filename == "")
-            filename = m_filename;
+            filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
@@ -55,9 +65,8 @@ public:
     void addRecentFile(byte gameVer, byte tool, QString path, QList<QString> extra);
 
     QList<RecentFileInfo> recentFiles;
+    GameManagerInfo gameManager[ENGINE_v1 + 1];
 
-    QString m_filename;
-    const byte m_fileVer = 1;
+    QString filePath;
+    const byte fileVer = 1;
 };
-
-
