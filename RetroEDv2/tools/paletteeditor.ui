@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <property name="toolTip">
-   <string>Import Palette</string>
+   <string/>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="9">

@@ -65,7 +65,7 @@
      <item row="0" column="6" alignment="Qt::AlignRight">
       <widget class="QToolButton" name="rmFrame">
        <property name="toolTip">
-        <string>Removes a model frame</string>
+        <string>Removes a frame</string>
        </property>
        <property name="text">
         <string>-</string>
