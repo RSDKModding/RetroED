@@ -665,6 +665,9 @@
       </item>
       <item row="0" column="8">
        <widget class="QToolButton" name="showCollisionB">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>24</width>
@@ -808,6 +811,9 @@
       </item>
       <item row="0" column="7">
        <widget class="QToolButton" name="showCollisionA">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>24</width>
