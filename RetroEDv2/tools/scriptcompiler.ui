@@ -34,6 +34,9 @@
        </item>
        <item row="2" column="0" colspan="2">
         <widget class="QCheckBox" name="isGlobal">
+         <property name="toolTip">
+          <string>Determines if the scripts should be compiled as globalcode</string>
+         </property>
          <property name="text">
           <string>Compiling GlobalCode</string>
          </property>
@@ -41,6 +44,9 @@
        </item>
        <item row="14" column="1">
         <widget class="QComboBox" name="renderType">
+         <property name="toolTip">
+          <string>The compilation's render type</string>
+         </property>
          <item>
           <property name="text">
            <string>Software Renderer</string>
@@ -55,6 +61,9 @@
        </item>
        <item row="3" column="1">
         <widget class="QPushButton" name="setGameConfig">
+         <property name="toolTip">
+          <string>Set the gameconfig to read script info from</string>
+         </property>
          <property name="text">
           <string>Set GameConfig Path</string>
          </property>
@@ -82,6 +91,9 @@
        </item>
        <item row="3" column="0">
         <widget class="QLineEdit" name="gameConfigPath">
+         <property name="toolTip">
+          <string>The gameconfig path</string>
+         </property>
          <property name="readOnly">
           <bool>true</bool>
          </property>
@@ -89,6 +101,9 @@
        </item>
        <item row="15" column="0">
         <widget class="QCheckBox" name="useHaptics">
+         <property name="toolTip">
+          <string>Determines if haptics logic should be compiled into bytecode or not</string>
+         </property>
          <property name="text">
           <string>Use Haptics</string>
          </property>
@@ -99,6 +114,9 @@
        </item>
        <item row="4" column="0">
         <widget class="QLineEdit" name="stageConfigPath">
+         <property name="toolTip">
+          <string>The stageconfig path</string>
+         </property>
          <property name="readOnly">
           <bool>true</bool>
          </property>
@@ -109,6 +127,9 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
+         <property name="toolTip">
+          <string>Set the stageconfig to read script info from</string>
+         </property>
          <property name="text">
           <string>Set StageConfig Path</string>
          </property>
@@ -116,6 +137,9 @@
        </item>
        <item row="13" column="1">
         <widget class="QComboBox" name="platformType">
+         <property name="toolTip">
+          <string>The compilation's platform type</string>
+         </property>
          <item>
           <property name="text">
            <string>Standard</string>
@@ -158,6 +182,9 @@
        </item>
        <item row="5" column="1">
         <widget class="QPushButton" name="setScriptsDir">
+         <property name="toolTip">
+          <string>Set the input scripts folder</string>
+         </property>
          <property name="text">
           <string>Set Scripts Folder</string>
          </property>
@@ -165,6 +192,9 @@
        </item>
        <item row="5" column="0">
         <widget class="QLineEdit" name="scriptsPath">
+         <property name="toolTip">
+          <string>The input script folder</string>
+         </property>
          <property name="readOnly">
           <bool>true</bool>
          </property>
@@ -172,6 +202,9 @@
        </item>
        <item row="6" column="1">
         <widget class="QPushButton" name="setOutputDir">
+         <property name="toolTip">
+          <string>Set the bytecode output folder</string>
+         </property>
          <property name="text">
           <string>Set Output Folder</string>
          </property>
@@ -179,6 +212,9 @@
        </item>
        <item row="6" column="0">
         <widget class="QLineEdit" name="outputPath">
+         <property name="toolTip">
+          <string>The output bytecode folder</string>
+         </property>
          <property name="readOnly">
           <bool>true</bool>
          </property>
@@ -197,6 +233,9 @@
        </item>
        <item row="1" column="0">
         <widget class="QPushButton" name="selectTRScript">
+         <property name="toolTip">
+          <string>Set the input script path</string>
+         </property>
          <property name="text">
           <string>Select Script</string>
          </property>
@@ -217,16 +256,26 @@
        </item>
        <item row="1" column="1">
         <widget class="QLineEdit" name="trScript">
+         <property name="toolTip">
+          <string>The input script path</string>
+         </property>
          <property name="readOnly">
           <bool>true</bool>
          </property>
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QLineEdit" name="trBytecodePath"/>
+        <widget class="QLineEdit" name="trBytecodePath">
+         <property name="toolTip">
+          <string>The output bytecode path</string>
+         </property>
+        </widget>
        </item>
        <item row="2" column="0">
         <widget class="QPushButton" name="setTRBytecodePath">
+         <property name="toolTip">
+          <string>Set the output bytecode path</string>
+         </property>
          <property name="text">
           <string>Set Bytecode Path</string>
          </property>
@@ -248,6 +297,9 @@
      <property name="enabled">
       <bool>false</bool>
      </property>
+     <property name="toolTip">
+      <string>Compile scripts into bytecode</string>
+     </property>
      <property name="text">
       <string>Compile Bytecode</string>
      </property>
@@ -255,6 +307,9 @@
    </item>
    <item row="1" column="0">
     <widget class="QComboBox" name="selEngineType">
+     <property name="toolTip">
+      <string>The RSDK version to compile scripts for</string>
+     </property>
      <item>
       <property name="text">
        <string>RSDKv3</string>

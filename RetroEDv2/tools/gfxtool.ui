@@ -16,6 +16,9 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="7" column="0" colspan="2">
     <widget class="QPushButton" name="exportGFX">
+     <property name="toolTip">
+      <string>Export the imported image as a GFX file</string>
+     </property>
      <property name="text">
       <string>Export GFX</string>
      </property>
@@ -23,6 +26,9 @@
    </item>
    <item row="2" column="0" colspan="2">
     <widget class="QPushButton" name="exportImage">
+     <property name="toolTip">
+      <string>Export the imported GFX file as other formats</string>
+     </property>
      <property name="text">
       <string>Export Image</string>
      </property>
@@ -57,6 +63,9 @@
    </item>
    <item row="6" column="0" colspan="2">
     <widget class="QPushButton" name="ImportImage">
+     <property name="toolTip">
+      <string>Import a generic image (used to export GFX files)</string>
+     </property>
      <property name="text">
       <string>Import Image</string>
      </property>
@@ -64,6 +73,9 @@
    </item>
    <item row="1" column="0" colspan="2">
     <widget class="QPushButton" name="importGFX">
+     <property name="toolTip">
+      <string>Import a GFX file (to export)</string>
+     </property>
      <property name="text">
       <string>Import GFX</string>
      </property>

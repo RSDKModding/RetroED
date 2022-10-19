@@ -43,6 +43,9 @@
    </item>
    <item row="7" column="0">
     <widget class="QPushButton" name="selFrames">
+     <property name="toolTip">
+      <string>Select a folder of frames (to import into an RSV)</string>
+     </property>
      <property name="text">
       <string>Select Frames Folder</string>
      </property>
@@ -52,6 +55,9 @@
     <widget class="QPushButton" name="selExtractFolder">
      <property name="enabled">
       <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>Select a folder to extract imported RSV frames to</string>
      </property>
      <property name="text">
       <string>Select Extraction Folder</string>
@@ -63,6 +69,9 @@
      <property name="enabled">
       <bool>false</bool>
      </property>
+     <property name="toolTip">
+      <string>Generate an RSV from the imported frames</string>
+     </property>
      <property name="text">
       <string>Save RSV File</string>
      </property>
@@ -70,6 +79,9 @@
    </item>
    <item row="2" column="0">
     <widget class="QPushButton" name="selRSV">
+     <property name="toolTip">
+      <string>Select an RSV file (to extract frames from)</string>
+     </property>
      <property name="text">
       <string>Select RSV File</string>
      </property>

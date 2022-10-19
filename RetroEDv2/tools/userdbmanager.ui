@@ -16,6 +16,9 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="3" column="0">
     <widget class="QPushButton" name="importDB">
+     <property name="toolTip">
+      <string>Import a UserDB from a CSV file</string>
+     </property>
      <property name="text">
       <string>Import UserDB from CSV</string>
      </property>
@@ -23,6 +26,9 @@
    </item>
    <item row="2" column="0">
     <widget class="QPushButton" name="exportCSV">
+     <property name="toolTip">
+      <string>Export a UserDB to a CSV file</string>
+     </property>
      <property name="text">
       <string>Export UserDB to CSV</string>
      </property>
