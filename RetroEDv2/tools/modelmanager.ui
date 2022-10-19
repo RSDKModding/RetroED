@@ -65,13 +65,13 @@
      <item row="0" column="6" alignment="Qt::AlignRight">
       <widget class="QToolButton" name="rmFrame">
        <property name="toolTip">
-        <string>Remove Animation</string>
+        <string>Removes a model frame</string>
        </property>
        <property name="text">
         <string>-</string>
        </property>
        <property name="icon">
-        <iconset resource="../resources.qrc">
+        <iconset>
          <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -85,13 +85,13 @@
      <item row="0" column="2">
       <widget class="QToolButton" name="upFrame">
        <property name="toolTip">
-        <string>Move Animation Up</string>
+        <string>Moves a frame up</string>
        </property>
        <property name="text">
         <string>U</string>
        </property>
        <property name="icon">
-        <iconset resource="../resources.qrc">
+        <iconset>
          <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -105,13 +105,13 @@
      <item row="0" column="0" alignment="Qt::AlignLeft">
       <widget class="QToolButton" name="addFrame">
        <property name="toolTip">
-        <string>Add Animation</string>
+        <string>Adds a frame</string>
        </property>
        <property name="text">
         <string>+</string>
        </property>
        <property name="icon">
-        <iconset resource="../resources.qrc">
+        <iconset>
          <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -125,13 +125,13 @@
      <item row="0" column="4">
       <widget class="QToolButton" name="downFrame">
        <property name="toolTip">
-        <string>Move Animation Down</string>
+        <string>Moves a frame down</string>
        </property>
        <property name="text">
         <string>D</string>
        </property>
        <property name="icon">
-        <iconset resource="../resources.qrc">
+        <iconset>
          <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -155,7 +155,7 @@
         <string>&lt;</string>
        </property>
        <property name="icon">
-        <iconset resource="../resources.qrc">
+        <iconset>
          <normaloff>:/icons/ic_navigate_before_48px.svg</normaloff>:/icons/ic_navigate_before_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -191,7 +191,7 @@
         <string>P</string>
        </property>
        <property name="icon">
-        <iconset resource="../resources.qrc">
+        <iconset>
          <normaloff>:/icons/ic_play_arrow_48px.svg</normaloff>:/icons/ic_play_arrow_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -214,7 +214,7 @@
         <string>&gt;</string>
        </property>
        <property name="icon">
-        <iconset resource="../resources.qrc">
+        <iconset>
          <normaloff>:/icons/ic_navigate_next_48px.svg</normaloff>:/icons/ic_navigate_next_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -237,7 +237,7 @@
         <string>&lt;&lt;</string>
        </property>
        <property name="icon">
-        <iconset resource="../resources.qrc">
+        <iconset>
          <normaloff>:/icons/ic_skip_previous_48px.svg</normaloff>:/icons/ic_skip_previous_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -260,7 +260,7 @@
         <string>&gt;&gt;</string>
        </property>
        <property name="icon">
-        <iconset resource="../resources.qrc">
+        <iconset>
          <normaloff>:/icons/ic_skip_next_48px.svg</normaloff>:/icons/ic_skip_next_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -294,13 +294,13 @@
      <item row="0" column="2" alignment="Qt::AlignRight">
       <widget class="QToolButton" name="expMDL">
        <property name="toolTip">
-        <string>Export Model</string>
+        <string>Exports the model</string>
        </property>
        <property name="text">
         <string>E</string>
        </property>
        <property name="icon">
-        <iconset resource="../resources.qrc">
+        <iconset>
          <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
        </property>
       </widget>
@@ -308,13 +308,13 @@
      <item row="0" column="0" alignment="Qt::AlignLeft">
       <widget class="QToolButton" name="impMDL">
        <property name="toolTip">
-        <string>Import Model</string>
+        <string>Imports a model</string>
        </property>
        <property name="text">
         <string>I</string>
        </property>
        <property name="icon">
-        <iconset resource="../resources.qrc">
+        <iconset>
          <normaloff>:/icons/ic_import_48px.svg</normaloff>:/icons/ic_import_48px.svg</iconset>
        </property>
       </widget>
@@ -322,13 +322,13 @@
      <item row="0" column="1">
       <widget class="QToolButton" name="copyFrame">
        <property name="toolTip">
-        <string>Copy Frame</string>
+        <string>Copies a frame</string>
        </property>
        <property name="text">
         <string>C</string>
        </property>
        <property name="icon">
-        <iconset resource="../resources.qrc">
+        <iconset>
          <normaloff>:/icons/ic_copy_48px.svg</normaloff>:/icons/ic_copy_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -383,14 +383,17 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>-171</y>
+           <y>-92</y>
            <width>208</width>
-           <height>534</height>
+           <height>483</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
           <item row="12" column="0" colspan="2">
            <widget class="QPushButton" name="resetCam">
+            <property name="toolTip">
+             <string>Resets the camera to the defaults</string>
+            </property>
             <property name="text">
              <string>Reset Camera</string>
             </property>
@@ -405,6 +408,9 @@
           </item>
           <item row="7" column="0" colspan="2">
            <widget class="QPushButton" name="loadTexture">
+            <property name="toolTip">
+             <string>Loads a texture for the model to use if enabled</string>
+            </property>
             <property name="text">
              <string>Load Texture</string>
             </property>
@@ -433,6 +439,9 @@
           </item>
           <item row="6" column="0" colspan="2">
            <widget class="QCheckBox" name="showNormals">
+            <property name="toolTip">
+             <string>Determines if the model view should show normals or not</string>
+            </property>
             <property name="text">
              <string>Show Normals</string>
             </property>
@@ -494,6 +503,9 @@
           </item>
           <item row="5" column="0" colspan="2">
            <widget class="QCheckBox" name="useWireframe">
+            <property name="toolTip">
+             <string>Determines if the model view should be in wireframe or not</string>
+            </property>
             <property name="text">
              <string>Use Wireframe</string>
             </property>
@@ -520,6 +532,9 @@
               <width>0</width>
               <height>24</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>Sets the color of the model if vertex colors aren't enabled</string>
             </property>
             <property name="frameShape">
              <enum>QFrame::StyledPanel</enum>
@@ -578,6 +593,9 @@
           </item>
           <item row="9" column="0" colspan="2">
            <widget class="QLineEdit" name="texPath">
+            <property name="toolTip">
+             <string>The loaded texture path</string>
+            </property>
             <property name="readOnly">
              <bool>true</bool>
             </property>
@@ -585,6 +603,9 @@
           </item>
           <item row="19" column="0" colspan="2">
            <widget class="QCheckBox" name="hasNormals">
+            <property name="toolTip">
+             <string>Determines if the model has normals enabled or not</string>
+            </property>
             <property name="text">
              <string>Has Normals</string>
             </property>
@@ -592,6 +613,9 @@
           </item>
           <item row="20" column="0" colspan="2">
            <widget class="QCheckBox" name="hasColors">
+            <property name="toolTip">
+             <string>Determines if the model has vertex colors enabled or not</string>
+            </property>
             <property name="text">
              <string>Has Colors</string>
             </property>
@@ -599,6 +623,9 @@
           </item>
           <item row="21" column="0" colspan="2">
            <widget class="QCheckBox" name="hasTextures">
+            <property name="toolTip">
+             <string>Determines if the model has texture UVs enabled or not</string>
+            </property>
             <property name="text">
              <string>Has Textures</string>
             </property>
@@ -663,8 +690,6 @@
   <tabstop>copyFrame</tabstop>
   <tabstop>expMDL</tabstop>
  </tabstops>
- <resources>
-  <include location="../resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
