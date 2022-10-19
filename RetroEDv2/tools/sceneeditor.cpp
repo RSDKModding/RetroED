@@ -2533,6 +2533,7 @@ void SceneEditor::initGameLink()
         compilerv4->globalVariables.append(gameConfig.globalVariables[v].name);
     }
 
+    scriptError = false;
     switch (viewer->gameType) {
         case ENGINE_v1: break; // read the editor stuff from this somehow (idk how to parse it lol)
         case ENGINE_v2: {      // parse the RSDK sub and use that data to know what to draw
@@ -2540,7 +2541,7 @@ void SceneEditor::initGameLink()
             compilerv2->editor = this;
 
             if (stageConfig.loadGlobalScripts) {
-                for (int i = 0; i < gameConfig.objects.count(); ++i) {
+                for (int i = 0; i < gameConfig.objects.count() && !scriptError; ++i) {
                     QString scriptPath = viewer->dataPath + "/Scripts/" + gameConfig.objects[i].script;
                     scriptPath = WorkingDirManager::GetPath("/Scripts/" + gameConfig.objects[i].script,
                                                             scriptPath);
@@ -2560,11 +2561,12 @@ void SceneEditor::initGameLink()
                         SetStatus("Failed to compile script: " + dirFile);
                         compilerv2->objectScriptList[scrID - 1].subRSDK.scriptCodePtr = -1;
                         compilerv2->objectScriptList[scrID - 1].subRSDK.jumpTablePtr  = -1;
+                        scriptError                                                   = true;
                     }
                 }
             }
 
-            for (int i = 0; i < stageConfig.objects.count(); ++i) {
+            for (int i = 0; i < stageConfig.objects.count() && !scriptError; ++i) {
                 QString scriptPath = viewer->dataPath + "/Scripts/" + stageConfig.objects[i].script;
                 scriptPath =
                     WorkingDirManager::GetPath("/Scripts/" + stageConfig.objects[i].script, scriptPath);
@@ -2583,6 +2585,7 @@ void SceneEditor::initGameLink()
                     SetStatus("Failed to compile script: " + dirFile);
                     compilerv2->objectScriptList[scrID - 1].subRSDK.scriptCodePtr = -1;
                     compilerv2->objectScriptList[scrID - 1].subRSDK.jumpTablePtr  = -1;
+                    scriptError                                                   = true;
                 }
             }
             break;
@@ -2595,7 +2598,7 @@ void SceneEditor::initGameLink()
             compilerv3->gameHapticSetting = "No_Haptics";
 
             if (stageConfig.loadGlobalScripts) {
-                for (int i = 0; i < gameConfig.objects.count(); ++i) {
+                for (int i = 0; i < gameConfig.objects.count() && !scriptError; ++i) {
                     QString scriptPath = viewer->dataPath + "/Scripts/" + gameConfig.objects[i].script;
                     scriptPath = WorkingDirManager::GetPath("/Scripts/" + gameConfig.objects[i].script,
                                                             scriptPath);
@@ -2631,11 +2634,13 @@ void SceneEditor::initGameLink()
                         compilerv3->objectScriptList[scrID - 1].subRSDKLoad.jumpTablePtr  = -1;
                         compilerv3->objectScriptList[scrID - 1].subRSDKEdit.scriptCodePtr = -1;
                         compilerv3->objectScriptList[scrID - 1].subRSDKEdit.jumpTablePtr  = -1;
+
+                        scriptError = true;
                     }
                 }
             }
 
-            for (int i = 0; i < stageConfig.objects.count(); ++i) {
+            for (int i = 0; i < stageConfig.objects.count() && !scriptError; ++i) {
                 QString scriptPath = viewer->dataPath + "/Scripts/" + stageConfig.objects[i].script;
                 scriptPath =
                     WorkingDirManager::GetPath("/Scripts/" + stageConfig.objects[i].script, scriptPath);
@@ -2671,6 +2676,8 @@ void SceneEditor::initGameLink()
                     compilerv3->objectScriptList[scrID - 1].subRSDKLoad.jumpTablePtr  = -1;
                     compilerv3->objectScriptList[scrID - 1].subRSDKEdit.scriptCodePtr = -1;
                     compilerv3->objectScriptList[scrID - 1].subRSDKEdit.jumpTablePtr  = -1;
+
+                    scriptError = true;
                 }
             }
             break;
@@ -2683,7 +2690,7 @@ void SceneEditor::initGameLink()
             compilerv4->gameHapticSetting = "NO_F_FEEDBACK";
 
             if (stageConfig.loadGlobalScripts) {
-                for (int i = 0; i < gameConfig.objects.count(); ++i) {
+                for (int i = 0; i < gameConfig.objects.count() && !scriptError; ++i) {
                     QString scriptPath = viewer->dataPath + "/Scripts/" + gameConfig.objects[i].script;
                     scriptPath = WorkingDirManager::GetPath("/Scripts/" + gameConfig.objects[i].script,
                                                             scriptPath);
@@ -2719,11 +2726,13 @@ void SceneEditor::initGameLink()
                         compilerv4->objectScriptList[scrID - 1].eventRSDKLoad.jumpTablePtr  = -1;
                         compilerv4->objectScriptList[scrID - 1].eventRSDKEdit.scriptCodePtr = -1;
                         compilerv4->objectScriptList[scrID - 1].eventRSDKEdit.jumpTablePtr  = -1;
+
+                        scriptError = true;
                     }
                 }
             }
 
-            for (int i = 0; i < stageConfig.objects.count(); ++i) {
+            for (int i = 0; i < stageConfig.objects.count() && !scriptError; ++i) {
                 QString scriptPath = viewer->dataPath + "/Scripts/" + stageConfig.objects[i].script;
                 scriptPath =
                     WorkingDirManager::GetPath("/Scripts/" + stageConfig.objects[i].script, scriptPath);
@@ -2760,6 +2769,8 @@ void SceneEditor::initGameLink()
                     compilerv4->objectScriptList[scrID - 1].eventRSDKLoad.jumpTablePtr  = -1;
                     compilerv4->objectScriptList[scrID - 1].eventRSDKEdit.scriptCodePtr = -1;
                     compilerv4->objectScriptList[scrID - 1].eventRSDKEdit.jumpTablePtr  = -1;
+
+                    scriptError = true;
                 }
             }
             break;
@@ -3274,6 +3285,9 @@ void SceneEditor::createScrollList()
 
 bool SceneEditor::callGameEvent(byte eventID, int id)
 {
+    if (scriptError)
+        return false;
+
     bool called = false;
     switch (viewer->gameType) {
         case ENGINE_v3:

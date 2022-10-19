@@ -127,6 +127,7 @@ public:
     Compilerv2 *compilerv2 = nullptr;
     Compilerv3 *compilerv3 = nullptr;
     Compilerv4 *compilerv4 = nullptr;
+    bool scriptError       = false;
 
     // Event Handlers
     void setTile(float x, float y);
@@ -257,5 +258,3 @@ public:
 private:
     ChunkLabel *labels[0x200];
 };
-
-
