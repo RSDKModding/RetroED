@@ -3,58 +3,17 @@
 #include "animationv2.hpp"
 
 QList<QString> animNamesv2 = QList<QString>{
-    "Stopped",
-    "Waiting",
-    "Bored",
-    "Looking Up",
-    "Looking Down",
-    "Walking",
-    "Running",
-    "Skidding",
-    "Super Peel Out",
-    "Spin Dash",
-    "Jumping",
-    "Bouncing",
-    "Hurt",
-    "Dying",
-    "Drowning",
-    "Life Icon",
-    "Fan Rotate",
-    "Breathing",
-    "Pushing",
-    "Flailing Left",
-    "Flailing Right",
-    "Sliding",
-    "Sonic Nexus Animation #23",
-    "Finish Pose",
-    "Sonic Nexus Animation #24",
-    "Sonic Nexus Animation #25",
-    "Sonic Nexus Animation #26",
-    "Sonic Nexus Animation #27",
-    "Sonic Nexus Animation #28",
-    "Sonic Nexus Animation #29",
-    "Sonic Nexus Animation #30",
-    "Sonic Nexus Animation #31",
-    "Sonic Nexus Animation #32",
-    "Sonic Nexus Animation #33",
-    "CorkScrew",
-    "Sonic Nexus Animation #35",
-    "Sonic Nexus Animation #36",
-    "Sonic Nexus Animation #37",
-    "Sonic Nexus Animation #38",
-    "Sonic Nexus Animation #39",
-    "Sonic Nexus Animation #40",
-    "Sonic Nexus Animation #41",
-    "Sonic Nexus Animation #42",
-    "Hanging",
-    "Sonic Nexus Animation #44",
-    "Sonic Nexus Animation #45",
-    "Sonic Nexus Animation #46",
-    "Sonic Nexus Animation #47",
-    "Sonic Nexus Animation #48",
-    "Sonic Nexus Animation #49",
-    "Sonic Nexus Animation #50",
-    "Sonic Nexus Animation #51",
+    "Stopped",        "Waiting",       "Bored!",        "Looking Up",     "Looking Down",
+    "Walking",        "Running",       "Skidding",      "Super Peel Out", "Spin Dash",
+    "Jumping",        "Bouncing",      "Hurt",          "Dying",          "Drowning",
+    "Life Icon",      "Fan Rotate",    "Breathing",     "Pushing",        "Flailing Left",
+    "Flailing Right", "Sliding",       "Hanging",       "Dropping",       "Clinging On",
+    "Flying",         "Flying Tired",  "Swimming",      "Swimming Tired", "Gliding Drop",
+    "Gliding Stop",   "Climbing",      "Ledge Pull Up", "CorkScrew H",    "CorkScrew V",
+    "Finish Pose",    "Animation #36", "Animation #37", "Animation #38",  "Animation #39",
+    "Animation #40",  "Animation #41", "Animation #42", "Grabbing On",    "Animation #44",
+    "Animation #45",  "Animation #46", "Animation #47", "Animation #48",  "Animation #49",
+    "Animation #50",  "Animation #51",
 };
 
 void RSDKv2::Animation::read(Reader &reader)
@@ -69,7 +28,7 @@ void RSDKv2::Animation::read(Reader &reader)
     for (int a = 0; a < animCount; ++a) {
         animations.append(AnimationEntry(reader));
         animations.last().name =
-            a < animNamesv2.count() ? animNamesv2[a] : ("Sonic Nexus Animation #" + QString::number(a));
+            a < animNamesv2.count() ? animNamesv2[a] : ("Animation #" + QString::number(a));
     }
 
     int hitboxCount = reader.read<byte>();

@@ -3,23 +3,12 @@
 #include "animationv1.hpp"
 
 QList<QString> animNamesv1 = QList<QString>{
-    "Stopped",       "Waiting",
-    "Looking Up",    "Looking Down",
-    "Walking",       "Running",
-    "Skidding",      "Super Peel Out",
-    "Spin Dash",     "Jumping",
-    "Bouncing",      "Hurt",
-    "Dying",         "Life Icon",
-    "Drowning",      "Fan Rotate",
-    "Breathing",     "Pushing",
-    "Flailing Left", "Flailing Right",
-    "Sliding",       "Hanging",
-    "Dropping",      "Finish Pose",
-    "CorkScrew",     "Retro Sonic Animation #26",
-    "Fly Tired",     "Climbing",
-    "Ledge Pull Up", "Glide Slide",
-    "Bonus Spin",    "Special Stop",
-    "Special Walk",  "Special Jump",
+    "Stopped",       "Waiting",        "Looking Up",   "Looking Down", "Walking",       "Running",
+    "Skidding",      "Super Peel Out", "Spin Dash",    "Jumping",      "Bouncing",      "Hurt",
+    "Dying",         "Life Icon",      "Drowning",     "Fan Rotate",   "Breathing",     "Pushing",
+    "Flailing Left", "Flailing Right", "Sliding",      "Hanging",      "Dropping",      "Finish Pose",
+    "CorkScrew",     "Animation #26",  "Fly Tired",    "Climbing",     "Ledge Pull Up", "Glide Slide",
+    "Bonus Spin",    "Special Stop",   "Special Walk", "Special Jump",
 };
 
 void RSDKv1::Animation::read(Reader &reader, bool dcVer)
@@ -37,7 +26,7 @@ void RSDKv1::Animation::read(Reader &reader, bool dcVer)
     for (int a = 0; a < animCount; ++a) {
         animations.append(AnimationEntry(reader));
         animations.last().name =
-            a < animNamesv1.count() ? animNamesv1[a] : ("Retro Sonic Animation #" + QString::number(a));
+            a < animNamesv1.count() ? animNamesv1[a] : ("Animation #" + QString::number(a));
     }
 }
 

@@ -563,15 +563,18 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->rotationStyle->setDisabled(c == -1 || aniType >= ENGINE_v2);
         ui->speedMult->setDisabled(c == -1);
         ui->playerID->setDisabled(c == -1 || aniType != ENGINE_v1);
-        ui->copyAnim->setDisabled(c == -1);
+        ui->copyAnim->setDisabled((aniType == ENGINE_v1 || aniType == ENGINE_v2) || c == -1);
 
         ui->impAnim->setDisabled(c == -1);
         ui->expAnim->setDisabled(c == -1);
 
-        ui->upAnim->setDisabled(c == -1 || c - 1 < 0 || animFile.animations.count() <= 1);
-        ui->downAnim->setDisabled(c == -1 || c + 1 >= animFile.animations.count()
+        ui->upAnim->setDisabled((aniType == ENGINE_v1 || aniType == ENGINE_v2) || c == -1 || c - 1 < 0
+                                || animFile.animations.count() <= 1);
+        ui->downAnim->setDisabled((aniType == ENGINE_v1 || aniType == ENGINE_v2) || c == -1
+                                  || c + 1 >= animFile.animations.count()
                                   || animFile.animations.count() <= 1);
-        ui->rmAnim->setDisabled(c == -1 || !animFile.animations.count());
+        ui->rmAnim->setDisabled((aniType == ENGINE_v1 || aniType == ENGINE_v2) || c == -1
+                                || !animFile.animations.count());
 
         if (c > -1) {
             ui->properties->setItemText(0, QString("Animations (%1 of %2, ID: %3)")
@@ -1730,7 +1733,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->animationList->setCurrentRow(c);
         ui->animationList->blockSignals(false);
 
-        ui->addAnim->setDisabled(animFile.animations.count() >= 0x100);
+        ui->addAnim->setDisabled((aniType == ENGINE_v1 || aniType == ENGINE_v2)
+                                 || animFile.animations.count() >= 0x100);
 
         UpdateView();
         DoAction("Added animation", true);
@@ -1744,7 +1748,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         animFile.animations.removeAt(c);
         SetupUI();
 
-        ui->rmAnim->setDisabled(animFile.animations.count() <= 0);
+        ui->rmAnim->setDisabled((aniType == ENGINE_v1 || aniType == ENGINE_v2)
+                                || animFile.animations.count() <= 0);
 
         UpdateView();
         DoAction("Removed animation", true);
@@ -2209,7 +2214,10 @@ void AnimationEditor::SetupUI(bool setFrame, bool setRow)
             ui->hitboxList->setCurrentRow(-1);
     }
 
-    ui->animName->setMaxLength(aniType == ENGINE_v5 ? (0x400 - 1) : (0x10 - 1));
+    ui->animName->setReadOnly(aniType == ENGINE_v1 || aniType == ENGINE_v2);
+
+    ui->animName->setMaxLength((aniType != ENGINE_v4 && aniType != ENGINE_v3) ? (0x400 - 1)
+                                                                              : (0x10 - 1));
     ui->speedMult->setRange(aniType == ENGINE_v5 ? -0x8000 : 0x00,
                             aniType == ENGINE_v5 ? 0x7FFF : 0xFF);
 
@@ -2224,6 +2232,12 @@ void AnimationEditor::SetupUI(bool setFrame, bool setRow)
     ui->hitboxT->setRange(aniType == ENGINE_v5 ? -0x8000 : -0x80, aniType == ENGINE_v5 ? 0x7FFF : 0x7F);
     ui->hitboxR->setRange(aniType == ENGINE_v5 ? -0x8000 : -0x80, aniType == ENGINE_v5 ? 0x7FFF : 0x7F);
     ui->hitboxB->setRange(aniType == ENGINE_v5 ? -0x8000 : -0x80, aniType == ENGINE_v5 ? 0x7FFF : 0x7F);
+
+    ui->addAnim->setDisabled(aniType == ENGINE_v1 || aniType == ENGINE_v2);
+    ui->rmAnim->setDisabled(aniType == ENGINE_v1 || aniType == ENGINE_v2);
+    ui->upAnim->setDisabled(aniType == ENGINE_v1 || aniType == ENGINE_v2);
+    ui->downAnim->setDisabled(aniType == ENGINE_v1 || aniType == ENGINE_v2);
+    ui->copyAnim->setDisabled(aniType == ENGINE_v1 || aniType == ENGINE_v2);
 
     ui->addHB->setDisabled(aniType == ENGINE_v1);
     ui->rmHB->setDisabled(aniType == ENGINE_v1);
