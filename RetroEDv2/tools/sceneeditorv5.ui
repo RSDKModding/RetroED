@@ -41,7 +41,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>5</number>
      </property>
      <widget class="QWidget" name="scenePropPage">
       <property name="geometry">
@@ -49,7 +49,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>223</height>
+        <height>244</height>
        </rect>
       </property>
       <attribute name="label">
@@ -75,7 +75,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>223</height>
+        <height>244</height>
        </rect>
       </property>
       <attribute name="label">
@@ -101,7 +101,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>223</height>
+        <height>244</height>
        </rect>
       </property>
       <attribute name="label">
@@ -127,7 +127,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>223</height>
+        <height>244</height>
        </rect>
       </property>
       <attribute name="label">
@@ -153,7 +153,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>223</height>
+        <height>244</height>
        </rect>
       </property>
       <attribute name="label">
@@ -179,7 +179,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>223</height>
+        <height>244</height>
        </rect>
       </property>
       <attribute name="label">
@@ -245,7 +245,7 @@
          <string>G</string>
         </property>
         <property name="icon">
-         <iconset resource="../resources.qrc">
+         <iconset>
           <normaloff>:/icons/ic_preview_48px.svg</normaloff>:/icons/ic_preview_48px.svg</iconset>
         </property>
         <property name="checkable">
@@ -280,6 +280,9 @@
       </item>
       <item row="0" column="8">
        <widget class="QCheckBox" name="filterBox2">
+        <property name="toolTip">
+         <string>Toggles scene filter 2</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -300,7 +303,7 @@
          <string>P</string>
         </property>
         <property name="icon">
-         <iconset resource="../resources.qrc">
+         <iconset>
           <normaloff>:/icons/ic_mode_edit_48px.svg</normaloff>:/icons/ic_mode_edit_48px.svg</iconset>
         </property>
         <property name="autoRaise">
@@ -323,7 +326,7 @@
          <string>L</string>
         </property>
         <property name="icon">
-         <iconset resource="../resources.qrc">
+         <iconset>
           <normaloff>:/icons/ic_approval_48px.svg</normaloff>:/icons/ic_approval_48px.svg</iconset>
         </property>
         <property name="autoRaise">
@@ -346,7 +349,7 @@
          <string>M</string>
         </property>
         <property name="icon">
-         <iconset resource="../resources.qrc">
+         <iconset>
           <normaloff>:/icons/ic_pan_tool_48px.svg</normaloff>:/icons/ic_pan_tool_48px.svg</iconset>
         </property>
         <property name="autoRaise">
@@ -369,7 +372,7 @@
          <string>SP</string>
         </property>
         <property name="icon">
-         <iconset resource="../resources.qrc">
+         <iconset>
           <normaloff>:/icons/ic_horizontal_split_48px.svg</normaloff>:/icons/ic_horizontal_split_48px.svg</iconset>
         </property>
         <property name="checkable">
@@ -395,7 +398,7 @@
          <string>TLE</string>
         </property>
         <property name="icon">
-         <iconset resource="../resources.qrc">
+         <iconset>
           <normaloff>:/icons/ic_grid_48px.svg</normaloff>:/icons/ic_grid_48px.svg</iconset>
         </property>
         <property name="checkable">
@@ -421,13 +424,16 @@
          <string>Img</string>
         </property>
         <property name="icon">
-         <iconset resource="../resources.qrc">
+         <iconset>
           <normaloff>:/icons/ic_image_48px.svg</normaloff>:/icons/ic_image_48px.svg</iconset>
         </property>
        </widget>
       </item>
       <item row="0" column="11">
        <widget class="QCheckBox" name="filterBox5">
+        <property name="toolTip">
+         <string>Toggles scene filter 5</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -448,7 +454,7 @@
          <string>E</string>
         </property>
         <property name="icon">
-         <iconset resource="../resources.qrc">
+         <iconset>
           <normaloff>:/icons/ic_view_in_ar_48px.svg</normaloff>:/icons/ic_view_in_ar_48px.svg</iconset>
         </property>
         <property name="autoRaise">
@@ -458,6 +464,9 @@
       </item>
       <item row="0" column="10">
        <widget class="QCheckBox" name="filterBox4">
+        <property name="toolTip">
+         <string>Toggles scene filter 4</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -465,6 +474,9 @@
       </item>
       <item row="0" column="13">
        <widget class="QCheckBox" name="filterBox7">
+        <property name="toolTip">
+         <string>Toggles scene filter 7</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -472,6 +484,9 @@
       </item>
       <item row="0" column="7">
        <widget class="QCheckBox" name="filterBox1">
+        <property name="toolTip">
+         <string>Toggles scene filter 1</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -492,7 +507,7 @@
          <string>E</string>
         </property>
         <property name="icon">
-         <iconset resource="../resources.qrc">
+         <iconset>
           <normaloff>:/icons/ic_eraser_48px.svg</normaloff>:/icons/ic_eraser_48px.svg</iconset>
         </property>
         <property name="autoRaise">
@@ -537,7 +552,7 @@
          <string>S</string>
         </property>
         <property name="icon">
-         <iconset resource="../resources.qrc">
+         <iconset>
           <normaloff>:/icons/ic_highlight_alt_48px.svg</normaloff>:/icons/ic_highlight_alt_48px.svg</iconset>
         </property>
         <property name="autoRaise">
@@ -567,7 +582,7 @@
          <string>PXL</string>
         </property>
         <property name="icon">
-         <iconset resource="../resources.qrc">
+         <iconset>
           <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
         </property>
         <property name="checkable">
@@ -580,6 +595,9 @@
       </item>
       <item row="0" column="9">
        <widget class="QCheckBox" name="filterBox3">
+        <property name="toolTip">
+         <string>Toggles scene filter 3</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -587,6 +605,9 @@
       </item>
       <item row="0" column="12">
        <widget class="QCheckBox" name="filterBox6">
+        <property name="toolTip">
+         <string>Toggles scene filter 6</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -607,6 +628,9 @@
       </item>
       <item row="0" column="14">
        <widget class="QCheckBox" name="filterBox8">
+        <property name="toolTip">
+         <string>Toggles scene filter 8</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -624,7 +648,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>5</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="layerPage">
       <property name="geometry">
@@ -632,11 +656,11 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>223</height>
+        <height>244</height>
        </rect>
       </property>
       <attribute name="label">
-       <string>Layers</string>
+       <string>Tile Layers</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="1" column="4">
@@ -654,11 +678,14 @@
        </item>
        <item row="1" column="0">
         <widget class="QToolButton" name="addLayer">
+         <property name="toolTip">
+          <string>Adds a tile layer</string>
+         </property>
          <property name="text">
           <string>+</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources.qrc">
+          <iconset>
            <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
          </property>
         </widget>
@@ -668,33 +695,42 @@
        </item>
        <item row="1" column="3">
         <widget class="QToolButton" name="downLayer">
+         <property name="toolTip">
+          <string>Moves a tile layer down</string>
+         </property>
          <property name="text">
           <string>D</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources.qrc">
+          <iconset>
            <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
          </property>
         </widget>
        </item>
        <item row="1" column="5">
         <widget class="QToolButton" name="rmLayer">
+         <property name="toolTip">
+          <string>Removes a tile layer</string>
+         </property>
          <property name="text">
           <string>-</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources.qrc">
+          <iconset>
            <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
          </property>
         </widget>
        </item>
        <item row="1" column="2">
         <widget class="QToolButton" name="upLayer">
+         <property name="toolTip">
+          <string>Moves a tile layer up</string>
+         </property>
          <property name="text">
           <string>U</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources.qrc">
+          <iconset>
            <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
          </property>
         </widget>
@@ -719,8 +755,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>209</width>
-        <height>209</height>
+        <width>200</width>
+        <height>244</height>
        </rect>
       </property>
       <attribute name="label">
@@ -729,6 +765,9 @@
       <layout class="QGridLayout" name="gridLayout_14">
        <item row="3" column="0">
         <widget class="QCheckBox" name="tileSolidTopA">
+         <property name="toolTip">
+          <string>Enables top-only solidity on collision plane A</string>
+         </property>
          <property name="text">
           <string>Solid A (Top)</string>
          </property>
@@ -736,6 +775,9 @@
        </item>
        <item row="4" column="0">
         <widget class="QCheckBox" name="tileSolidTopB">
+         <property name="toolTip">
+          <string>Enables top-only solidity on collision plane B</string>
+         </property>
          <property name="text">
           <string>Solid B (Top)</string>
          </property>
@@ -743,6 +785,9 @@
        </item>
        <item row="4" column="1">
         <widget class="QCheckBox" name="tileSolidLRBB">
+         <property name="toolTip">
+          <string>Enables all-except-top-solidity on collision plane B</string>
+         </property>
          <property name="text">
           <string>Solid B (LRB)</string>
          </property>
@@ -757,6 +802,9 @@
        </item>
        <item row="2" column="1">
         <widget class="QCheckBox" name="tileFlipY">
+         <property name="toolTip">
+          <string>Flips the tile on the Y axis</string>
+         </property>
          <property name="text">
           <string>Flip Y</string>
          </property>
@@ -764,6 +812,9 @@
        </item>
        <item row="3" column="1">
         <widget class="QCheckBox" name="tileSolidLRBA">
+         <property name="toolTip">
+          <string>Enables all-except-top-solidity on collision plane A</string>
+         </property>
          <property name="text">
           <string>Solid A (LRB)</string>
          </property>
@@ -788,6 +839,9 @@
        </item>
        <item row="2" column="0">
         <widget class="QCheckBox" name="tileFlipX">
+         <property name="toolTip">
+          <string>Flips the tile on the X axis</string>
+         </property>
          <property name="text">
           <string>Flip X</string>
          </property>
@@ -801,7 +855,7 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>223</height>
+        <height>244</height>
        </rect>
       </property>
       <attribute name="label">
@@ -813,11 +867,14 @@
        </item>
        <item row="1" column="0">
         <widget class="QToolButton" name="addStp">
+         <property name="toolTip">
+          <string>Adds a stamp</string>
+         </property>
          <property name="text">
           <string>+</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources.qrc">
+          <iconset>
            <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
          </property>
         </widget>
@@ -837,11 +894,14 @@
        </item>
        <item row="1" column="2">
         <widget class="QToolButton" name="rmStp">
+         <property name="toolTip">
+          <string>Removes a stamp</string>
+         </property>
          <property name="text">
           <string>-</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources.qrc">
+          <iconset>
            <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
          </property>
         </widget>
@@ -854,7 +914,7 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>223</height>
+        <height>244</height>
        </rect>
       </property>
       <attribute name="label">
@@ -863,22 +923,28 @@
       <layout class="QGridLayout" name="gridLayout_6">
        <item row="2" column="2">
         <widget class="QToolButton" name="rmObj">
+         <property name="toolTip">
+          <string>Removes an object type</string>
+         </property>
          <property name="text">
           <string>-</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources.qrc">
+          <iconset>
            <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
          </property>
         </widget>
        </item>
        <item row="2" column="0">
         <widget class="QToolButton" name="addObj">
+         <property name="toolTip">
+          <string>Adds an object type</string>
+         </property>
          <property name="text">
           <string>+</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources.qrc">
+          <iconset>
            <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
          </property>
         </widget>
@@ -914,7 +980,7 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>223</height>
+        <height>244</height>
        </rect>
       </property>
       <attribute name="label">
@@ -923,44 +989,56 @@
       <layout class="QGridLayout" name="gridLayout_4">
        <item row="3" column="3">
         <widget class="QToolButton" name="downEnt">
+         <property name="toolTip">
+          <string>Moves an entity down</string>
+         </property>
          <property name="text">
           <string>D</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources.qrc">
+          <iconset>
            <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
          </property>
         </widget>
        </item>
        <item row="3" column="2">
         <widget class="QToolButton" name="upEnt">
+         <property name="toolTip">
+          <string>Moves an entity up</string>
+         </property>
          <property name="text">
           <string>U</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources.qrc">
+          <iconset>
            <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
          </property>
         </widget>
        </item>
        <item row="3" column="5">
         <widget class="QToolButton" name="rmEnt">
+         <property name="toolTip">
+          <string>Removes an entity</string>
+         </property>
          <property name="text">
           <string>-</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources.qrc">
+          <iconset>
            <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
          </property>
         </widget>
        </item>
        <item row="3" column="0">
         <widget class="QToolButton" name="addEnt">
+         <property name="toolTip">
+          <string>Adds an entity</string>
+         </property>
          <property name="text">
           <string>+</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources.qrc">
+          <iconset>
            <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
          </property>
         </widget>
@@ -996,6 +1074,9 @@
        </item>
        <item row="2" column="0" colspan="6">
         <widget class="QLineEdit" name="entityFilter">
+         <property name="toolTip">
+          <string/>
+         </property>
          <property name="inputMask">
           <string/>
          </property>
@@ -1012,7 +1093,7 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>223</height>
+        <height>244</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1037,44 +1118,56 @@
        </item>
        <item row="1" column="3">
         <widget class="QToolButton" name="expScr">
+         <property name="toolTip">
+          <string>Exports parallax entries</string>
+         </property>
          <property name="text">
           <string>E</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources.qrc">
+          <iconset>
            <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
          </property>
         </widget>
        </item>
        <item row="1" column="2">
         <widget class="QToolButton" name="impScr">
+         <property name="toolTip">
+          <string>Imports parallax entries</string>
+         </property>
          <property name="text">
           <string>I</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources.qrc">
+          <iconset>
            <normaloff>:/icons/ic_import_48px.svg</normaloff>:/icons/ic_import_48px.svg</iconset>
          </property>
         </widget>
        </item>
        <item row="1" column="5">
         <widget class="QToolButton" name="rmScr">
+         <property name="toolTip">
+          <string>Removes a parallax entry</string>
+         </property>
          <property name="text">
           <string>-</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources.qrc">
+          <iconset>
            <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
          </property>
         </widget>
        </item>
        <item row="1" column="0">
         <widget class="QToolButton" name="addScr">
+         <property name="toolTip">
+          <string>Adds a parallax entry</string>
+         </property>
          <property name="text">
           <string>+</string>
          </property>
          <property name="icon">
-          <iconset resource="../resources.qrc">
+          <iconset>
            <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
          </property>
         </widget>
@@ -1150,8 +1243,6 @@
   <tabstop>expScr</tabstop>
   <tabstop>rmScr</tabstop>
  </tabstops>
- <resources>
-  <include location="../resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
