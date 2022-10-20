@@ -21,7 +21,7 @@ void FunctionTable::RegisterObjectv5U(GameObject **sVars, const char *name, uint
                                       void (*editorLoad)(void), void (*serialize)(void),
                                       void (*staticLoad)(void *sVars))
 {
-    GameObjectInfo info;
+    GameObjectInfo info{};
     if (entityClassSize > sizeof(GameEntityBasev1))
         PrintLog("Class exceeds max entity memory: " + QString(name));
     QByteArray hashData = Utils::getMd5HashByteArray(QString(name));
@@ -58,7 +58,7 @@ void FunctionTable::RegisterStaticVariables(GameObject **sVars, const char *name
 
     allocateStorage(v5Editor->dataStorage, classSize, (void **)sVars, DATASET_STG, true);
 
-    GameObjectInfo info;
+    GameObjectInfo info{};
     memcpy(info.hash, data, 0x10 * sizeof(byte));
     info.sVars           = sVars;
     info.entityClassSize = 0;
@@ -72,6 +72,7 @@ void FunctionTable::RegisterStaticVariables(GameObject **sVars, const char *name
     info.editorDraw      = NULL;
     info.editorLoad      = NULL;
     info.serialize       = NULL;
+    info.staticLoad      = NULL;
     info.name            = name;
     v5Editor->gameLinks.last().gameObjectList.append(info);
 }
@@ -415,23 +416,23 @@ bool32 FunctionTable::CheckOnScreen(void *entity, Vector2<int> *range)
         return false;
 
     // TODO!
-    if (range) {/*
-        for (int s = 0; s < cameraCount; ++s) {
-            int sx = abs(entity->position.x - cameras[s].position.x);
-            int sy = abs(entity->position.y - cameras[s].position.y);
-            if (sx <= range->x + cameras[s].offset.x && sy <= range->y + cameras[s].offset.y) {
-                return true;
-            }
-        }
-    }
-    else {
-        for (int s = 0; s < cameraCount; ++s) {
-            int sx = abs(entity->position.x - cameras[s].position.x);
-            int sy = abs(entity->position.y - cameras[s].position.y);
-            if (sx <= entity->updateRange.x + cameras[s].offset.x && sy <= entity->updateRange.y +
-    cameras[s].offset.y) { return true;
-            }
-        }//*/
+    if (range) { /*
+         for (int s = 0; s < cameraCount; ++s) {
+             int sx = abs(entity->position.x - cameras[s].position.x);
+             int sy = abs(entity->position.y - cameras[s].position.y);
+             if (sx <= range->x + cameras[s].offset.x && sy <= range->y + cameras[s].offset.y) {
+                 return true;
+             }
+         }
+     }
+     else {
+         for (int s = 0; s < cameraCount; ++s) {
+             int sx = abs(entity->position.x - cameras[s].position.x);
+             int sy = abs(entity->position.y - cameras[s].position.y);
+             if (sx <= entity->updateRange.x + cameras[s].offset.x && sy <= entity->updateRange.y +
+     cameras[s].offset.y) { return true;
+             }
+         }//*/
     }
 
     return false;
