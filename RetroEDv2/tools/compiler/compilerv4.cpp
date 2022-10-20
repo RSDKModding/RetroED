@@ -5749,9 +5749,19 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                 break;
             }
             case FUNC_GETOBJECTTYPE: {
+                char typeName[0x40];
+                int objPos  = 0;
+                int typePos = 0;
+                while (scriptText[objPos]) {
+                    if (scriptText[objPos] != ' ')
+                        typeName[typePos++] = scriptText[objPos];
+                    ++objPos;
+                }
+                typeName[typePos] = 0;
+
                 scriptEng.operands[0] = -1;
                 for (int o = 0; o < OBJECT_COUNT_v4; ++o) {
-                    if (StrComp(scriptText, typeNames[o])) {
+                    if (StrComp(typeName, typeNames[o])) {
                         scriptEng.operands[0] = o;
                     }
                 }
