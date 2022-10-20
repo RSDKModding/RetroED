@@ -2872,23 +2872,43 @@ void SceneEditorv5::createEntityList(int startSlot)
     ui->entityList->blockSignals(false);
 }
 
-void SceneEditorv5::createScrollList()
+void SceneEditorv5::createScrollList(bool update)
 {
-    ui->scrollList->clear();
+    if (update) {
+        if (viewer->selectedLayer < 0 || viewer->selectedLayer >= viewer->layers.count())
+            return;
 
-    if (viewer->selectedLayer < 0 || viewer->selectedLayer >= viewer->layers.count())
-        return;
+        if (viewer->selectedHScrollInfo < 0
+            || viewer->selectedHScrollInfo >= viewer->layers[viewer->selectedLayer].scrollInfos.count())
+            return;
 
-    ui->scrollList->blockSignals(true);
-    for (int i = 0; i < viewer->layers[viewer->selectedLayer].scrollInfos.count(); ++i) {
+        ui->scrollList->blockSignals(true);
+
         SceneHelpers::TileLayer::ScrollIndexInfo &info =
-            viewer->layers[viewer->selectedLayer].scrollInfos[i];
-        ui->scrollList->addItem(
-            QString("Parallax: %1, Speed: %2").arg(info.parallaxFactor).arg(info.scrollSpeed));
-    }
+            viewer->layers[viewer->selectedLayer].scrollInfos[viewer->selectedHScrollInfo];
+        ui->scrollList->item(viewer->selectedHScrollInfo)
+            ->setText(
+                QString("Parallax: %1, Speed: %2").arg(info.parallaxFactor).arg(info.scrollSpeed));
 
-    ui->scrollList->blockSignals(false);
-    ui->scrollList->setCurrentRow(-1);
+        ui->scrollList->blockSignals(false);
+    }
+    else {
+        ui->scrollList->clear();
+
+        if (viewer->selectedLayer < 0 || viewer->selectedLayer >= viewer->layers.count())
+            return;
+
+        ui->scrollList->blockSignals(true);
+        for (int i = 0; i < viewer->layers[viewer->selectedLayer].scrollInfos.count(); ++i) {
+            SceneHelpers::TileLayer::ScrollIndexInfo &info =
+                viewer->layers[viewer->selectedLayer].scrollInfos[i];
+            ui->scrollList->addItem(
+                QString("Parallax: %1, Speed: %2").arg(info.parallaxFactor).arg(info.scrollSpeed));
+        }
+
+        ui->scrollList->blockSignals(false);
+        ui->scrollList->setCurrentRow(-1);
+    }
 }
 
 void SceneEditorv5::setupObjects()

@@ -3257,30 +3257,54 @@ void SceneEditor::createEntityList(int startSlot)
         }
     }
 }
-void SceneEditor::createScrollList()
+void SceneEditor::createScrollList(bool update)
 {
-    ui->hScrollList->clear();
-    ui->vScrollList->clear();
+    if (update) {
+        if (viewer->selectedHScrollInfo >= 0 && viewer->selectedHScrollInfo < viewer->hScroll.count()) {
+            ui->hScrollList->blockSignals(true);
+            auto &info = viewer->hScroll[viewer->selectedHScrollInfo];
+            ui->hScrollList->item(viewer->selectedHScrollInfo)
+                ->setText(
+                    QString("Parallax: %1, Speed: %2").arg(info.parallaxFactor).arg(info.scrollSpeed));
 
-    ui->hScrollList->blockSignals(true);
-    for (int i = 0; i < viewer->hScroll.count(); ++i) {
-        auto &info = viewer->hScroll[i];
-        ui->hScrollList->addItem(
-            QString("Parallax: %1, Speed: %2").arg(info.parallaxFactor).arg(info.scrollSpeed));
+            ui->hScrollList->blockSignals(false);
+        }
+
+        if (viewer->selectedVScrollInfo >= 0 && viewer->selectedVScrollInfo < viewer->hScroll.count()) {
+            ui->vScrollList->blockSignals(true);
+
+            auto &info = viewer->vScroll[viewer->selectedVScrollInfo];
+            ui->vScrollList->item(viewer->selectedVScrollInfo)
+                ->setText(
+                    QString("Parallax: %1, Speed: %2").arg(info.parallaxFactor).arg(info.scrollSpeed));
+
+            ui->vScrollList->blockSignals(false);
+        }
     }
+    else {
+        ui->hScrollList->clear();
+        ui->vScrollList->clear();
 
-    ui->hScrollList->blockSignals(false);
-    ui->hScrollList->setCurrentRow(-1);
+        ui->hScrollList->blockSignals(true);
+        for (int i = 0; i < viewer->hScroll.count(); ++i) {
+            auto &info = viewer->hScroll[i];
+            ui->hScrollList->addItem(
+                QString("Parallax: %1, Speed: %2").arg(info.parallaxFactor).arg(info.scrollSpeed));
+        }
 
-    ui->vScrollList->blockSignals(true);
-    for (int i = 0; i < viewer->vScroll.count(); ++i) {
-        auto &info = viewer->vScroll[i];
-        ui->vScrollList->addItem(
-            QString("Parallax: %1, Speed: %2").arg(info.parallaxFactor).arg(info.scrollSpeed));
+        ui->hScrollList->blockSignals(false);
+        ui->hScrollList->setCurrentRow(-1);
+
+        ui->vScrollList->blockSignals(true);
+        for (int i = 0; i < viewer->vScroll.count(); ++i) {
+            auto &info = viewer->vScroll[i];
+            ui->vScrollList->addItem(
+                QString("Parallax: %1, Speed: %2").arg(info.parallaxFactor).arg(info.scrollSpeed));
+        }
+
+        ui->vScrollList->blockSignals(false);
+        ui->vScrollList->setCurrentRow(-1);
     }
-
-    ui->vScrollList->blockSignals(false);
-    ui->vScrollList->setCurrentRow(-1);
 }
 
 bool SceneEditor::callGameEvent(byte eventID, int id)

@@ -117,6 +117,8 @@ public:
     bool handleKeyPress(QKeyEvent *event);
     bool handleKeyRelease(QKeyEvent *event);
 
+    void createScrollList(bool update = false);
+
     QList<GameLink> gameLinks;
     GameObjectInfo *getObjectInfo(QString name);
 
@@ -166,7 +168,6 @@ private:
     void filterEntityList(QString filter);
 
     void createEntityList(int startSlot = -1);
-    void createScrollList();
     void setupObjects();
 
     void unloadGameLinks();
@@ -237,5 +238,3 @@ private:
 
     SceneEditorv5 *parentPtr = nullptr;
 };
-
-

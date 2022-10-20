@@ -4,7 +4,7 @@
 #include "scenescrollpropertiesv5.hpp"
 
 #include "sceneincludesv5.hpp"
-
+#include "tools/sceneeditorv5.hpp"
 
 SceneScrollPropertiesv5::SceneScrollPropertiesv5(QWidget *parent)
     : QWidget(parent), ui(new Ui::SceneScrollPropertiesv5)
@@ -21,10 +21,18 @@ void SceneScrollPropertiesv5::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *
     ui->parallaxFactor->setValue(info->parallaxFactor);
     ui->scrollSpeed->setValue(info->scrollSpeed);
     ui->useDeform->setChecked(info->deform);
-    connect(ui->parallaxFactor, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            [info](double v) { info->parallaxFactor = v; });
-    connect(ui->scrollSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            [info](double v) { info->scrollSpeed = v; });
+    connect(ui->parallaxFactor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [info](double v) {
+        info->parallaxFactor = v;
+
+        if (v5Editor)
+            v5Editor->createScrollList(true);
+    });
+    connect(ui->scrollSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [info](double v) {
+        info->scrollSpeed = v;
+
+        if (v5Editor)
+            v5Editor->createScrollList(true);
+    });
     connect(ui->useDeform, &QCheckBox::toggled, [info](bool c) { info->deform = c; });
 
     ui->instanceList->clear();

@@ -136,6 +136,8 @@ public:
     bool handleKeyPress(QKeyEvent *event);
     bool handleKeyRelease(QKeyEvent *event);
 
+    void createScrollList(bool update = false);
+
     inline void UpdateTitle(bool modified)
     {
         this->modified = modified;
@@ -177,7 +179,6 @@ private:
     void filterEntityList(QString filter);
 
     void createEntityList(int startSlot = -1);
-    void createScrollList();
 
     // XML Management
     void parseGameXML(QString path);

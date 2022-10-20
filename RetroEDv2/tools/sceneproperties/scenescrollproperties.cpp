@@ -3,6 +3,7 @@
 #include "scenescrollproperties.hpp"
 
 #include "sceneincludesv5.hpp"
+#include "tools/sceneeditor.hpp"
 
 SceneScrollProperties::SceneScrollProperties(QWidget *parent)
     : QWidget(parent), ui(new Ui::SceneScrollProperties)
@@ -20,10 +21,18 @@ void SceneScrollProperties::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *in
     ui->scrollSpeed->setValue(info->scrollSpeed);
     ui->useDeform->setChecked(info->deform);
 
-    connect(ui->parallaxFactor, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            [info](double v) { info->parallaxFactor = v; });
-    connect(ui->scrollSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            [info](double v) { info->scrollSpeed = v; });
+    connect(ui->parallaxFactor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [info](double v) {
+        info->parallaxFactor = v;
+
+        if (scnEditor)
+            scnEditor->createScrollList(true);
+    });
+    connect(ui->scrollSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [info](double v) {
+        info->scrollSpeed = v;
+
+        if (scnEditor)
+            scnEditor->createScrollList(true);
+    });
     connect(ui->useDeform, &QCheckBox::toggled, [info](bool c) { info->deform = c; });
 
     ui->instanceList->clear();
