@@ -157,7 +157,13 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             ui->duration->setDisabled(invalid || aniType != ENGINE_v5);
             ui->id->setDisabled(invalid || aniType != ENGINE_v5);
 
+            ui->addFrame->setDisabled(invalid);
+            ui->upFrame->setDisabled(invalid);
+            ui->downFrame->setDisabled(invalid);
+            ui->rmFrame->setDisabled(invalid);
             ui->copyFrame->setDisabled(invalid);
+            ui->impFrame->setDisabled(invalid);
+            ui->expFrame->setDisabled(invalid);
 
             if (!invalid) {
                 ui->properties->setItemText(
@@ -182,6 +188,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                 ui->duration->setValue(0);
                 ui->id->setText("");
 
+                currentFrame = -1;
+
                 UpdateView();
                 return;
             }
@@ -189,6 +197,11 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             currentFrame = c;
 
             FormatHelpers::Animation::Frame &f = animFile.animations[currentAnim].frames[c];
+
+            ui->upFrame->setDisabled(c <= 0);
+            ui->downFrame->setDisabled(c >= animFile.animations[currentAnim].frames.count() - 1
+                                       || c < 0);
+            ui->rmFrame->setDisabled(!animFile.animations[currentAnim].frames.count() || c < 0);
 
             ui->sheetID->setCurrentIndex(f.sheet);
             ui->boundingBoxX->setValue(f.sprX);
@@ -729,7 +742,10 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     connect(ui->rmFrame, &QToolButton::clicked, [this] {
         int c = ui->frameList->currentIndex().row();
         int n = c == frameModel->rowCount() - 1 ? c - 1 : c;
-        frameModel->takeRow(c);
+        if (n >= 0)
+            frameModel->takeRow(c);
+        else
+            frameModel->clear();
         // delete model->itemFromIndex(ui->frameList->currentIndex());
         animFile.animations[currentAnim].frames.removeAt(c);
         DoAction("Removed frame", true);
@@ -737,6 +753,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->frameList->blockSignals(true);
         ui->frameList->setCurrentIndex(frameModel->index(n, 0));
         ui->frameList->blockSignals(false);
+
+        ui->rmFrame->setDisabled(currentAnim < 0 || !animFile.animations[currentAnim].frames.count());
     });
 
     connect(ui->upFrame, &QToolButton::clicked, [this] {
@@ -746,6 +764,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         frameModel->insertRow(c - 1, item);
         DoAction("Moved frame up", true);
         ui->frameList->setCurrentIndex(frameModel->index(c - 1, 0));
+
+        ui->upFrame->setDisabled(c - 1 <= 0);
     });
 
     connect(ui->downFrame, &QToolButton::clicked, [this] {
@@ -755,6 +775,9 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         frameModel->insertRow(c + 1, item);
         DoAction("Moved frame down", true);
         ui->frameList->setCurrentIndex(frameModel->index(c + 1, 0));
+
+        ui->downFrame->setDisabled(c + 1 >= animFile.animations[currentAnim].frames.count() - 1
+                                   || c < 0);
     });
 
     std::function<void(int)> sheetFunc([this](int c) {
