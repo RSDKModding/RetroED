@@ -48,7 +48,8 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
     connect(ui->hasTextures, &QCheckBox::toggled, [this](bool c) { viewer->model.hasTextures = c; });
 
     connect(ui->loadTexture, &QPushButton::clicked, [this] {
-        QFileDialog filedialog(this, tr("Open Texture"), "", tr("PNG Files (*.png)"));
+        QFileDialog filedialog(this, tr("Open Texture"), QFileInfo(viewer->model.filePath).dir().path(),
+                               tr("PNG Files (*.png)"));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
             viewer->loadTexture(filedialog.selectedFiles()[0]);
@@ -342,9 +343,14 @@ bool ModelManager::event(QEvent *event)
             return true;
 
         case RE_EVENT_OPEN: {
-            QString filters = { "RSDKv5 Model Files (*.bin);;RSDKv4 Model Files (*.bin)" };
+            QString dir = "";
 
-            QFileDialog filedialog(this, tr("Open RSDK Model"), "", tr(filters.toStdString().c_str()));
+            if (!viewer->model.filePath.isEmpty()) {
+                dir = QFileInfo(viewer->model.filePath).dir().path();
+            }
+
+            QFileDialog filedialog(this, tr("Open RSDK Model"), dir);
+            filedialog.setNameFilters({ "RSDKv5 Model Files (*.bin)", "RSDKv4 Model Files (*.bin)" });
             filedialog.setAcceptMode(QFileDialog::AcceptOpen);
             if (filedialog.exec() == QDialog::Accepted) {
                 LoadModel(filedialog.selectedFiles()[0],
@@ -646,9 +652,14 @@ bool ModelManager::SaveModel(bool forceSaveAs)
 {
 
     if (forceSaveAs || viewer->model.filePath.isEmpty()) {
-        QString filters = { "RSDKv5 Model Files (*.bin);;RSDKv4 Model Files (*.bin)" };
+        QString dir = "";
 
-        QFileDialog filedialog(this, tr("Save RSDK Model"), "", tr(filters.toStdString().c_str()));
+        if (!viewer->model.filePath.isEmpty()) {
+            dir = QFileInfo(viewer->model.filePath).dir().path();
+        }
+
+        QFileDialog filedialog(this, tr("Save RSDK Model"), dir);
+        filedialog.setNameFilters({ "RSDKv5 Model Files (*.bin)", "RSDKv4 Model Files (*.bin)" });
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
             bool usev5Format = filedialog.selectedNameFilter() == "RSDKv5 Model Files (*.bin)";

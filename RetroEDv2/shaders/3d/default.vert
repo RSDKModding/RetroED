@@ -19,7 +19,7 @@ uniform vec3 light_pos         = vec3(0.0, 32.0, -32.0);
 
 void main()
 {
-    gl_Position = projection * view * model * vec4(in_pos, 1.0);
+    gl_Position = projection * view * model * vec4(in_pos.x, in_pos.y, in_pos.z, 1.0);
     ex_fragP    = vec3(model * vec4(in_pos, 1.0));
     ex_norm     = in_norm;
     ex_color    = in_color;
