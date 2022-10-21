@@ -3,6 +3,9 @@
 
 #include <QFrame>
 #include <QGraphicsPixmapItem>
+#include <QGraphicsView>
+#include <QWheelEvent>
+
 #include "image-viewer-global.h"
 
 QT_BEGIN_NAMESPACE
@@ -13,7 +16,70 @@ namespace pal
 {
 
 class PixmapItem;
-class GraphicsView;
+class ImageViewer;
+
+// Graphics View with better mouse events handling
+class GraphicsView : public QGraphicsView
+{
+    Q_OBJECT
+public:
+    explicit GraphicsView(ImageViewer *viewer) : QGraphicsView(), m_viewer(viewer)
+    {
+        // no antialiasing or filtering, we want to see the exact image content
+        setRenderHint(QPainter::Antialiasing, true);
+        setDragMode(QGraphicsView::NoDrag);
+        setOptimizationFlags(QGraphicsView::DontSavePainterState);
+        setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
+        setTransformationAnchor(QGraphicsView::AnchorUnderMouse); // zoom at cursor position
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        setInteractive(true);
+        setMouseTracking(true);
+    }
+
+signals:
+    void mouseDownL();
+    void mouseDownM();
+    void mouseDownR();
+    void mouseUpL();
+    void mouseUpM();
+    void mouseUpR();
+
+protected:
+    void wheelEvent(QWheelEvent *event) override;
+
+    void enterEvent(QEvent *event) override
+    {
+        QGraphicsView::enterEvent(event);
+        viewport()->setCursor(Qt::CrossCursor);
+    }
+
+    void mousePressEvent(QMouseEvent *event) override
+    {
+        if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
+            emit mouseDownL();
+        if ((event->button() & Qt::MiddleButton) == Qt::MiddleButton)
+            emit mouseDownM();
+        if ((event->button() & Qt::RightButton) == Qt::RightButton)
+            emit mouseDownR();
+        QGraphicsView::mousePressEvent(event);
+    }
+
+    void mouseReleaseEvent(QMouseEvent *event) override
+    {
+        if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
+            emit mouseUpL();
+        if ((event->button() & Qt::MiddleButton) == Qt::MiddleButton)
+            emit mouseUpM();
+        if ((event->button() & Qt::RightButton) == Qt::RightButton)
+            emit mouseUpR();
+        QGraphicsView::mouseReleaseEvent(event);
+        viewport()->setCursor(Qt::CrossCursor);
+    }
+
+private:
+    ImageViewer *m_viewer;
+};
 
 /**
  * @brief ImageViewer displays images and allows basic interaction with it
@@ -56,6 +122,8 @@ public:
 
     void repaintView();
 
+    GraphicsView *view;
+
 public slots:
     void setText(const QString &txt);
     void setImage(const QImage &);
@@ -84,7 +152,6 @@ private:
     int m_zoom_level;
     QLabel *m_text_label;
     QLabel *m_pixel_value;
-    GraphicsView *m_view;
     PixmapItem *m_pixmap;
     QWidget *m_toolbar;
     bool m_fit;
@@ -118,8 +185,6 @@ signals:
     void mouseUpR();
 
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent *) override;
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *) override;
     void hoverMoveEvent(QGraphicsSceneHoverEvent *) override;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
