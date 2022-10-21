@@ -194,7 +194,7 @@ ushort FunctionTable::FindObject(const char *name)
     memcpy(hash, data, 0x10 * sizeof(byte));
 
     for (int o = 0; o < v5Editor->viewer->objects.count(); ++o) {
-        GameObjectInfo *info = v5Editor->getObjectInfo(name);
+        GameObjectInfo *info = v5Editor->GetObjectInfo(name);
         if (info) {
             if (info->sVars && *info->sVars) {
                 return o;

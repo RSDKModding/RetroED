@@ -4,8 +4,7 @@
 #include <QApplication>
 #include "version.hpp"
 
-
-void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+void DebugMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QByteArray localMsg  = msg.toLocal8Bit();
     const char *file     = context.file ? context.file : "";
@@ -67,7 +66,7 @@ int main(int argc, char *argv[])
     format.setProfile(QSurfaceFormat::CoreProfile);
     QSurfaceFormat::setDefaultFormat(format);
 
-    qInstallMessageHandler(myMessageOutput);
+    qInstallMessageHandler(DebugMessageHandler);
     PhantomStyle *style = new PhantomStyle(); // TODO: is this deleted ever???
 
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

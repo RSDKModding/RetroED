@@ -249,13 +249,15 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
                 }
 
                 connect(ui->gcScnName, &QLineEdit::editingFinished, [this, c]() {
-                    gameConfig.categories[c.parent().row()].scenes[c.row()].name = ui->gcScnName->text();
+                    gameConfig.categories[c.parent().row()].scenes[c.row()].name =
+                        ui->gcScnName->text();
                     sceneModel->itemFromIndex(c)->setText(ui->gcScnName->text());
                     DoAction("Changed Scene Name");
                 });
 
                 connect(ui->gcScnFolder, &QLineEdit::editingFinished, [this, c]() {
-                    gameConfig.categories[c.parent().row()].scenes[c.row()].folder = ui->gcScnFolder->text();
+                    gameConfig.categories[c.parent().row()].scenes[c.row()].folder =
+                        ui->gcScnFolder->text();
                     DoAction("Changed Scene Folder");
                 });
 
@@ -1417,7 +1419,7 @@ bool GameConfigEditorv5::event(QEvent *event)
         case QEvent::Close:
             if (modified) {
                 bool cancelled = false;
-                if (MainWindow::showCloseWarning(this, &cancelled)) {
+                if (MainWindow::ShowCloseWarning(this, &cancelled)) {
                     if (!ui->stackedWidget->currentIndex()) {
                         if (gameConfig.filePath != "") {
                             SetStatus("Saving GameConfig...", true);

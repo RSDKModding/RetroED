@@ -5113,7 +5113,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                 break;
             case FUNC_LOADSPRITESHEET:
                 opcodeSize                = 0;
-                scriptInfo->spriteSheetID = editor->loadSpriteSheet(scriptText);
+                scriptInfo->spriteSheetID = editor->LoadSpriteSheet(scriptText);
                 break;
             case FUNC_REMOVESPRITESHEET:
                 opcodeSize = 0;
@@ -5122,7 +5122,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
             case FUNC_DRAWSPRITE:
                 opcodeSize  = 0;
                 spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
-                editor->drawSpriteFlipped((entity->XPos >> 16) + spriteFrame->pivotX,
+                editor->DrawSpriteFlipped((entity->XPos >> 16) + spriteFrame->pivotX,
                                           (entity->YPos >> 16) + spriteFrame->pivotY,
                                           spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
                                           spriteFrame->sprY, FLIP_NONE, INK_NONE, 0xFF,
@@ -5131,7 +5131,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
             case FUNC_DRAWSPRITEXY:
                 opcodeSize  = 0;
                 spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
-                editor->drawSpriteFlipped((scriptEng.operands[1] >> 16) + spriteFrame->pivotX,
+                editor->DrawSpriteFlipped((scriptEng.operands[1] >> 16) + spriteFrame->pivotX,
                                           (scriptEng.operands[2] >> 16) + spriteFrame->pivotY,
                                           spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
                                           spriteFrame->sprY, FLIP_NONE, INK_NONE, 0xFF,
@@ -5140,7 +5140,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
             case FUNC_DRAWSPRITESCREENXY:
                 opcodeSize  = 0;
                 spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
-                editor->drawSpriteFlipped(scriptEng.operands[1] + spriteFrame->pivotX,
+                editor->DrawSpriteFlipped(scriptEng.operands[1] + spriteFrame->pivotX,
                                           scriptEng.operands[2] + spriteFrame->pivotY,
                                           spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
                                           spriteFrame->sprY, FLIP_NONE, INK_NONE, 0xFF,
@@ -5154,7 +5154,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                     while (scriptEng.operands[4] > 0) {
                         int frameID = scriptEng.operands[3] % i / (i / 10) + scriptEng.operands[0];
                         spriteFrame = &scriptFrames[scriptInfo->frameListOffset + frameID];
-                        editor->drawSpriteFlipped(spriteFrame->pivotX + scriptEng.operands[1],
+                        editor->DrawSpriteFlipped(spriteFrame->pivotX + scriptEng.operands[1],
                                                   spriteFrame->pivotY + scriptEng.operands[2],
                                                   spriteFrame->width, spriteFrame->height,
                                                   spriteFrame->sprX, spriteFrame->sprY, FLIP_NONE,
@@ -5172,7 +5172,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                         if (extra >= i) {
                             int frameID = scriptEng.operands[3] % i / (i / 10) + scriptEng.operands[0];
                             spriteFrame = &scriptFrames[scriptInfo->frameListOffset + frameID];
-                            editor->drawSpriteFlipped(spriteFrame->pivotX + scriptEng.operands[1],
+                            editor->DrawSpriteFlipped(spriteFrame->pivotX + scriptEng.operands[1],
                                                       spriteFrame->pivotY + scriptEng.operands[2],
                                                       spriteFrame->width, spriteFrame->height,
                                                       spriteFrame->sprX, spriteFrame->sprY, FLIP_NONE,
@@ -5229,7 +5229,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                 switch (scriptEng.operands[1]) {
                     default: break;
                     case FX_SCALE:
-                        editor->drawSpriteRotozoom(
+                        editor->DrawSpriteRotozoom(
                             (scriptEng.operands[2] >> 16), (scriptEng.operands[3] >> 16),
                             -spriteFrame->pivotX, -spriteFrame->pivotY, spriteFrame->width,
                             spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, entity->scale,
@@ -5237,7 +5237,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                             scriptInfo->spriteSheetID, false);
                         break;
                     case FX_ROTATE:
-                        editor->drawSpriteRotozoom(
+                        editor->DrawSpriteRotozoom(
                             (scriptEng.operands[2] >> 16), (scriptEng.operands[3] >> 16),
                             -spriteFrame->pivotX, -spriteFrame->pivotY, spriteFrame->width,
                             spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, 0x200, 0x200,
@@ -5245,7 +5245,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                             scriptInfo->spriteSheetID, false);
                         break;
                     case FX_ROTOZOOM:
-                        editor->drawSpriteRotozoom(
+                        editor->DrawSpriteRotozoom(
                             (scriptEng.operands[2] >> 16), (scriptEng.operands[3] >> 16),
                             -spriteFrame->pivotX, -spriteFrame->pivotY, spriteFrame->width,
                             spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, entity->scale,
@@ -5255,7 +5255,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                     case FX_INK:
                         switch (entity->inkEffect) {
                             case INK_NONE:
-                                editor->drawSpriteFlipped(
+                                editor->DrawSpriteFlipped(
                                     (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
                                     (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
@@ -5263,7 +5263,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                                     scriptInfo->spriteSheetID, false);
                                 break;
                             case INK_BLEND:
-                                editor->drawSpriteFlipped(
+                                editor->DrawSpriteFlipped(
                                     (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
                                     (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
@@ -5271,7 +5271,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                                     scriptInfo->spriteSheetID, false);
                                 break;
                             case INK_ALPHA:
-                                editor->drawSpriteFlipped(
+                                editor->DrawSpriteFlipped(
                                     (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
                                     (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
@@ -5279,7 +5279,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                                     scriptInfo->spriteSheetID, false);
                                 break;
                             case INK_ADD:
-                                editor->drawSpriteFlipped(
+                                editor->DrawSpriteFlipped(
                                     (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
                                     (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
@@ -5287,7 +5287,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                                     scriptInfo->spriteSheetID, false);
                                 break;
                             case INK_SUB:
-                                editor->drawSpriteFlipped(
+                                editor->DrawSpriteFlipped(
                                     (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
                                     (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
@@ -5301,7 +5301,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                         switch (entity->direction) {
                             default:
                             case FLIP_NONE:
-                                editor->drawSpriteFlipped(
+                                editor->DrawSpriteFlipped(
                                     (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
                                     (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
                                     spriteFrame->width, spriteFrame->height, spriteFrame->sprX,
@@ -5309,7 +5309,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                                     scriptInfo->spriteSheetID, false);
                                 break;
                             case FLIP_X:
-                                editor->drawSpriteFlipped(
+                                editor->DrawSpriteFlipped(
                                     (scriptEng.operands[2] >> 16) - spriteFrame->width
                                         - spriteFrame->pivotX,
                                     (scriptEng.operands[3] >> 16) + spriteFrame->pivotY,
@@ -5318,7 +5318,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                                     scriptInfo->spriteSheetID, false);
                                 break;
                             case FLIP_Y:
-                                editor->drawSpriteFlipped(
+                                editor->DrawSpriteFlipped(
                                     (scriptEng.operands[2] >> 16) + spriteFrame->pivotX,
                                     (scriptEng.operands[3] >> 16) - spriteFrame->height
                                         - spriteFrame->pivotY,
@@ -5327,7 +5327,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                                     scriptInfo->spriteSheetID, false);
                                 break;
                             case FLIP_XY:
-                                editor->drawSpriteFlipped(
+                                editor->DrawSpriteFlipped(
                                     (scriptEng.operands[2] >> 16) - spriteFrame->width
                                         - spriteFrame->pivotX,
                                     (scriptEng.operands[3] >> 16) - spriteFrame->height
@@ -5346,21 +5346,21 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                 switch (scriptEng.operands[1]) {
                     default: break;
                     case FX_SCALE:
-                        editor->drawSpriteRotozoom(
+                        editor->DrawSpriteRotozoom(
                             scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
                             -spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
                             spriteFrame->sprX, spriteFrame->sprY, entity->scale, entity->scale,
                             entity->direction, 0, INK_NONE, 0xFF, scriptInfo->spriteSheetID, true);
                         break;
                     case FX_ROTATE:
-                        editor->drawSpriteRotozoom(
+                        editor->DrawSpriteRotozoom(
                             scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
                             -spriteFrame->pivotY, spriteFrame->width, spriteFrame->height,
                             spriteFrame->sprX, spriteFrame->sprY, 0x200, 0x200, entity->direction,
                             entity->rotation, INK_NONE, 0xFF, scriptInfo->spriteSheetID, true);
                         break;
                     case FX_ROTOZOOM:
-                        editor->drawSpriteRotozoom(scriptEng.operands[2], scriptEng.operands[3],
+                        editor->DrawSpriteRotozoom(scriptEng.operands[2], scriptEng.operands[3],
                                                    -spriteFrame->pivotX, -spriteFrame->pivotY,
                                                    spriteFrame->width, spriteFrame->height,
                                                    spriteFrame->sprX, spriteFrame->sprY, entity->scale,
@@ -5370,21 +5370,21 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                     case FX_INK:
                         switch (entity->inkEffect) {
                             case INK_NONE:
-                                editor->drawSpriteFlipped(
+                                editor->DrawSpriteFlipped(
                                     scriptEng.operands[2] + spriteFrame->pivotX,
                                     scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
                                     spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
                                     FLIP_NONE, INK_NONE, 0xFF, scriptInfo->spriteSheetID, true);
                                 break;
                             case INK_BLEND:
-                                editor->drawSpriteFlipped(
+                                editor->DrawSpriteFlipped(
                                     scriptEng.operands[2] + spriteFrame->pivotX,
                                     scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
                                     spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
                                     FLIP_NONE, INK_BLEND, 0xFF, scriptInfo->spriteSheetID, true);
                                 break;
                             case INK_ALPHA:
-                                editor->drawSpriteFlipped(scriptEng.operands[2] + spriteFrame->pivotX,
+                                editor->DrawSpriteFlipped(scriptEng.operands[2] + spriteFrame->pivotX,
                                                           scriptEng.operands[3] + spriteFrame->pivotY,
                                                           spriteFrame->width, spriteFrame->height,
                                                           spriteFrame->sprX, spriteFrame->sprY,
@@ -5392,14 +5392,14 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                                                           scriptInfo->spriteSheetID, true);
                                 break;
                             case INK_ADD:
-                                editor->drawSpriteFlipped(
+                                editor->DrawSpriteFlipped(
                                     scriptEng.operands[2] + spriteFrame->pivotX,
                                     scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
                                     spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
                                     FLIP_NONE, INK_ADD, entity->alpha, scriptInfo->spriteSheetID, true);
                                 break;
                             case INK_SUB:
-                                editor->drawSpriteFlipped(
+                                editor->DrawSpriteFlipped(
                                     scriptEng.operands[2] + spriteFrame->pivotX,
                                     scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
                                     spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
@@ -5412,28 +5412,28 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                         switch (entity->direction) {
                             default:
                             case FLIP_NONE:
-                                editor->drawSpriteFlipped(
+                                editor->DrawSpriteFlipped(
                                     scriptEng.operands[2] + spriteFrame->pivotX,
                                     scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
                                     spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY,
                                     FLIP_NONE, INK_NONE, 0xFF, scriptInfo->spriteSheetID, true);
                                 break;
                             case FLIP_X:
-                                editor->drawSpriteFlipped(
+                                editor->DrawSpriteFlipped(
                                     scriptEng.operands[2] + spriteFrame->pivotX,
                                     scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
                                     spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_X,
                                     INK_NONE, 0xFF, scriptInfo->spriteSheetID, true);
                                 break;
                             case FLIP_Y:
-                                editor->drawSpriteFlipped(
+                                editor->DrawSpriteFlipped(
                                     scriptEng.operands[2] + spriteFrame->pivotX,
                                     scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
                                     spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_Y,
                                     INK_NONE, 0xFF, scriptInfo->spriteSheetID, true);
                                 break;
                             case FLIP_XY:
-                                editor->drawSpriteFlipped(
+                                editor->DrawSpriteFlipped(
                                     scriptEng.operands[2] + spriteFrame->pivotX,
                                     scriptEng.operands[3] + spriteFrame->pivotY, spriteFrame->width,
                                     spriteFrame->height, spriteFrame->sprX, spriteFrame->sprY, FLIP_XY,

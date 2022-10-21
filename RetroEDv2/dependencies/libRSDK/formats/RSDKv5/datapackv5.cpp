@@ -1,6 +1,6 @@
 #include "libRSDK.hpp"
 
-#include "datafilev5.hpp"
+#include "datapackv5.hpp"
 
 enum ExtensionTypes {
     UNKNOWN,
@@ -16,7 +16,7 @@ enum ExtensionTypes {
     TIL,
 };
 
-void RSDKv5::Datafile::FileInfo::read(Reader &reader, QList<QString> &fileList,
+void RSDKv5::Datapack::FileInfo::read(Reader &reader, QList<QString> &fileList,
                                       QList<QByteArray> &hashList, int id)
 {
     for (int y = 0; y < 16; y += 4) {
@@ -54,12 +54,12 @@ void RSDKv5::Datafile::FileInfo::read(Reader &reader, QList<QString> &fileList,
     reader.seek(tmp);
 }
 
-void RSDKv5::Datafile::FileInfo::writeHeader(Writer &writer)
+void RSDKv5::Datapack::FileInfo::writeHeader(Writer &writer)
 {
     fileName = fileName.replace('\\', '/');
 
     QString fn     = fileName;
-    QByteArray md5 = Datafile::calculateMD5Hash(fn.toLower());
+    QByteArray md5 = Datapack::calculateMD5Hash(fn.toLower());
 
     for (int y = 0; y < 16; y += 4) {
         hash[y + 3] = md5[y + 0];
@@ -74,7 +74,7 @@ void RSDKv5::Datafile::FileInfo::writeHeader(Writer &writer)
     writer.write(fileSize | (encrypted ? 0x80000000 : 0));
 }
 
-void RSDKv5::Datafile::FileInfo::writeData(Writer &writer)
+void RSDKv5::Datapack::FileInfo::writeData(Writer &writer)
 {
     if (encrypted)
         writer.write(decrypt(fileData, true));
@@ -82,12 +82,12 @@ void RSDKv5::Datafile::FileInfo::writeData(Writer &writer)
         writer.write(fileData);
 }
 
-void RSDKv5::Datafile::FileInfo::generateELoadKeys(QString filename, uint size)
+void RSDKv5::Datapack::FileInfo::generateELoadKeys(QString filename, uint size)
 {
     QByteArray md5Buf;
 
     QString filenameCaps = filename.toUpper();
-    md5Buf               = Datafile::calculateMD5Hash(filenameCaps);
+    md5Buf               = Datapack::calculateMD5Hash(filenameCaps);
     encryptionKeyA.resize(0x10);
     encryptionKeyB.resize(0x10);
 
@@ -100,7 +100,7 @@ void RSDKv5::Datafile::FileInfo::generateELoadKeys(QString filename, uint size)
     }
 
     QString fsize = QString::number(size);
-    md5Buf        = Datafile::calculateMD5Hash(fsize);
+    md5Buf        = Datapack::calculateMD5Hash(fsize);
 
     for (int y = 0; y < 16; y += 4) {
         // convert every 32-bit word to Little Endian
@@ -116,7 +116,7 @@ void RSDKv5::Datafile::FileInfo::generateELoadKeys(QString filename, uint size)
     eNybbleSwap = 0;
 }
 
-QByteArray RSDKv5::Datafile::FileInfo::decrypt(QByteArray data, bool encrypting)
+QByteArray RSDKv5::Datapack::FileInfo::decrypt(QByteArray data, bool encrypting)
 {
     generateELoadKeys(fileName, fileSize);
 
@@ -173,7 +173,7 @@ QByteArray RSDKv5::Datafile::FileInfo::decrypt(QByteArray data, bool encrypting)
     return data;
 }
 
-void RSDKv5::Datafile::read(Reader &reader, QList<QString> fileList)
+void RSDKv5::Datapack::read(Reader &reader, QList<QString> fileList)
 {
     filePath = reader.filePath;
 
@@ -194,7 +194,7 @@ void RSDKv5::Datafile::read(Reader &reader, QList<QString> fileList)
         files.append(FileInfo(reader, fileList, hashList, i)); // read each file
 }
 
-void RSDKv5::Datafile::write(Writer &writer, byte ver)
+void RSDKv5::Datapack::write(Writer &writer, byte ver)
 {
     if (!ver)
         ver = version;

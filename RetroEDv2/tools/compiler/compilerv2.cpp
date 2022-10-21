@@ -1905,7 +1905,7 @@ void Compilerv2::ProcessScript(int scriptCodeStart, int jumpTableStart)
                 break;
             case FUNC_LOADSPRITESHEET:
                 opcodeSize                = 0;
-                scriptInfo->spriteSheetID = editor->loadSpriteSheet(scriptText);
+                scriptInfo->spriteSheetID = editor->LoadSpriteSheet(scriptText);
                 break;
             case FUNC_REMOVESPRITESHEET:
                 opcodeSize = 0;

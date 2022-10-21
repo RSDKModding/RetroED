@@ -7,7 +7,7 @@
 #include "formats/RSDKv3/backgroundv3.hpp"
 #include "formats/RSDKv3/bytecodev3.hpp"
 #include "formats/RSDKv3/chunksv3.hpp"
-#include "formats/RSDKv3/datafilev3.hpp"
+#include "formats/RSDKv3/datapackv3.hpp"
 #include "formats/RSDKv3/gameconfigv3.hpp"
 #include "formats/RSDKv3/gfxv3.hpp"
 #include "formats/RSDKv3/savefilev3.hpp"

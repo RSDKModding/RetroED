@@ -260,7 +260,7 @@ GameConfigEditorv1::GameConfigEditorv1(QString path, QWidget *parent)
 
                 connect(ui->scnName, &QLineEdit::editingFinished, [this, c]() {
                     stageList[c.parent().row()].stages[c.row()].name = ui->scnName->text();
-                    sceneModel->itemFromIndex(c)->setText( ui->scnName->text());
+                    sceneModel->itemFromIndex(c)->setText(ui->scnName->text());
                     DoAction("Changed Scene Name");
                 });
 
@@ -463,7 +463,7 @@ bool GameConfigEditorv1::event(QEvent *event)
         case QEvent::Close:
             if (modified) {
                 bool cancelled = false;
-                if (MainWindow::showCloseWarning(this, &cancelled)) {
+                if (MainWindow::ShowCloseWarning(this, &cancelled)) {
                     if (!QFile(characters.filePath).exists()) {
                         QFileDialog filedialog(this, tr("Open Game Configuration"), "",
                                                tr("RSDKv1 Character List files (Characters*.mdf)"));

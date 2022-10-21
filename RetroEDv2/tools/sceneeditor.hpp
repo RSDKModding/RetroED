@@ -109,18 +109,18 @@ public:
     FormatHelpers::Chunks chunkset;
     FormatHelpers::StageConfig stageConfig;
 
-    void createNewScene();
-    void loadScene(QString scnPath, QString gcfPath, byte gameType);
-    bool saveScene(bool forceSaveAs = false);
+    void CreateNewScene();
+    void LoadScene(QString scnPath, QString gcfPath, byte gameType);
+    bool SaveScene(bool forceSaveAs = false);
 
-    void initGameLink();
+    void InitGameLink();
 
-    bool callGameEvent(byte eventID, int id);
-    ushort loadSpriteSheet(QString filename);
-    void drawSpriteFlipped(float XPos, float YPos, float width, float height, float sprX, float sprY,
+    bool CallGameEvent(byte eventID, int id);
+    ushort LoadSpriteSheet(QString filename);
+    void DrawSpriteFlipped(float XPos, float YPos, float width, float height, float sprX, float sprY,
                            int direction, InkEffects inkEffect, int alpha, int sheetID,
                            bool screenRelative);
-    void drawSpriteRotozoom(float XPos, float YPos, float pivotX, float pivotY, float width,
+    void DrawSpriteRotozoom(float XPos, float YPos, float pivotX, float pivotY, float width,
                             float height, float sprX, float sprY, int scaleX, int scaleY, int direction,
                             short rotation, InkEffects inkEffect, int alpha, int sheetID,
                             bool screenRelative);
@@ -130,13 +130,13 @@ public:
     bool scriptError       = false;
 
     // Event Handlers
-    void setTile(float x, float y);
-    void resetTools(byte tool);
+    void SetTile(float x, float y);
+    void ResetTools(byte tool);
 
-    bool handleKeyPress(QKeyEvent *event);
-    bool handleKeyRelease(QKeyEvent *event);
+    bool HandleKeyPress(QKeyEvent *event);
+    bool HandleKeyRelease(QKeyEvent *event);
 
-    void createScrollList(bool update = false);
+    void CreateScrollList(bool update = false);
 
     inline void UpdateTitle(bool modified)
     {
@@ -172,36 +172,36 @@ private:
     byte clipboardType = COPY_NONE;
     int clipboardInfo  = 0;
 
-    int addEntity(int type, float x, float y);
-    void deleteEntity(int slot, bool updateUI = false);
+    int AddEntity(int type, float x, float y);
+    void DeleteEntity(int slot, bool updateUI = false);
 
-    void filterObjectList(QString filter);
-    void filterEntityList(QString filter);
+    void FilterObjectList(QString filter);
+    void FilterEntityList(QString filter);
 
-    void createEntityList(int startSlot = -1);
+    void CreateEntityList(int startSlot = -1);
 
     // XML Management
-    void parseGameXML(QString path);
+    void ParseGameXML(QString path);
 
     inline void writeXMLIndentation(Writer &writer, int tabCount)
     {
         for (int t = 0; t < tabCount; ++t) writer.write<char>('\t');
     }
 
-    void readXMLScrollInfo(QXmlStreamReader &xmlReader, int layerID, byte mode = 0);
-    void readXMLLayout(QXmlStreamReader &xmlReader, int layerID, byte mode = 0);
-    void readXMLLayers(QXmlStreamReader &xmlReader);
+    void ReadXMLScrollInfo(QXmlStreamReader &xmlReader, int layerID, byte mode = 0);
+    void ReadXMLLayout(QXmlStreamReader &xmlReader, int layerID, byte mode = 0);
+    void ReadXMLLayers(QXmlStreamReader &xmlReader);
 
-    void writeXMLScrollInfo(Writer &writer, int layerID, int indentPos);
-    void writeXMLLayout(Writer &writer, int layerID, int indentPos);
-    void writeXMLLayer(Writer &writer, int layerID, int indentPos);
+    void WriteXMLScrollInfo(Writer &writer, int layerID, int indentPos);
+    void WriteXMLLayout(Writer &writer, int layerID, int indentPos);
+    void WriteXMLLayer(Writer &writer, int layerID, int indentPos);
 
-    void writeXMLObject(Writer &writer, int objID, int indentPos);
-    void writeXMLEntity(Writer &writer, int entityID, int indentPos);
+    void WriteXMLObject(Writer &writer, int objID, int indentPos);
+    void WriteXMLEntity(Writer &writer, int entityID, int indentPos);
 
-    void writeXMLChunk(Writer &writer, int chunkID, int indentPos);
+    void WriteXMLChunk(Writer &writer, int chunkID, int indentPos);
 
-    void writeXMLScene(Writer &writer);
+    void WriteXMLScene(Writer &writer);
 
     Ui::SceneEditor *ui;
 
@@ -252,7 +252,7 @@ class ChunkSelector : public QWidget
 public:
     ChunkSelector(QWidget *parent = nullptr);
 
-    void refreshList();
+    void RefreshList();
 
     SceneEditor *parentWidget = nullptr;
 

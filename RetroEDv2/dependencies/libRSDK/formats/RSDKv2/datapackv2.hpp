@@ -1,9 +1,9 @@
 #pragma once
 
-namespace RSDKv3
+namespace RSDKv2
 {
 
-class Datafile
+class Datapack
 {
 public:
     class DirInfo
@@ -31,24 +31,13 @@ public:
         QString fileName     = "File.ext";
         QString fullFileName = "Folder/File.ext";
         uint fileSize        = 0;
-        ushort dirID         = 0;
         QByteArray fileData;
-
-    private:
-        int eKeyNo      = 0;
-        int eNybbleSwap = 0;
-        int eKeyPosB    = 0;
-        int eKeyPosA    = 0;
-
-        const char *decryptionKeyA = "4RaS9D7KaEbxcp2o5r6t";
-        const char *encryptionKeyB = "3tRaUxLmEaSn";
-
-        QByteArray decrypt(QByteArray data, bool encrypting);
+        ushort dirID = 0;
     };
 
-    Datafile() {}
-    Datafile(QString filename) { read(filename); }
-    Datafile(Reader &reader) { read(reader); }
+    Datapack() {}
+    Datapack(QString filename) { read(filename); }
+    Datapack(Reader &reader) { read(reader); }
 
     inline void read(QString filename)
     {
@@ -74,6 +63,6 @@ public:
     QString filePath = "";
 };
 
-} // namespace RSDKv3
+} // namespace RSDKv2
 
 

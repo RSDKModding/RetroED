@@ -18,10 +18,8 @@ public:
 private:
     char *strptime(const char *s, const char *f, struct tm *tm);
 
-    void convertDBToCSV(QString dbPath, QString csvPath);
-    void convertCSVToDB(QString dbPath, QString csvPath);
+    void ConvertDBToCSV(QString dbPath, QString csvPath);
+    void ConvertCSVToDB(QString dbPath, QString csvPath);
 
     Ui::UserDBManager *ui;
 };
-
-

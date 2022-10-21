@@ -3,7 +3,7 @@
 namespace RSDKv5
 {
 
-class Datafile
+class Datapack
 {
 public:
     class FileInfo
@@ -59,9 +59,9 @@ public:
         return QCryptographicHash::hash(input.toLatin1(), QCryptographicHash::Md5);
     }
 
-    Datafile() {}
-    Datafile(QString filename, QList<QString> fileList) { read(filename, fileList); }
-    Datafile(Reader &reader, QList<QString> fileList) { read(reader, fileList); }
+    Datapack() {}
+    Datapack(QString filename, QList<QString> fileList) { read(filename, fileList); }
+    Datapack(Reader &reader, QList<QString> fileList) { read(reader, fileList); }
 
     inline void read(QString filename, QList<QString> fileList)
     {

@@ -1,8 +1,8 @@
 #include "libRSDK.hpp"
 
-#include "datafilev4.hpp"
+#include "datapackv4.hpp"
 
-void RSDKv4::Datafile::read(Reader &reader, QList<QString> fileList)
+void RSDKv4::Datapack::read(Reader &reader, QList<QString> fileList)
 {
     filePath = reader.filePath;
 
@@ -15,7 +15,7 @@ void RSDKv4::Datafile::read(Reader &reader, QList<QString> fileList)
         files.append(FileInfo(reader, fileList, i)); // read each file's header
 }
 
-void RSDKv4::Datafile::write(Writer &writer)
+void RSDKv4::Datapack::write(Writer &writer)
 {
     filePath = writer.filePath;
 
@@ -52,7 +52,7 @@ void RSDKv4::Datafile::write(Writer &writer)
     writer.flush();
 }
 
-void RSDKv4::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, int cnt)
+void RSDKv4::Datapack::FileInfo::read(Reader &reader, QList<QString> fileList, int cnt)
 {
     for (int y = 0; y < 16; y += 4) {
         hash[y + 3] = reader.read<byte>();
@@ -116,7 +116,7 @@ void RSDKv4::Datafile::FileInfo::read(Reader &reader, QList<QString> fileList, i
     }
 }
 
-void RSDKv4::Datafile::FileInfo::writeHeader(Writer &writer)
+void RSDKv4::Datapack::FileInfo::writeHeader(Writer &writer)
 {
     fileName       = fileName.replace('\\', '/');
     QString fn     = fileName;
@@ -137,7 +137,7 @@ void RSDKv4::Datafile::FileInfo::writeHeader(Writer &writer)
     writer.write<uint>(fileSize | (encrypted ? 0x80000000 : 0));
 }
 
-void RSDKv4::Datafile::FileInfo::writeData(Writer &writer)
+void RSDKv4::Datapack::FileInfo::writeData(Writer &writer)
 {
     if (encrypted)
         writer.write(decrypt(fileData, true));
@@ -145,7 +145,7 @@ void RSDKv4::Datafile::FileInfo::writeData(Writer &writer)
         writer.write(fileData);
 }
 
-QByteArray RSDKv4::Datafile::FileInfo::decrypt(QByteArray data, bool encrypting)
+QByteArray RSDKv4::Datapack::FileInfo::decrypt(QByteArray data, bool encrypting)
 {
     // Note: Since only XOr is used, this function does both,
     //       decryption and encryption.
@@ -221,7 +221,7 @@ QByteArray RSDKv4::Datafile::FileInfo::decrypt(QByteArray data, bool encrypting)
     return data;
 }
 
-byte RSDKv4::Datafile::FileInfo::getExtensionFromData()
+byte RSDKv4::Datapack::FileInfo::getExtensionFromData()
 {
     byte header[5];
 

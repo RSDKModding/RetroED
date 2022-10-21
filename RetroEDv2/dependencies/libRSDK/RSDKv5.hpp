@@ -4,7 +4,7 @@
 
 #include "formats/RSDKv5/palettev5.hpp"
 #include "formats/RSDKv5/animationv5.hpp"
-#include "formats/RSDKv5/datafilev5.hpp"
+#include "formats/RSDKv5/datapackv5.hpp"
 #include "formats/RSDKv5/gameconfigv5.hpp"
 #include "formats/RSDKv5/modelv5.hpp"
 #include "formats/RSDKv5/replayv5.hpp"

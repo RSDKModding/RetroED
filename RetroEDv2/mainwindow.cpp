@@ -176,8 +176,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                                 if (QFile::exists(r.path) && QFile::exists(r.extra[0])) {
                                     SceneEditorv5 *tool = new SceneEditorv5();
                                     tool->installEventFilter(this);
-                                    addTab(tool, "Scene Editor");
-                                    tool->loadScene(r.path, r.extra[0],
+                                    AddTab(tool, "Scene Editor");
+                                    tool->LoadScene(r.path, r.extra[0],
                                                     r.extra.count() >= 2 && r.extra[1] == "1");
                                 }
                                 else
@@ -188,8 +188,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                                     && (QFile::exists(r.extra[0]) || r.gameVer == ENGINE_v1)) {
                                     SceneEditor *tool = new SceneEditor();
                                     tool->installEventFilter(this);
-                                    addTab(tool, "Scene Editor");
-                                    tool->loadScene(r.path, r.extra[0], r.gameVer);
+                                    AddTab(tool, "Scene Editor");
+                                    tool->LoadScene(r.path, r.extra[0], r.gameVer);
                                 }
                                 else
                                     appConfig.recentFiles.removeOne(r);
@@ -199,46 +199,46 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                         }
                         case TOOL_ANIMATIONEDITOR: {
                             AnimationEditor *tool = new AnimationEditor(r.path, r.gameVer);
-                            addTab(tool, "Animation Editor");
+                            AddTab(tool, "Animation Editor");
                             break;
                         }
                         case TOOL_RSDKUNPACKER: break;
                         case TOOL_PALETTEDITOR: {
                             PaletteEditor *tool = new PaletteEditor(r.path, r.gameVer);
-                            addTab(tool, "Palette Editor");
+                            AddTab(tool, "Palette Editor");
                             break;
                         }
                         case TOOL_MODELMANAGER: {
                             ModelManager *tool = new ModelManager(r.path, r.gameVer == ENGINE_v5);
-                            addTab(tool, "Model Manager");
+                            AddTab(tool, "Model Manager");
                             break;
                         }
                         case TOOL_GAMECONFIGEDITOR:
                             switch (r.gameVer) {
                                 case ENGINE_v1: {
                                     GameConfigEditorv1 *tool = new GameConfigEditorv1(r.path);
-                                    addTab(tool, "GameConfig Editor");
+                                    AddTab(tool, "GameConfig Editor");
                                     break;
                                 }
                                 case ENGINE_v2: {
                                     GameConfigEditorv2 *tool = new GameConfigEditorv2(r.path);
-                                    addTab(tool, "GameConfig Editor");
+                                    AddTab(tool, "GameConfig Editor");
                                     break;
                                 }
                                 case ENGINE_v3: {
                                     GameConfigEditorv3 *tool = new GameConfigEditorv3(r.path);
-                                    addTab(tool, "GameConfig Editor");
+                                    AddTab(tool, "GameConfig Editor");
                                     break;
                                 }
                                 case ENGINE_v4: {
                                     GameConfigEditorv4 *tool = new GameConfigEditorv4(r.path);
-                                    addTab(tool, "GameConfig Editor");
+                                    AddTab(tool, "GameConfig Editor");
                                     break;
                                 }
                                 case ENGINE_v5: {
                                     GameConfigEditorv5 *tool = new GameConfigEditorv5(
                                         r.path, r.extra[0] == "StageConfig", r.extra[1] == "rev01");
-                                    addTab(tool, "GameConfig Editor");
+                                    AddTab(tool, "GameConfig Editor");
                                     break;
                                 }
                             }
@@ -275,8 +275,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         SetStatus("Opening Scene Editor...");
         SceneEditor *tool = new SceneEditor();
         tool->installEventFilter(this);
-        tool->createNewScene();
-        addTab(tool, "Scene Editor");
+        tool->CreateNewScene();
+        AddTab(tool, "Scene Editor");
         SetStatus("Opened Scene Editor!");
     });
 
@@ -284,8 +284,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         SetStatus("Opening Scene Editor...");
         SceneEditorv5 *tool = new SceneEditorv5();
         tool->installEventFilter(this);
-        tool->createNewScene();
-        addTab(tool, "Scene Editor");
+        tool->CreateNewScene();
+        AddTab(tool, "Scene Editor");
         SetStatus("Opened Scene Editor!");
     });
     tools->addMenu(scn);
@@ -293,7 +293,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     tools->addAction("Animation Editor", [this] {
         SetStatus("Opening Animation Editor...");
         AnimationEditor *tool = new AnimationEditor;
-        addTab(tool, "Animation Editor");
+        AddTab(tool, "Animation Editor");
         SetStatus("Opened Animation Editor!");
     });
 
@@ -301,31 +301,31 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     gc->addAction("v1", [this] {
         SetStatus("Opening Game Configuration Editor...");
         GameConfigEditorv1 *tool = new GameConfigEditorv1;
-        addTab(tool, "GameConfig Editor");
+        AddTab(tool, "GameConfig Editor");
         SetStatus("Opened Game Configuration Editor!");
     });
     gc->addAction("v2", [this] {
         SetStatus("Opening GameConfig Editor...");
         GameConfigEditorv2 *tool = new GameConfigEditorv2;
-        addTab(tool, "GameConfig Editor");
+        AddTab(tool, "GameConfig Editor");
         SetStatus("Opened GameConfig Editor!");
     });
     gc->addAction("v3", [this] {
         SetStatus("Opening GameConfig Editor...");
         GameConfigEditorv3 *tool = new GameConfigEditorv3;
-        addTab(tool, "GameConfig Editor");
+        AddTab(tool, "GameConfig Editor");
         SetStatus("Opened GameConfig Editor!");
     });
     gc->addAction("v4", [this] {
         SetStatus("Opening GameConfig Editor...");
         GameConfigEditorv4 *tool = new GameConfigEditorv4;
-        addTab(tool, "GameConfig Editor");
+        AddTab(tool, "GameConfig Editor");
         SetStatus("Opened GameConfig Editor!");
     });
     gc->addAction("v5", [this] {
         SetStatus("Opening GameConfig Editor...");
         GameConfigEditorv5 *tool = new GameConfigEditorv5("", 0, false);
-        addTab(tool, "GameConfig Editor");
+        AddTab(tool, "GameConfig Editor");
         SetStatus("Opened GameConfig Editor!");
     });
     tools->addMenu(gc);
@@ -333,7 +333,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     tools->addAction("Palette Editor", [this] {
         SetStatus("Opening Palette Editor...");
         PaletteEditor *tool = new PaletteEditor;
-        addTab(tool, "Palette Editor");
+        AddTab(tool, "Palette Editor");
         SetStatus("Opened Palette Editor!");
     });
 
@@ -341,7 +341,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         SetStatus("Opening Model Manager...");
         ModelManager *tool = new ModelManager;
         tool->installEventFilter(this);
-        addTab(tool, "Model Manager");
+        AddTab(tool, "Model Manager");
         SetStatus("Opened Model Manager!");
     });
 

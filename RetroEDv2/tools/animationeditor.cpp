@@ -2920,7 +2920,7 @@ bool AnimationEditor::event(QEvent *event)
         case QEvent::Close:
             if (modified) {
                 bool cancelled = false;
-                if (MainWindow::showCloseWarning(this, &cancelled)) {
+                if (MainWindow::ShowCloseWarning(this, &cancelled)) {
                     if (!QFile::exists(animFile.filePath)) {
                         QFileDialog filedialog(this, tr("Save Animation"), "",
                                                tr(typesList[aniType].toStdString().c_str()));

@@ -16,11 +16,11 @@ public:
     explicit ModelManager(QString filePath = "", bool usev5Format = true, QWidget *parent = nullptr);
     ~ModelManager();
 
-    void setupUI(bool initialSetup = true);
+    void SetupUI(bool initialSetup = true);
     ModelViewer *viewer = nullptr;
 
-    void loadModel(QString filePath, bool usev5Format);
-    bool saveModel(bool forceSaveAs = false);
+    void LoadModel(QString filePath, bool usev5Format);
+    bool SaveModel(bool forceSaveAs = false);
 
     inline void UpdateTitle(bool modified)
     {
@@ -43,10 +43,10 @@ private:
 
     color_widgets::ColorPreview *mdlClrSel = nullptr;
 
-    void startAnim();
-    void stopAnim();
+    void StartAnim();
+    void StopAnim();
 
-    void processAnimation();
+    void ProcessAnimation();
 
     ushort currentFrame = -1;
     bool playingAnim    = false;
@@ -63,5 +63,3 @@ private:
     bool modified    = false;
     QString tabTitle = "Model Manager";
 };
-
-

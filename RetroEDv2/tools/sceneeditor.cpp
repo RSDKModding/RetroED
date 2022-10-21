@@ -99,7 +99,7 @@ ChunkSelector::ChunkSelector(QWidget *parent) : QWidget(parent), parentWidget((S
     setLayout(l);
 }
 
-void ChunkSelector::refreshList()
+void ChunkSelector::RefreshList()
 {
     int i = 0;
     for (auto &&chunk : parentWidget->viewer->chunks) {
@@ -150,7 +150,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     ui->chunksPage->layout()->addWidget(chkProp);
     chkProp->show();
 
-    resetTools(SceneViewer::TOOL_MOUSE);
+    ResetTools(SceneViewer::TOOL_MOUSE);
 
     viewer->statusLabel = ui->statusLabel;
 
@@ -161,7 +161,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     scnProp->gridY->setValue(viewer->gridSize.y);
 
     connect(viewer, &SceneViewer::callGameEvent,
-            [this](byte eventID, int entityID) { callGameEvent(eventID, entityID); });
+            [this](byte eventID, int entityID) { CallGameEvent(eventID, entityID); });
 
     connect(ui->horizontalScrollBar, &QScrollBar::valueChanged,
             [this](int v) { viewer->cameraPos.x = v; });
@@ -187,7 +187,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         lyrProp->setupUI(viewer, c);
         ui->propertiesBox->setCurrentWidget(ui->layerPropPage);
 
-        createScrollList();
+        CreateScrollList();
         ui->addScrH->setDisabled(c < 1);
         ui->rmScrH->setDisabled(c < 1);
         ui->impScrH->setDisabled(c < 1);
@@ -200,7 +200,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             viewer->layers[c].visible = item->checkState() == Qt::Checked;
     });
 
-    connect(ui->objectFilter, &QLineEdit::textChanged, [this](QString s) { filterObjectList(s); });
+    connect(ui->objectFilter, &QLineEdit::textChanged, [this](QString s) { FilterObjectList(s); });
 
     connect(ui->objectList, &QListWidget::currentRowChanged, [this](int c) {
         // m_uo->setDisabled(c == -1);
@@ -274,11 +274,11 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 viewer->entities.removeAt(o);
         }
 
-        createEntityList();
+        CreateEntityList();
         DoAction();
     });
 
-    connect(ui->entityFilter, &QLineEdit::textChanged, [this](QString s) { filterEntityList(s); });
+    connect(ui->entityFilter, &QLineEdit::textChanged, [this](QString s) { FilterEntityList(s); });
 
     connect(ui->entityList, &QListWidget::currentRowChanged, [this](int c) {
         // m_uo->setDisabled(c == -1);
@@ -306,7 +306,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     connect(ui->addEnt, &QToolButton::clicked, [this] {
         // uint c = objectList->currentRow() + 1;
-        addEntity(viewer->selectedObject, 0xFFFF, 0xFFFF);
+        AddEntity(viewer->selectedObject, 0xFFFF, 0xFFFF);
 
         ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
         DoAction();
@@ -381,7 +381,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         ui->entityList->setCurrentRow(n);
         ui->entityList->blockSignals(false);
 
-        deleteEntity(c);
+        DeleteEntity(c);
 
         ui->rmEnt->setDisabled(viewer->entities.count() <= 0);
         ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
@@ -412,7 +412,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         viewer->hScroll.append(scr);
 
-        createScrollList();
+        CreateScrollList();
         DoAction("Added HScroll");
     });
 
@@ -437,7 +437,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
             QXmlStreamReader xmlReader = QXmlStreamReader(bytes);
 
-            readXMLScrollInfo(xmlReader, ui->layerList->currentRow());
+            ReadXMLScrollInfo(xmlReader, ui->layerList->currentRow());
 
             if (xmlReader.hasError()) {
                 QMessageBox::critical(this, "Scroll.xml Parse Error", xmlReader.errorString(),
@@ -448,7 +448,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             // close reader and flush file
             xmlReader.clear();
 
-            createScrollList();
+            CreateScrollList();
             DoAction("Imported HScroll");
         }
     });
@@ -462,7 +462,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             writer.writeLine("<?xml version=\"1.0\"?>");
             writer.writeLine("");
 
-            writeXMLScrollInfo(writer, ui->layerList->currentRow(), 0);
+            WriteXMLScrollInfo(writer, ui->layerList->currentRow(), 0);
 
             writer.flush();
         }
@@ -492,7 +492,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         viewer->vScroll.append(scr);
 
-        createScrollList();
+        CreateScrollList();
         DoAction("Added VScroll");
     });
 
@@ -517,7 +517,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
             QXmlStreamReader xmlReader = QXmlStreamReader(bytes);
 
-            readXMLScrollInfo(xmlReader, ui->layerList->currentRow());
+            ReadXMLScrollInfo(xmlReader, ui->layerList->currentRow());
 
             if (xmlReader.hasError()) {
                 QMessageBox::critical(this, "Scroll.xml Parse Error", xmlReader.errorString(),
@@ -528,7 +528,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             // close reader and flush file
             xmlReader.clear();
 
-            createScrollList();
+            CreateScrollList();
             DoAction("Imported VScroll");
         }
     });
@@ -542,17 +542,17 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             writer.writeLine("<?xml version=\"1.0\"?>");
             writer.writeLine("");
 
-            writeXMLScrollInfo(writer, ui->layerList->currentRow(), 0);
+            WriteXMLScrollInfo(writer, ui->layerList->currentRow(), 0);
 
             writer.flush();
         }
     });
 
-    connect(ui->panTool, &QToolButton::clicked, [this] { resetTools(SceneViewer::TOOL_MOUSE); });
-    connect(ui->selectTool, &QToolButton::clicked, [this] { resetTools(SceneViewer::TOOL_SELECT); });
-    connect(ui->pencilTool, &QToolButton::clicked, [this] { resetTools(SceneViewer::TOOL_PENCIL); });
-    connect(ui->eraserTool, &QToolButton::clicked, [this] { resetTools(SceneViewer::TOOL_ERASER); });
-    connect(ui->entityTool, &QToolButton::clicked, [this] { resetTools(SceneViewer::TOOL_ENTITY); });
+    connect(ui->panTool, &QToolButton::clicked, [this] { ResetTools(SceneViewer::TOOL_MOUSE); });
+    connect(ui->selectTool, &QToolButton::clicked, [this] { ResetTools(SceneViewer::TOOL_SELECT); });
+    connect(ui->pencilTool, &QToolButton::clicked, [this] { ResetTools(SceneViewer::TOOL_PENCIL); });
+    connect(ui->eraserTool, &QToolButton::clicked, [this] { ResetTools(SceneViewer::TOOL_ERASER); });
+    connect(ui->entityTool, &QToolButton::clicked, [this] { ResetTools(SceneViewer::TOOL_ENTITY); });
 
     connect(ui->showCollisionA, &QPushButton::clicked, [this] {
         viewer->showPlaneA ^= 1;
@@ -595,7 +595,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 if (viewer->entities[o].type > gameConfig.objects.count())
                     viewer->entities[o].type -= gameConfig.objects.count();
                 else if (viewer->entities[o].type >= 1)
-                    deleteEntity(o, false);
+                    DeleteEntity(o, false);
             }
 
             for (int t = gameConfig.objects.count() - 1; t >= 0; --t) {
@@ -613,7 +613,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         ui->objectList->blockSignals(false);
 
         objProp->unsetUI();
-        createEntityList();
+        CreateEntityList();
         DoAction();
     });
 
@@ -643,7 +643,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 }
             }
 
-            chkProp->refreshList();
+            chkProp->RefreshList();
             DoAction();
             chunkEdit = nullptr;
         });
@@ -768,7 +768,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         }
         ui->objectList->blockSignals(false);
 
-        createEntityList();
+        CreateEntityList();
 
         if (viewer->gameType == ENGINE_v1) {
             scnProp->musBox->blockSignals(true);
@@ -832,7 +832,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         for (FormatHelpers::Chunks::Chunk &c : viewer->chunkset.chunks)
             viewer->chunks.append(c.getImage(viewer->tiles));
 
-        chkProp->refreshList();
+        chkProp->RefreshList();
 
         DoAction("Edited Tiles");
         SetStatus("Finished rebuilding tiles!"); // done!
@@ -857,7 +857,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
             writer.writeLine("<?xml version=\"1.0\"?>");
             writer.writeLine("");
-            writeXMLScene(writer);
+            WriteXMLScene(writer);
 
             writer.flush();
         }
@@ -891,7 +891,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         viewer->stopTimer();
         objProp->unsetUI();
 
-        initGameLink();
+        InitGameLink();
 
         viewer->startTimer();
         SetStatus("Game Link reloaded successfully!");
@@ -1056,7 +1056,7 @@ bool SceneEditor::event(QEvent *event)
     switch ((int)event->type()) {
         default: break;
 
-        case RE_EVENT_NEW: createNewScene(); break;
+        case RE_EVENT_NEW: CreateNewScene(); break;
 
         case RE_EVENT_OPEN: {
             QList<QString> types = {
@@ -1102,20 +1102,20 @@ bool SceneEditor::event(QEvent *event)
                     }
                 }
 
-                loadScene(filedialog.selectedFiles()[0], gcPath, filter + 1);
+                LoadScene(filedialog.selectedFiles()[0], gcPath, filter + 1);
                 return true;
             }
             break;
         }
 
         case RE_EVENT_SAVE: {
-            if (saveScene())
+            if (SaveScene())
                 return true;
             break;
         }
 
         case RE_EVENT_SAVE_AS: {
-            if (saveScene(true))
+            if (SaveScene(true))
                 return true;
             break;
         }
@@ -1129,8 +1129,8 @@ bool SceneEditor::event(QEvent *event)
         case QEvent::Close:
             if (modified) {
                 bool cancelled = false;
-                if (MainWindow::showCloseWarning(this, &cancelled)) {
-                    if (saveScene())
+                if (MainWindow::ShowCloseWarning(this, &cancelled)) {
+                    if (SaveScene())
                         return true;
                 }
                 else if (cancelled) {
@@ -1141,8 +1141,8 @@ bool SceneEditor::event(QEvent *event)
             break;
 
             // You cant have a focus here & viewer, so copy code :]
-        case QEvent::KeyPress: handleKeyPress(static_cast<QKeyEvent *>(event)); break;
-        case QEvent::KeyRelease: handleKeyRelease(static_cast<QKeyEvent *>(event)); break;
+        case QEvent::KeyPress: HandleKeyPress(static_cast<QKeyEvent *>(event)); break;
+        case QEvent::KeyRelease: HandleKeyRelease(static_cast<QKeyEvent *>(event)); break;
     }
 
     return QWidget::event(event);
@@ -1194,7 +1194,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
                     case SceneViewer::TOOL_PENCIL: {
                         if (viewer->selectedTile != 0xFFFF && viewer->isSelecting) {
-                            setTile(mEvent->pos().x(), mEvent->pos().y());
+                            SetTile(mEvent->pos().x(), mEvent->pos().y());
                             DoAction();
                         }
                         break;
@@ -1202,7 +1202,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     case SceneViewer::TOOL_ERASER: {
                         if (viewer->isSelecting) {
                             viewer->selectedTile = 0x00;
-                            setTile(mEvent->pos().x(), mEvent->pos().y());
+                            SetTile(mEvent->pos().x(), mEvent->pos().y());
                             DoAction();
                         }
                         break;
@@ -1288,7 +1288,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                     y = (y - fmodf(y, viewer->gridSize.y));
                                 }
 
-                                addEntity(viewer->selectedObject, x, y);
+                                AddEntity(viewer->selectedObject, x, y);
 
                                 DoAction("Added Entity");
                             }
@@ -1600,7 +1600,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
                     case SceneViewer::TOOL_PENCIL: {
                         if (viewer->selectedTile != 0xFFFF && viewer->isSelecting) {
-                            setTile(viewer->mousePos.x, viewer->mousePos.y);
+                            SetTile(viewer->mousePos.x, viewer->mousePos.y);
                             DoAction();
                         }
                         break;
@@ -1609,7 +1609,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     case SceneViewer::TOOL_ERASER: {
                         if (viewer->isSelecting) {
                             viewer->selectedTile = 0x0;
-                            setTile(viewer->mousePos.x, viewer->mousePos.y);
+                            SetTile(viewer->mousePos.x, viewer->mousePos.y);
                             DoAction();
                         }
                         break;
@@ -1743,8 +1743,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             break;
         }
 
-        case QEvent::KeyPress: handleKeyPress(static_cast<QKeyEvent *>(event)); break;
-        case QEvent::KeyRelease: handleKeyRelease(static_cast<QKeyEvent *>(event)); break;
+        case QEvent::KeyPress: HandleKeyPress(static_cast<QKeyEvent *>(event)); break;
+        case QEvent::KeyRelease: HandleKeyRelease(static_cast<QKeyEvent *>(event)); break;
 
         default: break;
     }
@@ -1752,7 +1752,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
-void SceneEditor::createNewScene()
+void SceneEditor::CreateNewScene()
 {
     SetStatus("Creating new scene...", true);
 
@@ -1772,7 +1772,7 @@ void SceneEditor::createNewScene()
     viewer->startTimer();
 }
 
-void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
+void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
 {
     viewer->disableDrawScene = true;
 
@@ -1785,7 +1785,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
     if (gcfPath != gameConfig.filePath) {
         if (QFileInfo(gcfPath).suffix().toLower().contains("xml"))
-            parseGameXML(gcfPath);
+            ParseGameXML(gcfPath);
         else
             gameConfig.read(gameType, gcfPath);
     }
@@ -2107,7 +2107,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     }
     ui->objectList->blockSignals(false);
 
-    createEntityList();
+    CreateEntityList();
 
     ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR - viewer->storedW);
     ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB - viewer->storedH);
@@ -2156,7 +2156,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
 
     AddStatusProgress(1. / 7); // finish setting up UI stuff
 
-    initGameLink();
+    InitGameLink();
 
     ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
 
@@ -2172,7 +2172,7 @@ void SceneEditor::loadScene(QString scnPath, QString gcfPath, byte gameType)
     SetStatus("Loaded scene " + QFileInfo(scnPath).fileName()); // done!
 }
 
-bool SceneEditor::saveScene(bool forceSaveAs)
+bool SceneEditor::SaveScene(bool forceSaveAs)
 {
     viewer->disableDrawScene = true;
     viewer->disableObjects   = true;
@@ -2431,7 +2431,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
     return true;
 }
 
-void SceneEditor::initGameLink()
+void SceneEditor::InitGameLink()
 {
     compilerv2->ClearScriptData();
     compilerv3->ClearScriptData();
@@ -2788,7 +2788,7 @@ void SceneEditor::initGameLink()
         viewer->objects[o].variablesAliases[VAR_ALIAS_VAL3]    = "value3";
 
         viewer->activeVarObj = o;
-        callGameEvent(SceneViewer::EVENT_LOAD, o);
+        CallGameEvent(SceneViewer::EVENT_LOAD, o);
     }
     viewer->activeVarObj = -1;
 
@@ -2830,7 +2830,7 @@ void SceneEditor::initGameLink()
     }
 }
 
-void SceneEditor::setTile(float x, float y)
+void SceneEditor::SetTile(float x, float y)
 {
     if (viewer->selectedTile >= 0x400 || viewer->selectedLayer < 0)
         return;
@@ -2860,7 +2860,7 @@ void SceneEditor::setTile(float x, float y)
     }
 }
 
-void SceneEditor::resetTools(byte tool)
+void SceneEditor::ResetTools(byte tool)
 {
     if (tool == 0xFF)
         tool = SceneViewer::TOOL_MOUSE;
@@ -2915,7 +2915,7 @@ void SceneEditor::resetTools(byte tool)
     }
 };
 
-bool SceneEditor::handleKeyPress(QKeyEvent *event)
+bool SceneEditor::HandleKeyPress(QKeyEvent *event)
 {
 
     Vector2<int> sceneMousePos((viewer->mousePos.x * viewer->invZoom()) + viewer->cameraPos.x,
@@ -2937,7 +2937,7 @@ bool SceneEditor::handleKeyPress(QKeyEvent *event)
                     if (viewer->entities.count() < FormatHelpers::Scene::entityLimit) {
                         SceneEntity *entity = (SceneEntity *)clipboard;
 
-                        addEntity(entity->type, sceneMousePos.x, sceneMousePos.y);
+                        AddEntity(entity->type, sceneMousePos.x, sceneMousePos.y);
                     }
                     else {
                         QMessageBox msgBox =
@@ -2967,7 +2967,7 @@ bool SceneEditor::handleKeyPress(QKeyEvent *event)
         tool = SceneViewer::TOOL_ENTITY;
 
     if (tool != prevTool)
-        resetTools(tool);
+        ResetTools(tool);
 
     switch (viewer->curTool) {
         case SceneViewer::TOOL_MOUSE: break;
@@ -2979,10 +2979,10 @@ bool SceneEditor::handleKeyPress(QKeyEvent *event)
                               [](const int &a, const int &b) -> bool { return a < b; });
 
                     for (int s = viewer->selectedEntities.count() - 1; s >= 0; --s) {
-                        deleteEntity(viewer->selectedEntities[s], false);
+                        DeleteEntity(viewer->selectedEntities[s], false);
                     }
                     objProp->unsetUI();
-                    createEntityList();
+                    CreateEntityList();
                     viewer->selectedEntities.clear();
                 }
             }
@@ -3024,7 +3024,7 @@ bool SceneEditor::handleKeyPress(QKeyEvent *event)
         case SceneViewer::TOOL_ENTITY:
             if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace) {
                 if (viewer->selectedEntity >= 0) {
-                    deleteEntity(viewer->selectedEntity);
+                    DeleteEntity(viewer->selectedEntity);
                     viewer->selectedEntity = -1;
 
                     DoAction();
@@ -3043,7 +3043,7 @@ bool SceneEditor::handleKeyPress(QKeyEvent *event)
     }
     return false;
 }
-bool SceneEditor::handleKeyRelease(QKeyEvent *event)
+bool SceneEditor::HandleKeyRelease(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Control)
         ctrlDownL = false;
@@ -3054,7 +3054,7 @@ bool SceneEditor::handleKeyRelease(QKeyEvent *event)
     return false;
 }
 
-int SceneEditor::addEntity(int type, float x, float y)
+int SceneEditor::AddEntity(int type, float x, float y)
 {
     if (x == 0xFFFF)
         x = viewer->cameraPos.x;
@@ -3117,7 +3117,7 @@ int SceneEditor::addEntity(int type, float x, float y)
 
     return entity.slotID;
 }
-void SceneEditor::deleteEntity(int slot, bool updateUI)
+void SceneEditor::DeleteEntity(int slot, bool updateUI)
 {
     const SceneEntity &entity = viewer->entities.takeAt(slot);
 
@@ -3148,7 +3148,7 @@ void SceneEditor::deleteEntity(int slot, bool updateUI)
     }
 }
 
-void SceneEditor::filterObjectList(QString filter)
+void SceneEditor::FilterObjectList(QString filter)
 {
     bool showAll = filter.length() == 0;
 
@@ -3158,7 +3158,7 @@ void SceneEditor::filterObjectList(QString filter)
     }
 }
 
-void SceneEditor::filterEntityList(QString filter)
+void SceneEditor::FilterEntityList(QString filter)
 {
     bool showAll = filter.length() == 0;
 
@@ -3168,7 +3168,7 @@ void SceneEditor::filterEntityList(QString filter)
     }
 }
 
-void SceneEditor::createEntityList(int startSlot)
+void SceneEditor::CreateEntityList(int startSlot)
 {
     ui->entityList->blockSignals(true);
 
@@ -3257,7 +3257,7 @@ void SceneEditor::createEntityList(int startSlot)
         }
     }
 }
-void SceneEditor::createScrollList(bool update)
+void SceneEditor::CreateScrollList(bool update)
 {
     if (update) {
         if (viewer->selectedHScrollInfo >= 0 && viewer->selectedHScrollInfo < viewer->hScroll.count()) {
@@ -3307,7 +3307,7 @@ void SceneEditor::createScrollList(bool update)
     }
 }
 
-bool SceneEditor::callGameEvent(byte eventID, int id)
+bool SceneEditor::CallGameEvent(byte eventID, int id)
 {
     if (scriptError)
         return false;
@@ -3509,7 +3509,7 @@ bool SceneEditor::callGameEvent(byte eventID, int id)
     return called;
 }
 
-void SceneEditor::parseGameXML(QString path)
+void SceneEditor::ParseGameXML(QString path)
 {
     gameConfig          = FormatHelpers::GameConfig();
     gameConfig.filePath = path;
@@ -3818,7 +3818,7 @@ void SceneEditor::ClearActions()
 }
 
 // XML Management
-void SceneEditor::readXMLScrollInfo(QXmlStreamReader &xmlReader, int layerID, byte mode)
+void SceneEditor::ReadXMLScrollInfo(QXmlStreamReader &xmlReader, int layerID, byte mode)
 {
     if (layerID <= 0 || layerID >= 9)
         return;
@@ -3871,7 +3871,7 @@ void SceneEditor::readXMLScrollInfo(QXmlStreamReader &xmlReader, int layerID, by
     }
 }
 
-void SceneEditor::readXMLLayout(QXmlStreamReader &xmlReader, int layerID, byte mode)
+void SceneEditor::ReadXMLLayout(QXmlStreamReader &xmlReader, int layerID, byte mode)
 {
     if (layerID < 0 || layerID >= 9)
         return;
@@ -3920,7 +3920,7 @@ void SceneEditor::readXMLLayout(QXmlStreamReader &xmlReader, int layerID, byte m
     }
 }
 
-void SceneEditor::readXMLLayers(QXmlStreamReader &xmlReader)
+void SceneEditor::ReadXMLLayers(QXmlStreamReader &xmlReader)
 {
     QList<QString> layerTypes = { "None", "HScroll", "VScroll", "3D Sky", "3D Floor" };
 
@@ -3989,15 +3989,15 @@ void SceneEditor::readXMLLayers(QXmlStreamReader &xmlReader)
                     id++;
                 }
                 else if (name == "scrollingInfo")
-                    readXMLScrollInfo(xmlReader, layerID, 1);
+                    ReadXMLScrollInfo(xmlReader, layerID, 1);
                 else if (name == "layout")
-                    readXMLLayout(xmlReader, layerID, 1);
+                    ReadXMLLayout(xmlReader, layerID, 1);
             }
         }
     }
 }
 
-void SceneEditor::writeXMLScrollInfo(Writer &writer, int layerID, int indentPos)
+void SceneEditor::WriteXMLScrollInfo(Writer &writer, int layerID, int indentPos)
 {
     if (!layerID)
         return;
@@ -4061,7 +4061,7 @@ void SceneEditor::writeXMLScrollInfo(Writer &writer, int layerID, int indentPos)
     }
 }
 
-void SceneEditor::writeXMLLayout(Writer &writer, int layerID, int indentPos)
+void SceneEditor::WriteXMLLayout(Writer &writer, int layerID, int indentPos)
 {
     writeXMLIndentation(writer, indentPos++);
     writer.writeLine("<layout>");
@@ -4081,7 +4081,7 @@ void SceneEditor::writeXMLLayout(Writer &writer, int layerID, int indentPos)
     writer.writeLine();
 }
 
-void SceneEditor::writeXMLLayer(Writer &writer, int layerID, int indentPos)
+void SceneEditor::WriteXMLLayer(Writer &writer, int layerID, int indentPos)
 {
     QList<QString> layerTypes = { "None", "HScroll", "VScroll", "3D Sky", "3D Floor" };
 
@@ -4157,16 +4157,16 @@ void SceneEditor::writeXMLLayer(Writer &writer, int layerID, int indentPos)
                          .arg(layer.scrollSpeed)
                          .arg(viewer->layers[layerID].visible ? "true" : "false"));
 
-    writeXMLScrollInfo(writer, layerID, indentPos + 1);
+    WriteXMLScrollInfo(writer, layerID, indentPos + 1);
 
-    writeXMLLayout(writer, layerID, indentPos + 1);
+    WriteXMLLayout(writer, layerID, indentPos + 1);
 
     writeXMLIndentation(writer, indentPos);
     writer.writeLine("</layer>");
     writer.writeLine();
 }
 
-void SceneEditor::writeXMLObject(Writer &writer, int objID, int indentPos)
+void SceneEditor::WriteXMLObject(Writer &writer, int objID, int indentPos)
 {
     auto &object = viewer->objects[objID];
 
@@ -4223,7 +4223,7 @@ void SceneEditor::writeXMLObject(Writer &writer, int objID, int indentPos)
     writer.writeLine("</object>");
 }
 
-void SceneEditor::writeXMLEntity(Writer &writer, int entityID, int indentPos)
+void SceneEditor::WriteXMLEntity(Writer &writer, int entityID, int indentPos)
 {
 
     QList<QString> types = { "uint8", "uint16", "uint32", "int8",    "int16", "int32",
@@ -4292,7 +4292,7 @@ void SceneEditor::writeXMLEntity(Writer &writer, int entityID, int indentPos)
     writer.writeLine("</entity>");
 }
 
-void SceneEditor::writeXMLChunk(Writer &writer, int chunkID, int indentPos)
+void SceneEditor::WriteXMLChunk(Writer &writer, int chunkID, int indentPos)
 {
     QList<QString> directions = { "No Flip", "Flip X", "Flip Y", "Flip XY" };
     QList<QString> solidities = { "All Solid", "Solid Top", "Solid LRB", "Not Solid",
@@ -4321,7 +4321,7 @@ void SceneEditor::writeXMLChunk(Writer &writer, int chunkID, int indentPos)
     writer.writeLine();
 }
 
-void SceneEditor::writeXMLScene(Writer &writer)
+void SceneEditor::WriteXMLScene(Writer &writer)
 {
     int indentPos = 0;
 
@@ -4368,7 +4368,7 @@ void SceneEditor::writeXMLScene(Writer &writer)
         for (auto &layer : viewer->layers) {
             (void)layer;
 
-            writeXMLLayer(writer, id, indentPos + 1);
+            WriteXMLLayer(writer, id, indentPos + 1);
             ++id;
         }
 
@@ -4383,7 +4383,7 @@ void SceneEditor::writeXMLScene(Writer &writer)
         writeXMLIndentation(writer, indentPos);
         writer.writeLine("<objects>");
 
-        for (int o = 0; o < viewer->objects.count(); ++o) writeXMLObject(writer, o, indentPos + 1);
+        for (int o = 0; o < viewer->objects.count(); ++o) WriteXMLObject(writer, o, indentPos + 1);
 
         writeXMLIndentation(writer, indentPos);
         writer.writeLine("</objects>");
@@ -4397,7 +4397,7 @@ void SceneEditor::writeXMLScene(Writer &writer)
         writeXMLIndentation(writer, indentPos);
         writer.writeLine("<entities>");
 
-        for (int e = 0; e < viewer->entities.count(); ++e) writeXMLEntity(writer, e, indentPos + 1);
+        for (int e = 0; e < viewer->entities.count(); ++e) WriteXMLEntity(writer, e, indentPos + 1);
 
         writeXMLIndentation(writer, indentPos);
         writer.writeLine("</entities>");
@@ -4412,7 +4412,7 @@ void SceneEditor::writeXMLScene(Writer &writer)
         writer.writeLine("<chunks>");
 
         for (int c = 0; c < (viewer->gameType == ENGINE_v1 ? 0x100 : 0x200); ++c)
-            writeXMLChunk(writer, c, indentPos + 1);
+            WriteXMLChunk(writer, c, indentPos + 1);
 
         writeXMLIndentation(writer, indentPos);
         writer.writeLine("</chunks>");
@@ -4423,7 +4423,7 @@ void SceneEditor::writeXMLScene(Writer &writer)
     writer.writeLine("</scene>");
 }
 
-ushort SceneEditor::loadSpriteSheet(QString filename)
+ushort SceneEditor::LoadSpriteSheet(QString filename)
 {
     QString buffer = WorkingDirManager::GetPath(QString("Sprites/") + filename,
                                                 viewer->dataPath + "/Sprites/" + filename);
@@ -4450,7 +4450,7 @@ ushort SceneEditor::loadSpriteSheet(QString filename)
     return viewer->addGraphicsFile(buffer, id, SCOPE_STAGE);
 }
 
-void SceneEditor::drawSpriteFlipped(float XPos, float YPos, float width, float height, float sprX,
+void SceneEditor::DrawSpriteFlipped(float XPos, float YPos, float width, float height, float sprX,
                                     float sprY, int direction, InkEffects inkEffect, int alpha,
                                     int sheetID, bool screenRelative)
 {
@@ -4464,7 +4464,7 @@ void SceneEditor::drawSpriteFlipped(float XPos, float YPos, float width, float h
                               sheetID);
 }
 
-void SceneEditor::drawSpriteRotozoom(float XPos, float YPos, float pivotX, float pivotY, float width,
+void SceneEditor::DrawSpriteRotozoom(float XPos, float YPos, float pivotX, float pivotY, float width,
                                      float height, float sprX, float sprY, int scaleX, int scaleY,
                                      int direction, short rotation, InkEffects inkEffect, int alpha,
                                      int sheetID, bool screenRelative)

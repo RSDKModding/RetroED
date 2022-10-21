@@ -29,7 +29,7 @@ UserDBManager::UserDBManager(QWidget *parent) : QDialog(parent), ui(new Ui::User
             if (filedialogCSV.exec() == QDialog::Accepted) {
                 QString csvPath = filedialogCSV.selectedFiles()[0];
 
-                convertDBToCSV(dbPath, csvPath);
+                ConvertDBToCSV(dbPath, csvPath);
             }
         }
     });
@@ -44,7 +44,7 @@ UserDBManager::UserDBManager(QWidget *parent) : QDialog(parent), ui(new Ui::User
             if (filedialog.exec() == QDialog::Accepted) {
                 QString dbPath = filedialog.selectedFiles()[0];
 
-                convertCSVToDB(dbPath, csvPath);
+                ConvertCSVToDB(dbPath, csvPath);
             }
         }
     });
@@ -63,7 +63,7 @@ char *UserDBManager::strptime(const char *s, const char *f, struct tm *tm)
     return (char *)(s + input.tellg());
 }
 
-void UserDBManager::convertDBToCSV(QString dbPath, QString csvPath)
+void UserDBManager::ConvertDBToCSV(QString dbPath, QString csvPath)
 {
     UserDB userDB(dbPath);
 
@@ -233,7 +233,7 @@ void UserDBManager::convertDBToCSV(QString dbPath, QString csvPath)
     writer.flush();
 }
 
-void UserDBManager::convertCSVToDB(QString dbPath, QString csvPath)
+void UserDBManager::ConvertCSVToDB(QString dbPath, QString csvPath)
 {
     UserDB userDB;
 
@@ -273,8 +273,7 @@ void UserDBManager::convertCSVToDB(QString dbPath, QString csvPath)
                 }
 
                 for (int i = 3; i < sep.count(); ++i) {
-                    userDB.columns[i - 3].type =
-                        (UserDB::TableColumn::Types)types.indexOf(sep[i]);
+                    userDB.columns[i - 3].type = (UserDB::TableColumn::Types)types.indexOf(sep[i]);
                 }
                 ++mode;
                 break;
@@ -374,13 +373,9 @@ void UserDBManager::convertCSVToDB(QString dbPath, QString csvPath)
                                         stream << value.toLongLong(nullptr, 10);
                                     break;
 
-                                case UserDB::TableColumn::Float:
-                                    stream << value.toFloat();
-                                    break;
+                                case UserDB::TableColumn::Float: stream << value.toFloat(); break;
 
-                                case UserDB::TableColumn::Double:
-                                    stream << value.toDouble();
-                                    break;
+                                case UserDB::TableColumn::Double: stream << value.toDouble(); break;
 
                                 case UserDB::TableColumn::Vector2:
                                     // Unimplemented, do nothing

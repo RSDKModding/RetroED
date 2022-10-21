@@ -360,7 +360,7 @@ int SceneObjectProperties::callRSDKEdit(void *e, bool shouldReturnVal, int entit
     editor->viewer->returnVariable            = shouldReturnVal;
     editor->compilerv3->scriptEng.checkResult = -1;
     editor->compilerv4->scriptEng.checkResult = -1;
-    bool c                         = editor->callGameEvent(SceneViewer::EVENT_EDIT, entityID);
+    bool c                         = editor->CallGameEvent(SceneViewer::EVENT_EDIT, entityID);
     editor->viewer->returnVariable = false;
 
     if (called) {

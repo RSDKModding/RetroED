@@ -17,7 +17,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    static bool showCloseWarning(QWidget *parent = nullptr, bool *cancelled = nullptr)
+    static inline bool ShowCloseWarning(QWidget *parent = nullptr, bool *cancelled = nullptr)
     {
         QMessageBox::StandardButton reply =
             QMessageBox::question(parent, "RetroED",
@@ -39,7 +39,7 @@ private:
 
     QTabWidget *toolTabs = nullptr;
 
-    int getTab(QWidget *tab)
+    inline int GetTab(QWidget *tab)
     {
         if (!toolTabs)
             return -1;
@@ -52,14 +52,14 @@ private:
         return -1;
     }
 
-    template <typename T> void addTab(T *tab, QString name)
+    template <typename T> inline void AddTab(T *tab, QString name)
     {
         if (!toolTabs)
             return;
 
         connect(tab, &T::TitleChanged, [this, tab](QString t) {
             tab->setWindowTitle(t);
-            int i = getTab(tab);
+            int i = GetTab(tab);
             if (i >= 0)
                 toolTabs->setTabText(i, t);
         });

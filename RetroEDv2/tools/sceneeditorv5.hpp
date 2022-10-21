@@ -107,20 +107,20 @@ public:
     GameEntityBasevU createGameEntityvU;
     SceneEntity createTempEntity;
 
-    void createNewScene();
-    void loadScene(QString scnPath, QString gcfPath, byte gameType);
-    void saveScene(QString path);
+    void CreateNewScene();
+    void LoadScene(QString scnPath, QString gcfPath, byte gameType);
+    void SaveScene(QString path);
 
-    void setTile(float x, float y);
-    void resetTools(byte tool);
+    void SetTile(float x, float y);
+    void ResetTools(byte tool);
 
-    bool handleKeyPress(QKeyEvent *event);
-    bool handleKeyRelease(QKeyEvent *event);
+    bool HandleKeyPress(QKeyEvent *event);
+    bool HandleKeyRelease(QKeyEvent *event);
 
-    void createScrollList(bool update = false);
+    void CreateScrollList(bool update = false);
 
     QList<GameLink> gameLinks;
-    GameObjectInfo *getObjectInfo(QString name);
+    GameObjectInfo *GetObjectInfo(QString name);
 
     inline void UpdateTitle(bool modified)
     {
@@ -161,25 +161,25 @@ private:
     byte clipboardType = COPY_NONE;
     int clipboardInfo  = 0;
 
-    int addEntity(int type, float x, float y);
-    void deleteEntity(int slot, bool updateUI = false);
+    int AddEntity(int type, float x, float y);
+    void DeleteEntity(int slot, bool updateUI = false);
 
-    void filterObjectList(QString filter);
-    void filterEntityList(QString filter);
+    void FilterObjectList(QString filter);
+    void FilterEntityList(QString filter);
 
-    void createEntityList(int startSlot = -1);
-    void setupObjects();
+    void CreateEntityList(int startSlot = -1);
+    void SetupObjects();
 
-    void unloadGameLinks();
-    void loadGameLinks();
-    void initGameLink();
+    void UnloadGameLinks();
+    void LoadGameLinks();
+    void InitGameLink();
 
-    void setGameEntityVariables(SceneEntity *entity, void *gameEntity);
-    void getGameEntityVariables(SceneEntity *entity, void *gameEntity);
+    void SetGameEntityVariables(SceneEntity *entity, void *gameEntity);
+    void GetGameEntityVariables(SceneEntity *entity, void *gameEntity);
 
-    bool callGameEvent(QString objName, byte eventID, SceneEntity *entity);
+    bool CallGameEvent(QString objName, byte eventID, SceneEntity *entity);
 
-    void parseGameXML(QString path);
+    void ParseGameXML(QString path);
 
     Ui::SceneEditorv5 *ui;
 
@@ -231,7 +231,7 @@ class TileSelector : public QWidget
 public:
     TileSelector(QWidget *parent = nullptr);
 
-    void refreshList();
+    void RefreshList();
 
 private:
     TileLabel *tiles[0x400];

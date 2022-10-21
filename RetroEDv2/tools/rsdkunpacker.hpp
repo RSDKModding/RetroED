@@ -16,17 +16,10 @@ public:
     ~RSDKUnpacker();
 
 private:
-    void loadPack(QString filepath, byte ver, QString fileList = "");
-    void savePack(QString filepath, byte ver);
+    void LoadPack(QString filepath, byte ver, QString fileList = "");
+    void SavePack(QString filepath, byte ver);
 
     Ui::RSDKUnpacker *ui;
-
-    // RSDKv1::Datafile m_datafilev1;
-    // RSDKv2::Datafile m_datafilev2;
-    // RSDKv3::Datafile m_datafilev3;
-    // RSDKv4::Datafile m_datafilev4;
-    // RSDKv5::Datafile m_datafilev5;
-    // RSDKv3::ArcContainer m_arcContainer;
 
     class FileInfo
     {
@@ -46,5 +39,3 @@ private:
 
     char gameVer = -1;
 };
-
-

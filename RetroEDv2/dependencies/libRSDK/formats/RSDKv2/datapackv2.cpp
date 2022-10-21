@@ -1,8 +1,8 @@
 #include "libRSDK.hpp"
 
-#include "datafilev2.hpp"
+#include "datapackv2.hpp"
 
-void RSDKv2::Datafile::read(Reader &reader)
+void RSDKv2::Datapack::read(Reader &reader)
 {
     filePath = reader.filePath;
 
@@ -35,7 +35,7 @@ void RSDKv2::Datafile::read(Reader &reader)
     }
 }
 
-void RSDKv2::Datafile::write(Writer &writer)
+void RSDKv2::Datapack::write(Writer &writer)
 {
     filePath = writer.filePath;
 
@@ -88,7 +88,7 @@ void RSDKv2::Datafile::write(Writer &writer)
     writer.flush();
 }
 
-void RSDKv2::Datafile::FileInfo::read(Reader &reader)
+void RSDKv2::Datapack::FileInfo::read(Reader &reader)
 {
     fileName = reader.readString();
     fileSize = reader.read<uint>();
@@ -99,7 +99,7 @@ void RSDKv2::Datafile::FileInfo::read(Reader &reader)
     }
 }
 
-void RSDKv2::Datafile::FileInfo::write(Writer &writer)
+void RSDKv2::Datapack::FileInfo::write(Writer &writer)
 {
     fileName = fileName.replace('\\', '/');
 
@@ -113,13 +113,13 @@ void RSDKv2::Datafile::FileInfo::write(Writer &writer)
     writer.write(data);
 }
 
-void RSDKv2::Datafile::DirInfo::read(Reader &reader)
+void RSDKv2::Datapack::DirInfo::read(Reader &reader)
 {
     directory   = reader.readString();
     startOffset = reader.read<int>();
 }
 
-void RSDKv2::Datafile::DirInfo::write(Writer &writer)
+void RSDKv2::Datapack::DirInfo::write(Writer &writer)
 {
     if (!directory.endsWith('/'))
         directory += "/";

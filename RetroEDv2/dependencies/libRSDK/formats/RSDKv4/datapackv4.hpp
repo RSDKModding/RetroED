@@ -3,7 +3,7 @@
 namespace RSDKv4
 {
 
-class Datafile
+class Datapack
 {
 public:
     class FileInfo
@@ -106,9 +106,9 @@ public:
         int eNybbleSwap;
     };
 
-    Datafile() {}
-    Datafile(QString filename, QList<QString> fileList) { read(filename, fileList); }
-    Datafile(Reader &reader, QList<QString> fileList) { read(reader, fileList); }
+    Datapack() {}
+    Datapack(QString filename, QList<QString> fileList) { read(filename, fileList); }
+    Datapack(Reader &reader, QList<QString> fileList) { read(reader, fileList); }
 
     inline void read(QString filename, QList<QString> fileList)
     {

@@ -23,7 +23,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
     ui->fVertCnt->setText(QString("Face Vertex Count: 3 Vertices"));
 
     updateTimer = new QTimer(this);
-    connect(updateTimer, &QTimer::timeout, this, QOverload<>::of(&ModelManager::processAnimation));
+    connect(updateTimer, &QTimer::timeout, this, QOverload<>::of(&ModelManager::ProcessAnimation));
 
     connect(ui->loopIndex, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
         int val = v;
@@ -84,7 +84,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
             }
         }
 
-        setupUI(false);
+        SetupUI(false);
 
         ui->frameList->blockSignals(true);
         ui->frameList->setCurrentRow(n);
@@ -102,7 +102,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
         delete ui->frameList->item(c);
 
         viewer->model.frames.removeAt(c);
-        setupUI(false);
+        SetupUI(false);
 
         ui->rmFrame->setDisabled(viewer->model.frames.count() <= 0);
 
@@ -124,7 +124,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
 
         viewer->model.frames.move(c, n);
 
-        setupUI(false);
+        SetupUI(false);
 
         viewer->setFrame(n);
 
@@ -145,7 +145,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
 
             viewer->model.frames.insert(c, viewer->model.frames[currentFrame]);
 
-            setupUI(false);
+            SetupUI(false);
 
             ui->frameList->blockSignals(true);
             ui->frameList->setCurrentRow(c);
@@ -218,7 +218,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
                 viewer->setFrame(c);
             }
 
-            setupUI(false);
+            SetupUI(false);
             ui->frameList->setCurrentRow(c);
             viewer->repaint();
         }
@@ -247,11 +247,11 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
     ui->play->setIcon(playPauseIco[0]);
     connect(ui->play, &QToolButton::clicked, [this] {
         if (!playingAnim) {
-            startAnim();
+            StartAnim();
             ui->play->setIcon(playPauseIco[1]);
         }
         else {
-            stopAnim();
+            StopAnim();
             ui->frameList->setCurrentRow(currentFrame);
             ui->play->setIcon(playPauseIco[0]);
         }
@@ -314,7 +314,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
     }
 
     if (QFile::exists(filePath))
-        loadModel(filePath, usev5Format);
+        LoadModel(filePath, usev5Format);
 }
 
 ModelManager::~ModelManager()
@@ -338,7 +338,7 @@ bool ModelManager::event(QEvent *event)
         case RE_EVENT_NEW:
             viewer->model = RSDKv5::Model();
             tabTitle      = "Model Manager";
-            setupUI();
+            SetupUI();
             return true;
 
         case RE_EVENT_OPEN: {
@@ -347,7 +347,7 @@ bool ModelManager::event(QEvent *event)
             QFileDialog filedialog(this, tr("Open RSDK Model"), "", tr(filters.toStdString().c_str()));
             filedialog.setAcceptMode(QFileDialog::AcceptOpen);
             if (filedialog.exec() == QDialog::Accepted) {
-                loadModel(filedialog.selectedFiles()[0],
+                LoadModel(filedialog.selectedFiles()[0],
                           filedialog.selectedNameFilter() == "RSDKv5 Model Files (*.bin)");
                 return true;
             }
@@ -355,20 +355,20 @@ bool ModelManager::event(QEvent *event)
         }
 
         case RE_EVENT_SAVE:
-            if (saveModel())
+            if (SaveModel())
                 return true;
             break;
 
         case RE_EVENT_SAVE_AS:
-            if (saveModel(true))
+            if (SaveModel(true))
                 return true;
             break;
 
         case QEvent::Close:
             if (modified) {
                 bool cancelled = false;
-                if (MainWindow::showCloseWarning(this, &cancelled)) {
-                    if (saveModel())
+                if (MainWindow::ShowCloseWarning(this, &cancelled)) {
+                    if (SaveModel())
                         return true;
                 }
                 else if (cancelled) {
@@ -514,7 +514,7 @@ bool ModelManager::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
-void ModelManager::startAnim()
+void ModelManager::StartAnim()
 {
     playingAnim       = true;
     animFinished      = false;
@@ -523,7 +523,7 @@ void ModelManager::startAnim()
     updateTimer->start(1000.0f / 60.0f);
 }
 
-void ModelManager::stopAnim()
+void ModelManager::StopAnim()
 {
     playingAnim       = false;
     animFinished      = false;
@@ -533,9 +533,9 @@ void ModelManager::stopAnim()
     updateTimer->stop();
 }
 
-void ModelManager::processAnimation()
+void ModelManager::ProcessAnimation()
 {
-    //bool changed = false;
+    // bool changed = false;
 
     if (currentFrame < viewer->model.frames.count()) {
         viewer->animTimer += viewer->animSpeed;
@@ -546,7 +546,7 @@ void ModelManager::processAnimation()
             if (currentFrame >= viewer->model.frames.count())
                 currentFrame = viewer->loopIndex;
 
-            //changed = true;
+            // changed = true;
         }
     }
 
@@ -554,7 +554,7 @@ void ModelManager::processAnimation()
     viewer->repaint();
 }
 
-void ModelManager::setupUI(bool initialSetup)
+void ModelManager::SetupUI(bool initialSetup)
 {
     ui->frameList->blockSignals(true);
 
@@ -613,7 +613,7 @@ void ModelManager::setupUI(bool initialSetup)
     ui->frameList->blockSignals(false);
 }
 
-void ModelManager::loadModel(QString filePath, bool usev5Format)
+void ModelManager::LoadModel(QString filePath, bool usev5Format)
 {
     SetStatus("Loading model...", true);
 
@@ -639,10 +639,10 @@ void ModelManager::loadModel(QString filePath, bool usev5Format)
 
     appConfig.addRecentFile(usev5Format ? ENGINE_v5 : ENGINE_v4, TOOL_MODELMANAGER, filePath,
                             QList<QString>{});
-    setupUI();
+    SetupUI();
 }
 
-bool ModelManager::saveModel(bool forceSaveAs)
+bool ModelManager::SaveModel(bool forceSaveAs)
 {
 
     if (forceSaveAs || viewer->model.filePath.isEmpty()) {

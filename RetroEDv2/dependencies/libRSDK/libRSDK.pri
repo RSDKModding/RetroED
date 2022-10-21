@@ -15,7 +15,7 @@ HEADERS +=    \
     $$PWD/formats/RSDKv1/backgroundv1.hpp \
     $$PWD/formats/RSDKv1/characterlistv1.hpp \
     $$PWD/formats/RSDKv1/chunksv1.hpp \
-    $$PWD/formats/RSDKv1/datafilev1.hpp \
+    $$PWD/formats/RSDKv1/datapackv1.hpp \
     $$PWD/formats/RSDKv1/gfxv1.hpp \
     $$PWD/formats/RSDKv1/savefilev1.hpp \
     $$PWD/formats/RSDKv1/scenev1.hpp \
@@ -27,7 +27,7 @@ HEADERS +=    \
     $$PWD/formats/RSDKv2/backgroundv2.hpp \
     $$PWD/formats/RSDKv2/bytecodev2.hpp \
     $$PWD/formats/RSDKv2/chunksv2.hpp \
-    $$PWD/formats/RSDKv2/datafilev2.hpp \
+    $$PWD/formats/RSDKv2/datapackv2.hpp \
     $$PWD/formats/RSDKv2/gameconfigv2.hpp \
     $$PWD/formats/RSDKv2/gfxv2.hpp \
     $$PWD/formats/RSDKv2/scenev2.hpp \
@@ -38,7 +38,7 @@ HEADERS +=    \
     $$PWD/formats/RSDKv3/backgroundv3.hpp \
     $$PWD/formats/RSDKv3/bytecodev3.hpp \
     $$PWD/formats/RSDKv3/chunksv3.hpp \
-    $$PWD/formats/RSDKv3/datafilev3.hpp \
+    $$PWD/formats/RSDKv3/datapackv3.hpp \
     $$PWD/formats/RSDKv3/gameconfigv3.hpp \
     $$PWD/formats/RSDKv3/gfxv3.hpp \
     $$PWD/formats/RSDKv3/scenev3.hpp \
@@ -52,7 +52,7 @@ HEADERS +=    \
     $$PWD/formats/RSDKv4/backgroundv4.hpp \
     $$PWD/formats/RSDKv4/bytecodev4.hpp \
     $$PWD/formats/RSDKv4/chunksv4.hpp \
-    $$PWD/formats/RSDKv4/datafilev4.hpp \
+    $$PWD/formats/RSDKv4/datapackv4.hpp \
     $$PWD/formats/RSDKv4/gameconfigv4.hpp \
     $$PWD/formats/RSDKv4/scenev4.hpp \
     $$PWD/formats/RSDKv4/stageconfigv4.hpp \
@@ -60,7 +60,7 @@ HEADERS +=    \
     $$PWD/formats/RSDKv4/modelv4.hpp \
     $$PWD/formats/RSDKv4/savefilev4.hpp \
     $$PWD/formats/RSDKv5/animationv5.hpp \
-    $$PWD/formats/RSDKv5/datafilev5.hpp \
+    $$PWD/formats/RSDKv5/datapackv5.hpp \
     $$PWD/formats/RSDKv5/gameconfigv5.hpp \
     $$PWD/formats/RSDKv5/modelv5.hpp \
     $$PWD/formats/RSDKv5/palettev5.hpp \
@@ -91,7 +91,7 @@ HEADERS +=    \
 SOURCES +=  \
     $$PWD/formats/RSDKv1/animationv1.cpp \
     $$PWD/formats/RSDKv1/backgroundv1.cpp \
-    $$PWD/formats/RSDKv1/datafilev1.cpp \
+    $$PWD/formats/RSDKv1/datapackv1.cpp \
     $$PWD/formats/RSDKv1/gfxv1.cpp \
     $$PWD/formats/RSDKv1/scenev1.cpp \
     $$PWD/formats/RSDKv1/scriptv1.cpp \
@@ -99,7 +99,7 @@ SOURCES +=  \
     $$PWD/formats/RSDKv2/animationv2.cpp \
     $$PWD/formats/RSDKv2/backgroundv2.cpp \
     $$PWD/formats/RSDKv2/bytecodev2.cpp \
-    $$PWD/formats/RSDKv2/datafilev2.cpp \
+    $$PWD/formats/RSDKv2/datapackv2.cpp \
     $$PWD/formats/RSDKv2/gameconfigv2.cpp \
     $$PWD/formats/RSDKv2/gfxv2.cpp \
     $$PWD/formats/RSDKv2/scenev2.cpp \
@@ -109,7 +109,7 @@ SOURCES +=  \
     $$PWD/formats/RSDKv3/arccontainerv3.cpp \
     $$PWD/formats/RSDKv3/backgroundv3.cpp \
     $$PWD/formats/RSDKv3/bytecodev3.cpp \
-    $$PWD/formats/RSDKv3/datafilev3.cpp \
+    $$PWD/formats/RSDKv3/datapackv3.cpp \
     $$PWD/formats/RSDKv3/gameconfigv3.cpp \
     $$PWD/formats/RSDKv3/gfxv3.cpp \
     $$PWD/formats/RSDKv3/scenev3.cpp \
@@ -118,13 +118,13 @@ SOURCES +=  \
     $$PWD/formats/RSDKv4/animationv4.cpp \
     $$PWD/formats/RSDKv4/backgroundv4.cpp \
     $$PWD/formats/RSDKv4/bytecodev4.cpp \
-    $$PWD/formats/RSDKv4/datafilev4.cpp \
+    $$PWD/formats/RSDKv4/datapackv4.cpp \
     $$PWD/formats/RSDKv4/gameconfigv4.cpp \
     $$PWD/formats/RSDKv4/scenev4.cpp \
     $$PWD/formats/RSDKv4/stageconfigv4.cpp \
     $$PWD/formats/RSDKv4/modelv4.cpp \
     $$PWD/formats/RSDKv5/animationv5.cpp \
-    $$PWD/formats/RSDKv5/datafilev5.cpp \
+    $$PWD/formats/RSDKv5/datapackv5.cpp \
     $$PWD/formats/RSDKv5/gameconfigv5.cpp \
     $$PWD/formats/RSDKv5/modelv5.cpp \
     $$PWD/formats/RSDKv5/replayv5.cpp \

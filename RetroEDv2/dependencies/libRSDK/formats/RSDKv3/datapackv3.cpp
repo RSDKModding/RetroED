@@ -1,6 +1,6 @@
 #include "libRSDK.hpp"
 
-#include "datafilev3.hpp"
+#include "datapackv3.hpp"
 
 QString readDataFileDirNamev3(Reader &reader)
 {
@@ -38,7 +38,7 @@ void writeDataFileNamev3(Writer &writer, QString string)
         writer.write((byte)((byte)string[i].toLatin1() ^ 0xFF));
 }
 
-void RSDKv3::Datafile::read(Reader &reader)
+void RSDKv3::Datapack::read(Reader &reader)
 {
     filePath = reader.filePath;
 
@@ -69,7 +69,7 @@ void RSDKv3::Datafile::read(Reader &reader)
     }
 }
 
-void RSDKv3::Datafile::write(Writer &writer)
+void RSDKv3::Datapack::write(Writer &writer)
 {
     filePath = writer.filePath;
 
@@ -123,14 +123,14 @@ void RSDKv3::Datafile::write(Writer &writer)
     writer.flush();
 }
 
-void RSDKv3::Datafile::FileInfo::read(Reader &reader)
+void RSDKv3::Datapack::FileInfo::read(Reader &reader)
 {
     fileName = readDataFileNamev3(reader);
     fileSize = reader.read<uint>();
     fileData = decrypt(reader.readByteArray(fileSize), false);
 }
 
-void RSDKv3::Datafile::FileInfo::write(Writer &writer)
+void RSDKv3::Datapack::FileInfo::write(Writer &writer)
 {
     fileName = fileName.replace('\\', '/');
     fileSize = fileData.count();
@@ -140,13 +140,13 @@ void RSDKv3::Datafile::FileInfo::write(Writer &writer)
     writer.write(decrypt(fileData, true));
 }
 
-void RSDKv3::Datafile::DirInfo::read(Reader &reader)
+void RSDKv3::Datapack::DirInfo::read(Reader &reader)
 {
     directory   = readDataFileDirNamev3(reader);
     startOffset = reader.read<int>();
 }
 
-void RSDKv3::Datafile::DirInfo::write(Writer &writer)
+void RSDKv3::Datapack::DirInfo::write(Writer &writer)
 {
     if (!directory.endsWith('/'))
         directory += "/";
@@ -155,7 +155,7 @@ void RSDKv3::Datafile::DirInfo::write(Writer &writer)
     writer.write(startOffset);
 }
 
-QByteArray RSDKv3::Datafile::FileInfo::decrypt(QByteArray data, bool encrypting)
+QByteArray RSDKv3::Datapack::FileInfo::decrypt(QByteArray data, bool encrypting)
 {
     eKeyNo   = ((int)fileSize & 0x1FC) >> 2;
     eKeyPosB = (eKeyNo % 9) + 1;

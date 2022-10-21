@@ -76,7 +76,7 @@ public:
     explicit PaletteEditor(QString filepath = "", byte type = 0xFF, QWidget *parent = nullptr);
     ~PaletteEditor();
 
-    void savePalette(QString filepath);
+    void SavePalette(QString filepath);
 
     bool event(QEvent *event) override;
 
@@ -112,11 +112,11 @@ protected:
 
 private:
     PaletteWidget *widget;
-    void init();
-    void reinit();
+    void InitEditor();
+    void ReinitEditor();
 
-    void load(QString path, byte type);
-    void switchBank(int id);
+    void LoadPalette(QString path, byte type);
+    void SwitchBank(int id);
 
     Ui::PaletteEditor *ui;
 
@@ -136,5 +136,3 @@ private:
     bool modified    = false;
     QString tabTitle = "Palette Editor";
 };
-
-

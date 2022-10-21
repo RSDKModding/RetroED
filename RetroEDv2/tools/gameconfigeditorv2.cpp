@@ -548,7 +548,8 @@ GameConfigEditorv2::GameConfigEditorv2(QString path, QWidget *parent)
                 });
 
                 connect(ui->scnFolder, &QLineEdit::editingFinished, [this, c]() {
-                    gameConfig.stageLists[c.parent().row()].scenes[c.row()].folder = ui->scnFolder->text();
+                    gameConfig.stageLists[c.parent().row()].scenes[c.row()].folder =
+                        ui->scnFolder->text();
                     DoAction("Changed Scene Folder");
                 });
 
@@ -1083,7 +1084,7 @@ bool GameConfigEditorv2::event(QEvent *event)
         case QEvent::Close:
             if (modified) {
                 bool cancelled = false;
-                if (MainWindow::showCloseWarning(this, &cancelled)) {
+                if (MainWindow::ShowCloseWarning(this, &cancelled)) {
                     if (gameConfig.filePath.isEmpty()) {
                         QFileDialog filedialog(this, tr("Open GameConfig"), "",
                                                tr("RSDKv2 GameConfig files (GameConfig*.bin)"));

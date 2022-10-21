@@ -9,16 +9,16 @@ PaletteEditor::PaletteEditor(QString filePath, byte type, QWidget *parent)
     : QDialog(parent), widget(new PaletteWidget(this)), ui(new Ui::PaletteEditor)
 {
     ui->setupUi(this);
-    init();
+    InitEditor();
 
     if (QFile::exists(filePath)) {
-        load(filePath, type);
+        LoadPalette(filePath, type);
     }
 }
 
 PaletteEditor::~PaletteEditor() {}
 
-void PaletteEditor::init()
+void PaletteEditor::InitEditor()
 {
     setWindowTitle("Palette Editor");
     widget->palette = &palette;
@@ -54,8 +54,8 @@ void PaletteEditor::init()
 
                 // disconnect(ui->importPal, nullptr, nullptr, nullptr);
 
-                load(fileName, type);
-                init();
+                LoadPalette(fileName, type);
+                InitEditor();
             }
         });
 
@@ -76,7 +76,7 @@ void PaletteEditor::init()
                                         ui->bank5, ui->bank6, ui->bank7, ui->bank8 };
 
         for (int b = 0; b < 8; ++b) {
-            connect(bankSwitches[b], &QToolButton::clicked, [this, b] { switchBank(b); });
+            connect(bankSwitches[b], &QToolButton::clicked, [this, b] { SwitchBank(b); });
         }
 
         ui->widgetLayout->addWidget(widget, 1);
@@ -85,9 +85,9 @@ void PaletteEditor::init()
     firstInit = false;
 }
 
-void PaletteEditor::reinit() { palette.clear(); }
+void PaletteEditor::ReinitEditor() { palette.clear(); }
 
-void PaletteEditor::load(QString path, byte type)
+void PaletteEditor::LoadPalette(QString path, byte type)
 {
     QToolButton *bankSwitches[] = { ui->bank1, ui->bank2, ui->bank3, ui->bank4,
                                     ui->bank5, ui->bank6, ui->bank7, ui->bank8 };
@@ -120,7 +120,7 @@ void PaletteEditor::load(QString path, byte type)
             else
                 gameConfigv5 = RSDKv5::GameConfig(path, type == PALTYPE_GAMECONFIGv5_rev01);
 
-            switchBank(0);
+            SwitchBank(0);
             bankSwitches[0]->setDown(true);
             for (int b = 0; b < 8; ++b) bankSwitches[b]->setDisabled(false);
             break;
@@ -166,7 +166,7 @@ void PaletteEditor::load(QString path, byte type)
     ClearActions();
 }
 
-void PaletteEditor::switchBank(int id)
+void PaletteEditor::SwitchBank(int id)
 {
     bankID = id;
 
@@ -429,7 +429,7 @@ bool PaletteEditor::event(QEvent *event)
 
     if (event->type() == (QEvent::Type)RE_EVENT_NEW) {
         palette.clear();
-        reinit();
+        ReinitEditor();
         ClearActions();
         return true;
     }
@@ -439,13 +439,13 @@ bool PaletteEditor::event(QEvent *event)
                                tr(types.join(";;").toStdString().c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
-            reinit();
+            ReinitEditor();
 
             SetStatus("Loading palette...", true);
             QString filepath = filedialog.selectedFiles()[0];
             tabTitle         = Utils::getFilenameAndFolder(filepath);
             int type         = typesList.indexOf(filedialog.selectedNameFilter());
-            load(filepath, type);
+            LoadPalette(filepath, type);
             SetStatus("Loaded palette from " + tabTitle);
 
             appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
@@ -460,7 +460,7 @@ bool PaletteEditor::event(QEvent *event)
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
                 QString filepath = filedialog.selectedFiles()[0];
-                savePalette(filepath);
+                SavePalette(filepath);
 
                 ClearActions();
                 appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
@@ -469,7 +469,7 @@ bool PaletteEditor::event(QEvent *event)
         }
         else {
             QString filepath = filePath;
-            savePalette(filepath);
+            SavePalette(filepath);
 
             ClearActions();
             appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
@@ -494,7 +494,7 @@ bool PaletteEditor::event(QEvent *event)
         if (filedialog.exec() == QDialog::Accepted) {
 
             QString filepath = filedialog.selectedFiles()[0];
-            savePalette(filepath);
+            SavePalette(filepath);
 
             ClearActions();
             appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
@@ -516,14 +516,14 @@ bool PaletteEditor::event(QEvent *event)
         case QEvent::Close:
             if (modified) {
                 bool cancelled = false;
-                if (MainWindow::showCloseWarning(this, &cancelled)) {
+                if (MainWindow::ShowCloseWarning(this, &cancelled)) {
                     if (!QFile::exists(filePath)) {
                         QFileDialog filedialog(this, tr("Save Palette"), "",
                                                tr(typesList[palType].toStdString().c_str()));
                         filedialog.setAcceptMode(QFileDialog::AcceptSave);
                         if (filedialog.exec() == QDialog::Accepted) {
                             QString filepath = filedialog.selectedFiles()[0];
-                            savePalette(filepath);
+                            SavePalette(filepath);
 
                             ClearActions();
                             appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath,
@@ -533,7 +533,7 @@ bool PaletteEditor::event(QEvent *event)
                     }
                     else {
                         QString filepath = filePath;
-                        savePalette(filepath);
+                        SavePalette(filepath);
 
                         ClearActions();
                         appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
@@ -551,7 +551,7 @@ bool PaletteEditor::event(QEvent *event)
     return QWidget::event(event);
 }
 
-void PaletteEditor::savePalette(QString filepath)
+void PaletteEditor::SavePalette(QString filepath)
 {
     SetStatus("Saving palette...", true);
     switch (palType) {

@@ -25,13 +25,13 @@ void SceneScrollPropertiesv5::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *
         info->parallaxFactor = v;
 
         if (v5Editor)
-            v5Editor->createScrollList(true);
+            v5Editor->CreateScrollList(true);
     });
     connect(ui->scrollSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [info](double v) {
         info->scrollSpeed = v;
 
         if (v5Editor)
-            v5Editor->createScrollList(true);
+            v5Editor->CreateScrollList(true);
     });
     connect(ui->useDeform, &QCheckBox::toggled, [info](bool c) { info->deform = c; });
 

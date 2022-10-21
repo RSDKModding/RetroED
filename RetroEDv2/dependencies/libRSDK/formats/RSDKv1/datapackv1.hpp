@@ -3,7 +3,7 @@
 namespace RSDKv1
 {
 
-class Datafile
+class Datapack
 {
 public:
     class DirInfo
@@ -35,9 +35,9 @@ public:
         QByteArray fileData;
     };
 
-    Datafile() {}
-    Datafile(QString filename) { read(filename); }
-    Datafile(Reader &reader) { read(reader); }
+    Datapack() {}
+    Datapack(QString filename) { read(filename); }
+    Datapack(Reader &reader) { read(reader); }
 
     inline void read(QString filename)
     {
