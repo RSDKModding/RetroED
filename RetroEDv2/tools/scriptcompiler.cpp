@@ -566,7 +566,7 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
             case ENGINE_v1: {
                 QString scrName = Utils::getFilenameAndFolder(ui->trScript->text());
                 SetStatus("Compiling " + scrName + "...", true);
-                compilerv1.parseScriptFile(ui->trScript->text());
+                compilerv1.ParseScriptFile(ui->trScript->text());
 
                 if (compilerv1.scriptError) {
                     PrintLog(compilerv1.errorMsg);

@@ -150,7 +150,7 @@ AliasInfov1 aliases_v1[ALIAS_COUNT_v1] = {
     AliasInfov1("PRIORITY_ACTIVE", "2"),
 };
 
-int Compilerv1::findStringToken(QString &string, QString token, char stopID)
+int Compilerv1::FindStringToken(QString &string, QString token, char stopID)
 {
     int tokenCharID  = 0;
     bool tokenMatch  = true;
@@ -177,9 +177,9 @@ int Compilerv1::findStringToken(QString &string, QString token, char stopID)
     return -1;
 }
 
-void Compilerv1::checkAliasText(QString &text)
+void Compilerv1::CheckAliasText(QString &text)
 {
-    if (findStringToken(text, "#alias", 1))
+    if (FindStringToken(text, "#alias", 1))
         return;
     int textPos    = 6;
     int aliasMatch = 0;
@@ -201,7 +201,7 @@ void Compilerv1::checkAliasText(QString &text)
     }
     ++aliasCount;
 }
-void Compilerv1::convertArithmaticSyntax(QString &text)
+void Compilerv1::ConvertArithmaticSyntax(QString &text)
 {
     int token    = 0;
     int offset   = 0;
@@ -209,7 +209,7 @@ void Compilerv1::convertArithmaticSyntax(QString &text)
     QString dest = "";
 
     for (int i = FUNC_EQUAL; i < FUNC_UNUSEDA; ++i) {
-        findID = findStringToken(text, scriptEvaluationTokens_v1[i - 1], 1);
+        findID = FindStringToken(text, scriptEvaluationTokens_v1[i - 1], 1);
         if (findID > -1) {
             offset = findID;
             token  = i;
@@ -230,9 +230,9 @@ void Compilerv1::convertArithmaticSyntax(QString &text)
         text = dest;
     }
 }
-bool Compilerv1::convertSwitchStatement(QString &text)
+bool Compilerv1::ConvertSwitchStatement(QString &text)
 {
-    if (findStringToken(text, "switch", 1))
+    if (FindStringToken(text, "switch", 1))
         return false;
     QString switchText = "";
     switchText         = "switch(";
@@ -241,7 +241,7 @@ bool Compilerv1::convertSwitchStatement(QString &text)
             switchText += text[i];
     }
     switchText += ",";
-    appendIntegerToString(switchText, 0);
+    AppendIntegerToString(switchText, 0);
     switchText += ")";
     text = switchText;
 
@@ -254,7 +254,7 @@ bool Compilerv1::convertSwitchStatement(QString &text)
 
     return true;
 }
-void Compilerv1::convertFunctionText(QString &text)
+void Compilerv1::ConvertFunctionText(QString &text)
 {
     RSDKv1::Script::OpcodeInfo opcodeInfo;
     QString strBuffer = "";
@@ -333,13 +333,13 @@ void Compilerv1::convertFunctionText(QString &text)
             // Eg: TempValue0 = FX_SCALE
             for (int a = 0; a < aliasCount; ++a) {
                 if (funcName == aliases_v1[a].name) {
-                    copyAliasStr(funcName, aliases_v1[a].value, 0);
-                    if (findStringToken(aliases_v1[a].value, "[", 1) > -1)
-                        copyAliasStr(strBuffer, aliases_v1[a].value, 1);
+                    CopyAliasStr(funcName, aliases_v1[a].value, 0);
+                    if (FindStringToken(aliases_v1[a].value, "[", 1) > -1)
+                        CopyAliasStr(strBuffer, aliases_v1[a].value, 1);
                 }
             }
 
-            if (convertStringToInteger(funcName, &value)) {
+            if (ConvertStringToInteger(funcName, &value)) {
                 param.isVariable = false;
                 param.value      = value;
             }
@@ -358,7 +358,7 @@ void Compilerv1::convertFunctionText(QString &text)
                     if (strBuffer[0] == '+')
                         strBuffer.remove(0, 1);
 
-                    if (convertStringToInteger(strBuffer, &value) == 1) {
+                    if (ConvertStringToInteger(strBuffer, &value) == 1) {
                         param.arrayIndex = value;
                     }
                     else {
@@ -394,10 +394,10 @@ void Compilerv1::convertFunctionText(QString &text)
         scriptCodePos += opcodeInfo.size();
     }
 }
-bool Compilerv1::readLabel(QString &text)
+bool Compilerv1::ReadLabel(QString &text)
 {
     QString labelText = "";
-    if (!findStringToken(text, "LABEL", 1)) {
+    if (!FindStringToken(text, "LABEL", 1)) {
         int textPos = 5;
         while (textPos < text.length()) {
             if (text[textPos] != ':')
@@ -415,7 +415,7 @@ bool Compilerv1::readLabel(QString &text)
         label.lineID        = subLineID;
 
         int val = 0;
-        if (convertStringToInteger(labelText, &val))
+        if (ConvertStringToInteger(labelText, &val))
             label.id = val;
 
         if (scriptSub >= 0)
@@ -426,12 +426,11 @@ bool Compilerv1::readLabel(QString &text)
     }
     return false;
 }
-
-bool Compilerv1::readSwitchCase(QString &text)
+bool Compilerv1::ReadSwitchCase(QString &text)
 {
     QString caseText = "";
-    if (findStringToken(text, "case", 1)) {
-        if (findStringToken(text, "default", 1)) {
+    if (FindStringToken(text, "case", 1)) {
+        if (FindStringToken(text, "default", 1)) {
             return false;
         }
         else {
@@ -457,7 +456,7 @@ bool Compilerv1::readSwitchCase(QString &text)
         }
 
         int caseID = 0;
-        if (!convertStringToInteger(caseText, &caseID)) {
+        if (!ConvertStringToInteger(caseText, &caseID)) {
             PrintLog(QString("WARNING: unable to convert case string \"%1\" to int, on line %2")
                          .arg(caseText)
                          .arg(scriptLineID));
@@ -473,8 +472,8 @@ bool Compilerv1::readSwitchCase(QString &text)
     }
     return false;
 }
-void Compilerv1::appendIntegerToString(QString &text, int value) { text += QString::number(value); }
-bool Compilerv1::convertStringToInteger(QString &text, int *value)
+void Compilerv1::AppendIntegerToString(QString &text, int value) { text += QString::number(value); }
+bool Compilerv1::ConvertStringToInteger(QString &text, int *value)
 {
     *value  = 0;
     bool ok = false;
@@ -506,7 +505,7 @@ bool Compilerv1::convertStringToInteger(QString &text, int *value)
 
     return ok;
 }
-void Compilerv1::copyAliasStr(QString &dest, QString text, bool arrayIndex)
+void Compilerv1::CopyAliasStr(QString &dest, QString text, bool arrayIndex)
 {
     int textPos     = 0;
     bool arrayValue = false;
@@ -545,7 +544,7 @@ void Compilerv1::copyAliasStr(QString &dest, QString text, bool arrayIndex)
     }
 }
 
-void Compilerv1::parseScriptFile(QString scriptName)
+void Compilerv1::ParseScriptFile(QString scriptName)
 {
     // this->inEditor = inEditor;
 
@@ -676,7 +675,7 @@ void Compilerv1::parseScriptFile(QString scriptName)
                 case PARSEMODE_SCOPELESS:
                     if (!semiFlag)
                         ++scriptLineID;
-                    checkAliasText(scriptText);
+                    CheckAliasText(scriptText);
 
                     if (scriptText == "subMain") {
                         parseMode     = PARSEMODE_FUNCTION;
@@ -725,11 +724,11 @@ void Compilerv1::parseScriptFile(QString scriptName)
                             scriptSub = -1;
                         }
                         else {
-                            convertSwitchStatement(scriptText);
-                            if (!readLabel(scriptText)) {
-                                convertArithmaticSyntax(scriptText);
-                                if (!readSwitchCase(scriptText)) {
-                                    convertFunctionText(scriptText);
+                            ConvertSwitchStatement(scriptText);
+                            if (!ReadLabel(scriptText)) {
+                                ConvertArithmaticSyntax(scriptText);
+                                if (!ReadSwitchCase(scriptText)) {
+                                    ConvertFunctionText(scriptText);
                                     if (scriptError) {
                                         errorScr  = scriptName;
                                         parseMode = PARSEMODE_ERROR;
@@ -752,4 +751,4 @@ void Compilerv1::parseScriptFile(QString scriptName)
     }
 }
 
-void Compilerv1::clearScriptData() {}
+void Compilerv1::ClearScriptData() {}

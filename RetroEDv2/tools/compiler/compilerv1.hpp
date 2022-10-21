@@ -33,26 +33,26 @@ public:
 
     enum ScriptSubs { SUB_MAIN, SUB_PLAYERINTERACTION, SUB_DRAW, SUB_STARTUP, SUB_RSDK };
 
-    void parseScriptFile(QString scriptName);
+    void ParseScriptFile(QString scriptName);
 
-    void clearScriptData();
+    void ClearScriptData();
 
     RSDKv1::Script script;
 
     Compilerv1() {}
 
 private:
-    int findStringToken(QString &string, QString token, char stopID);
+    int FindStringToken(QString &string, QString token, char stopID);
 
-    void checkAliasText(QString &text);
-    void convertArithmaticSyntax(QString &text);
-    bool convertSwitchStatement(QString &text);
-    void convertFunctionText(QString &text);
-    bool readLabel(QString &text);
-    bool readSwitchCase(QString &text);
-    void appendIntegerToString(QString &text, int value);
-    bool convertStringToInteger(QString &text, int *value);
-    void copyAliasStr(QString &dest, QString text, bool arrayIndex);
+    void CheckAliasText(QString &text);
+    void ConvertArithmaticSyntax(QString &text);
+    bool ConvertSwitchStatement(QString &text);
+    void ConvertFunctionText(QString &text);
+    bool ReadLabel(QString &text);
+    bool ReadSwitchCase(QString &text);
+    void AppendIntegerToString(QString &text, int value);
+    bool ConvertStringToInteger(QString &text, int *value);
+    void CopyAliasStr(QString &dest, QString text, bool arrayIndex);
 
     int scriptSub = 0;
 
