@@ -1727,6 +1727,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         ui->animationList->blockSignals(false);
 
+        currentAnim = c;
         SetupUI();
 
         ui->animationList->blockSignals(true);
@@ -2061,13 +2062,19 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         int c = ui->animationList->currentRow() + 1;
         if (currentAnim < animFile.animations.count()) {
             ui->animationList->blockSignals(true);
+
             FormatHelpers::Animation::AnimationEntry anim = animFile.animations[currentAnim];
             animFile.animations.insert(c, anim);
+
             auto *item = new QListWidgetItem();
             item->setText(anim.name);
+
             ui->animationList->insertItem(c, item);
             ui->animationList->blockSignals(false);
+
+            currentAnim = c;
             ui->animationList->setCurrentRow(c);
+
             DoAction("Copied animation", true);
         }
     });
