@@ -409,22 +409,21 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                     }
                 }
                 else {
-                    uint id                        = ui->hitboxID->currentIndex();
-                    auto &hitbox                   = animFile.hitboxes[c];
-                    hitbox.hitboxes[id + 0].left   = (short)v;
-                    hitbox.hitboxes[id + 2].top    = (short)v;
-                    hitbox.hitboxes[id + 4].right  = (short)-v;
-                    hitbox.hitboxes[id + 6].bottom = (short)-v;
+                    uint id                      = ui->hitboxID->currentIndex();
+                    auto &hitbox                 = animFile.hitboxes[c];
+                    hitbox.hitboxes[id + 0].left = (short)v;
 
-                    QString name = QString("(%1, %2, %3, %4)")
-                                       .arg(hitbox.hitboxes[id].left)
-                                       .arg(hitbox.hitboxes[id].top)
-                                       .arg(hitbox.hitboxes[id].right)
-                                       .arg(hitbox.hitboxes[id].bottom);
-                    ui->hitboxList->blockSignals(true);
-                    ui->hitboxList->item(c)->setText(name);
-                    ui->hitboxList->blockSignals(false);
-                    ui->hitboxType->setItemText(c, name);
+                    if (id == 0) {
+                        QString name = QString("(%1, %2, %3, %4)")
+                                           .arg(hitbox.hitboxes[id].left)
+                                           .arg(hitbox.hitboxes[id].top)
+                                           .arg(hitbox.hitboxes[id].right)
+                                           .arg(hitbox.hitboxes[id].bottom);
+                        ui->hitboxList->blockSignals(true);
+                        ui->hitboxList->item(c)->setText(name);
+                        ui->hitboxList->blockSignals(false);
+                        ui->hitboxType->setItemText(c, name);
+                    }
 
                     UpdateView();
                     DoAction("Changed hitbox left", true);
@@ -440,22 +439,21 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                     }
                 }
                 else {
-                    uint id                        = ui->hitboxID->currentIndex();
-                    auto &hitbox                   = animFile.hitboxes[c];
-                    hitbox.hitboxes[id + 0].top    = (short)v;
-                    hitbox.hitboxes[id + 2].right  = (short)-v;
-                    hitbox.hitboxes[id + 4].bottom = (short)-v;
-                    hitbox.hitboxes[id + 6].left   = (short)v;
+                    uint id                     = ui->hitboxID->currentIndex();
+                    auto &hitbox                = animFile.hitboxes[c];
+                    hitbox.hitboxes[id + 0].top = (short)v;
 
-                    QString name = QString("(%1, %2, %3, %4)")
-                                       .arg(hitbox.hitboxes[id].left)
-                                       .arg(hitbox.hitboxes[id].top)
-                                       .arg(hitbox.hitboxes[id].right)
-                                       .arg(hitbox.hitboxes[id].bottom);
-                    ui->hitboxList->blockSignals(true);
-                    ui->hitboxList->item(c)->setText(name);
-                    ui->hitboxList->blockSignals(false);
-                    ui->hitboxType->setItemText(c, name);
+                    if (id == 0) {
+                        QString name = QString("(%1, %2, %3, %4)")
+                                           .arg(hitbox.hitboxes[id].left)
+                                           .arg(hitbox.hitboxes[id].top)
+                                           .arg(hitbox.hitboxes[id].right)
+                                           .arg(hitbox.hitboxes[id].bottom);
+                        ui->hitboxList->blockSignals(true);
+                        ui->hitboxList->item(c)->setText(name);
+                        ui->hitboxList->blockSignals(false);
+                        ui->hitboxType->setItemText(c, name);
+                    }
 
                     UpdateView();
                     DoAction("Changed hitbox top", true);
@@ -471,22 +469,21 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                     }
                 }
                 else {
-                    uint id                        = ui->hitboxID->currentIndex();
-                    auto &hitbox                   = animFile.hitboxes[c];
-                    hitbox.hitboxes[id + 0].right  = (short)v;
-                    hitbox.hitboxes[id + 2].bottom = (short)v;
-                    hitbox.hitboxes[id + 4].left   = (short)-v;
-                    hitbox.hitboxes[id + 6].top    = (short)-v;
+                    uint id                       = ui->hitboxID->currentIndex();
+                    auto &hitbox                  = animFile.hitboxes[c];
+                    hitbox.hitboxes[id + 0].right = (short)v;
 
-                    QString name = QString("(%1, %2, %3, %4)")
-                                       .arg(hitbox.hitboxes[id].left)
-                                       .arg(hitbox.hitboxes[id].top)
-                                       .arg(hitbox.hitboxes[id].right)
-                                       .arg(hitbox.hitboxes[id].bottom);
-                    ui->hitboxList->blockSignals(true);
-                    ui->hitboxList->item(c)->setText(name);
-                    ui->hitboxList->blockSignals(false);
-                    ui->hitboxType->setItemText(c, name);
+                    if (id == 0) {
+                        QString name = QString("(%1, %2, %3, %4)")
+                                           .arg(hitbox.hitboxes[id].left)
+                                           .arg(hitbox.hitboxes[id].top)
+                                           .arg(hitbox.hitboxes[id].right)
+                                           .arg(hitbox.hitboxes[id].bottom);
+                        ui->hitboxList->blockSignals(true);
+                        ui->hitboxList->item(c)->setText(name);
+                        ui->hitboxList->blockSignals(false);
+                        ui->hitboxType->setItemText(c, name);
+                    }
 
                     UpdateView();
                     DoAction("Changed hitbox right", true);
@@ -505,19 +502,18 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                     uint id                        = ui->hitboxID->currentIndex();
                     auto &hitbox                   = animFile.hitboxes[c];
                     hitbox.hitboxes[id + 0].bottom = (short)v;
-                    hitbox.hitboxes[id + 2].left   = (short)-v;
-                    hitbox.hitboxes[id + 4].top    = (short)-v;
-                    hitbox.hitboxes[id + 6].right  = (short)v;
 
-                    QString name = QString("(%1, %2, %3, %4)")
-                                       .arg(hitbox.hitboxes[id].left)
-                                       .arg(hitbox.hitboxes[id].top)
-                                       .arg(hitbox.hitboxes[id].right)
-                                       .arg(hitbox.hitboxes[id].bottom);
-                    ui->hitboxList->blockSignals(true);
-                    ui->hitboxList->item(c)->setText(name);
-                    ui->hitboxList->blockSignals(false);
-                    ui->hitboxType->setItemText(c, name);
+                    if (id == 0) {
+                        QString name = QString("(%1, %2, %3, %4)")
+                                           .arg(hitbox.hitboxes[id].left)
+                                           .arg(hitbox.hitboxes[id].top)
+                                           .arg(hitbox.hitboxes[id].right)
+                                           .arg(hitbox.hitboxes[id].bottom);
+                        ui->hitboxList->blockSignals(true);
+                        ui->hitboxList->item(c)->setText(name);
+                        ui->hitboxList->blockSignals(false);
+                        ui->hitboxType->setItemText(c, name);
+                    }
 
                     UpdateView();
                     DoAction("Changed hitbox bottom", true);
@@ -2442,8 +2438,8 @@ void AnimationEditor::ProcessAnimation()
             case ENGINE_v3:
             case ENGINE_v2:
                 animTimer += animFile.animations[currentAnim].speed;
-                while (animTimer > 0xF0) {
-                    animTimer -= 0xF0;
+                while (animTimer > 240) {
+                    animTimer -= 240;
                     ++currentFrame;
 
                     int frameCount = FrameCount();
@@ -2634,6 +2630,72 @@ void AnimationEditor::LoadAnim(QString filepath, int aniType)
     SetStatus("Loaded animation file " + tabTitle); // done!
 }
 
+void AnimationEditor::RotateHitboxes()
+{
+    if (aniType == ENGINE_v1 || ENGINE_v5)
+        return;
+
+    auto hitboxes = animFile.hitboxes;
+
+    for (int h = 0; h < animFile.hitboxes.count(); ++h) {
+        // Outer box
+        if (true) {
+            // LWall
+            if (true) {
+                int store                                 = -animFile.hitboxes[h].hitboxes[2 + 0].left;
+                animFile.hitboxes[h].hitboxes[2 + 0].left = -animFile.hitboxes[h].hitboxes[2 + 0].right;
+                animFile.hitboxes[h].hitboxes[2 + 0].right = store;
+            }
+
+            // Roof
+            if (true) {
+                int store                                = -animFile.hitboxes[h].hitboxes[4 + 0].top;
+                animFile.hitboxes[h].hitboxes[4 + 0].top = -animFile.hitboxes[h].hitboxes[4 + 0].bottom;
+                animFile.hitboxes[h].hitboxes[4 + 0].bottom = store;
+            }
+
+            // RWall
+            if (true) {
+                int store                                 = -animFile.hitboxes[h].hitboxes[6 + 0].left;
+                animFile.hitboxes[h].hitboxes[6 + 0].left = -animFile.hitboxes[h].hitboxes[6 + 0].right;
+                animFile.hitboxes[h].hitboxes[6 + 0].right = store;
+
+                store                                    = -animFile.hitboxes[h].hitboxes[6 + 0].top;
+                animFile.hitboxes[h].hitboxes[6 + 0].top = -animFile.hitboxes[h].hitboxes[6 + 0].bottom;
+                animFile.hitboxes[h].hitboxes[6 + 0].bottom = store;
+            }
+        }
+
+        // Inner box
+        if (true) {
+            // LWall
+            if (true) {
+                int store                                 = -animFile.hitboxes[h].hitboxes[2 + 1].left;
+                animFile.hitboxes[h].hitboxes[2 + 1].left = -animFile.hitboxes[h].hitboxes[2 + 1].right;
+                animFile.hitboxes[h].hitboxes[2 + 1].right = store;
+            }
+
+            // Roof
+            if (true) {
+                int store                                = -animFile.hitboxes[h].hitboxes[4 + 1].top;
+                animFile.hitboxes[h].hitboxes[4 + 1].top = -animFile.hitboxes[h].hitboxes[4 + 1].bottom;
+                animFile.hitboxes[h].hitboxes[4 + 1].bottom = store;
+            }
+
+            // RWall
+            if (true) {
+                int store                                 = -animFile.hitboxes[h].hitboxes[6 + 1].left;
+                animFile.hitboxes[h].hitboxes[6 + 1].left = -animFile.hitboxes[h].hitboxes[6 + 1].right;
+                animFile.hitboxes[h].hitboxes[6 + 1].right = store;
+
+                store                                    = -animFile.hitboxes[h].hitboxes[6 + 1].top;
+                animFile.hitboxes[h].hitboxes[6 + 1].top = -animFile.hitboxes[h].hitboxes[6 + 1].bottom;
+                animFile.hitboxes[h].hitboxes[6 + 1].bottom = store;
+            }
+        }
+    }
+}
+
 bool AnimationEditor::event(QEvent *event)
 {
     QStringList types = { "RSDKv5 Animation Files (*.bin)", "RSDKv4/RSDKv3 Animation Files (*.ani)",
@@ -2698,6 +2760,8 @@ bool AnimationEditor::event(QEvent *event)
                         case 3: aniType = ENGINE_v2; break;
                         case 4: aniType = ENGINE_v1; break;
                     }
+
+                    RotateHitboxes();
                     animFile.write(aniType, filepath);
                     appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
                     SetStatus("Saved animation to " + QFile(animFile.filePath).fileName());
@@ -2709,6 +2773,8 @@ bool AnimationEditor::event(QEvent *event)
                 SetStatus("Saving animation...");
 
                 QString filepath = animFile.filePath;
+
+                RotateHitboxes();
                 animFile.write(aniType, filepath);
                 appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
                 SetStatus("Saved animation to " + QFile(animFile.filePath).fileName());
@@ -2747,6 +2813,7 @@ bool AnimationEditor::event(QEvent *event)
                     case 4: aniType = ENGINE_v1; break;
                 }
 
+                RotateHitboxes();
                 animFile.write(aniType, filepath);
                 appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
                 SetStatus("Saved animation to " + QFile(animFile.filePath).fileName());
@@ -2862,6 +2929,8 @@ bool AnimationEditor::event(QEvent *event)
                             SetStatus("Saving animation...");
 
                             QString filepath = filedialog.selectedFiles()[0];
+
+                            RotateHitboxes();
                             animFile.write(aniType, filepath);
                             appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath,
                                                     QList<QString>{});
@@ -2874,6 +2943,8 @@ bool AnimationEditor::event(QEvent *event)
                         SetStatus("Saving animation...");
 
                         QString filepath = animFile.filePath;
+
+                        RotateHitboxes();
                         animFile.write(aniType, filepath);
                         appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath,
                                                 QList<QString>{});

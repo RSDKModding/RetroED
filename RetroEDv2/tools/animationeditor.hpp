@@ -109,6 +109,7 @@ private:
     QString GetBaseDir();
 
     void LoadAnim(QString filepath, int aniType);
+    void RotateHitboxes();
 
     QVector<QImage> sheets;
 
@@ -128,5 +129,3 @@ private:
     bool modified    = false;
     QString tabTitle = "Animation Editor";
 };
-
-

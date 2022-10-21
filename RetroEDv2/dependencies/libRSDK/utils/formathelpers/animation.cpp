@@ -38,7 +38,7 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
                     Frame frame;
                     frame.sheet        = f.sheet;
                     frame.collisionBox = -1;
-                    frame.duration     = 0x100;
+                    frame.duration     = 60;
                     frame.id           = 0;
                     frame.sprX         = f.sprX;
                     frame.sprY         = f.sprY;
@@ -81,7 +81,7 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
                     Frame frame;
                     frame.sheet        = f.sheet;
                     frame.collisionBox = f.collisionBox;
-                    frame.duration     = 0x100;
+                    frame.duration     = 240;
                     frame.id           = 0;
                     frame.sprX         = f.sprX;
                     frame.sprY         = f.sprY;
@@ -125,7 +125,7 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
                     Frame frame;
                     frame.sheet        = f.sheet;
                     frame.collisionBox = f.collisionBox;
-                    frame.duration     = 0x100;
+                    frame.duration     = 240;
                     frame.id           = 0;
                     frame.sprX         = f.sprX;
                     frame.sprY         = f.sprY;
@@ -169,7 +169,7 @@ void FormatHelpers::Animation::read(byte ver, QString filename)
                     Frame frame;
                     frame.sheet        = f.sheet;
                     frame.collisionBox = f.collisionBox;
-                    frame.duration     = 0x100;
+                    frame.duration     = 240;
                     frame.id           = 0;
                     frame.sprX         = f.sprX;
                     frame.sprY         = f.sprY;
