@@ -2177,11 +2177,10 @@ bool SceneEditor::saveScene(bool forceSaveAs)
     viewer->disableDrawScene = true;
     viewer->disableObjects   = true;
 
-    // byte saveVer     = ENGINE_v4;
+    byte saveVer     = viewer->gameType;
     QString savePath = "";
     if (!forceSaveAs && QFile::exists(scene.filepath)) {
         savePath = scene.filepath;
-        // saveVer  = viewer->gameType;
     }
     else {
         QList<QString> types = {
@@ -2204,7 +2203,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
 
         if (filedialog.exec() == QDialog::Accepted) {
             savePath = filedialog.selectedFiles()[0];
-            // saveVer  = ENGINE_v4 + types.indexOf(filedialog.selectedNameFilter());
+            saveVer  = ENGINE_v4 + types.indexOf(filedialog.selectedNameFilter());
         }
         else {
             viewer->disableDrawScene = false;
@@ -2322,9 +2321,9 @@ bool SceneEditor::saveScene(bool forceSaveAs)
     scene.objects.clear();
     scene.objectTypeNames.clear();
 
-    int globalObjCount = 0;
+    int globalObjCount = 1;
     if (stageConfig.loadGlobalScripts) {
-        if (viewer->gameType == ENGINE_v2)
+        if (saveVer == ENGINE_v2)
             globalObjCount += 1; // player
 
         globalObjCount += gameConfig.objects.count();
@@ -2356,7 +2355,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
     }
     AddStatusProgress(1.f / 5); // created entity list
 
-    if (viewer->gameType != ENGINE_v1) {
+    if (saveVer != ENGINE_v1) {
         RSDKv4::TileConfig tileconfig;
 
         for (int p = 0; p < 2; ++p) {
@@ -2378,11 +2377,11 @@ bool SceneEditor::saveScene(bool forceSaveAs)
             }
         }
 
-        scene.write(viewer->gameType, savePath);
-        background.write(viewer->gameType, basePath + "Backgrounds.bin");
-        viewer->chunkset.write(viewer->gameType, basePath + "128x128Tiles.bin");
+        scene.write(saveVer, savePath);
+        background.write(saveVer, basePath + "Backgrounds.bin");
+        viewer->chunkset.write(saveVer, basePath + "128x128Tiles.bin");
         tileconfig.write(basePath + "CollisionMasks.bin");
-        stageConfig.write(viewer->gameType, basePath + "StageConfig.bin");
+        stageConfig.write(saveVer, basePath + "StageConfig.bin");
         tileset.write(basePath + "16x16Tiles.gif");
     }
     else {
@@ -2409,11 +2408,11 @@ bool SceneEditor::saveScene(bool forceSaveAs)
             }
         }
 
-        scene.write(viewer->gameType, savePath);
-        background.write(viewer->gameType, basePath + "ZoneBG.map");
-        viewer->chunkset.write(viewer->gameType, basePath + "Zone.til");
+        scene.write(saveVer, savePath);
+        background.write(saveVer, basePath + "ZoneBG.map");
+        viewer->chunkset.write(saveVer, basePath + "Zone.til");
         tileconfig.write(basePath + "Zone.tcf");
-        stageConfig.write(viewer->gameType, basePath + "Zone.zcf");
+        stageConfig.write(saveVer, basePath + "Zone.zcf");
 
         RSDKv1::GFX *gfx = new RSDKv1::GFX;
         gfx->importImage(tileset);
@@ -2424,6 +2423,7 @@ bool SceneEditor::saveScene(bool forceSaveAs)
 
     tabTitle = Utils::getFilenameAndFolder(savePath);
     ClearActions();
+    appConfig.addRecentFile(saveVer, TOOL_SCENEEDITOR, savePath, QList<QString>{ gameConfig.filePath });
     SetStatus("Saved scene to " + Utils::getFilenameAndFolder(savePath));
 
     viewer->disableDrawScene = false;
