@@ -4,6 +4,8 @@
 #include <QApplication>
 #include "version.hpp"
 
+#include "splashscreen.hpp"
+
 void DebugMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QByteArray localMsg  = msg.toLocal8Bit();
@@ -57,6 +59,11 @@ void initConsole()
 int main(int argc, char *argv[])
 {
     // initConsole();
+    QApplication a(argc, argv);
+    
+    SplashScreen splash;
+    splash.showMessage("Setting up display format...");
+    splash.show();
 
     QSurfaceFormat format;
     format.setDepthBufferSize(24);
@@ -66,13 +73,14 @@ int main(int argc, char *argv[])
     format.setProfile(QSurfaceFormat::CoreProfile);
     QSurfaceFormat::setDefaultFormat(format);
 
+    QCoreApplication::processEvents();
+    splash.showMessage("Configuring style...");
+
     qInstallMessageHandler(DebugMessageHandler);
     PhantomStyle *style = new PhantomStyle(); // TODO: is this deleted ever???
 
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QApplication a(argc, argv);
     a.setAttribute(Qt::AA_UseHighDpiPixmaps);
-
     QApplication::setStyle(style);
 
     QPalette pal;
@@ -100,6 +108,9 @@ int main(int argc, char *argv[])
 
     QApplication::setPalette(pal);
 
+    QCoreApplication::processEvents();
+    splash.showMessage("Setting up appConfig...");
+
     appDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/";
     if (!QDir(appDir).exists())
         QDir(appDir).mkpath(appDir);
@@ -112,6 +123,8 @@ int main(int argc, char *argv[])
     homeDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/RetroED/";
     if (!QDir(homeDir).exists())
         QDir(homeDir).mkpath(homeDir);
+
+    splash.showMessage("Setting up file lists...");
 
     // copy RSDKv4 file list if it doesn't exist
     if (!QFile(homeDir + "RSDKv4FileList.txt").exists()) {
@@ -151,9 +164,14 @@ int main(int argc, char *argv[])
     PrintLog(QString("Version: ") + RE_VERSION);
     PrintLog("====================================================");
 
+    splash.showMessage("Setting up GameLink...");
+
     GameLink::Setup();
 
     MainWindow w;
     w.show();
-    return a.exec();
+    splash.finish(&w);
+    int ret = a.exec();
+    delete style;
+    return ret;
 }
