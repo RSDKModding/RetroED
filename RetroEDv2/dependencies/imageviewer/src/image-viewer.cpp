@@ -13,63 +13,25 @@
 namespace pal
 {
 
-// Graphics View with better mouse events handling
-class GraphicsView : public QGraphicsView
+void GraphicsView::wheelEvent(QWheelEvent *event)
 {
-    Q_OBJECT
-public:
-    explicit GraphicsView(ImageViewer *viewer) : QGraphicsView(), m_viewer(viewer)
-    {
-        // no antialiasing or filtering, we want to see the exact image content
-        setRenderHint(QPainter::Antialiasing, false);
-        setDragMode(QGraphicsView::ScrollHandDrag);
-        setOptimizationFlags(QGraphicsView::DontSavePainterState);
-        setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
-        setTransformationAnchor(QGraphicsView::AnchorUnderMouse); // zoom at cursor position
-        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        setInteractive(true);
-        setMouseTracking(true);
+    if (event->modifiers() == Qt::NoModifier) {
+        if (event->angleDelta().y() > 0)
+            m_viewer->zoomIn(3);
+        else if (event->angleDelta().y() < 0)
+            m_viewer->zoomOut(3);
+        event->accept();
     }
-
-protected:
-    void wheelEvent(QWheelEvent *event) override
-    {
-        if (event->modifiers() == Qt::NoModifier) {
-            if (event->angleDelta().y() > 0)
-                m_viewer->zoomIn(3);
-            else if (event->angleDelta().y() < 0)
-                m_viewer->zoomOut(3);
-            event->accept();
-        }
-        else
-            QGraphicsView::wheelEvent(event);
-    }
-
-    void enterEvent(QEvent *event) override
-    {
-        QGraphicsView::enterEvent(event);
-        viewport()->setCursor(Qt::CrossCursor);
-    }
-
-    void mousePressEvent(QMouseEvent *event) override { QGraphicsView::mousePressEvent(event); }
-
-    void mouseReleaseEvent(QMouseEvent *event) override
-    {
-        QGraphicsView::mouseReleaseEvent(event);
-        viewport()->setCursor(Qt::CrossCursor);
-    }
-
-private:
-    ImageViewer *m_viewer;
-};
+    else
+        QGraphicsView::wheelEvent(event);
+}
 
 ImageViewer::ImageViewer(QWidget *parent)
     : QFrame(parent), m_zoom_level(0), m_fit(true), m_bar_mode(ToolBarMode::Visible)
 {
     auto scene = new QGraphicsScene(this);
-    m_view     = new GraphicsView(this);
-    m_view->setScene(scene);
+    view       = new GraphicsView(this);
+    view->setScene(scene);
 
     // graphic object holding the image buffer
     m_pixmap = new PixmapItem;
@@ -81,7 +43,7 @@ ImageViewer::ImageViewer(QWidget *parent)
     auto box = new QVBoxLayout;
     box->setContentsMargins(5, 0, 5, 0);
     box->addWidget(m_toolbar);
-    box->addWidget(m_view, 1);
+    box->addWidget(view, 1);
     setLayout(box);
 }
 
@@ -139,7 +101,7 @@ PixmapItem *ImageViewer::setPixmapItem(PixmapItem *item)
     // delete m_pixmap;
     m_pixmap   = item;
     auto scene = new QGraphicsScene(this);
-    m_view     = new GraphicsView(this);
+    view       = new GraphicsView(this);
     scene->addItem(m_pixmap);
     return item;
 }
@@ -157,14 +119,11 @@ void ImageViewer::setToolBarMode(ToolBarMode mode)
         m_toolbar->setVisible(underMouse());
 }
 
-bool ImageViewer::isAntialiasingEnabled() const
-{
-    return m_view->renderHints() & QPainter::Antialiasing;
-}
+bool ImageViewer::isAntialiasingEnabled() const { return view->renderHints() & QPainter::Antialiasing; }
 
-void ImageViewer::enableAntialiasing(bool on) { m_view->setRenderHint(QPainter::Antialiasing, on); }
+void ImageViewer::enableAntialiasing(bool on) { view->setRenderHint(QPainter::Antialiasing, on); }
 
-void ImageViewer::repaintView() { m_view->repaint(); }
+void ImageViewer::repaintView() { view->repaint(); }
 
 void ImageViewer::addTool(QWidget *tool) { m_toolbar->layout()->addWidget(tool); }
 
@@ -175,16 +134,16 @@ void ImageViewer::setMatrix()
     QTransform matrix;
     matrix.scale(scale, scale);
 
-    m_view->setTransform(matrix);
-    emit zoomChanged(m_view->transform().m11());
+    view->setTransform(matrix);
+    emit zoomChanged(view->transform().m11());
 }
 
 void ImageViewer::zoomFit()
 {
-    m_view->fitInView(m_pixmap, Qt::KeepAspectRatio);
-    m_zoom_level = int(10.0 * std::log2(m_view->transform().m11()));
+    view->fitInView(m_pixmap, Qt::KeepAspectRatio);
+    m_zoom_level = int(10.0 * std::log2(view->transform().m11()));
     m_fit        = true;
-    emit zoomChanged(m_view->transform().m11());
+    emit zoomChanged(view->transform().m11());
 }
 
 void ImageViewer::zoomOriginal()
@@ -281,26 +240,35 @@ void PixmapItem::setImage(QImage im)
 
 void PixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
-        emit mouseDownL();
-    if ((event->button() & Qt::MiddleButton) == Qt::MiddleButton)
-        emit mouseDownM();
-    if ((event->button() & Qt::RightButton) == Qt::RightButton)
-        emit mouseDownR();
-
     QGraphicsItem::mousePressEvent(event);
+
+    if ((event->button() & Qt::LeftButton) == Qt::LeftButton
+        && scene()->views()[0]->dragMode() == QGraphicsView::NoDrag) {
+        event->accept();
+        emit mouseDownL(event->pos().x(), event->pos().y());
+    }
+    else if (event->button() & Qt::RightButton) {
+        emit mouseDownR(event->pos().x(), event->pos().y());
+        // don't accept
+    }
 }
 
 void PixmapItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
         emit mouseUpL();
-    if ((event->button() & Qt::MiddleButton) == Qt::MiddleButton)
-        emit mouseUpM();
-    if ((event->button() & Qt::RightButton) == Qt::RightButton)
-        emit mouseUpR();
 
     QGraphicsItem::mouseReleaseEvent(event);
+}
+
+void PixmapItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    auto pos = event->pos();
+    mouseX   = pos.x();
+    mouseY   = pos.y();
+    emit mouseMoved(int(pos.x()), int(pos.y()));
+    QGraphicsItem::mouseMoveEvent(event);
+    event->accept();
 }
 
 void PixmapItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
@@ -312,16 +280,30 @@ void PixmapItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
     QGraphicsItem::hoverMoveEvent(event);
 }
 
+void PixmapItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+    emit mouseDoubleClick(event->pos().x(), event->pos().y());
+}
+
 void PixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     QGraphicsPixmapItem::paint(painter, option, widget);
-    if (rect.width() > 0 && rect.height() > 0) {
-        painter->setBrush(qApp->palette().highlight());
-        painter->setOpacity(0.5);
-        painter->drawRect(rect);
+
+    QRect draw(rect);
+
+    if (draw.width() < 0) {
+        int w = draw.width();
+        draw  = QRect(w + draw.x(), draw.y(), -w, draw.height());
     }
+
+    if (draw.height() < 0) {
+        int h = draw.height();
+        draw  = QRect(draw.x(), h + draw.y(), draw.width(), -h);
+    }
+
+    painter->setBrush(qApp->palette().highlight());
+    painter->setOpacity(0.5);
+    painter->drawRect(draw);
 }
 
 } // namespace pal
-
-#include "image-viewer.moc"

@@ -478,22 +478,45 @@ template <class T> struct Rect {
         // return (vector.x > x && vector.y > y && vector.x < (x + w) && vector.y < (y + h));
         return (vector.x > x && vector.y > y && vector.x <= (x + w) && vector.y <= (y + h));
     }
+
+    template <class U = T> inline Rect<U> corrected()
+    {
+        Rect<U> ret(x, y, w, h);
+
+        if (w < 0) {
+            ret.x = w + x;
+            ret.w = -w;
+        }
+
+        if (h < 0) {
+            ret.y = h + y;
+            ret.h = -h;
+        }
+        return ret;
+    }
+
+    inline void correct(){ *this = corrected(); };
+
     inline QRect toQRect()
     {
         QRect r;
-        r.setX(x);
-        r.setY(y);
-        r.setWidth(w);
-        r.setHeight(h);
+        Rect<T> c = corrected();
+
+        r.setX(c.x);
+        r.setY(c.y);
+        r.setWidth(c.w);
+        r.setHeight(c.h);
         return r;
     }
     inline QRectF toQRectF()
     {
         QRectF r;
-        r.setX(x);
-        r.setY(y);
-        r.setWidth(w);
-        r.setHeight(h);
+        Rect<T> c = corrected();
+
+        r.setX(c.x);
+        r.setY(c.y);
+        r.setWidth(c.w);
+        r.setHeight(c.h);
         return r;
     }
 
