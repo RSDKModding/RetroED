@@ -33,6 +33,8 @@ private:
     bool mouseDownM = false;
     bool mouseDownR = false;
 
+    QColor bgColor = QColor(0xFFFFFFFF);
+
     Ui::AnimSheetSelector *ui;
 };
 

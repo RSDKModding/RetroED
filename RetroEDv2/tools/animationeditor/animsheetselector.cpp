@@ -3,6 +3,8 @@
 
 #include "animsheetselector.hpp"
 
+#include "tools/paletteeditor/colourdialog.hpp"
+
 #include "dependencies/imageviewer/src/image-viewer.h"
 #include <QTimer>
 
@@ -13,74 +15,66 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
     this->setWindowTitle("Select Bounding Box");
 
     pal::ImageViewer *viewer = new pal::ImageViewer();
+    viewer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     viewer->setText(sheetPath);
     // viewer->setToolBarMode(pal::ImageViewer::ToolBarMode::Hidden);
-    ui->gridLayout->addWidget(viewer);
     viewer->setImage(*sheet);
-    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    ui->gridLayout->addWidget(buttons);
+    ui->viewerFrame->layout()->addWidget(viewer);
+    ui->colorButton->setMaximumWidth(ui->colorButton->height());
 
-    connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    bgColor = QColor(0xFFFFFFFF);
+    if (this->sheet->format() == QImage::Format_Indexed8) {
+        // last color in the palette (should) always be bg
+        bgColor = this->sheet->colorTable().last();
+    }
 
-    connect(viewer->pixmapItem(), &pal::PixmapItem::mouseDownL, [this, viewer] {
+    QPalette pal(bgColor);
+    ui->colorButton->setPalette(pal);
+
+    connect(ui->colorButton, &QPushButton::pressed, [this] {
+        RSDKColorDialog dlg(bgColor);
+        if (dlg.exec() == QDialog::Accepted) {
+            bgColor = dlg.color().toQColor();
+        }
+        QPalette pal(bgColor);
+        ui->colorButton->setPalette(pal);
+    });
+
+    connect(ui->buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(ui->buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    connect(viewer->pixmapItem(), &pal::PixmapItem::mouseDownR, [this, viewer](int x, int y) {
+        bgColor = this->sheet->pixelColor(x, y);
+        QPalette pal(bgColor);
+        ui->colorButton->setPalette(pal);
+    });
+
+    connect(viewer->pixmapItem(), &pal::PixmapItem::mouseDownL, [this, viewer](int x, int y) {
         mouseDownL = true;
-        selecting ^= 1;
-        if (selecting) {
-            returnRect.x = mousePos.x;
-            returnRect.y = mousePos.y;
-            returnRect.w = returnRect.h = 0;
-            viewer->pixmapItem()->rect.setX(returnRect.x);
-            viewer->pixmapItem()->rect.setY(returnRect.y);
-            viewer->pixmapItem()->rect.setWidth(returnRect.w);
-            viewer->pixmapItem()->rect.setHeight(returnRect.h);
-            PrintLog(QString("ClickPos: X: %1, Y: %2, W: %3, H: %4")
-                         .arg(returnRect.x)
-                         .arg(returnRect.y)
-                         .arg(returnRect.w)
-                         .arg(returnRect.h));
-        }
-        else {
-            returnRect.w = mousePos.x - returnRect.x;
-            returnRect.h = mousePos.y - returnRect.y;
 
-            if (returnRect.w < 0) {
-                returnRect.x -= abs(returnRect.w);
-                returnRect.w = abs(returnRect.w);
-                viewer->pixmapItem()->rect.setX(returnRect.x);
-            }
+        returnRect.x = mousePos.x = x;
+        returnRect.y = mousePos.y = y;
+        returnRect.w = returnRect.h = 0;
+        viewer->pixmapItem()->rect  = returnRect.toQRect();
+        PrintLog(QString("ClickPos: X: %1, Y: %2, W: %3, H: %4")
+                     .arg(returnRect.x)
+                     .arg(returnRect.y)
+                     .arg(returnRect.w)
+                     .arg(returnRect.h));
 
-            if (returnRect.h < 0) {
-                returnRect.y -= abs(returnRect.h);
-                returnRect.h = abs(returnRect.h);
-                viewer->pixmapItem()->rect.setY(returnRect.y);
-            }
-
-            viewer->pixmapItem()->rect.setWidth(returnRect.w);
-            viewer->pixmapItem()->rect.setHeight(returnRect.h);
-            PrintLog(QString("RectPos: X: %1, Y: %2, W: %3, H: %4")
-                         .arg(returnRect.x)
-                         .arg(returnRect.y)
-                         .arg(returnRect.w)
-                         .arg(returnRect.h));
-        }
         viewer->pixmapItem()->update();
     });
-    connect(viewer->pixmapItem(), &pal::PixmapItem::mouseUpL, [this] { mouseDownL = false; });
-    connect(viewer->pixmapItem(), &pal::PixmapItem::mouseDownM, [this] { mouseDownM = true; });
-    connect(viewer->pixmapItem(), &pal::PixmapItem::mouseUpM, [this] { mouseDownM = false; });
-    connect(viewer->pixmapItem(), &pal::PixmapItem::mouseDownR, [this, viewer] {
-        mouseDownR = true;
-        selecting  = false;
-        int mouseX = mousePos.x;
-        int mouseY = mousePos.y;
-        int X = 0, Y = 0, W = 0, H = 0;
 
-        QColor bgColor = QColor(0xFFFFFFFF);
-        if (this->sheet->format() == QImage::Format_Indexed8) {
-            // last color in the palette (should) always be bg
-            // bgColor = this->sheet->colorTable().last();
-        }
+    connect(viewer->pixmapItem(), &pal::PixmapItem::mouseUpL, [this] {
+        mouseDownL = false;
+        returnRect.correct();
+    });
+
+    connect(viewer->pixmapItem(), &pal::PixmapItem::mouseDoubleClick, [this, viewer](int x, int y) {
+        selecting  = false;
+        int mouseX = x;
+        int mouseY = y;
+        int X = 0, Y = 0, W = 0, H = 0;
 
         int px = mouseX;
         while (true) {
@@ -128,11 +122,77 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
 
         ++X;
         ++Y;
+
         returnRect = Rect<int>(mouseX + X, mouseY + Y, abs(X) + W, abs(Y) + H);
-        viewer->pixmapItem()->rect.setX(returnRect.x);
-        viewer->pixmapItem()->rect.setY(returnRect.y);
-        viewer->pixmapItem()->rect.setWidth(returnRect.w);
-        viewer->pixmapItem()->rect.setHeight(returnRect.h);
+        // check top border
+        if (returnRect.y) {
+            bool swap = this->sheet->pixelColor(returnRect.x, returnRect.y - 1) != bgColor;
+            for (int i = 1; i < returnRect.w; ++i) {
+                if ((this->sheet->pixelColor(returnRect.x + i, returnRect.y - 1) == bgColor) == swap) {
+                    if (swap) {
+                        returnRect.x += i;
+                        returnRect.w -= i;
+                    }
+                    else
+                        returnRect.w = i;
+                    break;
+                }
+            }
+        }
+
+        // bottom border
+        if (returnRect.y + returnRect.h < this->sheet->height()) {
+            bool swap = this->sheet->pixelColor(returnRect.x, returnRect.y + returnRect.h) != bgColor;
+            for (int i = 1; i < returnRect.w; ++i) {
+                if ((this->sheet->pixelColor(returnRect.x + i, returnRect.y + returnRect.h) == bgColor)
+                    == swap) {
+                    if (swap) {
+                        returnRect.x += i;
+                        returnRect.w -= i;
+                    }
+                    else
+                        returnRect.w = i;
+                    break;
+                }
+            }
+        }
+
+        // left border
+        if (returnRect.x) {
+            bool swap = this->sheet->pixelColor(returnRect.x - 1, returnRect.y) != bgColor;
+            for (int i = 1; i < returnRect.h; ++i) {
+                if ((this->sheet->pixelColor(returnRect.x - 1, returnRect.y + i) == bgColor) == swap) {
+                    if (swap) {
+                        returnRect.y += i;
+                        returnRect.h -= i;
+                    }
+                    else
+                        returnRect.h = i;
+                    break;
+                }
+            }
+        }
+
+        // right border
+        if (returnRect.x + returnRect.w < this->sheet->height()) {
+            bool swap = this->sheet->pixelColor(returnRect.x + returnRect.w, returnRect.y) != bgColor;
+            for (int i = 1; i < returnRect.h; ++i) {
+                if ((this->sheet->pixelColor(returnRect.x + returnRect.w, returnRect.y + i) == bgColor)
+                    == swap) {
+                    if (swap) {
+                        returnRect.y += i;
+                        returnRect.h -= i;
+                    }
+                    else
+                        returnRect.h = i;
+                    break;
+                }
+            }
+        }
+
+        mouseDownL = false;
+
+        viewer->pixmapItem()->rect = returnRect.toQRect();
         PrintLog(QString("AutoPos: X: %1, Y: %2, W: %3, H: %4")
                      .arg(returnRect.x)
                      .arg(returnRect.y)
@@ -141,30 +201,16 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
 
         viewer->pixmapItem()->update();
     });
-    connect(viewer->pixmapItem(), &pal::PixmapItem::mouseUpR, [this] { mouseDownR = false; });
 
     connect(viewer->pixmapItem(), &pal::PixmapItem::mouseMoved, [this, viewer](int x, int y) {
-        mousePos.x = x;
-        mousePos.y = y;
+        if (mouseDownL) {
+            mousePos.x = x;
+            mousePos.y = y;
 
-        if (selecting) {
             returnRect.w = mousePos.x - returnRect.x;
             returnRect.h = mousePos.y - returnRect.y;
 
-            if (returnRect.w < 0) {
-                returnRect.x -= abs(returnRect.w);
-                returnRect.w = abs(returnRect.w);
-                viewer->pixmapItem()->rect.setX(returnRect.x);
-            }
-
-            if (returnRect.h < 0) {
-                returnRect.y -= abs(returnRect.h);
-                returnRect.h = abs(returnRect.h);
-                viewer->pixmapItem()->rect.setY(returnRect.y);
-            }
-
-            viewer->pixmapItem()->rect.setWidth(returnRect.w);
-            viewer->pixmapItem()->rect.setHeight(returnRect.h);
+            viewer->pixmapItem()->rect = returnRect.toQRect();
         }
 
         viewer->pixmapItem()->update();
