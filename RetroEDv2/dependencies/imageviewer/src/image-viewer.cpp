@@ -242,13 +242,14 @@ void PixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     QGraphicsItem::mousePressEvent(event);
 
-    if ((event->button() & Qt::LeftButton) == Qt::LeftButton && scene()->views()[0]->dragMode() == QGraphicsView::NoDrag) {
+    if ((event->button() & Qt::LeftButton) == Qt::LeftButton
+        && scene()->views()[0]->dragMode() == QGraphicsView::NoDrag) {
         event->accept();
         emit mouseDownL(event->pos().x(), event->pos().y());
     }
     else if (event->button() & Qt::RightButton) {
         emit mouseDownR(event->pos().x(), event->pos().y());
-        // don't accept 
+        // don't accept
     }
 }
 
@@ -306,5 +307,3 @@ void PixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 }
 
 } // namespace pal
-
-#include "image-viewer.moc"
