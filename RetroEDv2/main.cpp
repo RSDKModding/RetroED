@@ -56,7 +56,7 @@ void initConsole()
 
 int main(int argc, char *argv[])
 {
-    // initConsole();
+    initConsole();
 
     QSurfaceFormat format;
     format.setDepthBufferSize(24);

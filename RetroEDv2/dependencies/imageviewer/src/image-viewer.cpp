@@ -1,4 +1,4 @@
-#include "image-viewer.hpp"
+#include "image-viewer.h"
 #include <cmath>
 #include <QGraphicsScene>
 #include <QGraphicsView>
@@ -24,7 +24,7 @@ void GraphicsView::wheelEvent(QWheelEvent *event)
     }
     else
         QGraphicsView::wheelEvent(event);
-};
+}
 
 ImageViewer::ImageViewer(QWidget *parent)
     : QFrame(parent), m_zoom_level(0), m_fit(true), m_bar_mode(ToolBarMode::Visible)
@@ -238,6 +238,38 @@ void PixmapItem::setImage(QImage im)
     emit imageChanged(m_image);
 }
 
+void PixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    QGraphicsItem::mousePressEvent(event);
+
+    if ((event->button() & Qt::LeftButton) == Qt::LeftButton && scene()->views()[0]->dragMode() == QGraphicsView::NoDrag) {
+        event->accept();
+        emit mouseDownL(event->pos().x(), event->pos().y());
+    }
+    else if (event->button() & Qt::RightButton) {
+        emit mouseDownR(event->pos().x(), event->pos().y());
+        // don't accept 
+    }
+}
+
+void PixmapItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
+        emit mouseUpL();
+
+    QGraphicsItem::mouseReleaseEvent(event);
+}
+
+void PixmapItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    auto pos = event->pos();
+    mouseX   = pos.x();
+    mouseY   = pos.y();
+    emit mouseMoved(int(pos.x()), int(pos.y()));
+    QGraphicsItem::mouseMoveEvent(event);
+    event->accept();
+}
+
 void PixmapItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
     auto pos = event->pos();
@@ -247,14 +279,30 @@ void PixmapItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
     QGraphicsItem::hoverMoveEvent(event);
 }
 
+void PixmapItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+    emit mouseDoubleClick(event->pos().x(), event->pos().y());
+}
+
 void PixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     QGraphicsPixmapItem::paint(painter, option, widget);
-    if (rect.width() > 0 && rect.height() > 0) {
-        painter->setBrush(qApp->palette().highlight());
-        painter->setOpacity(0.5);
-        painter->drawRect(rect);
+
+    QRect draw(rect);
+
+    if (draw.width() < 0) {
+        int w = draw.width();
+        draw  = QRect(w + draw.x(), draw.y(), -w, draw.height());
     }
+
+    if (draw.height() < 0) {
+        int h = draw.height();
+        draw  = QRect(draw.x(), h + draw.y(), draw.width(), -h);
+    }
+
+    painter->setBrush(qApp->palette().highlight());
+    painter->setOpacity(0.5);
+    painter->drawRect(draw);
 }
 
 } // namespace pal

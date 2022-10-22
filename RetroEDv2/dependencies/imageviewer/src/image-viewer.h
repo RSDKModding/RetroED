@@ -3,9 +3,8 @@
 
 #include <QFrame>
 #include <QGraphicsPixmapItem>
-#include <QGraphicsView>
 #include <QWheelEvent>
-
+#include <QGraphicsView>
 #include "image-viewer-global.h"
 
 QT_BEGIN_NAMESPACE
@@ -26,7 +25,7 @@ public:
     explicit GraphicsView(ImageViewer *viewer) : QGraphicsView(), m_viewer(viewer)
     {
         // no antialiasing or filtering, we want to see the exact image content
-        setRenderHint(QPainter::Antialiasing, true);
+        setRenderHint(QPainter::Antialiasing, false);
         setDragMode(QGraphicsView::NoDrag);
         setOptimizationFlags(QGraphicsView::DontSavePainterState);
         setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
@@ -36,14 +35,6 @@ public:
         setInteractive(true);
         setMouseTracking(true);
     }
-
-signals:
-    void mouseDownL();
-    void mouseDownM();
-    void mouseDownR();
-    void mouseUpL();
-    void mouseUpM();
-    void mouseUpR();
 
 protected:
     void wheelEvent(QWheelEvent *event) override;
@@ -56,23 +47,24 @@ protected:
 
     void mousePressEvent(QMouseEvent *event) override
     {
-        if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
-            emit mouseDownL();
-        if ((event->button() & Qt::MiddleButton) == Qt::MiddleButton)
-            emit mouseDownM();
-        if ((event->button() & Qt::RightButton) == Qt::RightButton)
-            emit mouseDownR();
-        QGraphicsView::mousePressEvent(event);
+        if (event->button() & (Qt::MiddleButton)) {
+            // temporarly enable dragging mode
+            this->setDragMode(QGraphicsView::ScrollHandDrag);
+            // emit a left mouse click (the default button for the drag mode)
+            QMouseEvent *pressEvent = new QMouseEvent(
+                QEvent::GraphicsSceneMousePress, event->pos(), Qt::MouseButton::LeftButton,
+                Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier);
+
+            this->mousePressEvent(pressEvent);
+        }
+        else {
+            QGraphicsView::mousePressEvent(event);
+        }
     }
 
     void mouseReleaseEvent(QMouseEvent *event) override
     {
-        if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
-            emit mouseUpL();
-        if ((event->button() & Qt::MiddleButton) == Qt::MiddleButton)
-            emit mouseUpM();
-        if ((event->button() & Qt::RightButton) == Qt::RightButton)
-            emit mouseUpR();
+        this->setDragMode(QGraphicsView::NoDrag);
         QGraphicsView::mouseReleaseEvent(event);
         viewport()->setCursor(Qt::CrossCursor);
     }
@@ -177,15 +169,18 @@ signals:
     void imageChanged(const QImage &);
     void sizeChanged(int w, int h);
     void mouseMoved(int x, int y);
-    void mouseDownL();
-    void mouseDownM();
-    void mouseDownR();
+    void mouseDownL(int x, int y);
+    void mouseDownR(int x, int y);
     void mouseUpL();
-    void mouseUpM();
-    void mouseUpR();
+    void mouseDoubleClick(int x, int y);
 
 protected:
+    void mousePressEvent(QGraphicsSceneMouseEvent *) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *) override;
     void hoverMoveEvent(QGraphicsSceneHoverEvent *) override;
+
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 

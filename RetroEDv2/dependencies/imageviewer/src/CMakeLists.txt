@@ -1,6 +1,6 @@
 add_library(pal-image-viewer
     image-viewer.cpp
-    image-viewer.hpp
+    image-viewer.h
     image-viewer.qrc
 )
 

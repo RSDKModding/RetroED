@@ -5,7 +5,7 @@
 
 #include "tools/paletteeditor/colourdialog.hpp"
 
-#include "dependencies/imageviewer/src/image-viewer.hpp"
+#include "dependencies/imageviewer/src/image-viewer.h"
 #include <QTimer>
 
 AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *parent)
@@ -43,16 +43,19 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
     connect(ui->buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(ui->buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    connect(viewer->view, &pal::GraphicsView::mouseDownL, [this, viewer] {
+    connect(viewer->pixmapItem(), &pal::PixmapItem::mouseDownR, [this, viewer](int x, int y) {
+        bgColor = this->sheet->pixelColor(x, y);
+        QPalette pal(bgColor);
+        ui->colorButton->setPalette(pal);
+    });
+
+    connect(viewer->pixmapItem(), &pal::PixmapItem::mouseDownL, [this, viewer](int x, int y) {
         mouseDownL = true;
 
-        returnRect.x = mousePos.x;
-        returnRect.y = mousePos.y;
+        returnRect.x = mousePos.x = x;
+        returnRect.y = mousePos.y = y;
         returnRect.w = returnRect.h = 0;
-        viewer->pixmapItem()->rect.setX(returnRect.x);
-        viewer->pixmapItem()->rect.setY(returnRect.y);
-        viewer->pixmapItem()->rect.setWidth(returnRect.w);
-        viewer->pixmapItem()->rect.setHeight(returnRect.h);
+        viewer->pixmapItem()->rect  = returnRect.toQRect();
         PrintLog(QString("ClickPos: X: %1, Y: %2, W: %3, H: %4")
                      .arg(returnRect.x)
                      .arg(returnRect.y)
@@ -61,16 +64,16 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
 
         viewer->pixmapItem()->update();
     });
-    connect(viewer->view, &pal::GraphicsView::mouseUpL, [this] { 
-        mouseDownL = false; 
-        });
-    connect(viewer->view, &pal::GraphicsView::mouseDownM, [this] { mouseDownM = true; });
-    connect(viewer->view, &pal::GraphicsView::mouseUpM, [this] { mouseDownM = false; });
-    connect(viewer->view, &pal::GraphicsView::mouseDownR, [this, viewer] {
-        mouseDownR = true;
+
+    connect(viewer->pixmapItem(), &pal::PixmapItem::mouseUpL, [this] {
+        mouseDownL = false;
+        returnRect.correct();
+    });
+
+    connect(viewer->pixmapItem(), &pal::PixmapItem::mouseDoubleClick, [this, viewer](int x, int y) {
         selecting  = false;
-        int mouseX = mousePos.x;
-        int mouseY = mousePos.y;
+        int mouseX = x;
+        int mouseY = y;
         int X = 0, Y = 0, W = 0, H = 0;
 
         int px = mouseX;
@@ -131,7 +134,7 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
                         returnRect.w -= i;
                     }
                     else
-                        returnRect.w = i - 1;
+                        returnRect.w = i;
                     break;
                 }
             }
@@ -148,7 +151,7 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
                         returnRect.w -= i;
                     }
                     else
-                        returnRect.w = i - 1;
+                        returnRect.w = i;
                     break;
                 }
             }
@@ -164,7 +167,7 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
                         returnRect.h -= i;
                     }
                     else
-                        returnRect.h = i - 1;
+                        returnRect.h = i;
                     break;
                 }
             }
@@ -181,16 +184,15 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
                         returnRect.h -= i;
                     }
                     else
-                        returnRect.h = i - 1;
+                        returnRect.h = i;
                     break;
                 }
             }
         }
 
-        viewer->pixmapItem()->rect.setX(returnRect.x);
-        viewer->pixmapItem()->rect.setY(returnRect.y);
-        viewer->pixmapItem()->rect.setWidth(returnRect.w);
-        viewer->pixmapItem()->rect.setHeight(returnRect.h);
+        mouseDownL = false;
+
+        viewer->pixmapItem()->rect = returnRect.toQRect();
         PrintLog(QString("AutoPos: X: %1, Y: %2, W: %3, H: %4")
                      .arg(returnRect.x)
                      .arg(returnRect.y)
@@ -199,30 +201,16 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
 
         viewer->pixmapItem()->update();
     });
-    connect(viewer->view, &pal::GraphicsView::mouseUpR, [this] { mouseDownR = false; });
 
     connect(viewer->pixmapItem(), &pal::PixmapItem::mouseMoved, [this, viewer](int x, int y) {
-        mousePos.x = x;
-        mousePos.y = y;
-
         if (mouseDownL) {
+            mousePos.x = x;
+            mousePos.y = y;
+
             returnRect.w = mousePos.x - returnRect.x;
             returnRect.h = mousePos.y - returnRect.y;
 
-            if (returnRect.w < 0) {
-                returnRect.x -= abs(returnRect.w);
-                returnRect.w = abs(returnRect.w);
-                viewer->pixmapItem()->rect.setX(returnRect.x);
-            }
-
-            if (returnRect.h < 0) {
-                returnRect.y -= abs(returnRect.h);
-                returnRect.h = abs(returnRect.h);
-                viewer->pixmapItem()->rect.setY(returnRect.y);
-            }
-
-            viewer->pixmapItem()->rect.setWidth(returnRect.w);
-            viewer->pixmapItem()->rect.setHeight(returnRect.h);
+            viewer->pixmapItem()->rect = returnRect.toQRect();
         }
 
         viewer->pixmapItem()->update();
