@@ -129,8 +129,10 @@ StageConfigEditorv2::StageConfigEditorv2(FormatHelpers::StageConfig *scf, int gc
         stageConfig->objects[ui->objList->currentRow()].script = s;
         stageConfig->objects[ui->objList->currentRow()].name   = QFileInfo(s).baseName();
 
+        ui->objList->blockSignals(true);
         ui->objList->item(ui->objList->currentRow())
             ->setText(stageConfig->objects[ui->objList->currentRow()].name);
+        ui->objList->blockSignals(true);
 
         ui->objName->blockSignals(true);
         ui->objName->setText(stageConfig->objects[ui->objList->currentRow()].name);
@@ -224,8 +226,11 @@ StageConfigEditorv2::StageConfigEditorv2(FormatHelpers::StageConfig *scf, int gc
         stageConfig->soundFX[ui->sfxList->currentRow()].path = s;
         stageConfig->soundFX[ui->sfxList->currentRow()].name = QFileInfo(s).baseName();
 
+        ui->sfxList->blockSignals(true);
         ui->sfxList->item(ui->sfxList->currentRow())
             ->setText(stageConfig->soundFX[ui->sfxList->currentRow()].path);
+        ui->sfxList->blockSignals(false);
+
         DoAction("Changed Sfx Path");
     });
 }

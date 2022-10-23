@@ -382,6 +382,27 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             WorkingDirManager::workingDir = filedialog.selectedFiles()[0] + "/";
         }
     });
+    QAction *lightModeButton = new QAction("Light Mode", options);
+    lightModeButton->setCheckable(true);
+    lightModeButton->setChecked(appConfig.lightMode);
+    connect(lightModeButton, &QAction::triggered, [this](bool checked) {
+        appConfig.lightMode = checked;
+        appConfig.write();
+        if (appConfig.lightMode) {
+            QApplication::setPalette(lightPal);
+            // why do i have to do this for this one
+            // this is stupid
+            QEvent e(QEvent::ApplicationPaletteChange);
+            for (int w = 0; w < ui->toolTabs->count(); ++w) {
+                QWidget *widget = ui->toolTabs->widget(w);
+
+                QApplication::sendEvent(widget, &e);
+            }
+        }
+        else
+            QApplication::setPalette(darkPal);
+    });
+    options->addAction(lightModeButton);
 
     ui->menubar->addMenu(options);
 
@@ -436,6 +457,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         about->exec();
         delete about;
     });
+
     ui->menubar->addMenu(about);
 }
 

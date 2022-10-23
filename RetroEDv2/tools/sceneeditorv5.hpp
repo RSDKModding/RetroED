@@ -122,6 +122,14 @@ public:
     QList<GameLink> gameLinks;
     GameObjectInfo *GetObjectInfo(QString name);
 
+    QString dataPath = "";
+
+    // Event stuff
+    bool waitForRelease = false;
+
+    // Game Data Storage
+    DataStorage dataStorage[DATASET_MAX];
+
     inline void UpdateTitle(bool modified)
     {
         this->modified = modified;
@@ -130,11 +138,6 @@ public:
         else
             emit TitleChanged(tabTitle);
     }
-
-    QString dataPath = "";
-
-    // Game Data Storage
-    DataStorage dataStorage[DATASET_MAX];
 
     void UndoAction();
     void RedoAction();

@@ -144,8 +144,11 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
     connect(ui->objName, &QLineEdit::textEdited, [this](QString s) {
         gameConfig.objects[ui->objList->currentRow()].name = s;
 
+        ui->objList->blockSignals(true);
         ui->objList->item(ui->objList->currentRow())
             ->setText(gameConfig.objects[ui->objList->currentRow()].name);
+        ui->objList->blockSignals(false);
+
         DoAction("Changed Object Name");
     });
     connect(ui->objScript, &QLineEdit::textEdited, [this](QString s) {
@@ -242,8 +245,11 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
     connect(ui->sfxName, &QLineEdit::textEdited, [this](QString s) {
         gameConfig.soundFX[ui->sfxList->currentRow()].name = s;
 
+        ui->sfxList->blockSignals(true);
         ui->sfxList->item(ui->sfxList->currentRow())
             ->setText(gameConfig.soundFX[ui->sfxList->currentRow()].name);
+        ui->sfxList->blockSignals(false);
+
         DoAction("Changed Sfx Name");
     });
 
@@ -337,8 +343,11 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
     connect(ui->varName, &QLineEdit::textEdited, [this](QString s) {
         gameConfig.globalVariables[ui->varList->currentRow()].name = s;
 
+        ui->varList->blockSignals(true);
         ui->varList->item(ui->varList->currentRow())
             ->setText(gameConfig.globalVariables[ui->varList->currentRow()].name);
+        ui->varList->blockSignals(false);
+
         DoAction("Changed Variable Name");
     });
 
@@ -426,8 +435,11 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
     connect(ui->plrName, &QLineEdit::textEdited, [this](QString s) {
         gameConfig.players[ui->plrList->currentRow()] = s.toUpper();
 
+        ui->plrList->blockSignals(true);
         ui->plrList->item(ui->plrList->currentRow())
             ->setText(gameConfig.players[ui->plrList->currentRow()]);
+        ui->plrList->blockSignals(false);
+
         DoAction("Changed Player Name");
     });
 
@@ -446,7 +458,6 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
             gameConfig.stageLists[index.parent().row()].scenes[index.row()].name = item->text();
             return;
         }
-        // m_gameconfig.m_categories[index.row()].m_name = item->text();
     });
 
     connect(ui->addScn, &QToolButton::clicked, [this] {

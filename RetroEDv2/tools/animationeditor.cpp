@@ -2343,6 +2343,8 @@ void AnimationEditor::UpdateView()
     cy -= offset.y;
 
     QBrush bgBrush(bgColor);
+    if (bgColor.alpha() != 0xFF) 
+        bgBrush = QApplication::palette().dark();
     painter->fillRect(0, 0, ui->viewerFrame->width(), ui->viewerFrame->height(), bgBrush);
 
     painter->setPen(QColor(0x80E0E0E0));
@@ -2623,6 +2625,24 @@ void AnimationEditor::LoadAnim(QString filepath, int aniType)
     else
         currentSubHitbox = 0;
 
+    currentAnim   = -1;
+    currentFrame  = -1;
+    currentHitbox = -1;
+
+    ui->animationList->blockSignals(true);
+    ui->animationList->setCurrentRow(-1);
+    ui->animationList->blockSignals(false);
+
+    frameModel->clear();
+
+    ui->sheetList->blockSignals(true);
+    ui->sheetList->setCurrentRow(-1);
+    ui->sheetList->blockSignals(false);
+
+    ui->hitboxList->blockSignals(true);
+    ui->hitboxList->setCurrentRow(-1);
+    ui->hitboxList->blockSignals(false);
+
     tabTitle = Utils::getFilenameAndFolder(animFile.filePath);
     ClearActions();
     SetupUI();
@@ -2708,6 +2728,10 @@ bool AnimationEditor::event(QEvent *event)
     switch ((int)event->type()) {
         default: break;
 
+        case QEvent::ApplicationPaletteChange:
+            UpdateView();
+            break;
+
         case RE_EVENT_NEW:
             animFile = FormatHelpers::Animation();
             tabTitle = "Animation Editor";
@@ -2719,6 +2743,16 @@ bool AnimationEditor::event(QEvent *event)
         case RE_EVENT_OPEN: {
             QFileDialog filedialog(this, tr("Open Animation"), "",
                                    tr(types.join(";;").toStdString().c_str()));
+
+            switch (aniType) {
+                default:
+                case ENGINE_v5: filedialog.selectNameFilter(types[0]); break;
+                case ENGINE_v4:
+                case ENGINE_v3: filedialog.selectNameFilter(types[1]); break;
+                case ENGINE_v2: filedialog.selectNameFilter(types[2]); break;
+                case ENGINE_v1: filedialog.selectNameFilter(types[3]); break;
+            }
+
             filedialog.setAcceptMode(QFileDialog::AcceptOpen);
             if (filedialog.exec() == QDialog::Accepted) {
                 SetStatus("Opening animation \""

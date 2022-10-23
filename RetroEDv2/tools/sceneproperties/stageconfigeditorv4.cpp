@@ -122,8 +122,11 @@ StageConfigEditorv4::StageConfigEditorv4(FormatHelpers::StageConfig *scf, int gc
     connect(ui->objName, &QLineEdit::textEdited, [this](QString s) {
         stageConfig->objects[ui->objList->currentRow()].name = s;
 
+        ui->objList->blockSignals(true);
         ui->objList->item(ui->objList->currentRow())
             ->setText(stageConfig->objects[ui->objList->currentRow()].name);
+        ui->objList->blockSignals(false);
+
         DoAction("Changed Object Name");
     });
     connect(ui->objScript, &QLineEdit::textEdited, [this](QString s) {
@@ -220,8 +223,11 @@ StageConfigEditorv4::StageConfigEditorv4(FormatHelpers::StageConfig *scf, int gc
     connect(ui->sfxName, &QLineEdit::textEdited, [this](QString s) {
         stageConfig->soundFX[ui->sfxList->currentRow()].name = s;
 
+        ui->sfxList->blockSignals(true);
         ui->sfxList->item(ui->sfxList->currentRow())
             ->setText(stageConfig->soundFX[ui->sfxList->currentRow()].name);
+        ui->sfxList->blockSignals(false);
+
         DoAction("Changed Sfx Name");
     });
 

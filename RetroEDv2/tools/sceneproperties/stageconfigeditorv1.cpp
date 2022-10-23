@@ -254,8 +254,11 @@ StageConfigEditorv1::StageConfigEditorv1(FormatHelpers::StageConfig *scf, QWidge
         stageConfig->soundFX[ui->sfxList->currentRow()].path = s;
         stageConfig->soundFX[ui->sfxList->currentRow()].name = QFileInfo(s).baseName();
 
+        ui->sfxList->blockSignals(true);
         ui->sfxList->item(ui->sfxList->currentRow())
             ->setText(stageConfig->soundFX[ui->sfxList->currentRow()].path);
+        ui->sfxList->blockSignals(false);
+
         DoAction("Changed Sfx Path");
     });
 
@@ -342,8 +345,11 @@ StageConfigEditorv1::StageConfigEditorv1(FormatHelpers::StageConfig *scf, QWidge
     connect(ui->musPath, &QLineEdit::textEdited, [this](QString s) {
         stageConfig->music[ui->musList->currentRow()] = s;
 
+        ui->musList->blockSignals(true);
         ui->musList->item(ui->musList->currentRow())
             ->setText(stageConfig->music[ui->musList->currentRow()]);
+        ui->musList->blockSignals(false);
+
         DoAction("Changed Music Path");
     });
 
@@ -460,8 +466,11 @@ StageConfigEditorv1::StageConfigEditorv1(FormatHelpers::StageConfig *scf, QWidge
     connect(ui->shtPath, &QLineEdit::textEdited, [this](QString s) {
         stageConfig->spriteSheets[ui->shtList->currentRow()] = s;
 
+        ui->shtList->blockSignals(true);
         ui->shtList->item(ui->shtList->currentRow())
             ->setText(stageConfig->spriteSheets[ui->shtList->currentRow()]);
+        ui->shtList->blockSignals(false);
+
         DoAction("Changed Sheet Path");
     });
 }

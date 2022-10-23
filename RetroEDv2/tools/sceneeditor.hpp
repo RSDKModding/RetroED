@@ -113,6 +113,7 @@ public:
     void LoadScene(QString scnPath, QString gcfPath, byte gameType);
     bool SaveScene(bool forceSaveAs = false);
 
+    void UnloadGameLinks();
     void InitGameLink();
 
     bool CallGameEvent(byte eventID, int id);
@@ -137,6 +138,9 @@ public:
     bool HandleKeyRelease(QKeyEvent *event);
 
     void CreateScrollList(bool update = false);
+
+    // Event stuff
+    bool waitForRelease = false;
 
     inline void UpdateTitle(bool modified)
     {

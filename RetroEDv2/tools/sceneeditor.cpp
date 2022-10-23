@@ -281,26 +281,26 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(ui->entityFilter, &QLineEdit::textChanged, [this](QString s) { FilterEntityList(s); });
 
     connect(ui->entityList, &QListWidget::currentRowChanged, [this](int c) {
-        // m_uo->setDisabled(c == -1);
-        // m_do->setDisabled(c == -1);
+        ui->upEnt->setDisabled(c == -1);
+        ui->downEnt->setDisabled(c == -1);
         ui->rmEnt->setDisabled(c == -1);
 
         if (c == -1)
             return;
 
-        // m_do->setDisabled(c == m_objectList->count() - 1);
-        // m_uo->setDisabled(c == 0);
+        ui->downEnt->setDisabled(c == viewer->entities.count() - 1);
+        ui->upEnt->setDisabled(c == 0);
 
         viewer->selectedEntity = c;
 
         viewer->cameraPos.x = viewer->entities[c].pos.x - ((viewer->storedW / 2) * viewer->invZoom());
         viewer->cameraPos.y = viewer->entities[c].pos.y - ((viewer->storedH / 2) * viewer->invZoom());
 
-        auto *entity = &viewer->entities[viewer->selectedEntity];
-        objProp->setupUI(entity, viewer->selectedEntity,
-                         &compilerv2->objectEntityList[entity->gameEntitySlot],
-                         &compilerv3->objectEntityList[entity->gameEntitySlot],
-                         &compilerv4->objectEntityList[entity->gameEntitySlot], viewer->gameType);
+        // auto *entity = &viewer->entities[viewer->selectedEntity];
+        // objProp->setupUI(entity, viewer->selectedEntity,
+        //                  &compilerv2->objectEntityList[entity->gameEntitySlot],
+        //                  &compilerv3->objectEntityList[entity->gameEntitySlot],
+        //                  &compilerv4->objectEntityList[entity->gameEntitySlot], viewer->gameType);
         ui->propertiesBox->setCurrentWidget(ui->objPropPage);
     });
 
@@ -1080,6 +1080,8 @@ bool SceneEditor::event(QEvent *event)
                                           .arg(types[3])
                                           .toStdString()
                                           .c_str()));
+            if (viewer->gameType != ENGINE_v5)
+                filedialog.selectNameFilter(types[viewer->gameType - 1]);
             filedialog.setAcceptMode(QFileDialog::AcceptOpen);
             if (filedialog.exec() == QDialog::Accepted) {
                 int filter     = types.indexOf(filedialog.selectedNameFilter());
@@ -1213,7 +1215,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                             int firstSel = -1;
                             Vector2<float> firstPos;
 
-                            viewer->selectedEntity = -1;
+                            int selectedEntity = -1;
+                            // viewer->selectedEntity = -1;
                             for (int o = 0; o < viewer->entities.count(); ++o) {
                                 int left   = viewer->entities[o].pos.x + viewer->entities[o].box.x;
                                 int top    = viewer->entities[o].pos.y + viewer->entities[o].box.y;
@@ -1230,19 +1233,24 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                     firstPos = pos;
                                 }
 
-                                if (box.contains(pos) && viewer->selectedEntity < o) {
-                                    viewer->selectedEntity = o;
-                                    selectionOffset.x      = pos.x - viewer->entities[o].pos.x;
-                                    selectionOffset.y      = pos.y - viewer->entities[o].pos.y;
+                                if (box.contains(pos) && selectedEntity < o) {
+                                    selectedEntity = o; // future proofing?
+                                    if (viewer->selectedEntity != o) {
+                                        waitForRelease         = true;
+                                        viewer->selectedEntity = o;
 
-                                    auto *entity = &viewer->entities[viewer->selectedEntity];
-                                    objProp->setupUI(
-                                        entity, viewer->selectedEntity,
-                                        &compilerv2->objectEntityList[entity->gameEntitySlot],
-                                        &compilerv3->objectEntityList[entity->gameEntitySlot],
-                                        &compilerv4->objectEntityList[entity->gameEntitySlot],
-                                        viewer->gameType);
-                                    ui->propertiesBox->setCurrentWidget(ui->objPropPage);
+                                        selectionOffset.x = pos.x - viewer->entities[o].pos.x;
+                                        selectionOffset.y = pos.y - viewer->entities[o].pos.y;
+
+                                        auto *entity = &viewer->entities[viewer->selectedEntity];
+                                        objProp->setupUI(
+                                            entity, viewer->selectedEntity,
+                                            &compilerv2->objectEntityList[entity->gameEntitySlot],
+                                            &compilerv3->objectEntityList[entity->gameEntitySlot],
+                                            &compilerv4->objectEntityList[entity->gameEntitySlot],
+                                            viewer->gameType);
+                                        ui->propertiesBox->setCurrentWidget(ui->objPropPage);
+                                    }
                                     // DoAction();
                                     break;
                                 }
@@ -1449,32 +1457,34 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 float moveX = viewer->mousePos.x - viewer->reference.x();
                 float moveY = viewer->mousePos.y - viewer->reference.y();
 
-                QPoint cursorPos = QCursor::pos();
-                QRect screenRect = QGuiApplication::screenAt(viewer->pos())
-                                       ->availableGeometry()
-                                       .adjusted(20, 20, -19, -19);
+                QPoint cursorPos = QApplication::desktop()->cursor().pos();
+                cursorPos -= QPoint(moveX, moveY);
+
+                QScreen *screen = QGuiApplication::screenAt(cursorPos);
+                cursorPos += QPoint(moveX, moveY);
+                if (!screen) {
+                    QGuiApplication::screenAt(cursorPos);
+                }
+
+                QRect screenRect = screen->availableGeometry().adjusted(20, 20, -20, -20);
 
                 if (!screenRect.contains(cursorPos)) {
                     if (cursorPos.x() < screenRect.x()) {
-                        cursorPos.setX(cursorPos.x() + (screenRect.x() + screenRect.width()));
-                        viewer->reference.setX(viewer->reference.x()
-                                               + (screenRect.x() + screenRect.width()));
+                        cursorPos.setX(cursorPos.x() + (screenRect.width() - 5));
+                        viewer->reference.setX(viewer->reference.x() + (screenRect.width() - 5));
                     }
                     if (cursorPos.x() > screenRect.x() + screenRect.width()) {
-                        cursorPos.setX(cursorPos.x() - (screenRect.x() + screenRect.width()));
-                        viewer->reference.setX(viewer->reference.x()
-                                               - (screenRect.x() + screenRect.width()));
+                        cursorPos.setX(cursorPos.x() - (screenRect.width() - 5));
+                        viewer->reference.setX(viewer->reference.x() - (screenRect.width() - 5));
                     }
 
                     if (cursorPos.y() < screenRect.y()) {
-                        cursorPos.setY(cursorPos.y() + (screenRect.y() + screenRect.height()));
-                        viewer->reference.setY(viewer->reference.y()
-                                               + (screenRect.y() + screenRect.height()));
+                        cursorPos.setY(cursorPos.y() + (screenRect.height() - 5));
+                        viewer->reference.setY(viewer->reference.y() + (screenRect.height() - 5));
                     }
                     if (cursorPos.y() > screenRect.y() + screenRect.height()) {
-                        cursorPos.setY(cursorPos.y() - (screenRect.y() + screenRect.height()));
-                        viewer->reference.setY(viewer->reference.y()
-                                               - (screenRect.y() + screenRect.height()));
+                        cursorPos.setY(cursorPos.y() - (screenRect.height() - 5));
+                        viewer->reference.setY(viewer->reference.y() - (screenRect.height() - 5));
                     }
 
                     auto mousePos = viewer->mapFromGlobal(cursorPos);
@@ -1616,7 +1626,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     }
 
                     case SceneViewer::TOOL_ENTITY: {
-                        if (viewer->selectedObject < 0 && viewer->selectedEntity >= 0) {
+                        if (viewer->selectedObject < 0 && viewer->selectedEntity >= 0
+                            && !waitForRelease) {
                             SceneEntity &entity = viewer->entities[viewer->selectedEntity];
 
                             entity.pos.x =
@@ -1689,8 +1700,11 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 default: break;
             }
 
-            if ((mEvent->button() & Qt::LeftButton) == Qt::LeftButton)
+            if ((mEvent->button() & Qt::LeftButton) == Qt::LeftButton) {
+                if (waitForRelease)
+                    waitForRelease = false;
                 mouseDownL = false;
+            }
             if ((mEvent->button() & Qt::MiddleButton) == Qt::MiddleButton)
                 mouseDownM = false;
             if ((mEvent->button() & Qt::RightButton) == Qt::RightButton)
@@ -2431,8 +2445,32 @@ bool SceneEditor::SaveScene(bool forceSaveAs)
     return true;
 }
 
+void SceneEditor::UnloadGameLinks()
+{
+    for (int o = 2; o < v5_SURFACE_MAX; ++o) {
+        if (viewer->gfxSurface[o].scope == SCOPE_STAGE) {
+            if (viewer->gfxSurface[o].texturePtr)
+                delete viewer->gfxSurface[o].texturePtr;
+            viewer->gfxSurface[o].texturePtr = nullptr;
+            viewer->gfxSurface[o].scope      = SCOPE_NONE;
+        }
+    }
+
+    for (int a = 0; a < v5_SPRFILE_COUNT; ++a) {
+        viewer->spriteAnimationList[a].scope      = SCOPE_NONE;
+        viewer->spriteAnimationList[a].animations = NULL;
+        viewer->spriteAnimationList[a].frames     = NULL;
+    }
+
+    compilerv2->ClearScriptData();
+    compilerv3->ClearScriptData();
+    compilerv4->ClearScriptData();
+}
+
 void SceneEditor::InitGameLink()
 {
+    UnloadGameLinks();
+
     compilerv2->ClearScriptData();
     compilerv3->ClearScriptData();
     compilerv4->ClearScriptData();

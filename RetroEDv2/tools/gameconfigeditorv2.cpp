@@ -137,6 +137,12 @@ GameConfigEditorv2::GameConfigEditorv2(QString path, QWidget *parent)
 
     connect(ui->objScript, &QLineEdit::textEdited, [this](QString s) {
         gameConfig.objects[ui->objList->currentRow()] = s;
+
+        ui->objList->blockSignals(true);
+        ui->objList->item(ui->objList->currentRow())
+            ->setText(gameConfig.objects[ui->objList->currentRow()]);
+        ui->objList->blockSignals(false);
+
         DoAction("Changed Object Script");
     });
 
@@ -223,8 +229,11 @@ GameConfigEditorv2::GameConfigEditorv2(QString path, QWidget *parent)
     connect(ui->sfxName, &QLineEdit::textEdited, [this](QString s) {
         gameConfig.soundFX[ui->sfxList->currentRow()] = s;
 
+        ui->sfxList->blockSignals(true);
         ui->sfxList->item(ui->sfxList->currentRow())
             ->setText(gameConfig.soundFX[ui->sfxList->currentRow()]);
+        ui->sfxList->blockSignals(false);
+
         DoAction("Changed Sfx Path");
     });
 
@@ -313,8 +322,11 @@ GameConfigEditorv2::GameConfigEditorv2(QString path, QWidget *parent)
     connect(ui->varName, &QLineEdit::textEdited, [this](QString s) {
         gameConfig.globalVariables[ui->varList->currentRow()].name = s;
 
+        ui->varList->blockSignals(true);
         ui->varList->item(ui->varList->currentRow())
             ->setText(gameConfig.globalVariables[ui->varList->currentRow()].name);
+        ui->varList->blockSignals(false);
+
         DoAction("Changed Variable Name");
     });
 
@@ -410,8 +422,11 @@ GameConfigEditorv2::GameConfigEditorv2(QString path, QWidget *parent)
     connect(ui->plrName, &QLineEdit::textEdited, [this](QString s) {
         gameConfig.players[ui->plrList->currentRow()].name = s.toUpper();
 
+        ui->plrList->blockSignals(true);
         ui->plrList->item(ui->plrList->currentRow())
             ->setText(gameConfig.players[ui->plrList->currentRow()].name);
+        ui->plrList->blockSignals(false);
+
         DoAction("Changed Player Name");
     });
 

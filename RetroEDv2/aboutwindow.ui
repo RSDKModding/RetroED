@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>386</width>
+    <width>479</width>
     <height>148</height>
    </rect>
   </property>
@@ -22,8 +22,8 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>210</x>
-     <y>116</y>
+     <x>305</x>
+     <y>115</y>
      <width>166</width>
      <height>30</height>
     </rect>
@@ -56,13 +56,14 @@
     <rect>
      <x>120</x>
      <y>20</y>
-     <width>241</width>
+     <width>351</width>
      <height>21</height>
     </rect>
    </property>
    <property name="font">
     <font>
      <pointsize>16</pointsize>
+     <weight>75</weight>
      <bold>true</bold>
     </font>
    </property>
@@ -75,7 +76,7 @@
     <rect>
      <x>120</x>
      <y>40</y>
-     <width>111</width>
+     <width>351</width>
      <height>20</height>
     </rect>
    </property>
@@ -94,7 +95,7 @@
     <rect>
      <x>120</x>
      <y>60</y>
-     <width>281</width>
+     <width>351</width>
      <height>16</height>
     </rect>
    </property>
@@ -107,7 +108,7 @@
     <rect>
      <x>120</x>
      <y>90</y>
-     <width>281</width>
+     <width>351</width>
      <height>16</height>
     </rect>
    </property>
@@ -125,12 +126,13 @@
     <rect>
      <x>10</x>
      <y>120</y>
-     <width>270</width>
+     <width>371</width>
      <height>20</height>
     </rect>
    </property>
    <property name="font">
     <font>
+     <weight>75</weight>
      <italic>true</italic>
      <bold>true</bold>
     </font>

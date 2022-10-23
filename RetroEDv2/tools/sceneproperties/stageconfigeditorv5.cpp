@@ -108,14 +108,18 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
         ui->objName->blockSignals(true);
         ui->objName->setText(stageConfig->objects[ui->objList->row(item)]);
         ui->objName->blockSignals(false);
+
         DoAction("Changed Object Name");
     });
 
     connect(ui->objName, &QLineEdit::textEdited, [this](QString s) {
         stageConfig->objects[ui->objList->currentRow()] = s;
 
+        ui->objList->blockSignals(true);
         ui->objList->item(ui->objList->currentRow())
             ->setText(stageConfig->objects[ui->objList->currentRow()]);
+        ui->objList->blockSignals(false);
+
         DoAction("Changed Object Name");
     });
 
@@ -210,8 +214,11 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
     connect(ui->maxPlays, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
         stageConfig->soundFX[ui->sfxList->currentRow()].maxConcurrentPlay = v;
 
+        ui->sfxList->blockSignals(true);
         ui->sfxList->item(ui->sfxList->currentRow())
             ->setText(stageConfig->soundFX[ui->sfxList->currentRow()].path);
+        ui->sfxList->blockSignals(false);
+
         DoAction("Changed Sfx Plays");
     });
 }
