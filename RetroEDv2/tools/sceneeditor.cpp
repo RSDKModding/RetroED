@@ -2431,8 +2431,32 @@ bool SceneEditor::SaveScene(bool forceSaveAs)
     return true;
 }
 
+void SceneEditor::UnloadGameLinks()
+{
+    for (int o = 2; o < v5_SURFACE_MAX; ++o) {
+        if (viewer->gfxSurface[o].scope == SCOPE_STAGE) {
+            if (viewer->gfxSurface[o].texturePtr)
+                delete viewer->gfxSurface[o].texturePtr;
+            viewer->gfxSurface[o].texturePtr = nullptr;
+            viewer->gfxSurface[o].scope      = SCOPE_NONE;
+        }
+    }
+
+    for (int a = 0; a < v5_SPRFILE_COUNT; ++a) {
+        viewer->spriteAnimationList[a].scope      = SCOPE_NONE;
+        viewer->spriteAnimationList[a].animations = NULL;
+        viewer->spriteAnimationList[a].frames     = NULL;
+    }
+
+    compilerv2->ClearScriptData();
+    compilerv3->ClearScriptData();
+    compilerv4->ClearScriptData();
+}
+
 void SceneEditor::InitGameLink()
 {
+    UnloadGameLinks();
+
     compilerv2->ClearScriptData();
     compilerv3->ClearScriptData();
     compilerv4->ClearScriptData();
