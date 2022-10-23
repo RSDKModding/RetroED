@@ -33,7 +33,7 @@ void DebugMessageHandler(QtMsgType type, const QMessageLogContext &context, cons
     }
 }
 
-void initConsole()
+void InitConsole()
 {
 #ifdef _WIN32
     // detach from the current console window
@@ -86,7 +86,7 @@ QPalette darkPal;
 
 int main(int argc, char *argv[])
 {
-    initConsole();
+    InitConsole();
 
     QSurfaceFormat format;
     format.setDepthBufferSize(24);

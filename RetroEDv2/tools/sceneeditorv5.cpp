@@ -575,6 +575,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         viewer->screens->position.x = viewer->cameraPos.x;
         viewer->screens->position.y = viewer->cameraPos.y;
 
+        // THIS IS REALLY *REALLY* SLOW, TODO: FIX/SPEED UP
         objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
         ui->propertiesBox->setCurrentWidget(ui->objPropPage);
     });
@@ -1667,8 +1668,6 @@ bool SceneEditorv5::event(QEvent *event)
     return QWidget::event(event);
 }
 
-bool waitForRelease = false;
-
 bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::FocusIn || event->type() == QEvent::FocusOut) {
@@ -1799,7 +1798,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                 if (box.contains(pos) && selectedEntity < o && filterFlag) {
                                     selectedEntity = o; // future proofing?
                                     if (viewer->selectedEntity != o) {
-                                        waitForRelease = true;
+                                        waitForRelease         = true;
                                         viewer->selectedEntity = o;
                                         viewer->sceneInfo.listPos =
                                             viewer->entities[viewer->selectedEntity].slotID;
@@ -2205,7 +2204,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                         break;
                     }
                     case SceneViewer::TOOL_ENTITY: {
-                        if (viewer->selectedObject < 0 && viewer->selectedEntity >= 0 && !waitForRelease) {
+                        if (viewer->selectedObject < 0 && viewer->selectedEntity >= 0
+                            && !waitForRelease) {
                             SceneEntity &entity = viewer->entities[viewer->selectedEntity];
 
                             entity.pos.x =

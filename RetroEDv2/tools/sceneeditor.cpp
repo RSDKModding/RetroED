@@ -281,26 +281,26 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(ui->entityFilter, &QLineEdit::textChanged, [this](QString s) { FilterEntityList(s); });
 
     connect(ui->entityList, &QListWidget::currentRowChanged, [this](int c) {
-        // m_uo->setDisabled(c == -1);
-        // m_do->setDisabled(c == -1);
+        ui->upEnt->setDisabled(c == -1);
+        ui->downEnt->setDisabled(c == -1);
         ui->rmEnt->setDisabled(c == -1);
 
         if (c == -1)
             return;
 
-        // m_do->setDisabled(c == m_objectList->count() - 1);
-        // m_uo->setDisabled(c == 0);
+        ui->downEnt->setDisabled(c == viewer->entities.count() - 1);
+        ui->upEnt->setDisabled(c == 0);
 
         viewer->selectedEntity = c;
 
         viewer->cameraPos.x = viewer->entities[c].pos.x - ((viewer->storedW / 2) * viewer->invZoom());
         viewer->cameraPos.y = viewer->entities[c].pos.y - ((viewer->storedH / 2) * viewer->invZoom());
 
-        auto *entity = &viewer->entities[viewer->selectedEntity];
-        objProp->setupUI(entity, viewer->selectedEntity,
-                         &compilerv2->objectEntityList[entity->gameEntitySlot],
-                         &compilerv3->objectEntityList[entity->gameEntitySlot],
-                         &compilerv4->objectEntityList[entity->gameEntitySlot], viewer->gameType);
+        // auto *entity = &viewer->entities[viewer->selectedEntity];
+        // objProp->setupUI(entity, viewer->selectedEntity,
+        //                  &compilerv2->objectEntityList[entity->gameEntitySlot],
+        //                  &compilerv3->objectEntityList[entity->gameEntitySlot],
+        //                  &compilerv4->objectEntityList[entity->gameEntitySlot], viewer->gameType);
         ui->propertiesBox->setCurrentWidget(ui->objPropPage);
     });
 
@@ -1150,8 +1150,6 @@ bool SceneEditor::event(QEvent *event)
     return QWidget::event(event);
 }
 
-bool waitForRelease = false;
-
 bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::FocusIn || event->type() == QEvent::FocusOut) {
@@ -1217,8 +1215,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                             int firstSel = -1;
                             Vector2<float> firstPos;
 
-                            int selectedEntity     = -1;
-                            //viewer->selectedEntity = -1;
+                            int selectedEntity = -1;
+                            // viewer->selectedEntity = -1;
                             for (int o = 0; o < viewer->entities.count(); ++o) {
                                 int left   = viewer->entities[o].pos.x + viewer->entities[o].box.x;
                                 int top    = viewer->entities[o].pos.y + viewer->entities[o].box.y;

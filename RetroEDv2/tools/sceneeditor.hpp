@@ -139,6 +139,9 @@ public:
 
     void CreateScrollList(bool update = false);
 
+    // Event stuff
+    bool waitForRelease = false;
+
     inline void UpdateTitle(bool modified)
     {
         this->modified = modified;
