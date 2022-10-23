@@ -115,7 +115,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     compilerv3 = new Compilerv3;
     compilerv4 = new Compilerv4;
 
-    viewer = new SceneViewer(ENGINE_v4, this);
+    viewer = new SceneViewer(ENGINE_NONE, this);
     viewer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->viewerFrame->layout()->addWidget(viewer);
     viewer->show();
@@ -1072,26 +1072,27 @@ bool SceneEditor::event(QEvent *event)
                 "RSDKv2 GameConfig (GameConfig*.bin)",
             };
 
-            QFileDialog filedialog(this, tr("Open Scene"), "",
-                                   tr(QString("%1;;%2;;%3;;%4")
-                                          .arg(types[0])
-                                          .arg(types[1])
-                                          .arg(types[2])
-                                          .arg(types[3])
-                                          .toStdString()
-                                          .c_str()));
-            if (viewer->gameType != ENGINE_v5)
-                filedialog.selectNameFilter(types[viewer->gameType - 1]);
+            QFileDialog filedialog(this, tr("Open Scene"), viewer->dataPath + "/Stages/");
+            filedialog.setNameFilters(types);
             filedialog.setAcceptMode(QFileDialog::AcceptOpen);
+
+            if (viewer->gameType != ENGINE_NONE) {
+                filedialog.selectNameFilter(types[viewer->gameType - 1]);
+            }
+
             if (filedialog.exec() == QDialog::Accepted) {
                 int filter     = types.indexOf(filedialog.selectedNameFilter());
                 QString gcPath = "";
 
-                if (filter < 3) {
-                    QFileDialog gcdialog(this, tr("Open GameConfig"), "",
-                                         tr((gcTypes[filter] + ";;RSDK Game.xml Files (Game*.xml)")
-                                                .toStdString()
-                                                .c_str()));
+                QString filePath = QFileInfo(filedialog.selectedFiles()[0]).absolutePath();
+                QDir dir(filePath); // Data/Stages/SCENE/
+                dir.cdUp();         // Data/Stages/
+                dir.cdUp();         // Data/
+
+                if ((viewer->gameType != filter + 1 || viewer->dataPath != dir.path())
+                    && filter < ENGINE_v2) {
+                    QFileDialog gcdialog(this, tr("Open GameConfig"), dir.path() + "/Data/");
+                    gcdialog.setNameFilters({ gcTypes[filter], "RSDK Game.xml Files (Game*.xml)" });
                     gcdialog.setAcceptMode(QFileDialog::AcceptOpen);
                     if (gcdialog.exec() == QDialog::Accepted) {
                         gcPath = gcdialog.selectedFiles()[0];
@@ -1102,6 +1103,9 @@ bool SceneEditor::event(QEvent *event)
                         }
                         gcPath = gameConfig.filePath;
                     }
+                }
+                else {
+                    gcPath = gameConfig.filePath;
                 }
 
                 LoadScene(filedialog.selectedFiles()[0], gcPath, filter + 1);

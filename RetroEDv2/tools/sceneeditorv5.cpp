@@ -1545,6 +1545,8 @@ SceneEditorv5::~SceneEditorv5()
     releaseStorage(dataStorage);
 }
 
+QString lastSelected = "";
+
 bool SceneEditorv5::event(QEvent *event)
 {
 
@@ -1557,26 +1559,37 @@ bool SceneEditorv5::event(QEvent *event)
                 "RSDKv5 Scenes (Pre-Plus) (Scene*.bin)",
             };
 
-            QFileDialog filedialog(
-                this, tr("Open Scene"), "",
-                tr(QString("%1;;%2").arg(types[0]).arg(types[1]).toStdString().c_str()));
+            QFileDialog filedialog(this, tr("Open Scene"), "");
+            filedialog.setNameFilters(types);
             filedialog.setAcceptMode(QFileDialog::AcceptOpen);
+
+            if (!lastSelected.isEmpty())
+                filedialog.selectNameFilter(lastSelected);
+
             if (filedialog.exec() == QDialog::Accepted) {
-                int filter     = types.indexOf(filedialog.selectedNameFilter());
+                lastSelected   = filedialog.selectedNameFilter();
+                int filter     = types.indexOf(lastSelected);
                 QString gcPath = "";
 
-                QFileDialog gcdialog(
-                    this, tr("Open GameConfig"), "",
-                    tr("RSDKv5 GameConfig (GameConfig*.bin);;RSDK Game.xml Files (Game*.xml)"));
-                gcdialog.setAcceptMode(QFileDialog::AcceptOpen);
-                if (gcdialog.exec() == QDialog::Accepted) {
-                    gcPath = gcdialog.selectedFiles()[0];
-                }
-                else {
-                    if (!QFile::exists(gameConfig.filePath)) {
-                        return false;
+                QString filePath = QFileInfo(filedialog.selectedFiles()[0]).absolutePath();
+                QDir dir(filePath); // Data/Stages/SCENE/
+                dir.cdUp();         // Data/Stages/
+                dir.cdUp();         // Data/
+
+                if (dataPath.isEmpty() || dataPath != dir.path()) {
+                    QFileDialog gcdialog(
+                        this, tr("Open GameConfig"), dir.path(),
+                        tr("RSDKv5 GameConfig (GameConfig*.bin);;RSDK Game.xml Files (Game*.xml)"));
+                    gcdialog.setAcceptMode(QFileDialog::AcceptOpen);
+                    if (gcdialog.exec() == QDialog::Accepted) {
+                        gcPath = gcdialog.selectedFiles()[0];
                     }
-                    gcPath = gameConfig.filePath;
+                    else {
+                        if (!QFile::exists(gameConfig.filePath)) {
+                            return false;
+                        }
+                        gcPath = gameConfig.filePath;
+                    }
                 }
 
                 LoadScene(filedialog.selectedFiles()[0], gcPath, filter);

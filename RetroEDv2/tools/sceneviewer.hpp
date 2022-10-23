@@ -83,7 +83,7 @@ public:
     double fps;
     QElapsedTimer fpsTimer;
 
-    byte gameType = ENGINE_v5;
+    byte gameType = ENGINE_NONE;
 
     QString dataPath = "";
 
