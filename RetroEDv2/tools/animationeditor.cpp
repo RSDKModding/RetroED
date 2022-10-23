@@ -2737,6 +2737,16 @@ bool AnimationEditor::event(QEvent *event)
         case RE_EVENT_OPEN: {
             QFileDialog filedialog(this, tr("Open Animation"), "",
                                    tr(types.join(";;").toStdString().c_str()));
+
+            switch (aniType) {
+                default:
+                case ENGINE_v5: filedialog.selectNameFilter(types[0]); break;
+                case ENGINE_v4:
+                case ENGINE_v3: filedialog.selectNameFilter(types[1]); break;
+                case ENGINE_v2: filedialog.selectNameFilter(types[2]); break;
+                case ENGINE_v1: filedialog.selectNameFilter(types[3]); break;
+            }
+
             filedialog.setAcceptMode(QFileDialog::AcceptOpen);
             if (filedialog.exec() == QDialog::Accepted) {
                 SetStatus("Opening animation \""

@@ -1080,6 +1080,8 @@ bool SceneEditor::event(QEvent *event)
                                           .arg(types[3])
                                           .toStdString()
                                           .c_str()));
+            if (viewer->gameType != ENGINE_v5)
+                filedialog.selectNameFilter(types[viewer->gameType - 1]);
             filedialog.setAcceptMode(QFileDialog::AcceptOpen);
             if (filedialog.exec() == QDialog::Accepted) {
                 int filter     = types.indexOf(filedialog.selectedNameFilter());
