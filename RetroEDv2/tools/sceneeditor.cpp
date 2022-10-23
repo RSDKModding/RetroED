@@ -1459,18 +1459,14 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
                 QPoint cursorPos = QApplication::desktop()->cursor().pos();
                 cursorPos -= QPoint(moveX, moveY);
-                int nX = 0, nY = 0;
-                if (cursorPos.x() < 0) {
-                    nX = -cursorPos.x();
-                    cursorPos.setX(0);
-                }
-                if (cursorPos.y() < 0) {
-                    nY = -cursorPos.y();
-                    cursorPos.setY(0);
+
+                QScreen *screen = QGuiApplication::screenAt(cursorPos);
+                cursorPos += QPoint(moveX, moveY);
+                if (!screen) {
+                    QGuiApplication::screenAt(cursorPos);
                 }
 
-                QRect screenRect = QGuiApplication::screenAt(cursorPos)->availableGeometry().adjusted(
-                    20, 20, -20, -20);
+                QRect screenRect = screen->availableGeometry().adjusted(20, 20, -20, -20);
 
                 if (!screenRect.contains(cursorPos)) {
                     if (cursorPos.x() < screenRect.x()) {
@@ -1490,7 +1486,6 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         cursorPos.setY(cursorPos.y() - (screenRect.height() - 5));
                         viewer->reference.setY(viewer->reference.y() - (screenRect.height() - 5));
                     }
-                    cursorPos += QPoint(moveX + nX, moveY + nY);
 
                     auto mousePos = viewer->mapFromGlobal(cursorPos);
                     moveX         = mousePos.x() - viewer->reference.x();
