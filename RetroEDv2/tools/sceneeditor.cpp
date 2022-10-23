@@ -1150,6 +1150,8 @@ bool SceneEditor::event(QEvent *event)
     return QWidget::event(event);
 }
 
+bool waitForRelease = false;
+
 bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::FocusIn || event->type() == QEvent::FocusOut) {
@@ -1215,7 +1217,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                             int firstSel = -1;
                             Vector2<float> firstPos;
 
-                            viewer->selectedEntity = -1;
+                            int selectedEntity     = -1;
+                            //viewer->selectedEntity = -1;
                             for (int o = 0; o < viewer->entities.count(); ++o) {
                                 int left   = viewer->entities[o].pos.x + viewer->entities[o].box.x;
                                 int top    = viewer->entities[o].pos.y + viewer->entities[o].box.y;
@@ -1232,19 +1235,24 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                     firstPos = pos;
                                 }
 
-                                if (box.contains(pos) && viewer->selectedEntity < o) {
-                                    viewer->selectedEntity = o;
-                                    selectionOffset.x      = pos.x - viewer->entities[o].pos.x;
-                                    selectionOffset.y      = pos.y - viewer->entities[o].pos.y;
+                                if (box.contains(pos) && selectedEntity < o) {
+                                    selectedEntity = o; // future proofing?
+                                    if (viewer->selectedEntity != o) {
+                                        waitForRelease         = true;
+                                        viewer->selectedEntity = o;
 
-                                    auto *entity = &viewer->entities[viewer->selectedEntity];
-                                    objProp->setupUI(
-                                        entity, viewer->selectedEntity,
-                                        &compilerv2->objectEntityList[entity->gameEntitySlot],
-                                        &compilerv3->objectEntityList[entity->gameEntitySlot],
-                                        &compilerv4->objectEntityList[entity->gameEntitySlot],
-                                        viewer->gameType);
-                                    ui->propertiesBox->setCurrentWidget(ui->objPropPage);
+                                        selectionOffset.x = pos.x - viewer->entities[o].pos.x;
+                                        selectionOffset.y = pos.y - viewer->entities[o].pos.y;
+
+                                        auto *entity = &viewer->entities[viewer->selectedEntity];
+                                        objProp->setupUI(
+                                            entity, viewer->selectedEntity,
+                                            &compilerv2->objectEntityList[entity->gameEntitySlot],
+                                            &compilerv3->objectEntityList[entity->gameEntitySlot],
+                                            &compilerv4->objectEntityList[entity->gameEntitySlot],
+                                            viewer->gameType);
+                                        ui->propertiesBox->setCurrentWidget(ui->objPropPage);
+                                    }
                                     // DoAction();
                                     break;
                                 }
@@ -1463,31 +1471,26 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     cursorPos.setY(0);
                 }
 
-                QRect screenRect = QGuiApplication::screenAt(cursorPos)
-                                       ->availableGeometry()
-                                       .adjusted(20, 20, -20, -20);
+                QRect screenRect = QGuiApplication::screenAt(cursorPos)->availableGeometry().adjusted(
+                    20, 20, -20, -20);
 
                 if (!screenRect.contains(cursorPos)) {
                     if (cursorPos.x() < screenRect.x()) {
                         cursorPos.setX(cursorPos.x() + (screenRect.width() - 5));
-                        viewer->reference.setX(viewer->reference.x()
-                                               + (screenRect.width() - 5));
+                        viewer->reference.setX(viewer->reference.x() + (screenRect.width() - 5));
                     }
                     if (cursorPos.x() > screenRect.x() + screenRect.width()) {
                         cursorPos.setX(cursorPos.x() - (screenRect.width() - 5));
-                        viewer->reference.setX(viewer->reference.x()
-                                               - (screenRect.width() - 5));
+                        viewer->reference.setX(viewer->reference.x() - (screenRect.width() - 5));
                     }
 
                     if (cursorPos.y() < screenRect.y()) {
                         cursorPos.setY(cursorPos.y() + (screenRect.height() - 5));
-                        viewer->reference.setY(viewer->reference.y()
-                                               + (screenRect.height() - 5));
+                        viewer->reference.setY(viewer->reference.y() + (screenRect.height() - 5));
                     }
                     if (cursorPos.y() > screenRect.y() + screenRect.height()) {
                         cursorPos.setY(cursorPos.y() - (screenRect.height() - 5));
-                        viewer->reference.setY(viewer->reference.y()
-                                               - (screenRect.height() - 5));
+                        viewer->reference.setY(viewer->reference.y() - (screenRect.height() - 5));
                     }
                     cursorPos += QPoint(moveX + nX, moveY + nY);
 
@@ -1504,7 +1507,6 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 else {
                     viewer->reference = mPos;
                 }
-
 
                 viewer->cameraPos.x -= moveX * viewer->invZoom();
                 viewer->cameraPos.y -= moveY * viewer->invZoom();
@@ -1631,7 +1633,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     }
 
                     case SceneViewer::TOOL_ENTITY: {
-                        if (viewer->selectedObject < 0 && viewer->selectedEntity >= 0) {
+                        if (viewer->selectedObject < 0 && viewer->selectedEntity >= 0
+                            && !waitForRelease) {
                             SceneEntity &entity = viewer->entities[viewer->selectedEntity];
 
                             entity.pos.x =
@@ -1704,8 +1707,11 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 default: break;
             }
 
-            if ((mEvent->button() & Qt::LeftButton) == Qt::LeftButton)
+            if ((mEvent->button() & Qt::LeftButton) == Qt::LeftButton) {
+                if (waitForRelease)
+                    waitForRelease = false;
                 mouseDownL = false;
+            }
             if ((mEvent->button() & Qt::MiddleButton) == Qt::MiddleButton)
                 mouseDownM = false;
             if ((mEvent->button() & Qt::RightButton) == Qt::RightButton)
