@@ -147,7 +147,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         ui->objList->blockSignals(true);
         ui->objList->item(ui->objList->currentRow())
             ->setText(gameConfig.objects[ui->objList->currentRow()].name);
-        ui->objList->blockSignals(true);
+        ui->objList->blockSignals(false);
 
         DoAction("Changed Object Name");
     });
@@ -248,7 +248,7 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         ui->sfxList->blockSignals(true);
         ui->sfxList->item(ui->sfxList->currentRow())
             ->setText(gameConfig.soundFX[ui->sfxList->currentRow()].name);
-        ui->sfxList->blockSignals(true);
+        ui->sfxList->blockSignals(false);
 
         DoAction("Changed Sfx Name");
     });
