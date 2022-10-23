@@ -30,6 +30,7 @@ SOURCES += \
     gamemanager.cpp \
     includes.cpp \
     mainwindow.cpp \
+    splashscreen.cpp \
     tools/animationeditor.cpp \
     tools/animationeditor/animsheetselector.cpp \
     tools/compiler/compilerv1.cpp \
@@ -93,6 +94,7 @@ HEADERS += \
     aboutwindow.hpp \
     gamemanager.hpp \
     mainwindow.hpp \
+    splashscreen.hpp \
     tools/animationeditor.hpp \
     tools/animationeditor/animsheetselector.hpp \
     tools/compiler/compilerv1.hpp \

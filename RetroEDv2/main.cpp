@@ -4,6 +4,8 @@
 #include <QApplication>
 #include "version.hpp"
 
+#include "splashscreen.hpp"
+
 void DebugMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QByteArray localMsg  = msg.toLocal8Bit();
@@ -88,6 +90,15 @@ int main(int argc, char *argv[])
 {
     InitConsole();
 
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+
+    QApplication a(argc, argv);
+
+    SplashScreen splash;
+    splash.showMessage("Setting up display format...");
+    splash.show();
+
     QSurfaceFormat format;
     format.setDepthBufferSize(24);
     format.setStencilBufferSize(8);
@@ -96,14 +107,16 @@ int main(int argc, char *argv[])
     format.setProfile(QSurfaceFormat::CoreProfile);
     QSurfaceFormat::setDefaultFormat(format);
 
+    QCoreApplication::processEvents();
+    splash.showMessage("Configuring style...");
+
     qInstallMessageHandler(DebugMessageHandler);
     RE2Style *style = new RE2Style(); // TODO: is this deleted ever???
 
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QApplication a(argc, argv);
-    a.setAttribute(Qt::AA_UseHighDpiPixmaps);
-
     QApplication::setStyle(style);
+
+    QCoreApplication::processEvents();
+    splash.showMessage("Setting up appConfig...");
 
     appDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/";
     if (!QDir(appDir).exists())
@@ -144,6 +157,8 @@ int main(int argc, char *argv[])
     if (!QDir(homeDir).exists())
         QDir(homeDir).mkpath(homeDir);
 
+    splash.showMessage("Setting up file lists...");
+
     // copy RSDKv4 file list if it doesn't exist
     if (!QFile(homeDir + "RSDKv4FileList.txt").exists()) {
         Reader reader(":/resources/RSDKv4FileList.txt");
@@ -182,9 +197,12 @@ int main(int argc, char *argv[])
     PrintLog(QString("Version: ") + RE_VERSION);
     PrintLog("====================================================");
 
+    splash.showMessage("Setting up GameLink...");
+
     GameLink::Setup();
 
     MainWindow w;
+    splash.finish(&w);
     w.show();
     return a.exec();
 }
