@@ -18,6 +18,10 @@ void AppConfig::read(Reader &reader)
     if (!reader.isEOF()) {
         for (int v = 0; v <= ENGINE_v1; ++v) gameManager[v].read(reader);
     }
+
+    if (!reader.isEOF()) {
+        lightMode = reader.read<byte>();
+    }
 }
 
 void AppConfig::write(Writer &writer)
@@ -30,6 +34,7 @@ void AppConfig::write(Writer &writer)
     for (auto &rf : recentFiles) rf.write(writer);
 
     for (int v = 0; v <= ENGINE_v1; ++v) gameManager[v].write(writer);
+    writer.write((byte)lightMode);
 
     writer.flush();
 }

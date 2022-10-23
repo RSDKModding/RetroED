@@ -17,22 +17,6 @@
    <string/>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="9">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Expanding</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
    <item row="2" column="0" colspan="21">
     <layout class="QHBoxLayout" name="widgetLayout"/>
    </item>
@@ -147,22 +131,24 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="10" colspan="4">
-    <widget class="QPushButton" name="importPal">
-     <property name="toolTip">
-      <string>Imports a palette into the current palette bank</string>
+   <item row="1" column="9" colspan="2">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
-     <property name="text">
-      <string/>
+     <property name="sizeType">
+      <enum>QSizePolicy::Expanding</enum>
      </property>
-     <property name="icon">
-      <iconset>
-       <normaloff>:/icons/ic_import_48px.svg</normaloff>:/icons/ic_import_48px.svg</iconset>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
      </property>
-    </widget>
+    </spacer>
    </item>
-   <item row="1" column="14" colspan="5">
-    <widget class="QPushButton" name="exportPal">
+   <item row="1" column="20">
+    <widget class="QToolButton" name="exportPal">
      <property name="toolTip">
       <string>Export the current palette bank</string>
      </property>
@@ -170,8 +156,22 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset>
+      <iconset resource="../resources.qrc">
        <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="19">
+    <widget class="QToolButton" name="importPal">
+     <property name="toolTip">
+      <string>Imports a palette into the current palette bank</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../resources.qrc">
+       <normaloff>:/icons/ic_import_48px.svg</normaloff>:/icons/ic_import_48px.svg</iconset>
      </property>
     </widget>
    </item>
@@ -186,9 +186,9 @@
   <tabstop>bank6</tabstop>
   <tabstop>bank7</tabstop>
   <tabstop>bank8</tabstop>
-  <tabstop>importPal</tabstop>
-  <tabstop>exportPal</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QSettings>
+
 enum TooIDs {
     TOOL_SCENEEDITOR,
     TOOL_ANIMATIONEDITOR,
@@ -40,7 +42,15 @@ public:
         QString exePath = "";
     };
 
-    AppConfig() {}
+    AppConfig()
+    {
+#ifdef Q_OS_WIN
+        QSettings settings(
+            "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+            QSettings::NativeFormat);
+        lightMode = settings.value("AppsUseLightTheme", 1).toInt();
+#endif
+    }
     AppConfig(QString filename) { read(filename); }
     AppConfig(Reader &reader) { read(reader); }
 
@@ -66,6 +76,7 @@ public:
 
     QList<RecentFileInfo> recentFiles;
     GameManagerInfo gameManager[ENGINE_v1 + 1];
+    bool lightMode = false;
 
     QString filePath;
     const byte fileVer = 1;

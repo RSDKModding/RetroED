@@ -2343,6 +2343,8 @@ void AnimationEditor::UpdateView()
     cy -= offset.y;
 
     QBrush bgBrush(bgColor);
+    if (bgColor.alpha() != 0xFF) 
+        bgBrush = QApplication::palette().dark();
     painter->fillRect(0, 0, ui->viewerFrame->width(), ui->viewerFrame->height(), bgBrush);
 
     painter->setPen(QColor(0x80E0E0E0));
@@ -2707,6 +2709,10 @@ bool AnimationEditor::event(QEvent *event)
 
     switch ((int)event->type()) {
         default: break;
+
+        case QEvent::ApplicationPaletteChange:
+            UpdateView();
+            break;
 
         case RE_EVENT_NEW:
             animFile = FormatHelpers::Animation();
