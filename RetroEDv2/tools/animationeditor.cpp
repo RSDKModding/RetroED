@@ -2623,6 +2623,24 @@ void AnimationEditor::LoadAnim(QString filepath, int aniType)
     else
         currentSubHitbox = 0;
 
+    currentAnim   = -1;
+    currentFrame  = -1;
+    currentHitbox = -1;
+
+    ui->animationList->blockSignals(true);
+    ui->animationList->setCurrentRow(-1);
+    ui->animationList->blockSignals(false);
+
+    frameModel->clear();
+
+    ui->sheetList->blockSignals(true);
+    ui->sheetList->setCurrentRow(-1);
+    ui->sheetList->blockSignals(false);
+
+    ui->hitboxList->blockSignals(true);
+    ui->hitboxList->setCurrentRow(-1);
+    ui->hitboxList->blockSignals(false);
+
     tabTitle = Utils::getFilenameAndFolder(animFile.filePath);
     ClearActions();
     SetupUI();
