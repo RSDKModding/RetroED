@@ -3064,18 +3064,39 @@ bool SceneEditor::HandleKeyPress(QKeyEvent *event)
         case SceneViewer::TOOL_ERASER: break;
 
         case SceneViewer::TOOL_ENTITY:
-            if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace) {
-                if (viewer->selectedEntity >= 0) {
+            if (viewer->selectedEntity > -1) {
+                if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace) {
                     DeleteEntity(viewer->selectedEntity);
                     viewer->selectedEntity = -1;
 
                     DoAction();
                 }
-            }
 
-            if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
-                && event->key() == Qt::Key_C) {
-                if (viewer->selectedEntity >= 0) {
+                int move = 4;
+                if (ctrlDownL)
+                    move *= 4;
+                if (shiftDownL)
+                    move /= 4;
+
+                if (event->key() == Qt::Key_Up) {
+                    viewer->entities[viewer->selectedEntity].pos.y -= move;
+                    objProp->updateUI();
+                }
+                if (event->key() == Qt::Key_Down) {
+                    viewer->entities[viewer->selectedEntity].pos.y += move;
+                    objProp->updateUI();
+                }
+                if (event->key() == Qt::Key_Left) {
+                    viewer->entities[viewer->selectedEntity].pos.x -= move;
+                    objProp->updateUI();
+                }
+                if (event->key() == Qt::Key_Right) {
+                    viewer->entities[viewer->selectedEntity].pos.x += move;
+                    objProp->updateUI();
+                }
+
+                if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
+                    && event->key() == Qt::Key_C) {
                     clipboard     = &viewer->entities[viewer->selectedEntity];
                     clipboardType = COPY_ENTITY;
                     clipboardInfo = viewer->selectedEntity;
