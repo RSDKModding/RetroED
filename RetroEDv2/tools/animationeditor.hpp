@@ -82,7 +82,7 @@ private:
     void SetupFrameList(QList<FormatHelpers::Animation::Frame> &frames);
 
     bool showTransparentClr = true;
-    QColor bgColor          = QColor(0xA0, 0xA0, 0xA0, 0xFF);
+    QColor bgColor          = Qt::transparent;
     float zoom              = 1.0;
 
     bool playingAnim  = false;

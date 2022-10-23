@@ -457,6 +457,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         about->exec();
         delete about;
     });
+
     ui->menubar->addMenu(about);
 }
 

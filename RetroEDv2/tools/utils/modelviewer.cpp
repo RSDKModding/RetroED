@@ -214,8 +214,6 @@ void ModelViewer::initializeGL()
     glFuncs->glDepthFunc(GL_LESS);
     glFuncs->glDepthRangef(0.1f, 256);
 
-    glFuncs->glClearColor(23 / 255.f, 23 / 255.f, 23 / 255.f, 1.0f);
-
     shader.loadShader(":/shaders/3d/default.vert", QOpenGLShader::Vertex);
     shader.loadShader(":/shaders/3d/default.frag", QOpenGLShader::Fragment);
     shader.link();
@@ -284,6 +282,8 @@ void ModelViewer::resizeGL(int w, int h)
 void ModelViewer::paintGL()
 {
     glFuncs = context()->functions();
+    QColor c = QApplication::palette().dark().color();
+    glFuncs->glClearColor(c.redF(), c.greenF(), c.blueF(), 1.0f);
     glFuncs->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (!curFrame || !curFrame->vertices.count())
