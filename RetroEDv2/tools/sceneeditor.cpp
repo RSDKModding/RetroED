@@ -1451,33 +1451,45 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 float moveX = viewer->mousePos.x - viewer->reference.x();
                 float moveY = viewer->mousePos.y - viewer->reference.y();
 
-                QPoint cursorPos = QCursor::pos();
-                QRect screenRect = QGuiApplication::screenAt(viewer->pos())
+                QPoint cursorPos = QApplication::desktop()->cursor().pos();
+                cursorPos -= QPoint(moveX, moveY);
+                int nX = 0, nY = 0;
+                if (cursorPos.x() < 0) {
+                    nX = -cursorPos.x();
+                    cursorPos.setX(0);
+                }
+                if (cursorPos.y() < 0) {
+                    nY = -cursorPos.y();
+                    cursorPos.setY(0);
+                }
+
+                QRect screenRect = QGuiApplication::screenAt(cursorPos)
                                        ->availableGeometry()
-                                       .adjusted(20, 20, -19, -19);
+                                       .adjusted(20, 20, -20, -20);
 
                 if (!screenRect.contains(cursorPos)) {
                     if (cursorPos.x() < screenRect.x()) {
-                        cursorPos.setX(cursorPos.x() + (screenRect.x() + screenRect.width()));
+                        cursorPos.setX(cursorPos.x() + (screenRect.width() - 5));
                         viewer->reference.setX(viewer->reference.x()
-                                               + (screenRect.x() + screenRect.width()));
+                                               + (screenRect.width() - 5));
                     }
                     if (cursorPos.x() > screenRect.x() + screenRect.width()) {
-                        cursorPos.setX(cursorPos.x() - (screenRect.x() + screenRect.width()));
+                        cursorPos.setX(cursorPos.x() - (screenRect.width() - 5));
                         viewer->reference.setX(viewer->reference.x()
-                                               - (screenRect.x() + screenRect.width()));
+                                               - (screenRect.width() - 5));
                     }
 
                     if (cursorPos.y() < screenRect.y()) {
-                        cursorPos.setY(cursorPos.y() + (screenRect.y() + screenRect.height()));
+                        cursorPos.setY(cursorPos.y() + (screenRect.height() - 5));
                         viewer->reference.setY(viewer->reference.y()
-                                               + (screenRect.y() + screenRect.height()));
+                                               + (screenRect.height() - 5));
                     }
                     if (cursorPos.y() > screenRect.y() + screenRect.height()) {
-                        cursorPos.setY(cursorPos.y() - (screenRect.y() + screenRect.height()));
+                        cursorPos.setY(cursorPos.y() - (screenRect.height() - 5));
                         viewer->reference.setY(viewer->reference.y()
-                                               - (screenRect.y() + screenRect.height()));
+                                               - (screenRect.height() - 5));
                     }
+                    cursorPos += QPoint(moveX + nX, moveY + nY);
 
                     auto mousePos = viewer->mapFromGlobal(cursorPos);
                     moveX         = mousePos.x() - viewer->reference.x();
@@ -1492,6 +1504,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 else {
                     viewer->reference = mPos;
                 }
+
 
                 viewer->cameraPos.x -= moveX * viewer->invZoom();
                 viewer->cameraPos.y -= moveY * viewer->invZoom();
