@@ -122,8 +122,11 @@ GameConfigEditorv1::GameConfigEditorv1(QString path, QWidget *parent)
     connect(ui->plrNameDisplay, &QLineEdit::textEdited, [this](QString s) {
         characters.players[ui->plrList->currentRow()].displayName = s.toUpper();
 
+        ui->plrList->blockSignals(true);
         ui->plrList->item(ui->plrList->currentRow())
             ->setText(characters.players[ui->plrList->currentRow()].displayName);
+        ui->plrList->blockSignals(false);
+
         DoAction("Changed Display Name");
     });
 
