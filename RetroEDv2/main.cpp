@@ -57,10 +57,14 @@ void initConsole()
 }
 
 int main(int argc, char *argv[])
-{
-    // initConsole();
+{    
+    initConsole();
+
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+
     QApplication a(argc, argv);
-    
+
     SplashScreen splash;
     splash.showMessage("Setting up display format...");
     splash.show();
@@ -79,8 +83,6 @@ int main(int argc, char *argv[])
     qInstallMessageHandler(DebugMessageHandler);
     PhantomStyle *style = new PhantomStyle(); // TODO: is this deleted ever???
 
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    a.setAttribute(Qt::AA_UseHighDpiPixmaps);
     QApplication::setStyle(style);
 
     QPalette pal;
@@ -169,9 +171,7 @@ int main(int argc, char *argv[])
     GameLink::Setup();
 
     MainWindow w;
-    w.show();
     splash.finish(&w);
-    int ret = a.exec();
-    delete style;
-    return ret;
+    w.show();
+    return a.exec();
 }

@@ -1,6 +1,6 @@
 from datetime import datetime
-import os
 import pytz
+import os
 import sys
 import re
 
@@ -24,6 +24,7 @@ else:
 
 time = datetime.now(pytz.timezone("US/Eastern"))
 s = time.strftime("v%Y.%m.%d") + buildadd
+n = time.strftime("%Y%m%d%H%M")
 
 if os.path.exists("version.hpp"):
     for line in open("version.hpp", "r").readlines():
@@ -32,11 +33,10 @@ if os.path.exists("version.hpp"):
             print("version matches; nothing to be done")
             exit()
 
-LINES = [
+open("version.hpp", "w").write(
     "#pragma once\n\n"
-    f"#define RE_VERSION    (\"{s}\")\n",
-    f"#define RE_BUILD_TYPE ({buildtype})\n",
-]
-
-open("version.hpp", "w").writelines(LINES)
+    f"#define RE_VERSIONNUM ({n}ULL)\n"
+    f"#define RE_VERSION    (\"{s}\")\n"
+    f"#define RE_BUILD_TYPE ({buildtype})\n"
+)
 print(f"wrote version {s}")
