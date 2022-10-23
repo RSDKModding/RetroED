@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
     splash.showMessage("Configuring style...");
 
     qInstallMessageHandler(DebugMessageHandler);
-    RE2Style *style = new RE2Style(); // TODO: is this deleted ever???
+    RE2Style *style = new RE2Style();
 
     QApplication::setStyle(style);
 
