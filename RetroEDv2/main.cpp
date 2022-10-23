@@ -54,6 +54,36 @@ void initConsole()
 #endif
 }
 
+class RE2Style : public PhantomStyle
+{
+public:
+    void drawComplexControl(ComplexControl control, const QStyleOptionComplex *option,
+                            QPainter *painter, const QWidget *widget) const override
+    {
+        if (appConfig.lightMode && control == CC_ToolButton) {
+            auto tbopt = qstyleoption_cast<const QStyleOptionToolButton *>(option);
+            QStyleOptionToolButton opt_;
+            opt_.QStyleOptionToolButton::operator=(*tbopt);
+
+            if (!opt_.icon.isNull()) {
+                QPixmap pixmap(opt_.iconSize);
+                pixmap.fill(Qt::black);
+                QImage image = pixmap.toImage();
+                image.setAlphaChannel(
+                    opt_.icon.pixmap(opt_.iconSize).toImage().convertToFormat(QImage::Format_Alpha8));
+                opt_.icon = QIcon(QPixmap::fromImage(image));
+            }
+
+            PhantomStyle::drawComplexControl(control, &opt_, painter, widget);
+            return;
+        }
+        PhantomStyle::drawComplexControl(control, option, painter, widget);
+    }
+};
+
+QPalette lightPal;
+QPalette darkPal;
+
 int main(int argc, char *argv[])
 {
     initConsole();
@@ -67,38 +97,13 @@ int main(int argc, char *argv[])
     QSurfaceFormat::setDefaultFormat(format);
 
     qInstallMessageHandler(DebugMessageHandler);
-    PhantomStyle *style = new PhantomStyle(); // TODO: is this deleted ever???
+    RE2Style *style = new RE2Style(); // TODO: is this deleted ever???
 
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication a(argc, argv);
     a.setAttribute(Qt::AA_UseHighDpiPixmaps);
 
     QApplication::setStyle(style);
-
-    QPalette pal;
-    pal.setColor(QPalette::Window, QColor(0xFF292929));
-    pal.setColor(QPalette::Base, QColor(0xFF232323));
-    pal.setColor(QPalette::AlternateBase, QColor(0xFF2B2C2D));
-    pal.setColor(QPalette::ToolTipBase, QColor(0xFF171819));
-    pal.setColor(QPalette::ToolTipText, QColor(0xFFD4D1D0));
-    pal.setColor(QPalette::Text, QColor(0xFFD4D1D0));
-    pal.setColor(QPalette::WindowText, QColor(0xFFD4D1D0));
-    pal.setColor(QPalette::Button, QColor(0xFF333333));
-    pal.setColor(QPalette::ButtonText, QColor(0xFFD4D1D0));
-    pal.setColor(QPalette::BrightText, QColor(0xFFD4D1D0));
-
-    pal.setColor(QPalette::Highlight, QColor(0xFF545555));
-    pal.setColor(QPalette::Light, QColor(0xFF292A2B));
-    pal.setColor(QPalette::Midlight, QColor(0xFF333333));
-    pal.setColor(QPalette::Mid, QColor(0xFF292929));
-    pal.setColor(QPalette::Dark, QColor(0xFF232323));
-    pal.setColor(QPalette::HighlightedText, QColor(0xFFD4D1D0));
-    pal.setColor(QPalette::Disabled, QPalette::WindowText, QColor(0x60A4A6A8));
-    pal.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(0x60A4A6A8));
-    pal.setColor(QPalette::Disabled, QPalette::Text, QColor(0x60A4A6A8));
-    pal.setColor(QPalette::Shadow, Qt::black);
-
-    QApplication::setPalette(pal);
 
     appDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/";
     if (!QDir(appDir).exists())
@@ -108,6 +113,32 @@ int main(int argc, char *argv[])
         appConfig.write(appDir + "appConfig.bin");
     else
         appConfig.read(appDir + "appConfig.bin");
+
+    lightPal = QApplication::palette();
+
+    darkPal.setColor(QPalette::Window, QColor(0xFF292929));
+    darkPal.setColor(QPalette::Base, QColor(0xFF232323));
+    darkPal.setColor(QPalette::AlternateBase, QColor(0xFF2B2C2D));
+    darkPal.setColor(QPalette::ToolTipBase, QColor(0xFF171819));
+    darkPal.setColor(QPalette::ToolTipText, QColor(0xFFD4D1D0));
+    darkPal.setColor(QPalette::Text, QColor(0xFFD4D1D0));
+    darkPal.setColor(QPalette::WindowText, QColor(0xFFD4D1D0));
+    darkPal.setColor(QPalette::Button, QColor(0xFF333333));
+    darkPal.setColor(QPalette::ButtonText, QColor(0xFFD4D1D0));
+    darkPal.setColor(QPalette::BrightText, QColor(0xFFD4D1D0));
+    darkPal.setColor(QPalette::Highlight, QColor(0xFF545555));
+    darkPal.setColor(QPalette::Light, QColor(0xFF292A2B));
+    darkPal.setColor(QPalette::Midlight, QColor(0xFF333333));
+    darkPal.setColor(QPalette::Mid, QColor(0xFF292929));
+    darkPal.setColor(QPalette::Dark, QColor(0xFF232323));
+    darkPal.setColor(QPalette::HighlightedText, QColor(0xFFD4D1D0));
+    darkPal.setColor(QPalette::Disabled, QPalette::WindowText, QColor(0x60A4A6A8));
+    darkPal.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(0x60A4A6A8));
+    darkPal.setColor(QPalette::Disabled, QPalette::Text, QColor(0x60A4A6A8));
+    darkPal.setColor(QPalette::Shadow, Qt::black);
+
+    if (!appConfig.lightMode)
+        QApplication::setPalette(darkPal);
 
     homeDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/RetroED/";
     if (!QDir(homeDir).exists())
