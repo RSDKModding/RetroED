@@ -2214,6 +2214,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                     case SceneViewer::TOOL_ENTITY: {
                         if (viewer->selectedObject < 0 && viewer->selectedEntity >= 0
                             && !waitForRelease) {
+                            UpdateTitle(true);
+
                             SceneEntity &entity = viewer->entities[viewer->selectedEntity];
 
                             entity.pos.x =
