@@ -97,6 +97,7 @@ HEADERS += \
     splashscreen.hpp \
     tools/animationeditor.hpp \
     tools/animationeditor/animsheetselector.hpp \
+    tools/animationeditor/focuslabel.h \
     tools/compiler/compilerv1.hpp \
     tools/compiler/compilerv2.hpp \
     tools/compiler/compilerv3.hpp \

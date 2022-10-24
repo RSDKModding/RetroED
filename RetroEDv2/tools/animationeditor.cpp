@@ -2135,6 +2135,11 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         }
     });
 
+    connect(ui->lineToggle, &QCheckBox::toggled, [this](bool c) { 
+        linesInFront = c; 
+        UpdateView();
+    });
+
     if (QFile::exists(filepath)) {
         LoadAnim(filepath, type);
     }
@@ -2343,13 +2348,15 @@ void AnimationEditor::UpdateView()
     cy -= offset.y;
 
     QBrush bgBrush(bgColor);
-    if (bgColor.alpha() != 0xFF) 
+    if (bgColor.alpha() != 0xFF)
         bgBrush = QApplication::palette().dark();
     painter->fillRect(0, 0, ui->viewerFrame->width(), ui->viewerFrame->height(), bgBrush);
 
-    painter->setPen(QColor(0x80E0E0E0));
-    painter->drawLine(0, cy, w, cy);
-    painter->drawLine(cx, 0, cx, h);
+    if (!linesInFront) {
+        painter->setPen(QColor(0x80E0E0E0));
+        painter->drawLine(0, cy, w, cy);
+        painter->drawLine(cx, 0, cx, h);
+    }
 
     if (currentAnim < animFile.animations.count() && currentFrame < FrameCount()) {
         FormatHelpers::Animation::Frame &frame = animFile.animations[currentAnim].frames[currentFrame];
@@ -2402,6 +2409,12 @@ void AnimationEditor::UpdateView()
                 }
             }
         }
+    }
+
+    if (linesInFront) {
+        painter->setPen(QColor(0x80E0E0E0));
+        painter->drawLine(0, cy, w, cy);
+        painter->drawLine(cx, 0, cx, h);
     }
 
     ui->viewerFrame->setPixmap(*view);
@@ -2728,9 +2741,7 @@ bool AnimationEditor::event(QEvent *event)
     switch ((int)event->type()) {
         default: break;
 
-        case QEvent::ApplicationPaletteChange:
-            UpdateView();
-            break;
+        case QEvent::ApplicationPaletteChange: UpdateView(); break;
 
         case RE_EVENT_NEW:
             animFile = FormatHelpers::Animation();
@@ -2993,6 +3004,33 @@ bool AnimationEditor::event(QEvent *event)
                 }
             }
             break;
+
+        case QEvent::KeyPress: {
+            if (playingAnim)
+                break;
+            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+
+            if (currentAnim < animFile.animations.count() && currentFrame < FrameCount()) {
+                FormatHelpers::Animation::Frame &frame =
+                    animFile.animations[currentAnim].frames[currentFrame];
+                if (keyEvent->key() == Qt::Key_Up) {
+                    frame.pivotY -= 1;
+                    UpdateView();
+                }
+                else if (keyEvent->key() == Qt::Key_Down) {
+                    frame.pivotY += 1;
+                    UpdateView();
+                }
+                else if (keyEvent->key() == Qt::Key_Left) {
+                    frame.pivotX -= 1;
+                    UpdateView();
+                }
+                else if (keyEvent->key() == Qt::Key_Right) {
+                    frame.pivotX += 1;
+                    UpdateView();
+                }
+            }
+        }
     }
 
     return QWidget::event(event);

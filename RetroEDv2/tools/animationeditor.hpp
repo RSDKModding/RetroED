@@ -6,7 +6,6 @@ namespace Ui
 {
 class AnimationEditor;
 }
-
 class AnimationEditor : public QWidget
 {
     Q_OBJECT
@@ -101,6 +100,8 @@ private:
 
     QTimer *updateTimer            = nullptr;
     QStandardItemModel *frameModel = nullptr;
+
+    bool linesInFront = true;
 
     void LoadSheet(QString filepath, int index, bool addSource = true);
     void RemoveSheet(int index, bool removeSource = true);

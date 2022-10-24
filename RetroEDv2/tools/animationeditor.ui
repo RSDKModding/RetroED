@@ -73,6 +73,16 @@
        </spacer>
       </item>
       <item>
+       <widget class="QCheckBox" name="lineToggle">
+        <property name="text">
+         <string>Lines in front</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QToolButton" name="impFile">
         <property name="text">
          <string>Import JSON File</string>
@@ -165,7 +175,7 @@
         <string>&lt;</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../resources.qrc">
          <normaloff>:/icons/ic_navigate_before_48px.svg</normaloff>:/icons/ic_navigate_before_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -201,7 +211,7 @@
         <string>P</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../resources.qrc">
          <normaloff>:/icons/ic_play_arrow_48px.svg</normaloff>:/icons/ic_play_arrow_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -224,7 +234,7 @@
         <string>&gt;</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../resources.qrc">
          <normaloff>:/icons/ic_navigate_next_48px.svg</normaloff>:/icons/ic_navigate_next_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -247,7 +257,7 @@
         <string>&lt;&lt;</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../resources.qrc">
          <normaloff>:/icons/ic_skip_previous_48px.svg</normaloff>:/icons/ic_skip_previous_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -270,7 +280,7 @@
         <string>&gt;&gt;</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../resources.qrc">
          <normaloff>:/icons/ic_skip_next_48px.svg</normaloff>:/icons/ic_skip_next_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -310,7 +320,7 @@
         <string>-</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../resources.qrc">
          <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -330,7 +340,7 @@
         <string>U</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../resources.qrc">
          <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -350,7 +360,7 @@
         <string>+</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../resources.qrc">
          <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -370,7 +380,7 @@
         <string>D</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../resources.qrc">
          <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -394,7 +404,7 @@
         <string>E</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../resources.qrc">
          <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
        </property>
       </widget>
@@ -408,7 +418,7 @@
         <string>I</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../resources.qrc">
          <normaloff>:/icons/ic_import_48px.svg</normaloff>:/icons/ic_import_48px.svg</iconset>
        </property>
       </widget>
@@ -422,7 +432,7 @@
         <string>C</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../resources.qrc">
          <normaloff>:/icons/ic_copy_48px.svg</normaloff>:/icons/ic_copy_48px.svg</iconset>
        </property>
        <property name="iconSize">
@@ -495,7 +505,7 @@
            <string>+</string>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="../resources.qrc">
             <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
           </property>
           <property name="iconSize">
@@ -521,7 +531,7 @@
            <string>U</string>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="../resources.qrc">
             <normaloff>:/icons/ic_arrow_left_48px.svg</normaloff>:/icons/ic_arrow_left_48px.svg</iconset>
           </property>
           <property name="iconSize">
@@ -544,7 +554,7 @@
            <string>D</string>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="../resources.qrc">
             <normaloff>:/icons/ic_arrow_right_48px.svg</normaloff>:/icons/ic_arrow_right_48px.svg</iconset>
           </property>
           <property name="iconSize">
@@ -567,7 +577,7 @@
            <string>-</string>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="../resources.qrc">
             <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
           </property>
           <property name="iconSize">
@@ -594,7 +604,7 @@
            <string>I</string>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="../resources.qrc">
             <normaloff>:/icons/ic_import_48px.svg</normaloff>:/icons/ic_import_48px.svg</iconset>
           </property>
          </widget>
@@ -624,7 +634,7 @@
            <string>C</string>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="../resources.qrc">
             <normaloff>:/icons/ic_copy_48px.svg</normaloff>:/icons/ic_copy_48px.svg</iconset>
           </property>
           <property name="iconSize">
@@ -660,7 +670,7 @@
            <string>E</string>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="../resources.qrc">
             <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
           </property>
          </widget>
@@ -729,7 +739,7 @@
     </widget>
    </item>
    <item row="3" column="1" colspan="2">
-    <widget class="QLabel" name="viewerFrame">
+    <widget class="FocusLabel" name="viewerFrame">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
        <horstretch>0</horstretch>
@@ -767,15 +777,15 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="animPage">
       <property name="geometry">
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>300</width>
-        <height>307</height>
+        <width>302</width>
+        <height>264</height>
        </rect>
       </property>
       <attribute name="label">
@@ -971,7 +981,7 @@
         <x>0</x>
         <y>0</y>
         <width>286</width>
-        <height>492</height>
+        <height>519</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1475,7 +1485,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>307</height>
+        <height>278</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1522,7 +1532,7 @@
             <string>D</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
            </property>
            <property name="iconSize">
@@ -1539,7 +1549,7 @@
             <string>U</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
            </property>
            <property name="iconSize">
@@ -1556,7 +1566,7 @@
             <string>-</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
            </property>
            <property name="iconSize">
@@ -1573,7 +1583,7 @@
             <string>+</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
            </property>
            <property name="iconSize">
@@ -1594,7 +1604,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>307</height>
+        <height>278</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1650,7 +1660,7 @@
                 <string>U</string>
                </property>
                <property name="icon">
-                <iconset>
+                <iconset resource="../resources.qrc">
                  <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
                </property>
                <property name="iconSize">
@@ -1667,7 +1677,7 @@
                 <string>D</string>
                </property>
                <property name="icon">
-                <iconset>
+                <iconset resource="../resources.qrc">
                  <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
                </property>
                <property name="iconSize">
@@ -1684,7 +1694,7 @@
                 <string>+</string>
                </property>
                <property name="icon">
-                <iconset>
+                <iconset resource="../resources.qrc">
                  <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
                </property>
                <property name="iconSize">
@@ -1701,7 +1711,7 @@
                 <string>-</string>
                </property>
                <property name="icon">
-                <iconset>
+                <iconset resource="../resources.qrc">
                  <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
                </property>
                <property name="iconSize">
@@ -1725,6 +1735,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FocusLabel</class>
+   <extends>QLabel</extends>
+   <header>tools/animationeditor/focuslabel.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>addAnim</tabstop>
   <tabstop>upAnim</tabstop>
@@ -1779,11 +1796,14 @@
   <tabstop>upHB</tabstop>
   <tabstop>downHB</tabstop>
   <tabstop>rmHB</tabstop>
+  <tabstop>lineToggle</tabstop>
   <tabstop>impFile</tabstop>
   <tabstop>showTransClr</tabstop>
   <tabstop>bgColor</tabstop>
   <tabstop>expFile</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

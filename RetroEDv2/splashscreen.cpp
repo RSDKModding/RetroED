@@ -11,7 +11,7 @@ SplashScreen::SplashScreen()
 
 void SplashScreen::finish(QWidget* main) {
     QSplashScreen::finish(main);
-    main->raise();
+    main->activateWindow();
 }
 
 void SplashScreen::drawContents(QPainter *painter) {
