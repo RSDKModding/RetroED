@@ -658,22 +658,26 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         QList<int> newTypes;
 
         int count = stageConfig.loadGlobalScripts ? gameConfig.objects.count() : 0;
+        int addend = 0;
         switch (viewer->gameType) {
             case ENGINE_v4: {
+                addend = 1;
                 StageConfigEditorv4 *edit =
-                    new StageConfigEditorv4(&stageConfig, count + 1, gameConfig.soundFX.count(), this);
+                    new StageConfigEditorv4(&stageConfig, count + addend, gameConfig.soundFX.count(), this);
                 edit->exec();
                 break;
             }
             case ENGINE_v3: {
+                addend = 1;
                 StageConfigEditorv3 *edit =
-                    new StageConfigEditorv3(&stageConfig, count + 1, gameConfig.soundFX.count(), this);
+                    new StageConfigEditorv3(&stageConfig, count + addend, gameConfig.soundFX.count(), this);
                 edit->exec();
                 break;
             }
             case ENGINE_v2: {
+                addend = 2;
                 StageConfigEditorv2 *edit =
-                    new StageConfigEditorv2(&stageConfig, count + 2, gameConfig.soundFX.count(), this);
+                    new StageConfigEditorv2(&stageConfig, count + addend, gameConfig.soundFX.count(), this);
                 edit->exec();
                 break;
             }
@@ -713,7 +717,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         for (; o < viewer->objects.count(); ++o) {
             int index = names.indexOf(viewer->objects[o].name);
             if (index >= 0)
-                index += cnt;
+                index += cnt + addend; // why the fuck is addend 
             newTypes.append(index);
         }
 
