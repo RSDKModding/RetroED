@@ -309,10 +309,12 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     connect(ui->addEnt, &QToolButton::clicked, [this] {
         // uint c = objectList->currentRow() + 1;
-        AddEntity(viewer->selectedObject, 0xFFFF, 0xFFFF);
+        if (viewer->selectedObject > 1) {
+            AddEntity(viewer->selectedObject, 0xFFFF, 0xFFFF);
 
-        ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
-        DoAction();
+            ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
+            DoAction();
+        }
     });
 
     connect(ui->upEnt, &QToolButton::clicked, [this] {

@@ -581,10 +581,12 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     });
 
     connect(ui->addEnt, &QToolButton::clicked, [this] {
-        AddEntity(viewer->selectedObject, 0xFFFF, 0xFFFF);
+        if (viewer->selectedObject > -1) {
+            AddEntity(viewer->selectedObject, 0xFFFF, 0xFFFF);
 
-        ui->addEnt->setDisabled(viewer->activeEntityCount() >= 0x800);
-        DoAction("Add Entity: " + QString::number(viewer->entities.count() - 1));
+            ui->addEnt->setDisabled(viewer->activeEntityCount() >= SCENEENTITY_COUNT_v5);
+            DoAction("Add Entity: " + QString::number(viewer->entities.count() - 1));
+        }
     });
 
     connect(ui->rmEnt, &QToolButton::clicked, [this] {
