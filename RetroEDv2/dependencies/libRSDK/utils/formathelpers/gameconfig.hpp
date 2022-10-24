@@ -11,7 +11,7 @@ public:
     public:
         SceneInfo() {}
 
-        QString m_name   = "Scene";
+        QString name   = "Scene";
         QString folder   = "Folder";
         QString id       = "1";
         bool highlighted = false;

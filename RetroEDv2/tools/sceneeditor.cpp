@@ -70,7 +70,9 @@ QList<QString> globalsRS = {
 
 ChunkSelector::ChunkSelector(QWidget *parent) : QWidget(parent), parentWidget((SceneEditor *)parent)
 {
-    QScrollArea *scrollArea = new QScrollArea(this);
+    memset(labels, 0, sizeof(labels));
+
+    scrollArea = new QScrollArea(this);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     scrollArea->setGeometry(10, 10, 200, 200);
 
@@ -104,6 +106,19 @@ void ChunkSelector::RefreshList()
     int i = 0;
     for (auto &&chunk : parentWidget->viewer->chunks) {
         labels[i++]->setPixmap(QPixmap::fromImage(chunk).scaled(chunk.width(), chunk.height()));
+    }
+}
+
+void ChunkSelector::SetCurrentChunk(int chunkID)
+{
+    if (parentWidget->viewer->selectedTile >= 0 && parentWidget->viewer->selectedTile < 0x200
+        && labels[parentWidget->viewer->selectedTile]) {
+        labels[parentWidget->viewer->selectedTile]->update();
+    }
+
+    if (chunkID >= 0 && chunkID < 0x200 && labels[chunkID]) {
+        scrollArea->ensureWidgetVisible(labels[chunkID]);
+        labels[chunkID]->update();
     }
 }
 
@@ -172,15 +187,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(ui->useGizmos, &QPushButton::clicked, [this] { viewer->sceneInfo.effectGizmo ^= 1; });
 
     connect(ui->layerList, &QListWidget::currentRowChanged, [this](int c) {
-        // m_uo->setDisabled(c == -1);
-        // m_do->setDisabled(c == -1);
-        // m_ro->setDisabled(c == -1);
-
         if (c == -1)
             return;
-
-        // m_do->setDisabled(c == m_objectList->count() - 1);
-        // m_uo->setDisabled(c == 0);
 
         viewer->selectedLayer = c;
 
@@ -203,8 +211,6 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(ui->objectFilter, &QLineEdit::textChanged, [this](QString s) { FilterObjectList(s); });
 
     connect(ui->objectList, &QListWidget::currentRowChanged, [this](int c) {
-        // m_uo->setDisabled(c == -1);
-        // m_do->setDisabled(c == -1);
         ui->rmObj->setDisabled(c == -1 || c >= viewer->objects.count());
 
         if (c == -1 || c >= viewer->objects.count())
@@ -220,9 +226,6 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             }
         }
 
-        // m_do->setDisabled(c == m_objectList->count() - 1);
-        // m_uo->setDisabled(c == 0);
-
         viewer->selectedObject = c;
         ui->rmObj->setDisabled(c == -1 || global);
     });
@@ -234,7 +237,6 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     });
 
     connect(ui->addObj, &QToolButton::clicked, [this] {
-        // uint c = m_objectList->currentRow() + 1;
         FormatHelpers::StageConfig::ObjectInfo objInfo;
         objInfo.name = "New Object";
         stageConfig.objects.append(objInfo);
@@ -296,11 +298,12 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         viewer->cameraPos.x = viewer->entities[c].pos.x - ((viewer->storedW / 2) * viewer->invZoom());
         viewer->cameraPos.y = viewer->entities[c].pos.y - ((viewer->storedH / 2) * viewer->invZoom());
 
-        // auto *entity = &viewer->entities[viewer->selectedEntity];
-        // objProp->setupUI(entity, viewer->selectedEntity,
-        //                  &compilerv2->objectEntityList[entity->gameEntitySlot],
-        //                  &compilerv3->objectEntityList[entity->gameEntitySlot],
-        //                  &compilerv4->objectEntityList[entity->gameEntitySlot], viewer->gameType);
+        // THIS IS REALLY *REALLY* SLOW, TODO: FIX/SPEED UP
+        auto *entity = &viewer->entities[viewer->selectedEntity];
+        objProp->setupUI(entity, viewer->selectedEntity,
+                         &compilerv2->objectEntityList[entity->gameEntitySlot],
+                         &compilerv3->objectEntityList[entity->gameEntitySlot],
+                         &compilerv4->objectEntityList[entity->gameEntitySlot], viewer->gameType);
         ui->propertiesBox->setCurrentWidget(ui->objPropPage);
     });
 
@@ -1335,9 +1338,13 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                         (mEvent->pos().x() * viewer->invZoom()) + viewer->cameraPos.x,
                                         (mEvent->pos().y() * viewer->invZoom()) + viewer->cameraPos.y);
                                     if (box.contains(pos)) {
-                                        ushort tid   = 0;
-                                        ushort chunk = viewer->selectedTile =
+                                        ushort tid = 0;
+                                        ushort chunk =
                                             viewer->layers[viewer->selectedLayer].layout[y][x];
+
+                                        chkProp->SetCurrentChunk(chunk);
+
+                                        viewer->selectedTile = chunk;
 
                                         for (int cy = 0; cy < 8; ++cy) {
                                             for (int cx = 0; cx < 8; ++cx) {
@@ -3698,7 +3705,7 @@ void SceneEditor::ParseGameXML(QString path)
                     }
                 }
                 FormatHelpers::GameConfig::SceneInfo stage;
-                stage.m_name      = stgName;
+                stage.name        = stgName;
                 stage.folder      = stgFolder;
                 stage.id          = stgID;
                 stage.highlighted = stgHighlight;

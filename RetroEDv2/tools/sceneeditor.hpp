@@ -222,7 +222,10 @@ class ChunkLabel : public QLabel
 {
     Q_OBJECT
 public:
-    ChunkLabel(ushort *sel, int index, QWidget *parent) : QLabel(parent), m_sel(sel), m_index(index) {}
+    ChunkLabel(ushort *sel, int index, QWidget *parent)
+        : QLabel(parent), selectedChunk(sel), chunkIndex(index)
+    {
+    }
 
 signals:
     void requestRepaint();
@@ -230,14 +233,14 @@ signals:
 protected:
     void mousePressEvent(QMouseEvent *) override
     {
-        *m_sel = m_index;
+        *selectedChunk = chunkIndex;
         emit requestRepaint();
     }
     void paintEvent(QPaintEvent *event) override
     {
         QLabel::paintEvent(event);
         QPainter p(this);
-        if (m_index == *m_sel) {
+        if (chunkIndex == *selectedChunk) {
             p.setBrush(qApp->palette().highlight());
             p.setOpacity(0.5);
             p.drawRect(this->rect());
@@ -246,8 +249,8 @@ protected:
     QSize sizeHint() const override { return QSize(0, 0); }
 
 private:
-    ushort *m_sel = nullptr;
-    int m_index;
+    ushort *selectedChunk = nullptr;
+    int chunkIndex;
 };
 
 class ChunkSelector : public QWidget
@@ -257,9 +260,12 @@ public:
     ChunkSelector(QWidget *parent = nullptr);
 
     void RefreshList();
+    void SetCurrentChunk(int chunkID);
 
     SceneEditor *parentWidget = nullptr;
 
 private:
     ChunkLabel *labels[0x200];
+
+    QScrollArea *scrollArea;
 };

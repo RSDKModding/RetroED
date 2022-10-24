@@ -67,7 +67,7 @@ void FormatHelpers::GameConfig::read(byte ver, QString filename)
             for (int c = 0; c < 4; ++c) {
                 for (RSDKv2::GameConfig::SceneInfo &scn : gameconfig.stageLists[c].scenes) {
                     SceneInfo s;
-                    s.m_name      = scn.name;
+                    s.name      = scn.name;
                     s.folder      = scn.folder;
                     s.id          = scn.id;
                     s.highlighted = scn.highlighted;
@@ -119,7 +119,7 @@ void FormatHelpers::GameConfig::read(byte ver, QString filename)
             for (int c = 0; c < 4; ++c) {
                 for (RSDKv3::GameConfig::SceneInfo &scn : gameconfig.stageLists[c].scenes) {
                     SceneInfo s;
-                    s.m_name      = scn.name;
+                    s.name      = scn.name;
                     s.folder      = scn.folder;
                     s.id          = scn.id;
                     s.highlighted = scn.highlighted;
@@ -171,7 +171,7 @@ void FormatHelpers::GameConfig::read(byte ver, QString filename)
             for (int c = 0; c < 4; ++c) {
                 for (RSDKv4::GameConfig::SceneInfo &scn : gameconfig.stageLists[c].scenes) {
                     SceneInfo s;
-                    s.m_name      = scn.name;
+                    s.name      = scn.name;
                     s.folder      = scn.folder;
                     s.id          = scn.id;
                     s.highlighted = scn.highlighted;
@@ -226,7 +226,7 @@ void FormatHelpers::GameConfig::write(byte ver, QString filename)
             for (int c = 0; c < 4; ++c) {
                 for (SceneInfo &scn : stageLists[c].scenes) {
                     RSDKv2::GameConfig::SceneInfo s;
-                    s.name        = scn.m_name;
+                    s.name        = scn.name;
                     s.folder      = scn.folder;
                     s.id          = scn.id;
                     s.highlighted = scn.highlighted;
@@ -265,7 +265,7 @@ void FormatHelpers::GameConfig::write(byte ver, QString filename)
             for (int c = 0; c < 4; ++c) {
                 for (SceneInfo &scn : stageLists[c].scenes) {
                     RSDKv3::GameConfig::SceneInfo s;
-                    s.name        = scn.m_name;
+                    s.name        = scn.name;
                     s.folder      = scn.folder;
                     s.id          = scn.id;
                     s.highlighted = scn.highlighted;
@@ -310,7 +310,7 @@ void FormatHelpers::GameConfig::write(byte ver, QString filename)
             for (int c = 0; c < 4; ++c) {
                 for (SceneInfo &scn : stageLists[c].scenes) {
                     RSDKv4::GameConfig::SceneInfo s;
-                    s.name        = scn.m_name;
+                    s.name        = scn.name;
                     s.folder      = scn.folder;
                     s.id          = scn.id;
                     s.highlighted = scn.highlighted;

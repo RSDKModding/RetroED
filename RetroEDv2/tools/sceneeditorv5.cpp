@@ -581,8 +581,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     });
 
     connect(ui->addEnt, &QToolButton::clicked, [this] {
-        // uint c = m_objectList->currentRow() + 1;
-
         AddEntity(viewer->selectedObject, 0xFFFF, 0xFFFF);
 
         ui->addEnt->setDisabled(viewer->activeEntityCount() >= 0x800);
