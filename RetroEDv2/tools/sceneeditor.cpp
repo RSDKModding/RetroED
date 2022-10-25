@@ -612,8 +612,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         ui->objectList->clear();
         for (int o = 0; o < viewer->objects.count(); ++o) {
             QListWidgetItem *item = new QListWidgetItem(viewer->objects[o].name, ui->objectList);
-            item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
             item->setCheckState(viewer->objects[o].visible ? Qt::Checked : Qt::Unchecked);
+            item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         }
         ui->objectList->blockSignals(false);
 
@@ -768,8 +768,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         ui->objectList->clear();
         for (int o = 0; o < viewer->objects.count(); ++o) {
             QListWidgetItem *item = new QListWidgetItem(viewer->objects[o].name, ui->objectList);
-            item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
             item->setCheckState(viewer->objects[o].visible ? Qt::Checked : Qt::Unchecked);
+            item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         }
         ui->objectList->blockSignals(false);
 
@@ -2115,14 +2115,14 @@ void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
     ui->layerList->blockSignals(true);
     ui->layerList->clear();
     QListWidgetItem *itemFG = new QListWidgetItem("Foreground", ui->layerList);
-    itemFG->setFlags(itemFG->flags() | Qt::ItemIsUserCheckable);
     itemFG->setCheckState(viewer->layers[0].visible ? Qt::Checked : Qt::Unchecked);
+    itemFG->setFlags(itemFG->flags() | Qt::ItemIsUserCheckable);
 
     for (int l = 0; l < background.layers.count(); ++l) {
         QListWidgetItem *item =
             new QListWidgetItem("Background " + QString::number(l + 1), ui->layerList);
-        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(viewer->layers[l + 1].visible ? Qt::Checked : Qt::Unchecked);
+        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
     }
     ui->layerList->blockSignals(false);
 
@@ -2130,8 +2130,8 @@ void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
     ui->objectList->clear();
     for (int o = 0; o < viewer->objects.count(); ++o) {
         QListWidgetItem *item = new QListWidgetItem(viewer->objects[o].name, ui->objectList);
-        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(viewer->objects[o].visible ? Qt::Checked : Qt::Unchecked);
+        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
     }
     ui->objectList->blockSignals(false);
 
