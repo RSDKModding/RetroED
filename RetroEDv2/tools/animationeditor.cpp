@@ -789,8 +789,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         ui->addSheet->setDisabled(animFile.sheets.count() >= 24);
         ui->rmSheet->setDisabled(invalid || animFile.sheets.count() < 0);
-        ui->upSheet->setDisabled(invalid || c >= animFile.sheets.count() - 1);
-        ui->downSheet->setDisabled(invalid || c <= 0);
+        ui->upSheet->setDisabled(invalid || c <= 0);
+        ui->downSheet->setDisabled(invalid || c >= animFile.sheets.count() - 1);
     });
 
     connect(ui->sheetList, &QListWidget::currentRowChanged, sheetFunc);
@@ -817,8 +817,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         ui->addHB->setDisabled(aniType == ENGINE_v1 || animFile.hitboxTypes.count() >= 8);
         ui->rmHB->setDisabled(aniType == ENGINE_v1 || animFile.hitboxTypes.count() < 0);
-        ui->upHB->setDisabled(aniType == ENGINE_v1 || c >= animFile.hitboxTypes.count() - 1);
-        ui->downHB->setDisabled(aniType == ENGINE_v1 || c <= 0);
+        ui->upHB->setDisabled(aniType == ENGINE_v1 || c <= 0);
+        ui->downHB->setDisabled(aniType == ENGINE_v1 || c >= animFile.hitboxTypes.count() - 1);
     });
 
     connect(ui->hitboxList, &QListWidget::currentRowChanged, hitboxFunc);
@@ -2135,8 +2135,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         }
     });
 
-    connect(ui->lineToggle, &QCheckBox::toggled, [this](bool c) { 
-        linesInFront = c; 
+    connect(ui->lineToggle, &QCheckBox::toggled, [this](bool c) {
+        linesInFront = c;
         UpdateView();
     });
 
