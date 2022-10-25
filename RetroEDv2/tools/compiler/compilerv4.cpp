@@ -4019,7 +4019,7 @@ void Compilerv4::ParseScriptFile(QString scriptName, int scriptID, bool inEditor
                                 && FindStringToken(scriptText, gameRenderType, 1) == -1
                                 && FindStringToken(scriptText, gameHapticSetting, 1) == -1
                                 && FindStringToken(scriptText, releaseType, 1)
-                                       == -1 // general flag for standalone/origins contnet switching
+                                       == -1 // general flag for standalone/origins content switching
                                 && FindStringToken(scriptText, "USE_DECOMP", 1)
                                        == -1 // general flag for decomp-only stuff
                             ) {
@@ -4794,9 +4794,9 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                     case VAR_ENGINESFXVOLUME: break;
                     case VAR_ENGINEBGMVOLUME: break;
                     case VAR_ENGINETRIALMODE: break;
-                    case VAR_ENGINEDEVICETYPE:
-                        break;
-                        // EDITOR-ONLY
+                    case VAR_ENGINEDEVICETYPE: break;
+					
+                    // EDITOR-ONLY
                     case VAR_EDITORVARIABLEID:
                         scriptEng.operands[i] = scnEditor->viewer->variableID;
                         break;
@@ -5636,17 +5636,7 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                     objectEntityList[scriptEng.operands[2]].values[valID] = scriptEng.operands[0];
                 break;
             }
-            case FUNC_COPYOBJECT: {
-                opcodeSize = 0;
-                // start index, copy offset, count
-                Entity *src = &objectEntityList[scriptEng.operands[0]];
-                for (int e = 0; e < scriptEng.operands[2]; ++e) {
-                    Entity *dst = &src[scriptEng.operands[1]];
-                    ++src;
-                    memcpy(dst, src, sizeof(Entity));
-                }
-                break;
-            }
+            case FUNC_COPYOBJECT: opcodeSize = 0; break;
             case FUNC_PRINT: {
                 if (scriptEng.operands[1])
                     PrintLog(QString::number(scriptEng.operands[0]));
@@ -5657,6 +5647,8 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                     PrintLog("\n");
                 break;
             }
+			
+			// EDITOR-ONLY
             case FUNC_ADDEDITORVAR: {
                 opcodeSize = 0;
                 if (scriptEvent == EVENT_RSDKLOAD) {
@@ -6361,9 +6353,9 @@ void Compilerv4::ProcessScript(int scriptCodeStart, int jumpTableStart, byte scr
                     case VAR_ENGINESFXVOLUME: break;
                     case VAR_ENGINEBGMVOLUME: break;
                     case VAR_ENGINETRIALMODE:; break;
-                    case VAR_ENGINEDEVICETYPE:
-                        break;
-                        // EDITOR-ONLY
+                    case VAR_ENGINEDEVICETYPE: break;
+					
+                    // EDITOR-ONLY
                     case VAR_EDITORVARIABLEID: break;
                     case VAR_EDITORVARIABLEVAL:
                         scnEditor->viewer->variableValue = scriptEng.operands[i];
