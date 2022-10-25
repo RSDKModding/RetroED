@@ -12,6 +12,9 @@ StageConfigEditorv3::StageConfigEditorv3(FormatHelpers::StageConfig *scf, int gc
 
     this->setWindowTitle("StageConfig Editor");
 
+    // remove question mark from the title bar
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
     setupUI();
 
     ui->sectionList->blockSignals(true);

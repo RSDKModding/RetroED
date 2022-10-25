@@ -8,6 +8,10 @@ SyncGCDetails::SyncGCDetails(int curObjCount, QWidget *parent)
 {
     ui->setupUi(this);
 
+    // remove question mark from the title bar & disable resizing
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setFixedSize(QSize(width(), height()));
+
     ui->newObjCount->setValue(curObjCount);
 
     oldObjCount = ui->oldObjCount;

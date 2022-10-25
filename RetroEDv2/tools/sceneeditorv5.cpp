@@ -886,22 +886,20 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         newTypes.append(0); // Blank Object
         // Globals stay the same
         if (stageConfig.loadGlobalObjects) {
-            int cnt = newTypes.count();
-
+            int defaultCount = newTypes.count();
             for (; o < gameConfig.objects.count(); ++o) {
-                newTypes.append(cnt + o);
+                newTypes.append(defaultCount + o);
             }
         }
 
-        int cnt = newTypes.count();
+        int globalCount = newTypes.count();
         for (QString &object : prevObjs) {
             int index = names.indexOf(object);
-            if (index >= 0) {
-                index += cnt;
-            }
-            else {
+            if (index >= 0)
+                index += globalCount;
+            else
                 viewer->objects.removeAt(newTypes.count());
-            }
+
             newTypes.append(index);
         }
 

@@ -13,6 +13,9 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColor> &pal, 
 
     this->setWindowTitle("Tileset Editor");
 
+    // remove question mark from the title bar
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
     QVector<QRgb> clrTable;
     for (int i = 0; i < pal.count(); ++i) clrTable.append(qRgb(pal[i].r, pal[i].g, pal[i].b));
 

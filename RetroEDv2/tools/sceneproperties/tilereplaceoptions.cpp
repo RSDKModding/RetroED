@@ -7,6 +7,10 @@ TileReplaceOptions::TileReplaceOptions(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // remove question mark from the title bar & disable resizing
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setFixedSize(QSize(width(), height()));
+
     dstTile = ui->dstTile;
     srcTile = ui->srcTile;
 

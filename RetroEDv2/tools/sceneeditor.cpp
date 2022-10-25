@@ -658,26 +658,22 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         QList<int> newTypes;
 
         int count = stageConfig.loadGlobalScripts ? gameConfig.objects.count() : 0;
-        int addend = 0;
         switch (viewer->gameType) {
             case ENGINE_v4: {
-                addend = 1;
                 StageConfigEditorv4 *edit =
-                    new StageConfigEditorv4(&stageConfig, count + addend, gameConfig.soundFX.count(), this);
+                    new StageConfigEditorv4(&stageConfig, 1 + count, gameConfig.soundFX.count(), this);
                 edit->exec();
                 break;
             }
             case ENGINE_v3: {
-                addend = 1;
                 StageConfigEditorv3 *edit =
-                    new StageConfigEditorv3(&stageConfig, count + addend, gameConfig.soundFX.count(), this);
+                    new StageConfigEditorv3(&stageConfig, 1 + count, gameConfig.soundFX.count(), this);
                 edit->exec();
                 break;
             }
             case ENGINE_v2: {
-                addend = 2;
                 StageConfigEditorv2 *edit =
-                    new StageConfigEditorv2(&stageConfig, count + addend, gameConfig.soundFX.count(), this);
+                    new StageConfigEditorv2(&stageConfig, 2 + count, gameConfig.soundFX.count(), this);
                 edit->exec();
                 break;
             }
@@ -700,10 +696,10 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             if (stageConfig.loadGlobalScripts) {
                 if (viewer->gameType == ENGINE_v2)
                     newTypes.append(1); // Player
-                int cnt = newTypes.count();
 
+                int defaultCount = newTypes.count();
                 for (; o < gameConfig.objects.count(); ++o) {
-                    newTypes.append(cnt + o);
+                    newTypes.append(defaultCount + o);
                 }
             }
         }
@@ -713,11 +709,11 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             }
         }
 
-        int cnt = newTypes.count();
-        for (; o < viewer->objects.count(); ++o) {
+        int globalCount = newTypes.count();
+        for (o = globalCount; o < viewer->objects.count(); ++o) {
             int index = names.indexOf(viewer->objects[o].name);
             if (index >= 0)
-                index += cnt + addend; // why the fuck is addend 
+                index += globalCount;
             newTypes.append(index);
         }
 

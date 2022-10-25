@@ -12,6 +12,9 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
 
     this->setWindowTitle("Chunk Editor");
 
+    // remove question mark from the title bar
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
     if (!chk)
         return;
 

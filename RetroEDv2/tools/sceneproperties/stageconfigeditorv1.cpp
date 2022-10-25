@@ -9,6 +9,9 @@ StageConfigEditorv1::StageConfigEditorv1(FormatHelpers::StageConfig *scf, QWidge
 
     this->setWindowTitle("StageConfig Editor");
 
+    // remove question mark from the title bar
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
     ui->objName->setDisabled(true);
 
     setupUI();

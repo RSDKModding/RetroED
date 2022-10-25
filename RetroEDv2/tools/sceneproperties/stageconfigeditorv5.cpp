@@ -11,6 +11,9 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
 
     this->setWindowTitle("StageConfig Editor");
 
+    // remove question mark from the title bar
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
     setupUI();
 
     ui->sectionList->blockSignals(true);

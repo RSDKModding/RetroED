@@ -7,6 +7,10 @@ ConfirmGameLink::ConfirmGameLink(QWidget *parent) : QDialog(parent), ui(new Ui::
 {
     ui->setupUi(this);
 
+    // remove question mark from the title bar & disable resizing
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setFixedSize(QSize(width(), height()));
+
     connect(ui->buttonBox, &QDialogButtonBox::accepted, [this] { this->accept(); });
     connect(ui->buttonBox, &QDialogButtonBox::rejected, [this] { this->reject(); });
 }

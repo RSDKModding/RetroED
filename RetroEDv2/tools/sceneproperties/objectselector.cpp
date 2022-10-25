@@ -7,6 +7,9 @@ ObjectSelectorv5::ObjectSelectorv5(QList<QString> list, QList<GameObjectInfo> ob
 {
     ui->setupUi(this);
 
+    // remove question mark from the title bar
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
     ui->objList->clear();
     objAddList.clear();
 
