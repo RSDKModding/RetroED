@@ -2937,7 +2937,7 @@ bool AnimationEditor::event(QEvent *event)
             QPoint mousePos = QPoint(wEvent->position().x(), wEvent->position().y());
 #endif
 
-            if (ui->viewerFrame->rect().contains(mousePos.x(), mousePos.y())) {
+            if (ui->viewerFrame->geometry().contains(mousePos)) {
                 if (wEvent->modifiers() & Qt::ControlModifier) {
                     if (wEvent->angleDelta().y() > 0 && zoom < 20)
                         zoom += 1;
@@ -3010,7 +3010,8 @@ bool AnimationEditor::event(QEvent *event)
                 break;
             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
 
-            if (currentAnim < animFile.animations.count() && currentFrame < FrameCount()) {
+            if (currentAnim < animFile.animations.count() && currentFrame < FrameCount()
+                && ui->viewerFrame->hasFocus()) {
                 FormatHelpers::Animation::Frame &frame =
                     animFile.animations[currentAnim].frames[currentFrame];
                 if (keyEvent->key() == Qt::Key_Up) {
