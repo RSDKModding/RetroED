@@ -118,7 +118,6 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
     setupSheetBox();
     setupHiboxTypeBox();
-    currentHitbox = 0; // temp
 
     std::function<void(int)> animFunc([this](int c) {
         std::function<void(int)> frameFunc([this](int c) {
@@ -157,12 +156,12 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             ui->duration->setDisabled(invalid || aniType != ENGINE_v5);
             ui->id->setDisabled(invalid || aniType != ENGINE_v5);
 
-            ui->addFrame->setDisabled(invalid);
+            // ui->addFrame->setDisabled(invalid);
             ui->upFrame->setDisabled(invalid);
             ui->downFrame->setDisabled(invalid);
             ui->rmFrame->setDisabled(invalid);
             ui->copyFrame->setDisabled(invalid);
-            ui->impFrame->setDisabled(invalid);
+            // ui->impFrame->setDisabled(invalid);
             ui->expFrame->setDisabled(invalid);
 
             if (!invalid) {
@@ -215,12 +214,10 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                 ui->hitboxType->setCurrentIndex(0);
             }
             else {
-                ui->hitboxType->blockSignals(true);
                 ui->hitboxType->setCurrentIndex(-1);
                 ui->hitboxType->setCurrentIndex(f.collisionBox);
-                ui->hitboxType->blockSignals(false);
-                ui->hitboxID->setCurrentIndex(-1);
-                ui->hitboxID->setCurrentIndex(0);
+
+                currentHitbox = f.collisionBox;
             }
 
             ui->hitboxL->setDisabled(true);

@@ -496,7 +496,7 @@
         <item alignment="Qt::AlignTop">
          <widget class="QToolButton" name="addFrame">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="toolTip">
            <string>Add Frame</string>
@@ -595,7 +595,7 @@
         <item>
          <widget class="QToolButton" name="impFrame">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="toolTip">
            <string>Import Frame</string>
@@ -784,8 +784,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>302</width>
-        <height>264</height>
+        <width>300</width>
+        <height>295</height>
        </rect>
       </property>
       <attribute name="label">
@@ -981,7 +981,7 @@
         <x>0</x>
         <y>0</y>
         <width>286</width>
-        <height>519</height>
+        <height>492</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1485,7 +1485,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>278</height>
+        <height>295</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1604,7 +1604,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>278</height>
+        <height>295</height>
        </rect>
       </property>
       <attribute name="label">
