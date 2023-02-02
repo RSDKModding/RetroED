@@ -1,4 +1,4 @@
-// TODO: add a header img here like what we have for decomps
+![](header.png?raw=true)
 
 RetroED is a general purpose tool suite for the Retro Engine.
 
