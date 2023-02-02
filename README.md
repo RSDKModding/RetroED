@@ -1,7 +1,5 @@
 ![](header.png?raw=true)
 
-RetroED is a general purpose tool suite for the Retro Engine.
-
 # How to build
 
 - RetroED has been developed with `Qt Creator 4.13.0`, based on `Qt 5.15.0`. While other Qt versions may work, it is not guaranteed to. The download for `Qt Creator 4.13.0` can be found [here](https://download.qt.io/archive/qtcreator/4.13/4.13.0/). If you do not already have one, you will need to create a Qt account. From there you can download and install the tools as an individual.
