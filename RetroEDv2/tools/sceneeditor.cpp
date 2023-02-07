@@ -196,10 +196,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         ui->propertiesBox->setCurrentWidget(ui->layerPropPage);
 
         CreateScrollList();
-        ui->addScrH->setDisabled(c < 1);
         ui->rmScrH->setDisabled(c < 1);
-        ui->impScrH->setDisabled(c < 1);
-        ui->expScrH->setDisabled(c < 1);
+        ui->rmScrV->setDisabled(c < 1);
     });
 
     connect(ui->layerList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
@@ -442,7 +440,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
             QXmlStreamReader xmlReader = QXmlStreamReader(bytes);
 
-            ReadXMLScrollInfo(xmlReader, ui->layerList->currentRow());
+            ReadXMLScrollInfo(xmlReader, ui->layerList->currentRow(), 0);
 
             if (xmlReader.hasError()) {
                 QMessageBox::critical(this, "Scroll.xml Parse Error", xmlReader.errorString(),
@@ -466,10 +464,10 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             Writer writer(filedialog.selectedFiles()[0]);
             writer.writeLine("<?xml version=\"1.0\"?>");
             writer.writeLine("");
-
             WriteXMLScrollInfo(writer, ui->layerList->currentRow(), 0);
 
             writer.flush();
+            SetStatus("Exported Horizontal Parallax Info to " + filedialog.selectedFiles()[0]);
         }
     });
 
@@ -522,7 +520,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
             QXmlStreamReader xmlReader = QXmlStreamReader(bytes);
 
-            ReadXMLScrollInfo(xmlReader, ui->layerList->currentRow());
+            ReadXMLScrollInfo(xmlReader, ui->layerList->currentRow(), 1);
 
             if (xmlReader.hasError()) {
                 QMessageBox::critical(this, "Scroll.xml Parse Error", xmlReader.errorString(),
@@ -546,10 +544,10 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             Writer writer(filedialog.selectedFiles()[0]);
             writer.writeLine("<?xml version=\"1.0\"?>");
             writer.writeLine("");
-
             WriteXMLScrollInfo(writer, ui->layerList->currentRow(), 0);
 
             writer.flush();
+            SetStatus("Exported Vertical Parallax Info to " + filedialog.selectedFiles()[0]);
         }
     });
 
@@ -3899,7 +3897,7 @@ void SceneEditor::ReadXMLScrollInfo(QXmlStreamReader &xmlReader, int layerID, by
     auto &layer = viewer->layers[layerID];
     layer.scrollInfos.clear();
     // Parse the XML until we reach end of it
-    while (!xmlReader.atEnd() && !xmlReader.hasError() && mode < 2) {
+    while (!xmlReader.atEnd() && !xmlReader.hasError() && mode <= 2) {
         // Read next element
         QXmlStreamReader::TokenType token = xmlReader.readNext();
         // If token is just StartDocument - go to next
@@ -3911,7 +3909,7 @@ void SceneEditor::ReadXMLScrollInfo(QXmlStreamReader &xmlReader, int layerID, by
             const QStringRef name = xmlReader.name();
             if (name == "scrollingInfo")
                 mode++;
-            else if (name == "layers")
+            else if (name == "layers")  // for what is this?
                 mode = 2;
             else if (mode && name == "scrollInfo") {
                 int startLine        = 0;
@@ -3919,11 +3917,9 @@ void SceneEditor::ReadXMLScrollInfo(QXmlStreamReader &xmlReader, int layerID, by
                 float parallaxFactor = 1.0f;
                 float scrollSpeed    = 0.0f;
                 bool deform          = false;
+                int attachLayer      = 0;
+                bool InstEmpty       = true;   // reason at the end
                 for (const QXmlStreamAttribute &attr : xmlReader.attributes()) {
-                    if (attr.name().toString() == QLatin1String("startLine"))
-                        startLine = attr.value().toInt();
-                    if (attr.name().toString() == QLatin1String("length"))
-                        length = attr.value().toInt();
                     if (attr.name().toString() == QLatin1String("parallaxFactor"))
                         parallaxFactor = attr.value().toFloat();
                     if (attr.name().toString() == QLatin1String("scrollSpeed"))
@@ -3931,14 +3927,41 @@ void SceneEditor::ReadXMLScrollInfo(QXmlStreamReader &xmlReader, int layerID, by
                     if (attr.name().toString() == QLatin1String("deform"))
                         deform = attr.value().toString() != "false" && attr.value().toString() != "0";
                 }
+
                 SceneHelpers::TileLayer::ScrollIndexInfo info;
-                // TODO: INSTANCES
-                // info.startLine      = startLine;
-                // info.length         = length;
                 info.parallaxFactor = parallaxFactor;
                 info.scrollSpeed    = scrollSpeed;
                 info.deform         = deform;
-                layer.scrollInfos.append(info);
+                // Bug: the first parallax in the level list will get random values after import
+                // Seems harmless and will dissapear after reloading the level, since is not attached to any BG
+                while (xmlReader.readNextStartElement() && xmlReader.name() == "scrollInstance"){
+                    for (const QXmlStreamAttribute &subAttr : xmlReader.attributes()) {
+                        if (subAttr.name().toString() == QLatin1String("startLine"))
+                            startLine = subAttr.value().toInt();
+                        if (subAttr.name().toString() == QLatin1String("length"))
+                            length = subAttr.value().toInt();
+                        if (subAttr.name().toString() == QLatin1String("attachedLayer"))
+                            attachLayer = subAttr.value().toInt();
+                    }
+                    // remove this check to add all instances regardless of layerID as long as the background is valid
+                    if (attachLayer == layerID){
+                        InstEmpty = false;
+                        SceneHelpers::TileLayer::ScrollInstance instance;
+                        instance.startLine      = startLine;
+                        instance.length         = length;
+                        instance.layerID        = attachLayer;
+                        info.instances.append(instance);
+
+                        layer.scrollInfos.append(info);
+                    }
+                    xmlReader.readNext();
+                }
+                // Not sure if a scroll without instances should be ignored or not so this
+                if (InstEmpty){
+                    layer.scrollInfos.append(info);
+                }
+                if (mode == 1){viewer->hScroll.append(info);}
+                if (mode == 2){viewer->vScroll.append(info);}   // bug: seems unrelated to this function, but the editor will not save vertical instances no matter what
             }
         }
     }
@@ -4092,9 +4115,11 @@ void SceneEditor::WriteXMLScrollInfo(Writer &writer, int layerID, int indentPos)
             for (auto instance : scroll.instances) {
                 writeXMLIndentation(writer, indentPos);
                 writer.writeLine(QString("<scrollInstance startLine=\"%1\" "
-                                         "length=\"%2\"></scrollInstance>")
+                                         "length=\"%2\" "
+                                         "attachedLayer=\"%3\"></Instance>" )
                                      .arg(instance.startLine)
-                                     .arg(instance.length));
+                                     .arg(instance.length)
+                                     .arg(instance.layerID));
             }
             --indentPos;
             writeXMLIndentation(writer, indentPos);
@@ -4120,9 +4145,11 @@ void SceneEditor::WriteXMLScrollInfo(Writer &writer, int layerID, int indentPos)
             for (auto instance : scroll.instances) {
                 writeXMLIndentation(writer, indentPos);
                 writer.writeLine(QString("<scrollInstance startLine=\"%1\" "
-                                         "length=\"%2\"></scrollInstance>")
+                                         "length=\"%2\" "
+                                         "attachedLayer=\"%3\"></Instance>" )
                                      .arg(instance.startLine)
-                                     .arg(instance.length));
+                                     .arg(instance.length)
+                                     .arg(instance.layerID));
             }
             --indentPos;
             writeXMLIndentation(writer, indentPos);

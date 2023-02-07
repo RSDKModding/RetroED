@@ -37,10 +37,11 @@ void SceneScrollProperties::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *in
 
     ui->instanceList->clear();
     for (auto &instance : info->instances) {
-        ui->instanceList->addItem(QString("Start: %1, End: %2, Length: %3")
+        ui->instanceList->addItem(QString("Start: %1, End: %2, Length: %3, Layer: %4")
                                       .arg(instance.startLine)
                                       .arg(instance.startLine + instance.length)
-                                      .arg(instance.length));
+                                      .arg(instance.length)
+                                      .arg(instance.layerID));
     }
 
     ui->rmInst->setDisabled(ui->instanceList->currentRow() == -1);
@@ -81,10 +82,11 @@ void SceneScrollProperties::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *in
         info->instances.insert(c, instance);
 
         ui->instanceList->blockSignals(true);
-        ui->instanceList->insertItem(c, QString("Start: %1, End: %2, Length: %3")
+        ui->instanceList->insertItem(c, QString("Start: %1, End: %2, Length: %3, Layer: %4")
                                             .arg(instance.startLine)
                                             .arg(instance.startLine + instance.length)
-                                            .arg(instance.length));
+                                            .arg(instance.length)
+                                            .arg(instance.layerID));
         ui->instanceList->blockSignals(false);
 
         // DoAction("Add Instance: " + QString::number(info->instances.count() - 1));
@@ -111,10 +113,11 @@ void SceneScrollProperties::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *in
 
         ui->instanceList->blockSignals(true);
         ui->instanceList->item(c)->setText(
-            QString("Start: %1, End: %2, Length: %3")
+            QString("Start: %1, End: %2, Length: %3, Layer: %4")
                 .arg(info->instances[c].startLine)
                 .arg(info->instances[c].startLine + info->instances[c].length)
-                .arg(info->instances[c].length));
+                .arg(info->instances[c].length)
+                .arg(info->instances[c].layerID));
         ui->instanceList->blockSignals(false);
 
         // DoAction("Changed Instance Start Line");
@@ -126,10 +129,11 @@ void SceneScrollProperties::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *in
 
         ui->instanceList->blockSignals(true);
         ui->instanceList->item(c)->setText(
-            QString("Start: %1, End: %2, Length: %3")
+            QString("Start: %1, End: %2, Length: %3, Layer: %4")
                 .arg(info->instances[c].startLine)
                 .arg(info->instances[c].startLine + info->instances[c].length)
-                .arg(info->instances[c].length));
+                .arg(info->instances[c].length)
+                .arg(info->instances[c].layerID));
         ui->instanceList->blockSignals(false);
 
         // DoAction("Changed Instance Length");
