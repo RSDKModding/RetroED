@@ -777,7 +777,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="animPage">
       <property name="geometry">
@@ -785,7 +785,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>295</height>
+        <height>307</height>
        </rect>
       </property>
       <attribute name="label">
@@ -980,8 +980,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>286</width>
-        <height>492</height>
+        <width>283</width>
+        <height>438</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1485,45 +1485,13 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>295</height>
+        <height>307</height>
        </rect>
       </property>
       <attribute name="label">
        <string>Sheets (0 of 0, ID: 0)</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_14">
-       <item row="0" column="0" colspan="2">
-        <widget class="QListWidget" name="sheetList">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="autoFillBackground">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QPushButton" name="importSheet">
-         <property name="text">
-          <string>Import Source</string>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="0" colspan="2">
         <layout class="QGridLayout" name="gridLayout_13">
          <item row="0" column="2">
@@ -1596,6 +1564,45 @@
          </item>
         </layout>
        </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="QListWidget" name="sheetList">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QPushButton" name="importSheet">
+         <property name="text">
+          <string>Import Source</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QPushButton" name="reloadSheet">
+         <property name="text">
+          <string>Reload Sheets</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="HitboxPage">
@@ -1604,7 +1611,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>295</height>
+        <height>307</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1652,7 +1659,7 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
+           <item row="1" column="0" rowspan="2">
             <layout class="QGridLayout" name="gridLayout_12">
              <item row="0" column="1">
               <widget class="QToolButton" name="upHB">
@@ -1790,6 +1797,7 @@
   <tabstop>upSheet</tabstop>
   <tabstop>downSheet</tabstop>
   <tabstop>rmSheet</tabstop>
+  <tabstop>reloadSheet</tabstop>
   <tabstop>importSheet</tabstop>
   <tabstop>hitboxList</tabstop>
   <tabstop>addHB</tabstop>

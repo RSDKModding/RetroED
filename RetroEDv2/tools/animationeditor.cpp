@@ -1723,6 +1723,15 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         UpdateView();
     });
 
+    QObject::connect(ui->reloadSheet, &QPushButton::clicked, [this] {
+        int id = 0;
+        for (auto &sheet : animFile.sheets) {
+            LoadSheet(sheet, id++, false);
+        }
+        SetupFrameList(animFile.animations[currentAnim].frames);
+        UpdateView();
+    });
+
     connect(ui->addAnim, &QToolButton::clicked, [this] {
         ui->animationList->blockSignals(true);
         uint c = ui->animationList->currentRow() + 1;
