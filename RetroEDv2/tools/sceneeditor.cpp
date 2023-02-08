@@ -435,6 +435,10 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                                tr("RSDK Scroll Files (*.xml)"));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
+            if (ui->layerList->currentRow() == 0){
+                QMessageBox::critical(this, "Parallax Import", "Parallax Import Error, Background layer not selected",QMessageBox::Ok);
+                return;
+            }
             Reader reader(filedialog.selectedFiles()[0]);
             QByteArray bytes = reader.readByteArray(reader.filesize, false);
 
@@ -461,6 +465,10 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                                tr("RSDK Scroll Files (*.xml)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
+            if (ui->layerList->currentRow() == 0){
+                QMessageBox::critical(this, "Parallax Export", "Parallax Export Error, Background layer not selected",QMessageBox::Ok);
+                return;
+            }
             Writer writer(filedialog.selectedFiles()[0]);
             writer.writeLine("<?xml version=\"1.0\"?>");
             writer.writeLine("");
@@ -515,6 +523,10 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                                tr("RSDK Scroll Files (*.xml)"));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
+            if (ui->layerList->currentRow() == 0){
+                QMessageBox::critical(this, "Parallax Import", "Parallax Import Error, Background layer not selected",QMessageBox::Ok);
+                return;
+            }
             Reader reader(filedialog.selectedFiles()[0]);
             QByteArray bytes = reader.readByteArray(reader.filesize, false);
 
@@ -541,6 +553,10 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                                tr("RSDK Scroll Files (*.xml)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
+            if (ui->layerList->currentRow() == 0){
+                QMessageBox::critical(this, "Parallax Export", "Parallax Export Error, Background layer not selected",QMessageBox::Ok);
+                return;
+            }
             Writer writer(filedialog.selectedFiles()[0]);
             writer.writeLine("<?xml version=\"1.0\"?>");
             writer.writeLine("");
@@ -4116,7 +4132,7 @@ void SceneEditor::WriteXMLScrollInfo(Writer &writer, int layerID, int indentPos)
                 writeXMLIndentation(writer, indentPos);
                 writer.writeLine(QString("<scrollInstance startLine=\"%1\" "
                                          "length=\"%2\" "
-                                         "attachedLayer=\"%3\"></Instance>" )
+                                         "attachedLayer=\"%3\"></scrollInstance>" )
                                      .arg(instance.startLine)
                                      .arg(instance.length)
                                      .arg(instance.layerID));
@@ -4146,7 +4162,7 @@ void SceneEditor::WriteXMLScrollInfo(Writer &writer, int layerID, int indentPos)
                 writeXMLIndentation(writer, indentPos);
                 writer.writeLine(QString("<scrollInstance startLine=\"%1\" "
                                          "length=\"%2\" "
-                                         "attachedLayer=\"%3\"></Instance>" )
+                                         "attachedLayer=\"%3\"></scrollInstance>" )
                                      .arg(instance.startLine)
                                      .arg(instance.length)
                                      .arg(instance.layerID));
