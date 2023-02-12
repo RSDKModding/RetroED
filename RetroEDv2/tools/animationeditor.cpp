@@ -703,6 +703,9 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     connect(ui->animationList, &QListWidget::currentRowChanged, animFunc);
 
     connect(ui->addFrame, &QToolButton::clicked, [this] {
+        if (FrameCount() >= 255){
+            return;
+        }
         QList<FormatHelpers::Animation::Frame> &f = animFile.animations[currentAnim].frames;
         uint c                                    = ui->frameList->currentIndex().row() + 1;
         FormatHelpers::Animation::Frame frame     = FormatHelpers::Animation::Frame();
@@ -2105,6 +2108,9 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     });
 
     connect(ui->copyFrame, &QToolButton::clicked, [this] {
+        if (FrameCount() >= 255){
+            return;
+        }
         ui->frameList->blockSignals(true);
         int c = ui->frameList->currentIndex().row() + 1;
         if (currentAnim < animFile.animations.count()) {

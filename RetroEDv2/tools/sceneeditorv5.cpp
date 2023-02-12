@@ -633,6 +633,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             if (viewer->selectedEntities[s] == (int)c)
                 viewer->selectedEntities[s] = c - 1;
         }
+        ui->upEnt->setDisabled(ui->entityList->currentRow() == 0);
+        ui->downEnt->setDisabled(false);
     });
 
     connect(ui->downEnt, &QToolButton::clicked, [this] {
@@ -663,6 +665,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             if (viewer->selectedEntities[s] == (int)c)
                 viewer->selectedEntities[s] = c + 1;
         }
+        ui->downEnt->setDisabled(ui->entityList->currentRow() + 1 >= ui->entityList->count());
+        ui->upEnt->setDisabled(false);
     });
 
     connect(ui->scrollList, &QListWidget::currentRowChanged, [this](int c) {

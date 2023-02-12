@@ -316,61 +316,64 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     });
 
     connect(ui->upEnt, &QToolButton::clicked, [this] {
-        ui->entityList->blockSignals(true);
-        uint c     = ui->entityList->currentRow();
-        auto *item = ui->entityList->takeItem(c);
+            ui->entityList->blockSignals(true);
+            uint c     = ui->entityList->currentRow();
+            auto *item = ui->entityList->takeItem(c);
 
-        int slot                       = viewer->entities[c].slotID;
-        viewer->entities[c].slotID     = viewer->entities[c - 1].slotID;
-        viewer->entities[c - 1].slotID = slot;
+            int slot                       = viewer->entities[c].slotID;
+            viewer->entities[c].slotID     = viewer->entities[c - 1].slotID;
+            viewer->entities[c - 1].slotID = slot;
 
-        viewer->entities.move(c, c - 1);
+            viewer->entities.move(c, c - 1);
 
-        ui->entityList->insertItem(c - 1, item);
-        ui->entityList->setCurrentRow(c - 1);
-        ui->entityList->blockSignals(false);
+            ui->entityList->insertItem(c - 1, item);
+            ui->entityList->setCurrentRow(c - 1);
+            ui->entityList->blockSignals(false);
 
-        ui->entityList->item(c)->setText(QString::number(viewer->entities[c].slotID) + ": "
-                                         + viewer->objects[viewer->entities[c].type].name);
+            ui->entityList->item(c)->setText(QString::number(viewer->entities[c].slotID) + ": "
+                                             + viewer->objects[viewer->entities[c].type].name);
 
-        ui->entityList->item(c - 1)->setText(QString::number(viewer->entities[c - 1].slotID) + ": "
-                                             + viewer->objects[viewer->entities[c - 1].type].name);
-        if (viewer->selectedEntity == (int)c)
-            viewer->selectedEntity = c - 1;
+            ui->entityList->item(c - 1)->setText(QString::number(viewer->entities[c - 1].slotID) + ": "
+                                                 + viewer->objects[viewer->entities[c - 1].type].name);
+            if (viewer->selectedEntity == (int)c)
+                viewer->selectedEntity = c - 1;
 
-        for (int s = 0; s < viewer->selectedEntities.count(); ++s) {
-            if (viewer->selectedEntities[s] == (int)c)
-                viewer->selectedEntities[s] = c - 1;
-        }
+            for (int s = 0; s < viewer->selectedEntities.count(); ++s) {
+                if (viewer->selectedEntities[s] == (int)c)
+                    viewer->selectedEntities[s] = c - 1;
+            }
+            ui->upEnt->setDisabled(ui->entityList->currentRow() == 0);
+            ui->downEnt->setDisabled(false);
     });
 
     connect(ui->downEnt, &QToolButton::clicked, [this] {
-        ui->entityList->blockSignals(true);
-        uint c     = ui->entityList->currentRow();
-        auto *item = ui->entityList->takeItem(c);
+            ui->entityList->blockSignals(true);
+            uint c     = ui->entityList->currentRow();
+            auto *item = ui->entityList->takeItem(c);
+            int slot                       = viewer->entities[c].slotID;
+            viewer->entities[c].slotID     = viewer->entities[c + 1].slotID;
+            viewer->entities[c + 1].slotID = slot;
 
-        int slot                       = viewer->entities[c].slotID;
-        viewer->entities[c].slotID     = viewer->entities[c + 1].slotID;
-        viewer->entities[c + 1].slotID = slot;
+            viewer->entities.move(c, c + 1);
 
-        viewer->entities.move(c, c + 1);
+            ui->entityList->insertItem(c + 1, item);
+            ui->entityList->setCurrentRow(c + 1);
+            ui->entityList->blockSignals(false);
 
-        ui->entityList->insertItem(c + 1, item);
-        ui->entityList->setCurrentRow(c + 1);
-        ui->entityList->blockSignals(false);
+            ui->entityList->item(c)->setText(QString::number(viewer->entities[c].slotID) + ": "
+                                             + viewer->objects[viewer->entities[c].type].name);
 
-        ui->entityList->item(c)->setText(QString::number(viewer->entities[c].slotID) + ": "
-                                         + viewer->objects[viewer->entities[c].type].name);
+            ui->entityList->item(c + 1)->setText(QString::number(viewer->entities[c + 1].slotID) + ": "
+                                                 + viewer->objects[viewer->entities[c + 1].type].name);
+            if (viewer->selectedEntity == (int)c)
+                viewer->selectedEntity = c + 1;
 
-        ui->entityList->item(c + 1)->setText(QString::number(viewer->entities[c + 1].slotID) + ": "
-                                             + viewer->objects[viewer->entities[c + 1].type].name);
-        if (viewer->selectedEntity == (int)c)
-            viewer->selectedEntity = c + 1;
-
-        for (int s = 0; s < viewer->selectedEntities.count(); ++s) {
-            if (viewer->selectedEntities[s] == (int)c)
-                viewer->selectedEntities[s] = c + 1;
-        }
+            for (int s = 0; s < viewer->selectedEntities.count(); ++s) {
+                if (viewer->selectedEntities[s] == (int)c)
+                    viewer->selectedEntities[s] = c + 1;
+            }
+            ui->downEnt->setDisabled(ui->entityList->currentRow() + 1 >= ui->entityList->count());
+            ui->upEnt->setDisabled(false);
     });
 
     connect(ui->rmEnt, &QToolButton::clicked, [this] {
