@@ -16,7 +16,7 @@
 
 #define SPRITEFRAME_COUNT_v4 (0x1000)
 
-#define COMMON_SCRIPT_VAR_COUNT_v4 (110 + 6)
+#define COMMON_SCRIPT_VAR_COUNT_v4 (40)
 #define SCRIPT_VAR_COUNT_v4        (COMMON_SCRIPT_VAR_COUNT_v4 + 0x1DF)
 
 #include <RSDKv4/bytecodev4.hpp>
