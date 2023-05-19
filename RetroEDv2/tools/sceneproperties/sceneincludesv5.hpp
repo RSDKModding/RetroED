@@ -50,8 +50,8 @@ public:
         LAYER_VSCROLL,
         LAYER_ROTOZOOM,
         LAYER_BASIC,
-        LAYER_SKY3D,
-        LAYER_FLOOR3D
+        LAYER_FLOOR3D = 3,
+        LAYER_SKY3D = 4
     };
 
     QString name = "TileLayer";

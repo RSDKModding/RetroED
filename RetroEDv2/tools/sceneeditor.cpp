@@ -381,13 +381,29 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         if (c == -1)
             return;
         int n = ui->entityList->currentRow() == ui->entityList->count() - 1 ? c - 1 : c;
-        delete ui->entityList->item(c);
+
+        DeleteEntity(c);
 
         ui->entityList->blockSignals(true);
         ui->entityList->setCurrentRow(n);
         ui->entityList->blockSignals(false);
+        viewer->selectedEntity = n;
+        viewer->cameraPos.x = viewer->entities[n].pos.x - ((viewer->storedW / 2) * viewer->invZoom());
+        viewer->cameraPos.y = viewer->entities[n].pos.y - ((viewer->storedH / 2) * viewer->invZoom());
 
-        DeleteEntity(c);
+        auto *entity = &viewer->entities[viewer->selectedEntity];
+        objProp->setupUI(entity, viewer->selectedEntity,
+                         &compilerv2->objectEntityList[entity->gameEntitySlot],
+                         &compilerv3->objectEntityList[entity->gameEntitySlot],
+                         &compilerv4->objectEntityList[entity->gameEntitySlot], viewer->gameType);
+
+        ui->propertiesBox->setCurrentWidget(ui->objPropPage);
+
+        for (int s = n; s < viewer->selectedEntities.count(); ++s) {
+            if (viewer->selectedEntities[s] == (int)c)
+                viewer->selectedEntities[s] = c - 1;
+            viewer->entities[s].slotID     = viewer->entities[s - 1].slotID;
+        }
 
         ui->rmEnt->setDisabled(viewer->entities.count() <= 0);
         ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
@@ -2306,8 +2322,8 @@ bool SceneEditor::SaveScene(bool forceSaveAs)
             default: break;
             case SceneHelpers::TileLayer::LAYER_HSCROLL: layer.type = 1; break;
             case SceneHelpers::TileLayer::LAYER_VSCROLL: layer.type = 2; break;
-            case SceneHelpers::TileLayer::LAYER_ROTOZOOM: layer.type = 3; break;
-            case SceneHelpers::TileLayer::LAYER_BASIC: layer.type = 4; break;
+            case SceneHelpers::TileLayer::LAYER_FLOOR3D: layer.type = 3; break;
+            case SceneHelpers::TileLayer::LAYER_SKY3D: layer.type = 4; break;
         }
 
         layer.layout.clear();
@@ -3937,7 +3953,8 @@ void SceneEditor::ReadXMLScrollInfo(QXmlStreamReader &xmlReader, int layerID, by
                 float scrollSpeed    = 0.0f;
                 bool deform          = false;
                 int attachLayer      = 0;
-                bool InstEmpty       = true;   // reason at the end
+                bool repeatedScroll  = false;
+                int c = 0;
                 for (const QXmlStreamAttribute &attr : xmlReader.attributes()) {
                     if (attr.name().toString() == QLatin1String("parallaxFactor"))
                         parallaxFactor = attr.value().toFloat();
@@ -3947,13 +3964,23 @@ void SceneEditor::ReadXMLScrollInfo(QXmlStreamReader &xmlReader, int layerID, by
                         deform = attr.value().toString() != "false" && attr.value().toString() != "0";
                 }
 
+                for (auto &scrollCheck : mode == 1 ? viewer->hScroll : viewer->vScroll){
+                    if(scrollCheck.parallaxFactor == parallaxFactor && scrollCheck.scrollSpeed == scrollSpeed && scrollCheck.deform == deform){
+                        repeatedScroll = true;
+                        PrintLog(QString("Repeated scroll."));
+                        break;
+                    }
+                    c++;
+                }
                 SceneHelpers::TileLayer::ScrollIndexInfo info;
+                // TODO: new parallax may be created due to float imprecision during import?
                 info.parallaxFactor = parallaxFactor;
                 info.scrollSpeed    = scrollSpeed;
                 info.deform         = deform;
-                // Bug: the first parallax in the level list will get random values after import
-                // Seems harmless and will dissapear after reloading the level, since is not attached to any BG
+                info.instances.clear();
+
                 while (xmlReader.readNextStartElement() && xmlReader.name() == "scrollInstance"){
+                    bool repeatedInst    = false;
                     for (const QXmlStreamAttribute &subAttr : xmlReader.attributes()) {
                         if (subAttr.name().toString() == QLatin1String("startLine"))
                             startLine = subAttr.value().toInt();
@@ -3962,25 +3989,40 @@ void SceneEditor::ReadXMLScrollInfo(QXmlStreamReader &xmlReader, int layerID, by
                         if (subAttr.name().toString() == QLatin1String("attachedLayer"))
                             attachLayer = subAttr.value().toInt();
                     }
+
+                    if (repeatedScroll){
+                        auto &test = viewer->hScroll[c];
+                        for (auto &instCheck : test.instances){
+                            if(instCheck.startLine == startLine && instCheck.length == length && instCheck.layerID == attachLayer){
+                                repeatedInst = true;
+                                PrintLog(QString("Repeated instance."));
+                                break;
+                            }
+                        }
+                    }
+
                     // remove this check to add all instances regardless of layerID as long as the background is valid
                     if (attachLayer == layerID){
-                        InstEmpty = false;
                         SceneHelpers::TileLayer::ScrollInstance instance;
                         instance.startLine      = startLine;
                         instance.length         = length;
                         instance.layerID        = attachLayer;
                         info.instances.append(instance);
-
-                        layer.scrollInfos.append(info);
+                        if (!repeatedInst){
+                            layer.scrollInfos.append(info);
+                        }
                     }
                     xmlReader.readNext();
                 }
-                // Not sure if a scroll without instances should be ignored or not so this
-                if (InstEmpty){
-                    layer.scrollInfos.append(info);
+                if(!repeatedScroll){
+                    if (mode == 1){viewer->hScroll.append(info);}
+                    if (mode == 2){viewer->vScroll.append(info);}   // bug: seems unrelated to this function, but the editor will not save vertical instances no matter what
                 }
-                if (mode == 1){viewer->hScroll.append(info);}
-                if (mode == 2){viewer->vScroll.append(info);}   // bug: seems unrelated to this function, but the editor will not save vertical instances no matter what
+                else{
+                    if (mode == 1){viewer->hScroll.removeAt(c);viewer->hScroll.append(info);}
+                    if (mode == 2){viewer->vScroll.removeAt(c);viewer->vScroll.append(info);}
+                }
+
             }
         }
     }
@@ -4127,8 +4169,8 @@ void SceneEditor::WriteXMLScrollInfo(Writer &writer, int layerID, int indentPos)
 
             writer.writeLine(QString("<scrollInfo parallaxFactor=\"%1\" "
                                      "scrollSpeed=\"%2\" deform=\"%3\">")
-                                 .arg(scroll.parallaxFactor)
-                                 .arg(scroll.scrollSpeed)
+                                 .arg(scroll.parallaxFactor, 0, 'f', 8)
+                                 .arg(scroll.scrollSpeed, 0, 'f', 8)
                                  .arg(scroll.deform ? "true" : "false"));
             ++indentPos;
             for (auto instance : scroll.instances) {
