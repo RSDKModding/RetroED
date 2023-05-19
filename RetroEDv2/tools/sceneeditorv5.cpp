@@ -581,12 +581,15 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     });
 
     connect(ui->addEnt, &QToolButton::clicked, [this] {
-        if (viewer->selectedObject > -1) {
-            AddEntity(viewer->selectedObject, 0xFFFF, 0xFFFF);
+        uint c = viewer->entities.count();
+        uint entType = (viewer->selectedObject > -1 ? viewer->selectedObject : 0);
 
-            ui->addEnt->setDisabled(viewer->activeEntityCount() >= SCENEENTITY_COUNT_v5);
-            DoAction("Add Entity: " + QString::number(viewer->entities.count() - 1));
-        }
+        AddEntity(entType, viewer->cameraPos.x + ((viewer->storedW / 2) * viewer->invZoom()), viewer->cameraPos.y + ((viewer->storedH / 2) * viewer->invZoom()));
+        ui->entityList->setCurrentRow(c);
+        viewer->selectedEntity = c;
+
+        ui->addEnt->setDisabled(viewer->activeEntityCount() >= SCENEENTITY_COUNT_v5);
+        DoAction("Add Entity: " + QString::number(viewer->entities.count() - 1));
     });
 
     connect(ui->rmEnt, &QToolButton::clicked, [this] {
@@ -3419,18 +3422,20 @@ bool SceneEditorv5::HandleKeyPress(QKeyEvent *event)
 
     byte prevTool = viewer->curTool;
     byte tool     = viewer->curTool;
-    if (event->key() == Qt::Key_S)
-        tool = SceneViewer::TOOL_MOUSE;
-    if (event->key() == Qt::Key_S)
-        tool = SceneViewer::TOOL_SELECT;
-    if (event->key() == Qt::Key_C)
-        tool = SceneViewer::TOOL_PENCIL;
-    if (event->key() == Qt::Key_L)
-        tool = SceneViewer::TOOL_STAMP;
-    if (event->key() == Qt::Key_R)
-        tool = SceneViewer::TOOL_ERASER;
-    if (event->key() == Qt::Key_E)
-        tool = SceneViewer::TOOL_ENTITY;
+    if (!ctrlDownL && !altDownL && !shiftDownL){
+        if (event->key() == Qt::Key_S)
+            tool = SceneViewer::TOOL_MOUSE;
+        if (event->key() == Qt::Key_S)
+            tool = SceneViewer::TOOL_SELECT;
+        if (event->key() == Qt::Key_C)
+            tool = SceneViewer::TOOL_PENCIL;
+        if (event->key() == Qt::Key_L)
+            tool = SceneViewer::TOOL_STAMP;
+        if (event->key() == Qt::Key_R)
+            tool = SceneViewer::TOOL_ERASER;
+        if (event->key() == Qt::Key_E)
+            tool = SceneViewer::TOOL_ENTITY;
+    }
 
     if (tool != prevTool)
         ResetTools(tool);
