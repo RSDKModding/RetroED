@@ -24,7 +24,7 @@ protected:
             p->setPen(Qt::NoPen);
             p->setBrush(qApp->palette().highlight());
             p->drawRect(opt.rect);
-            PrintLog(QString("1Index %1").arg(index.row()));
+            //PrintLog(QString("1Index %1").arg(index.row()));
         }
         QStyleOptionButton but;
         but.state |= QStyle::State_On;
@@ -47,7 +47,7 @@ protected:
             p->setOpacity(0.7);
             p->setCompositionMode(QPainter::CompositionMode_Overlay);
             p->drawRect(opt.rect);
-            PrintLog(QString("2Index %1").arg(index.row()));
+            //PrintLog(QString("2Index %1").arg(index.row()));
         }
         p->restore();
     };
@@ -194,7 +194,6 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             }
 
             currentFrame = c;
-
             FormatHelpers::Animation::Frame &f = animFile.animations[currentAnim].frames[c];
 
             ui->upFrame->setDisabled(c <= 0);
@@ -294,7 +293,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                 DoAction("Changed frame height", true);
             });
             connect(ui->selBoundBox, &QToolButton::clicked, [&f, this] {
-                auto *sel = new AnimSheetSelector(animFile.sheets[f.sheet], &sheets[f.sheet]);
+                auto *sel = new AnimSheetSelector(animFile.sheets[f.sheet], &sheets[f.sheet], savedPivToggle);
                 if (sel->exec() == QDialog::Accepted) {
                     if (sel->returnRect.x < 0 || sel->returnRect.y < 0 || sel->returnRect.w < 0
                         || sel->returnRect.h < 0) {
@@ -305,13 +304,16 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                         f.sprY   = sel->returnRect.y;
                         f.width  = sel->returnRect.w;
                         f.height = sel->returnRect.h;
-                        f.pivotX = -(f.width / 2);
-                        f.pivotY = -(f.height / 2);
+                        if (!sel->pivotToggle){
+                            f.pivotX = -(f.width / 2);
+                            f.pivotY = -(f.height / 2);
+                        }
                         SetFramePreview();
                         UpdateView();
                         DoAction("Set bounding box", true);
                     }
                 }
+                savedPivToggle = sel->pivotToggle;
             });
 
             connect(ui->offsetX, QOverload<int>::of(&QSpinBox::valueChanged), [&f, this](int v) {
@@ -569,6 +571,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->rotationStyle->setDisabled(c == -1 || aniType >= ENGINE_v2);
         ui->speedMult->setDisabled(c == -1);
         ui->playerID->setDisabled(c == -1 || aniType != ENGINE_v1);
+
         ui->copyAnim->setDisabled((aniType == ENGINE_v1 || aniType == ENGINE_v2) || c == -1);
 
         ui->impAnim->setDisabled(c == -1);
@@ -1699,16 +1702,25 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     });
 
     QObject::connect(ui->importSheet, &QPushButton::clicked, [this, setupSheetBox] {
+        // this looks more like replacing rather than importing
         int c = ui->sheetList->currentRow();
         if (c == -1)
             return;
 
-        QFileDialog filedialog(this, tr("Open Image"), "", tr("GIF Images (*.gif)"));
+        const char *format;
+        if (aniType != ENGINE_v1)
+            format = "GIF Images (*.gif)";
+        else
+            format = "BMP Images (*bmp)";
+
+        QFileDialog filedialog(this, tr("Open Image"), "", tr(format));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() != QDialog::Accepted)
             return;
         QString filename = filedialog.selectedFiles()[0];
         QString name     = Utils::getFilenameAndFolder(filename);
+        if (aniType == ENGINE_v1)
+            name.remove("Characters/");
         name.truncate(31); // size limit
 
         ui->sheetList->item(ui->sheetList->currentRow())->setText(name);
@@ -1716,7 +1728,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         RemoveSheet(c);
 
         QString wDir = WorkingDirManager::workingDir;
-        WorkingDirManager::workingDir += "Sprites/";
+        if (aniType != ENGINE_v1)
+            WorkingDirManager::workingDir += "Sprites/";
         LoadSheet(name, c);
         WorkingDirManager::workingDir = wDir;
         animFile.sheets[c]            = name;
@@ -1874,7 +1887,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     auto moveSheetFunc = [this, setupSheetBox](sbyte translation) {
         uint c = ui->sheetList->currentRow();
         uint n = c + translation;
-        if (n >= (uint)animFile.sheets.count())
+        if (n >= (uint)animFile.sheets.count() || ui->sheetList->currentRow() == -1)
             return;
 
         QList<byte> idList;
@@ -1986,7 +1999,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     auto moveHB = [this, setupHiboxTypeBox](char translation) {
         uint c = ui->hitboxList->currentRow();
         uint n = c + translation;
-        if (n >= (uint)animFile.hitboxTypes.count())
+        if (n >= (uint)animFile.hitboxTypes.count() || ui->hitboxList->currentRow() == -1)
             return;
 
         auto *item = ui->hitboxList->takeItem(c);
@@ -1994,17 +2007,30 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         animFile.hitboxTypes.move(c, n);
         ui->hitboxList->insertItem(n, item);
 
-        for (int a = 0; a < animFile.animations.count(); ++a) {
-            for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
-                animFile.animations[a].frames[f].hitboxes.move(c, n);
+        if (aniType == ENGINE_v5){
+            for (int a = 0; a < animFile.animations.count(); ++a) {
+                for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
+                    animFile.animations[a].frames[f].hitboxes.move(c, n);
+                }
             }
+        }
+        else {
+            for (int a = 0; a < animFile.animations.count(); ++a) {
+                for (int f = 0; f < animFile.animations[a].frames.count(); ++f) {
+                    if (animFile.animations[a].frames[f].collisionBox == n)
+                        animFile.animations[a].frames[f].collisionBox -= translation;
+                }
+            }
+
         }
 
         setupHiboxTypeBox();
         UpdateView();
         DoAction("Moved hitbox", true);
 
+
         ui->hitboxList->setCurrentRow(n);
+        ui->hitboxType->setCurrentIndex(n);
     };
 
     connect(ui->upSheet, &QToolButton::clicked, [moveSheetFunc] { moveSheetFunc(-1); });
@@ -2145,6 +2171,21 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             bgColor = dlg.color().toQColor();
             UpdateView();
         }
+        ui->bgColorRemove->setDisabled(false);
+    });
+
+    connect(ui->bgColorRemove, &QToolButton::clicked, [this] {
+        bgColor = Qt::transparent;
+        UpdateView();
+        ui->bgColorRemove->setDisabled(true);
+    });
+
+    connect(ui->frameOffReset, &QToolButton::clicked, [this] {
+        offset.x = 0;
+        offset.y = 0;
+        ui->frameOffLabel->setText(
+            QString("Frame Offset: (%1, %2)").arg(offset.x).arg(offset.y));
+        UpdateView();
     });
 
     connect(ui->lineToggle, &QCheckBox::toggled, [this](bool c) {
@@ -2212,6 +2253,8 @@ void AnimationEditor::SetupUI(bool setFrame, bool setRow)
         else
             ui->sheetList->setCurrentRow(-1);
     }
+    ui->addSheet->setDisabled(aniType == ENGINE_v1);
+    ui->rmSheet->setDisabled(aniType == ENGINE_v1);
 
     ui->hitboxList->blockSignals(true);
     ui->hitboxType->blockSignals(true);
@@ -2685,28 +2728,35 @@ void AnimationEditor::RotateHitboxes()
     for (int h = 0; h < animFile.hitboxes.count(); ++h) {
         // Outer box
         if (true) {
+            // is it just me or flipX, flipY and flipXY make more sense here than the actual names?
             // LWall
             if (true) {
-                int store                                 = -animFile.hitboxes[h].hitboxes[2 + 0].left;
-                animFile.hitboxes[h].hitboxes[2 + 0].left = -animFile.hitboxes[h].hitboxes[2 + 0].right;
-                animFile.hitboxes[h].hitboxes[2 + 0].right = store;
+                int store                                   = -animFile.hitboxes[h].hitboxes[0].left;
+                animFile.hitboxes[h].hitboxes[2 + 0].left   = -animFile.hitboxes[h].hitboxes[0].right;
+                animFile.hitboxes[h].hitboxes[2 + 0].right  = store;
+
+                animFile.hitboxes[h].hitboxes[2 + 0].top    = animFile.hitboxes[h].hitboxes[0].top;
+                animFile.hitboxes[h].hitboxes[2 + 0].bottom = animFile.hitboxes[h].hitboxes[0].bottom;
             }
 
             // Roof
             if (true) {
-                int store                                = -animFile.hitboxes[h].hitboxes[4 + 0].top;
-                animFile.hitboxes[h].hitboxes[4 + 0].top = -animFile.hitboxes[h].hitboxes[4 + 0].bottom;
+                int store                                   = -animFile.hitboxes[h].hitboxes[0].top;
+                animFile.hitboxes[h].hitboxes[4 + 0].top    = -animFile.hitboxes[h].hitboxes[0].bottom;
                 animFile.hitboxes[h].hitboxes[4 + 0].bottom = store;
+
+                animFile.hitboxes[h].hitboxes[4 + 0].left   = animFile.hitboxes[h].hitboxes[0].left;
+                animFile.hitboxes[h].hitboxes[4 + 0].right  = animFile.hitboxes[h].hitboxes[0].right;
             }
 
             // RWall
             if (true) {
-                int store                                 = -animFile.hitboxes[h].hitboxes[6 + 0].left;
-                animFile.hitboxes[h].hitboxes[6 + 0].left = -animFile.hitboxes[h].hitboxes[6 + 0].right;
-                animFile.hitboxes[h].hitboxes[6 + 0].right = store;
+                int store                                   = -animFile.hitboxes[h].hitboxes[0].left;
+                animFile.hitboxes[h].hitboxes[6 + 0].left   = -animFile.hitboxes[h].hitboxes[0].right;
+                animFile.hitboxes[h].hitboxes[6 + 0].right  = store;
 
-                store                                    = -animFile.hitboxes[h].hitboxes[6 + 0].top;
-                animFile.hitboxes[h].hitboxes[6 + 0].top = -animFile.hitboxes[h].hitboxes[6 + 0].bottom;
+                store                                       = -animFile.hitboxes[h].hitboxes[0].top;
+                animFile.hitboxes[h].hitboxes[6 + 0].top    = -animFile.hitboxes[h].hitboxes[0].bottom;
                 animFile.hitboxes[h].hitboxes[6 + 0].bottom = store;
             }
         }
@@ -2715,26 +2765,32 @@ void AnimationEditor::RotateHitboxes()
         if (true) {
             // LWall
             if (true) {
-                int store                                 = -animFile.hitboxes[h].hitboxes[2 + 1].left;
-                animFile.hitboxes[h].hitboxes[2 + 1].left = -animFile.hitboxes[h].hitboxes[2 + 1].right;
-                animFile.hitboxes[h].hitboxes[2 + 1].right = store;
+                int store                                   = -animFile.hitboxes[h].hitboxes[1].left;
+                animFile.hitboxes[h].hitboxes[2 + 1].left   = -animFile.hitboxes[h].hitboxes[1].right;
+                animFile.hitboxes[h].hitboxes[2 + 1].right  = store;
+
+                animFile.hitboxes[h].hitboxes[2 + 1].top    = animFile.hitboxes[h].hitboxes[1].top;
+                animFile.hitboxes[h].hitboxes[2 + 1].bottom = animFile.hitboxes[h].hitboxes[1].bottom;
             }
 
             // Roof
             if (true) {
-                int store                                = -animFile.hitboxes[h].hitboxes[4 + 1].top;
-                animFile.hitboxes[h].hitboxes[4 + 1].top = -animFile.hitboxes[h].hitboxes[4 + 1].bottom;
+                int store                                   = -animFile.hitboxes[h].hitboxes[1].top;
+                animFile.hitboxes[h].hitboxes[4 + 1].top    = -animFile.hitboxes[h].hitboxes[1].bottom;
                 animFile.hitboxes[h].hitboxes[4 + 1].bottom = store;
+
+                animFile.hitboxes[h].hitboxes[4 + 1].left   = animFile.hitboxes[h].hitboxes[1].left;
+                animFile.hitboxes[h].hitboxes[4 + 1].right  = animFile.hitboxes[h].hitboxes[1].right;
             }
 
             // RWall
             if (true) {
-                int store                                 = -animFile.hitboxes[h].hitboxes[6 + 1].left;
-                animFile.hitboxes[h].hitboxes[6 + 1].left = -animFile.hitboxes[h].hitboxes[6 + 1].right;
-                animFile.hitboxes[h].hitboxes[6 + 1].right = store;
+                int store                                   = -animFile.hitboxes[h].hitboxes[1].left;
+                animFile.hitboxes[h].hitboxes[6 + 1].left   = -animFile.hitboxes[h].hitboxes[1].right;
+                animFile.hitboxes[h].hitboxes[6 + 1].right  = store;
 
-                store                                    = -animFile.hitboxes[h].hitboxes[6 + 1].top;
-                animFile.hitboxes[h].hitboxes[6 + 1].top = -animFile.hitboxes[h].hitboxes[6 + 1].bottom;
+                store                                       = -animFile.hitboxes[h].hitboxes[1].top;
+                animFile.hitboxes[h].hitboxes[6 + 1].top    = -animFile.hitboxes[h].hitboxes[1].bottom;
                 animFile.hitboxes[h].hitboxes[6 + 1].bottom = store;
             }
         }

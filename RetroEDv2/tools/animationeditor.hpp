@@ -93,6 +93,8 @@ private:
     bool mouseDownM = false;
     bool mouseDownR = false;
 
+    bool savedPivToggle = false;
+
     Vector2<int> offset = Vector2<int>(0, 0);
 
     QPoint reference;
