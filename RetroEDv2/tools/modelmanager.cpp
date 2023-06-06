@@ -73,8 +73,11 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
 
     connect(ui->addFrame, &QToolButton::clicked, [this] {
         ui->frameList->blockSignals(true);
-        uint c = ui->frameList->currentRow() + 1;
-        int n  = ui->frameList->currentRow() == ui->frameList->count() - 1 ? c - 1 : c;
+        // TODO: using currentRow when there's a frame after the selected row will lead to a crash, undo this once the problem is found
+        uint c = ui->frameList->count();
+
+        // uint c = ui->frameList->currentRow() + 1;
+        // int n  = ui->frameList->currentRow() == ui->frameList->count() - 1 ? c - 1 : c;
 
         viewer->model.frames.insert(c, RSDKv5::Model::Frame());
 
@@ -83,14 +86,13 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
                 viewer->model.frames.last().vertices.append(RSDKv5::Model::Frame::Vertex());
             }
         }
-
         SetupUI(false);
 
         ui->frameList->blockSignals(true);
-        ui->frameList->setCurrentRow(n);
+        ui->frameList->setCurrentRow(c);
         ui->frameList->blockSignals(false);
 
-        viewer->setFrame(n);
+        viewer->setFrame(c);
 
         viewer->repaint();
         // DoAction("Added animation", true);
@@ -633,7 +635,7 @@ void ModelManager::LoadModel(QString filePath, bool usev5Format)
         tabTitle            = Utils::getFilenameAndFolder(mdl.filePath);
         viewer->modelFormat = 1;
     }
-
+    viewer->model.filePath = filePath;
     UpdateTitle(false);
     SetStatus("Loaded model " + tabTitle);
 
@@ -689,13 +691,14 @@ bool ModelManager::SaveModel(bool forceSaveAs)
         }
         else {
             RSDKv4::Model mdl = viewer->getModelv4();
+            QString filePath = viewer->model.filePath;
 
             SetStatus("Saving model...", true);
-            mdl.write();
-            viewer->model.filePath = mdl.filePath;
-            SetStatus("Saved model to " + mdl.filePath);
+            mdl.write(filePath);
+            viewer->model.filePath = filePath;
+            SetStatus("Saved model to " + filePath);
 
-            appConfig.addRecentFile(ENGINE_v5, TOOL_MODELMANAGER, mdl.filePath, QList<QString>{});
+            appConfig.addRecentFile(ENGINE_v4, TOOL_MODELMANAGER, mdl.filePath, QList<QString>{});
         }
 
         UpdateTitle(false);
