@@ -116,6 +116,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="frameOffReset">
+        <property name="text">
+         <string>Reset Offset</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="zoomLabel">
         <property name="text">
          <string>Zoom: 100%</string>
@@ -138,6 +145,16 @@
         </property>
         <property name="autoRaise">
          <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="bgColorRemove">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Remove BG Color</string>
         </property>
        </widget>
       </item>
@@ -777,7 +794,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="animPage">
       <property name="geometry">
@@ -785,7 +802,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>307</height>
+        <height>294</height>
        </rect>
       </property>
       <attribute name="label">
@@ -980,8 +997,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>283</width>
-        <height>438</height>
+        <width>286</width>
+        <height>492</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1485,7 +1502,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>307</height>
+        <height>294</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1611,7 +1628,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>307</height>
+        <height>294</height>
        </rect>
       </property>
       <attribute name="label">

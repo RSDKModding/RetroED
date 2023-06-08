@@ -8,7 +8,7 @@
 #include "dependencies/imageviewer/src/image-viewer.h"
 #include <QTimer>
 
-AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *parent)
+AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, bool toggle, QWidget *parent)
     : QDialog(parent), ui(new Ui::AnimSheetSelector), sheetPath(sheetPath), sheet(sheet)
 {
     ui->setupUi(this);
@@ -28,6 +28,7 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
         bgColor = this->sheet->colorTable().last();
     }
 
+    ui->pivotToggle->setChecked(toggle);
     QPalette pal(bgColor);
     ui->colorButton->setPalette(pal);
 
@@ -42,6 +43,10 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, QWidget *
 
     connect(ui->buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(ui->buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    connect(ui->pivotToggle, &QCheckBox::clicked, [this](){
+        pivotToggle = ui->pivotToggle->isChecked();
+    });
 
     connect(viewer->pixmapItem(), &pal::PixmapItem::mouseDownR, [this, viewer](int x, int y) {
         bgColor = this->sheet->pixelColor(x, y);

@@ -31,31 +31,6 @@
    </property>
    <item row="1" column="0">
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="3" column="2">
-      <widget class="QDialogButtonBox" name="buttons">
-       <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="borderLabel">
-       <property name="text">
-        <string>Border color:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0" colspan="3">
-      <widget class="QFrame" name="viewerFrame">
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_4"/>
-      </widget>
-     </item>
      <item row="3" column="1">
       <widget class="QToolButton" name="colorButton">
        <property name="mouseTracking">
@@ -69,6 +44,41 @@
        </property>
        <property name="text">
         <string notr="true"/>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="4">
+      <widget class="QFrame" name="viewerFrame">
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_4"/>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="borderLabel">
+       <property name="text">
+        <string>Border color:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="3">
+      <widget class="QDialogButtonBox" name="buttons">
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QCheckBox" name="pivotToggle">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>Disable pivot adjust</string>
        </property>
       </widget>
      </item>
