@@ -2731,67 +2731,72 @@ void AnimationEditor::RotateHitboxes()
             // is it just me or flipX, flipY and flipXY make more sense here than the actual names?
             // LWall
             if (true) {
-                int store                                   = -animFile.hitboxes[h].hitboxes[0].left;
-                animFile.hitboxes[h].hitboxes[2 + 0].left   = -animFile.hitboxes[h].hitboxes[0].right;
-                animFile.hitboxes[h].hitboxes[2 + 0].right  = store;
+                int store                                   = animFile.hitboxes[h].hitboxes[0].top;
+                animFile.hitboxes[h].hitboxes[2 + 0].top    = animFile.hitboxes[h].hitboxes[0].left;
+                animFile.hitboxes[h].hitboxes[2 + 0].left   = store;
 
-                animFile.hitboxes[h].hitboxes[2 + 0].top    = animFile.hitboxes[h].hitboxes[0].top;
-                animFile.hitboxes[h].hitboxes[2 + 0].bottom = animFile.hitboxes[h].hitboxes[0].bottom;
+                store                                       = animFile.hitboxes[h].hitboxes[0].bottom;
+                animFile.hitboxes[h].hitboxes[2 + 0].bottom = animFile.hitboxes[h].hitboxes[0].right;
+                animFile.hitboxes[h].hitboxes[2 + 0].right  = store;
             }
 
             // Roof
             if (true) {
-                int store                                   = -animFile.hitboxes[h].hitboxes[0].top;
+                int store                                   = -animFile.hitboxes[h].hitboxes[0].left;
+                animFile.hitboxes[h].hitboxes[4 + 0].left   = -animFile.hitboxes[h].hitboxes[0].right;
+                animFile.hitboxes[h].hitboxes[4 + 0].right  = store;
+
+                store                                       = -animFile.hitboxes[h].hitboxes[0].top;
                 animFile.hitboxes[h].hitboxes[4 + 0].top    = -animFile.hitboxes[h].hitboxes[0].bottom;
                 animFile.hitboxes[h].hitboxes[4 + 0].bottom = store;
-
-                animFile.hitboxes[h].hitboxes[4 + 0].left   = animFile.hitboxes[h].hitboxes[0].left;
-                animFile.hitboxes[h].hitboxes[4 + 0].right  = animFile.hitboxes[h].hitboxes[0].right;
             }
 
             // RWall
             if (true) {
-                int store                                   = -animFile.hitboxes[h].hitboxes[0].left;
-                animFile.hitboxes[h].hitboxes[6 + 0].left   = -animFile.hitboxes[h].hitboxes[0].right;
-                animFile.hitboxes[h].hitboxes[6 + 0].right  = store;
+                int store                                   = -animFile.hitboxes[h].hitboxes[0].bottom;
+                animFile.hitboxes[h].hitboxes[6 + 0].bottom = -animFile.hitboxes[h].hitboxes[0].left;
+                animFile.hitboxes[h].hitboxes[6 + 0].left   = store;
 
                 store                                       = -animFile.hitboxes[h].hitboxes[0].top;
-                animFile.hitboxes[h].hitboxes[6 + 0].top    = -animFile.hitboxes[h].hitboxes[0].bottom;
-                animFile.hitboxes[h].hitboxes[6 + 0].bottom = store;
+                animFile.hitboxes[h].hitboxes[6 + 0].top    = -animFile.hitboxes[h].hitboxes[0].right;
+                animFile.hitboxes[h].hitboxes[6 + 0].right  = store;
             }
         }
 
         // Inner box
         if (true) {
+
             // LWall
             if (true) {
-                int store                                   = -animFile.hitboxes[h].hitboxes[1].left;
-                animFile.hitboxes[h].hitboxes[2 + 1].left   = -animFile.hitboxes[h].hitboxes[1].right;
-                animFile.hitboxes[h].hitboxes[2 + 1].right  = store;
+                int store                                   = animFile.hitboxes[h].hitboxes[1].top;
+                animFile.hitboxes[h].hitboxes[2 + 1].top    = animFile.hitboxes[h].hitboxes[1].left;
+                animFile.hitboxes[h].hitboxes[2 + 1].left   = store;
 
-                animFile.hitboxes[h].hitboxes[2 + 1].top    = animFile.hitboxes[h].hitboxes[1].top;
-                animFile.hitboxes[h].hitboxes[2 + 1].bottom = animFile.hitboxes[h].hitboxes[1].bottom;
+                store                                       = animFile.hitboxes[h].hitboxes[1].bottom;
+                animFile.hitboxes[h].hitboxes[2 + 1].bottom = animFile.hitboxes[h].hitboxes[1].right;
+                animFile.hitboxes[h].hitboxes[2 + 1].right  = store;
             }
 
             // Roof
             if (true) {
-                int store                                   = -animFile.hitboxes[h].hitboxes[1].top;
+                int store                                   = -animFile.hitboxes[h].hitboxes[1].left;
+                animFile.hitboxes[h].hitboxes[4 + 1].left   = -animFile.hitboxes[h].hitboxes[1].right;
+                animFile.hitboxes[h].hitboxes[4 + 1].right  = store;
+
+                store                                       = -animFile.hitboxes[h].hitboxes[1].top;
                 animFile.hitboxes[h].hitboxes[4 + 1].top    = -animFile.hitboxes[h].hitboxes[1].bottom;
                 animFile.hitboxes[h].hitboxes[4 + 1].bottom = store;
-
-                animFile.hitboxes[h].hitboxes[4 + 1].left   = animFile.hitboxes[h].hitboxes[1].left;
-                animFile.hitboxes[h].hitboxes[4 + 1].right  = animFile.hitboxes[h].hitboxes[1].right;
             }
 
             // RWall
             if (true) {
-                int store                                   = -animFile.hitboxes[h].hitboxes[1].left;
-                animFile.hitboxes[h].hitboxes[6 + 1].left   = -animFile.hitboxes[h].hitboxes[1].right;
-                animFile.hitboxes[h].hitboxes[6 + 1].right  = store;
+                int store                                   = -animFile.hitboxes[h].hitboxes[1].bottom;
+                animFile.hitboxes[h].hitboxes[6 + 1].bottom = -animFile.hitboxes[h].hitboxes[1].left;
+                animFile.hitboxes[h].hitboxes[6 + 1].left   = store;
 
                 store                                       = -animFile.hitboxes[h].hitboxes[1].top;
-                animFile.hitboxes[h].hitboxes[6 + 1].top    = -animFile.hitboxes[h].hitboxes[1].bottom;
-                animFile.hitboxes[h].hitboxes[6 + 1].bottom = store;
+                animFile.hitboxes[h].hitboxes[6 + 1].top    = -animFile.hitboxes[h].hitboxes[1].right;
+                animFile.hitboxes[h].hitboxes[6 + 1].right  = store;
             }
         }
     }
