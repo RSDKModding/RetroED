@@ -71,6 +71,7 @@ public:
 
         bool showGrid         = false;
         Vector2<int> gridSize = Vector2<int>(0x10, 0x10);
+
     };
 
     explicit SceneEditorv5(QWidget *parent = nullptr);
@@ -82,6 +83,8 @@ public:
     bool ctrlDownL  = false;
     bool altDownL   = false;
     bool shiftDownL = false;
+
+    bool viewerActive = false; // prevents shortcut windows from opening twice when sceneViewer is active
 
     Vector2<float> selectionOffset = Vector2<float>(0.0f, 0.0f);
 

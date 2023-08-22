@@ -89,6 +89,8 @@ public:
     bool altDownL   = false;
     bool shiftDownL = false;
 
+    bool viewerActive = false; // prevents shortcut windows from opening twice when sceneViewer is active
+
     Vector2<float> selectionOffset = Vector2<float>(0.0f, 0.0f);
 
     SceneViewer *viewer            = nullptr;

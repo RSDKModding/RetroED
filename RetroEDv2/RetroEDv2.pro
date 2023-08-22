@@ -58,6 +58,7 @@ SOURCES += \
     tools/sceneeditorv5.cpp \
     tools/sceneproperties/chunkeditor.cpp \
     tools/sceneproperties/confirmgamelink.cpp \
+    tools/sceneproperties/gotopos.cpp \
     tools/sceneproperties/objectselector.cpp \
     tools/sceneproperties/scenelayerproperties.cpp \
     tools/sceneproperties/scenelayerpropertiesv5.cpp \
@@ -123,6 +124,7 @@ HEADERS += \
     tools/sceneeditorv5.hpp \
     tools/sceneproperties/chunkeditor.hpp \
     tools/sceneproperties/confirmgamelink.hpp \
+    tools/sceneproperties/gotopos.hpp \
     tools/sceneproperties/objectselector.hpp \
     tools/sceneproperties/sceneincludesv5.hpp \
     tools/sceneproperties/scenelayerproperties.hpp \
@@ -178,6 +180,7 @@ FORMS += \
     tools/sceneeditorv5.ui \
     tools/sceneproperties/chunkeditor.ui \
     tools/sceneproperties/confirmgamelink.ui \
+    tools/sceneproperties/gotopos.ui \
     tools/sceneproperties/objectselector.ui \
     tools/sceneproperties/scenelayerproperties.ui \
     tools/sceneproperties/scenelayerpropertiesv5.ui \
