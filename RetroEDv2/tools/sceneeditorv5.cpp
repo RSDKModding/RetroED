@@ -13,6 +13,7 @@
 #include "sceneproperties/scenestamppropertiesv5.hpp"
 #include "sceneproperties/objectselector.hpp"
 #include "sceneproperties/tilereplaceoptions.hpp"
+#include "sceneproperties/gotopos.hpp"
 
 #include "sceneproperties/stageconfigeditorv5.hpp"
 
@@ -575,6 +576,14 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         viewer->screens->position.x = viewer->cameraPos.x;
         viewer->screens->position.y = viewer->cameraPos.y;
 
+        ui->horizontalScrollBar->blockSignals(true);
+        ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
+        ui->horizontalScrollBar->blockSignals(false);
+
+        ui->verticalScrollBar->blockSignals(true);
+        ui->verticalScrollBar->setValue(viewer->cameraPos.y);
+        ui->verticalScrollBar->blockSignals(false);
+
         // THIS IS REALLY *REALLY* SLOW, TODO: FIX/SPEED UP
         objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
         ui->propertiesBox->setCurrentWidget(ui->objPropPage);
@@ -596,11 +605,26 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         int c = ui->entityList->currentRow();
         int n = ui->entityList->currentRow() == ui->entityList->count() - 1 ? c - 1 : c;
         delete ui->entityList->item(c);
+
+        DeleteEntity(c);
+
         ui->entityList->blockSignals(true);
         ui->entityList->setCurrentRow(n);
         ui->entityList->blockSignals(false);
 
-        DeleteEntity(c);
+        viewer->selectedEntity = n;
+
+        viewer->cameraPos.x = viewer->entities[n].pos.x - ((viewer->storedW / 2) * viewer->invZoom());
+        viewer->cameraPos.y = viewer->entities[n].pos.y - ((viewer->storedH / 2) * viewer->invZoom());
+
+        ui->horizontalScrollBar->blockSignals(true);
+        ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
+        ui->horizontalScrollBar->blockSignals(false);
+
+        ui->verticalScrollBar->blockSignals(true);
+        ui->verticalScrollBar->setValue(viewer->cameraPos.y);
+        ui->verticalScrollBar->blockSignals(false);
+
 
         ui->rmEnt->setDisabled(viewer->objects.count() <= 0);
 
@@ -1645,8 +1669,8 @@ bool SceneEditorv5::event(QEvent *event)
             UnloadGameLinks();
             break;
 
-        case QEvent::KeyPress: HandleKeyPress(static_cast<QKeyEvent *>(event)); break;
-        case QEvent::KeyRelease: HandleKeyRelease(static_cast<QKeyEvent *>(event)); break;
+        case QEvent::KeyPress: viewerActive = false; HandleKeyPress(static_cast<QKeyEvent *>(event)); break;
+        case QEvent::KeyRelease: viewerActive = false; HandleKeyRelease(static_cast<QKeyEvent *>(event)); break;
 
         case QEvent::Close:
             if (modified) {
@@ -2339,8 +2363,8 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
         }
 
         // You cant have a focus here & viewer, so copy code :]
-        case QEvent::KeyPress: HandleKeyPress(static_cast<QKeyEvent *>(event)); break;
-        case QEvent::KeyRelease: HandleKeyRelease(static_cast<QKeyEvent *>(event)); break;
+        case QEvent::KeyPress: viewerActive = true; HandleKeyPress(static_cast<QKeyEvent *>(event)); break;
+        case QEvent::KeyRelease: viewerActive = true; HandleKeyRelease(static_cast<QKeyEvent *>(event)); break;
 
         default: return false;
     }
@@ -3417,6 +3441,27 @@ bool SceneEditorv5::HandleKeyPress(QKeyEvent *event)
                     break;
                 }
             }
+        }
+    }
+
+    if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
+        && event->key() == Qt::Key_G && viewerActive) {
+        auto *sel = new GoToPos(viewer->layers[viewer->selectedLayer].width * 16, viewer->layers[viewer->selectedLayer].height * 16, viewer->layers[viewer->selectedLayer].name, this);
+        if (sel->exec() == QDialog::Accepted) {
+            viewer->cameraPos.x = sel->posX - ((viewer->storedW / 2) * viewer->invZoom());
+            viewer->cameraPos.y = sel->posY - ((viewer->storedH / 2) * viewer->invZoom());
+            if (viewer->cameraPos.x < 0) viewer->cameraPos.x = 0;
+            if (viewer->cameraPos.y < 0) viewer->cameraPos.y = 0;
+            viewer->screens->position.x = viewer->cameraPos.x;
+            viewer->screens->position.y = viewer->cameraPos.y;
+
+            ui->horizontalScrollBar->blockSignals(true);
+            ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
+            ui->horizontalScrollBar->blockSignals(false);
+
+            ui->verticalScrollBar->blockSignals(true);
+            ui->verticalScrollBar->setValue(viewer->cameraPos.y);
+            ui->verticalScrollBar->blockSignals(false);
         }
     }
 

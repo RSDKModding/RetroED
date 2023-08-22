@@ -22,6 +22,7 @@
 
 #include "sceneproperties/chunkeditor.hpp"
 #include "sceneproperties/tileseteditor.hpp"
+#include "sceneproperties/gotopos.hpp"
 
 #include <RSDKv1/gfxv1.hpp>
 #include <RSDKv1/tileconfigv1.hpp>
@@ -296,6 +297,14 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         viewer->cameraPos.x = viewer->entities[c].pos.x - ((viewer->storedW / 2) * viewer->invZoom());
         viewer->cameraPos.y = viewer->entities[c].pos.y - ((viewer->storedH / 2) * viewer->invZoom());
 
+        ui->horizontalScrollBar->blockSignals(true);
+        ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
+        ui->horizontalScrollBar->blockSignals(false);
+
+        ui->verticalScrollBar->blockSignals(true);
+        ui->verticalScrollBar->setValue(viewer->cameraPos.y);
+        ui->verticalScrollBar->blockSignals(false);
+
         // THIS IS REALLY *REALLY* SLOW, TODO: FIX/SPEED UP
         auto *entity = &viewer->entities[viewer->selectedEntity];
         objProp->setupUI(entity, viewer->selectedEntity,
@@ -389,9 +398,19 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         ui->entityList->blockSignals(true);
         ui->entityList->setCurrentRow(n);
         ui->entityList->blockSignals(false);
+
         viewer->selectedEntity = n;
+
         viewer->cameraPos.x = viewer->entities[n].pos.x - ((viewer->storedW / 2) * viewer->invZoom());
         viewer->cameraPos.y = viewer->entities[n].pos.y - ((viewer->storedH / 2) * viewer->invZoom());
+
+        ui->horizontalScrollBar->blockSignals(true);
+        ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
+        ui->horizontalScrollBar->blockSignals(false);
+
+        ui->verticalScrollBar->blockSignals(true);
+        ui->verticalScrollBar->setValue(viewer->cameraPos.y);
+        ui->verticalScrollBar->blockSignals(false);
 
         auto *entity = &viewer->entities[viewer->selectedEntity];
         objProp->setupUI(entity, viewer->selectedEntity,
@@ -1187,8 +1206,8 @@ bool SceneEditor::event(QEvent *event)
             break;
 
             // You cant have a focus here & viewer, so copy code :]
-        case QEvent::KeyPress: HandleKeyPress(static_cast<QKeyEvent *>(event)); break;
-        case QEvent::KeyRelease: HandleKeyRelease(static_cast<QKeyEvent *>(event)); break;
+        case QEvent::KeyPress: viewerActive = false; HandleKeyPress(static_cast<QKeyEvent *>(event)); break;
+        case QEvent::KeyRelease: viewerActive = false; HandleKeyRelease(static_cast<QKeyEvent *>(event)); break;
     }
 
     return QWidget::event(event);
@@ -1806,8 +1825,9 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             break;
         }
 
-        case QEvent::KeyPress: HandleKeyPress(static_cast<QKeyEvent *>(event)); break;
-        case QEvent::KeyRelease: HandleKeyRelease(static_cast<QKeyEvent *>(event)); break;
+
+        case QEvent::KeyPress: viewerActive = true; HandleKeyPress(static_cast<QKeyEvent *>(event)); break;
+        case QEvent::KeyRelease: viewerActive = true; HandleKeyRelease(static_cast<QKeyEvent *>(event)); break;
 
         default: break;
     }
@@ -3036,6 +3056,27 @@ bool SceneEditor::HandleKeyPress(QKeyEvent *event)
                     break;
                 }
             }
+        }
+    }
+
+    if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
+        && event->key() == Qt::Key_G && viewerActive) {
+        auto *sel = new GoToPos(viewer->layers[viewer->selectedLayer].width * 128, viewer->layers[viewer->selectedLayer].height * 128, viewer->layers[viewer->selectedLayer].name, this);
+        if (sel->exec() == QDialog::Accepted) {
+            viewer->cameraPos.x = sel->posX - ((viewer->storedW / 2) * viewer->invZoom());
+            viewer->cameraPos.y = sel->posY - ((viewer->storedH / 2) * viewer->invZoom());
+            if (viewer->cameraPos.x < 0) viewer->cameraPos.x = 0;
+            if (viewer->cameraPos.y < 0) viewer->cameraPos.y = 0;
+            viewer->screens->position.x = viewer->cameraPos.x;
+            viewer->screens->position.y = viewer->cameraPos.y;
+
+            ui->horizontalScrollBar->blockSignals(true);
+            ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
+            ui->horizontalScrollBar->blockSignals(false);
+
+            ui->verticalScrollBar->blockSignals(true);
+            ui->verticalScrollBar->setValue(viewer->cameraPos.y);
+            ui->verticalScrollBar->blockSignals(false);
         }
     }
 
