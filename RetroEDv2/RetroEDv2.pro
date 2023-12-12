@@ -12,7 +12,7 @@ include(dependencies/QtGifImage/src/gifimage/qtgifimage.pri)
 include(dependencies/qtcolorwidgets/color_widgets.pri)
 include(dependencies/libRSDK/libRSDK.pri)
 include(dependencies/imageviewer/imageviewer.pri)
-include(dependencies/QtPropertyBrowser/src/QtPropertyBrowser.pri)
+include(dependencies/QtPropertyBrowser/src/qtpropertybrowser.pri)
 
 QMAKE_LFLAGS += -lz
 
