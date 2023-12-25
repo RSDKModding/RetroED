@@ -86,6 +86,8 @@ public:
 
     bool viewerActive = false; // prevents shortcut windows from opening twice when sceneViewer is active
 
+    int initGameFilter = 0;
+
     Vector2<float> selectionOffset = Vector2<float>(0.0f, 0.0f);
 
     // The thingos
@@ -151,6 +153,10 @@ public:
 signals:
     void TitleChanged(QString title);
 
+public slots:
+    void updateType(SceneEntity *entity, byte type);
+    void updateTileSel();
+
 protected:
     bool event(QEvent *event);
     bool eventFilter(QObject *object, QEvent *event);
@@ -206,6 +212,7 @@ public:
     }
 
 signals:
+    void tileSelected();
     void requestRepaint();
 
 protected:

@@ -275,6 +275,8 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
         if (c == -1)
             return;
 
+        ui->varID->setText("Variable ID: ");
+
         ui->varName->blockSignals(true);
         ui->varValue->blockSignals(true);
 
@@ -283,6 +285,8 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
 
         ui->varName->blockSignals(false);
         ui->varValue->blockSignals(false);
+
+        ui->varID->setText("Variable ID: " + QString::number(c));
 
         if (ui->downVar)
             ui->downVar->setDisabled(c == ui->varList->count() - 1);
@@ -369,12 +373,16 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
 
         ui->plrName->setDisabled(c == -1);
 
+        ui->plrID->setText("Player ID: ");
+
         if (c == -1)
             return;
 
         ui->plrName->blockSignals(true);
         ui->plrName->setText(gameConfig.players[c]);
         ui->plrName->blockSignals(false);
+
+        ui->plrID->setText("Player ID: " + QString::number(c));
 
         if (ui->downPlr)
             ui->downPlr->setDisabled(c == ui->plrList->count() - 1);

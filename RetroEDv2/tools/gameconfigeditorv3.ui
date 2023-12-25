@@ -146,7 +146,7 @@
             <string>D</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
            </property>
           </widget>
@@ -173,7 +173,7 @@
             <string>+</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
            </property>
           </widget>
@@ -187,7 +187,7 @@
             <string>U</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
            </property>
           </widget>
@@ -201,7 +201,7 @@
             <string>-</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
            </property>
           </widget>
@@ -324,7 +324,7 @@
             <string>+</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
            </property>
           </widget>
@@ -338,7 +338,7 @@
             <string>U</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
            </property>
           </widget>
@@ -352,7 +352,7 @@
             <string>D</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
            </property>
           </widget>
@@ -379,7 +379,7 @@
             <string>-</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
            </property>
           </widget>
@@ -440,13 +440,6 @@
      </widget>
      <widget class="QWidget" name="variablesPage">
       <layout class="QGridLayout" name="gridLayout_8">
-       <item row="0" column="2">
-        <widget class="QLineEdit" name="varName">
-         <property name="toolTip">
-          <string>The global variable's name</string>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="1">
         <widget class="QLabel" name="label_9">
          <property name="text">
@@ -454,7 +447,34 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
+       <item row="1" column="1">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Value</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLineEdit" name="varName">
+         <property name="toolTip">
+          <string>The global variable's name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>282</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="4" column="0">
         <layout class="QGridLayout" name="gridLayout_7">
          <item row="0" column="5">
           <widget class="QToolButton" name="rmVar">
@@ -465,7 +485,7 @@
             <string>-</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
            </property>
           </widget>
@@ -479,7 +499,7 @@
             <string>D</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
            </property>
           </widget>
@@ -506,7 +526,7 @@
             <string>U</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
            </property>
           </widget>
@@ -520,7 +540,7 @@
             <string>+</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
            </property>
           </widget>
@@ -540,20 +560,20 @@
          </item>
         </layout>
        </item>
-       <item row="2" column="2">
-        <spacer name="verticalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+       <item row="1" column="2">
+        <widget class="QSpinBox" name="varValue">
+         <property name="toolTip">
+          <string>The initial value of the global variable</string>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>282</height>
-          </size>
+         <property name="minimum">
+          <number>-999999999</number>
          </property>
-        </spacer>
+         <property name="maximum">
+          <number>999999999</number>
+         </property>
+        </widget>
        </item>
-       <item row="0" column="0" rowspan="3">
+       <item row="0" column="0" rowspan="4">
         <widget class="QListWidget" name="varList">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -575,23 +595,10 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="label_7">
+       <item row="2" column="1" colspan="2">
+        <widget class="QLabel" name="varID">
          <property name="text">
-          <string>Value</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QSpinBox" name="varValue">
-         <property name="toolTip">
-          <string>The initial value of the global variable</string>
-         </property>
-         <property name="minimum">
-          <number>-999999999</number>
-         </property>
-         <property name="maximum">
-          <number>999999999</number>
+          <string>Variable ID:</string>
          </property>
         </widget>
        </item>
@@ -599,18 +606,12 @@
      </widget>
      <widget class="QWidget" name="playersPage">
       <layout class="QGridLayout" name="gridLayout_11">
-       <item row="1" column="2">
-        <spacer name="verticalSpacer_5">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>Name</string>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>311</height>
-          </size>
-         </property>
-        </spacer>
+        </widget>
        </item>
        <item row="0" column="2">
         <widget class="QLineEdit" name="plrName">
@@ -619,7 +620,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="0" rowspan="2">
+       <item row="0" column="0" rowspan="3">
         <widget class="QListWidget" name="plrList">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -641,14 +642,20 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="label_11">
-         <property name="text">
-          <string>Name</string>
+       <item row="2" column="2">
+        <spacer name="verticalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-        </widget>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>311</height>
+          </size>
+         </property>
+        </spacer>
        </item>
-       <item row="2" column="0">
+       <item row="3" column="0">
         <layout class="QGridLayout" name="gridLayout_10">
          <item row="0" column="5">
           <widget class="QToolButton" name="rmPlr">
@@ -659,7 +666,7 @@
             <string>-</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
            </property>
           </widget>
@@ -686,7 +693,7 @@
             <string>D</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
            </property>
           </widget>
@@ -700,7 +707,7 @@
             <string>U</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
            </property>
           </widget>
@@ -714,7 +721,7 @@
             <string>+</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
            </property>
           </widget>
@@ -733,6 +740,13 @@
           </spacer>
          </item>
         </layout>
+       </item>
+       <item row="1" column="1" colspan="2">
+        <widget class="QLabel" name="plrID">
+         <property name="text">
+          <string>Player ID:</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -783,7 +797,7 @@
             <string>+</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
            </property>
           </widget>
@@ -797,7 +811,7 @@
             <string>-</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
            </property>
           </widget>
@@ -811,7 +825,7 @@
             <string>U</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
            </property>
           </widget>
@@ -851,7 +865,7 @@
             <string>D</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
            </property>
           </widget>
@@ -954,6 +968,8 @@
   <tabstop>scnID</tabstop>
   <tabstop>scnHighlighted</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

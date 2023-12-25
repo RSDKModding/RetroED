@@ -42,6 +42,7 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
         byte type = *(byte *)infoGroup[0]->valuePtr;
         emit typeChanged(entity, type);
     });
+
     connect(infoGroup[1], &Property::changed, [this, entity, infoGroup] {
         bool flag = false;
         if (entity->slotID != entity->prevSlot) {
@@ -383,6 +384,8 @@ void SceneObjectPropertiesv5::updateUI()
     if (!entityPtr)
         return;
 
+    properties->propertySet[0]->subProperties[0]->updateValue();
+    properties->propertySet[0]->subProperties[1]->updateValue();
     properties->propertySet[1]->subProperties[0]->updateValue();
     properties->propertySet[1]->subProperties[1]->updateValue();
 }

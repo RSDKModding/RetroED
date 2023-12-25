@@ -56,6 +56,7 @@ SOURCES += \
     tools/rsdkunpacker.cpp \
     tools/sceneeditor.cpp \
     tools/sceneeditorv5.cpp \
+    tools/sceneproperties/chunkcollisioneditor.cpp \
     tools/sceneproperties/chunkeditor.cpp \
     tools/sceneproperties/confirmgamelink.cpp \
     tools/sceneproperties/gotopos.cpp \
@@ -122,6 +123,7 @@ HEADERS += \
     tools/rsdkunpacker.hpp \
     tools/sceneeditor.hpp \
     tools/sceneeditorv5.hpp \
+    tools/sceneproperties/chunkcollisioneditor.hpp \
     tools/sceneproperties/chunkeditor.hpp \
     tools/sceneproperties/confirmgamelink.hpp \
     tools/sceneproperties/gotopos.hpp \
@@ -178,6 +180,7 @@ FORMS += \
     tools/rsdkunpacker.ui \
     tools/sceneeditor.ui \
     tools/sceneeditorv5.ui \
+    tools/sceneproperties/chunkcollisioneditor.ui \
     tools/sceneproperties/chunkeditor.ui \
     tools/sceneproperties/confirmgamelink.ui \
     tools/sceneproperties/gotopos.ui \

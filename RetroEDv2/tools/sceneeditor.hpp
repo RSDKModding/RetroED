@@ -133,7 +133,7 @@ public:
     bool scriptError       = false;
 
     // Event Handlers
-    void SetTile(float x, float y);
+    void SetChunk(float x, float y);
     void ResetTools(byte tool);
 
     bool HandleKeyPress(QKeyEvent *event);
@@ -162,6 +162,8 @@ public:
 signals:
     void TitleChanged(QString title);
 
+public slots:
+    void updateType(SceneEntity *entity, byte type);
 protected:
     bool event(QEvent *event);
     bool eventFilter(QObject *object, QEvent *event);
@@ -170,7 +172,7 @@ private:
     enum SceneManagerCopyTypes {
         COPY_NONE,
         COPY_LAYER,
-        COPY_TILE,
+        COPY_CHUNK,
         COPY_ENTITY,
         COPY_SCROLLINFO,
     };

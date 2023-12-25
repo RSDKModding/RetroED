@@ -297,25 +297,23 @@ void SceneViewer::updateScene()
         int my = (int)((mousePos.y * invZoom()) + cameraPos.y);
 
         QString status =
-            QString("Zoom: %1%, Mouse Position: (%2, %3), Tile Position: (%4, %5), Selected Tile: "
-                    "%6, Selected Layer: %7 (%8), Selected Object: %9, FPS: %10")
+            QString("Zoom: %1%, Mouse Position: (%2, %3), %4 Position: (%5, %6), Selected %4: "
+                    "%7, Selected Layer: %8 (%9), Selected Object: %10")
                 .arg(zoom * 100)
                 .arg(mx)
                 .arg(my)
+                .arg(gameType == ENGINE_v5 ? "Tile" : "Chunk")
                 .arg((int)mx / tileSize)
                 .arg((int)my / tileSize)
-                .arg(selectedTile)
+                .arg(gameType == ENGINE_v5 ? selectedTile : selectedChunk)
                 .arg(selectedLayer)
                 .arg(selectedLayer >= 0 && selectedLayer < layers.count() ? layers[selectedLayer].name
                                                                           : "[None]")
                 .arg(selectedObject >= 0 && selectedObject < objects.count()
                          ? objects[selectedObject].name
-                         : "[None]")
-                .arg(fps, 0, 'f', 1);
-
-        if (gameType == ENGINE_v5 && engineRevision != 1) {
+                         : "[None]");
+        if (gameType == ENGINE_v5 && engineRevision != 1)
             status += QString(", Filter: %1").arg(sceneFilter);
-        }
 
         statusLabel->setText(status);
     }
@@ -1026,7 +1024,7 @@ void SceneViewer::drawScene()
     }
 
     // TILE PREVIEW
-    if (selectedTile != 0xFFFF && selectedLayer >= 0 && isSelecting && curTool == TOOL_PENCIL) {
+    if ((selectedTile != 0xFFFF || selectedChunk != 0xFFFF) && selectedLayer >= 0 && isSelecting && curTool == TOOL_PENCIL) {
         float tx = tilePos.x;
         float ty = tilePos.y;
 
@@ -1059,12 +1057,12 @@ void SceneViewer::drawScene()
             addPoly(xpos + 0x10, ypos + 0x10, tileUVArray[point + 2], tileUVArray[point + 3], 0,
                     gfxSurface);
         }
-        else if (tileSize == 0x80 && selectedTile != 0xFFFF) {
+        else if (tileSize == 0x80 && selectedChunk != 0xFFFF) {
             for (int y = 0; y < 8; ++y) {
                 for (int x = 0; x < 8; ++x) {
                     ++count;
 
-                    FormatHelpers::Chunks::Tile &tile = chunkset.chunks[selectedTile].tiles[y][x];
+                    FormatHelpers::Chunks::Tile &tile = chunkset.chunks[selectedChunk].tiles[y][x];
                     float tileX                       = xpos + (x * 0x10);
                     float tileY                       = ypos + (y * 0x10);
 
@@ -1275,6 +1273,7 @@ void SceneViewer::unloadScene()
     cameraPos.x         = 0;
     cameraPos.y         = 0;
     selectedTile        = -1;
+    selectedChunk       = -1;
     selectedEntity      = -1;
     selectedLayer       = -1;
     selectedHScrollInfo = -1;

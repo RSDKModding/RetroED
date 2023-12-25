@@ -72,6 +72,8 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
         ui->roofAngle->blockSignals(false);
         ui->lWallAngle->blockSignals(false);
         ui->rWallAngle->blockSignals(false);
+        edit->cmask               = cmask[collisionLyr];
+        edit->update();
     });
 
     connect(ui->colPlaneB, &QRadioButton::toggled, [this] {
@@ -100,6 +102,8 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
         ui->roofAngle->blockSignals(false);
         ui->lWallAngle->blockSignals(false);
         ui->rWallAngle->blockSignals(false);
+        edit->cmask               = cmask[collisionLyr];
+        edit->update();
     });
 
     connect(ui->flipX, &QCheckBox::toggled, [tile](bool c) { Utils::setBit(*tile, c, 10); });
@@ -127,12 +131,10 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
     connect(ui->rWallAngle, QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int v) { cmask[collisionLyr]->rWallAngle = (byte)v; });
 
-    connect(ui->editCollision, &QPushButton::clicked, [&] {
-        TileCollisionWidgetv5 *edit = new TileCollisionWidgetv5();
-        edit->cmask                 = cmask[collisionLyr];
-        edit->tileImg               = this->tileImg;
-        edit->exec();
-    });
+    edit                        = new TileCollisionWidgetv5();
+    edit->cmask                 = cmask[collisionLyr];
+    edit->tileImg               = this->tileImg;
+    ui->frame->layout()->addWidget(edit);
 
     auto calcFloorAngle = [](RSDKv5::TileConfig::CollisionMask *mask) {
         byte angle = 0;
@@ -373,7 +375,6 @@ void SceneTilePropertiesv5::unsetUI()
     disconnect(ui->rWallAngle, nullptr, nullptr, nullptr);
     disconnect(ui->behaviour, nullptr, nullptr, nullptr);
 
-    disconnect(ui->editCollision, nullptr, nullptr, nullptr);
     disconnect(ui->colPlaneA, nullptr, nullptr, nullptr);
     disconnect(ui->colPlaneB, nullptr, nullptr, nullptr);
     disconnect(ui->calcAngleF, nullptr, nullptr, nullptr);
@@ -381,17 +382,14 @@ void SceneTilePropertiesv5::unsetUI()
     disconnect(ui->calcAngleL, nullptr, nullptr, nullptr);
     disconnect(ui->calcAngleR, nullptr, nullptr, nullptr);
 
+    ui->frame->layout()->removeWidget(edit);
     cmask[0] = nullptr;
     cmask[1] = nullptr;
 }
 
 #include "moc_scenetilepropertiesv5.cpp"
 
-TileCollisionWidgetv5::TileCollisionWidgetv5(QWidget *parent) : QDialog(parent)
-{
-    setMouseTracking(true);
-    setWindowTitle("Edit Collision");
-}
+TileCollisionWidgetv5::TileCollisionWidgetv5(QWidget *parent) : QWidget(parent) { setMouseTracking(true); }
 
 void TileCollisionWidgetv5::paintEvent(QPaintEvent *)
 {
@@ -407,6 +405,7 @@ void TileCollisionWidgetv5::paintEvent(QPaintEvent *)
                     QPen pen(qApp->palette().base(), 2);
                     p.setPen(pen);
                     p.setBrush(QColor(0x00FF00));
+                    p.setOpacity(0.5);
 
                     if (!cmask->collision[x].solid)
                         p.setBrush(p.brush().color().darker(255));
@@ -424,6 +423,7 @@ void TileCollisionWidgetv5::paintEvent(QPaintEvent *)
                     QPen pen(qApp->palette().base(), 2);
                     p.setPen(pen);
                     p.setBrush(QColor(0x00FF00));
+                    p.setOpacity(0.5);
 
                     if (!cmask->collision[x].solid)
                         p.setBrush(p.brush().color().darker(255));

@@ -1,16 +1,16 @@
 #pragma once
 
 #include <QWidget>
-#include <QDialog>
 
 #include <RSDKv5/tileconfigv5.hpp>
+#include "tools/sceneviewer.hpp"
 
 namespace Ui
 {
 class SceneTileProperties;
 }
 
-class TileCollisionWidget : public QDialog
+class TileCollisionWidget : public QWidget
 {
     Q_OBJECT
 public:
@@ -43,13 +43,15 @@ public:
     ~SceneTileProperties();
 
     void setupUI(RSDKv5::TileConfig::CollisionMask *cmA, RSDKv5::TileConfig::CollisionMask *cmB,
-                 ushort tID, QImage tileImg);
+                 ushort tID, QList<QImage> &tiles, SceneViewer *viewer);
     void unsetUI();
 
 private:
     Ui::SceneTileProperties *ui;
+    TileCollisionWidget *edit;
     QImage tileImg;
-    int collisionLyr = 0;
+    int collisionLyr     =  0;
+    int selectedDrawTile = -1;
 
     RSDKv5::TileConfig::CollisionMask *cmask[2] = { nullptr, nullptr };
 };

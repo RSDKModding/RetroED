@@ -1186,6 +1186,7 @@ void Compilerv3::ConvertFunctionText(char *text)
                     if (StrComp(arrayStr, typeNames[o])) {
                         funcName[0] = 0;
                         AppendIntegerToString(funcName, o);
+                        break;
                     }
                 }
 

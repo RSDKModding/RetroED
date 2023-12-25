@@ -27,7 +27,6 @@ public:
     QPushButton *loadStamps = nullptr;
     QPushButton *saveStamps = nullptr;
 
-    QPushButton *editTIL  = nullptr;
     QPushButton *editSCF  = nullptr;
     QPushButton *editPAL  = nullptr;
     QPushButton *editTSet = nullptr;

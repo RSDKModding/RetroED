@@ -17,7 +17,7 @@
    <item row="0" column="0" colspan="2">
     <widget class="QToolBox" name="versionToolbox">
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="rsdkv5">
       <property name="geometry">
@@ -32,21 +32,7 @@
        <string>RSDKv5</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="1" column="1">
-        <widget class="QPushButton" name="setExeLocV5">
-         <property name="text">
-          <string>Browse</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1" colspan="5">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Executable Location</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2">
+       <item row="6" column="2">
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -59,19 +45,43 @@
          </property>
         </spacer>
        </item>
-       <item row="1" column="2" colspan="4">
+       <item row="3" column="1">
+        <widget class="QPushButton" name="setExeLocV5">
+         <property name="text">
+          <string>Browse</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" colspan="3">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Executable Location</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Base Data Folder Location</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2" colspan="2">
         <widget class="QLineEdit" name="exeLocV5">
          <property name="readOnly">
           <bool>true</bool>
          </property>
         </widget>
        </item>
-       <item row="2" column="1" colspan="5">
-        <widget class="QPushButton" name="runGameV5">
+       <item row="5" column="1">
+        <widget class="QPushButton" name="setDataLocV5">
          <property name="text">
-          <string>Run Game</string>
+          <string>Browse</string>
          </property>
         </widget>
+       </item>
+       <item row="5" column="2">
+        <widget class="QLineEdit" name="dataLocV5"/>
        </item>
       </layout>
      </widget>
@@ -88,14 +98,21 @@
        <string>RSDKv4</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="exeLocV4">
-         <property name="readOnly">
-          <bool>true</bool>
+       <item row="3" column="0">
+        <widget class="QPushButton" name="setDataLocV4">
+         <property name="text">
+          <string>Browse</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
+       <item row="1" column="0">
+        <widget class="QPushButton" name="setExeLocV4">
+         <property name="text">
+          <string>Browse</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -108,12 +125,8 @@
          </property>
         </spacer>
        </item>
-       <item row="1" column="0">
-        <widget class="QPushButton" name="setExeLocV4">
-         <property name="text">
-          <string>Browse</string>
-         </property>
-        </widget>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="dataLocV4"/>
        </item>
        <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label_2">
@@ -122,20 +135,42 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QPushButton" name="runGameV4">
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="exeLocV4">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_7">
          <property name="text">
-          <string>Run Game</string>
+          <string>Base Data Folder Location</string>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="rsdkv3">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>382</width>
+        <height>166</height>
+       </rect>
+      </property>
       <attribute name="label">
        <string>RSDKv3</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_4">
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="exeLocV3">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label_3">
          <property name="text">
@@ -144,6 +179,16 @@
         </widget>
        </item>
        <item row="3" column="1">
+        <widget class="QLineEdit" name="dataLocV3"/>
+       </item>
+       <item row="3" column="0">
+        <widget class="QPushButton" name="setDataLocV3">
+         <property name="text">
+          <string>Browse</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
         <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -156,13 +201,6 @@
          </property>
         </spacer>
        </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="exeLocV3">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="0">
         <widget class="QPushButton" name="setExeLocV3">
          <property name="text">
@@ -170,26 +208,57 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QPushButton" name="runGameV3">
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_8">
          <property name="text">
-          <string>Run Game</string>
+          <string>Base Data Folder Location</string>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="rsdkv2">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>382</width>
+        <height>166</height>
+       </rect>
+      </property>
       <attribute name="label">
        <string>RSDKv2</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_5">
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="dataLocV2"/>
+       </item>
+       <item row="3" column="0">
+        <widget class="QPushButton" name="setDataLocV2">
+         <property name="text">
+          <string>Browse</string>
+         </property>
+        </widget>
+       </item>
        <item row="1" column="1">
         <widget class="QLineEdit" name="exeLocV2">
          <property name="readOnly">
           <bool>true</bool>
          </property>
         </widget>
+       </item>
+       <item row="4" column="1">
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>71</height>
+          </size>
+         </property>
+        </spacer>
        </item>
        <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label_4">
@@ -205,41 +274,43 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <spacer name="verticalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>71</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QPushButton" name="runGameV2">
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_9">
          <property name="text">
-          <string>Run Game</string>
+          <string>Base Data Folder Location</string>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="rsdkv1">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>382</width>
+        <height>166</height>
+       </rect>
+      </property>
       <attribute name="label">
        <string>RSDKv1</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_6">
-       <item row="1" column="1">
+       <item row="4" column="0">
+        <widget class="QPushButton" name="setDataLocV1">
+         <property name="text">
+          <string>Browser</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
         <widget class="QLineEdit" name="exeLocV1">
          <property name="readOnly">
           <bool>true</bool>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
+       <item row="5" column="1">
         <spacer name="verticalSpacer_5">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -252,7 +323,10 @@
          </property>
         </spacer>
        </item>
-       <item row="1" column="0">
+       <item row="4" column="1">
+        <widget class="QLineEdit" name="dataLocV1"/>
+       </item>
+       <item row="2" column="0">
         <widget class="QPushButton" name="setExeLocV1">
          <property name="text">
           <string>Browse</string>
@@ -266,10 +340,10 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QPushButton" name="runGameV1">
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_10">
          <property name="text">
-          <string>Run Game</string>
+          <string>Base Data Folder Location</string>
          </property>
         </widget>
        </item>

@@ -85,7 +85,7 @@ ChunkSelector::ChunkSelector(QWidget *parent) : QWidget(parent), parentWidget((S
 
     int i = 0;
     for (auto &&chunk : parentWidget->viewer->chunks) {
-        auto *label = new ChunkLabel(&parentWidget->viewer->selectedTile, i, chunkArea);
+        auto *label = new ChunkLabel(&parentWidget->viewer->selectedChunk, i, chunkArea);
         label->setPixmap(QPixmap::fromImage(chunk).scaled(chunk.width(), chunk.height()));
         label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         label->resize(chunk.width(), chunk.height());
@@ -112,9 +112,9 @@ void ChunkSelector::RefreshList()
 
 void ChunkSelector::SetCurrentChunk(int chunkID)
 {
-    if (parentWidget->viewer->selectedTile >= 0 && parentWidget->viewer->selectedTile < 0x200
-        && labels[parentWidget->viewer->selectedTile]) {
-        labels[parentWidget->viewer->selectedTile]->update();
+    if (parentWidget->viewer->selectedChunk >= 0 && parentWidget->viewer->selectedChunk < 0x200
+        && labels[parentWidget->viewer->selectedChunk]) {
+        labels[parentWidget->viewer->selectedChunk]->update();
     }
 
     if (chunkID >= 0 && chunkID < 0x200 && labels[chunkID]) {
@@ -185,6 +185,24 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(ui->verticalScrollBar, &QScrollBar::valueChanged,
             [this](int v) { viewer->cameraPos.y = v; });
 
+#ifndef Q_NO_PROCESS
+    connect(ui->runGame, &QPushButton::clicked, [this]{
+        QString gamePath = appConfig.gameManager[viewer->gameType].exePath;
+        if (QFile::exists(gamePath)) {
+            QStringList args;
+            args << "console=true;" << QString("stage=%1;").arg(argInitStage) << QString("scene=%1;").arg(argInitScene);
+            QProcess proc;
+            proc.setProgram(gamePath);
+            proc.setWorkingDirectory(QFileInfo(gamePath).absolutePath());
+            proc.setArguments(args);
+            proc.startDetached();
+            proc.waitForStarted();
+        }
+    });
+#else
+    ui->runGame->setVisible(false);
+#endif
+
     connect(ui->useGizmos, &QPushButton::clicked, [this] { viewer->sceneInfo.effectGizmo ^= 1; });
 
     connect(ui->layerList, &QListWidget::currentRowChanged, [this](int c) {
@@ -207,7 +225,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             viewer->layers[c].visible = item->checkState() == Qt::Checked;
     });
 
-    connect(ui->objectFilter, &QLineEdit::textChanged, [this](QString s) { FilterObjectList(s); });
+    connect(ui->objectFilter, &QLineEdit::textChanged, [this](QString s) { FilterObjectList(s.toUpper()); });
 
     connect(ui->objectList, &QListWidget::currentRowChanged, [this](int c) {
         ui->rmObj->setDisabled(c == -1 || c >= viewer->objects.count());
@@ -279,7 +297,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         DoAction();
     });
 
-    connect(ui->entityFilter, &QLineEdit::textChanged, [this](QString s) { FilterEntityList(s); });
+    connect(ui->entityFilter, &QLineEdit::textChanged, [this](QString s) { FilterEntityList(s.toUpper()); });
 
     connect(ui->entityList, &QListWidget::currentRowChanged, [this](int c) {
         ui->upEnt->setDisabled(c == -1);
@@ -313,6 +331,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                          &compilerv4->objectEntityList[entity->gameEntitySlot], viewer->gameType);
         ui->propertiesBox->setCurrentWidget(ui->objPropPage);
     });
+    connect(objProp, &SceneObjectProperties::typeChanged, this, &SceneEditor::updateType);
 
     connect(ui->addEnt, &QToolButton::clicked, [this] {
         uint c = viewer->entities.count();
@@ -332,8 +351,16 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             auto *item = ui->entityList->takeItem(c);
 
             int slot                       = viewer->entities[c].slotID;
-            viewer->entities[c].slotID     = viewer->entities[c - 1].slotID;
-            viewer->entities[c - 1].slotID = slot;
+            int gameSlot                   = viewer->entities[c].gameEntitySlot; // isn't this the exact same thing as slotID?
+
+            viewer->entities[c].slotID         = viewer->entities[c - 1].slotID;
+            viewer->entities[c].gameEntitySlot = viewer->entities[c - 1].gameEntitySlot;
+            viewer->entities[c].prevSlot       = viewer->entities[c - 1].slotID;
+
+            viewer->entities[c - 1].slotID         = slot;
+            viewer->entities[c - 1].prevSlot       = slot;
+            viewer->entities[c - 1].gameEntitySlot = gameSlot;
+
 
             viewer->entities.move(c, c - 1);
 
@@ -353,6 +380,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 if (viewer->selectedEntities[s] == (int)c)
                     viewer->selectedEntities[s] = c - 1;
             }
+            objProp->updateUI();
             ui->upEnt->setDisabled(ui->entityList->currentRow() == 0);
             ui->downEnt->setDisabled(false);
     });
@@ -361,9 +389,16 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             ui->entityList->blockSignals(true);
             uint c     = ui->entityList->currentRow();
             auto *item = ui->entityList->takeItem(c);
-            int slot                       = viewer->entities[c].slotID;
-            viewer->entities[c].slotID     = viewer->entities[c + 1].slotID;
-            viewer->entities[c + 1].slotID = slot;
+            int slot                        = viewer->entities[c].slotID;
+            int gameSlot                    = viewer->entities[c].gameEntitySlot;
+
+            viewer->entities[c].slotID         = viewer->entities[c + 1].slotID;
+            viewer->entities[c].gameEntitySlot = viewer->entities[c + 1].gameEntitySlot;
+            viewer->entities[c].prevSlot       = viewer->entities[c + 1].slotID;
+
+            viewer->entities[c + 1].slotID         = slot;
+            viewer->entities[c + 1].prevSlot       = slot;
+            viewer->entities[c + 1].gameEntitySlot = gameSlot;
 
             viewer->entities.move(c, c + 1);
 
@@ -383,6 +418,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 if (viewer->selectedEntities[s] == (int)c)
                     viewer->selectedEntities[s] = c + 1;
             }
+
+            objProp->updateUI();
             ui->downEnt->setDisabled(ui->entityList->currentRow() + 1 >= ui->entityList->count());
             ui->upEnt->setDisabled(false);
     });
@@ -908,6 +945,16 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         DoAction();
     });
 
+    connect(scnProp->copyPlane, &QPushButton::clicked, [this] {
+        SetStatus("Copying tile collision....", true);
+        RSDKv5::TileConfig configStore = viewer->tileconfig;
+        for (int i = 0; i < 0x400; ++i) {
+            viewer->tileconfig.collisionPaths[1][i] = configStore.collisionPaths[0][i];
+        }
+        AddStatusProgress(5 / 5); // finished copying tiles
+        DoAction();
+    });
+
     connect(ui->exportScn, &QPushButton::clicked, [this] {
         QFileDialog dlg(this, tr("Save Scene XML"), "", tr("RSDK Scene XML Files (*.xml)"));
         dlg.setAcceptMode(QFileDialog::AcceptSave);
@@ -1109,6 +1156,26 @@ SceneEditor::~SceneEditor()
     delete compilerv4;
 }
 
+void SceneEditor::updateType(SceneEntity *entity, byte type)
+{
+    int c = viewer->selectedEntity;
+    ui->entityList->item(c)->setText(QString::number(viewer->entities[c].slotID) + ": "
+                                     + viewer->objects[viewer->entities[c].type].name);
+    entity->propertyValue = 0;
+    entity->variables.clear();
+    for (int v = 0; v < viewer->objects[type].variables.count(); ++v) {
+        RSDKv5::Scene::VariableValue val;
+        val.type        = VAR_UINT8;
+        val.value_uint8 = 0;
+        entity->variables.append(val);
+    }
+    // maybe make it use updateUI?
+    objProp->setupUI(entity, viewer->selectedEntity,
+                     &compilerv2->objectEntityList[entity->gameEntitySlot],
+                     &compilerv3->objectEntityList[entity->gameEntitySlot],
+                     &compilerv4->objectEntityList[entity->gameEntitySlot], viewer->gameType);
+}
+
 bool SceneEditor::event(QEvent *event)
 {
 
@@ -1258,16 +1325,16 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         break;
 
                     case SceneViewer::TOOL_PENCIL: {
-                        if (viewer->selectedTile != 0xFFFF && viewer->isSelecting) {
-                            SetTile(mEvent->pos().x(), mEvent->pos().y());
+                        if (viewer->selectedChunk != 0xFFFF && viewer->isSelecting) {
+                            SetChunk(mEvent->pos().x(), mEvent->pos().y());
                             DoAction();
                         }
                         break;
                     }
                     case SceneViewer::TOOL_ERASER: {
                         if (viewer->isSelecting) {
-                            viewer->selectedTile = 0x00;
-                            SetTile(mEvent->pos().x(), mEvent->pos().y());
+                            viewer->selectedChunk = 0x00;
+                            SetChunk(mEvent->pos().x(), mEvent->pos().y());
                             DoAction();
                         }
                         break;
@@ -1384,43 +1451,23 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 switch (viewer->curTool) {
                     case SceneViewer::TOOL_PENCIL:
                         if (viewer->selectedLayer >= 0) {
-                            Rect<float> box, box2;
+                            Rect<float> box;
 
-                            for (int y = 0; y < viewer->sceneBoundsB; ++y) {
-                                for (int x = 0; x < viewer->sceneBoundsR; ++x) {
+                            for (int y = 0; y < viewer->sceneBoundsB / 0x80; ++y) {
+                                for (int x = 0; x < viewer->sceneBoundsR / 0x80; ++x) {
                                     box = Rect<float>(x * 0x80, y * 0x80, 0x80, 0x80);
 
                                     Vector2<float> pos = Vector2<float>(
                                         (mEvent->pos().x() * viewer->invZoom()) + viewer->cameraPos.x,
                                         (mEvent->pos().y() * viewer->invZoom()) + viewer->cameraPos.y);
                                     if (box.contains(pos)) {
-                                        ushort tid = 0;
                                         ushort chunk =
                                             viewer->layers[viewer->selectedLayer].layout[y][x];
 
                                         chkProp->SetCurrentChunk(chunk);
 
-                                        viewer->selectedTile = chunk;
-
-                                        for (int cy = 0; cy < 8; ++cy) {
-                                            for (int cx = 0; cx < 8; ++cx) {
-                                                box2 = Rect<float>(box.x + (cx * 0x10),
-                                                                   box.y + (cy * 0x10), 0x10, 0x10);
-                                                if (box2.contains(pos)) {
-                                                    tid = viewer->chunkset.chunks[chunk]
-                                                              .tiles[cy][cx]
-                                                              .tileIndex;
-
-                                                    tileProp->setupUI(
-                                                        &viewer->tileconfig.collisionPaths[0][tid],
-                                                        &viewer->tileconfig.collisionPaths[1][tid], tid,
-                                                        viewer->tiles[tid]);
-                                                    ui->propertiesBox->setCurrentWidget(
-                                                        ui->tilePropPage);
-                                                    break;
-                                                }
-                                            }
-                                        }
+                                        viewer->selectedChunk = chunk;
+                                        ui->toolBox->setCurrentWidget(ui->chunksPage);
                                         break;
                                     }
                                 }
@@ -1676,8 +1723,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     }
 
                     case SceneViewer::TOOL_PENCIL: {
-                        if (viewer->selectedTile != 0xFFFF && viewer->isSelecting) {
-                            SetTile(viewer->mousePos.x, viewer->mousePos.y);
+                        if (viewer->selectedChunk != 0xFFFF && viewer->isSelecting) {
+                            SetChunk(viewer->mousePos.x, viewer->mousePos.y);
                             DoAction();
                         }
                         break;
@@ -1685,8 +1732,8 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
 
                     case SceneViewer::TOOL_ERASER: {
                         if (viewer->isSelecting) {
-                            viewer->selectedTile = 0x0;
-                            SetTile(viewer->mousePos.x, viewer->mousePos.y);
+                            viewer->selectedChunk = 0x0;
+                            SetChunk(viewer->mousePos.x, viewer->mousePos.y);
                             DoAction();
                         }
                         break;
@@ -1750,7 +1797,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 case SceneViewer::TOOL_MOUSE: break;
                 case SceneViewer::TOOL_SELECT: viewer->isSelecting = false; break;
                 case SceneViewer::TOOL_PENCIL: {
-                    if (viewer->selectedTile != 0xFFFF && viewer->isSelecting) {
+                    if (viewer->selectedChunk != 0xFFFF && viewer->isSelecting) {
                         DoAction(QString("Placed Chunk(s): (%1, %2)")
                                      .arg(mEvent->pos().x())
                                      .arg(mEvent->pos().y()));
@@ -1891,6 +1938,9 @@ void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
     viewer->metadata    = RSDKv5::Scene::SceneEditorMetadata();
     viewer->playerPos.x = scene.playerX;
     viewer->playerPos.y = scene.playerY;
+
+    if (!appConfig.baseDataManager[gameType].dataPath.isEmpty())
+        WorkingDirManager::workingDir = appConfig.baseDataManager[gameType].dataPath + "/";
 
     if (gameType != ENGINE_v1) {
         QString pathTCF = WorkingDirManager::GetPath(
@@ -2233,7 +2283,8 @@ void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
 
     scnProp->setupUI(&scene, viewer->gameType);
     lyrProp->setupUI(viewer, 0);
-    tileProp->unsetUI();
+    tileProp->setupUI(&viewer->tileconfig.collisionPaths[0][0], &viewer->tileconfig.collisionPaths[1][0], 0, viewer->tiles, viewer);
+
     objProp->unsetUI();
     scrProp->unsetUI();
 
@@ -2612,8 +2663,8 @@ void SceneEditor::InitGameLink()
     compilerv3->ClearScriptData();
     compilerv4->ClearScriptData();
     int id = 0;
-    sprintf(compilerv3->typeNames[id], "%s", "Blank Object");
-    sprintf(compilerv4->typeNames[id++], "%s", "Blank Object");
+    sprintf(compilerv3->typeNames[id], "%s", "BlankObject");
+    sprintf(compilerv4->typeNames[id++], "%s", "BlankObject");
 
     if (stageConfig.loadGlobalScripts) {
         for (int o = 0; o < gameConfig.objects.count(); ++o) {
@@ -2937,9 +2988,9 @@ void SceneEditor::InitGameLink()
     }
 }
 
-void SceneEditor::SetTile(float x, float y)
+void SceneEditor::SetChunk(float x, float y)
 {
-    if (viewer->selectedTile >= 0x400 || viewer->selectedLayer < 0)
+    if (viewer->selectedChunk >= 0x200 || viewer->selectedLayer < 0)
         return;
     float tx = x;
     float ty = y;
@@ -2954,7 +3005,7 @@ void SceneEditor::SetTile(float x, float y)
     tx -= fmodf(tx2, 0x80);
     ty -= fmodf(ty2, 0x80);
 
-    // Draw Selected Tile Preview
+    // Draw Selected Chunk Preview
     float xpos = tx + viewer->cameraPos.x;
     float ypos = ty + viewer->cameraPos.y;
 
@@ -2962,7 +3013,7 @@ void SceneEditor::SetTile(float x, float y)
     ypos /= 0x80;
     if (ypos >= 0 && ypos < viewer->layers[viewer->selectedLayer].height) {
         if (xpos >= 0 && xpos < viewer->layers[viewer->selectedLayer].width) {
-            viewer->layers[viewer->selectedLayer].layout[ypos][xpos] = viewer->selectedTile;
+            viewer->layers[viewer->selectedLayer].layout[ypos][xpos] = viewer->selectedChunk;
         }
     }
 }
@@ -3128,8 +3179,8 @@ bool SceneEditor::HandleKeyPress(QKeyEvent *event)
                 if (viewer->selectedLayer >= 0) {
                     Rect<float> box;
 
-                    for (int y = 0; y < viewer->sceneBoundsB; ++y) {
-                        for (int x = 0; x < viewer->sceneBoundsR; ++x) {
+                    for (int y = 0; y < viewer->sceneBoundsB / 0x80; ++y) {
+                        for (int x = 0; x < viewer->sceneBoundsR / 0x80; ++x) {
                             box = Rect<float>(x * 0x80, y * 0x80, 0x80, 0x80);
 
                             Vector2<float> pos = Vector2<float>(
@@ -3304,7 +3355,7 @@ void SceneEditor::FilterObjectList(QString filter)
 
     for (int row = 0; row < ui->objectList->count(); ++row) {
         auto *item = ui->objectList->item(row);
-        item->setHidden(!showAll && !item->text().contains(filter));
+        item->setHidden(!showAll && !item->text().toUpper().contains(filter));
     }
 }
 
@@ -3314,7 +3365,7 @@ void SceneEditor::FilterEntityList(QString filter)
 
     for (int row = 0; row < ui->entityList->count(); ++row) {
         auto *item = ui->entityList->item(row);
-        item->setHidden(!showAll && !item->text().contains(filter));
+        item->setHidden(!showAll && !item->text().toUpper().contains(filter));
     }
 }
 
@@ -3844,7 +3895,7 @@ void SceneEditor::ResetAction()
     // Layer Editing
     viewer->tilePos       = actions[actionIndex].tilePos;
     viewer->tileFlip      = actions[actionIndex].tileFlip;
-    viewer->selectedTile  = actions[actionIndex].selectedTile;
+    viewer->selectedChunk  = actions[actionIndex].selectedChunk;
     viewer->selectedLayer = actions[actionIndex].selectedLayer;
 
     // Collision
@@ -3923,7 +3974,7 @@ void SceneEditor::DoAction(QString name, bool setModified)
     // Layer Editing
     action.tilePos       = viewer->tilePos;
     action.tileFlip      = viewer->tileFlip;
-    action.selectedTile  = viewer->selectedTile;
+    action.selectedChunk  = viewer->selectedChunk;
     action.selectedLayer = viewer->selectedLayer;
 
     // Collision
