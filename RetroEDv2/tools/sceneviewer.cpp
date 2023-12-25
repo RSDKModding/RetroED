@@ -315,6 +315,7 @@ void SceneViewer::updateScene()
         if (gameType == ENGINE_v5 && engineRevision != 1)
             status += QString(", Filter: %1").arg(sceneFilter);
 
+        status += QString(", FPS: %1").arg(fps, 0, 'f', 1);
         statusLabel->setText(status);
     }
 
