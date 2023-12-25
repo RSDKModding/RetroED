@@ -1327,7 +1327,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     case SceneViewer::TOOL_PENCIL: {
                         if (viewer->selectedChunk != 0xFFFF && viewer->isSelecting) {
                             SetChunk(mEvent->pos().x(), mEvent->pos().y());
-                            DoAction();
+                            // DoAction();
                         }
                         break;
                     }
@@ -1335,7 +1335,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         if (viewer->isSelecting) {
                             viewer->selectedChunk = 0x00;
                             SetChunk(mEvent->pos().x(), mEvent->pos().y());
-                            DoAction();
+                            // DoAction();
                         }
                         break;
                     }
@@ -1725,7 +1725,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     case SceneViewer::TOOL_PENCIL: {
                         if (viewer->selectedChunk != 0xFFFF && viewer->isSelecting) {
                             SetChunk(viewer->mousePos.x, viewer->mousePos.y);
-                            DoAction();
+                            // DoAction();
                         }
                         break;
                     }
@@ -1734,7 +1734,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                         if (viewer->isSelecting) {
                             viewer->selectedChunk = 0x0;
                             SetChunk(viewer->mousePos.x, viewer->mousePos.y);
-                            DoAction();
+                            // DoAction();
                         }
                         break;
                     }
@@ -1793,27 +1793,28 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             viewer->mousePos.x  = mEvent->pos().x();
             viewer->mousePos.y  = mEvent->pos().y();
 
-            switch (viewer->curTool) {
-                case SceneViewer::TOOL_MOUSE: break;
-                case SceneViewer::TOOL_SELECT: viewer->isSelecting = false; break;
-                case SceneViewer::TOOL_PENCIL: {
-                    if (viewer->selectedChunk != 0xFFFF && viewer->isSelecting) {
-                        DoAction(QString("Placed Chunk(s): (%1, %2)")
-                                     .arg(mEvent->pos().x())
-                                     .arg(mEvent->pos().y()));
+            if (mouseDownL)
+                switch (viewer->curTool) {
+                    case SceneViewer::TOOL_MOUSE: break;
+                    case SceneViewer::TOOL_SELECT: viewer->isSelecting = false; break;
+                    case SceneViewer::TOOL_PENCIL: {
+                        if (viewer->selectedChunk != 0xFFFF && viewer->isSelecting) {
+                            DoAction(QString("Placed Chunk(s): (%1, %2)")
+                                         .arg(mEvent->pos().x())
+                                         .arg(mEvent->pos().y()));
+                        }
+                        break;
                     }
-                    break;
-                }
-                case SceneViewer::TOOL_ERASER: {
-                    if (viewer->isSelecting) {
-                        DoAction(QString("Erased Chunk(s): (%1, %2)")
-                                     .arg(mEvent->pos().x())
-                                     .arg(mEvent->pos().y()));
+                    case SceneViewer::TOOL_ERASER: {
+                        if (viewer->isSelecting) {
+                            DoAction(QString("Erased Chunk(s): (%1, %2)")
+                                         .arg(mEvent->pos().x())
+                                         .arg(mEvent->pos().y()));
+                        }
+                        break;
                     }
-                    break;
+                    default: break;
                 }
-                default: break;
-            }
 
             if ((mEvent->button() & Qt::LeftButton) == Qt::LeftButton) {
                 if (waitForRelease)
