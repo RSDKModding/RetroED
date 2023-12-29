@@ -100,7 +100,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         }
     };
 
-    auto setupHiboxTypeBox = [this] {
+    auto setupHitboxTypeBox = [this] {
         ui->hitboxType->blockSignals(true);
         ui->hitboxType->clear();
         for (int i = 0; i < animFile.hitboxTypes.count(); ++i) {
@@ -117,7 +117,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     };
 
     setupSheetBox();
-    setupHiboxTypeBox();
+    setupHitboxTypeBox();
 
     std::function<void(int)> animFunc([this](int c) {
         std::function<void(int)> frameFunc([this](int c) {
@@ -257,6 +257,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             }
             ui->duration->setValue(f.duration);
             ui->id->setText(QChar::fromLatin1(f.id));
+            ui->unicodeID->setText("ID: " + QString::number(f.id));
 
             connect(ui->sheetID, QOverload<int>::of(&QComboBox::currentIndexChanged),
                     [&f, this](int v) {
@@ -521,6 +522,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
             connect(ui->id, &QLineEdit::textChanged, [&f, this](QString s) {
                 f.id = (s.length() > 0 ? s[0].toLatin1() : 0);
+                ui->unicodeID->setText("ID: " + QString::number(f.id));
                 DoAction("Changed frame ID", true);
             });
 
@@ -775,7 +777,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         DoAction("Moved frame down", true);
         ui->frameList->setCurrentIndex(frameModel->index(c + 1, 0));
 
-        ui->downFrame->setDisabled(c + 1 >= animFile.animations[currentAnim].frames.count() - 1
+        ui->downFrame->setDisabled(c + 1 >= (uint)animFile.animations[currentAnim].frames.count() - 1
                                    || c < 0);
     });
 
@@ -1775,6 +1777,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->animationList->setCurrentRow(c);
         ui->animationList->blockSignals(false);
 
+        ui->animationList->currentRowChanged(c);
+
         ui->addAnim->setDisabled((aniType == ENGINE_v1 || aniType == ENGINE_v2)
                                  || animFile.animations.count() >= 0x100);
 
@@ -1912,7 +1916,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->sheetList->setCurrentRow(n);
     };
 
-    connect(ui->addHB, &QToolButton::clicked, [this, setupHiboxTypeBox] {
+    connect(ui->addHB, &QToolButton::clicked, [this, setupHitboxTypeBox] {
         uint c = ui->hitboxList->currentRow() + 1;
 
         animFile.hitboxTypes.insert(c, "Hitbox " + QString::number(c));
@@ -1956,12 +1960,12 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         ui->addHB->setDisabled(animFile.hitboxes.count() >= 8);
 
-        setupHiboxTypeBox();
+        setupHitboxTypeBox();
         UpdateView();
         DoAction("Added hitbox", true);
     });
 
-    connect(ui->rmHB, &QToolButton::clicked, [this, setupHiboxTypeBox] {
+    connect(ui->rmHB, &QToolButton::clicked, [this, setupHitboxTypeBox] {
         int c = ui->hitboxList->currentRow();
         int n = ui->hitboxList->currentRow() == ui->hitboxList->count() - 1 ? c - 1 : c;
 
@@ -1987,7 +1991,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         ui->rmHB->setDisabled(animFile.hitboxTypes.count() <= 0 || animFile.hitboxes.count() <= 0);
 
-        setupHiboxTypeBox();
+        setupHitboxTypeBox();
         UpdateView();
 
         DoAction("Removed hitbox", true);
@@ -1996,7 +2000,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         currentHitbox = c;
     });
 
-    auto moveHB = [this, setupHiboxTypeBox](char translation) {
+    auto moveHB = [this, setupHitboxTypeBox](char translation) {
         uint c = ui->hitboxList->currentRow();
         uint n = c + translation;
         if (n >= (uint)animFile.hitboxTypes.count() || ui->hitboxList->currentRow() == -1)
@@ -2024,7 +2028,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         }
 
-        setupHiboxTypeBox();
+        setupHitboxTypeBox();
         UpdateView();
         DoAction("Moved hitbox", true);
 
@@ -2048,12 +2052,14 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         UpdateView();
     });
 
-    connect(ui->hitboxList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
+    connect(ui->hitboxList, &QListWidget::itemChanged, [this, setupHitboxTypeBox](QListWidgetItem *item) {
         int c = ui->hitboxList->row(item);
         if ((uint)c < (uint)animFile.hitboxTypes.count()) {
             hitboxVisible[c] = item->checkState() == Qt::Checked;
             UpdateView();
         }
+        animFile.hitboxTypes[c] = item->text();
+        setupHitboxTypeBox();
     });
 
     connect(ui->play, &QToolButton::clicked, [this] {
@@ -2276,7 +2282,7 @@ void AnimationEditor::SetupUI(bool setFrame, bool setRow)
 
         ui->hitboxType->addItem(name);
         QListWidgetItem *item = new QListWidgetItem(name, ui->hitboxList);
-        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+        item->setFlags(item->flags() | Qt::ItemIsEditable | Qt::ItemIsUserCheckable);
         item->setCheckState(hitboxVisible[hID++] ? Qt::Checked : Qt::Unchecked);
     }
 
