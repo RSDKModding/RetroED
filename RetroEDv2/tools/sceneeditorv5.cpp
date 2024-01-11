@@ -2397,14 +2397,12 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
             QWheelEvent *wEvent = static_cast<QWheelEvent *>(event);
 
             if (ctrlDownL) {
-                if (wEvent->angleDelta().y() > 0 && viewer->zoom < 20)
-                {
+                if (wEvent->angleDelta().y() > 0 && viewer->zoom < 20) {
                     viewer->cameraPos.x += (int)((viewer->storedW / 4) / viewer->zoom);
                     viewer->cameraPos.y += (int)((viewer->storedH / 4) / viewer->zoom);
                     viewer->zoom *= 2;
                 }
-                else if (wEvent->angleDelta().y() < 0 && viewer->zoom > 1)
-                {
+                else if (wEvent->angleDelta().y() < 0 && viewer->zoom > 1) {
                     viewer->zoom /= 2;
                     viewer->cameraPos.x -= (int)((viewer->storedW / 4) / viewer->zoom);
                     viewer->cameraPos.y -= (int)((viewer->storedH / 4) / viewer->zoom);
