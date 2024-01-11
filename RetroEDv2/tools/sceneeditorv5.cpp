@@ -2397,14 +2397,18 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
             QWheelEvent *wEvent = static_cast<QWheelEvent *>(event);
 
             if (ctrlDownL) {
-                // fixes a bug where the UV messes up or smth :]
-                viewer->cameraPos.x = (int)viewer->cameraPos.x;
-                viewer->cameraPos.y = (int)viewer->cameraPos.y;
-
                 if (wEvent->angleDelta().y() > 0 && viewer->zoom < 20)
+                {
+                    viewer->cameraPos.x += (int)((viewer->storedW / 4) / viewer->zoom);
+                    viewer->cameraPos.y += (int)((viewer->storedH / 4) / viewer->zoom);
                     viewer->zoom *= 2;
+                }
                 else if (wEvent->angleDelta().y() < 0 && viewer->zoom > 0.5)
+                {
                     viewer->zoom /= 2;
+                    viewer->cameraPos.x -= (int)((viewer->storedW / 4) / viewer->zoom);
+                    viewer->cameraPos.y -= (int)((viewer->storedH / 4) / viewer->zoom);
+                }
 
                 ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR
                                                     - viewer->storedW / viewer->zoom);

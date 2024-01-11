@@ -504,11 +504,11 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
     float originX = w / 2, originY = h / 2;
     originX -= offset.x;
     originY -= offset.y;
+    originX *= (1.0f / zoom);
+    originY *= (1.0f / zoom);
     originX -= (4 * 16);
     originY -= (4 * 16);
 
-    originX *= (1.0f / zoom);
-    originY *= (1.0f / zoom);
 
     const QBrush brush = p.brush();
     for (int y = 0; y < 8; ++y) {
