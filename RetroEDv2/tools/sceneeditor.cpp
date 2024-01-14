@@ -870,7 +870,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             scnProp->musBox->blockSignals(true);
             scnProp->musBox->clear();
             for (int m = 0; m < stageConfig.music.count(); ++m)
-                scnProp->musBox->addItem(stageConfig.music[o]);
+                scnProp->musBox->addItem(stageConfig.music[m]);
             scnProp->musBox->blockSignals(false);
         }
         DoAction();
