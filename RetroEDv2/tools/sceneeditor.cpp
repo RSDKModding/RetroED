@@ -3090,14 +3090,18 @@ bool SceneEditor::HandleKeyPress(QKeyEvent *event)
         shiftDownL = true;
 
     if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
-        && event->key() == Qt::Key_V) {
+        && event->key() == Qt::Key_V && !event->isAutoRepeat() && viewerActive) {
         if (clipboard) {
             switch (clipboardType) {
                 default: break;
                 case COPY_ENTITY: {
                     if (viewer->entities.count() < FormatHelpers::Scene::entityLimit) {
                         SceneEntity *entity = (SceneEntity *)clipboard;
-                        AddEntity(entity->type, sceneMousePos.x, sceneMousePos.y);
+                        PasteEntity(entity, sceneMousePos.x, sceneMousePos.y);
+                        DoAction(QString("Pasted Entity: %1 (%2, %3)")
+                                     .arg(viewer->objects[entity->type].name)
+                                     .arg(sceneMousePos.x)
+                                     .arg(sceneMousePos.y));
                     }
                     else {
                         QMessageBox msgBox =
@@ -3321,6 +3325,74 @@ int SceneEditor::AddEntity(int type, float x, float y)
 
     return entity.slotID;
 }
+
+void SceneEditor::PasteEntity(SceneEntity *copy, float x, float y)
+{
+    if (x == 0xFFFF)
+        x = viewer->cameraPos.x;
+
+    if (y == 0xFFFF)
+        y = viewer->cameraPos.y;
+
+    SceneEntity entity;
+    entity.type  = copy->type;
+    entity.pos.x = x;
+    entity.pos.y = y;
+
+    int cnt               = viewer->entities.count();
+    entity.slotID         = cnt;
+    entity.prevSlot       = entity.slotID;
+    entity.gameEntitySlot = entity.slotID;
+    entity.propertyValue  = copy->propertyValue;
+
+    entity.variables.clear();
+    PrintLog(QString("var count %1").arg(viewer->objects[entity.type].variables.count()));
+    for (int v = 0; v < viewer->objects[entity.type].variables.count(); ++v) {
+        RSDKv5::Scene::VariableValue val;
+        val.type        = VAR_UINT8;
+        val.value_uint8 = 0;
+        entity.variables.append(val);
+    }
+
+    if (viewer->gameType == ENGINE_v4)
+        for (int v = 0; v < 0xF; ++v){entity.sceneVariables[v].value = copy->sceneVariables[v].value;}
+
+    viewer->entities.append(entity);
+    compilerv2->objectEntityList[entity.gameEntitySlot].type          = copy->type;
+    compilerv2->objectEntityList[entity.gameEntitySlot].propertyValue = copy->propertyValue;
+    compilerv2->objectEntityList[entity.gameEntitySlot].XPos          = x * 65536;
+    compilerv2->objectEntityList[entity.gameEntitySlot].YPos          = y * 65536;
+
+    compilerv3->objectEntityList[entity.gameEntitySlot].type          = copy->type;
+    compilerv3->objectEntityList[entity.gameEntitySlot].propertyValue = copy->propertyValue;
+    compilerv3->objectEntityList[entity.gameEntitySlot].XPos          = x * 65536;
+    compilerv3->objectEntityList[entity.gameEntitySlot].YPos          = y * 65536;
+
+    compilerv4->objectEntityList[entity.gameEntitySlot].type          = copy->type;
+    compilerv4->objectEntityList[entity.gameEntitySlot].propertyValue = copy->propertyValue;
+    compilerv4->objectEntityList[entity.gameEntitySlot].XPos          = x * 65536;
+    compilerv4->objectEntityList[entity.gameEntitySlot].YPos          = y * 65536;
+
+    viewer->selectedEntity = cnt;
+
+    ui->entityList->blockSignals(true);
+    ui->entityList->setCurrentRow(viewer->selectedEntity);
+    ui->entityList->blockSignals(false);
+
+    QString name = "Unknown Object " + QString::number(entity.type);
+    if (entity.type < viewer->objects.count())
+        name = viewer->objects[entity.type].name;
+
+    ui->entityList->addItem(QString::number(entity.slotID) + ": " + name);
+
+    auto *entityPtr = &viewer->entities[viewer->selectedEntity];
+    objProp->setupUI(entityPtr, viewer->selectedEntity,
+                     &compilerv2->objectEntityList[entityPtr->gameEntitySlot],
+                     &compilerv3->objectEntityList[entityPtr->gameEntitySlot],
+                     &compilerv4->objectEntityList[entityPtr->gameEntitySlot], viewer->gameType);
+    ui->propertiesBox->setCurrentWidget(ui->objPropPage);
+}
+
 void SceneEditor::DeleteEntity(int slot, bool updateUI)
 {
     const SceneEntity &entity = viewer->entities.takeAt(slot);

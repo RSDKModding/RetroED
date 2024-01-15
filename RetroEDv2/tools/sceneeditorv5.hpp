@@ -174,6 +174,7 @@ private:
     int clipboardInfo  = 0;
 
     int AddEntity(int type, float x, float y);
+    void PasteEntity(SceneEntity *copy, float x, float y);
     void DeleteEntity(int slot, bool updateUI = false);
 
     void FilterObjectList(QString filter);

@@ -2513,6 +2513,56 @@ int SceneEditorv5::AddEntity(int type, float x, float y)
     return entity.slotID;
 }
 
+void SceneEditorv5::PasteEntity(SceneEntity *copy, float x, float y)
+{
+    if (x == 0xFFFF)
+        x = viewer->cameraPos.x;
+
+    if (y == 0xFFFF)
+        y = viewer->cameraPos.y;
+
+    SceneEntity entity;
+    entity.slotID   = viewer->entities.count();
+    entity.prevSlot = entity.slotID;
+    entity.type     = copy->type;
+    entity.pos.x    = x;
+    entity.pos.y    = y;
+
+    entity.variables.clear();
+    for (int v = 0; v < viewer->objects[entity.type].variables.length(); ++v) {
+        RSDKv5::Scene::VariableValue var;
+        var.type = viewer->objects[entity.type].variables[v].type;
+        entity.variables.append(var);
+    }
+
+    for (int v = 0; v < viewer->objects[entity.type].variables.count(); ++v)
+        entity.variables[v] = copy->variables[v];
+
+    int cnt         = viewer->entities.count();
+    entity.slotID   = cnt;
+    entity.prevSlot = entity.slotID;
+
+    CallGameEvent(viewer->objects[entity.type].name, SceneViewer::EVENT_CREATE, &entity);
+
+    viewer->entities.append(entity);
+    viewer->selectedEntity      = cnt;
+    viewer->sceneInfo.listPos   = viewer->entities[viewer->selectedEntity].slotID;
+    viewer->sceneInfoV1.listPos = viewer->sceneInfo.listPos;
+
+    ui->entityList->blockSignals(true);
+    ui->entityList->setCurrentRow(viewer->selectedEntity);
+    ui->entityList->blockSignals(false);
+
+    QString name = "Unknown Object " + QString::number(entity.type);
+    if (entity.type < viewer->objects.count())
+        name = viewer->objects[entity.type].name;
+
+    ui->entityList->addItem(QString::number(entity.slotID) + ": " + name);
+
+    objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
+    ui->propertiesBox->setCurrentWidget(ui->objPropPage);
+}
+
 void SceneEditorv5::DeleteEntity(int slot, bool updateUI)
 {
     const SceneEntity &entity = viewer->entities.takeAt(slot);
@@ -3500,7 +3550,7 @@ bool SceneEditorv5::HandleKeyPress(QKeyEvent *event)
         shiftDownL = true;
 
     if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
-        && event->key() == Qt::Key_V) {
+        && event->key() == Qt::Key_V && !event->isAutoRepeat() && viewerActive) {
         if (clipboard) {
             switch (clipboardType) {
                 default: break;
@@ -3508,7 +3558,7 @@ bool SceneEditorv5::HandleKeyPress(QKeyEvent *event)
                     if (viewer->activeEntityCount() < 0x800) {
                         SceneEntity *entity = (SceneEntity *)clipboard;
 
-                        AddEntity(entity->type, sceneMousePos.x, sceneMousePos.y);
+                        PasteEntity(entity, sceneMousePos.x, sceneMousePos.y);
 
                         DoAction(QString("Pasted Entity: %1 (%2, %3)")
                                      .arg(viewer->objects[entity->type].name)
