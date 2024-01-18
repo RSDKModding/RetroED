@@ -249,6 +249,10 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         layer.name = "New Layer " + QString::number(c);
         layer.type = SceneHelpers::TileLayer::LAYER_HSCROLL;
         viewer->layers.append(layer);
+        RSDKv5::Scene::SceneLayer scnLayer;
+        scnLayer.name = layer.name;
+        scnLayer.type = layer.type;
+        scene.layers.append(scnLayer);
 
         QListWidgetItem *item = new QListWidgetItem(layer.name, ui->layerList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
