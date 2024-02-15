@@ -1601,9 +1601,9 @@ bool SceneEditorv5::event(QEvent *event)
                 QString gcPath = "";
 
                 QString filePath = QFileInfo(filedialog.selectedFiles()[0]).absolutePath();
-                QDir dir(filePath); // Data/Stages/SCENE/
-                dir.cdUp();         // Data/Stages/
-                dir.cdUp();         // Data/
+                QDir dir(filePath); // Data/Stages/SCENE
+                dir.cdUp();         // Data/Stages
+                dir.cdUp();         // Data
 
                 if (dataPath.isEmpty() || dataPath != dir.path()) {
                     QFileDialog gcdialog(
@@ -1619,6 +1619,10 @@ bool SceneEditorv5::event(QEvent *event)
                         }
                         gcPath = gameConfig.filePath;
                     }
+                }
+                else {
+                    // Same data path, reuse game config
+                    gcPath = gameConfig.filePath;
                 }
 
                 LoadScene(filedialog.selectedFiles()[0], gcPath, filter);
