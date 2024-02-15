@@ -14,6 +14,7 @@ class SceneTileProperties;
 class SceneObjectProperties;
 class SceneScrollProperties;
 class ChunkEditor;
+class ChunkReplaceOptions;
 class ChunkSelector;
 class TilesetEditor;
 
@@ -215,7 +216,7 @@ private:
     Ui::SceneEditor *ui;
 
     ChunkEditor *chunkEdit = nullptr;
-
+    ChunkReplaceOptions *chunkRpl = nullptr;
     QList<ActionState> actions;
     int actionIndex = 0;
 

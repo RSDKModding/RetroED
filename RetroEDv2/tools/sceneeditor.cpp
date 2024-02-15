@@ -11,6 +11,7 @@
 #include "sceneproperties/scenescrollproperties.hpp"
 #include "sceneproperties/scenetileproperties.hpp"
 #include "sceneproperties/tilereplaceoptions.hpp"
+#include "sceneproperties/chunkreplaceoptions.hpp"
 
 #include "sceneproperties/stageconfigeditorv1.hpp"
 #include "sceneproperties/stageconfigeditorv2.hpp"
@@ -22,6 +23,7 @@
 
 #include "sceneproperties/chunkeditor.hpp"
 #include "sceneproperties/tileseteditor.hpp"
+#include "sceneproperties/copyplane.hpp"
 #include "sceneproperties/gotopos.hpp"
 
 #include <RSDKv1/gfxv1.hpp>
@@ -946,13 +948,33 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     });
 
     connect(scnProp->copyPlane, &QPushButton::clicked, [this] {
-        SetStatus("Copying tile collision....", true);
-        RSDKv5::TileConfig configStore = viewer->tileconfig;
-        for (int i = 0; i < 0x400; ++i) {
-            viewer->tileconfig.collisionPaths[1][i] = configStore.collisionPaths[0][i];
+        CopyPlane *sel = new CopyPlane(this);
+        if (sel->exec() == QDialog::Accepted) {
+            float progress = 1.6;
+            if (sel->copyTilePlanes ){
+                SetStatus("Copying tile collision....", true);
+                RSDKv5::TileConfig configStore = viewer->tileconfig;
+                for (int i = 0; i < 0x400; ++i) { viewer->tileconfig.collisionPaths[1][i] = configStore.collisionPaths[0][i]; };
+                AddStatusProgress(progress / 5); // finished copying tile planes
+                progress = 3.2;
+            }
+
+            if (sel->copyChunkPlane){
+                for (int i = 0; i < 0x200; ++i) {
+                    for(int y = 0; y < 8; ++y){
+                        for(int x = 0; x < 8; ++x){
+                            viewer->chunkset.chunks[i].tiles[y][x].solidityB = viewer->chunkset.chunks[i].tiles[y][x].solidityA;
+                        }
+                    }
+                    AddStatusProgress(progress / 5); // finished copying tile planes
+
+                };
+            }
         }
-        AddStatusProgress(5 / 5); // finished copying tiles
-        DoAction();
+        if (sel->copyTilePlanes || sel->copyChunkPlane) {
+            AddStatusProgress(5 / 5); // finished copying chunks planes
+            DoAction();
+        }
     });
 
     connect(ui->exportScn, &QPushButton::clicked, [this] {
@@ -1004,7 +1026,20 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     });
 
     connect(scnProp->replaceChunk, &QPushButton::clicked, [this] {
-        // TODO: this
+
+        if (chunkRpl == nullptr) {
+            chunkRpl = new ChunkReplaceOptions(viewer->gameType, &viewer->chunkset, viewer->chunks, viewer->tiles, this);
+
+            chunkRpl->show();
+        }
+
+        connect(chunkRpl, &QDialog::finished, [this] {
+            if (chunkRpl->modified){
+                chkProp->RefreshList();
+                DoAction();
+            }
+            chunkRpl = nullptr;
+        });
     });
 
     connect(scnProp->replaceTile, &QPushButton::clicked, [this] {
