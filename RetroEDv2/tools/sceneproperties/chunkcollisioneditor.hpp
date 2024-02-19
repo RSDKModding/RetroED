@@ -10,12 +10,12 @@ namespace Ui
 class ChunkCollisionEditor;
 }
 
-class ChunkEditorViewer : public QLabel
+class ChunkColViewer : public QLabel
 {
     Q_OBJECT
 public:
-    ChunkEditorViewer(ushort *cSel, Vector2<int> *sel, FormatHelpers::Chunks *chk, QList<QImage> tiles, QWidget *parent = nullptr)
-        : QLabel(parent), cSel(cSel), selection(sel), tiles(tiles), chunks(chk)
+    ChunkColViewer(ushort *cSel, FormatHelpers::Chunks *chk, QList<QImage> tiles, bool drawChk = false, QWidget *parent = nullptr)
+        : QLabel(parent), cSel(cSel), tiles(tiles), chunks(chk), drawChk(drawChk)
     {
     }
     RSDKv5::TileConfig::CollisionMask *cmask[2][1024];
@@ -24,17 +24,14 @@ public:
     Vector2<int> offset = Vector2<int>(0, 0);
 
 signals:
-    void tileDrawn(float mx, float my);
-    void tileCopy(float mx, float my);
-    void tileChanged();
+    void tileSelected(ushort c);
 
 protected:
     bool event(QEvent *e) override;
-    void paintEvent(QPaintEvent *event) override;
+    void paintEvent(QPaintEvent *) override;
 
 private:
     ushort *cSel            = nullptr;
-    Vector2<int> *selection = nullptr;
     int index;
 
     float zoom = 1.0f;
@@ -47,13 +44,14 @@ private:
 
     QList<QImage> tiles;
     FormatHelpers::Chunks *chunks = nullptr;
+    bool drawChk = false;
 };
 
-class ChunkCollisionViewer : public QWidget
+class ChunkColEdit : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ChunkCollisionViewer(QWidget *parent = nullptr);
+    explicit ChunkColEdit(QWidget *parent = nullptr);
     RSDKv5::TileConfig::CollisionMask *cmask = nullptr;
     QImage tileImg;
 
@@ -80,19 +78,22 @@ public:
     explicit ChunkCollisionEditor(FormatHelpers::Chunks *chk, ushort curChunk, QList<QImage> &tiles, SceneViewer *viewer);
     ~ChunkCollisionEditor();
     RSDKv5::TileConfig::CollisionMask *cmask[2][1024];
-    Vector2<int> selectedTile = Vector2<int>(0, 0);
 
-    byte defaultVisualPlane   = 0;
+    byte defaultVisualPlane   =  0;
     ushort selectedChunk      = -1;
     int selectedDrawTile      = -1;
 protected:
     bool event(QEvent *e) override;
 
+public slots:
+    void changeSelTile(int c);
+
 private:
     Ui::ChunkCollisionEditor *ui;
 
-    ChunkEditorViewer *collisionViewer  = nullptr;
-    ChunkCollisionViewer *colEdit  = nullptr;
+    ChunkColViewer *collisionViewer  = nullptr;
+    ChunkColViewer *chunkViewer  = nullptr;
+    ChunkColEdit *colEdit  = nullptr;
     FormatHelpers::Chunks *chunks = nullptr;
 
     QList<QImage> &tileList;

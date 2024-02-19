@@ -9,22 +9,16 @@ ChunkCollisionEditor::ChunkCollisionEditor(FormatHelpers::Chunks *chk, ushort cu
     ui->setupUi(this);
     // remove question mark from the title bar
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    selectedChunk = curChunk;
-    collisionLyr = defaultVisualPlane;
+
+    selectedChunk    = curChunk;
+    collisionLyr     = defaultVisualPlane;
     selectedDrawTile = 0;
     ui->planeA->setChecked(true);
-    ui->chunkTileList->setIconSize(QSize(32,32));
+
     int i = 0;
     for (int y = 0; y < 8; ++y) {
         for (int x = 0; x < 8; ++x) {
-            auto &tile = chunks->chunks[selectedChunk].tiles[y][x];
-            auto *item = new QListWidgetItem(ui->chunkTileList);
-            bool fx = (tile.direction & 1) == 1;
-            bool fy = (tile.direction & 2) == 2;
-            QPixmap test = QPixmap::fromImage((tiles[tile.tileIndex].mirrored(fx, fy)));
-            QPixmap scaled = test.scaled(QSize(32,32));
-            item->setSizeHint(QSize(32, 32));
-            item->setIcon(scaled);
+            auto &tile = chunks->chunks[curChunk].tiles[y][x];
             storedTileList[i] = tile.tileIndex;
             chunkColMask[0][i] = &viewer->tileconfig.collisionPaths[0][tile.tileIndex];
             chunkColMask[1][i] = &viewer->tileconfig.collisionPaths[1][tile.tileIndex];
@@ -32,21 +26,24 @@ ChunkCollisionEditor::ChunkCollisionEditor(FormatHelpers::Chunks *chk, ushort cu
         }
     }
 
-
-
     ui->textTileID->setText("Tile ID: " + QString::number(storedTileList[selectedDrawTile]));
     ui->textChunkID->setText("Chunk ID: " + QString::number(curChunk));
 
-    collisionViewer = new ChunkEditorViewer(&selectedChunk, &selectedTile, chunks, tiles);
+    chunkViewer = new ChunkColViewer(&selectedChunk, chunks, tiles, true);
+    chunkViewer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    collisionViewer = new ChunkColViewer(&selectedChunk, chunks, tiles, false);
     collisionViewer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
     for (int i = 0; i < 0x400; ++i) {
         collisionViewer->cmask[0][i] = &viewer->tileconfig.collisionPaths[0][i];
         collisionViewer->cmask[1][i] = &viewer->tileconfig.collisionPaths[1][i];
     }
+
     collisionViewer->collisionLyr = 0;
+    ui->chunkTileList->layout()->addWidget(chunkViewer);
     ui->chunkCol->layout()->addWidget(collisionViewer);
 
-    colEdit = new ChunkCollisionViewer();
+    colEdit = new ChunkColEdit();
     colEdit->cmask =  chunkColMask[collisionLyr][selectedDrawTile];
     colEdit->tileImg = imageTileList[selectedDrawTile];
     ui->tileCol->layout()->addWidget(colEdit);
@@ -126,23 +123,7 @@ ChunkCollisionEditor::ChunkCollisionEditor(FormatHelpers::Chunks *chk, ushort cu
         collisionViewer->update();
     });
 
-    connect(ui->chunkTileList, &QListWidget::currentRowChanged,[this](int selDrawTile){
-        selectedDrawTile = selDrawTile;
-
-        ui->angMaskDir->setCurrentIndex(chunkColMask[collisionLyr][selectedDrawTile]->direction);
-        ui->angFlag->setValue(chunkColMask[collisionLyr][selectedDrawTile]->flags);
-        ui->angFloor->setValue(chunkColMask[collisionLyr][selectedDrawTile]->floorAngle);
-        ui->angRoof->setValue(chunkColMask[collisionLyr][selectedDrawTile]->roofAngle);
-        ui->angLWall->setValue(chunkColMask[collisionLyr][selectedDrawTile]->lWallAngle);
-        ui->angRWall->setValue(chunkColMask[collisionLyr][selectedDrawTile]->rWallAngle);
-
-        colEdit->cmask   = chunkColMask[collisionLyr][selectedDrawTile];
-        colEdit->tileImg = imageTileList[selectedDrawTile];
-        colEdit->update();
-
-        ui->textTileID->setText("Tile ID: " + QString::number(storedTileList[selectedDrawTile]));
-    });
-
+    connect(chunkViewer, &ChunkColViewer::tileSelected, this, &ChunkCollisionEditor::changeSelTile);
 
     connect(ui->angMaskDir, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int i) { chunkColMask[collisionLyr][selectedDrawTile]->direction = i != 0; });
@@ -384,92 +365,90 @@ ChunkCollisionEditor::ChunkCollisionEditor(FormatHelpers::Chunks *chk, ushort cu
 
 ChunkCollisionEditor::~ChunkCollisionEditor() { delete ui; }
 
+void ChunkCollisionEditor::changeSelTile(int c)
+{
+    selectedDrawTile = c;
+
+    ui->angMaskDir->setCurrentIndex(chunkColMask[collisionLyr][selectedDrawTile]->direction);
+    ui->angFlag->setValue(chunkColMask[collisionLyr][selectedDrawTile]->flags);
+    ui->angFloor->setValue(chunkColMask[collisionLyr][selectedDrawTile]->floorAngle);
+    ui->angRoof->setValue(chunkColMask[collisionLyr][selectedDrawTile]->roofAngle);
+    ui->angLWall->setValue(chunkColMask[collisionLyr][selectedDrawTile]->lWallAngle);
+    ui->angRWall->setValue(chunkColMask[collisionLyr][selectedDrawTile]->rWallAngle);
+
+    colEdit->cmask   = chunkColMask[collisionLyr][selectedDrawTile];
+    colEdit->tileImg = imageTileList[selectedDrawTile];
+    colEdit->update();
+    chunkViewer->update();
+
+    ui->textTileID->setText("Tile ID: " + QString::number(storedTileList[selectedDrawTile]));
+}
+
 bool ChunkCollisionEditor::event(QEvent *e)
 {
     return QWidget::event(e);
 }
 
-bool ChunkEditorViewer::event(QEvent *e)
+bool ChunkColViewer::event(QEvent *e)
 {
     switch (e->type()) {
         default: break;
-        case QEvent::Paint: paintEvent((QPaintEvent *)e); break;
+        case QEvent::Paint: {
+            paintEvent((QPaintEvent *)e);
+            break;
+        }
+        case QEvent::MouseButtonPress: {
+            QMouseEvent *mEvent = static_cast<QMouseEvent *>(e);
+            short x = floor((float)(mEvent->x() / ((qreal)width() / 8)));
+            short y = floor((float)(mEvent->y() / ((qreal)height() / 8)));
+            offset.x = x;
+            offset.y = y;
+            emit tileSelected(x + (8 * y));
+            break;
+        }
     }
     return QWidget::event(e);
 }
 
-void ChunkEditorViewer::paintEvent(QPaintEvent *event)
+void ChunkColViewer::paintEvent(QPaintEvent *)
 {
     QPainter c(this);
-    c.scale(2.0f, 2.0f);
     const QBrush brush = c.brush();
+    c.scale(2.0f, 2.0f);
+    QPen pen(QColor(0xFF, 0xFF, 0x00));
+    c.setPen(pen);
     c.drawImage(QRect(0, 0, width(), height()), tiles[0]);
+
     for (int y = 0; y < 8; ++y) {
         for (int x = 0; x < 8; ++x) {
             auto &tile = chunks->chunks[*cSel].tiles[y][x];
-            auto tileImg = tiles[tile.tileIndex];
             bool dx = (tile.direction & 1) == 1;
             bool dy = (tile.direction & 2) == 2;
+            if (!drawChk){
+                auto mask = cmask[collisionLyr][tile.tileIndex];
+                // c.drawImage(QRect(16 * x, 16 * y, 16, 16), tiles[tile.tileIndex].mirrored(dx,dy));
 
-            if (!dx && !dy){
                 for (int fy = 0; fy < 16; ++fy) {
                     for (int fx = 0; fx < 16; ++fx) {
-                        if (cmask[collisionLyr][tile.tileIndex]->collision[fx].height <= fy) {
-                            QPen pen(QColor(0xFF, 0xFF, 0x00));
-                            c.setPen(pen);
-                            if (cmask[collisionLyr][tile.tileIndex]->collision[fx].solid)
-                                c.drawRect(QRectF(fx + (16 * x), fy + (16 *y),1,1));
-                        }
-                    }
-                }
-            }
-            if (dx && !dy){
-                for (int fy = 0; fy < 16; ++fy) {
-                    for (int fx = 0; fx < 16; ++fx) {
-                        if (cmask[collisionLyr][tile.tileIndex]->collision[fx].height <= fy) {
-                            QPen pen(QColor(0xFF, 0xFF, 0x00));
-                            c.setPen(pen);
-                            if (cmask[collisionLyr][tile.tileIndex]->collision[fx].solid)
-                                c.drawRect(QRectF((15 - fx) + (16 * x), fy + (16 *y),1,1));
-                        }
-                    }
-                }
+                        int drawX = dx ? 15 - fx : fx;
+                        if (dy && mask->collision[fx].height >= y && mask->collision[fx].solid)
+                            c.drawRect(QRectF(drawX + (16 * x), (15 - fy) + (16 * y), 1, 1));
 
-            }
-            if (!dx && dy){
-                for (int fy = 0; fy < 16; ++fy) {
-                    for (int fx = 0; fx < 16; ++fx) {
-                        if (cmask[collisionLyr][tile.tileIndex]->collision[fx].height >= y) {
-                            QPen pen(QColor(0xFF, 0xFF, 0x00));
-                            c.setPen(pen);
-                            if (cmask[collisionLyr][tile.tileIndex]->collision[fx].solid)
-                                c.drawRect(QRectF(fx + (16 * x), (15 - fy) + (16 * y),1,1));
-                        }
+                        else if (!dy && mask->collision[fx].height <= fy && mask->collision[fx].solid)
+                            c.drawRect(QRectF(drawX + (16 * x), fy + (16 * y), 1, 1));
                     }
                 }
-
-            }
-            if (dx && dy){
-                for (int fy = 0; fy < 16; ++fy) {
-                    for (int fx = 0; fx < 16; ++fx) {
-                        if (cmask[collisionLyr][tile.tileIndex]->collision[fx].height >= y) {
-                            QPen pen(QColor(0xFF, 0xFF, 0x00));
-                            c.setPen(pen);
-                            if (cmask[collisionLyr][tile.tileIndex]->collision[fx].solid)
-                                c.drawRect(QRectF((15 - fx) + (16 * x), (15 - fy) + (16 * y), 1, 1));
-                        }
-                    }
-                }
-            }
+            } else { c.drawImage(QRect(16 * x, 16 * y, 16, 16), tiles[tile.tileIndex].mirrored(dx,dy)); }
         }
     }
+
+    if (drawChk)
+        c.drawRect(QRectF(offset.x * 16, offset.y * 16 , 16, 16));
 }
 
-#include "moc_chunkcollisioneditor.cpp"
+ChunkColEdit::ChunkColEdit(QWidget *parent) : QWidget(parent) { setMouseTracking(true); }
 
-ChunkCollisionViewer::ChunkCollisionViewer(QWidget *parent) : QWidget(parent) { setMouseTracking(true); }
-
-void ChunkCollisionViewer::paintEvent(QPaintEvent *)
+void ChunkColEdit::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     QRectF rect(0, 0, (qreal)width() / 16, (qreal)height() / 16);
@@ -512,13 +491,13 @@ void ChunkCollisionViewer::paintEvent(QPaintEvent *)
     }
 }
 
-void ChunkCollisionViewer::leaveEvent(QEvent *)
+void ChunkColEdit::leaveEvent(QEvent *)
 {
     highlight = -1;
     update();
 }
 
-void ChunkCollisionViewer::mousePressEvent(QMouseEvent *event)
+void ChunkColEdit::mousePressEvent(QMouseEvent *event)
 {
     short x = floor((float)(event->x() / ((qreal)width() / 16)));
     if (x > 15)
@@ -535,7 +514,7 @@ void ChunkCollisionViewer::mousePressEvent(QMouseEvent *event)
         enabling = !cmask->collision[x].solid;
 }
 
-void ChunkCollisionViewer::mouseReleaseEvent(QMouseEvent *event)
+void ChunkColEdit::mouseReleaseEvent(QMouseEvent *event)
 {
     if (pressedL)
         pressedL = !((event->button() & Qt::LeftButton) == Qt::LeftButton);
@@ -543,7 +522,7 @@ void ChunkCollisionViewer::mouseReleaseEvent(QMouseEvent *event)
         pressedR = !((event->button() & Qt::RightButton) == Qt::RightButton);
 }
 
-void ChunkCollisionViewer::mouseMoveEvent(QMouseEvent *event)
+void ChunkColEdit::mouseMoveEvent(QMouseEvent *event)
 {
     short x = floor((float)(event->x() / ((qreal)width() / 16)));
     short y = floor((float)(event->y() / ((qreal)height() / 16)));
@@ -570,3 +549,5 @@ void ChunkCollisionViewer::mouseMoveEvent(QMouseEvent *event)
 
     update();
 }
+
+#include "moc_chunkcollisioneditor.cpp"
