@@ -2596,6 +2596,9 @@ void SceneViewer::addRenderState(int blendMode, ushort vertCount, ushort indexCo
     }
     if (vertCount + renderCount >= vertexListLimit || renderStateCount >= renderStatesLimit) {
         renderRenderStates(); // you should render NOW!
+        // Move new state to the start
+        memcpy(&renderStates[0], &newState, sizeof(RenderState));
+        newState = renderStates[renderStateCount];
     }
 
     memcpy(newState.indices, altIndex, indexCount * sizeof(ushort));
