@@ -1897,6 +1897,10 @@ void SceneViewer::initializeGL()
 
 void SceneViewer::resizeGL(int w, int h)
 {
+    // Get scaled size
+    qreal dpr = devicePixelRatio();
+    int scaledW = w * dpr;
+    int scaledH = h * dpr;
 
     glFuncs = context()->functions();
 
@@ -1940,19 +1944,19 @@ void SceneViewer::resizeGL(int w, int h)
     glFuncs->glActiveTexture(GL_TEXTURE20);
     if (tFB)
         delete tFB;
-    tFB = new QOpenGLFramebufferObject(w, h);
+    tFB = new QOpenGLFramebufferObject(scaledW, scaledH);
     glFuncs->glBindTexture(GL_TEXTURE_2D, tFB->texture());
 
     glFuncs->glActiveTexture(GL_TEXTURE20 + 1);
     if (t2FB)
         delete t2FB;
-    t2FB = new QOpenGLFramebufferObject(w, h);
+    t2FB = new QOpenGLFramebufferObject(scaledW, scaledH);
     glFuncs->glBindTexture(GL_TEXTURE_2D, t2FB->texture());
 
     glFuncs->glActiveTexture(GL_TEXTURE20 + 2);
     if (outFB)
         delete outFB;
-    outFB = new QOpenGLFramebufferObject(w, h);
+    outFB = new QOpenGLFramebufferObject(scaledW, scaledH);
     glFuncs->glBindTexture(GL_TEXTURE_2D, outFB->texture());
 }
 
