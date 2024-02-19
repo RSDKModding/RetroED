@@ -213,9 +213,11 @@ public:
     DrawVertex vertexList[vertexListLimit];
     ushort baseIndexList[vertexListLimit * 6];
 
-    QList<RenderState> renderStates;
+    static const int renderStatesLimit = 0x200;
 
-    sbyte renderStateIndex = -1;
+    RenderState renderStates[renderStatesLimit];
+
+    short renderStateCount = 0;
     ushort renderCount     = 0;
     ushort lastRenderCount = 0;
 

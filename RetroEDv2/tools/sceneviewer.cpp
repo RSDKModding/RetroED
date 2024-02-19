@@ -2416,26 +2416,24 @@ void SceneViewer::drawSpriteRotozoom(float XPos, float YPos, float pivotX, float
 void SceneViewer::drawLine(float x1, float y1, float x2, float y2, Vector4<float> color, int alpha,
                            InkEffects ink)
 {
-    for (int i = 0; i < zoom; ++i) {
-        addRenderState(ink, 2, 2, nullptr, alpha, &lineShader);
-        addPoly(x1, y1, 0, 0, color);
-        addPoly(x2, y2, 0, 0, color);
-        if (x1 > x2) {
-            y1 -= invZoom();
-            y2 -= invZoom();
-        }
-        else if (x1 < x2) {
-            y1 += invZoom();
-            y2 += invZoom();
-        }
-        if (y1 > y2) {
-            x1 += invZoom();
-            x2 += invZoom();
-        }
-        else if (y1 < y2) {
-            x1 -= invZoom();
-            x2 -= invZoom();
-        }
+    addRenderState(ink, 2, 2, nullptr, alpha, &lineShader);
+    addPoly(x1, y1, 0, 0, color);
+    addPoly(x2, y2, 0, 0, color);
+    if (x1 > x2) {
+        y1 -= invZoom();
+        y2 -= invZoom();
+    }
+    else if (x1 < x2) {
+        y1 += invZoom();
+        y2 += invZoom();
+    }
+    if (y1 > y2) {
+        x1 += invZoom();
+        x2 += invZoom();
+    }
+    else if (y1 < y2) {
+        x1 -= invZoom();
+        x2 -= invZoom();
     }
 
     validDraw = true;
@@ -2561,7 +2559,7 @@ void SceneViewer::addRenderState(int blendMode, ushort vertCount, ushort indexCo
         fbShader = &passthroughFBShader;
 
     // set up a new state minimally needed for comparison
-    RenderState newState;
+    RenderState &newState = renderStates[renderStateCount];
     newState.blendMode  = blendMode;
     newState.indexCount = indexCount;
     newState.alpha      = alpha;
@@ -2586,8 +2584,8 @@ void SceneViewer::addRenderState(int blendMode, ushort vertCount, ushort indexCo
     if (!altIndex)
         altIndex = baseIndexList;
 
-    if (renderStates.count() && vertCount + renderCount < vertexListLimit) {
-        RenderState &last = renderStates.last();
+    if (renderStateCount && vertCount + renderCount < vertexListLimit) {
+        RenderState &last = renderStates[renderStateCount - 1];
         if (last.indexCount + indexCount < (vertexListLimit * 6) && statesCompatible(last, newState)) {
             // merge em and we'll be on our way
             memcpy(&last.indices[last.indexCount], altIndex, indexCount * sizeof(ushort));
@@ -2596,14 +2594,14 @@ void SceneViewer::addRenderState(int blendMode, ushort vertCount, ushort indexCo
             return;
         }
     }
-    if (vertCount + renderCount >= vertexListLimit) {
+    if (vertCount + renderCount >= vertexListLimit || renderStateCount >= renderStatesLimit) {
         renderRenderStates(); // you should render NOW!
     }
 
     memcpy(newState.indices, altIndex, indexCount * sizeof(ushort));
     if (renderCount)
         for (int i = 0; i < indexCount; ++i) newState.indices[i] += renderCount;
-    renderStates.append(newState);
+    renderStateCount++;
 }
 
 void SceneViewer::renderRenderStates()
@@ -2622,8 +2620,8 @@ void SceneViewer::renderRenderStates()
 
     int lastBlendMode = -1;
 
-    while (renderStates.count()) {
-        RenderState renderState = renderStates.takeFirst();
+    for (int stateIndex = 0; stateIndex < renderStateCount; stateIndex++) {
+        RenderState &renderState = renderStates[stateIndex];
         // hack
         bool lines = false;
 
@@ -2710,7 +2708,7 @@ void SceneViewer::renderRenderStates()
     }
 
     renderCount = 0;
-    renderStates.clear();
+    renderStateCount = 0;
 }
 
 void SceneViewer::addEditorVariable(QString name)
