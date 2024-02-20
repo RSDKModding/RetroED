@@ -452,6 +452,7 @@ void FormatHelpers::Background::scrollInfoFromIndices()
                 ScrollInstance instance;
                 instance.startLine = startLine;
                 instance.length    = layer.lineScroll.count() - startLine;
+                instance.layerID   = layerID;
 
                 if (lastIndex < hScroll.count()) {
                     hScrollInfo[lastIndex].instances.append(instance);
@@ -491,6 +492,7 @@ void FormatHelpers::Background::scrollInfoFromIndices()
                 ScrollInstance instance;
                 instance.startLine = startLine;
                 instance.length    = layer.lineScroll.count() - startLine;
+                instance.layerID   = layerID;
 
                 if (lastIndex < vScroll.count()) {
                     vScrollInfo[lastIndex].instances.append(instance);
