@@ -431,11 +431,9 @@ void ChunkColViewer::paintEvent(QPaintEvent *)
                 for (int fy = 0; fy < 16; ++fy) {
                     for (int fx = 0; fx < 16; ++fx) {
                         int drawX = dx ? 15 - fx : fx;
-                        if (dy && mask->collision[fx].height >= y && mask->collision[fx].solid)
-                            c.drawRect(QRectF(drawX + (16 * x), (15 - fy) + (16 * y), 1, 1));
-
-                        else if (!dy && mask->collision[fx].height <= fy && mask->collision[fx].solid)
-                            c.drawRect(QRectF(drawX + (16 * x), fy + (16 * y), 1, 1));
+                        int drawY = dy ? 15 - fy : fy;
+                        if (mask->collision[drawX].height <= fy && mask->collision[drawX].solid)
+                            c.drawRect(QRectF((16 * x) + fx, (16 * y) + drawY, 1, 1));
                     }
                 }
             } else { c.drawImage(QRect(16 * x, 16 * y, 16, 16), tiles[tile.tileIndex].mirrored(dx,dy)); }
