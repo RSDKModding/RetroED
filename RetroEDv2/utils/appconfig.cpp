@@ -16,7 +16,10 @@ void AppConfig::read(Reader &reader)
     for (int e = 0; e < recentFileCount; ++e) recentFiles.append(RecentFileInfo(reader));
 
     if (!reader.isEOF()) {
-        for (int v = 0; v <= ENGINE_v1; ++v) gameManager[v].read(reader);
+        for (int v = 0; v <= ENGINE_v1; ++v) {
+            gameManager[v].read(reader);
+            baseDataManager[v].read(reader);
+        };
     }
 
     if (!reader.isEOF()) {
@@ -33,7 +36,10 @@ void AppConfig::write(Writer &writer)
     writer.write((byte)recentFiles.count());
     for (auto &rf : recentFiles) rf.write(writer);
 
-    for (int v = 0; v <= ENGINE_v1; ++v) gameManager[v].write(writer);
+    for (int v = 0; v <= ENGINE_v1; ++v) {
+        gameManager[v].write(writer);
+        baseDataManager[v].write(writer);
+    };
     writer.write((byte)lightMode);
 
     writer.flush();
@@ -86,3 +92,7 @@ void AppConfig::RecentFileInfo::write(Writer &writer)
 void AppConfig::GameManagerInfo::read(Reader &reader) { exePath = reader.readString(); }
 
 void AppConfig::GameManagerInfo::write(Writer &writer) { writer.write(exePath); }
+
+void AppConfig::BaseDataFolderInfo::read(Reader &reader) { dataPath = reader.readString(); }
+
+void AppConfig::BaseDataFolderInfo::write(Writer &writer) { writer.write(dataPath); }

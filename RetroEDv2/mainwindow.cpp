@@ -374,13 +374,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     QMenu *options                = new QMenu("Options");
     WorkingDirManager::workingDir = "";
-    options->addAction("Set Base Data Folder", [this] {
-        QFileDialog filedialog(this, tr("Open Directory"), "", "");
-        filedialog.setFileMode(QFileDialog::FileMode::Directory);
-        filedialog.setAcceptMode(QFileDialog::AcceptOpen);
-        if (filedialog.exec() == QDialog::Accepted) {
-            WorkingDirManager::workingDir = filedialog.selectedFiles()[0] + "/";
-        }
+    options->addAction("Game Manager", [this] {
+        GameManager *gameManager = new GameManager;
+        gameManager->exec();
+        delete gameManager;
     });
     QAction *lightModeButton = new QAction("Light Mode", options);
     lightModeButton->setCheckable(true);
@@ -407,14 +404,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->menubar->addMenu(options);
 
 #ifndef Q_NO_PROCESS
-    QMenu *gameManager = new QMenu("Game Manager");
-    gameManager->addAction("Open Game Manager", [this] {
-        GameManager *gameManager = new GameManager;
-        gameManager->exec();
-        delete gameManager;
-    });
-
-    ui->menubar->addMenu(gameManager);
 
     // gameManager->addAction("Change executable", [this] {
     //     QFileDialog filedialog(this, tr("Open Executable"), "",

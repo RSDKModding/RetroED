@@ -26,6 +26,7 @@ public:
     QPushButton *editSCF  = nullptr;
     QPushButton *editPAL  = nullptr;
     QPushButton *editTSet = nullptr;
+    QPushButton *copyPlane = nullptr;
 
     QLabel *objCnt    = nullptr;
     QLabel *entCntTot = nullptr;

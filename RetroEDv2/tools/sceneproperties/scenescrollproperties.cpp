@@ -142,10 +142,18 @@ void SceneScrollProperties::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *in
     connect(ui->layerID, QOverload<int>::of(&QComboBox::currentIndexChanged), [this, info](int v) {
         int c = ui->instanceList->currentRow();
 
+        ui->instanceList->blockSignals(true);
         if (v < 0)
             info->instances[c].layerID = 0xFF;
         else
             info->instances[c].layerID = v + 1;
+        ui->instanceList->item(c)->setText(
+            QString("Start: %1, End: %2, Length: %3, Layer: %4")
+                .arg(info->instances[c].startLine)
+                .arg(info->instances[c].startLine + info->instances[c].length)
+                .arg(info->instances[c].length)
+                .arg(info->instances[c].layerID));
+        ui->instanceList->blockSignals(false);
 
         // DoAction("Changed LayerID");
     });

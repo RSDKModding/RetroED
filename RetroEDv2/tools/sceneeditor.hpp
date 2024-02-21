@@ -14,6 +14,7 @@ class SceneTileProperties;
 class SceneObjectProperties;
 class SceneScrollProperties;
 class ChunkEditor;
+class ChunkReplaceOptions;
 class ChunkSelector;
 class TilesetEditor;
 
@@ -133,7 +134,7 @@ public:
     bool scriptError       = false;
 
     // Event Handlers
-    void SetTile(float x, float y);
+    void SetChunk(float x, float y);
     void ResetTools(byte tool);
 
     bool HandleKeyPress(QKeyEvent *event);
@@ -162,6 +163,8 @@ public:
 signals:
     void TitleChanged(QString title);
 
+public slots:
+    void updateType(SceneEntity *entity, byte type);
 protected:
     bool event(QEvent *event);
     bool eventFilter(QObject *object, QEvent *event);
@@ -170,7 +173,7 @@ private:
     enum SceneManagerCopyTypes {
         COPY_NONE,
         COPY_LAYER,
-        COPY_TILE,
+        COPY_CHUNK,
         COPY_ENTITY,
         COPY_SCROLLINFO,
     };
@@ -179,6 +182,7 @@ private:
     int clipboardInfo  = 0;
 
     int AddEntity(int type, float x, float y);
+    void PasteEntity(SceneEntity* copy, float x, float y);
     void DeleteEntity(int slot, bool updateUI = false);
 
     void FilterObjectList(QString filter);
@@ -212,7 +216,7 @@ private:
     Ui::SceneEditor *ui;
 
     ChunkEditor *chunkEdit = nullptr;
-
+    ChunkReplaceOptions *chunkRpl = nullptr;
     QList<ActionState> actions;
     int actionIndex = 0;
 

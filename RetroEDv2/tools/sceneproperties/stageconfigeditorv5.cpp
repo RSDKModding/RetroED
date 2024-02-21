@@ -73,6 +73,10 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->objList->setCurrentItem(item);
         ui->objList->blockSignals(false);
+
+        ui->objName->blockSignals(true);
+        ui->objName->setText(stageConfig->objects[c]);
+        ui->objName->blockSignals(false);
         DoAction("Added Object");
     });
 

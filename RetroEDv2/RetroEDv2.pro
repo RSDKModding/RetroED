@@ -56,8 +56,11 @@ SOURCES += \
     tools/rsdkunpacker.cpp \
     tools/sceneeditor.cpp \
     tools/sceneeditorv5.cpp \
+    tools/sceneproperties/chunkcollisioneditor.cpp \
     tools/sceneproperties/chunkeditor.cpp \
+    tools/sceneproperties/chunkreplaceoptions.cpp \
     tools/sceneproperties/confirmgamelink.cpp \
+    tools/sceneproperties/copyplane.cpp \
     tools/sceneproperties/gotopos.cpp \
     tools/sceneproperties/objectselector.cpp \
     tools/sceneproperties/scenelayerproperties.cpp \
@@ -122,8 +125,11 @@ HEADERS += \
     tools/rsdkunpacker.hpp \
     tools/sceneeditor.hpp \
     tools/sceneeditorv5.hpp \
+    tools/sceneproperties/chunkcollisioneditor.hpp \
     tools/sceneproperties/chunkeditor.hpp \
+    tools/sceneproperties/chunkreplaceoptions.hpp \
     tools/sceneproperties/confirmgamelink.hpp \
+    tools/sceneproperties/copyplane.hpp \
     tools/sceneproperties/gotopos.hpp \
     tools/sceneproperties/objectselector.hpp \
     tools/sceneproperties/sceneincludesv5.hpp \
@@ -178,8 +184,11 @@ FORMS += \
     tools/rsdkunpacker.ui \
     tools/sceneeditor.ui \
     tools/sceneeditorv5.ui \
+    tools/sceneproperties/chunkcollisioneditor.ui \
     tools/sceneproperties/chunkeditor.ui \
+    tools/sceneproperties/chunkreplaceoptions.ui \
     tools/sceneproperties/confirmgamelink.ui \
+    tools/sceneproperties/copyplane.ui \
     tools/sceneproperties/gotopos.ui \
     tools/sceneproperties/objectselector.ui \
     tools/sceneproperties/scenelayerproperties.ui \

@@ -1,8 +1,10 @@
 #include "includes.hpp"
 #include "ui_scenetileproperties.h"
 #include "scenetileproperties.hpp"
+#include "chunkcollisioneditor.hpp"
 
 #include <RSDKv5/tileconfigv5.hpp>
+#include "tools/sceneviewer.hpp"
 
 SceneTileProperties::SceneTileProperties(QWidget *parent)
     : QWidget(parent), ui(new Ui::SceneTileProperties)
@@ -13,7 +15,7 @@ SceneTileProperties::SceneTileProperties(QWidget *parent)
 SceneTileProperties::~SceneTileProperties() { delete ui; }
 
 void SceneTileProperties::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
-                                  RSDKv5::TileConfig::CollisionMask *cmB, ushort tid, QImage tileImgRef)
+                                  RSDKv5::TileConfig::CollisionMask *cmB, ushort tid, QList<QImage> &tiles, SceneViewer *viewer)
 {
     unsetUI();
 
@@ -22,7 +24,7 @@ void SceneTileProperties::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
     cmask[0] = cmA;
     cmask[1] = cmB;
 
-    tileImg = tileImgRef;
+    tileImg = tiles[0];
 
     collisionLyr = 0;
 
@@ -37,6 +39,12 @@ void SceneTileProperties::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
     ui->rWallAngle->setValue(cmask[collisionLyr]->rWallAngle);
 
     ui->tID->setText("Tile ID: " + QString::number(tid));
+
+    ui->tileList->clear();
+    for (int t = 0; t < tiles.count(); ++t) {
+        auto *item = new QListWidgetItem(QString::number(t), ui->tileList);
+        item->setIcon(QPixmap::fromImage(tiles[t]));
+    }
 
     connect(ui->colPlaneA, &QRadioButton::toggled, [this] {
         collisionLyr = 0;
@@ -66,6 +74,8 @@ void SceneTileProperties::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
         ui->rWallAngle->blockSignals(false);
 
         ui->colPlaneB->blockSignals(false);
+        edit->cmask               = cmask[collisionLyr];
+        edit->update();
     });
 
     connect(ui->colPlaneB, &QRadioButton::toggled, [this] {
@@ -96,6 +106,8 @@ void SceneTileProperties::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
         ui->rWallAngle->blockSignals(false);
 
         ui->colPlaneA->blockSignals(false);
+        edit->cmask               = cmask[collisionLyr];
+        edit->update();
     });
 
     connect(ui->maskDir, QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -116,12 +128,36 @@ void SceneTileProperties::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
     connect(ui->rWallAngle, QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int v) { cmask[collisionLyr]->rWallAngle = (byte)v; });
 
-    connect(ui->editCollision, &QPushButton::clicked, [&] {
-        TileCollisionWidget *edit = new TileCollisionWidget();
+    edit                      = new TileCollisionWidget();
+    edit->cmask               = cmask[collisionLyr];
+    edit->tileImg             = tileImg;
+    ui->frame->layout()->addWidget(edit);
+
+    connect(ui->editChunkCol, &QPushButton::clicked, [viewer] {
+        if (viewer->selectedChunk != 0xFFFF){ // todo: Find the actual way of disabling/enabling the button based on selectedChunk value
+            ChunkCollisionEditor *cColEditor = new ChunkCollisionEditor(&viewer->chunkset, viewer->selectedChunk,
+                                                   viewer->tiles, viewer);
+            cColEditor->setWindowTitle("Edit Chunk Collision");
+            cColEditor->show();
+        }
+    });
+
+    connect(ui->tileList, &QListWidget::currentRowChanged,[this, tiles, viewer](int selDrawTile){
+        selectedDrawTile = selDrawTile;
+        cmask[0] = &viewer->tileconfig.collisionPaths[0][selectedDrawTile];
+        cmask[1] = &viewer->tileconfig.collisionPaths[1][selectedDrawTile];
+
+        ui->maskDir->setCurrentIndex(cmask[collisionLyr]->direction);
+
+        ui->behaviour->setValue(cmask[collisionLyr]->flags);
+        ui->floorAngle->setValue(cmask[collisionLyr]->floorAngle);
+        ui->roofAngle->setValue(cmask[collisionLyr]->roofAngle);
+        ui->lWallAngle->setValue(cmask[collisionLyr]->lWallAngle);
+        ui->rWallAngle->setValue(cmask[collisionLyr]->rWallAngle);
+        ui->tID->setText("Tile ID: " + QString::number(selectedDrawTile));
         edit->cmask               = cmask[collisionLyr];
-        edit->tileImg             = tileImg;
-        edit->setWindowTitle("Edit Collision");
-        edit->exec();
+        edit->tileImg             = tiles[selectedDrawTile];
+        edit->update();
     });
 
     auto calcFloorAngle = [](RSDKv5::TileConfig::CollisionMask *mask) {
@@ -357,7 +393,7 @@ void SceneTileProperties::unsetUI()
     disconnect(ui->rWallAngle, nullptr, nullptr, nullptr);
     disconnect(ui->behaviour, nullptr, nullptr, nullptr);
 
-    disconnect(ui->editCollision, nullptr, nullptr, nullptr);
+    disconnect(ui->editChunkCol, nullptr, nullptr, nullptr);
     disconnect(ui->colPlaneA, nullptr, nullptr, nullptr);
     disconnect(ui->colPlaneB, nullptr, nullptr, nullptr);
     disconnect(ui->calcAngleF, nullptr, nullptr, nullptr);
@@ -371,7 +407,7 @@ void SceneTileProperties::unsetUI()
 
 #include "moc_scenetileproperties.cpp"
 
-TileCollisionWidget::TileCollisionWidget(QWidget *parent) : QDialog(parent) { setMouseTracking(true); }
+TileCollisionWidget::TileCollisionWidget(QWidget *parent) : QWidget(parent) { setMouseTracking(true); }
 
 void TileCollisionWidget::paintEvent(QPaintEvent *)
 {
@@ -387,6 +423,7 @@ void TileCollisionWidget::paintEvent(QPaintEvent *)
                     QPen pen(qApp->palette().base(), 2);
                     p.setPen(pen);
                     p.setBrush(QColor(0x00FF00));
+                    p.setOpacity(0.5);
 
                     if (!cmask->collision[x].solid)
                         p.setBrush(p.brush().color().darker(255));
@@ -404,6 +441,7 @@ void TileCollisionWidget::paintEvent(QPaintEvent *)
                     QPen pen(qApp->palette().base(), 2);
                     p.setPen(pen);
                     p.setBrush(QColor(0x00FF00));
+                    p.setOpacity(0.5);
 
                     if (!cmask->collision[x].solid)
                         p.setBrush(p.brush().color().darker(255));

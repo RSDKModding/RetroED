@@ -384,14 +384,14 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
     float originX = w / 2, originY = h / 2;
     originX -= offset.x;
     originY -= offset.y;
-    originX -= (4 * 16);
-    originY -= (4 * 16);
 
     float chunkPosX = event->pos().x() - originX;
     float chunkPosY = event->pos().y() - originY;
 
     chunkPosX *= (1.0f / zoom);
     chunkPosY *= (1.0f / zoom);
+    chunkPosX += (4 * 16);
+    chunkPosY += (4 * 16);
 
     PrintLog(QString("pos(%1, %2), origin(%3, %4), mousePos(%5, %6)")
                  .arg(chunkPosX)
@@ -443,14 +443,14 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
     float originX = w / 2, originY = h / 2;
     originX -= offset.x;
     originY -= offset.y;
-    originX -= (4 * 16);
-    originY -= (4 * 16);
 
     float chunkPosX = event->pos().x() - originX;
     float chunkPosY = event->pos().y() - originY;
 
     chunkPosX *= (1.0f / zoom);
     chunkPosY *= (1.0f / zoom);
+    chunkPosX += (4 * 16);
+    chunkPosY += (4 * 16);
 
     if (mouseDownM) {
         offset.x -= event->pos().x() - reference.x();
@@ -504,11 +504,11 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
     float originX = w / 2, originY = h / 2;
     originX -= offset.x;
     originY -= offset.y;
+    originX *= (1.0f / zoom);
+    originY *= (1.0f / zoom);
     originX -= (4 * 16);
     originY -= (4 * 16);
 
-    originX *= (1.0f / zoom);
-    originY *= (1.0f / zoom);
 
     const QBrush brush = p.brush();
     for (int y = 0; y < 8; ++y) {

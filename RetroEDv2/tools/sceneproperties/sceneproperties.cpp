@@ -12,10 +12,12 @@ SceneProperties::SceneProperties(QWidget *parent) : QWidget(parent), ui(new Ui::
 
     loadGlobalCB = ui->loadGlobals;
 
-    editTIL  = ui->editChunks;
-    editSCF  = ui->editStageConfig;
-    editPAL  = ui->editPalette;
-    editTSet = ui->editTSet;
+    editTIL   = ui->editChunks;
+    editSCF   = ui->editStageConfig;
+    editPAL   = ui->editPalette;
+    editTSet  = ui->editTSet;
+    copyPlane = ui->copyPlane;
+
 
     objCnt    = ui->objCnt;
     entCntTot = ui->entCntTot;

@@ -29,9 +29,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-296</y>
-        <width>258</width>
-        <height>1041</height>
+        <y>-60</y>
+        <width>256</width>
+        <height>961</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
@@ -131,9 +131,9 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="editCollision">
+           <widget class="QPushButton" name="copyPlane">
             <property name="text">
-             <string>Edit Tile Collisions</string>
+             <string>Copy Plane A Collision to Plane B</string>
             </property>
            </widget>
           </item>
@@ -715,7 +715,7 @@
   <tabstop>plrY</tabstop>
   <tabstop>editChunks</tabstop>
   <tabstop>editStageConfig</tabstop>
-  <tabstop>editCollision</tabstop>
+  <tabstop>copyPlane</tabstop>
   <tabstop>editTSet</tabstop>
   <tabstop>editPalette</tabstop>
   <tabstop>syncSC</tabstop>

@@ -13,7 +13,6 @@ ScenePropertiesv5::ScenePropertiesv5(QWidget *parent) : QWidget(parent), ui(new 
     loadGlobalCB  = ui->loadGlobals;
     stampNameEdit = ui->stampName;
 
-    editTIL  = ui->editChunks;
     editSCF  = ui->editStageConfig;
     editPAL  = ui->editPalette;
     editTSet = ui->editTSet;

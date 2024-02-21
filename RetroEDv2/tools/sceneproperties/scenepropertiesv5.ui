@@ -29,9 +29,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-485</y>
+        <y>0</y>
         <width>256</width>
-        <height>1145</height>
+        <height>1000</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
@@ -88,23 +88,9 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QPushButton" name="editChunks">
-            <property name="text">
-             <string>Edit Chunks</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QPushButton" name="editStageConfig">
             <property name="text">
              <string>Edit Stage Configuration</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="editCollision">
-            <property name="text">
-             <string>Edit Tile Collisions</string>
             </property>
            </widget>
           </item>
@@ -445,9 +431,7 @@
   <tabstop>stampName</tabstop>
   <tabstop>loadStamps</tabstop>
   <tabstop>saveStamps</tabstop>
-  <tabstop>editChunks</tabstop>
   <tabstop>editStageConfig</tabstop>
-  <tabstop>editCollision</tabstop>
   <tabstop>editTSet</tabstop>
   <tabstop>editPalette</tabstop>
   <tabstop>syncSC</tabstop>

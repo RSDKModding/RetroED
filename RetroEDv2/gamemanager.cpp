@@ -13,16 +13,19 @@ GameManager::GameManager(QWidget *parent) : QDialog(parent), ui(new Ui::GameMana
 
     QPushButton *setExeLocation[] = { ui->setExeLocV5, ui->setExeLocV4, ui->setExeLocV3,
                                       ui->setExeLocV2, ui->setExeLocV1 };
+    QPushButton *setDataLocation[] = { ui->setDataLocV5, ui->setDataLocV4, ui->setDataLocV3,
+                                       ui->setDataLocV2, ui->setDataLocV1 };
     QLineEdit *exeLocation[] = { ui->exeLocV5, ui->exeLocV4, ui->exeLocV3, ui->exeLocV2, ui->exeLocV1 };
-
-    QPushButton *runGame[] = { ui->runGameV5, ui->runGameV4, ui->runGameV3, ui->runGameV2,
-                               ui->runGameV1 };
+    QLineEdit *dataLocation[] = { ui->dataLocV5, ui->dataLocV4, ui->dataLocV3, ui->dataLocV2, ui->dataLocV1 };
 
     ui->versionToolbox->setCurrentIndex(0);
     for (int v = 0; v <= ENGINE_v1; ++v) {
         exeLocation[v]->setText(appConfig.gameManager[v].exePath);
+        dataLocation[v]->setText(appConfig.baseDataManager[v].dataPath);
 
         disconnect(setExeLocation[v], nullptr, nullptr, nullptr);
+        disconnect(setDataLocation[v], nullptr, nullptr, nullptr);
+
         connect(setExeLocation[v], &QPushButton::clicked, [this, exeLocation, v] {
 #if defined(Q_OS_WIN)
             QFileDialog filedialog(this, tr("Open Executable"), "",
@@ -44,30 +47,17 @@ GameManager::GameManager(QWidget *parent) : QDialog(parent), ui(new Ui::GameMana
             }
         });
 
-#ifndef Q_NO_PROCESS
-        disconnect(runGame[v], nullptr, nullptr, nullptr);
-        connect(runGame[v], &QPushButton::clicked, [v] {
-            QString gamePath = appConfig.gameManager[v].exePath;
-            if (QFile::exists(gamePath)) {
-                QStringList args;
-                args << "console=true;";
-                if (argInitStage.length())
-                    args << QString("stage=%1;").arg(argInitStage);
-                if (argInitScene.length())
-                    args << QString("scene=%1;").arg(argInitScene);
-                if (argInitFilter.length())
-                    args << QString("filter=%1;").arg(argInitFilter);
-                QProcess proc;
-                proc.setProgram(gamePath);
-                proc.setWorkingDirectory(QFileInfo(gamePath).absolutePath());
-                proc.setArguments(args);
-                proc.startDetached();
-                proc.waitForStarted();
+        connect(setDataLocation[v], &QPushButton::clicked, [this, dataLocation, v] {
+            QFileDialog filedialog(this, tr("Open Directory"), "", "");
+            filedialog.setFileMode(QFileDialog::FileMode::Directory);
+            filedialog.setAcceptMode(QFileDialog::AcceptOpen);
+            if (filedialog.exec() == QDialog::Accepted) {
+                QString dataPath = filedialog.selectedFiles()[0];
+                dataLocation[v]->setText(dataPath);
+                appConfig.baseDataManager[v].dataPath = dataPath;
+                appConfig.write();
             }
         });
-#else
-        runGame[v]->setVisible(false);
-#endif
     }
 }
 

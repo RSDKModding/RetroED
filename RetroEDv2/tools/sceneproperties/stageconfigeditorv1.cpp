@@ -114,6 +114,9 @@ StageConfigEditorv1::StageConfigEditorv1(FormatHelpers::StageConfig *scf, QWidge
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->objList->setCurrentItem(item);
         ui->objList->blockSignals(false);
+        ui->objName->setText(stageConfig->objects[c].name);
+        ui->objScript->setText(stageConfig->objects[c].script);
+        ui->objType->setText("Object Type ID: " + QString::number(31 + c));
         DoAction("Added Object");
     });
 

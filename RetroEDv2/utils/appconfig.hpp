@@ -42,6 +42,16 @@ public:
         QString exePath = "";
     };
 
+    struct BaseDataFolderInfo {
+        BaseDataFolderInfo() {}
+        BaseDataFolderInfo(Reader &reader) { read(reader); }
+
+        void read(Reader &reader);
+        void write(Writer &writer);
+
+        QString dataPath = "";
+    };
+
     AppConfig()
     {
 #ifdef Q_OS_WIN
@@ -76,6 +86,7 @@ public:
 
     QList<RecentFileInfo> recentFiles;
     GameManagerInfo gameManager[ENGINE_v1 + 1];
+    BaseDataFolderInfo baseDataManager[ENGINE_v1 + 1];
     bool lightMode = false;
 
     QString filePath;

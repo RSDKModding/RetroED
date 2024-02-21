@@ -32,6 +32,9 @@ public:
 
     PropertyBrowser *properties = nullptr;
 
+signals:
+    void typeChanged(SceneEntity *entity, byte type);
+
 private:
     Ui::SceneObjectProperties *ui;
 

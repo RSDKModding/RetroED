@@ -10,7 +10,7 @@ namespace Ui
 class SceneTilePropertiesv5;
 }
 
-class TileCollisionWidgetv5 : public QDialog
+class TileCollisionWidgetv5 : public QWidget
 {
     Q_OBJECT
 public:
@@ -48,6 +48,7 @@ public:
 
 private:
     Ui::SceneTilePropertiesv5 *ui;
+    TileCollisionWidgetv5 *edit;
     QImage tileImg;
     int collisionLyr = 0;
 

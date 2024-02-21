@@ -163,6 +163,7 @@ public:
     Vector2<bool> tileSolidA = Vector2<bool>(false, false);
     Vector2<bool> tileSolidB = Vector2<bool>(false, false);
     ushort selectedTile      = 0xFFFF;
+    ushort selectedChunk     = 0xFFFF;
     int selectedLayer        = -1;
 
     int selectedStamp = -1;

@@ -81,6 +81,10 @@ StageConfigEditorv3::StageConfigEditorv3(FormatHelpers::StageConfig *scf, int gc
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->objList->setCurrentItem(item);
         ui->objList->blockSignals(false);
+
+        ui->objName->setText(stageConfig->objects[c].name);
+        ui->objScript->setText(stageConfig->objects[c].script);
+        ui->objType->setText("Object Type ID: " + QString::number(c + globalObjectCount));
         DoAction("Added Object");
     });
 

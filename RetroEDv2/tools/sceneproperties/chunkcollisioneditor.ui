@@ -1,0 +1,630 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ChunkCollisionEditor</class>
+ <widget class="QDialog" name="ChunkCollisionEditor">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>632</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>512</width>
+    <height>455</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>800</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <property name="modal">
+   <bool>false</bool>
+  </property>
+  <widget class="QDialogButtonBox" name="buttonBox">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>560</y>
+     <width>261</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Close</set>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="angFloor">
+   <property name="geometry">
+    <rect>
+     <x>370</x>
+     <y>370</y>
+     <width>40</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>255</number>
+   </property>
+   <property name="displayIntegerBase">
+    <number>16</number>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="angRoof">
+   <property name="geometry">
+    <rect>
+     <x>460</x>
+     <y>370</y>
+     <width>40</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>255</number>
+   </property>
+   <property name="displayIntegerBase">
+    <number>16</number>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="angFlag">
+   <property name="geometry">
+    <rect>
+     <x>541</x>
+     <y>370</y>
+     <width>50</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="angLWall">
+   <property name="geometry">
+    <rect>
+     <x>370</x>
+     <y>395</y>
+     <width>40</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>266</number>
+   </property>
+   <property name="displayIntegerBase">
+    <number>16</number>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="angRWall">
+   <property name="geometry">
+    <rect>
+     <x>460</x>
+     <y>395</y>
+     <width>40</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>255</number>
+   </property>
+   <property name="displayIntegerBase">
+    <number>16</number>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="angMaskDir">
+   <property name="geometry">
+    <rect>
+     <x>540</x>
+     <y>395</y>
+     <width>50</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>Up</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Down</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QRadioButton" name="planeA">
+   <property name="geometry">
+    <rect>
+     <x>480</x>
+     <y>10</y>
+     <width>60</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Plane A</string>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="planeB">
+   <property name="geometry">
+    <rect>
+     <x>540</x>
+     <y>10</y>
+     <width>60</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Plane B</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="textFloor">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>370</y>
+     <width>40</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Floor</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="textRoof">
+   <property name="geometry">
+    <rect>
+     <x>420</x>
+     <y>370</y>
+     <width>40</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Roof</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="textLWall">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>395</y>
+     <width>40</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>LWall</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="textRWall">
+   <property name="geometry">
+    <rect>
+     <x>420</x>
+     <y>395</y>
+     <width>40</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>RWall</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="textFlags">
+   <property name="geometry">
+    <rect>
+     <x>510</x>
+     <y>370</y>
+     <width>40</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Flags</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="textMaskDir">
+   <property name="geometry">
+    <rect>
+     <x>510</x>
+     <y>395</y>
+     <width>40</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Dir</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="textTileColPlane">
+   <property name="geometry">
+    <rect>
+     <x>400</x>
+     <y>10</y>
+     <width>70</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Collision Plane</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="textAngles">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>350</y>
+     <width>40</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Angles</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="textTileID">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>10</y>
+     <width>70</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Tile ID:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="textChunkID">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>310</y>
+     <width>80</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Chunk ID:</string>
+   </property>
+  </widget>
+  <widget class="QFrame" name="chunkCol">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>30</y>
+     <width>256</width>
+     <height>256</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::NoFrame</enum>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="sizeConstraint">
+     <enum>QLayout::SetNoConstraint</enum>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+   </layout>
+  </widget>
+  <widget class="QFrame" name="tileCol">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>30</y>
+     <width>256</width>
+     <height>256</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>194</width>
+     <height>80</height>
+    </size>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::NoFrame</enum>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <property name="sizeConstraint">
+     <enum>QLayout::SetNoConstraint</enum>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="textChunkPreview">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>310</y>
+     <width>90</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Chunk Preview</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="textColPreview">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>80</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Collision Preview</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="refreshCol">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>10</y>
+     <width>90</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Refresh Collision</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="calcFloor">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>450</y>
+     <width>50</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Floor</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="calcRoof">
+   <property name="geometry">
+    <rect>
+     <x>400</x>
+     <y>450</y>
+     <width>50</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Roof</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="calcLWall">
+   <property name="geometry">
+    <rect>
+     <x>470</x>
+     <y>450</y>
+     <width>50</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>LWall</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="calcRWall">
+   <property name="geometry">
+    <rect>
+     <x>540</x>
+     <y>450</y>
+     <width>50</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>RWall</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>425</y>
+     <width>90</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Calculate Angles</string>
+   </property>
+  </widget>
+  <widget class="Line" name="line">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>435</y>
+     <width>270</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>310</y>
+     <width>220</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Left Click: Set Collision |  Right Click: Set Solid</string>
+   </property>
+  </widget>
+  <widget class="Line" name="line_2">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>360</y>
+     <width>270</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>290</y>
+     <width>60</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Controls:</string>
+   </property>
+  </widget>
+  <widget class="QFrame" name="chunkTileList">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>330</y>
+     <width>256</width>
+     <height>256</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::NoFrame</enum>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_3">
+    <property name="sizeConstraint">
+     <enum>QLayout::SetNoConstraint</enum>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>ChunkCollisionEditor</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>ChunkCollisionEditor</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
