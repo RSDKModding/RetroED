@@ -2416,27 +2416,21 @@ void SceneViewer::drawSpriteRotozoom(float XPos, float YPos, float pivotX, float
 void SceneViewer::drawLine(float x1, float y1, float x2, float y2, Vector4<float> color, int alpha,
                            InkEffects ink)
 {
+    validDraw = true;
+
+    // Bounds check
+    if (x1 < 0 && x2 < 0)
+        return;
+    if (y1 < 0 && y2 < 0)
+        return;
+    if (x1 > storedW / zoom && x2 > storedW / zoom)
+        return;
+    if (y1 > storedH / zoom && y2 > storedH / zoom)
+        return;
+
     addRenderState(ink, 2, 2, nullptr, alpha, &lineShader);
     addPoly(x1, y1, 0, 0, color);
     addPoly(x2, y2, 0, 0, color);
-    if (x1 > x2) {
-        y1 -= invZoom();
-        y2 -= invZoom();
-    }
-    else if (x1 < x2) {
-        y1 += invZoom();
-        y2 += invZoom();
-    }
-    if (y1 > y2) {
-        x1 += invZoom();
-        x2 += invZoom();
-    }
-    else if (y1 < y2) {
-        x1 -= invZoom();
-        x2 -= invZoom();
-    }
-
-    validDraw = true;
 }
 
 void SceneViewer::drawRect(float x, float y, float w, float h, Vector4<float> color, bool outline,
