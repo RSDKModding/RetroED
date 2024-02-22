@@ -11,14 +11,14 @@ void FunctionTable::RegisterObjectv5(GameObject **sVars, const char *name, uint 
                                      void (*editorLoad)(void), void (*serialize)(void))
 {
     RegisterObjectv5U(sVars, name, entityClassSize, staticClassSize, update, lateUpdate, staticUpdate,
-                      draw, create, stageLoad, editorDraw, editorLoad, serialize, NULL);
+                      draw, create, stageLoad, editorLoad, editorDraw, serialize, NULL);
 }
 void FunctionTable::RegisterObjectv5U(GameObject **sVars, const char *name, uint entityClassSize,
                                       uint staticClassSize, void (*update)(void),
                                       void (*lateUpdate)(void), void (*staticUpdate)(void),
                                       void (*draw)(void), void (*create)(void *),
-                                      void (*stageLoad)(void), void (*editorDraw)(void),
-                                      void (*editorLoad)(void), void (*serialize)(void),
+                                      void (*stageLoad)(void), void (*editorLoad)(void),
+                                      void (*editorDraw)(void), void (*serialize)(void),
                                       void (*staticLoad)(void *sVars))
 {
     GameObjectInfo info{};

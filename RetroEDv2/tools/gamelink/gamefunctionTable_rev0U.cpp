@@ -181,7 +181,6 @@ enum FunctionTableIDs {
     FunctionTable_GetSfx,
     FunctionTable_PlaySfx,
     FunctionTable_StopSfx,
-    FunctionTable_StopAllSfx,
     FunctionTable_PlayMusic,
     FunctionTable_SetChannelAttributes,
     FunctionTable_StopChannel,
@@ -222,6 +221,7 @@ enum FunctionTableIDs {
     FunctionTable_SetDebugValue,
     FunctionTable_NotifyCallback,
     FunctionTable_SetGameFinished,
+    FunctionTable_StopAllSfx,
     FunctionTable_Count,
 };
 

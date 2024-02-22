@@ -41,7 +41,7 @@ void RegisterObjectv5(GameObject **sVars, const char *name, uint entityClassSize
 void RegisterObjectv5U(GameObject **sVars, const char *name, uint entityClassSize, uint staticClassSize,
                        void (*update)(void), void (*lateUpdate)(void), void (*staticUpdate)(void),
                        void (*draw)(void), void (*create)(void *), void (*stageLoad)(void),
-                       void (*editorDraw)(void), void (*editorLoad)(void), void (*serialize)(void),
+                       void (*editorLoad)(void), void (*editorDraw)(void), void (*serialize)(void),
                        void (*staticLoad)(void *sVars));
 
 void RegisterStaticVariables(GameObject **sVars, const char *name, uint classSize);
