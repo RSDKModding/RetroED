@@ -43,7 +43,7 @@ ChunkReplaceOptions::ChunkReplaceOptions(byte gameVer, FormatHelpers::Chunks *ch
         int destChunk = ui->dstChunkList->currentRow();
         auto item = ui->srcChunkList->item(c);
 
-        item->setSelected(!item->isSelected());
+        item->setSelected(true);
 
         ui->dstChunkList->blockSignals(true);
 
