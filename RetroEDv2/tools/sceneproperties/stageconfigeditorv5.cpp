@@ -63,7 +63,6 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
     });
 
     connect(ui->addObj, &QToolButton::clicked, [this] {
-        ui->objList->blockSignals(true);
         uint c = ui->objList->currentRow() + 1;
         stageConfig->objects.insert(c, "New Object");
         auto *item = new QListWidgetItem();
@@ -72,11 +71,6 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->objList->setCurrentItem(item);
-        ui->objList->blockSignals(false);
-
-        ui->objName->blockSignals(true);
-        ui->objName->setText(stageConfig->objects[c]);
-        ui->objName->blockSignals(false);
         DoAction("Added Object");
     });
 
@@ -162,7 +156,6 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
     });
 
     connect(ui->addSfx, &QToolButton::clicked, [this] {
-        ui->sfxList->blockSignals(true);
         uint c = ui->sfxList->currentRow() + 1;
         stageConfig->soundFX.insert(c, RSDKv5::StageConfig::WAVConfiguration());
         auto *item = new QListWidgetItem();
@@ -171,7 +164,6 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->sfxList->setCurrentItem(item);
-        ui->sfxList->blockSignals(false);
         DoAction("Added Sfx");
     });
 

@@ -71,7 +71,6 @@ StageConfigEditorv4::StageConfigEditorv4(FormatHelpers::StageConfig *scf, int gc
     });
 
     connect(ui->addObj, &QToolButton::clicked, [this] {
-        ui->objList->blockSignals(true);
         uint c = ui->objList->currentRow() + 1;
         stageConfig->objects.insert(c, FormatHelpers::StageConfig::ObjectInfo());
         auto *item = new QListWidgetItem();
@@ -80,11 +79,6 @@ StageConfigEditorv4::StageConfigEditorv4(FormatHelpers::StageConfig *scf, int gc
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->objList->setCurrentItem(item);
-        ui->objList->blockSignals(false);
-
-        ui->objName->setText(stageConfig->objects[c].name);
-        ui->objScript->setText(stageConfig->objects[c].script);
-        ui->objType->setText("Object Type ID: " + QString::number(c + globalObjectCount));
         DoAction("Added Object");
     });
 
@@ -176,7 +170,6 @@ StageConfigEditorv4::StageConfigEditorv4(FormatHelpers::StageConfig *scf, int gc
     });
 
     connect(ui->addSfx, &QToolButton::clicked, [this] {
-        ui->sfxList->blockSignals(true);
         uint c = ui->sfxList->currentRow() + 1;
         stageConfig->soundFX.insert(c, FormatHelpers::StageConfig::SoundInfo());
         auto *item = new QListWidgetItem();
@@ -185,7 +178,6 @@ StageConfigEditorv4::StageConfigEditorv4(FormatHelpers::StageConfig *scf, int gc
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->sfxList->setCurrentItem(item);
-        ui->sfxList->blockSignals(false);
         DoAction("Added Sfx");
     });
 

@@ -104,7 +104,6 @@ StageConfigEditorv1::StageConfigEditorv1(FormatHelpers::StageConfig *scf, QWidge
     });
 
     connect(ui->addObj, &QToolButton::clicked, [this] {
-        ui->objList->blockSignals(true);
         uint c = ui->objList->currentRow() + 1;
         stageConfig->objects.insert(c, FormatHelpers::StageConfig::ObjectInfo());
         auto *item = new QListWidgetItem();
@@ -113,10 +112,6 @@ StageConfigEditorv1::StageConfigEditorv1(FormatHelpers::StageConfig *scf, QWidge
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->objList->setCurrentItem(item);
-        ui->objList->blockSignals(false);
-        ui->objName->setText(stageConfig->objects[c].name);
-        ui->objScript->setText(stageConfig->objects[c].script);
-        ui->objType->setText("Object Type ID: " + QString::number(31 + c));
         DoAction("Added Object");
     });
 
@@ -204,7 +199,6 @@ StageConfigEditorv1::StageConfigEditorv1(FormatHelpers::StageConfig *scf, QWidge
     });
 
     connect(ui->addSfx, &QToolButton::clicked, [this] {
-        ui->sfxList->blockSignals(true);
         uint c = ui->sfxList->currentRow() + 1;
         stageConfig->soundFX.insert(c, FormatHelpers::StageConfig::SoundInfo());
         auto *item = new QListWidgetItem();
@@ -213,7 +207,6 @@ StageConfigEditorv1::StageConfigEditorv1(FormatHelpers::StageConfig *scf, QWidge
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->sfxList->setCurrentItem(item);
-        ui->sfxList->blockSignals(false);
         DoAction("Added Sfx");
     });
 
@@ -297,7 +290,6 @@ StageConfigEditorv1::StageConfigEditorv1(FormatHelpers::StageConfig *scf, QWidge
     });
 
     connect(ui->addMus, &QToolButton::clicked, [this] {
-        ui->musList->blockSignals(true);
         uint c = ui->musList->currentRow() + 1;
         stageConfig->music.insert(c, "Music.ogg");
         auto *item = new QListWidgetItem();
@@ -306,7 +298,6 @@ StageConfigEditorv1::StageConfigEditorv1(FormatHelpers::StageConfig *scf, QWidge
 
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->musList->setCurrentItem(item);
-        ui->musList->blockSignals(false);
         DoAction("Added Music");
     });
 
@@ -388,7 +379,6 @@ StageConfigEditorv1::StageConfigEditorv1(FormatHelpers::StageConfig *scf, QWidge
     });
 
     connect(ui->addSht, &QToolButton::clicked, [this, createSheetList] {
-        ui->shtList->blockSignals(true);
         uint c = ui->shtList->currentRow() + 1;
         stageConfig->spriteSheets.insert(c, "Sheet.bmp");
         auto *item = new QListWidgetItem();
@@ -403,7 +393,6 @@ StageConfigEditorv1::StageConfigEditorv1(FormatHelpers::StageConfig *scf, QWidge
                 ++obj.sheetID;
         }
         createSheetList();
-        ui->shtList->blockSignals(false);
         DoAction("Added Sheet");
     });
 
