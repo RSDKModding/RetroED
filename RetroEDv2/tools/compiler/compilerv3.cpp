@@ -1675,7 +1675,18 @@ void Compilerv3::ParseScriptFile(QString scriptName, int scriptID, bool inEditor
                                        == -1) { // if NONE of these checks succeeded, then we skip
                                                 // everything until "end
                                 // platform"
-                                parseMode = PARSEMODE_PLATFORMSKIP;
+                                bool skip = true;
+                                for (int i = 0; i < v3CustomFlag.count(); i++) {
+                                    if (FindStringToken(scriptText, v3CustomFlag[i].toStdString().c_str(), 1) != -1){
+                                        skip = false;
+                                        break;
+                                    };
+
+                                }
+
+                                if (skip){
+                                    parseMode = PARSEMODE_PLATFORMSKIP;
+                                }
                             }
                         }
                         else if (FindStringToken(scriptText, "#endplatform", 1) == -1) {

@@ -123,6 +123,34 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
         }
     });
 
+    connect(ui->addCFlag, &QPushButton::clicked, [this] {
+
+        if (ui->customFlagText->text() == "")
+            return;
+
+        QString flag = ui->customFlagText->text();
+
+        ui->removeCFlag->setEnabled(true);
+        ui->customFlagList->setEnabled(true);
+        ui->customFlagList->addItem(flag);
+
+        compilerv3.v3CustomFlag.append(flag);
+        compilerv4.v4CustomFlag.append(flag);
+        ui->customFlagText->clear();
+
+    });
+
+    connect(ui->removeCFlag, &QPushButton::clicked, [this] {
+
+        int c = ui->customFlagList->currentIndex();
+        ui->customFlagList->removeItem(c);
+        compilerv3.v3CustomFlag.removeAt(c);
+        compilerv4.v4CustomFlag.removeAt(c);
+
+        ui->customFlagList->setDisabled(ui->customFlagList->count() == 0);
+        ui->removeCFlag->setDisabled(ui->customFlagList->count() == 0);
+    });
+
     connect(ui->compileScr, &QPushButton::clicked, [this] {
         // lol
         switch (engineType) {

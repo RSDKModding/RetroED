@@ -287,6 +287,8 @@ public:
 
     RSDKv4::GameConfig gameConfig;
 
+    QList<QString> v4CustomFlag = {};
+
 private:
     int sinVal512[0x200];
     int cosVal512[0x200];
