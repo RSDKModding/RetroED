@@ -159,6 +159,9 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                 if (ui->useHaptics->isChecked())
                     compilerv4.gameHapticSetting = "USE_F_FEEDBACK";
 
+                if (ui->gameType->currentIndex() == 1)
+                    compilerv4.releaseType = "USE_ORIGINS";
+
                 compilerv4.gameConfig = gameConfig;
 
                 int id = 0;
@@ -166,26 +169,18 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
 
                 for (auto &obj : gameConfig.objects) {
                     SetScriptTypeName(obj.name.toStdString().c_str(), compilerv4.typeNames[id++]);
-
-                    id++;
                 }
                 for (auto &obj : stageConfig.objects) {
                     SetScriptTypeName(obj.name.toStdString().c_str(), compilerv4.typeNames[id++]);
-
-                    id++;
                 }
 
                 id = 0;
                 for (auto &sfx : gameConfig.soundFX) {
                     SetScriptTypeName(sfx.name.toStdString().c_str(), compilerv4.sfxNames[id++]);
-
-                    id++;
                 }
 
                 for (auto &sfx : stageConfig.soundFX) {
                     SetScriptTypeName(sfx.name.toStdString().c_str(), compilerv4.sfxNames[id++]);
-
-                    id++;
                 }
 
                 for (auto &var : gameConfig.globalVariables)
@@ -390,20 +385,19 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                 if (ui->useHaptics->isChecked())
                     compilerv3.gameHapticSetting = "Use_Haptics";
 
+                if (ui->gameType->currentIndex() == 1)
+                    compilerv3.releaseType = "Use_Origins";
+
                 compilerv3.gameConfig = gameConfig;
 
                 int id = 0;
                 SetScriptTypeName("BlankObject", compilerv3.typeNames[id++]);
-				
+
                 for (auto &obj : gameConfig.objects) {
                     SetScriptTypeName(obj.name.toStdString().c_str(), compilerv3.typeNames[id++]);
-
-                    id++;
                 }
                 for (auto &obj : stageConfig.objects) {
                     SetScriptTypeName(obj.name.toStdString().c_str(), compilerv3.typeNames[id++]);
-
-                    id++;
                 }
 
                 for (auto &sfx : gameConfig.soundFX)

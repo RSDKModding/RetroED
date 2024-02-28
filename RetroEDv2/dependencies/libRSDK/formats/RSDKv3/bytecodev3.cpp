@@ -180,7 +180,7 @@ void RSDKv3::Bytecode::write(Writer &writer)
     }
 
     for (ScriptInfo &script : scriptList) {
-        writer.write(script.main.scriptCodePos);
+        writer.write(script.main.jumpTablePos);
         writer.write(script.playerInteraction.jumpTablePos);
         writer.write(script.draw.jumpTablePos);
         writer.write(script.startup.jumpTablePos);

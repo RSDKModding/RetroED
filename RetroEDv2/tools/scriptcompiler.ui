@@ -14,14 +14,137 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0">
+    <widget class="QComboBox" name="selEngineType">
+     <property name="toolTip">
+      <string>The RSDK version to compile scripts for</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>RSDKv3</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>RSDKv4</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>RSDKv1</string>
+      </property>
+     </item>
+    </widget>
+   </item>
    <item row="2" column="0">
     <widget class="QStackedWidget" name="stackedWidget">
      <widget class="QWidget" name="page_v3v4">
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="17" column="0" colspan="2">
+       <item row="6" column="0">
+        <widget class="QLineEdit" name="outputPath">
+         <property name="toolTip">
+          <string>The output bytecode folder</string>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="0" colspan="2">
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Properties:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QPushButton" name="setScriptsDir">
+         <property name="toolTip">
+          <string>Set the input scripts folder</string>
+         </property>
+         <property name="text">
+          <string>Set Scripts Folder</string>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Renderer:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="15" column="1">
+        <widget class="QComboBox" name="gameType">
+         <item>
+          <property name="text">
+           <string>Standalone</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Origins</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QPushButton" name="setStageConfig">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>Set the stageconfig to read script info from</string>
+         </property>
+         <property name="text">
+          <string>Set StageConfig Path</string>
+         </property>
+        </widget>
+       </item>
+       <item row="17" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QCheckBox" name="isGlobal">
+         <property name="toolTip">
+          <string>Determines if the scripts should be compiled as globalcode</string>
+         </property>
+         <property name="text">
+          <string>Compiling GlobalCode</string>
+         </property>
+        </widget>
+       </item>
+       <item row="18" column="0" colspan="2">
         <widget class="Line" name="line_3">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLineEdit" name="scriptsPath">
+         <property name="toolTip">
+          <string>The input script folder</string>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -32,13 +155,40 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QCheckBox" name="isGlobal">
+       <item row="13" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Platform:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLineEdit" name="gameConfigPath">
          <property name="toolTip">
-          <string>Determines if the scripts should be compiled as globalcode</string>
+          <string>The gameconfig path</string>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QPushButton" name="setGameConfig">
+         <property name="toolTip">
+          <string>Set the gameconfig to read script info from</string>
          </property>
          <property name="text">
-          <string>Compiling GlobalCode</string>
+          <string>Set GameConfig Path</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLineEdit" name="stageConfigPath">
+         <property name="toolTip">
+          <string>The stageconfig path</string>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -59,82 +209,6 @@
          </item>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QPushButton" name="setGameConfig">
-         <property name="toolTip">
-          <string>Set the gameconfig to read script info from</string>
-         </property>
-         <property name="text">
-          <string>Set GameConfig Path</string>
-         </property>
-        </widget>
-       </item>
-       <item row="14" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Renderer:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="16" column="0">
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLineEdit" name="gameConfigPath">
-         <property name="toolTip">
-          <string>The gameconfig path</string>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="15" column="0">
-        <widget class="QCheckBox" name="useHaptics">
-         <property name="toolTip">
-          <string>Determines if haptics logic should be compiled into bytecode or not</string>
-         </property>
-         <property name="text">
-          <string>Use Haptics</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLineEdit" name="stageConfigPath">
-         <property name="toolTip">
-          <string>The stageconfig path</string>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QPushButton" name="setStageConfig">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>Set the stageconfig to read script info from</string>
-         </property>
-         <property name="text">
-          <string>Set StageConfig Path</string>
-         </property>
-        </widget>
-       </item>
        <item row="13" column="1">
         <widget class="QComboBox" name="platformType">
          <property name="toolTip">
@@ -152,54 +226,6 @@
          </item>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Properties:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="13" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Platform:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="0" colspan="2">
-        <widget class="Line" name="line_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0" colspan="2">
-        <widget class="Line" name="line">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="QPushButton" name="setScriptsDir">
-         <property name="toolTip">
-          <string>Set the input scripts folder</string>
-         </property>
-         <property name="text">
-          <string>Set Scripts Folder</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLineEdit" name="scriptsPath">
-         <property name="toolTip">
-          <string>The input script folder</string>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
        <item row="6" column="1">
         <widget class="QPushButton" name="setOutputDir">
          <property name="toolTip">
@@ -210,13 +236,30 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="0">
-        <widget class="QLineEdit" name="outputPath">
-         <property name="toolTip">
-          <string>The output bytecode folder</string>
+       <item row="0" column="0" colspan="2">
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
-         <property name="readOnly">
+        </widget>
+       </item>
+       <item row="16" column="0">
+        <widget class="QCheckBox" name="useHaptics">
+         <property name="toolTip">
+          <string>Determines if haptics logic should be compiled into bytecode or not</string>
+         </property>
+         <property name="text">
+          <string>Use Haptics</string>
+         </property>
+         <property name="checked">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="15" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Game Type</string>
          </property>
         </widget>
        </item>
@@ -305,28 +348,6 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QComboBox" name="selEngineType">
-     <property name="toolTip">
-      <string>The RSDK version to compile scripts for</string>
-     </property>
-     <item>
-      <property name="text">
-       <string>RSDKv3</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>RSDKv4</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>RSDKv1</string>
-      </property>
-     </item>
-    </widget>
-   </item>
   </layout>
  </widget>
  <tabstops>
@@ -342,7 +363,6 @@
   <tabstop>setOutputDir</tabstop>
   <tabstop>platformType</tabstop>
   <tabstop>renderType</tabstop>
-  <tabstop>useHaptics</tabstop>
   <tabstop>compileScr</tabstop>
   <tabstop>selectTRScript</tabstop>
   <tabstop>trScript</tabstop>
