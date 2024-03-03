@@ -303,6 +303,8 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     int scriptCodeOffset = 0;
                     int jumpTableOffset  = 0;
                     if (!ui->isGlobal->isChecked()) {
+                        if (stageConfig.loadGlobalScripts)
+                            offset += gameConfig.objects.count();
                         count            = stageConfig.objects.count();
                         scriptCodeOffset = globalScriptCodePos;
                         jumpTableOffset  = globalJumpTablePos;
@@ -504,6 +506,8 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     int scriptCodeOffset = 0;
                     int jumpTableOffset  = 0;
                     if (!ui->isGlobal->isChecked()) {
+                        if (stageConfig.loadGlobalScripts)
+                            offset += gameConfig.objects.count();
                         count            = stageConfig.objects.count();
                         scriptCodeOffset = globalScriptCodePos;
                         jumpTableOffset  = globalJumpTablePos;
