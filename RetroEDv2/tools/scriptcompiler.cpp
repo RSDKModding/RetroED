@@ -167,9 +167,12 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                 int id = 0;
                 SetScriptTypeName("BlankObject", compilerv4.typeNames[id++]);
 
-                for (auto &obj : gameConfig.objects) {
-                    SetScriptTypeName(obj.name.toStdString().c_str(), compilerv4.typeNames[id++]);
+                if (ui->isGlobal->isChecked() || stageConfig.loadGlobalScripts) {
+                    for (auto &obj : gameConfig.objects) {
+                        SetScriptTypeName(obj.name.toStdString().c_str(), compilerv4.typeNames[id++]);
+                    }
                 }
+
                 for (auto &obj : stageConfig.objects) {
                     SetScriptTypeName(obj.name.toStdString().c_str(), compilerv4.typeNames[id++]);
                 }
@@ -300,7 +303,6 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     int scriptCodeOffset = 0;
                     int jumpTableOffset  = 0;
                     if (!ui->isGlobal->isChecked()) {
-                        offset += gameConfig.objects.count();
                         count            = stageConfig.objects.count();
                         scriptCodeOffset = globalScriptCodePos;
                         jumpTableOffset  = globalJumpTablePos;
@@ -393,9 +395,12 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                 int id = 0;
                 SetScriptTypeName("BlankObject", compilerv3.typeNames[id++]);
 
-                for (auto &obj : gameConfig.objects) {
-                    SetScriptTypeName(obj.name.toStdString().c_str(), compilerv3.typeNames[id++]);
+                if (ui->isGlobal->isChecked() || stageConfig.loadGlobalScripts) {
+                    for (auto &obj : gameConfig.objects) {
+                        SetScriptTypeName(obj.name.toStdString().c_str(), compilerv3.typeNames[id++]);
+                    }
                 }
+
                 for (auto &obj : stageConfig.objects) {
                     SetScriptTypeName(obj.name.toStdString().c_str(), compilerv3.typeNames[id++]);
                 }
@@ -499,7 +504,6 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
                     int scriptCodeOffset = 0;
                     int jumpTableOffset  = 0;
                     if (!ui->isGlobal->isChecked()) {
-                        offset += gameConfig.objects.count();
                         count            = stageConfig.objects.count();
                         scriptCodeOffset = globalScriptCodePos;
                         jumpTableOffset  = globalJumpTablePos;
