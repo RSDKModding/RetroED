@@ -208,6 +208,11 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
     connect(ui->sfxPath, &QLineEdit::textEdited, [this](QString s) {
         stageConfig->soundFX[ui->sfxList->currentRow()].path = s;
         DoAction("Changed Sfx Path");
+
+        ui->sfxList->blockSignals(true);
+        ui->sfxList->item(ui->sfxList->currentRow())
+            ->setText(stageConfig->soundFX[ui->sfxList->currentRow()].path);
+        ui->sfxList->blockSignals(false);
     });
 
     connect(ui->maxPlays, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
