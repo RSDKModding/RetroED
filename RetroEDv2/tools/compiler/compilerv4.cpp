@@ -3942,7 +3942,18 @@ void Compilerv4::ParseScriptFile(QString scriptName, int scriptID, bool inEditor
                                 && FindStringToken(scriptText, "USE_DECOMP", 1)
                                        == -1 // general flag for decomp-only stuff
                             ) {
-                                parseMode = PARSEMODE_PLATFORMSKIP;
+                                bool skip = true;
+                                for (int i = 0; i < v4CustomFlag.count(); i++) {
+                                    if (FindStringToken(scriptText, v4CustomFlag[i].toStdString().c_str(), 1) != -1){
+                                        skip = false;
+                                        break;
+                                    };
+
+                                }
+
+                                if (skip){
+                                    parseMode = PARSEMODE_PLATFORMSKIP;
+                                }
                             }
                         }
                         else if (FindStringToken(scriptText, "#endplatform", 1) == -1) {

@@ -222,6 +222,8 @@ public:
 
     RSDKv3::GameConfig gameConfig;
 
+    QList<QString> v3CustomFlag = {};
+
 private:
     int sinVal512[0x200];
     int cosVal512[0x200];
