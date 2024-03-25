@@ -861,7 +861,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     connect(ui->stampTool, &QToolButton::clicked, [this] { ResetTools(SceneViewer::TOOL_STAMP); });
     connect(ui->eraserTool, &QToolButton::clicked, [this] { ResetTools(SceneViewer::TOOL_ERASER); });
     connect(ui->entityTool, &QToolButton::clicked, [this] { ResetTools(SceneViewer::TOOL_ENTITY); });
-    connect(ui->stampCopy, &QToolButton::clicked, [this] { ResetTools(SceneViewer::TOOL_STAMP_COPY); });
+    connect(ui->stampCopy, &QToolButton::clicked, [this] { ResetTools(SceneViewer::TOOL_STAMP_MAKER); });
 
     connect(ui->showCollisionA, &QPushButton::clicked, [this] {
         viewer->showPlaneA ^= 1;
@@ -2047,7 +2047,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
 
                         break;
                     }
-                    case SceneViewer::TOOL_STAMP_COPY: {
+                    case SceneViewer::TOOL_STAMP_MAKER: {
                         viewer->isSelecting  = true;
                         viewer->selectPos.x  = sceneMousePos.x;
                         viewer->selectPos.y  = sceneMousePos.y;
@@ -2279,7 +2279,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                 || viewer->curTool == SceneViewer::TOOL_ERASER
                 || viewer->curTool == SceneViewer::TOOL_ENTITY
                 || viewer->curTool == SceneViewer::TOOL_STAMP
-                || viewer->curTool == SceneViewer::TOOL_STAMP_COPY) {
+                || viewer->curTool == SceneViewer::TOOL_STAMP_MAKER) {
                 viewer->tilePos.x = viewer->mousePos.x;
                 viewer->tilePos.y = viewer->mousePos.y;
 
@@ -2401,7 +2401,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                         }
                         break;
                     }
-                    case SceneViewer::TOOL_STAMP_COPY: {
+                    case SceneViewer::TOOL_STAMP_MAKER: {
                         viewer->isSelecting  = true;
                         viewer->selectSize.x = (sceneMousePos.x - viewer->selectPos.x) / 0x10;
                         viewer->selectSize.y = (sceneMousePos.y - viewer->selectPos.y) / 0x10;
@@ -2436,7 +2436,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                     case SceneViewer::TOOL_MOUSE: break;
                     case SceneViewer::TOOL_SELECT:
                         viewer->isSelecting = false; break;
-                    case SceneViewer::TOOL_STAMP_COPY: {
+                    case SceneViewer::TOOL_STAMP_MAKER: {
                         viewer->isSelecting = false;
                         AddStamp(viewer->selectPos.x - viewer->cameraPos.x, viewer->selectPos.y - viewer->cameraPos.y);
                         viewer->selectSize.x = 0;
@@ -3691,7 +3691,7 @@ void SceneEditorv5::ResetTools(byte tool)
         case SceneViewer::TOOL_STAMP: ui->stampTool->setDown(true); break;
         case SceneViewer::TOOL_ERASER: ui->eraserTool->setDown(true); break;
         case SceneViewer::TOOL_ENTITY: ui->entityTool->setDown(true); break;
-        case SceneViewer::TOOL_STAMP_COPY: ui->stampCopy->setDown(true); break;
+        case SceneViewer::TOOL_STAMP_MAKER: ui->stampCopy->setDown(true); break;
     }
 
     ui->panTool->blockSignals(false);

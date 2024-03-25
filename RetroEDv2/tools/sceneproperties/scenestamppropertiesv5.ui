@@ -44,7 +44,7 @@
       <item row="0" column="1">
        <widget class="QDoubleSpinBox" name="stampX">
         <property name="decimals">
-         <number>4</number>
+         <number>0</number>
         </property>
         <property name="maximum">
          <double>32767.000000000000000</double>
@@ -57,7 +57,7 @@
       <item row="1" column="1">
        <widget class="QDoubleSpinBox" name="stampY">
         <property name="decimals">
-         <number>4</number>
+         <number>0</number>
         </property>
         <property name="minimum">
          <double>0.000000000000000</double>
@@ -109,7 +109,7 @@
       <item row="0" column="1">
        <widget class="QDoubleSpinBox" name="stampSizeX">
         <property name="decimals">
-         <number>4</number>
+         <number>0</number>
         </property>
         <property name="maximum">
          <double>1024.000000000000000</double>
@@ -122,7 +122,7 @@
       <item row="1" column="1">
        <widget class="QDoubleSpinBox" name="stampSizeY">
         <property name="decimals">
-         <number>4</number>
+         <number>0</number>
         </property>
         <property name="maximum">
          <double>1024.000000000000000</double>

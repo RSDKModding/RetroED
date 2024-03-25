@@ -1311,10 +1311,10 @@ void SceneViewer::drawScene()
         }
     }
 
-    // Selected Stamp Copy
-    if (curTool == TOOL_STAMP_COPY) {
+    // Selected Stamp Maker
+    if (curTool == TOOL_STAMP_MAKER) {
 
-        // Draw Selected Tile Preview
+        // Hover on the current tile postion
         int tx;
         int ty;
         if (isSelecting){
@@ -1335,7 +1335,6 @@ void SceneViewer::drawScene()
         tx -= fmodf(tx2, tileSize);
         ty -= fmodf(ty2, tileSize);
 
-        // Draw Selected Tile Preview
         int xpos = tx + cameraPos.x;
         int ypos = ty + cameraPos.y;
 

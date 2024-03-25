@@ -20,7 +20,7 @@ public:
         TOOL_STAMP,
         TOOL_ERASER,
         TOOL_ENTITY,
-        TOOL_STAMP_COPY,
+        TOOL_STAMP_MAKER,
     };
 
     enum EventTypes {
