@@ -5,6 +5,8 @@
 
 #include <RSDKv5/stamps.hpp>
 
+class SceneViewer;
+
 namespace Ui
 {
 class SceneStampPropertiesv5;
@@ -20,6 +22,9 @@ public:
 
     void setupUI(RSDKv5::Stamps *stamps, int id);
     void unsetUI();
+
+signals:
+    void stampNameChanged(QString name);
 
 private:
     Ui::SceneStampPropertiesv5 *ui;

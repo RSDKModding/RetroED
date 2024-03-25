@@ -1,4 +1,4 @@
-#include "includes.hpp"
+﻿#include "includes.hpp"
 #include "ui_sceneeditorv5.h"
 #include "qgifimage.h"
 
@@ -302,7 +302,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     });
 
     connect(ui->stampList, &QListWidget::currentRowChanged, [this](int c) {
-        ui->rmStp->setDisabled(c == -1 || c >= viewer->stamps.stampList.count());
+        ui->rmStp->setDisabled(c == -1);
 
         if (c == -1 || c >= viewer->stamps.stampList.count())
             return;
@@ -332,15 +332,18 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
     connect(ui->rmStp, &QToolButton::clicked, [this] {
         int c        = ui->stampList->currentRow();
-        int n        = ui->stampList->currentRow() == ui->objectList->count() - 1 ? c - 1 : c;
+        int n        = ui->stampList->currentRow() == ui->objectList->count() - 1 ? c : c - 1;
         QString name = viewer->stamps.stampList.at(c).name;
         delete ui->stampList->item(c);
         viewer->stamps.stampList.removeAt(c);
 
         ui->stampList->setCurrentRow(n);
+        viewer->selectedStamp = n;
 
         DoAction("Remove Stamp: " + name);
     });
+
+    connect(stampProp, &SceneStampPropertiesv5::stampNameChanged, this, &SceneEditorv5::updateStampName);
 
     // MAKE SURE YOU ADD YOUR OBJECT TO THE VIEWER'S LIST BEFORE CALLING THIS
     auto linkGameObject = [this](int objectID, GameObjectInfo *info, bool useLoadEvent = true,
@@ -858,6 +861,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     connect(ui->stampTool, &QToolButton::clicked, [this] { ResetTools(SceneViewer::TOOL_STAMP); });
     connect(ui->eraserTool, &QToolButton::clicked, [this] { ResetTools(SceneViewer::TOOL_ERASER); });
     connect(ui->entityTool, &QToolButton::clicked, [this] { ResetTools(SceneViewer::TOOL_ENTITY); });
+    connect(ui->stampCopy, &QToolButton::clicked, [this] { ResetTools(SceneViewer::TOOL_STAMP_COPY); });
 
     connect(ui->showCollisionA, &QPushButton::clicked, [this] {
         viewer->showPlaneA ^= 1;
@@ -948,11 +952,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         CreateEntityList();
         scnProp->syncGC->setDisabled(!stageConfig.loadGlobalObjects);
         DoAction(stageConfig.loadGlobalObjects ? "Added Global Objects" : "Removed Global Objects");
-    });
-
-    connect(scnProp->stampNameEdit, &QLineEdit::textChanged, [this](QString s) {
-        viewer->metadata.stampName = s;
-        // DoAction();
     });
 
     connect(ui->showParallax, &QPushButton::clicked, [this] {
@@ -1084,26 +1083,58 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         DoAction("Edited Palette");
     });
 
+    connect(scnProp->stampNameEdit, &QLineEdit::textChanged, [this](QString s) {
+        viewer->metadata.stampName = s;
+        // DoAction();
+    });
+
     connect(scnProp->loadStamps, &QPushButton::clicked, [this] {
-        if (QFile::exists(viewer->metadata.stampName)) {
-            SetStatus("Loading stamps...");
+        QString path = QFileInfo(viewer->stamps.filePath).absolutePath() + "/"+ viewer->metadata.stampName;
+        PrintLog(QString("Loading from: %1").arg(path));
+        if (QFile::exists(path)) {
+            SetStatus("File found, Loading stamps...");
 
-            viewer->stamps = RSDKv5::Stamps(viewer->metadata.stampName);
-
+            viewer->stamps.read(path);
             ui->stampList->blockSignals(true);
+            ui->stampList->clear();
             for (auto &stamp : viewer->stamps.stampList) ui->stampList->addItem(stamp.name);
             ui->stampList->blockSignals(false);
             ui->stampList->setCurrentRow(-1);
+            viewer->selectedStamp = 0xFFFF;
 
             SetStatus("Loaded stamps from " + QFile(viewer->stamps.filePath).fileName());
         }
         else {
-            SetStatus("Unable to load stamps! file does not exist...");
+            QFileDialog filedialog(this, tr("Load Stamps"), "", tr("RSDKv5 Stamps (*.bin)"));
+            filedialog.setAcceptMode(QFileDialog::AcceptOpen);
+            if (filedialog.exec() == QDialog::Accepted) {
+                SetStatus("File found, Loading stamps...");
+                PrintLog(QString("Loading stamps from: %1").arg(QFile(filedialog.selectedFiles()[0]).fileName()));
+
+                viewer->stamps.read(QFile(filedialog.selectedFiles()[0]).fileName());
+                viewer->stamps.filePath = QFile(filedialog.selectedFiles()[0]).fileName();
+                viewer->metadata.stampName = QFileInfo(viewer->stamps.filePath).fileName();
+
+                scnProp->stampNameEdit->blockSignals(true);
+                scnProp->stampNameEdit->setText(viewer->metadata.stampName);
+                scnProp->stampNameEdit->update();
+                scnProp->stampNameEdit->blockSignals(false);
+
+                ui->stampList->blockSignals(true);
+                ui->stampList->clear();
+                for (auto &stamp : viewer->stamps.stampList) ui->stampList->addItem(stamp.name);
+                ui->stampList->blockSignals(false);
+                ui->stampList->setCurrentRow(-1);
+                viewer->selectedStamp = 0xFFFF;
+
+
+                SetStatus("Loaded stamps from " + QFile(viewer->stamps.filePath).fileName());
+            }
         }
     });
 
     connect(scnProp->saveStamps, &QPushButton::clicked, [this] {
-        QString path = viewer->stamps.filePath;
+        QString path = QFileInfo(viewer->stamps.filePath).absolutePath() + "/"+ viewer->metadata.stampName;
 
         if (QFile::exists(path)) {
             SetStatus("Saving stamps...");
@@ -1661,6 +1692,9 @@ void SceneEditorv5::updateTileSel(){
     tileProp->setupUI(&tileconfig.collisionPaths[0][viewer->selectedTile & 0x3FF], &tileconfig.collisionPaths[1][viewer->selectedTile & 0x3FF],
             &viewer->selectedTile, viewer->tiles[viewer->selectedTile & 0x3FF]);
 }
+void SceneEditorv5::updateStampName(QString name){
+    ui->stampList->currentItem()->setText(name);
+}
 
 QString lastSelected = "";
 
@@ -2013,6 +2047,21 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
 
                         break;
                     }
+                    case SceneViewer::TOOL_STAMP_COPY: {
+                        viewer->isSelecting  = true;
+                        viewer->selectPos.x  = sceneMousePos.x;
+                        viewer->selectPos.y  = sceneMousePos.y;
+                        viewer->selectSize.x = 0;
+                        viewer->selectSize.y = 0;
+                        viewer->selectedEntities.clear();
+                        break;
+                    }
+                    case SceneViewer::TOOL_STAMP: {
+                        if (viewer->selectedStamp != 0xFFFF) {
+                            SetStamp(mEvent->pos().x(), mEvent->pos().y());
+                        }
+                        break;
+                    }
                     default: break;
                 }
                 break;
@@ -2228,7 +2277,9 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
 
             if (viewer->curTool == SceneViewer::TOOL_PENCIL
                 || viewer->curTool == SceneViewer::TOOL_ERASER
-                || viewer->curTool == SceneViewer::TOOL_ENTITY) {
+                || viewer->curTool == SceneViewer::TOOL_ENTITY
+                || viewer->curTool == SceneViewer::TOOL_STAMP
+                || viewer->curTool == SceneViewer::TOOL_STAMP_COPY) {
                 viewer->tilePos.x = viewer->mousePos.x;
                 viewer->tilePos.y = viewer->mousePos.y;
 
@@ -2350,6 +2401,22 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                         }
                         break;
                     }
+                    case SceneViewer::TOOL_STAMP_COPY: {
+                        viewer->isSelecting  = true;
+                        viewer->selectSize.x = (sceneMousePos.x - viewer->selectPos.x) / 0x10;
+                        viewer->selectSize.y = (sceneMousePos.y - viewer->selectPos.y) / 0x10;
+
+                        float cx = viewer->selectPos.x;
+                        float cy = viewer->selectPos.y;
+                        if (viewer->selectSize.x < 0)
+                            cx -= fabsf(viewer->selectSize.x);
+                        if (viewer->selectSize.y < 0)
+                            cy -= fabsf(viewer->selectSize.y);
+
+                        cx += fabsf(viewer->selectSize.x) / 2;
+                        cy += fabsf(viewer->selectSize.y) / 2;
+                        break;
+                    }
                 }
             }
 
@@ -2367,7 +2434,15 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
             if (mouseDownL)
                 switch (viewer->curTool) {
                     case SceneViewer::TOOL_MOUSE: break;
-                    case SceneViewer::TOOL_SELECT: viewer->isSelecting = false; break;
+                    case SceneViewer::TOOL_SELECT:
+                        viewer->isSelecting = false; break;
+                    case SceneViewer::TOOL_STAMP_COPY: {
+                        viewer->isSelecting = false;
+                        AddStamp(viewer->selectPos.x - viewer->cameraPos.x, viewer->selectPos.y - viewer->cameraPos.y);
+                        viewer->selectSize.x = 0;
+                        viewer->selectSize.y = 0;
+                        break;
+                    }
                     case SceneViewer::TOOL_PENCIL: {
                         if (viewer->selectedTile != 0xFFFF && viewer->isSelecting) {
                             DoAction(QString("Placed Tile(s): (%1, %2)")
@@ -3479,6 +3554,113 @@ void SceneEditorv5::SetTile(float x, float y)
         }
     }
 }
+
+void SceneEditorv5::SetStamp(float x, float y)
+{
+    if (viewer->selectedLayer < 0)
+        return;
+    if (viewer->selectedStamp >= 0x400 && viewer->selectedStamp != 0xFFFF)
+        return;
+
+    int tx = x;
+    int ty = y;
+
+    tx *= viewer->invZoom();
+    ty *= viewer->invZoom();
+
+    int tx2 = tx + fmodf(viewer->cameraPos.x, 0x10);
+    int ty2 = ty + fmodf(viewer->cameraPos.y, 0x10);
+
+    // clip to grid
+    tx -= fmodf(tx2, 0x10);
+    ty -= fmodf(ty2, 0x10);
+
+    int xpos = tx + viewer->cameraPos.x;
+    int ypos = ty + viewer->cameraPos.y;
+
+    xpos /= 0x10;
+    ypos /= 0x10;
+
+    auto stamp = viewer->stamps.stampList[viewer->selectedStamp];
+
+    for(int y = 0; y < stamp.size.y; y++){
+        for(int x = 0; x < stamp.size.x; x++){
+            int tileXPos = stamp.pos.x + x;
+            int tileYPos = stamp.pos.y + y;
+
+            ushort tile = viewer->layers[viewer->selectedLayer].layout[tileYPos][tileXPos];
+
+            if (viewer->layers[viewer->selectedLayer].layout[tileYPos][tileXPos] != 0xFFFF) {
+                if (ypos + y >= 0 && ypos + y < viewer->layers[viewer->selectedLayer].height) {
+                    if (xpos + x >= 0 && xpos + x < viewer->layers[viewer->selectedLayer].width) {
+                        viewer->layers[viewer->selectedLayer].layout[ypos + y][xpos + x] = tile;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void SceneEditorv5::AddStamp(float x, float y)
+{
+    if (viewer->selectedLayer < 0)
+        return;
+    if (viewer->selectedStamp >= 0x400 && viewer->selectedStamp != 0xFFFF)
+        return;
+
+    int tx = x;
+    int ty = y;
+
+    tx *= viewer->invZoom();
+    ty *= viewer->invZoom();
+
+    int tx2 = tx + fmodf(viewer->cameraPos.x, 0x10);
+    int ty2 = ty + fmodf(viewer->cameraPos.y, 0x10);
+
+    // clip to grid
+    tx -= fmodf(tx2, 0x10);
+    ty -= fmodf(ty2, 0x10);
+
+    int xpos = tx + viewer->cameraPos.x;
+    int ypos = ty + viewer->cameraPos.y;
+
+    xpos /= 0x10;
+    ypos /= 0x10;
+
+    RSDKv5::Stamps::StampEntry stamp;
+    stamp.name = "New Stamp";
+    if (viewer->selectSize.x > 0) {
+        stamp.pos.x = xpos;
+        stamp.size.x = (int)viewer->selectSize.x;
+    } else {
+        stamp.pos.x = xpos + (int)viewer->selectSize.x;
+        stamp.size.x = -(int)viewer->selectSize.x;
+    }
+
+    if (viewer->selectSize.y > 0) {
+        stamp.pos.y = ypos;
+        stamp.size.y = (int)viewer->selectSize.y;
+    } else {
+        stamp.pos.y = ypos + (int)viewer->selectSize.y;
+        stamp.size.y = -(int)viewer->selectSize.y;
+    }
+
+    uint c = ui->stampList->count();
+    viewer->stamps.stampList.insert(c, stamp);
+
+    ui->stampList->blockSignals(true);
+
+    auto *item = new QListWidgetItem();
+    item->setText("New Stamp");
+    ui->stampList->addItem(item);
+    item->setFlags(item->flags());
+
+    ui->stampList->blockSignals(false);
+    ui->stampList->setCurrentItem(item);
+    DoAction("Add Stamp: " + stamp.name);
+}
+
+
 void SceneEditorv5::ResetTools(byte tool)
 {
     if (tool == 0xFF)
@@ -3491,6 +3673,7 @@ void SceneEditorv5::ResetTools(byte tool)
     ui->stampTool->blockSignals(true);
     ui->eraserTool->blockSignals(true);
     ui->entityTool->blockSignals(true);
+    ui->stampCopy->blockSignals(true);
 
     ui->panTool->setDown(false);
     ui->selectTool->setDown(false);
@@ -3498,6 +3681,7 @@ void SceneEditorv5::ResetTools(byte tool)
     ui->stampTool->setDown(false);
     ui->eraserTool->setDown(false);
     ui->entityTool->setDown(false);
+    ui->stampCopy->setDown(false);
 
     switch (tool) {
         default: break; // what
@@ -3507,6 +3691,7 @@ void SceneEditorv5::ResetTools(byte tool)
         case SceneViewer::TOOL_STAMP: ui->stampTool->setDown(true); break;
         case SceneViewer::TOOL_ERASER: ui->eraserTool->setDown(true); break;
         case SceneViewer::TOOL_ENTITY: ui->entityTool->setDown(true); break;
+        case SceneViewer::TOOL_STAMP_COPY: ui->stampCopy->setDown(true); break;
     }
 
     ui->panTool->blockSignals(false);
@@ -3515,6 +3700,7 @@ void SceneEditorv5::ResetTools(byte tool)
     ui->stampTool->blockSignals(false);
     ui->eraserTool->blockSignals(false);
     ui->entityTool->blockSignals(false);
+    ui->stampCopy->blockSignals(false);
 
     // Reset
     viewer->selectedObject      = -1;
