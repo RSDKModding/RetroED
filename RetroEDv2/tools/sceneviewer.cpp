@@ -318,6 +318,7 @@ void SceneViewer::updateScene()
                 status += QString(", Filter: %1").arg(sceneFilter);
         }
 
+        status += QString(", selectPos: %1 %2").arg(selectPos.x).arg(selectPos.y);
         status += QString(", FPS: %1").arg(fps, 0, 'f', 1);
         statusLabel->setText(status);
     }
@@ -1315,18 +1316,8 @@ void SceneViewer::drawScene()
     if (curTool == TOOL_STAMP_MAKER) {
 
         // Hover on the current tile postion
-        int tx;
-        int ty;
-        if (isSelecting){
-            tx = selectPos.x - cameraPos.x;
-            ty = selectPos.y - cameraPos.y;
-        } else {
-            tx = tilePos.x;
-            ty = tilePos.y;
-        }
-
-        tx *= iZoom;
-        ty *= iZoom;
+        int tx = selectPos.x * iZoom;
+        int ty = selectPos.y * iZoom;
 
         int tx2 = tx + fmodf(cameraPos.x, tileSize);
         int ty2 = ty + fmodf(cameraPos.y, tileSize);
@@ -1335,14 +1326,11 @@ void SceneViewer::drawScene()
         tx -= fmodf(tx2, tileSize);
         ty -= fmodf(ty2, tileSize);
 
-        int xpos = tx + cameraPos.x;
-        int ypos = ty + cameraPos.y;
+        int xpos = tx;
+        int ypos = ty;
 
-        xpos -= cameraPos.x;
-        ypos -= cameraPos.y;
-
-        int w = (int)selectSize.x * tileSize;
-        int h = (int)selectSize.y * tileSize;
+        int w = ((int)selectSize.x / 0x10) * tileSize;
+        int h = ((int)selectSize.y / 0x10) * tileSize;
 
         if (abs(w) < tileSize) {
             if (w > xpos) { w = -tileSize; }
@@ -2546,12 +2534,13 @@ void SceneViewer::drawRect(float x, float y, float w, float h, Vector4<float> co
                            int alpha, InkEffects inkEffect)
 {
     if (outline) {
+        int corner = 1 * invZoom();
         // top
         drawLine(x, y, x + w, y, color);
         // bottom
         drawLine(x, y + h, x + w, y + h, color);
         // left
-        drawLine(x, y, x, y + h + 1, color);
+        drawLine(x, y, x, y + h + corner, color);
         // right
         drawLine(x + w, y, x + w, y + h, color);
     }

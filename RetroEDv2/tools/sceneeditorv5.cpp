@@ -2049,8 +2049,6 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                     }
                     case SceneViewer::TOOL_STAMP_MAKER: {
                         viewer->isSelecting  = true;
-                        viewer->selectPos.x  = sceneMousePos.x;
-                        viewer->selectPos.y  = sceneMousePos.y;
                         viewer->selectSize.x = 0;
                         viewer->selectSize.y = 0;
                         viewer->selectedEntities.clear();
@@ -2278,8 +2276,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
             if (viewer->curTool == SceneViewer::TOOL_PENCIL
                 || viewer->curTool == SceneViewer::TOOL_ERASER
                 || viewer->curTool == SceneViewer::TOOL_ENTITY
-                || viewer->curTool == SceneViewer::TOOL_STAMP
-                || viewer->curTool == SceneViewer::TOOL_STAMP_MAKER) {
+                || viewer->curTool == SceneViewer::TOOL_STAMP) {
                 viewer->tilePos.x = viewer->mousePos.x;
                 viewer->tilePos.y = viewer->mousePos.y;
 
@@ -2297,6 +2294,12 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                         viewer->tilePos.y -= fmodf(viewer->tilePos.y + camOffY, viewer->gridSize.y);
                     }
                 }
+            }
+
+            if (viewer->curTool == SceneViewer::TOOL_STAMP_MAKER && !viewer->isSelecting)
+            {
+                viewer->selectPos.x  = viewer->mousePos.x;
+                viewer->selectPos.y  = viewer->mousePos.y;
             }
 
             // Hover
@@ -2403,18 +2406,14 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                     }
                     case SceneViewer::TOOL_STAMP_MAKER: {
                         viewer->isSelecting  = true;
-                        viewer->selectSize.x = (sceneMousePos.x - viewer->selectPos.x) / 0x10;
-                        viewer->selectSize.y = (sceneMousePos.y - viewer->selectPos.y) / 0x10;
+                        viewer->selectSize.x = viewer->mousePos.x - viewer->selectPos.x;
+                        viewer->selectSize.y = viewer->mousePos.y - viewer->selectPos.y;
 
-                        float cx = viewer->selectPos.x;
-                        float cy = viewer->selectPos.y;
-                        if (viewer->selectSize.x < 0)
-                            cx -= fabsf(viewer->selectSize.x);
-                        if (viewer->selectSize.y < 0)
-                            cy -= fabsf(viewer->selectSize.y);
+                        viewer->selectSize.x += (viewer->selectSize.x >= 0 ? 0x10 : -0x10) / viewer->invZoom();
+                        viewer->selectSize.y += (viewer->selectSize.y >= 0 ? 0x10 : -0x10) / viewer->invZoom();
 
-                        cx += fabsf(viewer->selectSize.x) / 2;
-                        cy += fabsf(viewer->selectSize.y) / 2;
+                        viewer->selectSize.x *= viewer->invZoom();
+                        viewer->selectSize.y *= viewer->invZoom();
                         break;
                     }
                 }
@@ -2438,9 +2437,11 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                         viewer->isSelecting = false; break;
                     case SceneViewer::TOOL_STAMP_MAKER: {
                         viewer->isSelecting = false;
-                        AddStamp(viewer->selectPos.x - viewer->cameraPos.x, viewer->selectPos.y - viewer->cameraPos.y);
+                        AddStamp(viewer->selectPos.x, viewer->selectPos.y);
                         viewer->selectSize.x = 0;
                         viewer->selectSize.y = 0;
+                        viewer->selectPos.x = viewer->mousePos.x;
+                        viewer->selectPos.y = viewer->mousePos.y;
                         break;
                     }
                     case SceneViewer::TOOL_PENCIL: {
@@ -3627,24 +3628,26 @@ void SceneEditorv5::AddStamp(float x, float y)
     xpos /= 0x10;
     ypos /= 0x10;
 
+    int w = ((int)viewer->selectSize.x / 0x10);
+    int h = ((int)viewer->selectSize.y / 0x10);
+
     RSDKv5::Stamps::StampEntry stamp;
     stamp.name = "New Stamp";
-    if (viewer->selectSize.x > 0) {
+    if (w > 0) {
         stamp.pos.x = xpos;
-        stamp.size.x = (int)viewer->selectSize.x;
+        stamp.size.x = w;
     } else {
-        stamp.pos.x = xpos + (int)viewer->selectSize.x;
-        stamp.size.x = -(int)viewer->selectSize.x;
+        stamp.pos.x = xpos + w;
+        stamp.size.x = -w;
     }
 
-    if (viewer->selectSize.y > 0) {
+    if (h > 0) {
         stamp.pos.y = ypos;
-        stamp.size.y = (int)viewer->selectSize.y;
+        stamp.size.y = h;
     } else {
-        stamp.pos.y = ypos + (int)viewer->selectSize.y;
-        stamp.size.y = -(int)viewer->selectSize.y;
+        stamp.pos.y = ypos + h;
+        stamp.size.y = -h;
     }
-
     uint c = ui->stampList->count();
     viewer->stamps.stampList.insert(c, stamp);
 
