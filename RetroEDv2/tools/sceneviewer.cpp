@@ -1194,17 +1194,29 @@ void SceneViewer::drawScene()
     if (selectedStamp >= 0 && selectedStamp < stamps.stampList.count()) {
         RSDKv5::Stamps::StampEntry &stamp = stamps.stampList[selectedStamp];
 
-        float left   = stamp.pos.x * 16;
-        float top    = stamp.pos.y * 16;
-        float right  = stamp.pos.x * 16 + (stamp.size.x * 16);
-        float bottom = stamp.pos.y * 16 + (stamp.size.y * 16);
+        float left   = stamp.pos.x;
+        float top    = stamp.pos.y;
+        float right  = stamp.pos.x + stamp.size.x;
+        float bottom = stamp.pos.y + stamp.size.y;
 
-        float w = fabsf(right - left), h = fabsf(bottom - top);
+        float w = fabsf((right - left) * 16), h = fabsf((bottom - top) * 16);
 
-        drawRect(left - cameraPos.x, top - cameraPos.y, w, h, Vector4<float>(1.0f, 1.0f, 0.0f, 1.0f),
-                 false, 0x40, INK_ALPHA);
-        drawRect(left - cameraPos.x, top - cameraPos.y, w, h, Vector4<float>(1.0f, 1.0f, 0.0f, 1.0f),
-                 true);
+
+        Vector4<float> c = {1.0f, 1.0f, 0.0f, 1.0f};
+
+        int lyrWidth = layers[selectedLayer].width;
+        int lyrHeight = layers[selectedLayer].height;
+        if (left < 0 || left > lyrWidth || right < 0 || right > lyrWidth ||
+            top < 0 || top > lyrHeight || bottom < 0 || bottom > lyrHeight)
+            c = {1.0f, 0.0f, 0.0f, 1.0f};
+
+        left *= 16; top *= 16; right *= 16; bottom *= 16;
+
+        left -= cameraPos.x;
+        top -= cameraPos.y;
+
+        drawRect(left, top, w, h, c, false, 0x40, INK_ALPHA);
+        drawRect(left, top, w, h, c, true);
     }
 
     // STAMP PREVIEW
@@ -1231,11 +1243,26 @@ void SceneViewer::drawScene()
 
         int count = 0;
         auto stamp = stamps.stampList[selectedStamp];
+
+        // Invalid draw position prevention
+        if (0 > stamp.pos.x || stamp.pos.x + stamp.size.x > layers[selectedLayer].width ||
+            0 > stamp.pos.y || stamp.pos.y + stamp.size.y > layers[selectedLayer].height){
+
+            PlaceArgs args;
+            args.texID = 0;
+
+            renderCount -= count * 4;
+            addRenderState(INK_BLEND, count * 4, count * 6, &args, 0xFF, &placeShader);
+            renderCount += count * 4;
+            drawRect(xpos, ypos, stamp.size.x * tileSize, stamp.size.y * tileSize, Vector4<float>(1.0f, 0.0f, 0.0f, 1.0f),
+                     true, 0x40, INK_ALPHA);
+            return;
+        }
+
         for(int y = 0; y < stamp.size.y; y++){
             for(int x = 0; x < stamp.size.x; x++){
                 int tileXPos = stamp.pos.x + x;
                 int tileYPos = stamp.pos.y + y;
-
                 ushort tile = layers[selectedLayer].layout[tileYPos][tileXPos];
                 if (tile != 0xFFFF) {
                     ++count;

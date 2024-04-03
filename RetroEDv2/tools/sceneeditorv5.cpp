@@ -3584,6 +3584,13 @@ void SceneEditorv5::SetStamp(float x, float y)
 
     auto stamp = viewer->stamps.stampList[viewer->selectedStamp];
 
+    // Invalid stamp position prevention
+    if (0 > stamp.pos.x || stamp.pos.x + stamp.size.x > viewer->layers[viewer->selectedLayer].width ||
+        0 > stamp.pos.y || stamp.pos.y + stamp.size.y > viewer->layers[viewer->selectedLayer].height){
+        SetStatus("Invalid stamp position in current layer");
+        return;
+    }
+
     for(int y = 0; y < stamp.size.y; y++){
         for(int x = 0; x < stamp.size.x; x++){
             int tileXPos = stamp.pos.x + x;
