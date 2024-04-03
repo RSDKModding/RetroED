@@ -1085,7 +1085,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
     connect(scnProp->stampNameEdit, &QLineEdit::textChanged, [this](QString s) {
         viewer->metadata.stampName = s;
-        // DoAction();
     });
 
     connect(scnProp->loadStamps, &QPushButton::clicked, [this] {
@@ -3667,7 +3666,6 @@ void SceneEditorv5::AddStamp(float x, float y)
 
     ui->stampList->blockSignals(false);
     ui->stampList->setCurrentItem(item);
-    DoAction("Add Stamp: " + stamp.name);
 }
 
 

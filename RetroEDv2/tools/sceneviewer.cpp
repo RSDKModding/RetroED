@@ -317,8 +317,6 @@ void SceneViewer::updateScene()
             if (engineRevision != 1)
                 status += QString(", Filter: %1").arg(sceneFilter);
         }
-
-        status += QString(", selectPos: %1 %2").arg(selectPos.x).arg(selectPos.y);
         status += QString(", FPS: %1").arg(fps, 0, 'f', 1);
         statusLabel->setText(status);
     }
