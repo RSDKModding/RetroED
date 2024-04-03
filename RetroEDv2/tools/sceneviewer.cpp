@@ -1241,12 +1241,41 @@ void SceneViewer::drawScene()
         xpos -= cameraPos.x;
         ypos -= cameraPos.y;
 
-        int count = 0;
         auto stamp = stamps.stampList[selectedStamp];
 
         // Invalid draw position prevention
         if (0 > stamp.pos.x || stamp.pos.x + stamp.size.x > layers[selectedLayer].width ||
             0 > stamp.pos.y || stamp.pos.y + stamp.size.y > layers[selectedLayer].height){
+
+            drawRect(xpos, ypos, stamp.size.x * tileSize, stamp.size.y * tileSize, Vector4<float>(1.0f, 0.0f, 0.0f, 1.0f),
+                     true, 0x40, INK_ALPHA);
+        }
+        else {
+            int count = 0;
+            for(int y = 0; y < stamp.size.y; y++){
+                for(int x = 0; x < stamp.size.x; x++){
+                    int tileXPos = stamp.pos.x + x;
+                    int tileYPos = stamp.pos.y + y;
+                    ushort tile = layers[selectedLayer].layout[tileYPos][tileXPos];
+                    if (tile != 0xFFFF) {
+                        ++count;
+
+                        float tileX                       = xpos + (x * tileSize);
+                        float tileY                       = ypos + (y * tileSize);
+
+                        int flipX = Utils::getBit(tile, 10);
+                        int flipY = Utils::getBit(tile, 11);
+                        byte f       = flipX | (flipY << 1);
+                        ushort point = ((tile & 0x3FF) << 2) | (f << 12);
+                        addPoly(tileX, tileY, tileUVArray[point], tileUVArray[point + 1], 0, gfxSurface);
+                        addPoly(tileX + 0x10, tileY, tileUVArray[point + 2], tileUVArray[point + 1], 0, gfxSurface);
+                        addPoly(tileX, tileY + 0x10, tileUVArray[point], tileUVArray[point + 3], 0, gfxSurface);
+                        addPoly(tileX + 0x10, tileY + 0x10, tileUVArray[point + 2], tileUVArray[point + 3], 0,
+                                gfxSurface);
+                    }
+                }
+
+            }
 
             PlaceArgs args;
             args.texID = 0;
@@ -1254,44 +1283,9 @@ void SceneViewer::drawScene()
             renderCount -= count * 4;
             addRenderState(INK_BLEND, count * 4, count * 6, &args, 0xFF, &placeShader);
             renderCount += count * 4;
-            drawRect(xpos, ypos, stamp.size.x * tileSize, stamp.size.y * tileSize, Vector4<float>(1.0f, 0.0f, 0.0f, 1.0f),
+            drawRect(xpos, ypos, stamp.size.x * tileSize, stamp.size.y * tileSize, Vector4<float>(0.0f, 1.0f, 0.0f, 1.0f),
                      true, 0x40, INK_ALPHA);
-            return;
         }
-
-        for(int y = 0; y < stamp.size.y; y++){
-            for(int x = 0; x < stamp.size.x; x++){
-                int tileXPos = stamp.pos.x + x;
-                int tileYPos = stamp.pos.y + y;
-                ushort tile = layers[selectedLayer].layout[tileYPos][tileXPos];
-                if (tile != 0xFFFF) {
-                    ++count;
-
-                    float tileX                       = xpos + (x * tileSize);
-                    float tileY                       = ypos + (y * tileSize);
-
-                    int flipX = Utils::getBit(tile, 10);
-                    int flipY = Utils::getBit(tile, 11);
-                    byte f       = flipX | (flipY << 1);
-                    ushort point = ((tile & 0x3FF) << 2) | (f << 12);
-                    addPoly(tileX, tileY, tileUVArray[point], tileUVArray[point + 1], 0, gfxSurface);
-                    addPoly(tileX + 0x10, tileY, tileUVArray[point + 2], tileUVArray[point + 1], 0, gfxSurface);
-                    addPoly(tileX, tileY + 0x10, tileUVArray[point], tileUVArray[point + 3], 0, gfxSurface);
-                    addPoly(tileX + 0x10, tileY + 0x10, tileUVArray[point + 2], tileUVArray[point + 3], 0,
-                            gfxSurface);
-                }
-            }
-
-        }
-
-        PlaceArgs args;
-        args.texID = 0;
-
-        renderCount -= count * 4;
-        addRenderState(INK_BLEND, count * 4, count * 6, &args, 0xFF, &placeShader);
-        renderCount += count * 4;
-        drawRect(xpos, ypos, stamp.size.x * tileSize, stamp.size.y * tileSize, Vector4<float>(0.0f, 1.0f, 0.0f, 1.0f),
-                 true, 0x40, INK_ALPHA);
     }
 
     // Selected Entity Box (Single)
