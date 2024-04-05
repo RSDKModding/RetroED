@@ -117,6 +117,8 @@ public:
     void SaveScene(QString path);
 
     void SetTile(float x, float y);
+    void SetStamp(float x, float y);
+    void AddStamp(float x, float y);
     void ResetTools(byte tool);
 
     bool HandleKeyPress(QKeyEvent *event);
@@ -155,6 +157,7 @@ signals:
 
 public slots:
     void updateType(SceneEntity *entity, byte type);
+    void updateStampName(QString name);
     void updateTileSel();
 
 protected:

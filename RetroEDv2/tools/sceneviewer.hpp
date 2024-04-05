@@ -20,6 +20,7 @@ public:
         TOOL_STAMP,
         TOOL_ERASER,
         TOOL_ENTITY,
+        TOOL_STAMP_MAKER,
     };
 
     enum EventTypes {
@@ -164,9 +165,9 @@ public:
     Vector2<bool> tileSolidB = Vector2<bool>(false, false);
     ushort selectedTile      = 0xFFFF;
     ushort selectedChunk     = 0xFFFF;
-    int selectedLayer        = -1;
+    ushort selectedStamp     = 0xFFFF;
 
-    int selectedStamp = -1;
+    int selectedLayer        = -1;
 
     // Collision
     bool showPlaneA = false;

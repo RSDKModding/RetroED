@@ -3,6 +3,8 @@
 #include "scenestamppropertiesv5.hpp"
 
 #include <RSDKv5/stamps.hpp>
+#include "tools/sceneviewer.hpp"
+
 
 SceneStampPropertiesv5::SceneStampPropertiesv5(QWidget *parent)
     : QWidget(parent), ui(new Ui::SceneStampPropertiesv5)
@@ -31,7 +33,7 @@ void SceneStampPropertiesv5::setupUI(RSDKv5::Stamps *stamps, int id)
     ui->stampID->setText("Stamp ID: " + QString::number(id));
 
     connect(ui->stampName, &QLineEdit::textChanged,
-            [stamps, id](QString s) { stamps->stampList[id].name = s; });
+            [stamps, id, this](QString s) { stamps->stampList[id].name = s; emit stampNameChanged(s);});
 
     connect(ui->stampX, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             [stamps, id](double v) { stamps->stampList[id].pos.x = v; });
@@ -45,6 +47,7 @@ void SceneStampPropertiesv5::setupUI(RSDKv5::Stamps *stamps, int id)
     connect(ui->stampSizeY, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             [stamps, id](double v) { stamps->stampList[id].size.y = v; });
 }
+
 void SceneStampPropertiesv5::unsetUI()
 {
     if (!stampsPtr) // already unset

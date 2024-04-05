@@ -312,9 +312,11 @@ void SceneViewer::updateScene()
                 .arg(selectedObject >= 0 && selectedObject < objects.count()
                          ? objects[selectedObject].name
                          : "[None]");
-        if (gameType == ENGINE_v5 && engineRevision != 1)
-            status += QString(", Filter: %1").arg(sceneFilter);
-
+        if (gameType == ENGINE_v5){
+            status += QString(", Selected Stamp: %1").arg(selectedStamp);
+            if (engineRevision != 1)
+                status += QString(", Filter: %1").arg(sceneFilter);
+        }
         status += QString(", FPS: %1").arg(fps, 0, 'f', 1);
         statusLabel->setText(status);
     }
@@ -1190,18 +1192,98 @@ void SceneViewer::drawScene()
     if (selectedStamp >= 0 && selectedStamp < stamps.stampList.count()) {
         RSDKv5::Stamps::StampEntry &stamp = stamps.stampList[selectedStamp];
 
-        float left   = stamp.pos.x - (stamp.size.x / 2.0f);
-        float top    = stamp.pos.y - (stamp.size.y / 2.0f);
-        float right  = stamp.pos.x + (stamp.size.x / 2.0f);
-        float bottom = stamp.pos.y + (stamp.size.y / 2.0f);
+        float left   = stamp.pos.x;
+        float top    = stamp.pos.y;
+        float right  = stamp.pos.x + stamp.size.x;
+        float bottom = stamp.pos.y + stamp.size.y;
 
-        float w = fabsf(right - left), h = fabsf(bottom - top);
-        gfxSurface[0].texturePtr->bind();
+        float w = fabsf((right - left) * 16), h = fabsf((bottom - top) * 16);
 
-        drawRect(left - cameraPos.x, top - cameraPos.y, w, h, Vector4<float>(1.0f, 0.0f, 0.0f, 1.0f),
-                 false, 0x40, INK_ALPHA);
-        drawRect(left - cameraPos.x, top - cameraPos.y, w, h, Vector4<float>(1.0f, 0.0f, 0.0f, 1.0f),
-                 true);
+
+        Vector4<float> c = {1.0f, 1.0f, 0.0f, 1.0f};
+
+        int lyrWidth = layers[selectedLayer].width;
+        int lyrHeight = layers[selectedLayer].height;
+        if (left < 0 || left > lyrWidth || right < 0 || right > lyrWidth ||
+            top < 0 || top > lyrHeight || bottom < 0 || bottom > lyrHeight)
+            c = {1.0f, 0.0f, 0.0f, 1.0f};
+
+        left *= 16; top *= 16; right *= 16; bottom *= 16;
+
+        left -= cameraPos.x;
+        top -= cameraPos.y;
+
+        drawRect(left, top, w, h, c, false, 0x40, INK_ALPHA);
+        drawRect(left, top, w, h, c, true);
+    }
+
+    // STAMP PREVIEW
+    if ((selectedStamp != 0xFFFF) && (selectedLayer >= 0 && layers[selectedLayer].visible) && curTool == TOOL_STAMP) {
+        float tx = tilePos.x;
+        float ty = tilePos.y;
+
+        tx *= iZoom;
+        ty *= iZoom;
+
+        float tx2 = tx + fmodf(cameraPos.x, tileSize);
+        float ty2 = ty + fmodf(cameraPos.y, tileSize);
+
+        // clip to grid
+        tx -= fmodf(tx2, tileSize);
+        ty -= fmodf(ty2, tileSize);
+
+        // Draw Selected Tile Preview
+        float xpos = tx + cameraPos.x;
+        float ypos = ty + cameraPos.y;
+
+        xpos -= cameraPos.x;
+        ypos -= cameraPos.y;
+
+        auto stamp = stamps.stampList[selectedStamp];
+
+        // Invalid draw position prevention
+        if (0 > stamp.pos.x || stamp.pos.x + stamp.size.x > layers[selectedLayer].width ||
+            0 > stamp.pos.y || stamp.pos.y + stamp.size.y > layers[selectedLayer].height){
+
+            drawRect(xpos, ypos, stamp.size.x * tileSize, stamp.size.y * tileSize, Vector4<float>(1.0f, 0.0f, 0.0f, 1.0f),
+                     true, 0x40, INK_ALPHA);
+        }
+        else {
+            int count = 0;
+            for(int y = 0; y < stamp.size.y; y++){
+                for(int x = 0; x < stamp.size.x; x++){
+                    int tileXPos = stamp.pos.x + x;
+                    int tileYPos = stamp.pos.y + y;
+                    ushort tile = layers[selectedLayer].layout[tileYPos][tileXPos];
+                    if (tile != 0xFFFF) {
+                        ++count;
+
+                        float tileX                       = xpos + (x * tileSize);
+                        float tileY                       = ypos + (y * tileSize);
+
+                        int flipX = Utils::getBit(tile, 10);
+                        int flipY = Utils::getBit(tile, 11);
+                        byte f       = flipX | (flipY << 1);
+                        ushort point = ((tile & 0x3FF) << 2) | (f << 12);
+                        addPoly(tileX, tileY, tileUVArray[point], tileUVArray[point + 1], 0, gfxSurface);
+                        addPoly(tileX + 0x10, tileY, tileUVArray[point + 2], tileUVArray[point + 1], 0, gfxSurface);
+                        addPoly(tileX, tileY + 0x10, tileUVArray[point], tileUVArray[point + 3], 0, gfxSurface);
+                        addPoly(tileX + 0x10, tileY + 0x10, tileUVArray[point + 2], tileUVArray[point + 3], 0,
+                                gfxSurface);
+                    }
+                }
+
+            }
+
+            PlaceArgs args;
+            args.texID = 0;
+
+            renderCount -= count * 4;
+            addRenderState(INK_BLEND, count * 4, count * 6, &args, 0xFF, &placeShader);
+            renderCount += count * 4;
+            drawRect(xpos, ypos, stamp.size.x * tileSize, stamp.size.y * tileSize, Vector4<float>(0.0f, 1.0f, 0.0f, 1.0f),
+                     true, 0x40, INK_ALPHA);
+        }
     }
 
     // Selected Entity Box (Single)
@@ -1247,6 +1329,40 @@ void SceneViewer::drawScene()
             drawRect(left - cameraPos.x, top - cameraPos.y, w, h,
                      Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f), true);
         }
+    }
+
+    // Selected Stamp Maker
+    if (curTool == TOOL_STAMP_MAKER) {
+
+        // Hover on the current tile postion
+        int tx = selectPos.x * iZoom;
+        int ty = selectPos.y * iZoom;
+
+        int tx2 = tx + fmodf(cameraPos.x, tileSize);
+        int ty2 = ty + fmodf(cameraPos.y, tileSize);
+
+        // clip to grid
+        tx -= fmodf(tx2, tileSize);
+        ty -= fmodf(ty2, tileSize);
+
+        int xpos = tx;
+        int ypos = ty;
+
+        int w = ((int)selectSize.x / 0x10) * tileSize;
+        int h = ((int)selectSize.y / 0x10) * tileSize;
+
+        if (abs(w) < tileSize) {
+            if (w > xpos) { w = -tileSize; }
+            else { w = tileSize; }
+        }
+        if (abs(h) < tileSize) {
+            if (h > ypos) { h = -tileSize; }
+            else { h = tileSize; }
+        }
+
+        drawRect(xpos, ypos, w, h, Vector4<float>(1.0f, 1.0f, 0.0f, 1.0f), false, 0x40,
+                 INK_ALPHA);
+        drawRect(xpos, ypos, w, h, Vector4<float>(1.0f, 1.0f, 0.0f, 1.0f), true);
     }
 
     renderRenderStates();
@@ -2437,12 +2553,13 @@ void SceneViewer::drawRect(float x, float y, float w, float h, Vector4<float> co
                            int alpha, InkEffects inkEffect)
 {
     if (outline) {
+        int corner = 1 * invZoom();
         // top
         drawLine(x, y, x + w, y, color);
         // bottom
         drawLine(x, y + h, x + w, y + h, color);
         // left
-        drawLine(x, y, x, y + h + 1, color);
+        drawLine(x, y, x, y + h + corner, color);
         // right
         drawLine(x + w, y, x + w, y + h, color);
     }

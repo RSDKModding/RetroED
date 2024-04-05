@@ -23,7 +23,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="layerPage">
       <property name="geometry">
@@ -88,6 +88,9 @@
        </item>
        <item row="2" column="2">
         <widget class="QToolButton" name="rmObj">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="toolTip">
           <string>Removes an object type</string>
          </property>
@@ -168,6 +171,9 @@
        </item>
        <item row="2" column="5">
         <widget class="QToolButton" name="rmEnt">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="toolTip">
           <string>Removes an entity</string>
          </property>
@@ -248,6 +254,9 @@
        </item>
        <item row="1" column="5">
         <widget class="QToolButton" name="rmScrH">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="toolTip">
           <string>Removes a horizontal parallax entry</string>
          </property>
@@ -416,6 +425,9 @@
        </item>
        <item row="1" column="5">
         <widget class="QToolButton" name="rmScrV">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="toolTip">
           <string>Removes a parallax entry</string>
          </property>
