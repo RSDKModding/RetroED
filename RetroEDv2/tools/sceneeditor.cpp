@@ -2335,6 +2335,17 @@ void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
     ui->toolBox->setCurrentIndex(0);
     ui->propertiesBox->setCurrentIndex(0);
 
+    ui->showCollisionA->blockSignals(true);
+    ui->showCollisionB->blockSignals(true);
+
+    ui->showCollisionA->setChecked(false);
+    ui->showCollisionB->setChecked(false);
+    viewer->showPlaneA = false;
+    viewer->showPlaneB = false;
+
+    ui->showCollisionA->blockSignals(false);
+    ui->showCollisionB->blockSignals(false);
+
     scnProp->setupUI(&scene, viewer->gameType);
     lyrProp->setupUI(viewer, 0);
 

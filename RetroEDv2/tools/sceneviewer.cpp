@@ -1692,6 +1692,9 @@ void SceneViewer::unloadScene()
     sceneBoundsB = 0;
     prevStoredW  = -1;
     prevStoredH  = -1;
+
+    updateCTex[0] = false;
+    updateCTex[1] = false;
 }
 
 void SceneViewer::processObjects(bool isImage)
