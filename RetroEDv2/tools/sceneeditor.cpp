@@ -2041,8 +2041,8 @@ void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
         tileconfig.read(pathTCF);
         stageConfig.read(gameType, pathSCF);
 
-        for (int c = 0; c < 0x400; ++c) {
-            for (int p = 0; p < 2; ++p) {
+        for (int p = 0; p < 2; ++p) {
+            for (int c = 0; c < 0x400; ++c) {
                  auto *dstTile = &viewer->tileconfigv1.collisionPaths[p][c];
                  auto *srcTile = &tileconfig.collisionPaths[p][c];
 
@@ -2577,8 +2577,8 @@ bool SceneEditor::SaveScene(bool forceSaveAs)
     else {
         RSDKv1::TileConfig tileconfig;
 
-        for (int c = 0; c < 0x400; ++c) {
-            for (int p = 0; p < 2; ++p) {
+        for (int p = 0; p < 2; ++p) {
+            for (int c = 0; c < 0x400; ++c) {
                 auto *dstTile = &tileconfig.collisionPaths[p][c];
                  auto *srcTile = &viewer->tileconfigv1.collisionPaths[p][c];
 
@@ -4816,7 +4816,7 @@ ushort SceneEditor::LoadSpriteSheet(QString filename)
         }
     }
 
-    ushort id = -1;
+    ushort id = 0;
     for (; id < v5_SURFACE_MAX; ++id) {
         if (viewer->gfxSurface[id].scope == SCOPE_NONE)
             break;
