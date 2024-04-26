@@ -2,24 +2,25 @@
 
 #include <QWidget>
 
-#include <RSDKv5/tileconfigv5.hpp>
+#include <RSDKv1/tileconfigv1.hpp>
 #include "tools/sceneviewer.hpp"
 
 namespace Ui
 {
-class ChunkCollisionEditor;
+class ChunkCollisionEditorv1;
 }
 
-class ChunkColViewer : public QLabel
+class ChunkColViewerv1 : public QLabel
 {
     Q_OBJECT
 public:
-    ChunkColViewer(ushort *cSel, FormatHelpers::Chunks *chk, QList<QImage> tiles, bool drawChk = false, QWidget *parent = nullptr)
+    ChunkColViewerv1(ushort *cSel, FormatHelpers::Chunks *chk, QList<QImage> tiles, bool drawChk = false, QWidget *parent = nullptr)
         : QLabel(parent), cSel(cSel), tiles(tiles), chunks(chk), drawChk(drawChk)
     {
     }
-    RSDKv5::TileConfig::CollisionMask *cmask[2][1024];
+    RSDKv1::TileConfig::CollisionMask *cmask[2][1024];
     int collisionLyr;
+    int maskIndex;
 
     Vector2<int> offset = Vector2<int>(0, 0);
 
@@ -47,13 +48,14 @@ private:
     bool drawChk = false;
 };
 
-class ChunkColEdit : public QWidget
+class ChunkColEditv1 : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ChunkColEdit(QWidget *parent = nullptr);
-    RSDKv5::TileConfig::CollisionMask *cmask = nullptr;
+    explicit ChunkColEditv1(QWidget *parent = nullptr);
+    RSDKv1::TileConfig::CollisionMask *cmask = nullptr;
     QImage tileImg;
+    byte maskIndex;
 
 protected:
     void paintEvent(QPaintEvent *) override;
@@ -74,15 +76,16 @@ private:
     bool enabling = false;
 };
 
-class ChunkCollisionEditor : public QDialog
+class ChunkCollisionEditorv1 : public QDialog
 {
     Q_OBJECT
 public:
-    explicit ChunkCollisionEditor(FormatHelpers::Chunks *chk, ushort curChunk, QList<QImage> &tiles, SceneViewer *viewer);
-    ~ChunkCollisionEditor();
-    RSDKv5::TileConfig::CollisionMask *cmask[2][1024];
+    explicit ChunkCollisionEditorv1(FormatHelpers::Chunks *chk, ushort curChunk, QList<QImage> &tiles, SceneViewer *viewer);
+    ~ChunkCollisionEditorv1();
+    RSDKv1::TileConfig::CollisionMask *cmask[2][1024];
 
     byte defaultVisualPlane   =  0;
+    byte maskIndex            =  0;
     ushort selectedChunk      = -1;
     int selectedDrawTile      = -1;
 protected:
@@ -92,17 +95,17 @@ public slots:
     void changeSelTile(int c);
 
 private:
-    Ui::ChunkCollisionEditor *ui;
+    Ui::ChunkCollisionEditorv1 *ui;
 
-    ChunkColViewer *collisionViewer  = nullptr;
-    ChunkColViewer *chunkViewer  = nullptr;
-    ChunkColEdit *colEdit  = nullptr;
+    ChunkColViewerv1 *collisionViewer  = nullptr;
+    ChunkColViewerv1 *chunkViewer  = nullptr;
+    ChunkColEditv1 *colEdit  = nullptr;
     FormatHelpers::Chunks *chunks = nullptr;
 
     QList<QImage> &tileList;
     byte collisionLyr   =  0;
     QImage imageTileList[64];
     ushort storedTileList[64];
-    RSDKv5::TileConfig::CollisionMask *chunkColMask[2][64];
+    RSDKv1::TileConfig::CollisionMask *chunkColMask[2][64];
 
 };

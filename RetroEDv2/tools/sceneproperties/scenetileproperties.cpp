@@ -2,7 +2,9 @@
 #include "ui_scenetileproperties.h"
 #include "scenetileproperties.hpp"
 #include "chunkcollisioneditor.hpp"
+#include "chunkcollisioneditorv1.hpp"
 
+#include <RSDKv1/tileconfigv1.hpp>
 #include <RSDKv5/tileconfigv5.hpp>
 #include "tools/sceneviewer.hpp"
 
@@ -14,29 +16,37 @@ SceneTileProperties::SceneTileProperties(QWidget *parent)
 
 SceneTileProperties::~SceneTileProperties() { delete ui; }
 
-void SceneTileProperties::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
-                                  RSDKv5::TileConfig::CollisionMask *cmB, ushort tid, QList<QImage> &tiles, SceneViewer *viewer)
+void SceneTileProperties::setupUI(ushort tid, QList<QImage> &tiles, SceneViewer *viewer, byte engineVer)
 {
     unsetUI();
 
-    if (!cmA || !cmB)
+    if (!viewer)
         return;
-    cmask[0] = cmA;
-    cmask[1] = cmB;
 
     tileImg = tiles[0];
 
     collisionLyr = 0;
+    selectedDrawTile = 0;
+    edit = new TileCollisionWidget();
+
+    gameType = engineVer;
+
+    if (gameType == ENGINE_v1){
+        setColMask(&viewer->tileconfigv1.collisionPaths[0][0], &viewer->tileconfigv1.collisionPaths[1][0]);
+        edit->cmaskv1 = cmaskv1[collisionLyr];
+        ui->AngleFrame->setDisabled(true);
+    }
+    else {
+        setColMask(&viewer->tileconfig.collisionPaths[0][0], &viewer->tileconfig.collisionPaths[1][0]);
+        edit->cmask   = cmask[collisionLyr];
+        ui->RSonicFrame->setDisabled(true);
+    }
+    edit->paintVer            = gameType;
+    edit->tileImg             = tileImg;
+    ui->tileFrame->layout()->addWidget(edit);
 
     ui->colPlaneA->setChecked(true);
 
-    ui->maskDir->setCurrentIndex(cmask[collisionLyr]->direction);
-
-    ui->behaviour->setValue(cmask[collisionLyr]->flags);
-    ui->floorAngle->setValue(cmask[collisionLyr]->floorAngle);
-    ui->roofAngle->setValue(cmask[collisionLyr]->roofAngle);
-    ui->lWallAngle->setValue(cmask[collisionLyr]->lWallAngle);
-    ui->rWallAngle->setValue(cmask[collisionLyr]->rWallAngle);
 
     ui->tID->setText("Tile ID: " + QString::number(tid));
 
@@ -51,30 +61,25 @@ void SceneTileProperties::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
 
         ui->colPlaneB->blockSignals(true);
 
-        ui->maskDir->blockSignals(true);
-        ui->behaviour->blockSignals(true);
-        ui->floorAngle->blockSignals(true);
-        ui->roofAngle->blockSignals(true);
-        ui->lWallAngle->blockSignals(true);
-        ui->rWallAngle->blockSignals(true);
+        ui->AngleFrame->blockSignals(true);
 
         ui->colPlaneB->setChecked(false);
-        ui->maskDir->setCurrentIndex(cmask[collisionLyr]->direction);
-        ui->behaviour->setValue(cmask[collisionLyr]->flags);
-        ui->floorAngle->setValue(cmask[collisionLyr]->floorAngle);
-        ui->roofAngle->setValue(cmask[collisionLyr]->roofAngle);
-        ui->lWallAngle->setValue(cmask[collisionLyr]->lWallAngle);
-        ui->rWallAngle->setValue(cmask[collisionLyr]->rWallAngle);
+        if (gameType == ENGINE_v1){
+            ui->colMode->setCurrentIndex(cmaskv1[collisionLyr]->collisionMode);
+            edit->cmaskv1             = cmaskv1[collisionLyr];
+        } else {
+            ui->maskDir->setCurrentIndex(cmask[collisionLyr]->direction);
+            ui->behaviour->setValue(cmask[collisionLyr]->flags);
+            ui->floorAngle->setValue(cmask[collisionLyr]->floorAngle);
+            ui->roofAngle->setValue(cmask[collisionLyr]->roofAngle);
+            ui->lWallAngle->setValue(cmask[collisionLyr]->lWallAngle);
+            ui->rWallAngle->setValue(cmask[collisionLyr]->rWallAngle);
+            edit->cmask               = cmask[collisionLyr];
+        }
 
-        ui->maskDir->blockSignals(false);
-        ui->behaviour->blockSignals(false);
-        ui->floorAngle->blockSignals(false);
-        ui->roofAngle->blockSignals(false);
-        ui->lWallAngle->blockSignals(false);
-        ui->rWallAngle->blockSignals(false);
+        ui->AngleFrame->blockSignals(false);
 
         ui->colPlaneB->blockSignals(false);
-        edit->cmask               = cmask[collisionLyr];
         edit->update();
     });
 
@@ -83,35 +88,29 @@ void SceneTileProperties::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
 
         ui->colPlaneA->blockSignals(true);
 
-        ui->maskDir->blockSignals(true);
-        ui->behaviour->blockSignals(true);
-        ui->floorAngle->blockSignals(true);
-        ui->roofAngle->blockSignals(true);
-        ui->lWallAngle->blockSignals(true);
-        ui->rWallAngle->blockSignals(true);
+        ui->AngleFrame->blockSignals(true);
 
         ui->colPlaneA->setChecked(false);
-        ui->maskDir->setCurrentIndex(cmask[collisionLyr]->direction);
-        ui->behaviour->setValue(cmask[collisionLyr]->flags);
-        ui->floorAngle->setValue(cmask[collisionLyr]->floorAngle);
-        ui->roofAngle->setValue(cmask[collisionLyr]->roofAngle);
-        ui->lWallAngle->setValue(cmask[collisionLyr]->lWallAngle);
-        ui->rWallAngle->setValue(cmask[collisionLyr]->rWallAngle);
+        if (gameType == ENGINE_v1){
+            ui->colMode->setCurrentIndex(cmaskv1[collisionLyr]->collisionMode);
+            edit->cmaskv1             = cmaskv1[collisionLyr];
+        } else {
+            ui->maskDir->setCurrentIndex(cmask[collisionLyr]->direction);
+            ui->behaviour->setValue(cmask[collisionLyr]->flags);
+            ui->floorAngle->setValue(cmask[collisionLyr]->floorAngle);
+            ui->roofAngle->setValue(cmask[collisionLyr]->roofAngle);
+            ui->lWallAngle->setValue(cmask[collisionLyr]->lWallAngle);
+            ui->rWallAngle->setValue(cmask[collisionLyr]->rWallAngle);
+            edit->cmask               = cmask[collisionLyr];
+        }
 
         ui->colPlaneA->blockSignals(false);
-        ui->behaviour->blockSignals(false);
-        ui->floorAngle->blockSignals(false);
-        ui->roofAngle->blockSignals(false);
-        ui->lWallAngle->blockSignals(false);
-        ui->rWallAngle->blockSignals(false);
-
-        ui->colPlaneA->blockSignals(false);
-        edit->cmask               = cmask[collisionLyr];
+        ui->AngleFrame->blockSignals(false);
         edit->update();
     });
 
     connect(ui->maskDir, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [this](int i) { cmask[collisionLyr]->direction = i != 0; });
+            [this](int i) { cmask[collisionLyr]->direction = i != 0; edit->update();});
 
     connect(ui->behaviour, QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int v) { cmask[collisionLyr]->flags = (byte)v; });
@@ -128,36 +127,56 @@ void SceneTileProperties::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
     connect(ui->rWallAngle, QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int v) { cmask[collisionLyr]->rWallAngle = (byte)v; });
 
-    edit                      = new TileCollisionWidget();
-    edit->cmask               = cmask[collisionLyr];
-    edit->tileImg             = tileImg;
-    ui->frame->layout()->addWidget(edit);
+    // v1
+    connect(ui->colMode, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [this](int i) { cmaskv1[collisionLyr]->collisionMode = i; edit->update();});
+    connect(ui->maskIndex, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [this](int i) { edit->maskIndex = i; edit->update();});
 
-    connect(ui->editChunkCol, &QPushButton::clicked, [viewer] {
-        if (viewer->selectedChunk != 0xFFFF){ // todo: Find the actual way of disabling/enabling the button based on selectedChunk value
+
+    connect(ui->editChunkCol, &QPushButton::clicked, [this, viewer] {
+        ui->tileFrame->setDisabled(true);
+        if (viewer->gameType != ENGINE_v1){
             ChunkCollisionEditor *cColEditor = new ChunkCollisionEditor(&viewer->chunkset, viewer->selectedChunk,
                                                    viewer->tiles, viewer);
             cColEditor->setWindowTitle("Edit Chunk Collision");
             cColEditor->show();
+            connect(cColEditor, &QDialog::finished, [this] {
+                emit updateChunkColMap();
+                ui->tileFrame->setDisabled(false);
+            });
+        } else{
+            ChunkCollisionEditorv1 *cColEditor = new ChunkCollisionEditorv1(&viewer->chunkset, viewer->selectedChunk,
+                                                   viewer->tiles, viewer);
+            cColEditor->setWindowTitle("Edit Chunk Collision");
+            cColEditor->show();
+
+            connect(cColEditor, &QDialog::finished, [this] {
+                emit updateChunkColMap();
+                ui->tileFrame->setDisabled(false);
+            });
         }
     });
 
     connect(ui->tileList, &QListWidget::currentRowChanged,[this, tiles, viewer](int selDrawTile){
         selectedDrawTile = selDrawTile;
-        cmask[0] = &viewer->tileconfig.collisionPaths[0][selectedDrawTile];
-        cmask[1] = &viewer->tileconfig.collisionPaths[1][selectedDrawTile];
-
-        ui->maskDir->setCurrentIndex(cmask[collisionLyr]->direction);
-
-        ui->behaviour->setValue(cmask[collisionLyr]->flags);
-        ui->floorAngle->setValue(cmask[collisionLyr]->floorAngle);
-        ui->roofAngle->setValue(cmask[collisionLyr]->roofAngle);
-        ui->lWallAngle->setValue(cmask[collisionLyr]->lWallAngle);
-        ui->rWallAngle->setValue(cmask[collisionLyr]->rWallAngle);
         ui->tID->setText("Tile ID: " + QString::number(selectedDrawTile));
-        edit->cmask               = cmask[collisionLyr];
+        if (viewer->gameType != ENGINE_v1){
+            setColMask(&viewer->tileconfig.collisionPaths[0][selectedDrawTile],&viewer->tileconfig.collisionPaths[1][selectedDrawTile]);
+            edit->cmask               = cmask[collisionLyr];
+        } else {
+            setColMask(&viewer->tileconfigv1.collisionPaths[0][selectedDrawTile],&viewer->tileconfigv1.collisionPaths[1][selectedDrawTile]);
+            edit->cmaskv1 = cmaskv1[collisionLyr];
+        }
         edit->tileImg             = tiles[selectedDrawTile];
         edit->update();
+    });
+
+    connect(edit, &TileCollisionWidget::UpdateW, [&]{
+        if (gameType != ENGINE_v1)
+            emit updateChunkColTile(cmask[collisionLyr], selectedDrawTile, collisionLyr);
+        else
+            emit updateChunkColTilev1(cmaskv1[collisionLyr], selectedDrawTile, collisionLyr);
     });
 
     auto calcFloorAngle = [](RSDKv5::TileConfig::CollisionMask *mask) {
@@ -378,6 +397,8 @@ void SceneTileProperties::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
         ui->rWallAngle->blockSignals(false);
     });
 }
+void SceneTileProperties::checkChunk(bool valid){ ui->editChunkCol->setDisabled(!valid); }
+
 void SceneTileProperties::unsetUI()
 {
 
@@ -392,6 +413,7 @@ void SceneTileProperties::unsetUI()
     disconnect(ui->lWallAngle, nullptr, nullptr, nullptr);
     disconnect(ui->rWallAngle, nullptr, nullptr, nullptr);
     disconnect(ui->behaviour, nullptr, nullptr, nullptr);
+    disconnect(ui->colMode, nullptr, nullptr, nullptr);
 
     disconnect(ui->editChunkCol, nullptr, nullptr, nullptr);
     disconnect(ui->colPlaneA, nullptr, nullptr, nullptr);
@@ -403,9 +425,35 @@ void SceneTileProperties::unsetUI()
 
     cmask[0] = nullptr;
     cmask[1] = nullptr;
+    cmaskv1[0] = nullptr;
+    cmaskv1[1] = nullptr;
+}
+
+void SceneTileProperties::UpdateW(){
+    if (gameType != ENGINE_v1)
+        emit updateChunkColTile(cmask[collisionLyr], selectedDrawTile, collisionLyr);
+    else
+        emit updateChunkColTilev1(cmaskv1[collisionLyr], selectedDrawTile, collisionLyr);
 }
 
 #include "moc_scenetileproperties.cpp"
+
+void SceneTileProperties::setColMask(RSDKv5::TileConfig::CollisionMask *cmA, RSDKv5::TileConfig::CollisionMask *cmB){
+    cmask[0] = cmA;
+    cmask[1] = cmB;
+    ui->maskDir->setCurrentIndex(cmask[collisionLyr]->direction);
+
+    ui->behaviour->setValue(cmask[collisionLyr]->flags);
+    ui->floorAngle->setValue(cmask[collisionLyr]->floorAngle);
+    ui->roofAngle->setValue(cmask[collisionLyr]->roofAngle);
+    ui->lWallAngle->setValue(cmask[collisionLyr]->lWallAngle);
+    ui->rWallAngle->setValue(cmask[collisionLyr]->rWallAngle);
+}
+void SceneTileProperties::setColMask(RSDKv1::TileConfig::CollisionMask *cmA, RSDKv1::TileConfig::CollisionMask *cmB){
+    cmaskv1[0] = cmA;
+    cmaskv1[1] = cmB;
+    ui->colMode->setCurrentIndex(cmaskv1[collisionLyr]->collisionMode);
+}
 
 TileCollisionWidget::TileCollisionWidget(QWidget *parent) : QWidget(parent) { setMouseTracking(true); }
 
@@ -416,41 +464,44 @@ void TileCollisionWidget::paintEvent(QPaintEvent *)
     QRectF rect(0, 0, (qreal)width() / 16, (qreal)height() / 16);
     p.drawImage(QRect(0, 0, width(), height()), tileImg);
 
-    if (!cmask->direction) {
-        for (byte y = 0; y < 16; ++y) {
-            for (byte x = 0; x < 16; ++x) {
-                if (cmask->collision[x].height <= y) {
-                    QPen pen(qApp->palette().base(), 2);
-                    p.setPen(pen);
-                    p.setBrush(QColor(0x00FF00));
-                    p.setOpacity(0.5);
+    QPen pen(qApp->palette().base(), 2);
+    p.setPen(pen);
+    p.setOpacity(0.5);
 
+    if (!parentWidget()->isEnabled()){
+        p.setBrush(QColor(Qt::black));
+        p.drawRect(QRect(0, 0, width(), height()));
+    }
+
+    for (byte y = 0; y < 16; ++y) {
+        for (byte x = 0; x < 16; ++x) {
+            if (paintVer != ENGINE_v1){
+                int dirY = !cmask->direction ? y : abs(y - 15);
+                if (!cmask->direction ? cmask->collision[x].height <= dirY : cmask->collision[x].height >= dirY) {
+
+                    p.setBrush(QColor(0x00FF00));
                     if (!cmask->collision[x].solid)
                         p.setBrush(p.brush().color().darker(255));
 
-                    p.drawRect(rect.translated(x * (qreal)width() / 16, y * (qreal)height() / 16));
+                    p.drawRect(rect.translated(x * (qreal)width() / 16, dirY * (qreal)height() / 16));
+                }
+            } else {
+                // todo: find out how RSonic detects the correct mask index to use
+                int dirX = (maskIndex & 1) == 0 ? x : abs(x - 15);
+                int dirY = (maskIndex & 2) == 0 ? y : abs(y - 15);
+                if ((maskIndex & 2) == 0 ? cmaskv1->collision[maskIndex][dirX].height <= dirY : cmaskv1->collision[maskIndex][dirX].height >= dirY) {
+
+
+                    p.setBrush(QColor(0x00FF00));
+                    if (!cmaskv1->collision[maskIndex][dirX].solid)
+                        p.setBrush(p.brush().color().darker(255));
+
+                    p.drawRect(rect.translated(dirX * (qreal)width() / 16, dirY * (qreal)height() / 16));
                 }
             }
         }
     }
-    else {
-        for (int y = 15; y > -1; --y) {
-            for (int x = 15; x > -1; --x) {
-                if (cmask->collision[x].height >= y) {
 
-                    QPen pen(qApp->palette().base(), 2);
-                    p.setPen(pen);
-                    p.setBrush(QColor(0x00FF00));
-                    p.setOpacity(0.5);
-
-                    if (!cmask->collision[x].solid)
-                        p.setBrush(p.brush().color().darker(255));
-
-                    p.drawRect(rect.translated(x * (qreal)width() / 16, y * (qreal)height() / 16));
-                }
-            }
-        }
-    }
 }
 
 void TileCollisionWidget::leaveEvent(QEvent *)
@@ -473,7 +524,7 @@ void TileCollisionWidget::mousePressEvent(QMouseEvent *event)
     pressedR  = (event->button() & Qt::RightButton) == Qt::RightButton;
 
     if (pressedR)
-        enabling = !cmask->collision[x].solid;
+        enabling = paintVer == ENGINE_v1 ? !cmaskv1->collision[maskIndex][x].solid : !cmask->collision[x].solid;
 }
 
 void TileCollisionWidget::mouseReleaseEvent(QMouseEvent *event)
@@ -482,6 +533,7 @@ void TileCollisionWidget::mouseReleaseEvent(QMouseEvent *event)
         pressedL = !((event->button() & Qt::LeftButton) == Qt::LeftButton);
     if (pressedR)
         pressedR = !((event->button() & Qt::RightButton) == Qt::RightButton);
+    UpdateW();
 }
 
 void TileCollisionWidget::mouseMoveEvent(QMouseEvent *event)
@@ -503,11 +555,19 @@ void TileCollisionWidget::mouseMoveEvent(QMouseEvent *event)
 
     highlight = x % 16 + y * 16;
 
-    if (pressedR)
-        cmask->collision[x].solid = enabling;
+    if (paintVer != ENGINE_v1){
+        if (pressedR)
+            cmask->collision[x].solid = enabling;
 
-    if (pressedL)
-        cmask->collision[x].height = y;
+        if (pressedL)
+            cmask->collision[x].height = y;
+    } else {
+        if (pressedR)
+            cmaskv1->collision[maskIndex][x].solid = enabling;
+
+        if (pressedL)
+            cmaskv1->collision[maskIndex][x].height = y;
+    }
 
     update();
 }

@@ -104,12 +104,13 @@ ChunkCollisionEditor::ChunkCollisionEditor(FormatHelpers::Chunks *chk, ushort cu
         ui->angLWall->setValue(chunkColMask[collisionLyr][selectedDrawTile]->lWallAngle);
         ui->angRWall->setValue(chunkColMask[collisionLyr][selectedDrawTile]->rWallAngle);
 
-        ui->planeA->blockSignals(false);
+        ui->angMaskDir->blockSignals(false);
         ui->angFlag->blockSignals(false);
         ui->angFloor->blockSignals(false);
         ui->angRoof->blockSignals(false);
         ui->angLWall->blockSignals(false);
         ui->angRWall->blockSignals(false);
+
         ui->planeA->blockSignals(false);
 
         colEdit->cmask                = chunkColMask[collisionLyr][selectedDrawTile];
@@ -118,12 +119,9 @@ ChunkCollisionEditor::ChunkCollisionEditor(FormatHelpers::Chunks *chk, ushort cu
         collisionViewer->update();
     });
 
-    connect(ui->refreshCol, &QPushButton::pressed, [this]{
-        colEdit->cmask                = chunkColMask[collisionLyr][selectedDrawTile];
-        collisionViewer->update();
-    });
-
     connect(chunkViewer, &ChunkColViewer::tileSelected, this, &ChunkCollisionEditor::changeSelTile);
+
+    connect(colEdit, &ChunkColEdit::updateViewer, [=]{ collisionViewer->update();});
 
     connect(ui->angMaskDir, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int i) { chunkColMask[collisionLyr][selectedDrawTile]->direction = i != 0; });
@@ -432,7 +430,7 @@ void ChunkColViewer::paintEvent(QPaintEvent *)
                     for (int fx = 0; fx < 16; ++fx) {
                         int drawX = dx ? 15 - fx : fx;
                         int drawY = dy ? 15 - fy : fy;
-                        if (mask->collision[drawX].height <= fy && mask->collision[drawX].solid)
+                        if ((mask->direction ? mask->collision[drawX].height >= fy : mask->collision[drawX].height <= fy) && mask->collision[drawX].solid)
                             c.drawRect(QRectF((16 * x) + fx, (16 * y) + drawY, 1, 1));
                     }
                 }
@@ -518,6 +516,7 @@ void ChunkColEdit::mouseReleaseEvent(QMouseEvent *event)
         pressedL = !((event->button() & Qt::LeftButton) == Qt::LeftButton);
     if (pressedR)
         pressedR = !((event->button() & Qt::RightButton) == Qt::RightButton);
+    updateViewer();
 }
 
 void ChunkColEdit::mouseMoveEvent(QMouseEvent *event)

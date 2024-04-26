@@ -227,6 +227,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->downLayer->setDisabled(c == viewer->layers.count() - 1);
 
         viewer->selectedLayer = c;
+        viewer->updateCTex[0] = false;
+        viewer->updateCTex[1] = false;
         lyrProp->setupUI(&scene, viewer->selectedLayer);
 
         ui->propertiesBox->setCurrentWidget(ui->layerPropPage);
@@ -300,6 +302,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         if ((uint)c < (uint)viewer->layers.count())
             viewer->layers[c].visible = item->checkState() == Qt::Checked;
     });
+
+    connect(tileProp, &SceneTilePropertiesv5::updateTileColMap, viewer, &SceneViewer::updateTileColMap);
 
     connect(ui->stampList, &QListWidget::currentRowChanged, [this](int c) {
         ui->rmStp->setDisabled(c == -1);
@@ -2806,6 +2810,8 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
                                                  basePath + "StageConfig.bin");
 
     tileconfig.read(pathTCF);
+    viewer->tileconfig = tileconfig;
+
     stageConfig.read(pathSCF);
 
     if (viewer->metadata.stampName == "")
@@ -2869,10 +2875,13 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
 
     viewer->refreshResize();
 
-    viewer->colTex = new QImage(viewer->sceneBoundsR * viewer->tileSize,
-                                viewer->sceneBoundsB * viewer->tileSize, QImage::Format_Indexed8);
-    viewer->colTex->setColorTable(
-        { qRgb(0, 0, 0), qRgb(255, 255, 0), qRgb(255, 0, 0), qRgb(255, 255, 255) });
+    for (int c = 0; c < 2; c++){
+        viewer->colTex[c] = new QImage(viewer->sceneBoundsR * viewer->tileSize,
+                                    viewer->sceneBoundsB * viewer->tileSize, QImage::Format_RGB888);
+        viewer->colTex[c]->setColorTable(
+            { qRgb(0, 0, 0), qRgb(255, 255, 0), qRgb(255, 0, 0), qRgb(255, 255, 255) });
+    }
+
 
     ui->horizontalScrollBar->setMaximum((viewer->sceneBoundsR * viewer->tileSize) - viewer->storedW);
     ui->verticalScrollBar->setMaximum((viewer->sceneBoundsB * viewer->tileSize) - viewer->storedH);
@@ -3287,7 +3296,7 @@ void SceneEditorv5::SetupObjects()
 
 void SceneEditorv5::UnloadGameLinks()
 {
-    for (int o = 2; o < v5_SURFACE_MAX; ++o) {
+    for (int o = 4; o < v5_SURFACE_MAX; ++o) {
         if (viewer->gfxSurface[o].scope == SCOPE_STAGE) {
             if (viewer->gfxSurface[o].texturePtr)
                 delete viewer->gfxSurface[o].texturePtr;
@@ -3516,8 +3525,6 @@ void SceneEditorv5::SetTile(float x, float y)
 {
     if (viewer->selectedLayer < 0)
         return;
-    if (viewer->selectedTile >= 0x400 && viewer->selectedTile != 0xFFFF)
-        return;
 
     float tx = x;
     float ty = y;
@@ -3539,20 +3546,57 @@ void SceneEditorv5::SetTile(float x, float y)
     ypos /= 0x10;
 
     ushort tile = viewer->selectedTile;
-    Utils::setBit(tile, viewer->tileFlip.x, 10);
-    Utils::setBit(tile, viewer->tileFlip.y, 11);
-    Utils::setBit(tile, viewer->tileSolidA.x, 12);
-    Utils::setBit(tile, viewer->tileSolidA.y, 13);
-    Utils::setBit(tile, viewer->tileSolidB.x, 14);
-    Utils::setBit(tile, viewer->tileSolidB.y, 15);
+    if (tile < 0x3FF) {  // only use this if the tile is not copied from the stage
+        Utils::setBit(tile, viewer->tileFlip.x, 10);
+        Utils::setBit(tile, viewer->tileFlip.y, 11);
+        Utils::setBit(tile, viewer->tileSolidA.x, 12);
+        Utils::setBit(tile, viewer->tileSolidA.y, 13);
+        Utils::setBit(tile, viewer->tileSolidB.x, 14);
+        Utils::setBit(tile, viewer->tileSolidB.y, 15);
+    }
+
     if (viewer->selectedTile == 0xFFFF)
         tile = 0xFFFF;
 
     if (ypos >= 0 && ypos < viewer->layers[viewer->selectedLayer].height) {
         if (xpos >= 0 && xpos < viewer->layers[viewer->selectedLayer].width) {
             viewer->layers[viewer->selectedLayer].layout[ypos][xpos] = tile;
+
+            bool showCLayers[2] = { viewer->showPlaneA, viewer->showPlaneB};
+            for (int c = 0; c < 2; c++){
+                if (showCLayers[c] == true){
+                    delete viewer->gfxSurface[c + 1].texturePtr;
+                    viewer->colPaint.begin(viewer->colTex[c]);
+                    if ((tile & 0x3FF) != 0xFFFF){
+                        QImage curTile = viewer->colTexStore->copy(c * 0x10, (tile & 0x3FF) * 0x10, 0x10, 0x10);
+
+                        curTile.setColor(1,qRgb(255,0,255));
+                        // draw pixel collision
+                        QPoint destPos = QPoint(xpos * 0x10, ypos * 0x10);
+
+                        byte solidity = 0;
+                        solidity = !c ? (tile >> 12) & 3 : (tile >> 14) & 3;
+
+                        if (!solidity)
+                            continue;
+
+                        bool flipX = (tile >> 10) & 1;
+                        bool flipY = (tile >> 11) & 1;
+
+                        if (solidity != 2) { curTile.setColor(1,qRgb(255,255,0)); }
+                        if (solidity != 1) { curTile.setColor(1,qRgb(255,0,0)); }
+                        if (solidity == 3) { curTile.setColor(1,qRgb(255,255,255)); }
+
+                        curTile = curTile.convertToFormat(QImage::Format_RGB888);
+                        viewer->colPaint.drawImage(destPos, curTile.mirrored(flipX, flipY));
+                    }
+                    viewer->colPaint.end();
+                    viewer->gfxSurface[c + 1].texturePtr = viewer->createTexture(*viewer->colTex[c], QOpenGLTexture::Target2D);
+                }
+            }
         }
     }
+
 }
 
 void SceneEditorv5::SetStamp(float x, float y)
@@ -3597,13 +3641,55 @@ void SceneEditorv5::SetStamp(float x, float y)
 
             ushort tile = viewer->layers[viewer->selectedLayer].layout[tileYPos][tileXPos];
 
-            if (viewer->layers[viewer->selectedLayer].layout[tileYPos][tileXPos] != 0xFFFF) {
+            if (tile != 0xFFFF) {
                 if (ypos + y >= 0 && ypos + y < viewer->layers[viewer->selectedLayer].height) {
                     if (xpos + x >= 0 && xpos + x < viewer->layers[viewer->selectedLayer].width) {
                         viewer->layers[viewer->selectedLayer].layout[ypos + y][xpos + x] = tile;
                     }
                 }
             }
+        }
+    }
+
+    // today
+    bool showCLayers[2] = { viewer->showPlaneA, viewer->showPlaneB};
+    for (int c = 0; c < 2; c++){
+        if (showCLayers[c] == true){
+            delete viewer->gfxSurface[c + 1].texturePtr;
+            viewer->colPaint.begin(viewer->colTex[c]);
+            for(int y = 0; y < stamp.size.y; y++){
+                for(int x = 0; x < stamp.size.x; x++){
+                    int tileXPos = stamp.pos.x + x;
+                    int tileYPos = stamp.pos.y + y;
+
+                    ushort tile = viewer->layers[viewer->selectedLayer].layout[tileYPos][tileXPos];
+                    if (tile != 0xFFFF){
+                        QImage curTile = viewer->colTexStore->copy(c * 0x10, (tile & 0x3FF) * 0x10, 0x10, 0x10);
+
+                        curTile.setColor(1,qRgb(255,0,255));
+                        // draw pixel collision
+                        QPoint destPos = QPoint((xpos + x) * 0x10, (ypos + y) * 0x10);
+
+                        byte solidity = 0;
+                        solidity = !c ? (tile >> 12) & 3 : (tile >> 14) & 3;
+
+                        if (!solidity)
+                            continue;
+
+                        bool flipX = (tile >> 10) & 1;
+                        bool flipY = (tile >> 11) & 1;
+
+                        if (solidity != 2) { curTile.setColor(1,qRgb(255,255,0)); }
+                        if (solidity != 1) { curTile.setColor(1,qRgb(255,0,0)); }
+                        if (solidity == 3) { curTile.setColor(1,qRgb(255,255,255)); }
+
+                        curTile = curTile.convertToFormat(QImage::Format_RGB888);
+                        viewer->colPaint.drawImage(destPos, curTile.mirrored(flipX, flipY));
+                    }
+                }
+            }
+            viewer->colPaint.end();
+            viewer->gfxSurface[c + 1].texturePtr = viewer->createTexture(*viewer->colTex[c], QOpenGLTexture::Target2D);
         }
     }
 }

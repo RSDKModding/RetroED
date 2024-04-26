@@ -57,6 +57,7 @@ SOURCES += \
     tools/sceneeditor.cpp \
     tools/sceneeditorv5.cpp \
     tools/sceneproperties/chunkcollisioneditor.cpp \
+    tools/sceneproperties/chunkcollisioneditorv1.cpp \
     tools/sceneproperties/chunkeditor.cpp \
     tools/sceneproperties/chunkreplaceoptions.cpp \
     tools/sceneproperties/confirmgamelink.cpp \
@@ -126,6 +127,7 @@ HEADERS += \
     tools/sceneeditor.hpp \
     tools/sceneeditorv5.hpp \
     tools/sceneproperties/chunkcollisioneditor.hpp \
+    tools/sceneproperties/chunkcollisioneditorv1.hpp \
     tools/sceneproperties/chunkeditor.hpp \
     tools/sceneproperties/chunkreplaceoptions.hpp \
     tools/sceneproperties/confirmgamelink.hpp \
@@ -185,6 +187,7 @@ FORMS += \
     tools/sceneeditor.ui \
     tools/sceneeditorv5.ui \
     tools/sceneproperties/chunkcollisioneditor.ui \
+    tools/sceneproperties/chunkcollisioneditorv1.ui \
     tools/sceneproperties/chunkeditor.ui \
     tools/sceneproperties/chunkreplaceoptions.ui \
     tools/sceneproperties/confirmgamelink.ui \

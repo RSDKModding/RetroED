@@ -94,14 +94,14 @@ public:
 
     Vector2<float> selectionOffset = Vector2<float>(0.0f, 0.0f);
 
-    SceneViewer *viewer            = nullptr;
-    SceneProperties *scnProp       = nullptr;
-    SceneLayerProperties *lyrProp  = nullptr;
-    SceneTileProperties *tileProp  = nullptr;
-    SceneObjectProperties *objProp = nullptr;
-    SceneScrollProperties *scrProp = nullptr;
-    ChunkSelector *chkProp         = nullptr;
-    TilesetEditor *tsetEdit        = nullptr;
+    SceneViewer *viewer               = nullptr;
+    SceneProperties *scnProp          = nullptr;
+    SceneLayerProperties *lyrProp     = nullptr;
+    SceneTileProperties *tileProp     = nullptr;
+    SceneObjectProperties *objProp    = nullptr;
+    SceneScrollProperties *scrProp    = nullptr;
+    ChunkSelector *chkProp            = nullptr;
+    TilesetEditor *tsetEdit           = nullptr;
 
     SceneEntity createTempEntity;
 
@@ -159,6 +159,7 @@ public:
     void ResetAction();
     void DoAction(QString name = "Action", bool setModified = true);
     void ClearActions();
+
 
 signals:
     void TitleChanged(QString title);
