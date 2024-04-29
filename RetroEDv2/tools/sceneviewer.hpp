@@ -1,6 +1,7 @@
 #pragma once
 
 #include <RSDKv5.hpp>
+#include <RSDKv1.hpp>
 
 #include "sceneproperties/sceneincludesv5.hpp"
 
@@ -75,6 +76,7 @@ public:
 
     void dispose();
 
+
     // viewing properties
     float zoom = 1.0f;
     inline float invZoom() { return 1.0f / zoom; }
@@ -91,6 +93,8 @@ public:
     RSDKv5::Scene::SceneEditorMetadata metadata;
     RSDKv5::Stamps stamps;
     RSDKv5::TileConfig tileconfig;
+    RSDKv1::TileConfig tileconfigv1;
+
 
     byte tileSize = 0x10;
     QList<SceneHelpers::TileLayer> layers;
@@ -173,6 +177,8 @@ public:
     bool showPlaneA = false;
     bool showPlaneB = false;
 
+    bool updateCTex[2] = {false, false};
+
     // Entity Editing
     int selectedObject = -1; // placing
     int selectedEntity = -1; // viewing
@@ -208,7 +214,9 @@ public:
     int storedW, storedH;
     int sceneBoundsL, sceneBoundsT, sceneBoundsR, sceneBoundsB;
 
-    QImage *colTex = nullptr;
+    QImage *colTex[2]   = {nullptr, nullptr};
+    QImage *colTexStore = nullptr;
+    QPainter colPaint;
 
     static const int vertexListLimit = 0x8000;
 
@@ -342,9 +350,16 @@ public:
     void addEnumVariable(QString name, int value);
     void setVariableAlias(int varID, QString alias);
 
+
 signals:
     void callGameEvent(byte eventID, int entityID);
     void callGameEventv5(QString objName, byte eventID, SceneEntity *entity);
+
+public slots:
+    void updateTileColMap(RSDKv5::TileConfig::CollisionMask *cmask, ushort sel, int colLyr);
+    void updateChunkColTile(RSDKv5::TileConfig::CollisionMask *cmask, ushort sel, int colLyr);
+    void updateChunkColTilev1(RSDKv1::TileConfig::CollisionMask *cmask, ushort sel, int colLyr);
+    void updateChunkColMap();
 
 protected:
     void initializeGL();
@@ -357,9 +372,6 @@ private:
     QMatrix4x4 matWorld;
     QMatrix4x4 matView;
 
-    void placeCol(int x, int y, sbyte h, int sol, int w = 1);
-
-    inline void cleanCol(int x, int y, int w, int h);
     friend class SceneEditorv5;
 };
 

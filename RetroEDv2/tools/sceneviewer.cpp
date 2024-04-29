@@ -221,14 +221,43 @@ void SceneViewer::initScene(QImage tileset)
     // unloading
     unloadScene();
 
-    // Get Tiles (for tile list & tileset editing)
+    // Get Tiles (for tile list, tileset editing and collision viewer)
     tiles.clear();
+    colTexStore = new QImage(0x80, 0x400 * 0x10, QImage::Format_Indexed8);
+    colTexStore->setColorTable({ 0xFFFF00FF, 0xFFFFFF00, 0xFFFF0000, 0xFFFFFFFF, 0xFF808000});
+    colTexStore->fill(0);
     for (int i = 0; i < 0x400; ++i) {
         int tx         = ((i % (tileset.width() / 0x10)) * 0x10);
         int ty         = ((i / (tileset.width() / 0x10)) * 0x10);
         QImage tileTex = tileset.copy(tx, ty, 0x10, 0x10);
 
         tiles.append(tileTex);
+
+        for (int c = 0; c < 2; c++){
+            for (byte y = 0; y < 16; ++y) {
+                for (byte x = 0; x < 16; ++x) {
+                    if (gameType != ENGINE_v1){
+                        RSDKv5::TileConfig::CollisionMask &cmask = tileconfig.collisionPaths[c][i];
+                        // draw pixel collision
+                        int dir = !cmask.direction ? y : abs(y - 15);
+                        if ((!cmask.direction ? cmask.collision[x].height <= dir : cmask.collision[x].height >= dir) && cmask.collision[x].solid){
+                            for (byte m = 0; m < 4; ++m)
+                                colTexStore->setPixel(x + tx + c * 0x40 + m * 0x10, dir + ty, m + 1);
+                        }
+                    } else {
+                        RSDKv1::TileConfig::CollisionMask &cmask = tileconfigv1.collisionPaths[c][i];
+                        // draw pixel collision
+                        for (byte m = 0; m < 4; ++m){
+                            int dirX = (m & 1) == 0 ? x : abs(x - 15);
+                            int dirY = (m & 2) == 0 ? y : abs(y - 15);
+                            if (((m & 2) == 0 ? cmask.collision[m][dirX].height <= dirY : cmask.collision[m][dirX].height >= dirY) && cmask.collision[m][dirX].solid) {
+                                colTexStore->setPixel(dirX + tx + c * 0x40 + m * 0x10, dirY + ty, 3);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // Get Tile Palette (for tileset editing)
@@ -259,28 +288,42 @@ void SceneViewer::initScene(QImage tileset)
     glFuncs->glBindTexture(GL_TEXTURE_RECTANGLE, gfxSurface[0].texturePtr->textureId());
     glFuncs->glActiveTexture(active);
 
+    gfxSurface[1].scope      = SCOPE_STAGE;
+    gfxSurface[1].name       = "Collision A";
+    gfxSurface[1].width      = colTexStore->width();
+    gfxSurface[1].height     = colTexStore->height();
+    gfxSurface[1].texturePtr = createTexture(*colTexStore, QOpenGLTexture::Target2D);
+    gfxSurface[1].transClr   = QColor(0xFFFF00FF);
+
+    gfxSurface[2].scope      = SCOPE_STAGE;
+    gfxSurface[2].name       = "Collision B";
+    gfxSurface[2].width      = colTexStore->width();
+    gfxSurface[2].height     = colTexStore->height();
+    gfxSurface[2].texturePtr = createTexture(*colTexStore, QOpenGLTexture::Target2D);
+    gfxSurface[2].transClr   = QColor(0xFFFF00FF);
+
     // Default Texture
-    if (gfxSurface[1].scope == SCOPE_NONE) {
-        gfxSurface[1].scope = SCOPE_GLOBAL;
-        gfxSurface[1].name  = gameType == ENGINE_v5 ? ":/icons/missingV5.png" : ":/icons/missing.png";
-        missingObj          = QImage(gfxSurface[1].name);
-        gfxSurface[1].texturePtr = createTexture(missingObj);
-        Utils::getHashInt(gfxSurface[1].name, gfxSurface[1].hash);
-        gfxSurface[1].width    = missingObj.width();
-        gfxSurface[1].height   = missingObj.height();
-        gfxSurface[1].transClr = QColor(0xFFFF00FF);
+    if (gfxSurface[3].scope == SCOPE_NONE) {
+        gfxSurface[3].scope = SCOPE_GLOBAL;
+        gfxSurface[3].name  = gameType == ENGINE_v5 ? ":/icons/missingV5.png" : ":/icons/missing.png";
+        missingObj          = QImage(gfxSurface[3].name);
+        gfxSurface[3].texturePtr = createTexture(missingObj);
+        Utils::getHashInt(gfxSurface[3].name, gfxSurface[3].hash);
+        gfxSurface[3].width    = missingObj.width();
+        gfxSurface[3].height   = missingObj.height();
+        gfxSurface[3].transClr = QColor(0xFFFF00FF);
     }
 
     // Default Texture
-    if (gameType == ENGINE_v1 && gfxSurface[2].scope == SCOPE_NONE) {
-        gfxSurface[2].scope      = SCOPE_GLOBAL;
-        gfxSurface[2].name       = ":/icons/player_v1.png";
-        missingObj               = QImage(gfxSurface[2].name);
-        gfxSurface[2].texturePtr = createTexture(missingObj);
-        Utils::getHashInt(gfxSurface[2].name, gfxSurface[2].hash);
-        gfxSurface[2].width    = missingObj.width();
-        gfxSurface[2].height   = missingObj.height();
-        gfxSurface[2].transClr = QColor(0xFFFF00FF);
+    if (gameType == ENGINE_v1 && gfxSurface[4].scope == SCOPE_NONE) {
+        gfxSurface[4].scope      = SCOPE_GLOBAL;
+        gfxSurface[4].name       = ":/icons/player_v1.png";
+        missingObj               = QImage(gfxSurface[4].name);
+        gfxSurface[4].texturePtr = createTexture(missingObj);
+        Utils::getHashInt(gfxSurface[4].name, gfxSurface[4].hash);
+        gfxSurface[4].width    = missingObj.width();
+        gfxSurface[4].height   = missingObj.height();
+        gfxSurface[4].transClr = QColor(0xFFFF00FF);
     }
 }
 
@@ -359,39 +402,116 @@ void SceneViewer::updateScene()
     }
 }
 
-void SceneViewer::cleanCol(int x, int y, int w, int h)
+
+void SceneViewer::updateTileColMap(RSDKv5::TileConfig::CollisionMask *cmask, ushort sel, int colLyr)
 {
-    int ty = y + h;
-    int tx = x + w;
-    for (; x < tx; ++x) {
-        for (; y < ty; ++y) {
-            colTex->setPixel(x, y, 0);
+    int tx         = ((sel % (gfxSurface[0].width / 0x10)) * 0x10);
+    int ty         = ((sel / (gfxSurface[0].width / 0x10)) * 0x10);
+    // draw pixel collision
+    for (byte x = 0; x < 16; x++){
+        for (byte y = 0; y < 16; y++){
+            int dir = !cmask->direction ? y : abs(y - 15);
+            for (byte m = 0; m < 4; ++m){
+                int pos = x + tx + colLyr * 0x40 + m * 0x10;
+                colTexStore->setPixel(pos, dir + ty, 0);
+                if (!cmask->direction ? cmask->collision[x].height <= dir : cmask->collision[x].height >= dir) {
+                    if (cmask->collision[x].solid)
+                        colTexStore->setPixel(pos, dir + ty, m + 1);
+                }
+            }
         }
-        y -= h;
     }
+
+    delete gfxSurface[colLyr + 1].texturePtr;
+    gfxSurface[colLyr + 1].texturePtr = createTexture(*colTexStore, QOpenGLTexture::Target2D);
 }
 
-void SceneViewer::placeCol(int x, int y, sbyte h, int sol, int w)
+void SceneViewer::updateChunkColMap()
 {
-    // rmg code opts at its finest
-    if (h < 0) {
-        y += h;
-        h *= -1;
-    }
-    int ty = y + h;
-    int tx = x + w;
-    for (; x < tx; ++x) {
-        for (; y < ty; ++y) {
-            QRgb c = colTex->pixel(x, y);
-            if (qBlue(c))
-                continue;
-            if (qRed(c) && ((sol == 1 && !qGreen(c)) || (sol == 2 && qGreen(c))))
-                colTex->setPixel(x, y, 3);
-            else
-                colTex->setPixel(x, y, sol);
+    colTexStore->fill(0);
+    for (int i = 0; i < 0x400; ++i){
+        int tx         = ((i % (gfxSurface[0].width / 0x10)) * 0x10);
+        int ty         = ((i / (gfxSurface[0].width / 0x10)) * 0x10);
+        for (int c = 0; c < 2; ++c){
+            // draw pixel collision
+            for (byte x = 0; x < 16; x++){
+                for (byte y = 0; y < 16; y++){
+                    if (gameType != ENGINE_v1){
+                        RSDKv5::TileConfig::CollisionMask &cmask = tileconfig.collisionPaths[c][i];
+                        // draw pixel collision
+                        int dir = !cmask.direction ? y : abs(y - 15);
+                        for (byte m = 0; m < 4; ++m){
+                            int pos = x + tx + c * 0x40 + m * 0x10;
+                            colTexStore->setPixel(pos, dir + ty, 0);
+                            if ((!cmask.direction ? cmask.collision[x].height <= dir : cmask.collision[x].height >= dir) && cmask.collision[x].solid)
+                                colTexStore->setPixel(pos, dir + ty, m + 1);
+                        }
+                    } else {
+                        RSDKv1::TileConfig::CollisionMask &cmask = tileconfigv1.collisionPaths[c][i];
+                        // draw pixel collision
+                        for (byte m = 0; m < 4; ++m){
+                            int dirX = (m & 1) == 0 ? x : abs(x - 15);
+                            int dirY = (m & 2) == 0 ? y : abs(y - 15);
+                            int pos = dirX + tx + c * 0x40 + m * 0x10;
+                            colTexStore->setPixel(pos, dirY + ty, 0);
+                            if (((m & 2) == 0 ? cmask.collision[m][dirX].height <= dirY : cmask.collision[m][dirX].height >= dirY) && cmask.collision[m][dirX].solid)
+                                colTexStore->setPixel(pos, dirY + ty, 3);
+                        }
+                    }
+                }
+            }
         }
-        y -= h;
     }
+    delete gfxSurface[1].texturePtr;
+    delete gfxSurface[2].texturePtr;
+    gfxSurface[1].texturePtr = createTexture(*colTexStore, QOpenGLTexture::Target2D);
+    gfxSurface[2].texturePtr = createTexture(*colTexStore, QOpenGLTexture::Target2D);
+}
+
+void SceneViewer::updateChunkColTile(RSDKv5::TileConfig::CollisionMask *cmask, ushort sel, int colLyr)
+{
+    int tx         = ((sel % (gfxSurface[0].width / 0x10)) * 0x10);
+    int ty         = ((sel / (gfxSurface[0].width / 0x10)) * 0x10);
+    // draw pixel collision
+    for (byte x = 0; x < 16; x++){
+        for (byte y = 0; y < 16; y++){
+            int dir = !cmask->direction ? y : abs(y - 15);
+            for (byte m = 0; m < 4; ++m){
+                int pos = x + tx + colLyr * 0x40 + m * 0x10;
+                colTexStore->setPixel(pos, dir + ty, 0);
+                if ((!cmask->direction ? cmask->collision[x].height <= dir : cmask->collision[x].height >= dir) && cmask->collision[x].solid) {
+                    colTexStore->setPixel(pos, dir + ty, m + 1);
+                }
+            }
+        }
+    }
+
+    delete gfxSurface[colLyr + 1].texturePtr;
+    gfxSurface[colLyr + 1].texturePtr = createTexture(*colTexStore, QOpenGLTexture::Target2D);
+}
+
+void SceneViewer::updateChunkColTilev1(RSDKv1::TileConfig::CollisionMask *cmask, ushort sel, int colLyr)
+{
+    int tx         = ((sel % (gfxSurface[0].width / 0x10)) * 0x10);
+    int ty         = ((sel / (gfxSurface[0].width / 0x10)) * 0x10);
+    // draw pixel collision
+    for (byte x = 0; x < 16; x++){
+        for (byte y = 0; y < 16; y++){
+            // draw pixel collision
+            for (byte m = 0; m < 4; ++m){
+                int dirX = (m & 1) == 0 ? x : abs(x - 15);
+                int dirY = (m & 2) == 0 ? y : abs(y - 15);
+                int pos = dirX + tx + colLyr * 0x40 + m * 0x10;
+                colTexStore->setPixel(pos, dirY + ty, 0);
+                if (((m & 2) == 0 ? cmask->collision[m][dirX].height <= dirY : cmask->collision[m][dirX].height >= dirY) && cmask->collision[m][dirX].solid) {
+                    colTexStore->setPixel(pos, dirY + ty, 3);
+                }
+            }
+        }
+    }
+
+    delete gfxSurface[colLyr + 1].texturePtr;
+    gfxSurface[colLyr + 1].texturePtr = createTexture(*colTexStore, QOpenGLTexture::Target2D);
 }
 
 void SceneViewer::drawScene()
@@ -585,109 +705,116 @@ void SceneViewer::drawScene()
             // there's definitely better ways to do this, but for now this is what we gotta do
             // TODO: 2022 rmg here. this is shitty even if it works well. find someway else to do this
             // TODO (RDC Edition): once rmg's done here, adapt it for <= v4 like above
+            // Reject stxtic code, embrace Leonx254 code >:)
 
             // Collision Previews
             for (int c = 0; c < 2 && l == selectedLayer; ++c) {
-                if (showCLayers[c]) {
-                    cleanCol(basedX * 16, basedY * 16, (countX - basedX) * 16, (countY - basedY) * 16);
-                    for (int y = countY - 1; y >= basedY; --y) {
+                if (showCLayers[c]){
+                    int countCol = 0;
+                    for (int y = basedY; y < countY; ++y) {
                         const QList<ushort> *row = &layers[l].layout.at(y);
                         for (int x = basedX; x < countX; ++x) {
-                            ushort tile = row->at(x);
-                            if (tile != 0xFFFF) {
-                                // draw pixel collision
-                                float xpos = (x * 0x10);
-                                float ypos = (y * 0x10);
-
-                                byte solidity = 0;
-                                RSDKv5::TileConfig::CollisionMask &cmask =
-                                    tileconfig.collisionPaths[c][tile & 0x3FF];
-
-                                solidity = !c ? (tile >> 12) & 3 : (tile >> 14) & 3;
-
-                                if (!solidity)
-                                    continue;
-
-                                bool flipX = (tile >> 10) & 1;
-                                bool flipY = (tile >> 11) & 1;
-
-                                byte flipmode = flipY | (cmask.direction << 1);
-
-                                for (byte cx = 0; cx < 16; ++cx) {
-                                    int hm = cx;
-                                    if (flipX)
-                                        hm = 15 - cx;
-
-                                    if (!cmask.collision[hm].solid)
+                            if (gameType == ENGINE_v5){
+                                ushort tile = row->at(x);
+                                if (tile != 0xFFFF) {
+                                    byte solidity = !c ? (tile >> 12) & 3 : (tile >> 14) & 3;
+                                    if (!solidity)
                                         continue;
+                                    ++countCol;
+                                    float xp = (x * 0x10) - cameraPos.x;
+                                    float yp = (y * 0x10) - cameraPos.y;
 
-                                    byte h  = cmask.collision[hm].height;
-                                    byte cy = h;
-                                    if (solidity != 2) {
-                                        // yellow
-                                        byte ycy = cy;
+                                    ushort t     = (tile & 0x3FF);
+                                    byte f       = (tile >> 10) & 3;
+                                    ushort point = (t << 2) | (f << 12);
+                                    ushort texOffset = (solidity - 1) * 0x10 + c * 0x40;
+                                    addPoly(xp, yp, tileUVArray[point] + texOffset, tileUVArray[point + 1], 0, &gfxSurface[c + 1]);
 
-                                        if (flipmode) {
-                                            if (flipmode <= 2)
-                                                ycy = 0;
-                                            if (flipmode == 3)
-                                                ycy = 15 - h;
-                                        }
+                                    addPoly(xp + 0x10, yp, tileUVArray[point + 2] + texOffset, tileUVArray[point + 1], 0,
+                                            &gfxSurface[c + 1]);
+                                    addPoly(xp, yp + 0x10, tileUVArray[point] + texOffset, tileUVArray[point + 3], 0,
+                                            &gfxSurface[c + 1]);
+                                    addPoly(xp + 0x10, yp + 0x10, tileUVArray[point + 2] + texOffset,
+                                            tileUVArray[point + 3], 0, &gfxSurface[c + 1]);
+                                    // safety pass
+                                    if (renderCount >= vertexListLimit - 8) {
+                                        PlaceArgs args;
+                                        args.texID = 0;
 
-                                        placeCol(xpos + cx, ypos + ycy, 16, 1);
+                                        renderCount -= countCol * 4;
+                                        addRenderState(INK_NONE, countCol * 4, countCol * 6, &args, 0xFF, &placeShader);
+                                        renderCount += countCol * 4;
+                                        renderRenderStates();
+                                        countCol = 0;
                                     }
+                                }
+                            } else {
+                                ushort chunkID = row->at(x);
+                                if (chunkID != 0x0 && chunkID < 0x200) {
+                                    for (int ty = 0; ty < 8; ++ty) {
+                                        for (int tx = 0; tx < 8; ++tx) {
+                                            FormatHelpers::Chunks::Tile tile = chunkset.chunks[chunkID].tiles[ty][tx];
+                                            byte solidity = !c ? tile.solidityA : tile.solidityB;
+                                            if (solidity == 3)
+                                                continue;
+                                            ++countCol;
 
-                                    if (solidity != 1) {
-                                        // red
-                                        byte rcy = h, rch = 16 - h;
-                                        if (flipmode) {
-                                            if (flipmode <= 2)
-                                                rcy = 0;
-                                            if (flipmode >= 2) {
-                                                rch = h + 1;
-                                                if (flipmode == 3) {
-                                                    rcy = 15 - h;
-                                                }
+                                            float xp = ((x * tileSize) + (tx * 0x10)) - cameraPos.x;
+                                            float yp = ((y * tileSize) + (ty * 0x10)) - cameraPos.y;
+
+                                            byte solColor[5] = {2, 0, 1, 0, 3};
+                                            ushort point = (tile.tileIndex << 2) | (tile.direction << 12);
+                                            ushort texOffset = gameType == ENGINE_v1 ? c * 0x40 : c * 0x40 + solColor[solidity] * 0x10;
+
+                                            addPoly(xp, yp, tileUVArray[point] + texOffset, tileUVArray[point + 1], 0,
+                                                    &gfxSurface[c + 1]);
+                                            addPoly(xp + 0x10, yp, tileUVArray[point + 2] + texOffset,
+                                                    tileUVArray[point + 1], 0, &gfxSurface[c + 1]);
+                                            addPoly(xp, yp + 0x10, tileUVArray[point] + texOffset, tileUVArray[point + 3],
+                                                    0, &gfxSurface[c + 1]);
+                                            addPoly(xp + 0x10, yp + 0x10, tileUVArray[point + 2] + texOffset,
+                                                    tileUVArray[point + 3], 0, &gfxSurface[c + 1]);
+
+                                            // safety pass
+                                            if (renderCount >= vertexListLimit - 8) {
+                                                PlaceArgs args;
+                                                args.texID = 0;
+
+                                                renderCount -= countCol * 4;
+                                                addRenderState((selectedLayer == l || fileRender) ? INK_NONE
+                                                                                                  : INK_BLEND,
+                                                               countCol * 4, countCol * 6, &args, 0xFF, &placeShader);
+                                                renderCount += countCol * 4;
+                                                renderRenderStates();
+                                                countCol = 0;
                                             }
                                         }
-
-                                        rcy = rcy + rch;
-
-                                        placeCol(xpos + cx, ypos + rcy, -16, 2);
-                                    }
-                                } //*/
-
-                                if (solidity == 3) {
-                                    cleanCol(xpos, ypos, 16, 16);
-                                    for (byte cx = 0; cx < 16; ++cx) {
-                                        int hm = cx;
-                                        if (flipX)
-                                            hm = 15 - cx;
-
-                                        if (!cmask.collision[hm].solid)
-                                            continue;
-
-                                        byte h  = cmask.collision[hm].height;
-                                        byte cy = h, ch = 16 - h;
-                                        if (flipmode) {
-                                            if (flipmode <= 2)
-                                                cy = 0;
-                                            if (flipmode >= 2) {
-                                                ch = h + 1;
-                                                if (flipmode == 3) {
-                                                    cy = 15 - h;
-                                                }
-                                            }
-                                        }
-                                        placeCol(xpos + cx, ypos + cy, ch, solidity);
                                     }
                                 }
                             }
                         }
                     }
+                    renderCount -= countCol * 4;
+                    PlaceArgs args;
+                    args.texID = c + 1;
+                    addRenderState(INK_NONE, countCol * 4, countCol * 6, &args, 0xFF, &placeShader);
+                    renderCount += countCol * 4;
+                    renderRenderStates();
                 }
             }
 
+/*
+ *Output test
+            if (showCLayers[0]) {
+                QFileDialog filedialog(this, tr("Save collision image"), "",
+                                       tr("Image(*.png)"));
+                filedialog.setAcceptMode(QFileDialog::AcceptSave);
+                if (filedialog.exec() == QDialog::Accepted) {
+                    QImageWriter writer(filedialog.selectedFiles()[0],"PNG");
+                    writer.write(*colTex);
+                }
+            }
+*/
             // PARALLAX
             if (l == selectedLayer && l >= 0) {
                 if (layers[l].type == SceneHelpers::TileLayer::LAYER_HSCROLL
@@ -927,9 +1054,9 @@ void SceneViewer::drawScene()
                 float xpos = entity->pos.x - (cameraPos.x);
                 float ypos = entity->pos.y - (cameraPos.y);
 
-                drawSpriteFlipped(xpos - (gfxSurface[1].width >> 1), ypos - (gfxSurface[1].height >> 1),
-                                  gfxSurface[1].width, gfxSurface[1].height, 0, 0, FLIP_NONE, INK_NONE,
-                                  0xFF, 1);
+                drawSpriteFlipped(xpos - (gfxSurface[3].width >> 1), ypos - (gfxSurface[3].height >> 1),
+                                  gfxSurface[3].width, gfxSurface[3].height, 0, 0, FLIP_NONE, INK_NONE,
+                                  0xFF, 3);
             }
         }
     }
@@ -956,9 +1083,9 @@ void SceneViewer::drawScene()
             float xpos = entity->pos.x - (cameraPos.x);
             float ypos = entity->pos.y - (cameraPos.y);
 
-            drawSpriteFlipped(xpos - (gfxSurface[1].width >> 1), ypos - (gfxSurface[1].height >> 1),
-                              gfxSurface[1].width, gfxSurface[1].height, 0, 0, FLIP_NONE, INK_NONE,
-                              0xFF, 1);
+            drawSpriteFlipped(xpos - (gfxSurface[3].width >> 1), ypos - (gfxSurface[3].height >> 1),
+                              gfxSurface[3].width, gfxSurface[3].height, 0, 0, FLIP_NONE, INK_NONE,
+                              0xFF, 3);
         }
     }
 
@@ -991,9 +1118,9 @@ void SceneViewer::drawScene()
                 float xpos = entity->pos.x - (cameraPos.x);
                 float ypos = entity->pos.y - (cameraPos.y);
 
-                drawSpriteFlipped(xpos - (gfxSurface[1].width >> 1), ypos - (gfxSurface[1].height >> 1),
-                                  gfxSurface[1].width, gfxSurface[1].height, 0, 0, FLIP_NONE, INK_NONE,
-                                  0xFF, 1);
+                drawSpriteFlipped(xpos - (gfxSurface[3].width >> 1), ypos - (gfxSurface[3].height >> 1),
+                                  gfxSurface[3].width, gfxSurface[3].height, 0, 0, FLIP_NONE, INK_NONE,
+                                  0xFF, 3);
             }
         }
     }
@@ -1013,8 +1140,8 @@ void SceneViewer::drawScene()
         float ypos = playerPos.y - cameraPos.y;
 
         // Draw Player Spawn Preview
-        drawSpriteFlipped(xpos, ypos, gfxSurface[2].width, gfxSurface[2].height, 0, 0, FLIP_NONE,
-                          INK_NONE, 0xFF, 2);
+        drawSpriteFlipped(xpos, ypos, gfxSurface[4].width, gfxSurface[4].height, 0, 0, FLIP_NONE,
+                          INK_NONE, 0xFF, 4);
     }
 
     if (fileRender) {
@@ -1052,7 +1179,12 @@ void SceneViewer::drawScene()
         if (tileSize == 0x10 && selectedTile != 0xFFFF) {
             ++count;
 
-            byte f       = (int)(tileFlip.x) | ((int)(tileFlip.y) << 1);
+            byte f;
+            if (selectedTile < 0x3FF){
+                f  = (int)(tileFlip.x) | ((int)(tileFlip.y) << 1);
+            } else {
+                f  = Utils::getBit(selectedTile, 10) | (Utils::getBit(selectedTile, 11) << 1);
+            }
             ushort point = ((selectedTile & 0x3FF) << 2) | (f << 12);
             addPoly(xpos, ypos, tileUVArray[point], tileUVArray[point + 1], 0, gfxSurface);
             addPoly(xpos + 0x10, ypos, tileUVArray[point + 2], tileUVArray[point + 1], 0, gfxSurface);
@@ -1139,9 +1271,9 @@ void SceneViewer::drawScene()
             float xpos = ex;
             float ypos = ey;
 
-            drawSpriteFlipped(xpos - (gfxSurface[1].width >> 1), ypos - (gfxSurface[1].height >> 1),
-                              gfxSurface[1].width, gfxSurface[1].height, 0, 0, FLIP_NONE, INK_NONE,
-                              0xFF, 1);
+            drawSpriteFlipped(xpos - (gfxSurface[3].width >> 1), ypos - (gfxSurface[3].height >> 1),
+                              gfxSurface[3].width, gfxSurface[3].height, 0, 0, FLIP_NONE, INK_NONE,
+                              0xFF, 3);
         }
     }
 
@@ -1408,6 +1540,9 @@ void SceneViewer::unloadScene()
     sceneBoundsB = 0;
     prevStoredW  = -1;
     prevStoredH  = -1;
+
+    updateCTex[0] = false;
+    updateCTex[1] = false;
 }
 
 void SceneViewer::processObjects(bool isImage)
@@ -2278,7 +2413,7 @@ void SceneViewer::removeGraphicsFile(QString sheetPath, int slot)
         gfxSurface[slot].scope = SCOPE_NONE;
     }
     else {
-        for (int i = 1; i < v5_SURFACE_MAX; ++i) {
+        for (int i = 3; i < v5_SURFACE_MAX; ++i) {
             if (QString(sheetPath) == gfxSurface[i].name) {
                 gfxSurface[i].texturePtr->destroy();
                 delete gfxSurface[i].texturePtr;

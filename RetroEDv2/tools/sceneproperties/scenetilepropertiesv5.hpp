@@ -25,6 +25,8 @@ protected:
     void mouseReleaseEvent(QMouseEvent *) override;
     void leaveEvent(QEvent *) override;
 
+signals:
+    void UpdateW();
 private:
     short selection = -1;
     short highlight = -1;
@@ -45,14 +47,22 @@ public:
     void setupUI(RSDKv5::TileConfig::CollisionMask *cmA, RSDKv5::TileConfig::CollisionMask *cmB,
                  ushort *tile, QImage tileImg);
     void unsetUI();
+    void updatePropFlags(bool c, byte pos);
+    int collisionLyr = 0;
 
+signals:
+    void updateTileFlags(bool c, byte pos);
+    void updateTileColMap(RSDKv5::TileConfig::CollisionMask *cmask, ushort sel, int colLyr = 0);
+public slots:
+    void UpdateW();
 private:
     Ui::SceneTilePropertiesv5 *ui;
     TileCollisionWidgetv5 *edit;
     QImage tileImg;
-    int collisionLyr = 0;
 
     RSDKv5::TileConfig::CollisionMask *cmask[2] = { nullptr, nullptr };
+    int tileID = 0;
+    ushort *curTile = nullptr;
 };
 
 

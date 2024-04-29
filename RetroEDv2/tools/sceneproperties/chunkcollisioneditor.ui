@@ -317,8 +317,14 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>0</width>
-     <height>0</height>
+     <width>256</width>
+     <height>256</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>256</width>
+     <height>256</height>
     </size>
    </property>
    <property name="focusPolicy">
@@ -362,8 +368,14 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>194</width>
-     <height>80</height>
+     <width>256</width>
+     <height>256</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>256</width>
+     <height>256</height>
     </size>
    </property>
    <property name="focusPolicy">
@@ -414,19 +426,6 @@
    </property>
    <property name="text">
     <string>Collision Preview</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="refreshCol">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>10</y>
-     <width>90</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Refresh Collision</string>
    </property>
   </widget>
   <widget class="QPushButton" name="calcFloor">
@@ -563,8 +562,14 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>0</width>
-     <height>0</height>
+     <width>256</width>
+     <height>256</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>256</width>
+     <height>256</height>
     </size>
    </property>
    <property name="focusPolicy">

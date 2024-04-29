@@ -59,5 +59,6 @@
         <file>icons/ic_arrow_right_48px.svg</file>
         <file>resources/splash.png</file>
         <file>resources/splash.svg</file>
+        <file>icons/ic_stamp_selection_48px.svg</file>
     </qresource>
 </RCC>

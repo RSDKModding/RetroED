@@ -625,7 +625,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Entity Tool&lt;/p&gt;&lt;p&gt;Moves and places entities.&lt;/p&gt;&lt;p&gt;Controls&lt;br/&gt;Left Click: Selects an entity for dragging, hold to move it around the stage.&lt;br/&gt;If an object from the list is previously selected, left click will place a new entity at the cursor's position instead.&lt;/p&gt;&lt;p&gt;Right Click: Selects an entity, if there's any overlap between entities, it will select the next entity.&lt;br/&gt;If an object from the list was previously selected, right click will clean up the selection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Entity Tool (E)&lt;/p&gt;&lt;p&gt;Moves and places entities.&lt;/p&gt;&lt;p&gt;Controls&lt;br/&gt;Left Click: Selects an entity for dragging, hold to move it around the stage.&lt;br/&gt;If an object from the list is previously selected, left click will place a new entity at the cursor's position instead.&lt;/p&gt;&lt;p&gt;Right Click: Selects an entity, if there's any overlap between entities, it will select the next entity.&lt;br/&gt;If an object from the list was previously selected, right click will clean up the selection.&lt;br/&gt;&lt;br/&gt;Shortcuts:&lt;br/&gt;Ctrl + C: Copies the currently selected entity.&lt;br/&gt;Ctrl + V: Pastes a stored entity at cursor's position.&lt;/p&gt;&lt;p&gt;Up / Down / Left / Right: Moves the selected entity 4 px in the chosen direction.&lt;br/&gt;(Holding Ctrl will increase the movement to 16 px, Holding Shift will reduce it to 1px)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>E</string>
@@ -668,7 +668,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select Tool&lt;br/&gt;Allows Drag-Selection&lt;br/&gt;(WIP)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select Tool (W)&lt;br/&gt;Allows for Drag-Selection. (WIP)&lt;br/&gt;&lt;br/&gt;Controls:&lt;br/&gt;(Drag) Left Click: Selects any entity inside a box from the starter position to the cursor's position.&lt;br/&gt;(Hold on selected entity) Left Click: Moves all entities. (WIP)&lt;/p&gt;&lt;p&gt;Delete / Backspace: Deletes any entity selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>S</string>
@@ -691,7 +691,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pan Tool&lt;br/&gt;Moves the editor camera across the stage&lt;br/&gt;Left Click: Move the camera&lt;br/&gt;Middle Click: Ditto, works on all the tools&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pan Tool (S)&lt;br/&gt;Moves the editor camera across the stage.&lt;/p&gt;&lt;p&gt;Controls:&lt;br/&gt;Left Click: Move the camera.&lt;br/&gt;Middle Click: Ditto, works on all the tools.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>M</string>
@@ -714,7 +714,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Eraser Tool&lt;/p&gt;&lt;p&gt;Used for cleaning tiles on the layout.&lt;/p&gt;&lt;p&gt;Controls:&lt;/p&gt;&lt;p&gt;Left Click: Remove selected tile.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Eraser Tool (R)&lt;br/&gt;Used for cleaning chunks on the layout.&lt;/p&gt;&lt;p&gt;Controls:&lt;br/&gt;Left Click: Removes chunk at cursor's position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>E</string>
@@ -757,7 +757,7 @@
       <item row="0" column="9">
        <widget class="QToolButton" name="showCollisionB">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="minimumSize">
          <size>
@@ -788,7 +788,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pencil Tool&lt;br/&gt;Places a tile on the stage&lt;/p&gt;&lt;p&gt;&lt;br/&gt;Controls:&lt;br/&gt;Left Click: Tile Placing&lt;br/&gt;Right Click: Copies the tile located at the cursor's position&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pencil Tool (A)&lt;br/&gt;Draw chunks on the stage.&lt;br/&gt;&lt;br/&gt;Controls:&lt;br/&gt;Left Click: Chunk Placing.&lt;br/&gt;Right Click: Copies the chunk located at the cursor's position.&lt;/p&gt;&lt;p&gt;Shortcuts:&lt;br/&gt;C: Picks tile at cursor's position for collision editing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>P</string>
@@ -890,7 +890,7 @@
       <item row="0" column="8">
        <widget class="QToolButton" name="showCollisionA">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="minimumSize">
          <size>
