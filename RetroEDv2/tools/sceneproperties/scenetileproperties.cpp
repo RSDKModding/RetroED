@@ -455,6 +455,8 @@ void SceneTileProperties::setColMask(RSDKv1::TileConfig::CollisionMask *cmA, RSD
     ui->colMode->setCurrentIndex(cmaskv1[collisionLyr]->collisionMode);
 }
 
+void SceneTileProperties::tileSelected(ushort tile){ ui->tileList->setCurrentRow(tile); }
+
 TileCollisionWidget::TileCollisionWidget(QWidget *parent) : QWidget(parent) { setMouseTracking(true); }
 
 void TileCollisionWidget::paintEvent(QPaintEvent *)

@@ -47,9 +47,11 @@ public:
     void setupUI(RSDKv5::TileConfig::CollisionMask *cmA, RSDKv5::TileConfig::CollisionMask *cmB,
                  ushort *tile, QImage tileImg);
     void unsetUI();
+    void updatePropFlags(bool c, byte pos);
     int collisionLyr = 0;
 
 signals:
+    void updateTileFlags(bool c, byte pos);
     void updateTileColMap(RSDKv5::TileConfig::CollisionMask *cmask, ushort sel, int colLyr = 0);
 public slots:
     void UpdateW();
@@ -60,6 +62,7 @@ private:
 
     RSDKv5::TileConfig::CollisionMask *cmask[2] = { nullptr, nullptr };
     int tileID = 0;
+    ushort *curTile = nullptr;
 };
 
 

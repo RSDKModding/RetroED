@@ -253,7 +253,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stamp Tool&lt;br/&gt;Places on stage a preset of tiles&lt;br/&gt;(WIP)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stamp Tool&lt;br/&gt;Places on stage a preset of tiles&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>L</string>
@@ -290,7 +290,14 @@
       <item row="0" column="6">
        <widget class="QToolButton" name="stampCopy">
         <property name="text">
-         <string>...</string>
+         <string>S</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_stamp_selection_48px.svg</normaloff>:/icons/ic_stamp_selection_48px.svg</iconset>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -699,7 +706,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="layerPage">
       <property name="geometry">

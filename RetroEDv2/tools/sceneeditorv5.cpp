@@ -227,8 +227,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->downLayer->setDisabled(c == viewer->layers.count() - 1);
 
         viewer->selectedLayer = c;
-        viewer->updateCTex[0] = false;
-        viewer->updateCTex[1] = false;
         lyrProp->setupUI(&scene, viewer->selectedLayer);
 
         ui->propertiesBox->setCurrentWidget(ui->layerPropPage);
@@ -303,6 +301,9 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             viewer->layers[c].visible = item->checkState() == Qt::Checked;
     });
 
+    connect(tileProp, &SceneTilePropertiesv5::updateTileFlags, [this](bool c, byte pos){
+        Utils::setBit(viewer->selectedTile, c, pos);
+    });
     connect(tileProp, &SceneTilePropertiesv5::updateTileColMap, viewer, &SceneViewer::updateTileColMap);
 
     connect(ui->stampList, &QListWidget::currentRowChanged, [this](int c) {
@@ -1692,8 +1693,17 @@ void SceneEditorv5::updateType(SceneEntity *entity, byte type)
 }
 
 void SceneEditorv5::updateTileSel(){
-    tileProp->setupUI(&tileconfig.collisionPaths[0][viewer->selectedTile & 0x3FF], &tileconfig.collisionPaths[1][viewer->selectedTile & 0x3FF],
-            &viewer->selectedTile, viewer->tiles[viewer->selectedTile & 0x3FF]);
+    ushort tile = viewer->selectedTile;
+    Utils::setBit(tile, viewer->tileFlip.x, 10);
+    Utils::setBit(tile, viewer->tileFlip.y, 11);
+    Utils::setBit(tile, viewer->tileSolidA.x, 12);
+    Utils::setBit(tile, viewer->tileSolidA.y, 13);
+    Utils::setBit(tile, viewer->tileSolidB.x, 14);
+    Utils::setBit(tile, viewer->tileSolidB.y, 15);
+
+    tileProp->setupUI(&tileconfig.collisionPaths[0][tile & 0x3FF], &tileconfig.collisionPaths[1][tile & 0x3FF],
+            &tile, viewer->tiles[tile & 0x3FF]);
+    copiedTile = false;
 }
 void SceneEditorv5::updateStampName(QString name){
     ui->stampList->currentItem()->setText(name);
@@ -2074,22 +2084,23 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                         if (viewer->selectedLayer >= 0) {
                             Rect<float> box;
 
+                            Vector2<float> pos = Vector2<float>(
+                                (mEvent->pos().x() * viewer->invZoom()) + viewer->cameraPos.x,
+                                (mEvent->pos().y() * viewer->invZoom()) + viewer->cameraPos.y);
+
                             for (int y = 0; y < viewer->layers[viewer->selectedLayer].height; ++y) {
                                 for (int x = 0; x < viewer->layers[viewer->selectedLayer].width; ++x) {
                                     box = Rect<float>(x * 0x10, y * 0x10, 0x10, 0x10);
-
-                                    Vector2<float> pos = Vector2<float>(
-                                        (mEvent->pos().x() * viewer->invZoom()) + viewer->cameraPos.x,
-                                        (mEvent->pos().y() * viewer->invZoom()) + viewer->cameraPos.y);
                                     if (box.contains(pos)) {
                                         ushort tile =
                                             viewer->layers[viewer->selectedLayer].layout[y][x];
 
                                         viewer->selectedTile = tile;
+                                        copiedTile = true;
                                         ui->propertiesBox->setCurrentWidget(ui->tilePropPage);
                                         tileProp->setupUI(&tileconfig.collisionPaths[0][tile & 0x3FF], &tileconfig.collisionPaths[1][tile & 0x3FF],
                                                 &tile, viewer->tiles[tile & 0x3FF]);
-                                        ui->toolBox->setCurrentWidget(ui->tilesPage);
+                                        //ui->toolBox->setCurrentWidget(ui->tilesPage); // why does this lag so much wth
                                         break;
                                     }
                                 }
@@ -3557,7 +3568,7 @@ void SceneEditorv5::SetTile(float x, float y)
     ypos /= 0x10;
 
     ushort tile = viewer->selectedTile;
-    if (tile < 0x3FF) {  // only use this if the tile is not copied from the stage
+    if (!copiedTile) {  // only use this if the tile is not copied from the stage
         Utils::setBit(tile, viewer->tileFlip.x, 10);
         Utils::setBit(tile, viewer->tileFlip.y, 11);
         Utils::setBit(tile, viewer->tileSolidA.x, 12);
@@ -3572,39 +3583,6 @@ void SceneEditorv5::SetTile(float x, float y)
     if (ypos >= 0 && ypos < viewer->layers[viewer->selectedLayer].height) {
         if (xpos >= 0 && xpos < viewer->layers[viewer->selectedLayer].width) {
             viewer->layers[viewer->selectedLayer].layout[ypos][xpos] = tile;
-
-            bool showCLayers[2] = { viewer->showPlaneA, viewer->showPlaneB};
-            for (int c = 0; c < 2; c++){
-                if (showCLayers[c] == true){
-                    delete viewer->gfxSurface[c + 1].texturePtr;
-                    viewer->colPaint.begin(viewer->colTex[c]);
-                    if ((tile & 0x3FF) != 0xFFFF){
-                        QImage curTile = viewer->colTexStore->copy(c * 0x10, (tile & 0x3FF) * 0x10, 0x10, 0x10);
-
-                        curTile.setColor(1,qRgb(255,0,255));
-                        // draw pixel collision
-                        QPoint destPos = QPoint(xpos * 0x10, ypos * 0x10);
-
-                        byte solidity = 0;
-                        solidity = !c ? (tile >> 12) & 3 : (tile >> 14) & 3;
-
-                        if (!solidity)
-                            continue;
-
-                        bool flipX = (tile >> 10) & 1;
-                        bool flipY = (tile >> 11) & 1;
-
-                        if (solidity != 2) { curTile.setColor(1,qRgb(255,255,0)); }
-                        if (solidity != 1) { curTile.setColor(1,qRgb(255,0,0)); }
-                        if (solidity == 3) { curTile.setColor(1,qRgb(255,255,255)); }
-
-                        curTile = curTile.convertToFormat(QImage::Format_RGB888);
-                        viewer->colPaint.drawImage(destPos, curTile.mirrored(flipX, flipY));
-                    }
-                    viewer->colPaint.end();
-                    viewer->gfxSurface[c + 1].texturePtr = viewer->createTexture(*viewer->colTex[c], QOpenGLTexture::Target2D);
-                }
-            }
         }
     }
 
@@ -3659,48 +3637,6 @@ void SceneEditorv5::SetStamp(float x, float y)
                     }
                 }
             }
-        }
-    }
-
-    // today
-    bool showCLayers[2] = { viewer->showPlaneA, viewer->showPlaneB};
-    for (int c = 0; c < 2; c++){
-        if (showCLayers[c] == true){
-            delete viewer->gfxSurface[c + 1].texturePtr;
-            viewer->colPaint.begin(viewer->colTex[c]);
-            for(int y = 0; y < stamp.size.y; y++){
-                for(int x = 0; x < stamp.size.x; x++){
-                    int tileXPos = stamp.pos.x + x;
-                    int tileYPos = stamp.pos.y + y;
-
-                    ushort tile = viewer->layers[viewer->selectedLayer].layout[tileYPos][tileXPos];
-                    if (tile != 0xFFFF){
-                        QImage curTile = viewer->colTexStore->copy(c * 0x10, (tile & 0x3FF) * 0x10, 0x10, 0x10);
-
-                        curTile.setColor(1,qRgb(255,0,255));
-                        // draw pixel collision
-                        QPoint destPos = QPoint((xpos + x) * 0x10, (ypos + y) * 0x10);
-
-                        byte solidity = 0;
-                        solidity = !c ? (tile >> 12) & 3 : (tile >> 14) & 3;
-
-                        if (!solidity)
-                            continue;
-
-                        bool flipX = (tile >> 10) & 1;
-                        bool flipY = (tile >> 11) & 1;
-
-                        if (solidity != 2) { curTile.setColor(1,qRgb(255,255,0)); }
-                        if (solidity != 1) { curTile.setColor(1,qRgb(255,0,0)); }
-                        if (solidity == 3) { curTile.setColor(1,qRgb(255,255,255)); }
-
-                        curTile = curTile.convertToFormat(QImage::Format_RGB888);
-                        viewer->colPaint.drawImage(destPos, curTile.mirrored(flipX, flipY));
-                    }
-                }
-            }
-            viewer->colPaint.end();
-            viewer->gfxSurface[c + 1].texturePtr = viewer->createTexture(*viewer->colTex[c], QOpenGLTexture::Target2D);
         }
     }
 }
@@ -3943,11 +3879,18 @@ bool SceneEditorv5::HandleKeyPress(QKeyEvent *event)
             break;
 
         case SceneViewer::TOOL_PENCIL:
-            if (event->key() == Qt::Key_Z)
-                viewer->tileFlip.x = true;
-
-            if (event->key() == Qt::Key_X)
-                viewer->tileFlip.y = true;
+            if (viewerActive){
+                if (event->key() == Qt::Key_Z){
+                    bool flipX  = Utils::getBit(viewer->selectedTile, 10) ^ true;
+                    Utils::setBit(viewer->selectedTile, flipX, 10);
+                    tileProp->updatePropFlags(flipX, 10);
+                }
+                if (event->key() == Qt::Key_X){
+                    bool flipY  = Utils::getBit(viewer->selectedTile, 11) ^ true;
+                    Utils::setBit(viewer->selectedTile, flipY, 11);
+                    tileProp->updatePropFlags(flipY, 11);
+                }
+            }
 
             if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace) {
                 if (viewer->selectedLayer >= 0) {

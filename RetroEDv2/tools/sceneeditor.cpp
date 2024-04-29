@@ -1506,11 +1506,10 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                                     if (box.contains(pos)) {
                                         ushort chunk =
                                             viewer->layers[viewer->selectedLayer].layout[y][x];
+                                            chkProp->SetCurrentChunk(chunk);
 
-                                        chkProp->SetCurrentChunk(chunk);
-
-                                        viewer->selectedChunk = chunk;
-                                        ui->toolBox->setCurrentWidget(ui->chunksPage);
+                                            viewer->selectedChunk = chunk;
+                                            ui->toolBox->setCurrentWidget(ui->chunksPage);
                                         break;
                                     }
                                 }
@@ -3257,6 +3256,45 @@ bool SceneEditor::HandleKeyPress(QKeyEvent *event)
 
                                 // reset context
                                 break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (event->key() == Qt::Key_C) {
+                if (viewer->selectedLayer >= 0) {
+                    Rect<float> box;
+
+                    for (int y = 0; y < viewer->sceneBoundsB / 0x80; ++y) {
+                        for (int x = 0; x < viewer->sceneBoundsR / 0x80; ++x) {
+                            box = Rect<float>(x * 0x80, y * 0x80, 0x80, 0x80);
+
+                            Vector2<float> pos = Vector2<float>(
+                                (viewer->tilePos.x * viewer->invZoom()) + viewer->cameraPos.x,
+                                (viewer->tilePos.y * viewer->invZoom()) + viewer->cameraPos.y);
+                            if (pos.x > viewer->layers[viewer->selectedLayer].width * 0x80 || pos.x < 0 ||
+                                pos.y > viewer->layers[viewer->selectedLayer].height * 0x80 || pos.y < 0)
+                                break;
+                            if (box.contains(pos)) {
+                                ushort chunk = viewer->layers[viewer->selectedLayer].layout[y][x];
+                                for (int ty = 0; ty < 8; ++ty) {
+                                    for (int tx = 0; tx < 8; ++tx) {
+                                        box = Rect<float>(x * 0x80 + tx * 0x10, y * 0x80 + ty * 0x10, 0x10, 0x10);
+                                        Vector2<float> pos = Vector2<float>(
+                                            (viewer->tilePos.x * viewer->invZoom()) + viewer->cameraPos.x,
+                                            (viewer->tilePos.y * viewer->invZoom()) + viewer->cameraPos.y);
+                                        if (box.contains(pos)) {
+                                            FormatHelpers::Chunks::Tile &tile = chunkset.chunks[chunk].tiles[ty][tx];
+
+                                            ui->propertiesBox->setCurrentWidget(ui->tilePropPage);
+                                            tileProp->tileSelected(tile.tileIndex);
+                                            DoAction();
+
+                                            // reset context
+                                            break;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

@@ -24,6 +24,8 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
     cmask[1] = cmB;
     tileID = *tile & 0x3FF;
 
+    curTile = tile;
+
     collisionLyr = 0;
 
     ui->colPlaneA->setChecked(true);
@@ -109,12 +111,12 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
         edit->update();
     });
 
-    connect(ui->flipX, &QCheckBox::toggled, [tile](bool c) { Utils::setBit(*tile, c, 10); });
-    connect(ui->flipY, &QCheckBox::toggled, [tile](bool c) { Utils::setBit(*tile, c, 11); });
-    connect(ui->solidTopA, &QCheckBox::toggled, [tile](bool c) { Utils::setBit(*tile, c, 12); });
-    connect(ui->solidLRBA, &QCheckBox::toggled, [tile](bool c) { Utils::setBit(*tile, c, 13); });
-    connect(ui->solidTopB, &QCheckBox::toggled, [tile](bool c) { Utils::setBit(*tile, c, 14); });
-    connect(ui->solidLRBB, &QCheckBox::toggled, [tile](bool c) { Utils::setBit(*tile, c, 15); });
+    connect(ui->flipX, &QCheckBox::toggled, [tile, this](bool c) { Utils::setBit(*tile, c, 10); updateTileFlags(c, 10); });
+    connect(ui->flipY, &QCheckBox::toggled, [tile, this](bool c) { Utils::setBit(*tile, c, 11); updateTileFlags(c, 11); });
+    connect(ui->solidTopA, &QCheckBox::toggled, [tile, this](bool c) { Utils::setBit(*tile, c, 12); updateTileFlags(c, 12); });
+    connect(ui->solidLRBA, &QCheckBox::toggled, [tile, this](bool c) { Utils::setBit(*tile, c, 13); updateTileFlags(c, 13); });
+    connect(ui->solidTopB, &QCheckBox::toggled, [tile, this](bool c) { Utils::setBit(*tile, c, 14); updateTileFlags(c, 14); });
+    connect(ui->solidLRBB, &QCheckBox::toggled, [tile, this](bool c) { Utils::setBit(*tile, c, 15); updateTileFlags(c, 15); });
 
     connect(ui->maskDir, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this](int i) { cmask[collisionLyr]->direction = i != 0; edit->update();});
@@ -394,6 +396,24 @@ void SceneTilePropertiesv5::unsetUI()
 
 void SceneTilePropertiesv5::UpdateW(){
     emit updateTileColMap(cmask[collisionLyr], tileID, collisionLyr);
+}
+
+void SceneTilePropertiesv5::updatePropFlags(bool c, byte pos){
+    Utils::setBit(*curTile, c, pos);
+    switch (pos){
+    case 10:
+        ui->flipX->setChecked(c); break;
+    case 11:
+        ui->flipY->setChecked(c); break;
+    case 12:
+        ui->solidTopA->setChecked(c); break;
+    case 13:
+        ui->solidLRBA->setChecked(c); break;
+    case 14:
+        ui->solidTopB->setChecked(c); break;
+    case 15:
+        ui->solidLRBB->setChecked(c); break;
+    }
 }
 
 #include "moc_scenetilepropertiesv5.cpp"
