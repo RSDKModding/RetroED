@@ -3843,12 +3843,14 @@ bool SceneEditorv5::HandleKeyPress(QKeyEvent *event)
     if (!ctrlDownL && !altDownL && !shiftDownL){
         if (event->key() == Qt::Key_S)
             tool = SceneViewer::TOOL_MOUSE;
-        if (event->key() == Qt::Key_S)
+        if (event->key() == Qt::Key_W)
             tool = SceneViewer::TOOL_SELECT;
-        if (event->key() == Qt::Key_C)
+        if (event->key() == Qt::Key_A)
             tool = SceneViewer::TOOL_PENCIL;
-        if (event->key() == Qt::Key_L)
+        if (event->key() == Qt::Key_K)
             tool = SceneViewer::TOOL_STAMP;
+        if (event->key() == Qt::Key_L)
+            tool = SceneViewer::TOOL_STAMP_MAKER;
         if (event->key() == Qt::Key_R)
             tool = SceneViewer::TOOL_ERASER;
         if (event->key() == Qt::Key_E)

@@ -95,9 +95,9 @@ ChunkSelector::ChunkSelector(QWidget *parent) : QWidget(parent), parentWidget((S
         layout->addWidget(label, i, 1);
         connect(label, &ChunkLabel::requestRepaint, chunkArea, QOverload<>::of(&QWidget::update));
         labels[i++] = label;
-        connect(label, &ChunkLabel::requestRepaint, [=]{
-            parentWidget->tileProp->checkChunk(true);
-        });
+        connect(label, &ChunkLabel::requestRepaint, [=]{ parentWidget->tileProp->checkChunk(true); });
+        if (i == 0x100 && (parentWidget->viewer->gameType == ENGINE_v1))
+            break;
     }
 
     chunkArea->setLayout(layout);
@@ -112,6 +112,8 @@ void ChunkSelector::RefreshList()
     int i = 0;
     for (auto &&chunk : parentWidget->viewer->chunks) {
         labels[i++]->setPixmap(QPixmap::fromImage(chunk).scaled(chunk.width(), chunk.height()));
+        if (i == 0x100 && (parentWidget->viewer->gameType == ENGINE_v1))
+            break;
     }
 }
 
@@ -122,7 +124,7 @@ void ChunkSelector::SetCurrentChunk(int chunkID)
         labels[parentWidget->viewer->selectedChunk]->update();
     }
 
-    if (chunkID >= 0 && chunkID < 0x200 && labels[chunkID]) {
+    if (chunkID >= 0 && chunkID < (parentWidget->viewer->gameType == ENGINE_v1 ? 0x100 : 0x200) && labels[chunkID]) {
         scrollArea->ensureWidgetVisible(labels[chunkID]);
         labels[chunkID]->update();
     }
@@ -3200,9 +3202,9 @@ bool SceneEditor::HandleKeyPress(QKeyEvent *event)
     if (!ctrlDownL && !altDownL && !shiftDownL){
         if (event->key() == Qt::Key_S)
             tool = SceneViewer::TOOL_MOUSE;
-        if (event->key() == Qt::Key_S)
+        if (event->key() == Qt::Key_W)
             tool = SceneViewer::TOOL_SELECT;
-        if (event->key() == Qt::Key_C)
+        if (event->key() == Qt::Key_A)
             tool = SceneViewer::TOOL_PENCIL;
         if (event->key() == Qt::Key_R)
             tool = SceneViewer::TOOL_ERASER;
