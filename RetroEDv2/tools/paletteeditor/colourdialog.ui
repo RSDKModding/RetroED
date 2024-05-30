@@ -14,8 +14,8 @@
    <string>Select Color...</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>:/icons/ic_palette_48px.svg</normaloff>:/icons/ic_palette_48px.svg</iconset>
+   <iconset resource="../../resources.qrc">
+    <normaloff>:/icons/icon.svg</normaloff>:/icons/icon.svg</iconset>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -435,7 +435,9 @@
   <tabstop>bSpin</tabstop>
   <tabstop>htmlInput</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../../resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

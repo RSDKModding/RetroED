@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>491</width>
+    <width>496</width>
     <height>350</height>
    </rect>
   </property>
@@ -17,8 +17,18 @@
    <string/>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="0" colspan="21">
-    <layout class="QHBoxLayout" name="widgetLayout"/>
+   <item row="1" column="8">
+    <widget class="QToolButton" name="bank8">
+     <property name="toolTip">
+      <string>Sets the active bank to bank 8</string>
+     </property>
+     <property name="text">
+      <string>8</string>
+     </property>
+     <property name="autoRaise">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="1" column="2">
     <widget class="QToolButton" name="bank2">
@@ -33,36 +43,57 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="5">
-    <widget class="QToolButton" name="bank5">
+   <item row="1" column="23">
+    <widget class="QToolButton" name="exportPal">
      <property name="toolTip">
-      <string>Sets the active bank to bank 5</string>
+      <string>Export the current palette bank</string>
      </property>
      <property name="text">
-      <string>5</string>
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../resources.qrc">
+       <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="22">
+    <widget class="QToolButton" name="importPal">
+     <property name="toolTip">
+      <string>Imports a palette into the current palette bank</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../resources.qrc">
+       <normaloff>:/icons/ic_import_48px.svg</normaloff>:/icons/ic_import_48px.svg</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="6">
+    <widget class="QToolButton" name="bank6">
+     <property name="toolTip">
+      <string>Sets the active bank to bank 6</string>
+     </property>
+     <property name="text">
+      <string>6</string>
      </property>
      <property name="autoRaise">
       <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Active Bank:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QToolButton" name="bank1">
-     <property name="toolTip">
-      <string>Sets the active bank to bank 1</string>
+   <item row="1" column="9">
+    <widget class="QLabel" name="label_2">
+     <property name="minimumSize">
+      <size>
+       <width>70</width>
+       <height>0</height>
+      </size>
      </property>
      <property name="text">
-      <string>1</string>
-     </property>
-     <property name="autoRaise">
-      <bool>true</bool>
+      <string>Palette Rows:</string>
      </property>
     </widget>
    </item>
@@ -79,29 +110,23 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="8">
-    <widget class="QToolButton" name="bank8">
+   <item row="1" column="1">
+    <widget class="QToolButton" name="bank1">
      <property name="toolTip">
-      <string>Sets the active bank to bank 8</string>
+      <string>Sets the active bank to bank 1</string>
      </property>
      <property name="text">
-      <string>8</string>
+      <string>1</string>
      </property>
      <property name="autoRaise">
       <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="1" column="6">
-    <widget class="QToolButton" name="bank6">
-     <property name="toolTip">
-      <string>Sets the active bank to bank 6</string>
-     </property>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string>6</string>
-     </property>
-     <property name="autoRaise">
-      <bool>true</bool>
+      <string>Active Bank:</string>
      </property>
     </widget>
    </item>
@@ -131,7 +156,20 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="9" colspan="2">
+   <item row="1" column="5">
+    <widget class="QToolButton" name="bank5">
+     <property name="toolTip">
+      <string>Sets the active bank to bank 5</string>
+     </property>
+     <property name="text">
+      <string>5</string>
+     </property>
+     <property name="autoRaise">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="14" colspan="2">
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -147,33 +185,15 @@
      </property>
     </spacer>
    </item>
-   <item row="1" column="20">
-    <widget class="QToolButton" name="exportPal">
-     <property name="toolTip">
-      <string>Export the current palette bank</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../resources.qrc">
-       <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
+   <item row="1" column="10">
+    <widget class="QSpinBox" name="palRows">
+     <property name="maximum">
+      <number>16</number>
      </property>
     </widget>
    </item>
-   <item row="1" column="19">
-    <widget class="QToolButton" name="importPal">
-     <property name="toolTip">
-      <string>Imports a palette into the current palette bank</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../resources.qrc">
-       <normaloff>:/icons/ic_import_48px.svg</normaloff>:/icons/ic_import_48px.svg</iconset>
-     </property>
-    </widget>
+   <item row="2" column="0" colspan="24">
+    <layout class="QHBoxLayout" name="widgetLayout"/>
    </item>
   </layout>
  </widget>

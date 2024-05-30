@@ -616,8 +616,8 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="4">
-       <widget class="QToolButton" name="entityTool">
+      <item row="0" column="3">
+       <widget class="QToolButton" name="eraserTool">
         <property name="minimumSize">
          <size>
           <width>24</width>
@@ -625,14 +625,83 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Entity Tool (E)&lt;/p&gt;&lt;p&gt;Moves and places entities.&lt;/p&gt;&lt;p&gt;Controls&lt;br/&gt;Left Click: Selects an entity for dragging, hold to move it around the stage.&lt;br/&gt;If an object from the list is previously selected, left click will place a new entity at the cursor's position instead.&lt;/p&gt;&lt;p&gt;Right Click: Selects an entity, if there's any overlap between entities, it will select the next entity.&lt;br/&gt;If an object from the list was previously selected, right click will clean up the selection.&lt;br/&gt;&lt;br/&gt;Shortcuts:&lt;br/&gt;Ctrl + C: Copies the currently selected entity.&lt;br/&gt;Ctrl + V: Pastes a stored entity at cursor's position.&lt;/p&gt;&lt;p&gt;Up / Down / Left / Right: Moves the selected entity 4 px in the chosen direction.&lt;br/&gt;(Holding Ctrl will increase the movement to 16 px, Holding Shift will reduce it to 1px)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Eraser Tool (R)&lt;br/&gt;Used for cleaning chunks on the layout.&lt;/p&gt;&lt;p&gt;Controls:&lt;br/&gt;Left Click: Removes chunk at cursor's position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>E</string>
         </property>
         <property name="icon">
          <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_view_in_ar_48px.svg</normaloff>:/icons/ic_view_in_ar_48px.svg</iconset>
+          <normaloff>:/icons/ic_eraser_48px.svg</normaloff>:/icons/ic_eraser_48px.svg</iconset>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="5">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="1">
+       <widget class="QToolButton" name="selectTool">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select Tool (W)&lt;br/&gt;Allows for Drag-Selection.&lt;br/&gt;&lt;br/&gt;Controls:&lt;br/&gt;(Drag) Left Click: Selects any entity inside a box from the starter position to the cursor's position.&lt;br/&gt;(Hold from selected entity) Left Click: Moves all selected entities.&lt;/p&gt;&lt;p&gt;Delete / Backspace: Deletes all selected entities.&lt;/p&gt;&lt;p&gt;Up / Down / Left / Right: Moves all selected entities 4 px in the chosen direction.&lt;br/&gt;(Holding Ctrl will increase the movement to 16 px, Holding Shift will reduce it to 1px)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>S</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_highlight_alt_48px.svg</normaloff>:/icons/ic_highlight_alt_48px.svg</iconset>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="6">
+       <widget class="QPushButton" name="runGame">
+        <property name="text">
+         <string>Run Game</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="10">
+       <widget class="QToolButton" name="showParallax">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Show Parallax Lines</string>
+        </property>
+        <property name="text">
+         <string>SP</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_horizontal_split_48px.svg</normaloff>:/icons/ic_horizontal_split_48px.svg</iconset>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
         </property>
         <property name="autoRaise">
          <bool>true</bool>
@@ -659,8 +728,8 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QToolButton" name="selectTool">
+      <item row="0" column="11">
+       <widget class="QToolButton" name="showTileGrid">
         <property name="minimumSize">
          <size>
           <width>24</width>
@@ -668,22 +737,25 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select Tool (W)&lt;br/&gt;Allows for Drag-Selection. (WIP)&lt;br/&gt;&lt;br/&gt;Controls:&lt;br/&gt;(Drag) Left Click: Selects any entity inside a box from the starter position to the cursor's position.&lt;br/&gt;(Hold on selected entity) Left Click: Moves all entities. (WIP)&lt;/p&gt;&lt;p&gt;Delete / Backspace: Deletes any entity selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Show Grid</string>
         </property>
         <property name="text">
-         <string>S</string>
+         <string>TLE</string>
         </property>
         <property name="icon">
          <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_highlight_alt_48px.svg</normaloff>:/icons/ic_highlight_alt_48px.svg</iconset>
+          <normaloff>:/icons/ic_grid_48px.svg</normaloff>:/icons/ic_grid_48px.svg</iconset>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
         </property>
         <property name="autoRaise">
          <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QToolButton" name="panTool">
+      <item row="0" column="4">
+       <widget class="QToolButton" name="entityTool">
         <property name="minimumSize">
          <size>
           <width>24</width>
@@ -691,45 +763,25 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pan Tool (S)&lt;br/&gt;Moves the editor camera across the stage.&lt;/p&gt;&lt;p&gt;Controls:&lt;br/&gt;Left Click: Move the camera.&lt;br/&gt;Middle Click: Ditto, works on all the tools.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>M</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_pan_tool_48px.svg</normaloff>:/icons/ic_pan_tool_48px.svg</iconset>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QToolButton" name="eraserTool">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Eraser Tool (R)&lt;br/&gt;Used for cleaning chunks on the layout.&lt;/p&gt;&lt;p&gt;Controls:&lt;br/&gt;Left Click: Removes chunk at cursor's position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Entity Tool (E)&lt;/p&gt;&lt;p&gt;Moves and places entities.&lt;/p&gt;&lt;p&gt;Controls&lt;br/&gt;Left Click: Selects an entity for dragging, hold to move it around the stage.&lt;br/&gt;If an object from the list is previously selected, left click will place a new entity at the cursor's position instead.&lt;/p&gt;&lt;p&gt;Right Click: Selects an entity, if there's any overlap between entities, it will select the next entity.&lt;br/&gt;If an object from the list was previously selected, right click will clean up the selection.&lt;br/&gt;&lt;br/&gt;Shortcuts:&lt;br/&gt;Ctrl + C: Copies the currently selected entity.&lt;br/&gt;Ctrl + V: Pastes a stored entity at cursor's position.&lt;/p&gt;&lt;p&gt;Up / Down / Left / Right: Moves the selected entity 4 px in the chosen direction.&lt;br/&gt;(Holding Ctrl will increase the movement to 16 px, Holding Shift will reduce it to 1px)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>E</string>
         </property>
         <property name="icon">
          <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_eraser_48px.svg</normaloff>:/icons/ic_eraser_48px.svg</iconset>
+          <normaloff>:/icons/ic_view_in_ar_48px.svg</normaloff>:/icons/ic_view_in_ar_48px.svg</iconset>
         </property>
         <property name="autoRaise">
          <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="0" column="10">
-       <widget class="QToolButton" name="showParallax">
+      <item row="0" column="8">
+       <widget class="QToolButton" name="showCollisionA">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>24</width>
@@ -737,14 +789,10 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Show Parallax Lines</string>
+         <string>Show Collision Plane A</string>
         </property>
         <property name="text">
-         <string>SP</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_horizontal_split_48px.svg</normaloff>:/icons/ic_horizontal_split_48px.svg</iconset>
+         <string>A</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -779,8 +827,8 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="QToolButton" name="pencilTool">
+      <item row="0" column="0">
+       <widget class="QToolButton" name="panTool">
         <property name="minimumSize">
          <size>
           <width>24</width>
@@ -788,14 +836,14 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pencil Tool (A)&lt;br/&gt;Draw chunks on the stage.&lt;br/&gt;&lt;br/&gt;Controls:&lt;br/&gt;Left Click: Chunk Placing.&lt;br/&gt;Right Click: Copies the chunk located at the cursor's position.&lt;/p&gt;&lt;p&gt;Shortcuts:&lt;br/&gt;C: Picks tile at cursor's position for collision editing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pan Tool (S)&lt;br/&gt;Moves the editor camera across the stage.&lt;/p&gt;&lt;p&gt;Controls:&lt;br/&gt;Left Click: Move the camera.&lt;br/&gt;Middle Click: Ditto, works on all the tools.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>P</string>
+         <string>M</string>
         </property>
         <property name="icon">
          <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_mode_edit_48px.svg</normaloff>:/icons/ic_mode_edit_48px.svg</iconset>
+          <normaloff>:/icons/ic_pan_tool_48px.svg</normaloff>:/icons/ic_pan_tool_48px.svg</iconset>
         </property>
         <property name="autoRaise">
          <bool>true</bool>
@@ -822,21 +870,8 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="5">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="0" column="11">
-       <widget class="QToolButton" name="showTileGrid">
+      <item row="0" column="2">
+       <widget class="QToolButton" name="pencilTool">
         <property name="minimumSize">
          <size>
           <width>24</width>
@@ -844,17 +879,14 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Show Grid</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pencil Tool (A)&lt;br/&gt;Draw chunks on the stage.&lt;br/&gt;&lt;br/&gt;Controls:&lt;br/&gt;Left Click: Chunk Placing.&lt;br/&gt;Right Click: Copies the chunk located at the cursor's position.&lt;/p&gt;&lt;p&gt;Shortcuts:&lt;br/&gt;C: Picks tile at cursor's position for collision editing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>TLE</string>
+         <string>P</string>
         </property>
         <property name="icon">
          <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_grid_48px.svg</normaloff>:/icons/ic_grid_48px.svg</iconset>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
+          <normaloff>:/icons/ic_mode_edit_48px.svg</normaloff>:/icons/ic_mode_edit_48px.svg</iconset>
         </property>
         <property name="autoRaise">
          <bool>true</bool>
@@ -884,38 +916,6 @@
         </property>
         <property name="autoRaise">
          <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="8">
-       <widget class="QToolButton" name="showCollisionA">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Show Collision Plane A</string>
-        </property>
-        <property name="text">
-         <string>A</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="6">
-       <widget class="QPushButton" name="runGame">
-        <property name="text">
-         <string>Run Game</string>
         </property>
        </widget>
       </item>

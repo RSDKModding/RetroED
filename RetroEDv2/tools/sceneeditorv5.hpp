@@ -114,7 +114,7 @@ public:
     GameEntityBasevU createGameEntityvU;
     SceneEntity createTempEntity;
 
-    void CreateNewScene();
+    void CreateNewScene(QString scnPath, bool prePlus, bool loadGC, QString gcPath);
     void LoadScene(QString scnPath, QString gcfPath, byte gameType);
     void SaveScene(QString path);
 
@@ -132,6 +132,7 @@ public:
     GameObjectInfo *GetObjectInfo(QString name);
 
     QString dataPath = "";
+    QString gameLinkPath = "";
 
     // Event stuff
     bool waitForRelease = false;

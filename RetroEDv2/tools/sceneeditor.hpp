@@ -17,8 +17,9 @@ class ChunkEditor;
 class ChunkReplaceOptions;
 class ChunkSelector;
 class TilesetEditor;
+class ScenePreviewPalette;
 
-#include <RSDKv5/tileconfigv5.hpp>
+#include <RSDKv4/tileconfigv4.hpp>
 
 namespace Ui
 {
@@ -46,7 +47,7 @@ public:
         FormatHelpers::Chunks chunkset;
         FormatHelpers::StageConfig stageConfig;
 
-        RSDKv5::TileConfig tileconfig;
+        RSDKv4::TileConfig tileconfig;
 
         QList<SceneObject> objects;
         QList<SceneEntity> entities;
@@ -102,6 +103,7 @@ public:
     SceneScrollProperties *scrProp    = nullptr;
     ChunkSelector *chkProp            = nullptr;
     TilesetEditor *tsetEdit           = nullptr;
+    ScenePreviewPalette *palView      = nullptr;
 
     SceneEntity createTempEntity;
 
@@ -112,7 +114,7 @@ public:
     FormatHelpers::Chunks chunkset;
     FormatHelpers::StageConfig stageConfig;
 
-    void CreateNewScene();
+    void CreateNewScene(QString scnPath, byte scnVer, bool loadGC, QString gcPath);
     void LoadScene(QString scnPath, QString gcfPath, byte gameType);
     bool SaveScene(bool forceSaveAs = false);
 

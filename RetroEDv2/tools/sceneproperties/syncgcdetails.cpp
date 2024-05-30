@@ -3,7 +3,7 @@
 
 #include "syncgcdetails.hpp"
 
-SyncGCDetails::SyncGCDetails(int curObjCount, QWidget *parent)
+SyncGCDetails::SyncGCDetails(int scnObjCount, QWidget *parent)
     : QDialog(parent), ui(new Ui::SyncGCDetails)
 {
     ui->setupUi(this);
@@ -12,10 +12,9 @@ SyncGCDetails::SyncGCDetails(int curObjCount, QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setFixedSize(QSize(width(), height()));
 
-    ui->newObjCount->setValue(curObjCount);
+    ui->oldObjCount->setValue(scnObjCount);
 
     oldObjCount = ui->oldObjCount;
-    newObjCount = ui->newObjCount;
 }
 
 SyncGCDetails::~SyncGCDetails() { delete ui; }

@@ -58,6 +58,12 @@ GameManager::GameManager(QWidget *parent) : QDialog(parent), ui(new Ui::GameMana
                 appConfig.write();
             }
         });
+
+        connect(dataLocation[v], &QLineEdit::textEdited, [dataLocation, v](QString s){
+            dataLocation[v]->setText(s);
+            appConfig.baseDataManager[v].dataPath = s;
+            appConfig.write();
+        });
     }
 }
 

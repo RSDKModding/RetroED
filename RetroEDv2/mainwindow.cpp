@@ -205,6 +205,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                         case TOOL_RSDKUNPACKER: break;
                         case TOOL_PALETTEDITOR: {
                             PaletteEditor *tool = new PaletteEditor(r.path, r.gameVer);
+                            appConfig.addRecentFile(r.gameVer, TOOL_PALETTEDITOR, r.path, QList<QString>{});
                             AddTab(tool, "Palette Editor");
                             break;
                         }
@@ -275,7 +276,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         SetStatus("Opening Scene Editor...");
         SceneEditor *tool = new SceneEditor();
         tool->installEventFilter(this);
-        tool->CreateNewScene();
         AddTab(tool, "Scene Editor");
         SetStatus("Opened Scene Editor!");
     });
@@ -284,7 +284,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         SetStatus("Opening Scene Editor...");
         SceneEditorv5 *tool = new SceneEditorv5();
         tool->installEventFilter(this);
-        tool->CreateNewScene();
         AddTab(tool, "Scene Editor");
         SetStatus("Opened Scene Editor!");
     });

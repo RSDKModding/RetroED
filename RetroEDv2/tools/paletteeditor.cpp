@@ -4,15 +4,17 @@
 #include "paletteeditor.hpp"
 
 #include "paletteeditor/colourdialog.hpp"
+#include "paletteeditor/paletteimport.hpp"
 
-PaletteEditor::PaletteEditor(QString filePath, byte type, QWidget *parent)
+PaletteEditor::PaletteEditor(QString path, byte type, QWidget *parent)
     : QDialog(parent), widget(new PaletteWidget(this)), ui(new Ui::PaletteEditor)
 {
     ui->setupUi(this);
     InitEditor();
 
-    if (QFile::exists(filePath)) {
-        LoadPalette(filePath, type);
+    if (QFile::exists(path)) {
+        LoadPalette(path, type);
+        filePath = path;
     }
 }
 
@@ -24,28 +26,29 @@ void PaletteEditor::InitEditor()
     widget->palette = &palette;
 
     if (firstInit) {
+        QStringList types        = { "Adobe Color Table Palettes (*.act)",
+                              "rev02 (plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
+                              "rev01 (pre-plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
+                              "RSDKv5 StageConfig Palettes (*StageConfig*.bin)",
+                              "RSDKv4 GameConfig Palettes (*GameConfig*.bin)",
+                              "RSDKv4 StageConfig Palettes (*StageConfig*.bin)",
+                              "RSDKv3 StageConfig Palettes (*StageConfig*.bin)",
+                              "RSDKv2 StageConfig Palettes (*StageConfig*.bin)",
+                              "RSDKv1 StageConfig Palettes (*Zone*.zcf)" };
+        QList<QString> typesList = {
+            "Adobe Color Table Palettes (*.act)",
+            "rev02 (plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
+            "rev01 (pre-plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
+            "RSDKv5 StageConfig Palettes (*StageConfig*.bin)",
+            "RSDKv4 GameConfig Palettes (*GameConfig*.bin)",
+            "RSDKv4 StageConfig Palettes (*StageConfig*.bin)",
+            "RSDKv3 StageConfig Palettes (*StageConfig*.bin)",
+            "RSDKv2 StageConfig Palettes (*StageConfig*.bin)",
+            "RSDKv1 StageConfig Palettes (*Zone*.zcf)"
+        };
+
         connect(ui->importPal, &QPushButton::clicked, [=] {
-            QStringList types        = { "Adobe Color Table Palettes (*.act)",
-                                  "rev02 (plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
-                                  "rev01 (pre-plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
-                                  "RSDKv5 StageConfig Palettes (*StageConfig*.bin)",
-                                  "RSDKv4 GameConfig Palettes (*GameConfig*.bin)",
-                                  "RSDKv4 StageConfig Palettes (*StageConfig*.bin)",
-                                  "RSDKv3 StageConfig Palettes (*StageConfig*.bin)",
-                                  "RSDKv2 StageConfig Palettes (*StageConfig*.bin)",
-                                  "RSDKv1 StageConfig Palettes (*Zone*.zcf)" };
-            QList<QString> typesList = {
-                "Adobe Color Table Palettes (*.act)",
-                "rev02 (plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
-                "rev01 (pre-plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
-                "RSDKv5 StageConfig Palettes (*StageConfig*.bin)",
-                "RSDKv4 GameConfig Palettes (*GameConfig*.bin)",
-                "RSDKv4 StageConfig Palettes (*StageConfig*.bin)",
-                "RSDKv3 StageConfig Palettes (*StageConfig*.bin)",
-                "RSDKv2 StageConfig Palettes (*StageConfig*.bin)",
-                "RSDKv1 StageConfig Palettes (*Zone*.zcf)"
-            };
-            QFileDialog filedialog(this, tr("Open Palette"), "",
+            QFileDialog filedialog(this, tr("Import Palette"), "",
                                    tr(types.join(";;").toStdString().c_str()));
             filedialog.setAcceptMode(QFileDialog::AcceptOpen);
             if (filedialog.exec() == QDialog::Accepted) {
@@ -53,8 +56,7 @@ void PaletteEditor::InitEditor()
                 QString fileName = filedialog.selectedFiles()[0];
 
                 // disconnect(ui->importPal, nullptr, nullptr, nullptr);
-
-                LoadPalette(fileName, type);
+                ImportPalette(fileName, type);
                 InitEditor();
             }
         });
@@ -79,6 +81,8 @@ void PaletteEditor::InitEditor()
             connect(bankSwitches[b], &QToolButton::clicked, [this, b] { SwitchBank(b); });
         }
 
+        connect(ui->palRows, QOverload<int>::of(&QSpinBox::valueChanged), [this](int r){ UpdatePaletteRows(r * 0x10); });
+
         ui->widgetLayout->addWidget(widget, 1);
     }
 
@@ -96,6 +100,8 @@ void PaletteEditor::LoadPalette(QString path, byte type)
         bankSwitches[b]->setDisabled(true);
     }
 
+
+    ui->palRows->setEnabled(false);
     palType = type;
     bankID  = 0;
     switch (type) {
@@ -109,6 +115,9 @@ void PaletteEditor::LoadPalette(QString path, byte type)
                 pal.append(clr);
             }
             palette = pal;
+            ui->palRows->setEnabled(true);
+            ui->palRows->setValue(pal.count() / 16);
+            ui->exportPal->setDisabled(true);
             break;
         }
 
@@ -120,6 +129,7 @@ void PaletteEditor::LoadPalette(QString path, byte type)
             else
                 gameConfigv5 = RSDKv5::GameConfig(path, type == PALTYPE_GAMECONFIGv5_rev01);
 
+            configPalv5 = &gameConfigv5.palettes[bankID];
             SwitchBank(0);
             bankSwitches[0]->setDown(true);
             for (int b = 0; b < 8; ++b) bankSwitches[b]->setDisabled(false);
@@ -166,6 +176,115 @@ void PaletteEditor::LoadPalette(QString path, byte type)
     ClearActions();
 }
 
+void PaletteEditor::ImportPalette(QString path, byte type)
+{
+    QList<PaletteColor> backup = palette;
+    switch (type) {
+        case PALTYPE_ACT: { //.act
+            QList<PaletteColor> pal;
+            Reader reader(path);
+            pal.clear();
+            while (!reader.isEOF()) {
+                PaletteColor clr;
+                clr.read(reader);
+                pal.append(clr);
+            }
+            importFile = new PaletteImport(pal, palette, false);
+            if (importFile->exec() != QDialog::Accepted) {
+                palette = backup;
+            } else {
+                DoAction("Imported Palette", mainWindow ? true : false);
+            };
+            importFile = nullptr;
+            break;
+        }
+
+        case PALTYPE_GAMECONFIGv5:
+        case PALTYPE_GAMECONFIGv5_rev01:
+        case PALTYPE_STAGECONFIGv5: {
+            RSDKv5::Palette *importPal = nullptr;
+            RSDKv5::StageConfig importSC;
+            RSDKv5::GameConfig importGC;
+            if (type == PALTYPE_STAGECONFIGv5){
+                importSC  = RSDKv5::StageConfig(path);
+                importPal = &importSC.palettes[0];
+            }
+            else{
+                importGC  = RSDKv5::GameConfig(path, type == PALTYPE_GAMECONFIGv5_rev01);
+                importPal = &importGC.palettes[0];
+            }
+
+
+            QList<PaletteColor> pal;
+            for (int r = 0; r < 16; ++r) {
+                for (int c = 0; c < 16; ++c) {
+                    pal.append(PaletteColor(importPal->colors[r][c].red(),
+                                            importPal->colors[r][c].green(),
+                                            importPal->colors[r][c].blue()));
+                }
+            }
+
+            importFile = new PaletteImport(pal, palette, true);
+            for (int b = 0; b < 8; b++){
+                if (type == PALTYPE_STAGECONFIGv5){
+                    importPal = &importSC.palettes[b];
+                }
+                else{
+                    importPal = &importGC.palettes[b];
+                }
+                importFile->banks[b] = *importPal;
+            }
+
+            if (importFile->exec() != QDialog::Accepted) {
+                palette = backup;
+            } else {
+                DoAction("Imported Palette", mainWindow ? true : false);
+            };
+            importFile = nullptr;
+            break;
+        }
+
+        case PALTYPE_GAMECONFIGv4:
+        case PALTYPE_STAGECONFIGv4:
+        case PALTYPE_STAGECONFIGv3:
+        case PALTYPE_STAGECONFIGv2:
+        case PALTYPE_STAGECONFIGv1: {
+            Palette *configPal = nullptr;
+            switch (palType) {
+                case PALTYPE_GAMECONFIGv4:
+                    configPal    = &gameConfigv4.palette;
+                    break;
+                case PALTYPE_STAGECONFIGv4:
+                    configPal     = &stageConfigv4.palette;
+                    break;
+                case PALTYPE_STAGECONFIGv3:
+                    configPal     = &stageConfigv3.palette;
+                    break;
+                case PALTYPE_STAGECONFIGv2:
+                    configPal     = &stageConfigv2.palette;
+                    break;
+                case PALTYPE_STAGECONFIGv1:
+                    configPal     = &stageConfigv1.palette;
+                    break;
+            }
+
+            QList<PaletteColor> pal;
+            pal.clear();
+            for (auto &c : configPal->colors) {
+                pal.append(PaletteColor(c.r, c.g, c.b));
+            }
+            importFile = new PaletteImport(pal, palette, false);
+            if (importFile->exec() != QDialog::Accepted) {
+                palette = backup;
+            } else {
+                DoAction("Imported Palette", mainWindow ? true : false);
+            };
+            importFile = nullptr;
+            break;
+        }
+    }
+}
+
 void PaletteEditor::SwitchBank(int id)
 {
     bankID = id;
@@ -181,30 +300,49 @@ void PaletteEditor::SwitchBank(int id)
         case PALTYPE_GAMECONFIGv5:
         case PALTYPE_GAMECONFIGv5_rev01:
         case PALTYPE_STAGECONFIGv5: {
-            palette.clear();
-
-            RSDKv5::Palette *configPal = nullptr;
-            if (palType == PALTYPE_STAGECONFIGv5)
-                configPal = &stageConfigv5.palettes[bankID];
-            else
-                configPal = &gameConfigv5.palettes[bankID];
-
-            for (int r = 0; r < 16; ++r) {
-                if (configPal->activeRows[r]) {
+            // Store changes from the previous bank
+            if (palette.count() > 0){
+                for (int r = 0; r < 16; ++r) {
                     for (int c = 0; c < 16; ++c) {
-                        palette.append(PaletteColor(configPal->colors[r][c].red(),
-                                                    configPal->colors[r][c].green(),
-                                                    configPal->colors[r][c].blue()));
+                        PaletteColor pal = palette.takeAt(0);
+                        configPalv5->colors[r][c] = QColor(pal.r, pal.g, pal.b);
                     }
                 }
-                else {
-                    for (int c = 0; c < 16; ++c) palette.append(PaletteColor(0xFF, 0x00, 0xFF));
-                }
+            }
+
+            palette.clear();
+
+            if (palType == PALTYPE_STAGECONFIGv5)
+                configPalv5 = &stageConfigv5.palettes[bankID];
+            else
+                configPalv5 = &gameConfigv5.palettes[bankID];
+
+            for (int r = 0; r < 16; ++r) {
+                    for (int c = 0; c < 16; ++c) {
+                        palette.append(PaletteColor(configPalv5->colors[r][c].red(),
+                                                    configPalv5->colors[r][c].green(),
+                                                    configPalv5->colors[r][c].blue()));
+                    }
             }
             break;
         }
     }
 
+    update();
+}
+
+void PaletteEditor::UpdatePaletteRows(int rows)
+{
+    if (rows > palette.count()){
+        for (int c = palette.count(); c < rows; c++){
+            palette.append(PaletteColor(0xFF, 0x00, 0xFF));
+        }
+    } else if (rows < palette.count()) {
+        for (int c = palette.count(); c > rows; c--){
+            palette.removeAt(c - 1);
+        }
+
+    }
     update();
 }
 
@@ -296,6 +434,9 @@ void PaletteWidget::mousePressEvent(QMouseEvent *event)
 
 void PaletteWidget::mouseDoubleClickEvent(QMouseEvent *)
 {
+    if (selection >= palette->count())
+        return;
+
     PaletteEditor *editor = (PaletteEditor *)parent();
 
     PaletteColor prev    = palette->at(selection);
@@ -307,8 +448,8 @@ void PaletteWidget::mouseDoubleClickEvent(QMouseEvent *)
         clr.b = dlg->color().b;
         palette->replace(selection, clr);
 
-        if (prev.r != clr.r && prev.g != clr.g && prev.b != clr.b)
-            editor->DoAction("Changed color", true);
+        if (prev.r != clr.r || prev.g != clr.g || prev.b != clr.b)
+            editor->DoAction("Changed color", editor->mainWindow ? true : false);
     }
     delete dlg;
 
@@ -346,7 +487,7 @@ void PaletteWidget::mouseMoveEvent(QMouseEvent *event)
             editor->gameConfigv5.palettes[editor->bankID].activeRows[y] = enabling;
 
             if (prev != enabling)
-                editor->DoAction("Changed row active", true);
+                editor->DoAction("Changed row active", editor->mainWindow ? true : false);
         }
     }
     else if (editor->palType == PALTYPE_STAGECONFIGv5) {
@@ -355,7 +496,7 @@ void PaletteWidget::mouseMoveEvent(QMouseEvent *event)
             editor->stageConfigv5.palettes[editor->bankID].activeRows[y] = enabling;
 
             if (prev != enabling)
-                editor->DoAction("Changed row active", true);
+                editor->DoAction("Changed row active", editor->mainWindow ? true : false);
         }
     }
 
@@ -377,7 +518,6 @@ void PaletteWidget::paintEvent(QPaintEvent *)
             ++index;
             if (index >= palette->count())
                 return;
-            // if (index >= m_palette->m_pal.count()) continue;
             QPen pen(qApp->palette().base(), 2);
             p.setPen(pen);
             PaletteColor clr = palette->at(index);
@@ -430,6 +570,23 @@ bool PaletteEditor::event(QEvent *event)
     if (event->type() == (QEvent::Type)RE_EVENT_NEW) {
         palette.clear();
         ReinitEditor();
+
+        QToolButton *bankSwitches[] = { ui->bank1, ui->bank2, ui->bank3, ui->bank4,
+                                        ui->bank5, ui->bank6, ui->bank7, ui->bank8 };
+        for (int b = 0; b < 8; ++b) {
+            bankSwitches[b]->setDown(false);
+            bankSwitches[b]->setDisabled(true);
+        }
+        palType = PALTYPE_ACT;
+        QList<PaletteColor> pal;
+        PaletteColor clr(0xFF, 0, 0xFF);
+        for (int s = 0; s < 256; ++s)
+            pal.append(clr);
+        palette = pal;
+        ui->palRows->setEnabled(true);
+        ui->palRows->setValue(pal.count() / 16);
+        filePath = "";
+
         ClearActions();
         return true;
     }
@@ -442,13 +599,13 @@ bool PaletteEditor::event(QEvent *event)
             ReinitEditor();
 
             SetStatus("Loading palette...", true);
-            QString filepath = filedialog.selectedFiles()[0];
-            tabTitle         = Utils::getFilenameAndFolder(filepath);
+            filePath         = filedialog.selectedFiles()[0];
+            tabTitle         = Utils::getFilenameAndFolder(filePath);
             int type         = typesList.indexOf(filedialog.selectedNameFilter());
-            LoadPalette(filepath, type);
+            LoadPalette(filePath, type);
             SetStatus("Loaded palette from " + tabTitle);
 
-            appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
+            appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filePath, QList<QString>{});
             return true;
         }
     }
@@ -532,11 +689,10 @@ bool PaletteEditor::event(QEvent *event)
                         }
                     }
                     else {
-                        QString filepath = filePath;
-                        SavePalette(filepath);
+                        SavePalette(filePath);
 
                         ClearActions();
-                        appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
+                        appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filePath, QList<QString>{});
                         return true;
                     }
                 }
@@ -572,28 +728,29 @@ void PaletteEditor::SavePalette(QString filepath)
         case PALTYPE_GAMECONFIGv5:
         case PALTYPE_GAMECONFIGv5_rev01:
         case PALTYPE_STAGECONFIGv5: {
-            RSDKv5::Palette *configPal = nullptr;
-            if (palType == PALTYPE_STAGECONFIGv5)
-                configPal = &stageConfigv5.palettes[0];
-            else
-                configPal = &gameConfigv5.palettes[0];
+            for (int b = 0; b < 8; b++){
+                if (palType == PALTYPE_STAGECONFIGv5)
+                    configPalv5 = &stageConfigv5.palettes[b];
+                else
+                    configPalv5 = &gameConfigv5.palettes[b];
 
-            for (int r = 0; r < 16; ++r) {
-                if (configPal->activeRows[r]) {
-                    for (int c = 0; c < 16; ++c) {
+                for (int r = 0; r < 16; ++r) {
+                    if (configPalv5->activeRows[r]) {
                         for (int c = 0; c < 16; ++c) {
-                            configPal->colors[r][c] =
-                                QColor(palette[(r << 4) + c].r, palette[(r << 4) + c].g,
-                                       palette[(r << 4) + c].b);
+                            for (int c = 0; c < 16; ++c) {
+                                configPalv5->colors[r][c] =
+                                    QColor(palette[(r << 4) + c].r, palette[(r << 4) + c].g,
+                                           palette[(r << 4) + c].b);
 
-                            AddStatusProgress(1.0 / 256);
+                                AddStatusProgress(1.0 / 256);
+                            }
                         }
                     }
-                }
-                else {
-                    for (int c = 0; c < 16; ++c) configPal->colors[r][c] = QColor(0xFF, 0x00, 0xFF);
+                    else {
+                        for (int c = 0; c < 16; ++c) configPalv5->colors[r][c] = QColor(0xFF, 0x00, 0xFF);
 
-                    AddStatusProgress(16.0 / 256);
+                        AddStatusProgress(16.0 / 256);
+                    }
                 }
             }
 

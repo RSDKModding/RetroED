@@ -2389,6 +2389,13 @@ int SceneViewer::addGraphicsFile(QString sheetPath, int sheetID, byte scope)
             // good for them
             transClr = QColor(table[0]);
             sheet    = gif.frame(0);
+            if (gameType != ENGINE_v5 && scope == SCOPE_STAGE){
+                // insert the stage palette
+                for(int i = 128; i < 256; ++i){
+                    QRgb col = PaletteColor(tilePalette[i]).toQColor().rgb();
+                    sheet.setColor(i, col);
+                }
+            }
         }
         else {
             sheet = QImage(sheet);

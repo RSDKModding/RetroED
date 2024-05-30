@@ -2,7 +2,8 @@
 #include "ui_scenelayerpropertiesv5.h"
 #include "scenelayerpropertiesv5.hpp"
 
-#include <RSDKv5/scenev5.hpp>
+#include "tools/sceneviewer.hpp"
+#include "sceneincludesv5.hpp"
 
 SceneLayerPropertiesv5::SceneLayerPropertiesv5(QWidget *parent)
     : QWidget(parent), ui(new Ui::SceneLayerPropertiesv5)
@@ -12,74 +13,69 @@ SceneLayerPropertiesv5::SceneLayerPropertiesv5(QWidget *parent)
 
 SceneLayerPropertiesv5::~SceneLayerPropertiesv5() { delete ui; }
 
-void SceneLayerPropertiesv5::setupUI(RSDKv5::Scene *scn, byte lID)
+void SceneLayerPropertiesv5::setupUI(SceneViewer *viewer, byte lID)
 {
     unsetUI();
 
-    scene   = scn;
-    layerID = lID;
+    auto *tileLayer = &viewer->layers[lID];
 
     ui->type->setDisabled(false);
     ui->parallaxFactor->setDisabled(false);
     ui->scrollSpeed->setDisabled(false);
 
-    ui->width->setValue(scene->layers[lID].width);
-    ui->height->setValue(scene->layers[lID].height);
-    ui->type->setCurrentIndex(scene->layers[lID].type);
-    ui->drawOrder->setValue(scene->layers[lID].drawGroup);
-    ui->parallaxFactor->setValue(scene->layers[lID].parallaxFactor / 256.0f);
-    ui->scrollSpeed->setValue(scene->layers[lID].scrollSpeed / 256.0f);
+    ui->width->setValue(viewer->layers[lID].width);
+    ui->height->setValue(viewer->layers[lID].height);
+    ui->type->setCurrentIndex(viewer->layers[lID].type);
+    // Hide "None" layer type, since it doesn't exist in v5
+    qobject_cast<QListView *>(ui->type->view())->setRowHidden(SceneHelpers::TileLayer::LAYER_NONE, true);
+    ui->drawOrder->setValue(viewer->layers[lID].drawGroup);
+    ui->parallaxFactor->setValue(viewer->layers[lID].parallaxFactor / 256.0f);
+    ui->scrollSpeed->setValue(viewer->layers[lID].scrollSpeed / 256.0f);
 
-    connect(ui->width, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
-        if (v > scene->layers[layerID].width) {
-            for (int h = 0; h < scene->layers[layerID].height; ++h) {
-                for (int w = scene->layers[layerID].width; w < v; ++w)
-                    scene->layers[layerID].layout[h].append(0);
+    connect(ui->width, QOverload<int>::of(&QSpinBox::valueChanged), [tileLayer](int v) {
+        if (v > tileLayer->width) {
+            for (int h = 0; h < tileLayer->height; ++h) {
+                for (int w = tileLayer->width; w < v; ++w)
+                    tileLayer->layout[h].append(0);
             }
         }
-        else if (v < scene->layers[layerID].width) {
-            for (int h = 0; h < scene->layers[layerID].height; ++h) {
-                for (int w = scene->layers[layerID].width - 1; w >= v; --w)
-                    scene->layers[layerID].layout[h].removeAt(w);
+        else if (v < tileLayer->width) {
+            for (int h = 0; h < tileLayer->height; ++h) {
+                for (int w = tileLayer->width - 1; w >= v; --w)
+                    tileLayer->layout[h].removeAt(w);
             }
         }
 
-        if (scene->layers[layerID].type == 1)
-            scene->layers[layerID].lineScroll.resize(v * 0x10);
-
-        scene->layers[layerID].width = (short)v;
+        tileLayer->width = (short)v;
     });
 
-    connect(ui->height, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
-        if (v > scene->layers[layerID].height) {
-            for (int h = scene->layers[layerID].height; h < v; ++h) {
-                scene->layers[layerID].layout.append(QVector<ushort>());
-                for (int w = 0; w < scene->layers[layerID].width; ++w)
-                    scene->layers[layerID].layout[h].append(0);
+    connect(ui->height, QOverload<int>::of(&QSpinBox::valueChanged), [tileLayer](int v) {
+        if (v > tileLayer->height) {
+            for (int h = tileLayer->height; h < v; ++h) {
+                tileLayer->layout.append(QList<ushort>());
+                for (int w = 0; w < tileLayer->width; ++w)
+                    tileLayer->layout[h].append(0);
             }
         }
-        else if (v < scene->layers[layerID].height) {
-            for (int h = scene->layers[layerID].height - 1; h >= v; --h)
-                scene->layers[layerID].layout.removeAt(h);
+        else if (v < tileLayer->height) {
+            for (int h = tileLayer->height - 1; h >= v; --h)
+                tileLayer->layout.removeAt(h);
         }
 
-        if (scene->layers[layerID].type == 0)
-            scene->layers[layerID].lineScroll.resize(v * 0x10);
-
-        scene->layers[layerID].height = (short)v;
+        tileLayer->height = (short)v;
     });
 
     connect(ui->type, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [this](int v) { scene->layers[layerID].type = (byte)v; });
+            [tileLayer](int v) { tileLayer->type = (byte)v; });
 
     connect(ui->drawOrder, QOverload<int>::of(&QSpinBox::valueChanged),
-            [this](int v) { scene->layers[layerID].drawGroup = (byte)v; });
+            [tileLayer](int v) { tileLayer->drawGroup = (byte)v; });
 
     connect(ui->parallaxFactor, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            [this](double v) { scene->layers[layerID].parallaxFactor = v * 256; });
+            [tileLayer](double v) { tileLayer->parallaxFactor = v * 256; });
 
     connect(ui->scrollSpeed, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            [this](double v) { scene->layers[layerID].scrollSpeed = v * 256; });
+            [tileLayer](double v) { tileLayer->scrollSpeed = v * 256; });
 }
 
 void SceneLayerPropertiesv5::unsetUI()

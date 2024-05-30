@@ -53,7 +53,7 @@ private:
     Ui::ChunkReplaceOptions *ui;
 
     ChunkReplaceViewer *chkView      = nullptr;
-    FormatHelpers::Chunks *chunks   = nullptr;
+    FormatHelpers::Chunks *chunks    = nullptr;
     FormatHelpers::Chunks::Chunk tempChunk;
 
     QList<QImage> &tileList;

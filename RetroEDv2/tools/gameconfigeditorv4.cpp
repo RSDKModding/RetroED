@@ -9,6 +9,8 @@
 #include <RSDKv5/gameconfigv5.hpp>
 #include <RSDKv5/rsdkconfigv5.hpp>
 
+#include "paletteeditor.hpp"
+
 GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
     : QWidget(parent), ui(new Ui::GameConfigEditorv4)
 {
@@ -55,6 +57,28 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
     connect(ui->gameDescription, &QPlainTextEdit::textChanged, [this] {
         gameConfig.gameDescriptionText = ui->gameDescription->toPlainText();
         DoAction("Changed Game Description");
+    });
+
+    connect(ui->editPalette, &QPushButton::clicked, [this] {
+        Palette *configPal = &gameConfig.palette;
+
+        PaletteEditor *edit = new PaletteEditor(gameConfig.filePath, PALTYPE_GAMECONFIGv4);
+        edit->palette.clear();
+        for (auto &c : configPal->colors)
+            edit->palette.append(PaletteColor(c.r, c.g, c.b));
+        edit->mainWindow = false;
+        edit->setWindowTitle("Edit GameConfig Palette");
+        edit->exec();
+
+        configPal->colors.clear();
+        for (int c = 0; c < 96; ++c) {
+            if (c < edit->palette.count())
+                configPal->colors.append(Color(edit->palette[c].r, edit->palette[c].g, edit->palette[c].b));
+            else
+                configPal->colors.append(Color(0x00, 0x00, 0x00));
+        }
+        delete edit;
+        DoAction("Edited Palette");
     });
 
     // ----------------

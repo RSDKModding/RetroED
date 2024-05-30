@@ -47,6 +47,7 @@ SOURCES += \
     tools/gamelink/gamestorage.cpp \
     tools/modelmanager.cpp \
     tools/paletteeditor/colourdialog.cpp \
+    tools/paletteeditor/paletteimport.cpp \
     tools/rsvtool.cpp \
     tools/gameconfigeditorv2.cpp \
     tools/gameconfigeditorv3.cpp \
@@ -62,6 +63,7 @@ SOURCES += \
     tools/sceneproperties/chunkreplaceoptions.cpp \
     tools/sceneproperties/confirmgamelink.cpp \
     tools/sceneproperties/copyplane.cpp \
+    tools/sceneproperties/createscene.cpp \
     tools/sceneproperties/gotopos.cpp \
     tools/sceneproperties/objectselector.cpp \
     tools/sceneproperties/scenelayerproperties.cpp \
@@ -117,6 +119,7 @@ HEADERS += \
     tools/gamelink/gamestorage.hpp \
     tools/modelmanager.hpp \
     tools/paletteeditor/colourdialog.hpp \
+    tools/paletteeditor/paletteimport.hpp \
     tools/rsvtool.hpp \
     tools/gameconfigeditorv2.hpp \
     tools/gameconfigeditorv3.hpp \
@@ -132,6 +135,7 @@ HEADERS += \
     tools/sceneproperties/chunkreplaceoptions.hpp \
     tools/sceneproperties/confirmgamelink.hpp \
     tools/sceneproperties/copyplane.hpp \
+    tools/sceneproperties/createscene.hpp \
     tools/sceneproperties/gotopos.hpp \
     tools/sceneproperties/objectselector.hpp \
     tools/sceneproperties/sceneincludesv5.hpp \
@@ -177,6 +181,7 @@ FORMS += \
     tools/gameconfigeditorv5.ui \
     tools/modelmanager.ui \
     tools/paletteeditor/colourdialog.ui \
+    tools/paletteeditor/paletteimport.ui \
     tools/rsvtool.ui \
     tools/gameconfigeditorv2.ui \
     tools/gameconfigeditorv3.ui \
@@ -192,6 +197,7 @@ FORMS += \
     tools/sceneproperties/chunkreplaceoptions.ui \
     tools/sceneproperties/confirmgamelink.ui \
     tools/sceneproperties/copyplane.ui \
+    tools/sceneproperties/createscene.ui \
     tools/sceneproperties/gotopos.ui \
     tools/sceneproperties/objectselector.ui \
     tools/sceneproperties/scenelayerproperties.ui \

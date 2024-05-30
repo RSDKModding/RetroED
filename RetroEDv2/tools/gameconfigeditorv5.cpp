@@ -8,6 +8,8 @@
 #include <RSDKv4/gameconfigv4.hpp>
 #include <RSDKv5/gameconfigv5.hpp>
 
+#include "paletteeditor.hpp"
+
 GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVer, QWidget *parent)
     : QWidget(parent), ui(new Ui::GameConfigEditorv5)
 {
@@ -305,6 +307,7 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
                                         "GameConfig",
                                         oldVer ? "rev01" : "rev02",
                                     });
+            SetStatus("Loaded GameConfig " + tabTitle);
         }
         else {
             stageConfig.read(configPath);
@@ -515,6 +518,54 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
         DoAction("Changed Start Scene");
     });
 
+    connect(ui->editPalette, &QPushButton::clicked, [this] {
+        RSDKv5::Palette *configPal = nullptr;
+        RSDKv5::Palette *editPal   = nullptr;
+
+        PaletteEditor *edit = new PaletteEditor(gameConfig.filePath, (oldVer ? PALTYPE_GAMECONFIGv5_rev01 : PALTYPE_GAMECONFIGv5));
+        edit->palette.clear();
+        for (int b = 0; b < 8; ++b){
+            configPal = &gameConfig.palettes[b];
+            for (int r = 0; r < 16; ++r){
+                edit->gameConfigv5.palettes[b].activeRows[r] = configPal->activeRows[r];
+                for (int c = 0; c < 16; ++c){
+                    edit->palette.append(QColor(configPal->colors[r][c]));
+                    edit->gameConfigv5.palettes[b].colors[r][c] = QColor(configPal->colors[r][c]);
+                }
+            }
+        }
+        edit->mainWindow = false;
+        edit->setWindowTitle("Edit GameConfig Palette");
+        edit->exec();
+
+        for(int b = 0; b < 8; ++b){
+            editPal = &edit->gameConfigv5.palettes[b];
+            configPal = &gameConfig.palettes[b];
+
+            for (int r = 0; r < 16; ++r) {
+                configPal->activeRows[r] = editPal->activeRows[r];
+                if (editPal->activeRows[r]) {
+                    for (int c = 0; c < 16; ++c) {
+                        for (int c = 0; c < 16; ++c) {
+                            if (b == edit->bankID)
+                                configPal->colors[r][c] =
+                                    QColor(edit->palette[(r << 4) + c].r, edit->palette[(r << 4) + c].g,
+                                            edit->palette[(r << 4) + c].b);
+                            else
+                                configPal->colors[r][c] = editPal->colors[r][c];
+                        }
+                    }
+                }
+                else {
+                    for (int c = 0; c < 16; ++c)
+                        configPal->colors[r][c] = QColor(0xFF, 0x00, 0xFF);
+                }
+            }
+        }
+        delete edit;
+        DoAction("Edited Palette");
+    });
+
     // ----------------
     // OBJECTS
     // ----------------
@@ -534,6 +585,7 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
         ui->gcObjName->blockSignals(true);
 
         ui->gcObjName->setText(gameConfig.objects[c]);
+        ui->labelObjID->setText(QString("Object ID: %1").arg(c));
 
         ui->gcObjName->blockSignals(false);
 
@@ -989,6 +1041,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                     else
                         rsdkConfig = RSDKv5::RSDKConfig();
                     stageConfig = RSDKv5::StageConfig();
+
                     tabTitle    = Utils::getFilenameAndFolder(gameConfig.filePath);
                     ClearActions();
 
@@ -1009,6 +1062,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                     appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR,
                                             filedialog.selectedFiles()[0],
                                             QList<QString>{ "StageConfig", "rev02" });
+                    SetStatus("Loaded GameConfig " + tabTitle);
                 }
                 setupUI();
             }
