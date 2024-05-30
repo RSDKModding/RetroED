@@ -496,7 +496,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             }
 
             // remove old global objs
-            for (int i = oldListCount - 1; i > 0; --i) {
+            for (int i = oldListCount; i > 0; --i) {
                 viewer->objects.removeAt(i);
             }
 
@@ -594,7 +594,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 }
             }
         }
-
 
         id = objOffset + 1;
         for (int i = objOffset + 1; i < viewer->objects.count(); ++i) {

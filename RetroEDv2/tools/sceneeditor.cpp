@@ -1049,7 +1049,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         }
 
         // remove old global objs
-        for (int i = gameConfig.objects.count() - 1; i > 0; --i) {
+        for (int i = gameConfig.objects.count(); i > 0; --i) {
             viewer->objects.removeAt(i);
         }
 
