@@ -369,26 +369,29 @@ ushort FunctionTable::LoadSpriteSheet(const char *filename, int scope)
     QString buffer = WorkingDirManager::GetPath(QString("Sprites/") + filename,
                                                 v5Editor->dataPath + "/Sprites/" + filename);
 
-    uint hash[4];
-    Utils::getHashInt(buffer, hash);
+    if (WorkingDirManager::FileExists(QString("Sprites/") + filename, v5Editor->dataPath + "/Sprites/" + filename)) {
+        uint hash[4];
+        Utils::getHashInt(buffer, hash);
 
-    for (int i = 0; i < v5_SURFACE_MAX; ++i) {
-        if (v5Editor->viewer->gfxSurface[i].scope != SCOPE_NONE
-            && memcmp(v5Editor->viewer->gfxSurface[i].hash, hash, 0x10 * sizeof(byte)) == 0) {
-            return i;
+        for (int i = 0; i < v5_SURFACE_MAX; ++i) {
+            if (v5Editor->viewer->gfxSurface[i].scope != SCOPE_NONE
+                && memcmp(v5Editor->viewer->gfxSurface[i].hash, hash, 0x10 * sizeof(byte)) == 0) {
+                return i;
+            }
         }
+
+        ushort id = -1;
+        for (id = 0; id < v5_SURFACE_MAX; ++id) {
+            if (v5Editor->viewer->gfxSurface[id].scope == SCOPE_NONE)
+                break;
+        }
+
+        if (id >= v5_SURFACE_MAX)
+            return -1;
+
+        return v5Editor->viewer->addGraphicsFile(buffer, id, scope);
     }
-
-    ushort id = -1;
-    for (id = 0; id < v5_SURFACE_MAX; ++id) {
-        if (v5Editor->viewer->gfxSurface[id].scope == SCOPE_NONE)
-            break;
-    }
-
-    if (id >= v5_SURFACE_MAX)
-        return -1;
-
-    return v5Editor->viewer->addGraphicsFile(buffer, id, scope);
+    return -1;
 }
 
 void FunctionTable::DrawLine(int x1, int y1, int x2, int y2, uint color, int alpha,

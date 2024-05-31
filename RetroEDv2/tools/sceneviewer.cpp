@@ -2434,6 +2434,10 @@ void SceneViewer::drawSpriteFlipped(float XPos, float YPos, float width, float h
                                     float sprY, int direction, InkEffects inkEffect, int alpha,
                                     int sheetID)
 {
+
+    if (sheetID == 0xFF)
+        return;
+
     switch (inkEffect) {
         case INK_NONE: alpha = 0xFF; break;
         case INK_BLEND: alpha = 0x80; break;
@@ -2537,6 +2541,8 @@ void SceneViewer::drawSpriteRotozoom(float XPos, float YPos, float pivotX, float
                                      int direction, short rotation, InkEffects inkEffect, int alpha,
                                      int sheetID)
 {
+    if (sheetID == 0xFF)
+        return;
     switch (inkEffect) {
         case INK_NONE: alpha = 0xFF; break;
         case INK_BLEND: alpha = 0x80; break;
