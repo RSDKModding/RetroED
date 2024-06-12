@@ -389,11 +389,11 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                         true);
 
         if (info->sVars && *info->sVars) {
+            CallGameEvent(info->name, SceneViewer::EVENT_STATICLOAD, NULL);
+
             GameObject *sVars = *info->sVars;
             sVars->objectID   = objectID;
             sVars->active     = ACTIVE_NORMAL;
-
-            CallGameEvent(info->name, SceneViewer::EVENT_STATICLOAD, NULL);
         }
 
         if (gameConfig.readFilter) {
@@ -415,8 +415,13 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         CallGameEvent(info->name, SceneViewer::EVENT_SERIALIZE, NULL);
 
-        if (useLoadEvent)
-            CallGameEvent(info->name, SceneViewer::EVENT_LOAD, NULL);
+
+        if (useLoadEvent){
+            // idk why do i need to call every object again but otherwise references to the added object are ignored
+            // (Fixes LSelect visual bugs)
+            for (int i = 0; i <= objectID; ++i)
+                CallGameEvent(viewer->objects[i].name, SceneViewer::EVENT_LOAD, NULL);
+        }
     };
 
     auto unlinkGameObject = [this](int objectID, GameObjectInfo *info) {
@@ -461,7 +466,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         if (info->sVars && *info->sVars)
             *info->sVars = NULL;
-
     };
 
     auto reSyncGameObject = [this, linkGameObject](bool syncGC, int oldListCount) {
@@ -469,7 +473,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         QList<QString> oldObjs;
         QList<SceneObject> oldSceneObjs;
         QList<int> removeFlags;
-        bool missplacedBlkObj = false;
         int objOffset = 0;
         int id;
         if (syncGC == false)
@@ -477,16 +480,12 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         // get info about old objs
         for (int i = objOffset; i <= oldListCount; ++i) {
-            // what are you doing.
-            if (viewer->objects[i].name == "Blank Object" && i != 0)
-                missplacedBlkObj = true;
             oldObjs.append(viewer->objects[i].name);
             oldSceneObjs.append(viewer->objects[i]);
             removeFlags.append(-1);
         }
 
-        if (!missplacedBlkObj)
-            removeFlags[0] = 0; // keep blank obj
+        removeFlags[0] = 0; // keep blank obj
 
         if (syncGC){
             // add stage object IDs
@@ -523,26 +522,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 ++id;
             }
 
-            // start by removing objects we dont need
-            for (int o = viewer->entities.count() - 1; o >= 0; --o) {
-                SceneEntity &entity = viewer->entities[o];
-                int newType = removeFlags[entity.type];
-                if (newType < 0) {
-                    DeleteEntity(o, false);
-                }
-                else {
-                    entity.type = newType;
-                    if (entity.gameEntity){
-                        switch (viewer->engineRevision) {
-                            case 1: AS_ENTITY(entity.gameEntity, GameEntityv1)->classID = newType; break;
-                            case 2: AS_ENTITY(entity.gameEntity, GameEntityv2)->classID = newType; break;
-                            default:
-                            case 3: AS_ENTITY(entity.gameEntity, GameEntityvU)->classID = newType; break;
-                        }
-                    }
-                }
-            }
-
         } else {
 
             // remove old stage objs
@@ -572,47 +551,37 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
                 ++id;
             }
-            // start by removing objects we dont need
-            for (int o = viewer->entities.count() - 1; o >= 0; --o) {
-                SceneEntity &entity = viewer->entities[o];
-                if (entity.type >= objOffset){
-                    int newType = removeFlags[entity.type - objOffset];
-                    if (newType < 0) {
-                        DeleteEntity(o, false);
-                    }
-                    else {
-                        entity.type = newType;
-                        if (entity.gameEntity){
-                            switch (viewer->engineRevision) {
-                                case 1: AS_ENTITY(entity.gameEntity, GameEntityv1)->classID = newType; break;
-                                case 2: AS_ENTITY(entity.gameEntity, GameEntityv2)->classID = newType; break;
-                                default:
-                                case 3: AS_ENTITY(entity.gameEntity, GameEntityvU)->classID = newType; break;
-                            }
+        }
+        // start by removing objects we dont need
+        for (int o = viewer->entities.count() - 1; o >= 0; --o) {
+            SceneEntity &entity = viewer->entities[o];
+            if (entity.type >= objOffset){
+                int newType = removeFlags[entity.type - objOffset];
+                if (newType < 0) {
+                    DeleteEntity(o, false);
+                }
+                else {
+                    entity.type = newType;
+                    if (entity.gameEntity){
+                        switch (viewer->engineRevision) {
+                            case 1: AS_ENTITY(entity.gameEntity, GameEntityv1)->classID = newType; break;
+                            case 2: AS_ENTITY(entity.gameEntity, GameEntityv2)->classID = newType; break;
+                            default:
+                            case 3: AS_ENTITY(entity.gameEntity, GameEntityvU)->classID = newType; break;
                         }
                     }
                 }
             }
         }
 
-        id = objOffset + 1;
-        for (int i = objOffset + 1; i < viewer->objects.count(); ++i) {
+        for (int i = objOffset; i < viewer->objects.count(); ++i) {
             GameObjectInfo *info = GetObjectInfo(viewer->objects[i].name);
             if (info && info->sVars) {
                 GameObject *sVars = *info->sVars;
                 if (sVars) {
-                    sVars->objectID = id;
+                    sVars->objectID = i;
                 }
             }
-            id++;
-        }
-
-        // look at what you did.
-        if (missplacedBlkObj){
-            SceneObject blankObj;
-            blankObj.name = "Blank Object";
-            viewer->objects.insert(0, blankObj);
-            viewer->objects.removeAt(1);
         }
 
         int maxObjCount;
@@ -622,9 +591,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             maxObjCount = objOffset + stageConfig.objects.count();
 
         // load assets for new objects
-        for (int i = objOffset + 1; i <= maxObjCount; ++i) {
+        for (int i = objOffset; i <= maxObjCount; ++i) {
             linkGameObject(i, GetObjectInfo(viewer->objects[i].name), true, false);
-
             // clean up and remove unused vars
             for (int v = viewer->objects[i].variables.count() - 1; v >= 0; --v) {
                 // check if var no longer exists
@@ -638,7 +606,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 }
             }
         }
-
     };
 
     connect(ui->objectFilter, &QLineEdit::textChanged, [this](QString s) { FilterObjectList(s.toUpper()); });
@@ -3350,8 +3317,6 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
 
     AddStatusProgress(1. / 6); // finish tileset loading
 
-    InitGameLink();
-
     SetupObjects();
 
     ui->layerList->blockSignals(true);
@@ -3769,50 +3734,97 @@ void SceneEditorv5::SetupObjects()
             }
         }
 
-        // Add our variables (names are filled in via SetEditableVar() calls)
-        for (int v = 0; v < obj.variables.count(); ++v) {
-            auto &var = obj.variables[v];
-            VariableInfo variable;
-            variable.name = var.name.hashString();
-            variable.hash = var.name.hash;
-            variable.type = var.type;
-
-            object.variables.append(variable);
+        bool repeatedObj = false;
+        int repeatObjID = -1;
+        // Check for repeated objects
+        for (int i = 0; i < viewer->objects.count(); i++){
+            if (viewer->objects[i].name == object.name){
+                repeatedObj = true;
+                repeatObjID = i;
+            }
         }
 
-        for (RSDKv5::Scene::SceneEntity &ent : obj.entities) {
-            SceneEntity entity;
-            entity.slotID   = ent.slotID;
-            entity.prevSlot = entity.slotID;
-            entity.type     = type;
-            entity.pos.x    = Utils::fixedToFloat(ent.position.x);
-            entity.pos.y    = Utils::fixedToFloat(ent.position.y);
+        if (!repeatedObj){
 
-            for (int v = 0; v < ent.variables.count(); ++v) {
-                entity.variables.append(ent.variables[v]);
+            // Add our variables (names are filled in via SetEditableVar() calls)
+            for (int v = 0; v < obj.variables.count(); ++v) {
+                auto &var = obj.variables[v];
+                VariableInfo variable;
+                variable.name = var.name.hashString();
+                variable.hash = var.name.hash;
+                variable.type = var.type;
+
+                object.variables.append(variable);
             }
 
-            viewer->entities.append(entity);
+            for (RSDKv5::Scene::SceneEntity &ent : obj.entities) {
+                SceneEntity entity;
+                entity.slotID   = ent.slotID;
+                entity.prevSlot = entity.slotID;
+                entity.type     = type;
+                entity.pos.x    = Utils::fixedToFloat(ent.position.x);
+                entity.pos.y    = Utils::fixedToFloat(ent.position.y);
+
+                for (int v = 0; v < ent.variables.count(); ++v) {
+                    entity.variables.append(ent.variables[v]);
+                }
+
+                viewer->entities.append(entity);
+            }
+            viewer->objects.append(object);
+            ++type;
+        } else {
+            for (RSDKv5::Scene::SceneEntity &ent : obj.entities) {
+                SceneEntity entity;
+                entity.slotID   = ent.slotID;
+                entity.prevSlot = entity.slotID;
+                entity.type     = repeatObjID;
+                entity.pos.x    = Utils::fixedToFloat(ent.position.x);
+                entity.pos.y    = Utils::fixedToFloat(ent.position.y);
+
+                for (int v = 0; v < ent.variables.count(); ++v) {
+                    entity.variables.append(ent.variables[v]);
+                }
+
+                viewer->entities.append(entity);
+            }
         }
-        viewer->objects.append(object);
-        ++type;
     }
 
-    bool blankFlag = false;
-    for (SceneObject &obj : viewer->objects) {
-        if (obj.name == "Blank Object") {
-            blankFlag = true;
-            break;
+    // obj type 0 should always be blank obj
+    if (viewer->objects[0].name != "Blank Object"){
+        bool blankFlag = false;
+        int blkObjPos = 0;
+        // check if the object exists later on the list
+        for (SceneObject &obj : viewer->objects) {
+            if (obj.name == "Blank Object") {
+                blankFlag = true;
+                break;
+            }
+            blkObjPos++;
         }
-    }
 
-    // obj type 0 is always blank obj
-    if (!blankFlag) {
-        SceneObject blankObj;
-        blankObj.name = "Blank Object";
-        viewer->objects.insert(0, blankObj);
-        for (SceneEntity &ent : viewer->entities) {
-            ent.type++;
+        if (blankFlag && blkObjPos != 0){
+            // exist in the wrong position, let's deal with that
+            viewer->objects.removeAt(blkObjPos);
+            SceneObject blankObj;
+            blankObj.name = "Blank Object";
+            viewer->objects.insert(0, blankObj);
+            for (SceneEntity &ent : viewer->entities) {
+                if (ent.type == blkObjPos)
+                    ent.type = 0;
+                else if (ent.type < blkObjPos)
+                    ent.type++;
+            }
+        } else if (!blankFlag){
+            // doesn't exist at all, add it
+            SceneObject blankObj;
+            blankObj.name = "Blank Object";
+            viewer->objects.insert(0, blankObj);
+            for (SceneEntity &ent : viewer->entities) {
+                ent.type++;
+            }
+
         }
     }
 }
