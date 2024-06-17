@@ -3317,6 +3317,7 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
 
     AddStatusProgress(1. / 6); // finish tileset loading
 
+    ClearActions();
     SetupObjects();
 
     ui->layerList->blockSignals(true);
@@ -3469,7 +3470,6 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
 
     tabTitle = Utils::getFilenameAndFolder(scnPath);
 
-    ClearActions();
     appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, scnPath,
                             QList<QString>{ gcfPath, gameConfig.readFilter ? "2" : "1" });
     SetStatus("Loaded scene " + QFileInfo(scnPath).fileName()); // done!
@@ -3745,7 +3745,6 @@ void SceneEditorv5::SetupObjects()
         }
 
         if (!repeatedObj){
-
             // Add our variables (names are filled in via SetEditableVar() calls)
             for (int v = 0; v < obj.variables.count(); ++v) {
                 auto &var = obj.variables[v];
@@ -3821,11 +3820,75 @@ void SceneEditorv5::SetupObjects()
             SceneObject blankObj;
             blankObj.name = "Blank Object";
             viewer->objects.insert(0, blankObj);
-            for (SceneEntity &ent : viewer->entities) {
-                ent.type++;
+            for (SceneEntity &ent : viewer->entities) { ent.type++; }
+        }
+    }
+
+    // Make super duper sure the objects on the list match the order from the GC/SC list
+    // Hi pre-RE2 edited stages, it's not your fault
+    objNames.removeAt(1);
+    bool sortedList = true;
+    for (int n = 0; n < viewer->objects.count(); n++){
+        if (viewer->objects[n].name != objNames[n]){
+            sortedList = false;
+            break;
+        }
+    }
+
+    if (!sortedList){
+        QApplication::beep();
+        QMessageBox::StandardButton warning = QMessageBox::question(this,
+            "Object List Error", "The object list of the Scene differs from the intended order, re-sort?\n"
+                              "(invalid objects and entities may be lost)", QMessageBox::Yes|QMessageBox::No);
+        if (warning == QMessageBox::No)
+            return;
+        QList<QString> preSortNames;
+        QList<SceneObject> preSortObjs;
+        QList<int> preSortID;
+        for (int i = 0; i < viewer->objects.count(); ++i) {
+            preSortNames.append(viewer->objects[i].name);
+            preSortObjs.append(viewer->objects[i]);
+            preSortID.append(-1);
+        }
+        preSortID[0] = 0;
+
+        viewer->objects.clear();
+
+
+        int objTypeID = 0;
+
+        for (QString &obj : objNames){
+            int index = preSortNames.indexOf(obj);
+            if (index < 0)
+                index = preSortNames.indexOf(Utils::getMd5HashString(obj));
+
+            SceneObject objInfo;
+            objInfo.name = obj;
+
+            if (index >= 0) {
+                preSortID[index] = objTypeID;
+                objInfo.variables.clear();
+                for (auto &var : preSortObjs[index].variables)
+                    objInfo.variables.append(var);
             }
 
+            viewer->objects.insert(objTypeID, objInfo);
+
+            ++objTypeID;
         }
+
+        for (int o = viewer->entities.count() - 1; o >= 0; --o) {
+            SceneEntity &entity = viewer->entities[o];
+            if (entity.type >= 0){
+                int newType = preSortID[entity.type];
+                if (newType < 0)
+                    DeleteEntity(o, false);
+                else
+                    entity.type = preSortID[entity.type];
+            }
+        }
+
+        DoAction("Object List re-sorted");
     }
 }
 
