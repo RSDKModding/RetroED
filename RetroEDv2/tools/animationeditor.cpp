@@ -194,7 +194,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             }
 
             currentFrame = c;
-            FormatHelpers::Animation::Frame &f = animFile.animations[currentAnim].frames[c];
+            FormatHelpers::Animation::Frame &f = animFile.animations[currentAnim].frames[currentFrame];
 
             ui->upFrame->setDisabled(c <= 0);
             ui->downFrame->setDisabled(c >= animFile.animations[currentAnim].frames.count() - 1
@@ -215,6 +215,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             else {
                 ui->hitboxType->setCurrentIndex(-1);
                 ui->hitboxType->setCurrentIndex(f.collisionBox);
+                ui->hitboxType->setToolTip("Assigned Hitbox");
 
                 currentHitbox = f.collisionBox;
             }
@@ -1934,12 +1935,6 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->hitboxList->insertItem(c, item);
         ui->hitboxList->setCurrentItem(item);
 
-        if (aniType == ENGINE_v5) {
-            ui->hitboxType->blockSignals(true);
-            ui->hitboxType->setCurrentIndex(c);
-            ui->hitboxType->blockSignals(false);
-            currentHitbox = c;
-        }
 
         if (aniType == ENGINE_v5) {
             for (int a = 0; a < animFile.animations.count(); ++a) {
@@ -1962,6 +1957,11 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         setupHitboxTypeBox();
         UpdateView();
+
+        FormatHelpers::Animation::Frame &f = animFile.animations[currentAnim].frames[currentFrame];
+        ui->hitboxType->setCurrentIndex(f.collisionBox);
+        currentHitbox = f.collisionBox;
+
         DoAction("Added hitbox", true);
     });
 
