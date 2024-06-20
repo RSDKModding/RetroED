@@ -222,6 +222,9 @@ FORMS += \
     tools/scriptcompiler.ui \
     tools/userdbmanager.ui
 
+TARGET = RetroED
+VERSION = 2.0.0
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
@@ -233,15 +236,15 @@ win32 {
     QMAKE_TARGET_COMPANY = Rubberduckycooly
     QMAKE_TARGET_DESCRIPTION = RetroED
     QMAKE_TARGET_COPYRIGHT = Rubberduckycooly
+    CONFIG(debug, debug | release){ DESTDIR = $$OUT_PWD/debug }
+    else { DESTDIR = $$OUT_PWD/release }
+    QMAKE_POST_LINK = $$(QTDIR)/bin/windeployqt.exe $$shell_quote($$DESTDIR/$$shell_quote($$TARGET).exe)
 }
 
 #mac
 mac {
     ICON = icons/mac.icns
 }
-
-TARGET = RetroED
-VERSION = 2.0.0
 
 RESOURCES += \
     resources.qrc
