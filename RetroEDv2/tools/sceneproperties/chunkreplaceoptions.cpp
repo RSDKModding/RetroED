@@ -40,6 +40,8 @@ ChunkReplaceOptions::ChunkReplaceOptions(byte gameVer, FormatHelpers::Chunks *ch
 
     connect(ui->srcChunkList, &QListWidget::itemSelectionChanged,[this]{
         int c = ui->srcChunkList->currentRow();
+        if (ui->dstChunkList->currentRow() == -1)
+            ui->dstChunkList->setCurrentRow(0);
         int destChunk = ui->dstChunkList->currentRow();
         auto item = ui->srcChunkList->item(c);
 
@@ -48,9 +50,7 @@ ChunkReplaceOptions::ChunkReplaceOptions(byte gameVer, FormatHelpers::Chunks *ch
         ui->dstChunkList->blockSignals(true);
 
         if (!shiftSelect && !ctrlSelect)
-        {
             ui->srcChunk->setValue(c);
-        }
 
         selectedChunk = c;
         chkView->repaint();

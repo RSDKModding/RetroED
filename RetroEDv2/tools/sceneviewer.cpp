@@ -2389,6 +2389,13 @@ int SceneViewer::addGraphicsFile(QString sheetPath, int sheetID, byte scope)
             // good for them
             transClr = QColor(table[0]);
             sheet    = gif.frame(0);
+            if (gameType != ENGINE_v5 && scope == SCOPE_STAGE){
+                // insert the stage palette
+                for(int i = 128; i < 256; ++i){
+                    QRgb col = PaletteColor(tilePalette[i]).toQColor().rgb();
+                    sheet.setColor(i, col);
+                }
+            }
         }
         else {
             sheet = QImage(sheet);
@@ -2427,6 +2434,10 @@ void SceneViewer::drawSpriteFlipped(float XPos, float YPos, float width, float h
                                     float sprY, int direction, InkEffects inkEffect, int alpha,
                                     int sheetID)
 {
+
+    if (sheetID == 0xFF)
+        return;
+
     switch (inkEffect) {
         case INK_NONE: alpha = 0xFF; break;
         case INK_BLEND: alpha = 0x80; break;
@@ -2530,6 +2541,8 @@ void SceneViewer::drawSpriteRotozoom(float XPos, float YPos, float pivotX, float
                                      int direction, short rotation, InkEffects inkEffect, int alpha,
                                      int sheetID)
 {
+    if (sheetID == 0xFF)
+        return;
     switch (inkEffect) {
         case INK_NONE: alpha = 0xFF; break;
         case INK_BLEND: alpha = 0x80; break;

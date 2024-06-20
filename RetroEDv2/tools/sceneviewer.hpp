@@ -160,7 +160,10 @@ public:
 
     Vector2<float> selectPos  = Vector2<float>(0.0f, 0.0f);
     Vector2<float> selectSize = Vector2<float>(0.0f, 0.0f);
+    int centerEntity          = -1;
     QList<int> selectedEntities;
+    QList<int> selectedEntitiesXPos;
+    QList<int> selectedEntitiesYPos;
 
     // Layer Editing
     Vector2<float> tilePos   = Vector2<float>(0.0f, 0.0f);
@@ -176,6 +179,8 @@ public:
     // Collision
     bool showPlaneA = false;
     bool showPlaneB = false;
+
+    bool stagePalOnObj = false;
 
     bool updateCTex[2] = {false, false};
 

@@ -9,6 +9,8 @@
 #include <RSDKv4/gameconfigv4.hpp>
 #include <RSDKv5/gameconfigv5.hpp>
 
+#include "paletteeditor/paletteimport.hpp"
+
 namespace Ui
 {
 class PaletteEditor;
@@ -73,7 +75,7 @@ public:
         RSDKv1::StageConfig stageConfigv1;
     };
 
-    explicit PaletteEditor(QString filepath = "", byte type = 0xFF, QWidget *parent = nullptr);
+    explicit PaletteEditor(QString path = "", byte type = 0xFF, QWidget *parent = nullptr);
     ~PaletteEditor();
 
     void SavePalette(QString filepath);
@@ -90,6 +92,7 @@ public:
     }
 
     QList<PaletteColor> palette;
+    bool mainWindow = true;
 
     RSDKv5::GameConfig gameConfigv5;
     RSDKv5::StageConfig stageConfigv5;
@@ -98,6 +101,7 @@ public:
     RSDKv3::StageConfig stageConfigv3;
     RSDKv2::StageConfig stageConfigv2;
     RSDKv1::StageConfig stageConfigv1;
+    RSDKv5::Palette *configPalv5 = nullptr;
 
     QString filePath = "";
 
@@ -116,11 +120,15 @@ private:
     void ReinitEditor();
 
     void LoadPalette(QString path, byte type);
+    void ImportPalette(QString path, byte type);
     void SwitchBank(int id);
+    void UpdatePaletteRows(int rows);
 
     Ui::PaletteEditor *ui;
 
     bool firstInit = true;
+
+    PaletteImport *importFile = nullptr;
 
 public:
     void UndoAction();

@@ -104,6 +104,11 @@
     <widget class="QComboBox" name="type">
      <item>
       <property name="text">
+       <string>None</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
        <string>Horizontal Scroll</string>
       </property>
      </item>
