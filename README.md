@@ -1,6 +1,25 @@
 ![](header.png?raw=true)
 
+A general purpose tool suite for the Retro Engine (versions 1-5).
+
+Available tools:
+- RSDK Datapack Unpacker/Repacker
+- Scene Editor
+- Animation Editor
+- GameConfig Editor
+- Palette Editor
+- Model Manager (v4/v5)
+- Script Compiler (v1/v3/v4)
+- GFX Manager (v1)
+- UserDB Manager (v5)
+- RSV Manager (v2)
+
+# **SUPPORT THE DEVELOPERS OF THE RETRO ENGINE**
+We do not own the Retro Engine in any way, shape or form, and this project would not have been possible had they not developed RSDK in the first place. Retro Engine is currently owned by [Evening Star](https://eveningstar.studio/); we highly urge you to follow & support their projects if you enjoyed this project of ours!
+
 # How to Build
+
+If you prefer to use a prebuilt executable, there are Windows and Linux builds available in the Releases section.
 
 ## Get the source code
 In order to clone the repository, you need to install Git, which you can get [here](https://git-scm.com/downloads).
@@ -11,38 +30,41 @@ If you've already cloned the repo, run this command inside of the repository: `g
 
 ### Windows
 #### Pre-requisites
-- Download and install Python 3 from https://www.python.org/downloads/, then reboot the computer
-- From a Command Prompt, run `pip install pytz`
-- Get Qt Online Installer from https://www.qt.io/download-qt-installer-oss
-- Make a custom install, Enable `Archive` and refresh, then on `Qt 5.15.2` enable the component `MSVC 2019 64-bit`, all the other necessary components should be selected by default
-  - If Qt Online Installer has a very slow download speed, cancel the install and open the exe through a command line with the argument `--mirror [mirror url]`, a list of the available mirrors can be found [here](https://download.qt.io/static/mirrorlist/), copy the one closest to your location.
-- On the folder of the project, run in a Command Prompt `python versiongen.py`
+- Download and install Python 3 from [here](https://www.python.org/downloads/), then reboot the computer.
+- In Command Prompt, run the command `pip install pytz`.
+- Get and run the Qt Online Installer from [here](https://www.qt.io/download-qt-installer-oss).
+- When you reach the `Installation Folder` step of the installer, choose `Custom Installation`.
+- In the `Select Components` step, enable the `Archive` filter and click `Filter` to refresh the component list, then enable the component `Qt` > `Qt 5.15.2` > `MSVC 2019 64-bit`. All other necessary components should be selected by default.
+- Proceed with the rest of the installation.
+  - If Qt Online Installer has a very slow download speed, cancel the install and open the exe through a command line with the argument `--mirror [mirror url]`. A list of the available mirrors can be found [here](https://download.qt.io/static/mirrorlist/); copy the one closest to your location.
+- In the `RetroEDv2` project folder, run `python versiongen.py` in Command Prompt.
 
 #### Building
-* Open `RetroEDv2.pro` in Qt Creator, on Projects make sure `Release` builds are enabled and press `Configure Project`, from there just press the `Build Project RetroED2` button
-* Alternatively, you can grab a prebuilt executable from the releases section.
+- Open `RetroEDv2.pro` in Qt Creator, then in the Projects tab, make sure `Release` builds are enabled and press `Configure Project`.
+- Press the `RetroEDv2` monitor icon, then ensure the Build is set to `Release`.
+- Press the `Build Project "RetroEDv2"` button. The built executable should be located in `build/Desktop_Qt_5_15_2_MSVC2019_64bit-Release/release`.
+- In your Qt installation directory (`C:/Qt` by default), navigate to `5.15.2/msvc2019_64/bin`, then drag-and-drop the built `RetroED.exe` file into `windeployqt.exe` to deploy the necessary Qt DLL files.
 
 ## Linux
 #### Pre-requisites
-Install the following dependencies:
-- **apt (Debian/Ubuntu):** `sudo apt install build-essential python3.6 python3-pip libqt5svg5-dev qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools`
-- Your favorite package manager here, make a pull request
-  - Qt Creator can also be installed by adding `qtcreator` to the command above, allowing to use the same building process as Windows
-- Run the command `pip install pytz`
-- Inside the project folder, run the command `python3 versiongen.py`
+- Install the following dependencies:
+  - **apt (Debian/Ubuntu):** `sudo apt install build-essential python3.6 python3-pip libqt5svg5-dev qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools`
+  - Your favorite package manager here, [make a pull request](https://github.com/Rubberduckycooly/RetroED-v2/fork)
+    - Qt Creator can also be installed by adding `qtcreator` to the command above, allowing you to use the same building process as Windows.
+- Run the command `pip install pytz`.
+- In the `RetroEDv2` project folder, run the command `python3 versiongen.py`.
 
 #### Building
-- On the folder of the project, run the following commands:
+- In the `RetroEDv2` project folder, run the following commands:
 ```
 mkdir build
 qmake -o build RetroEDv2.pro
 make -j$(nproc)
-  * -j switch is optional, but will make building faster by running it parallel on multiple cores (nproc will use all available cores).
 ```
-* Alternatively, you can grab a prebuilt executable from the releases section.
+The -j switch is optional, but will make building faster by running it parallel on multiple cores (nproc will use all available cores).
 
 ## MacOS
-* Clone the repo and open the project in Qt creator, from there just press the "build project RetroED2" button
+* Clone the repo and open the project in Qt creator, from there just press the "build project RetroED2" button.
 
 ## Other Platforms
 The only supported platforms are the ones listed above. There are no plans to support other platforms for the time being.
@@ -52,4 +74,4 @@ The only supported platforms are the ones listed above. There are no plans to su
 A: Submit an issue in the issues tab and it will get followed up on as soon as we get the chance to. Please provide as much information as possible when submitting bugs! We also accept PRs for bug fixes & revisions where applicable!
 
 # Contact:
-Join the [Retro Engine Modding Discord Server](https://dc.railgun.works/retroengine) for any questions you may need to know about the editor or how to use it.
+Join the [Retro Engine Modding Discord Server](https://dc.railgun.works/retroengine) for any questions you may have about the editor or how to use it.
