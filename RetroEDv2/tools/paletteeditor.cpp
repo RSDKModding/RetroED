@@ -728,29 +728,27 @@ void PaletteEditor::SavePalette(QString filepath)
         case PALTYPE_GAMECONFIGv5:
         case PALTYPE_GAMECONFIGv5_rev01:
         case PALTYPE_STAGECONFIGv5: {
-            for (int b = 0; b < 8; b++){
-                if (palType == PALTYPE_STAGECONFIGv5)
-                    configPalv5 = &stageConfigv5.palettes[b];
-                else
-                    configPalv5 = &gameConfigv5.palettes[b];
+            if (palType == PALTYPE_STAGECONFIGv5)
+                configPalv5 = &stageConfigv5.palettes[bankID];
+            else
+                configPalv5 = &gameConfigv5.palettes[bankID];
 
-                for (int r = 0; r < 16; ++r) {
-                    if (configPalv5->activeRows[r]) {
+            for (int r = 0; r < 16; ++r) {
+                if (configPalv5->activeRows[r]) {
+                    for (int c = 0; c < 16; ++c) {
                         for (int c = 0; c < 16; ++c) {
-                            for (int c = 0; c < 16; ++c) {
-                                configPalv5->colors[r][c] =
-                                    QColor(palette[(r << 4) + c].r, palette[(r << 4) + c].g,
-                                           palette[(r << 4) + c].b);
+                            configPalv5->colors[r][c] =
+                                QColor(palette[(r << 4) + c].r, palette[(r << 4) + c].g,
+                                       palette[(r << 4) + c].b);
 
-                                AddStatusProgress(1.0 / 256);
-                            }
+                            AddStatusProgress(1.0 / 256);
                         }
                     }
-                    else {
-                        for (int c = 0; c < 16; ++c) configPalv5->colors[r][c] = QColor(0xFF, 0x00, 0xFF);
+                }
+                else {
+                    for (int c = 0; c < 16; ++c) configPalv5->colors[r][c] = QColor(0xFF, 0x00, 0xFF);
 
-                        AddStatusProgress(16.0 / 256);
-                    }
+                    AddStatusProgress(16.0 / 256);
                 }
             }
 
