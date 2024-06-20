@@ -43,7 +43,6 @@ If you've already cloned the repo, run this command inside of the repository: `g
 - Open `RetroEDv2.pro` in Qt Creator, then in the Projects tab, make sure `Release` builds are enabled and press `Configure Project`.
 - Press the `RetroEDv2` monitor icon, then ensure the Build is set to `Release`.
 - Press the `Build Project "RetroEDv2"` button. The built executable should be located in `build/Desktop_Qt_5_15_2_MSVC2019_64bit-Release/release`.
-- In your Qt installation directory (`C:/Qt` by default), navigate to `5.15.2/msvc2019_64/bin`, then drag-and-drop the built `RetroED.exe` file into `windeployqt.exe` to deploy the necessary Qt DLL files.
 
 ## Linux
 #### Pre-requisites
