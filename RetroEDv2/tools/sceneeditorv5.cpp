@@ -3829,7 +3829,7 @@ void SceneEditorv5::SetupObjects()
     objNames.removeAt(1);
     bool sortedList = true;
     for (int n = 0; n < viewer->objects.count(); n++){
-        if (viewer->objects[n].name != objNames[n]){
+        if (n >= objNames.count() || viewer->objects[n].name != objNames[n]){
             sortedList = false;
             break;
         }
