@@ -1,0 +1,92 @@
+name: Bug Report
+description: Something isn't working
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening an issue, please read the following:
+        - Check **both open and closed** issues to see if your bug has already been reported. Duplicates will be closed.
+        - If the bug comes from either v3/v4 Scripts or Mania's Decompilation, report it on the corresponding Github page
+        - Do not report bugs for unofficial branches of the editor.
+  - type: dropdown
+    id: editortool
+    validations:
+      required: true
+    attributes:
+      label: "Used Editor Tool"
+      description: On what tool the problem happens?
+      multiple: false
+      options:
+        - Scene Editor
+        - Animation Editor
+        - GameConfig Editor
+        - Palette Editor
+        - RSDK Unpacker
+        - Model Manager
+        - Script Compiler
+        - GFX Manager
+        - UserDB Manager
+        - RSV Manager
+        - Other
+  - type: dropdown
+    id: gameversion
+    validations:
+      required: true
+    attributes:
+      label: "Game Version"
+      description: On what game version of the editor happens the issue
+      multiple: false
+      options:
+        - v5
+        - v4
+        - v3
+        - v2
+        - v1
+        - Any version
+  - type: input
+    validations:
+      required: true
+    attributes:
+      label: Expected Behavior
+      description: What behavior is supposed to occur?
+  - type: input
+    validations:
+      required: true
+    attributes:
+      label: Actual Behavior
+      description: What actually happens?
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: Steps to Reproduce
+      description: How can you reproduce the bug? Please give clear instructions.
+      placeholder: |
+        1. Do this
+        2. Do that
+        3. This happens
+  - type: textarea
+    validations:
+      required: false
+    attributes:
+      label: Screenshots
+      description: Provide screenshots if applicable.
+  - type: input
+    validations:
+      required: false
+    attributes:
+      label: Was another editor used on the file?
+      description: If so, specify which editor and if possible, the version of it.
+  - type: input
+    validations:
+      required: true
+    attributes:
+      label: Platform
+      description: The platform/OS you're running the editor on.
+  - type: textarea
+    validations:
+      required: false
+    attributes:
+      label: Additional Comments
+      description: Provide any additional information if needed.
