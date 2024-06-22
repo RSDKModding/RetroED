@@ -7,15 +7,15 @@ body:
       value: |
         Before opening an issue, please read the following:
         - Check **both open and closed** issues to see if your bug has already been reported. Duplicates will be closed.
-        - If the bug comes from either v3/v4 Scripts or Mania's Decompilation, report it on the corresponding Github page
+        - If the bug stems from either v3/v4 Scripts or Sonic Mania's Decompilation, report it in the corresponding repository.
         - Do not report bugs for unofficial branches of the editor.
   - type: dropdown
     id: editortool
     validations:
       required: true
     attributes:
-      label: "Used Editor Tool"
-      description: On what tool the problem happens?
+      label: "Editor Tool"
+      description: Which tool(s) does the issue occur with?
       multiple: false
       options:
         - Scene Editor
@@ -30,20 +30,20 @@ body:
         - RSV Manager
         - Other
   - type: dropdown
-    id: gameversion
+    id: rsdkversion
     validations:
       required: true
     attributes:
-      label: "Game Version"
-      description: On what game version of the editor happens the issue
-      multiple: false
+      label: "RSDK Version"
+      description: Which RSDK version(s) does this issue occur with?
+      multiple: true
       options:
         - v5
         - v4
         - v3
         - v2
         - v1
-        - Any version
+        - Not applicable
   - type: input
     validations:
       required: true
@@ -76,8 +76,8 @@ body:
     validations:
       required: false
     attributes:
-      label: Was another editor used on the file?
-      description: If so, specify which editor and if possible, the version of it.
+      label: Was another editor used on the file(s)?
+      description: If so, specify which editor and, if possible, the version of it.
   - type: input
     validations:
       required: true

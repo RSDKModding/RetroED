@@ -3,7 +3,7 @@
 A general purpose tool suite for the Retro Engine (versions 1-5).
 
 Available tools:
-- RSDK Datapack Unpacker/Repacker
+- Datapack Unpacker/Repacker
 - Scene Editor
 - Animation Editor
 - GameConfig Editor
