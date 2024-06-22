@@ -23,6 +23,7 @@ void SceneLayerPropertiesv5::setupUI(SceneViewer *viewer, byte lID)
     ui->parallaxFactor->setDisabled(false);
     ui->scrollSpeed->setDisabled(false);
 
+    ui->name->setText(viewer->layers[lID].name);
     ui->width->setValue(viewer->layers[lID].width);
     ui->height->setValue(viewer->layers[lID].height);
     ui->type->setCurrentIndex(viewer->layers[lID].type);
@@ -32,11 +33,16 @@ void SceneLayerPropertiesv5::setupUI(SceneViewer *viewer, byte lID)
     ui->parallaxFactor->setValue(viewer->layers[lID].parallaxFactor / 256.0f);
     ui->scrollSpeed->setValue(viewer->layers[lID].scrollSpeed / 256.0f);
 
+    connect(ui->name, &QLineEdit::textChanged, [this, tileLayer](QString s){
+        tileLayer->name = s;
+        emit layerNameChanged(s);
+    });
     connect(ui->width, QOverload<int>::of(&QSpinBox::valueChanged), [tileLayer](int v) {
         if (v > tileLayer->width) {
             for (int h = 0; h < tileLayer->height; ++h) {
-                for (int w = tileLayer->width; w < v; ++w)
-                    tileLayer->layout[h].append(0);
+                for (int w = tileLayer->width; w < v; ++w){
+                    tileLayer->layout[h].append(0xFFFF);
+                }
             }
         }
         else if (v < tileLayer->width) {
@@ -53,8 +59,9 @@ void SceneLayerPropertiesv5::setupUI(SceneViewer *viewer, byte lID)
         if (v > tileLayer->height) {
             for (int h = tileLayer->height; h < v; ++h) {
                 tileLayer->layout.append(QList<ushort>());
-                for (int w = 0; w < tileLayer->width; ++w)
-                    tileLayer->layout[h].append(0);
+                for (int w = 0; w < tileLayer->width; ++w){
+                    tileLayer->layout[h].append(0xFFFF);
+                }
             }
         }
         else if (v < tileLayer->height) {
@@ -80,6 +87,7 @@ void SceneLayerPropertiesv5::setupUI(SceneViewer *viewer, byte lID)
 
 void SceneLayerPropertiesv5::unsetUI()
 {
+    disconnect(ui->name, nullptr, nullptr, nullptr);
     disconnect(ui->width, nullptr, nullptr, nullptr);
     disconnect(ui->height, nullptr, nullptr, nullptr);
     disconnect(ui->type, nullptr, nullptr, nullptr);

@@ -781,6 +781,9 @@
                <property name="toolTip">
                 <string>The global variable's value</string>
                </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
                <property name="minimum">
                 <number>-2147483647</number>
                </property>
@@ -850,6 +853,9 @@
               <widget class="QSpinBox" name="gcVarIndex">
                <property name="toolTip">
                 <string>The global variable's array index</string>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
                </property>
                <property name="maximum">
                 <number>2147483647</number>

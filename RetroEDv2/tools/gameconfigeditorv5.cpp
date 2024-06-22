@@ -104,6 +104,7 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
         catItem->setFlags(catItem->flags() | Qt::ItemIsEditable);
         sceneModel->insertRow(c, catItem);
         ui->gcScnTree->setCurrentIndex(sceneModel->indexFromItem(catItem));
+        ui->gcScnTree->setExpanded(QModelIndex(ui->gcScnTree->currentIndex()), true);
 
         DoAction("Added Category");
         setupInitCategories();
@@ -320,6 +321,13 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
             appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR, configPath,
                                     QList<QString>{ "StageConfig", "rev02" });
         }
+        setupUI();
+    } else {
+        gameConfig  = RSDKv5::GameConfig();
+        rsdkConfig  = RSDKv5::RSDKConfig();
+        stageConfig = RSDKv5::StageConfig();
+        tabTitle    = "GameConfig Editor";
+        ui->stackedWidget->setCurrentIndex(0);
         setupUI();
     }
 }

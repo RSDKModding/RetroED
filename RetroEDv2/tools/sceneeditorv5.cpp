@@ -244,11 +244,11 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Checked);
 
-        item->setFlags(item->flags() | Qt::ItemIsEditable);
         ui->layerList->setCurrentItem(item);
         DoAction("Add Layer: " + layer.name);
 
         ui->addLayer->setDisabled(viewer->layers.count() >= 8);
+        ui->rmLayer->setDisabled(viewer->layers.count() < 0);
     });
 
     connect(ui->rmLayer, &QToolButton::clicked, [this] {
@@ -262,6 +262,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         DoAction("Remove Layer: " + QString::number(c));
 
+        ui->addLayer->setDisabled(viewer->layers.count() >= 8);
         ui->rmLayer->setDisabled(viewer->layers.count() < 0);
     });
 
@@ -334,6 +335,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         // DoAction("Remove Stamp: " + name);
     });
 
+    connect(lyrProp, &SceneLayerPropertiesv5::layerNameChanged, this, &SceneEditorv5::updateLayerName);
     connect(stampProp, &SceneStampPropertiesv5::stampNameChanged, this, &SceneEditorv5::updateStampName);
 
     // MAKE SURE YOU ADD YOUR OBJECT TO THE VIEWER'S LIST BEFORE CALLING THIS
@@ -1749,6 +1751,10 @@ void SceneEditorv5::updateTileSel(){
 void SceneEditorv5::updateStampName(QString name){
     ui->stampList->currentItem()->setText(name);
 }
+void SceneEditorv5::updateLayerName(QString name){
+    ui->layerList->currentItem()->setText(name);
+}
+
 
 QString lastSelected = "";
 

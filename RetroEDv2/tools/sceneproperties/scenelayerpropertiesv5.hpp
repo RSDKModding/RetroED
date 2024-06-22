@@ -22,6 +22,9 @@ public:
     void setupUI(SceneViewer *viewer, byte lID);
     void unsetUI();
 
+signals:
+    void layerNameChanged(QString name);
+
 private:
     Ui::SceneLayerPropertiesv5 *ui;
 };
