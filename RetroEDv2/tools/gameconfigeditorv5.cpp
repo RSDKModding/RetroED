@@ -554,14 +554,12 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
                 configPal->activeRows[r] = editPal->activeRows[r];
                 if (editPal->activeRows[r]) {
                     for (int c = 0; c < 16; ++c) {
-                        for (int c = 0; c < 16; ++c) {
-                            if (b == edit->bankID)
-                                configPal->colors[r][c] =
-                                    QColor(edit->palette[(r << 4) + c].r, edit->palette[(r << 4) + c].g,
-                                            edit->palette[(r << 4) + c].b);
-                            else
-                                configPal->colors[r][c] = editPal->colors[r][c];
-                        }
+                        if (b == edit->bankID)
+                            configPal->colors[r][c] =
+                                QColor(edit->palette[(r << 4) + c].r, edit->palette[(r << 4) + c].g,
+                                        edit->palette[(r << 4) + c].b);
+                        else
+                            configPal->colors[r][c] = editPal->colors[r][c];
                     }
                 }
                 else {

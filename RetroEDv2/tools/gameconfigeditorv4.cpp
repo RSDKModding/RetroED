@@ -634,6 +634,8 @@ void GameConfigEditorv4::load(QString filename)
     }
     else {
         gameConfig = RSDKv4::GameConfig();
+        for (int c = 0; c < 96; c++)
+            gameConfig.palette.colors.append(Color(0x00,0x00,0x00));
         tabTitle   = "GameConfig Editor";
     }
     ClearActions();

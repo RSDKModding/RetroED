@@ -779,7 +779,7 @@ bool GameConfigEditorv3::event(QEvent *event)
                     case 0: {
                         SetStatus("Saving GameConfig...", true);
 
-                        appConfig.addRecentFile(ENGINE_v4, TOOL_GAMECONFIGEDITOR,
+                        appConfig.addRecentFile(ENGINE_v3, TOOL_GAMECONFIGEDITOR,
                                                 filedialog.selectedFiles()[0], QList<QString>{ /**/ });
 
                         gameConfig.write(filedialog.selectedFiles()[0]);
