@@ -35,7 +35,7 @@ If you've already cloned the repo, run this command inside of the repository: `g
 - Get and run the Qt Online Installer from [here](https://www.qt.io/download-qt-installer-oss).
 - When you reach the `Installation Folder` step of the installer, choose `Custom Installation`.
 - In the `Select Components` step, enable the `Archive` filter and click `Filter` to refresh the component list.
-- From here, you can choose:
+- From here, you can choose to enable either of the following:
   - `Qt` > `Qt 5.15.2` > `MSVC 2019 64-bit`. (Requires Visual Studio installed with Build Tools and CMake)
   - `Qt` > `Qt 5.15.2` > `MinGW 8.1.0 64-bit` and `Qt` > `Developer and Designer Tools` > `MinGW 8.1.0 64-bit`
 - Proceed with the rest of the installation.
