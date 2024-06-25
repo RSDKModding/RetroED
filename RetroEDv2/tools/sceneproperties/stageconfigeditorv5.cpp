@@ -200,7 +200,7 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
         stageConfig->soundFX[ui->sfxList->row(item)].path = item->text();
 
         ui->sfxPath->blockSignals(true);
-        ui->sfxPath->setText(stageConfig->soundFX[ui->sfxList->currentRow()].path);
+        ui->sfxPath->setText(stageConfig->soundFX[ui->sfxList->row(item)].path);
         ui->sfxPath->blockSignals(false);
         DoAction("Changed Sfx Path");
     });

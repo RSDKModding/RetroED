@@ -434,14 +434,24 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
 
     int prevIndex = ui->gcObjList->currentRow();
     ui->gcObjList->clear();
-    for (auto &o : gameConfig.objects) ui->gcObjList->addItem(o);
+    int id = 0;
+    for (auto &o : gameConfig.objects) {
+        ui->gcObjList->addItem(o);
+        ui->gcObjList->item(id)->setFlags(ui->gcObjList->item(id)->flags() | Qt::ItemIsEditable);
+        id++;
+    };
     ui->gcObjList->setCurrentRow(0x00);
     ui->gcObjName->setText("");
     ui->gcObjList->setCurrentRow(prevIndex >= ui->gcObjList->count() ? -1 : prevIndex);
 
     prevIndex = ui->gcSfxList->currentRow();
     ui->gcSfxList->clear();
-    for (auto &s : gameConfig.soundFX) ui->gcSfxList->addItem(s.path);
+    id = 0;
+    for (auto &s : gameConfig.soundFX) {
+        ui->gcSfxList->addItem(s.path);
+        ui->gcSfxList->item(id)->setFlags(ui->gcSfxList->item(id)->flags() | Qt::ItemIsEditable);
+        id++;
+    };
     ui->gcSfxList->setCurrentRow(0x00);
     ui->gcSfxName->setText("");
     ui->gcMaxConcurrentPlays->setValue(0x00);
@@ -641,6 +651,16 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
         ui->gcObjList->blockSignals(false);
         DoAction("Removed Object");
     });
+
+    connect(ui->gcObjList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
+        gameConfig.objects[ui->gcObjList->row(item)] = item->text();
+
+        ui->gcObjName->blockSignals(true);
+        ui->gcObjName->setText(gameConfig.objects[ui->gcObjList->row(item)]);
+        ui->gcObjName->blockSignals(false);
+        DoAction("Changed Object Name");
+    });
+
     connect(ui->gcObjName, &QLineEdit::textChanged, [this](QString s) {
         gameConfig.objects[ui->gcObjList->currentRow()] = s;
 
@@ -720,6 +740,16 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
         ui->gcSfxList->blockSignals(false);
         DoAction("Removed SoundFX");
     });
+
+    connect(ui->gcSfxList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
+        gameConfig.soundFX[ui->gcSfxList->row(item)].path = item->text();
+
+        ui->gcSfxName->blockSignals(true);
+        ui->gcSfxName->setText(gameConfig.soundFX[ui->gcSfxList->row(item)].path);
+        ui->gcSfxName->blockSignals(false);
+        DoAction("Changed SoundFX Path");
+    });
+
     connect(ui->gcSfxName, &QLineEdit::textChanged, [this](QString s) {
         gameConfig.soundFX[ui->gcSfxList->currentRow()].path = s;
 
@@ -727,6 +757,7 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
             ->setText(gameConfig.soundFX[ui->gcSfxList->currentRow()].path);
         DoAction("Changed SoundFX Path");
     });
+
     connect(ui->gcMaxConcurrentPlays, QOverload<int>::of(&QSpinBox::valueChanged), [this](int v) {
         gameConfig.soundFX[ui->gcSfxList->currentRow()].maxConcurrentPlay = v;
         DoAction("Changed SoundFX Plays");

@@ -214,7 +214,7 @@ StageConfigEditorv4::StageConfigEditorv4(FormatHelpers::StageConfig *scf, int gc
         stageConfig->soundFX[ui->sfxList->row(item)].name = item->text();
 
         ui->sfxName->blockSignals(true);
-        ui->sfxName->setText(stageConfig->soundFX[ui->sfxList->currentRow()].name);
+        ui->sfxName->setText(stageConfig->soundFX[ui->sfxList->row(item)].path);
         ui->sfxName->blockSignals(false);
         DoAction("Changed Sfx Name");
     });
