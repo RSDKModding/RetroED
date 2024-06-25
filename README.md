@@ -34,7 +34,10 @@ If you've already cloned the repo, run this command inside of the repository: `g
 - In Command Prompt, run the command `pip install pytz`.
 - Get and run the Qt Online Installer from [here](https://www.qt.io/download-qt-installer-oss).
 - When you reach the `Installation Folder` step of the installer, choose `Custom Installation`.
-- In the `Select Components` step, enable the `Archive` filter and click `Filter` to refresh the component list, then enable the component `Qt` > `Qt 5.15.2` > `MSVC 2019 64-bit`. All other necessary components should be selected by default.
+- In the `Select Components` step, enable the `Archive` filter and click `Filter` to refresh the component list.
+- From here, you can choose:
+  - `Qt` > `Qt 5.15.2` > `MSVC 2019 64-bit`. (Requires Visual Studio installed with Build Tools and CMake)
+  - `Qt` > `Qt 5.15.2` > `MinGW 8.1.0 64-bit` and `Qt` > `Developer and Designer Tools` > `MinGW 8.1.0 64-bit`
 - Proceed with the rest of the installation.
   - If Qt Online Installer has a very slow download speed, cancel the install and open the exe through a command line with the argument `--mirror [mirror url]`. A list of the available mirrors can be found [here](https://download.qt.io/static/mirrorlist/); copy the one closest to your location.
 - In the `RetroEDv2` project folder, run `python versiongen.py` in Command Prompt.
@@ -42,7 +45,7 @@ If you've already cloned the repo, run this command inside of the repository: `g
 #### Building
 - Open `RetroEDv2.pro` in Qt Creator, then in the Projects tab, make sure `Release` builds are enabled and press `Configure Project`.
 - Press the `RetroEDv2` monitor icon, then ensure the Build is set to `Release`.
-- Press the `Build Project "RetroEDv2"` button. The built executable should be located in `build/Desktop_Qt_5_15_2_MSVC2019_64bit-Release/release`.
+- Press the `Build Project "RetroEDv2"` button. The built executable should be located in `build/[Used Kit Name]/release`.
 
 ## Linux
 #### Pre-requisites
