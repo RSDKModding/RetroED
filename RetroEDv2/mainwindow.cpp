@@ -23,6 +23,14 @@ SceneEditorv5 *v5Editor = nullptr;
 
 QIcon playPauseIco[2];
 
+void MainWindow::SetMenuStates(bool newEnabled, bool openEnabled, bool saveEnabled, bool saveAsEnabled)
+{
+    file->actions().at(0)->setEnabled(newEnabled);
+    file->actions().at(1)->setEnabled(openEnabled);
+    file->actions().at(2)->setEnabled(saveEnabled);
+    file->actions().at(3)->setEnabled(saveAsEnabled);
+}
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -39,6 +47,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->toolTabs, &QTabWidget::currentChanged, [this](int) {
         scnEditor = qobject_cast<SceneEditor *>(ui->toolTabs->currentWidget());
         v5Editor  = qobject_cast<SceneEditorv5 *>(ui->toolTabs->currentWidget());
+        SetMenuStates();
+        if (ui->toolTabs->count()){
+            QString tabTool = ui->toolTabs->currentWidget()->objectName();
+            QString tabName = ui->toolTabs->tabText(ui->toolTabs->currentIndex());
+            if (tabName == "Scene Editor" || tabName == "Scene Editor (v5)" || tabName == "Animation Editor"
+             || tabName == "Palette Editor" || tabName == "Model Manager") {
+                SetMenuStates(true, true, false, false);
+            } else if (tabTool != "ScriptCompiler" && tabTool != "RSDKUnpacker") {
+                SetMenuStates(true, true, true, true);
+            }
+        }
     });
 
     QShortcut *closeTab = new QShortcut(ui->toolTabs);
@@ -75,7 +94,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     };
     connect(ui->toolTabs, &QTabWidget::currentChanged, focusChangeEvent);
 
-    QMenu *file    = new QMenu("File");
+    file = new QMenu("File");
     auto newAction = [this] {
         if (!ui->toolTabs->currentWidget())
             return;
@@ -111,6 +130,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         QApplication::sendEvent(ui->toolTabs->currentWidget(), &e);
     };
     file->addAction("Save As", saveAsAction);
+
+    file->actions().at(0)->setDisabled(true);
+    file->actions().at(1)->setDisabled(true);
+    file->actions().at(2)->setDisabled(true);
+    file->actions().at(3)->setDisabled(true);
 
 #if RE_USE_UNSTABLE
     auto UndoAction = [this] {

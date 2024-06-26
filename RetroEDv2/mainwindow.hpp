@@ -31,6 +31,10 @@ public:
         return reply == QMessageBox::Yes;
     }
 
+    QMenu *file = nullptr;
+    void SetMenuStates(bool newEnabled = false, bool openEnabled = false, bool saveEnabled = false, bool saveAsEnabled = false);
+
+
 protected:
     bool event(QEvent *event);
 
@@ -62,6 +66,11 @@ private:
             int i = GetTab(tab);
             if (i >= 0)
                 toolTabs->setTabText(i, t);
+
+            if (t != "Scene Editor" && t != "Scene Editor (v5)" && t != "Animation Editor" &&
+                t != "Palette Editor" && t != "Model Manager")
+                { SetMenuStates(true,true,true,true); }
+            else { SetMenuStates(true,true,false,false); }
         });
 
         tab->setWindowTitle(name);
