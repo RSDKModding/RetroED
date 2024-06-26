@@ -1206,7 +1206,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         RSDKv5::Palette *configPal = nullptr;
         RSDKv5::Palette *editPal   = nullptr;
 
-        PaletteEditor *edit = new PaletteEditor(stageConfig.filePath, PALTYPE_STAGECONFIGv5);        edit->palette.clear();
+        PaletteEditor *edit = new PaletteEditor(stageConfig.filePath, PALTYPE_STAGECONFIGv5, true);        edit->palette.clear();
         for (int b = 0; b < 8; ++b){
             configPal = &stageConfig.palettes[b];
             for (int r = 0; r < 16; ++r){
@@ -1217,7 +1217,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 }
             }
         }
-        edit->mainWindow = false;
         edit->setWindowTitle("Edit StageConfig Palette");
         edit->exec();
 
@@ -2879,6 +2878,7 @@ void SceneEditorv5::CreateNewScene(QString scnPath, bool prePlus, bool loadGC, Q
     initStorage(dataStorage);
     AddStatusProgress(0.2); // finish unloading
 
+    gameConfig = RSDKv5::GameConfig();
     if (loadGC){
         if (QFileInfo(gcPath).suffix().toLower().contains("xml"))
             ParseGameXML(gcPath);
@@ -3018,8 +3018,6 @@ void SceneEditorv5::CreateNewScene(QString scnPath, bool prePlus, bool loadGC, Q
             ++id;
         }
     }
-
-    InitGameLink();
 
     SetupObjects();
 
@@ -3320,7 +3318,6 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
 
     AddStatusProgress(1. / 6); // finish tileset loading
 
-    ClearActions();
     SetupObjects();
 
     ui->layerList->blockSignals(true);

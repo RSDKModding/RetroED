@@ -961,11 +961,10 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(scnProp->editPAL, &QPushButton::clicked, [this] {
         Palette *SCPal = &stageConfig.palette;
         PaletteEditor *edit =
-            new PaletteEditor(stageConfig.filePath, viewer->gameType + PALTYPE_STAGECONFIGv4);
+            new PaletteEditor(stageConfig.filePath, viewer->gameType + PALTYPE_STAGECONFIGv4, true);
         edit->palette.clear();
         for (auto &c : SCPal->colors)
             edit->palette.append(PaletteColor(c.r, c.g, c.b));
-        edit->mainWindow = false;
         edit->setWindowTitle("Edit StageConfig Palette");
         edit->exec();
 
@@ -2232,6 +2231,7 @@ void SceneEditor::CreateNewScene(QString scnPath, byte scnVer, bool loadGC, QStr
 
     AddStatusProgress(0.2); // finish unloading
 
+    gameConfig = FormatHelpers::GameConfig();
     if (loadGC){
         if (QFileInfo(gcPath).suffix().toLower().contains("xml"))
             ParseGameXML(gcPath);

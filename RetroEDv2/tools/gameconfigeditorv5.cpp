@@ -540,7 +540,7 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
         RSDKv5::Palette *configPal = nullptr;
         RSDKv5::Palette *editPal   = nullptr;
 
-        PaletteEditor *edit = new PaletteEditor(gameConfig.filePath, (oldVer ? PALTYPE_GAMECONFIGv5_rev01 : PALTYPE_GAMECONFIGv5));
+        PaletteEditor *edit = new PaletteEditor(gameConfig.filePath, (oldVer ? PALTYPE_GAMECONFIGv5_rev01 : PALTYPE_GAMECONFIGv5), true);
         edit->palette.clear();
         for (int b = 0; b < 8; ++b){
             configPal = &gameConfig.palettes[b];
@@ -552,7 +552,6 @@ void GameConfigEditorv5::setupUI(bool allowRowChange)
                 }
             }
         }
-        edit->mainWindow = false;
         edit->setWindowTitle("Edit GameConfig Palette");
         edit->exec();
 

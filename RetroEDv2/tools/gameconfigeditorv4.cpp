@@ -62,11 +62,10 @@ GameConfigEditorv4::GameConfigEditorv4(QString path, QWidget *parent)
     connect(ui->editPalette, &QPushButton::clicked, [this] {
         Palette *configPal = &gameConfig.palette;
 
-        PaletteEditor *edit = new PaletteEditor(gameConfig.filePath, PALTYPE_GAMECONFIGv4);
+        PaletteEditor *edit = new PaletteEditor(gameConfig.filePath, PALTYPE_GAMECONFIGv4, true);
         edit->palette.clear();
         for (auto &c : configPal->colors)
             edit->palette.append(PaletteColor(c.r, c.g, c.b));
-        edit->mainWindow = false;
         edit->setWindowTitle("Edit GameConfig Palette");
         edit->exec();
 

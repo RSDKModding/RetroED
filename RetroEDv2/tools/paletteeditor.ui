@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>496</width>
+    <width>538</width>
     <height>350</height>
    </rect>
   </property>
@@ -187,6 +187,9 @@
    </item>
    <item row="1" column="10">
     <widget class="QSpinBox" name="palRows">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="maximum">
       <number>16</number>
      </property>

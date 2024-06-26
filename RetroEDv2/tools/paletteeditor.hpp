@@ -75,7 +75,7 @@ public:
         RSDKv1::StageConfig stageConfigv1;
     };
 
-    explicit PaletteEditor(QString path = "", byte type = 0xFF, QWidget *parent = nullptr);
+    explicit PaletteEditor(QString path = "", byte type = 0xFF, bool external = false, QWidget *parent = nullptr);
     ~PaletteEditor();
 
     void SavePalette(QString filepath);
@@ -92,7 +92,7 @@ public:
     }
 
     QList<PaletteColor> palette;
-    bool mainWindow = true;
+    bool externalWindow = false;
 
     RSDKv5::GameConfig gameConfigv5;
     RSDKv5::StageConfig stageConfigv5;
