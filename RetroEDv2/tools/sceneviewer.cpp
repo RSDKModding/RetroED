@@ -2483,7 +2483,11 @@ void SceneViewer::drawSpriteFlipped(float XPos, float YPos, float width, float h
     float boxRight  = startX + startW;
     float boxBottom = startY + startH;
 
-    if (!sceneInfo.debugMode) {
+    // Bug Details:
+    // Using the entity tool in object placement mode for an obj that has no gamelink/script loaded, while having an entity selected
+    // will make use of said entity coords as a pivot for the drawRect.
+    // forcing the code below to skip default sprites "fixes" it but the issue may be somewhere else
+    if (!sceneInfo.debugMode && sheetID != 3) {
         if (boxLeft < entX + activeDrawEntity->box.x) {
             activeDrawEntity->box.x = boxLeft - entX;
         }
@@ -2654,7 +2658,8 @@ void SceneViewer::drawSpriteRotozoom(float XPos, float YPos, float pivotX, float
             bottom = posY[i];
     }
 
-    if (!sceneInfo.debugMode) {
+    // Unlikely for the bug detailed on drawFlipped to happen from here too but just to be sure
+    if (!sceneInfo.debugMode && sheetID != 3) {
         if (left < entX + activeDrawEntity->box.x) {
             activeDrawEntity->box.x = left - entX;
         }

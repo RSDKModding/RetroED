@@ -976,6 +976,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             else
                 SCPal->colors.append(Color(0x00, 0x00, 0x00));
         }
+        delete edit;
         DoAction();
     });
 
@@ -1429,9 +1430,8 @@ bool SceneEditor::event(QEvent *event)
             filedialog.setNameFilters(types);
             filedialog.setAcceptMode(QFileDialog::AcceptOpen);
 
-            if (viewer->gameType != ENGINE_NONE) {
+            if (viewer->gameType != ENGINE_NONE)
                 filedialog.selectNameFilter(types[viewer->gameType - 1]);
-            }
 
             if (filedialog.exec() == QDialog::Accepted) {
                 int filter     = types.indexOf(filedialog.selectedNameFilter());
@@ -1444,16 +1444,15 @@ bool SceneEditor::event(QEvent *event)
 
                 if ((viewer->gameType != filter + 1 || viewer->dataPath != dir.path())
                     && filter < ENGINE_v2) {
-                    QFileDialog gcdialog(this, tr("Open GameConfig"), dir.path() + "/Data/");
+                    QFileDialog gcdialog(this, tr("Open GameConfig"), dir.path());
                     gcdialog.setNameFilters({ gcTypes[filter], "RSDK Game.xml Files (Game*.xml)" });
                     gcdialog.setAcceptMode(QFileDialog::AcceptOpen);
                     if (gcdialog.exec() == QDialog::Accepted) {
                         gcPath = gcdialog.selectedFiles()[0];
                     }
                     else {
-                        if (!QFile::exists(gameConfig.filePath)) {
+                        if (!QFile::exists(gameConfig.filePath))
                             return false;
-                        }
                         gcPath = gameConfig.filePath;
                     }
                 }

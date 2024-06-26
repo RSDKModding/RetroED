@@ -1229,14 +1229,12 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 configPal->activeRows[r] = editPal->activeRows[r];
                 if (editPal->activeRows[r]) {
                     for (int c = 0; c < 16; ++c) {
-                        for (int c = 0; c < 16; ++c) {
-                            if (b == edit->bankID)
-                                configPal->colors[r][c] =
-                                    QColor(edit->palette[(r << 4) + c].r, edit->palette[(r << 4) + c].g,
-                                            edit->palette[(r << 4) + c].b);
-                            else
-                                configPal->colors[r][c] = editPal->colors[r][c];
-                        }
+                        if (b == edit->bankID)
+                            configPal->colors[r][c] =
+                                QColor(edit->palette[(r << 4) + c].r, edit->palette[(r << 4) + c].g,
+                                        edit->palette[(r << 4) + c].b);
+                        else
+                            configPal->colors[r][c] = editPal->colors[r][c];
                     }
                 }
                 else {
@@ -1246,6 +1244,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 }
             }
         }
+        delete edit;
         DoAction("Edited Palette");
     });
 
@@ -1755,12 +1754,10 @@ void SceneEditorv5::updateLayerName(QString name){
     ui->layerList->currentItem()->setText(name);
 }
 
-
 QString lastSelected = "";
 
 bool SceneEditorv5::event(QEvent *event)
 {
-
     switch ((int)event->type()) {
         case RE_EVENT_NEW: {
             QList<QString> types = {
@@ -1774,7 +1771,6 @@ bool SceneEditorv5::event(QEvent *event)
                 bool prePlus = cScene->sceneVer;
                 CreateNewScene(cScene->scenePath, prePlus, cScene->loadGC, cScene->gcPath);
             }
-
             break;
         }
 
@@ -2172,7 +2168,6 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                     x = (x - fmodf(x, viewer->gridSize.x));
                                     y = (y - fmodf(y, viewer->gridSize.y));
                                 }
-
                                 AddEntity(viewer->selectedObject, x, y);
 
                                 DoAction(QString("Created Entity: %1 (%2, %3)")
@@ -2978,6 +2973,7 @@ void SceneEditorv5::CreateNewScene(QString scnPath, bool prePlus, bool loadGC, Q
         stageConfig.read(pathSCF);
     else
         stageConfig = RSDKv5::StageConfig();
+
     stageConfig.loadGlobalObjects = loadGC;
 
     AddStatusProgress(1. / 6); // finish scene loading
@@ -3173,6 +3169,7 @@ void SceneEditorv5::CreateNewScene(QString scnPath, bool prePlus, bool loadGC, Q
     tabTitle = viewer->currentFolder + "/Scene" + viewer->currentSceneID;
 
     ClearActions();
+
     UpdateTitle(true);
     SetStatus("Created new scene!"); // done!
 
@@ -3476,6 +3473,7 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
 
     tabTitle = Utils::getFilenameAndFolder(scnPath);
 
+    ClearActions();
     appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, scnPath,
                             QList<QString>{ gcfPath, gameConfig.readFilter ? "2" : "1" });
     SetStatus("Loaded scene " + QFileInfo(scnPath).fileName()); // done!
@@ -3830,7 +3828,7 @@ void SceneEditorv5::SetupObjects()
         }
     }
 
-    // Make super duper sure the objects on the list match the order from the GC/SC list
+    // Make super hyper sure the objects on the list match the order from the GC/SC list
     // Hi pre-RE2 edited stages, it's not your fault
     objNames.removeAt(1);
     bool sortedList = true;
@@ -4798,7 +4796,7 @@ bool SceneEditorv5::CallGameEvent(QString objName, byte eventID, SceneEntity *en
             viewer->sceneInfoV1.entitySlot = 0;
 
             // editor defaults!
-            // getGameEntityVariables(entity, entity->gameEntity);
+            // GetGameEntityVariables(entity, entity->gameEntity);
             break;
         }
 
