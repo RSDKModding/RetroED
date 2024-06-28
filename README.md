@@ -51,7 +51,7 @@ If you've already cloned the repo, run this command inside of the repository: `g
 #### Pre-requisites
 - Install the following dependencies:
   - **apt (Debian/Ubuntu):** `sudo apt install build-essential python3.6 python3-pip libqt5svg5-dev qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools`
-  - Your favorite package manager here, [make a pull request](https://github.com/Rubberduckycooly/RetroED-v2/fork)
+  - Your favorite package manager here, [make a pull request](https://github.com/RSDKModding/RetroED/fork)
     - Qt Creator can also be installed by adding `qtcreator` to the command above, allowing you to use the same building process as Windows.
 - Run the command `pip install pytz`.
 - In the `RetroEDv2` project folder, run the command `python3 versiongen.py`.
