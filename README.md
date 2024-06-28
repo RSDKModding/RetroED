@@ -24,7 +24,7 @@ If you prefer to use a prebuilt executable, there are Windows and Linux builds a
 ## Get the source code
 In order to clone the repository, you need to install Git, which you can get [here](https://git-scm.com/downloads).
 
-Clone the repo, using: `git clone https://github.com/Rubberduckycooly/RetroED-v2`
+Clone the repo, using: `git clone https://github.com/RSDKModding/RetroED`
 
 If you've already cloned the repo, run this command inside of the repository: `git submodule update --init --recursive`
 
@@ -45,7 +45,7 @@ If you've already cloned the repo, run this command inside of the repository: `g
 #### Building
 - Open `RetroEDv2.pro` in Qt Creator, then in the Projects tab, make sure `Release` builds are enabled and press `Configure Project`.
 - Press the `RetroEDv2` monitor icon, then ensure the Build is set to `Release`.
-- Press the `Build Project "RetroEDv2"` button. The built executable should be located in `build/[Used Kit Name]/release`.
+- Press the `Build Project "RetroEDv2"` button. The built executable should be located in `build/[used kit name]/release`.
 
 ## Linux
 #### Pre-requisites
