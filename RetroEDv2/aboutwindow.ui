@@ -63,7 +63,6 @@
    <property name="font">
     <font>
      <pointsize>16</pointsize>
-     <weight>75</weight>
      <bold>true</bold>
     </font>
    </property>
@@ -118,7 +117,7 @@
     </font>
    </property>
    <property name="text">
-    <string>By Rubberduckycooly &amp; chuliRMG</string>
+    <string>By Rubberduckycooly &amp; st×tic</string>
    </property>
   </widget>
   <widget class="QLabel" name="autobuildLabel">
@@ -132,7 +131,6 @@
    </property>
    <property name="font">
     <font>
-     <weight>75</weight>
      <italic>true</italic>
      <bold>true</bold>
     </font>
