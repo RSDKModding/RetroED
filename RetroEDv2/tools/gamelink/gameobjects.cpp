@@ -7,8 +7,8 @@ void FunctionTable::RegisterObjectv5(GameObject **sVars, const char *name, uint 
                                      uint staticClassSize, void (*update)(void),
                                      void (*lateUpdate)(void), void (*staticUpdate)(void),
                                      void (*draw)(void), void (*create)(void *),
-                                     void (*stageLoad)(void), void (*editorDraw)(void),
-                                     void (*editorLoad)(void), void (*serialize)(void))
+                                     void (*stageLoad)(void), void (*editorLoad)(void),
+                                     void (*editorDraw)(void), void (*serialize)(void))
 {
     RegisterObjectv5U(sVars, name, entityClassSize, staticClassSize, update, lateUpdate, staticUpdate,
                       draw, create, stageLoad, editorLoad, editorDraw, serialize, NULL);
@@ -38,8 +38,8 @@ void FunctionTable::RegisterObjectv5U(GameObject **sVars, const char *name, uint
     info.draw            = draw;
     info.create          = create;
     info.stageLoad       = stageLoad;
-    info.editorDraw      = editorDraw;
     info.editorLoad      = editorLoad;
+    info.editorDraw      = editorDraw;
     info.serialize       = serialize;
     info.staticLoad      = staticLoad;
     info.name            = name;
@@ -69,8 +69,8 @@ void FunctionTable::RegisterStaticVariables(GameObject **sVars, const char *name
     info.draw            = NULL;
     info.create          = NULL;
     info.stageLoad       = NULL;
-    info.editorDraw      = NULL;
     info.editorLoad      = NULL;
+    info.editorDraw      = NULL;
     info.serialize       = NULL;
     info.staticLoad      = NULL;
     info.name            = name;

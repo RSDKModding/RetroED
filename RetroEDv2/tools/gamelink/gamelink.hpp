@@ -153,8 +153,8 @@ struct GameObjectInfo {
     void (*draw)(void);
     void (*create)(void *data);
     void (*stageLoad)(void);
-    void (*editorDraw)(void);
     void (*editorLoad)(void);
+    void (*editorDraw)(void);
     void (*serialize)(void);
     void (*staticLoad)(void *sVars);
     GameObject **sVars;
