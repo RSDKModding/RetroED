@@ -309,11 +309,13 @@ void GameConfigEditorv1::load(QString filename)
         }
 
         tabTitle = Utils::getFilenameAndFolder(characters.filePath);
+        tabPath  = filename;
         appConfig.addRecentFile(ENGINE_v1, TOOL_GAMECONFIGEDITOR, filename, QList<QString>{ /**/ });
     }
     else {
         characters = RSDKv1::CharacterList();
         tabTitle   = "GameConfig Editor";
+        tabPath    = "";
     }
     ClearActions();
 
@@ -390,6 +392,7 @@ bool GameConfigEditorv1::event(QEvent *event)
 
                     SetStatus("Saving game configuration...", true);
 
+                    tabPath = filedialog.selectedFiles()[0];
                     appConfig.addRecentFile(ENGINE_v1, TOOL_GAMECONFIGEDITOR,
                                             filedialog.selectedFiles()[0], QList<QString>{ /**/ });
                     Writer writer(filedialog.selectedFiles()[0]);
@@ -437,6 +440,7 @@ bool GameConfigEditorv1::event(QEvent *event)
                     case 0: {
                         SetStatus("Saving game configuration...", true);
 
+                        tabPath = filedialog.selectedFiles()[0];
                         appConfig.addRecentFile(ENGINE_v1, TOOL_GAMECONFIGEDITOR,
                                                 filedialog.selectedFiles()[0], QList<QString>{ /**/ });
 

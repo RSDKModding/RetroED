@@ -61,11 +61,13 @@ private:
         if (!toolTabs)
             return;
 
-        connect(tab, &T::TitleChanged, [this, tab](QString t) {
+        connect(tab, &T::TitleChanged, [this, tab](QString t, QString p) {
             tab->setWindowTitle(t);
             int i = GetTab(tab);
-            if (i >= 0)
+            if (i >= 0){
                 toolTabs->setTabText(i, t);
+                toolTabs->setTabToolTip(toolTabs->currentIndex(), p);
+            }
 
             if (t != "Scene Editor" && t != "Scene Editor (v5)" && t != "Animation Editor" &&
                 t != "Palette Editor" && t != "Model Manager")

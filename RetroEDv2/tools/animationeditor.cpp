@@ -2718,6 +2718,8 @@ void AnimationEditor::LoadAnim(QString filepath, int aniType)
     ui->hitboxList->blockSignals(false);
 
     tabTitle = Utils::getFilenameAndFolder(animFile.filePath);
+    tabPath = filepath;
+
     ClearActions();
     SetupUI();
 
@@ -2825,6 +2827,7 @@ bool AnimationEditor::event(QEvent *event)
         case RE_EVENT_NEW:
             animFile = FormatHelpers::Animation();
             tabTitle = "Animation Editor";
+            tabPath  = "";
             ClearActions();
             hitboxVisible.clear();
             SetupUI();
@@ -2887,6 +2890,7 @@ bool AnimationEditor::event(QEvent *event)
 
                     RotateHitboxes();
                     animFile.write(aniType, filepath);
+                    tabPath = filepath;
                     appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
                     SetStatus("Saved animation to " + QFile(animFile.filePath).fileName());
                     ClearActions();
@@ -2900,6 +2904,7 @@ bool AnimationEditor::event(QEvent *event)
 
                 RotateHitboxes();
                 animFile.write(aniType, filepath);
+                tabPath = filepath;
                 appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
                 SetStatus("Saved animation to " + QFile(animFile.filePath).fileName());
                 ClearActions();
@@ -2939,6 +2944,7 @@ bool AnimationEditor::event(QEvent *event)
 
                 RotateHitboxes();
                 animFile.write(aniType, filepath);
+                tabPath = filepath;
                 appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath, QList<QString>{});
                 SetStatus("Saved animation to " + QFile(animFile.filePath).fileName());
                 ClearActions();

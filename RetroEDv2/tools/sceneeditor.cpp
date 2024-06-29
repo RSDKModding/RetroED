@@ -2619,6 +2619,7 @@ void SceneEditor::CreateNewScene(QString scnPath, byte scnVer, bool loadGC, QStr
     InitGameLink();
 
     tabTitle = viewer->currentFolder + "/Scene" + viewer->currentSceneID;
+    tabPath  = scnPath;
 
     viewer->disableDrawScene = false;
     viewer->disableObjects   = false;
@@ -3053,6 +3054,7 @@ void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
     ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
 
     tabTitle = Utils::getFilenameAndFolder(scnPath);
+    tabPath  = scnPath;
 
     viewer->disableDrawScene = false;
     viewer->disableObjects   = false;
@@ -3308,6 +3310,7 @@ bool SceneEditor::SaveScene(bool forceSaveAs)
     }
 
     tabTitle = Utils::getFilenameAndFolder(savePath);
+    tabPath  = savePath;
     ClearActions();
     appConfig.addRecentFile(saveVer, TOOL_SCENEEDITOR, savePath, QList<QString>{ gameConfig.filePath });
     SetStatus("Saved scene to " + Utils::getFilenameAndFolder(savePath));

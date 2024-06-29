@@ -144,9 +144,9 @@ public:
     {
         this->modified = modified;
         if (modified)
-            emit TitleChanged(tabTitle + " *");
+            emit TitleChanged(tabTitle + " *", tabPath);
         else
-            emit TitleChanged(tabTitle);
+            emit TitleChanged(tabTitle, tabPath);
     }
 
     void UndoAction();
@@ -156,7 +156,7 @@ public:
     void ClearActions();
 
 signals:
-    void TitleChanged(QString title);
+    void TitleChanged(QString title, QString tabFullPath);
 
 public slots:
     void updateType(SceneEntity *entity, byte type);
@@ -208,6 +208,7 @@ private:
 
     bool modified    = false;
     QString tabTitle = "Scene Editor (v5)";
+    QString tabPath  = "";
 };
 
 class TileLabel : public QLabel

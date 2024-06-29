@@ -3165,6 +3165,7 @@ void SceneEditorv5::CreateNewScene(QString scnPath, bool prePlus, bool loadGC, Q
     }
 
     tabTitle = viewer->currentFolder + "/Scene" + viewer->currentSceneID;
+    tabPath  = scnPath;
 
     ClearActions();
 
@@ -3469,6 +3470,7 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
     ui->addEnt->setDisabled(viewer->activeEntityCount() >= 0x800);
 
     tabTitle = Utils::getFilenameAndFolder(scnPath);
+    tabPath  = scnPath;
 
     ClearActions();
     appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, scnPath,
@@ -3599,6 +3601,7 @@ void SceneEditorv5::SaveScene(QString path)
     tileset.write(basePath + "16x16Tiles.gif");
 
     tabTitle = Utils::getFilenameAndFolder(path);
+    tabPath  = path;
     ClearActions();
     appConfig.addRecentFile(ENGINE_v5, TOOL_SCENEEDITOR, path, QList<QString>{ gameConfig.filePath });
     SetStatus("Saved scene to " + Utils::getFilenameAndFolder(scene.filepath)); // written scene

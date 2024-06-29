@@ -151,9 +151,9 @@ public:
     {
         this->modified = modified;
         if (modified)
-            emit TitleChanged(tabTitle + " *");
+            emit TitleChanged(tabTitle + " *", tabPath);
         else
-            emit TitleChanged(tabTitle);
+            emit TitleChanged(tabTitle, tabPath);
     }
 
     void UndoAction();
@@ -164,7 +164,7 @@ public:
 
 
 signals:
-    void TitleChanged(QString title);
+    void TitleChanged(QString title, QString tabFullPath);
 
 public slots:
     void updateType(SceneEntity *entity, byte type);
@@ -225,6 +225,7 @@ private:
 
     bool modified    = false;
     QString tabTitle = "Scene Editor";
+    QString tabPath  = "";
 };
 
 class ChunkLabel : public QLabel

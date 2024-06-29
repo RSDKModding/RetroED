@@ -39,13 +39,13 @@ public:
     {
         this->modified = modified;
         if (modified)
-            emit TitleChanged(tabTitle + " *");
+            emit TitleChanged(tabTitle + " *", tabPath);
         else
-            emit TitleChanged(tabTitle);
+            emit TitleChanged(tabTitle, tabPath);
     }
 
 signals:
-    void TitleChanged(QString title);
+    void TitleChanged(QString title, QString tabPath);
 
 private:
     Ui::AnimationEditor *ui;
@@ -131,4 +131,5 @@ private:
 
     bool modified    = false;
     QString tabTitle = "Animation Editor";
+    QString tabPath  = "";
 };

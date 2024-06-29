@@ -629,6 +629,7 @@ void GameConfigEditorv4::load(QString filename)
         Reader reader = Reader(filename);
         gameConfig.read(reader);
         tabTitle = Utils::getFilenameAndFolder(gameConfig.filePath);
+        tabPath  = filename;
         appConfig.addRecentFile(ENGINE_v4, TOOL_GAMECONFIGEDITOR, filename, QList<QString>{ /**/ });
     }
     else {
@@ -636,6 +637,7 @@ void GameConfigEditorv4::load(QString filename)
         for (int c = 0; c < 96; c++)
             gameConfig.palette.colors.append(Color(0x00,0x00,0x00));
         tabTitle   = "GameConfig Editor";
+        tabPath    = "";
     }
     ClearActions();
 
@@ -1135,6 +1137,7 @@ bool GameConfigEditorv4::saveGameConfig(bool forceSaveAs)
                     break;
                 }
             }
+            tabPath = filedialog.selectedFiles()[0];
 
             ClearActions();
             return true;

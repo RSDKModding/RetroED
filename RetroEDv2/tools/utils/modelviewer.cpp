@@ -29,8 +29,6 @@ void ModelViewer::setModel(RSDKv5::Model m, QString tex)
     model   = m;
     texFile = tex;
     reload  = true;
-
-    setFrame(0);
 }
 
 void ModelViewer::setModel(RSDKv4::Model m, QString tex)
@@ -68,8 +66,6 @@ void ModelViewer::setModel(RSDKv4::Model m, QString tex)
     model.hasNormals = true;
 
     texFile = tex;
-
-    setFrame(0);
 }
 
 RSDKv4::Model ModelViewer::getModelv4()

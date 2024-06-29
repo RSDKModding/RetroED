@@ -592,8 +592,9 @@ bool PaletteEditor::event(QEvent *event)
         palette = pal;
         ui->palRows->setDisabled(false);
         ui->palRows->setValue(16);
-        filePath = "";
         tabTitle = "New Palette";
+        tabPath  = "";
+        filePath = "";
 
         ClearActions();
         return true;
@@ -609,6 +610,7 @@ bool PaletteEditor::event(QEvent *event)
             SetStatus("Loading palette...", true);
             filePath         = filedialog.selectedFiles()[0];
             tabTitle         = Utils::getFilenameAndFolder(filePath);
+            tabPath          = filedialog.selectedFiles()[0];
             int type         = typesList.indexOf(filedialog.selectedNameFilter());
             LoadPalette(filePath, type);
             SetStatus("Loaded palette from " + tabTitle);
@@ -627,6 +629,7 @@ bool PaletteEditor::event(QEvent *event)
             if (filedialog.exec() == QDialog::Accepted) {
                 QString filepath = filedialog.selectedFiles()[0];
                 SavePalette(filepath);
+                tabPath = filepath;
 
                 ClearActions();
                 appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
@@ -636,6 +639,7 @@ bool PaletteEditor::event(QEvent *event)
         else {
             QString filepath = filePath;
             SavePalette(filepath);
+            tabPath = filepath;
 
             ClearActions();
             appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});
@@ -661,6 +665,7 @@ bool PaletteEditor::event(QEvent *event)
 
             QString filepath = filedialog.selectedFiles()[0];
             SavePalette(filepath);
+            tabPath = filepath;
 
             ClearActions();
             appConfig.addRecentFile(palType, TOOL_PALETTEDITOR, filepath, QList<QString>{});

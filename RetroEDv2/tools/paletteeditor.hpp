@@ -86,9 +86,9 @@ public:
     {
         this->modified = modified;
         if (modified)
-            emit TitleChanged(tabTitle + " *");
+            emit TitleChanged(tabTitle + " *", tabPath);
         else
-            emit TitleChanged(tabTitle);
+            emit TitleChanged(tabTitle, tabPath);
     }
 
     QList<PaletteColor> palette;
@@ -109,7 +109,7 @@ public:
     byte bankID  = 0;
 
 signals:
-    void TitleChanged(QString title);
+    void TitleChanged(QString title, QString tabFullPath);
 
 protected:
     QSize sizeHint() const override { return QSize(500, 450); }
@@ -143,4 +143,5 @@ private:
 
     bool modified    = false;
     QString tabTitle = "Palette Editor";
+    QString tabPath  = "";
 };

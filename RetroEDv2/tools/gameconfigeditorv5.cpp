@@ -301,6 +301,7 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
             stageConfig = RSDKv5::StageConfig();
 
             tabTitle = Utils::getFilenameAndFolder(gameConfig.filePath);
+            tabPath  = configPath;
             ClearActions();
 
             appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR, configPath,
@@ -316,6 +317,7 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
             rsdkConfig = RSDKv5::RSDKConfig();
 
             tabTitle = Utils::getFilenameAndFolder(stageConfig.filePath);
+            tabPath  = configPath;
             ClearActions();
 
             appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR, configPath,
@@ -327,6 +329,7 @@ GameConfigEditorv5::GameConfigEditorv5(QString configPath, byte type, bool oldVe
         rsdkConfig  = RSDKv5::RSDKConfig();
         stageConfig = RSDKv5::StageConfig();
         tabTitle    = "GameConfig Editor";
+        tabPath     = "";
         ui->stackedWidget->setCurrentIndex(0);
         setupUI();
     }
@@ -1036,6 +1039,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                 rsdkConfig  = RSDKv5::RSDKConfig();
                 stageConfig = RSDKv5::StageConfig();
                 tabTitle    = "GameConfig Editor";
+                tabPath     = "";
                 ui->stackedWidget->setCurrentIndex(0);
                 setupUI();
             }
@@ -1044,6 +1048,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                 gameConfig  = RSDKv5::GameConfig();
                 rsdkConfig  = RSDKv5::RSDKConfig();
                 tabTitle    = "StageConfig Editor";
+                tabPath     = "";
                 ui->stackedWidget->setCurrentIndex(1);
                 setupUI();
             }
@@ -1079,6 +1084,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                     stageConfig = RSDKv5::StageConfig();
 
                     tabTitle    = Utils::getFilenameAndFolder(gameConfig.filePath);
+                    tabPath     = filedialog.selectedFiles()[0];
                     ClearActions();
 
                     appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR,
@@ -1093,6 +1099,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                     gameConfig = RSDKv5::GameConfig();
                     rsdkConfig = RSDKv5::RSDKConfig();
                     tabTitle   = Utils::getFilenameAndFolder(stageConfig.filePath);
+                    tabPath    = filedialog.selectedFiles()[0];
                     ClearActions();
 
                     appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR,
@@ -1128,6 +1135,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                     gameConfig.readFilter = !oldVer;
                     gameConfig.write(filedialog.selectedFiles()[0]);
                     tabTitle = Utils::getFilenameAndFolder(gameConfig.filePath);
+                    tabPath  = filedialog.selectedFiles()[0];
                     ClearActions();
                     appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR,
                                             filedialog.selectedFiles()[0],
@@ -1153,6 +1161,7 @@ bool GameConfigEditorv5::event(QEvent *event)
 
                     stageConfig.write(filedialog.selectedFiles()[0]);
                     tabTitle = Utils::getFilenameAndFolder(gameConfig.filePath);
+                    tabPath  = filedialog.selectedFiles()[0];
                     ClearActions();
                     appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR,
                                             filedialog.selectedFiles()[0],
@@ -1482,6 +1491,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                         }
                     }
 
+                    tabPath = filedialog.selectedFiles()[0];
                     ClearActions();
                 }
             }
@@ -1495,6 +1505,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                     stageConfig.write(filedialog.selectedFiles()[0]);
                     SetStatus("Saved StageConfig to " + filedialog.selectedFiles()[0]);
                     tabTitle = Utils::getFilenameAndFolder(gameConfig.filePath);
+                    tabPath  = filedialog.selectedFiles()[0];
                     ClearActions();
                     appConfig.addRecentFile(ENGINE_v5, TOOL_GAMECONFIGEDITOR,
                                             filedialog.selectedFiles()[0],

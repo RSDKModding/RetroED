@@ -338,9 +338,14 @@ bool ModelManager::event(QEvent *event)
 {
     switch ((int)event->type()) {
         case RE_EVENT_NEW:
+            StopAnim();
             viewer->model = RSDKv5::Model();
             tabTitle      = "Model Manager";
+            tabPath       = "";
+            viewer->setFrame(0);
             SetupUI();
+            UpdateTitle(false);
+            SetStatus("Created model ");
             return true;
 
         case RE_EVENT_OPEN: {
@@ -589,11 +594,14 @@ void ModelManager::SetupUI(bool initialSetup)
         ui->loopIndex->blockSignals(false);
 
         ui->frameList->setCurrentRow(-1);
+        ui->texPath->clear();
     }
 
     ui->hasNormals->setChecked(viewer->model.hasNormals);
     ui->hasColors->setChecked(viewer->model.hasColors);
     ui->hasTextures->setChecked(viewer->model.hasTextures);
+
+    ui->play->setIcon(playPauseIco[0]);
 
     int vertCnt = 0;
     if (viewer->model.frames.count())
@@ -635,6 +643,7 @@ void ModelManager::LoadModel(QString filePath, bool usev5Format)
         tabTitle            = Utils::getFilenameAndFolder(mdl.filePath);
         viewer->modelFormat = 1;
     }
+    tabPath                = filePath;
     viewer->model.filePath = filePath;
     UpdateTitle(false);
     SetStatus("Loaded model " + tabTitle);
@@ -676,6 +685,7 @@ bool ModelManager::SaveModel(bool forceSaveAs)
                 appConfig.addRecentFile(ENGINE_v4, TOOL_MODELMANAGER, filepath, QList<QString>{});
             }
 
+            tabPath = filepath;
             UpdateTitle(false);
             return true;
         }
@@ -685,6 +695,7 @@ bool ModelManager::SaveModel(bool forceSaveAs)
             SetStatus("Saving model...", true);
             viewer->model.write();
             SetStatus("Saved model to " + viewer->model.filePath);
+            tabPath = viewer->model.filePath;
 
             appConfig.addRecentFile(ENGINE_v5, TOOL_MODELMANAGER, viewer->model.filePath,
                                     QList<QString>{});
@@ -697,6 +708,7 @@ bool ModelManager::SaveModel(bool forceSaveAs)
             mdl.write(filePath);
             viewer->model.filePath = filePath;
             SetStatus("Saved model to " + filePath);
+            tabPath = filePath;
 
             appConfig.addRecentFile(ENGINE_v4, TOOL_MODELMANAGER, mdl.filePath, QList<QString>{});
         }
