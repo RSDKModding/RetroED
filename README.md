@@ -61,6 +61,7 @@ If you've already cloned the repo, run this command inside of the repository: `g
 ```
 mkdir build
 qmake -o build RetroEDv2.pro
+cd build
 make -j$(nproc)
 ```
 The -j switch is optional, but will make building faster by running it parallel on multiple cores (nproc will use all available cores).
