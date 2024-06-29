@@ -73,6 +73,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
 
     connect(ui->addFrame, &QToolButton::clicked, [this] {
         ui->frameList->blockSignals(true);
+
         // TODO: using currentRow when there's a frame after the selected row will lead to a crash, undo this once the problem is found
         uint c = ui->frameList->count();
 
@@ -84,6 +85,8 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
         if (viewer->model.frames.count() > 1) {
             for (int v = 0; v < viewer->model.frames[0].vertices.count(); ++v) {
                 viewer->model.frames.last().vertices.append(RSDKv5::Model::Frame::Vertex());
+
+
             }
         }
         SetupUI(false);
@@ -95,7 +98,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
         viewer->setFrame(c);
 
         viewer->repaint();
-        // DoAction("Added animation", true);
+        DoAction("Added animation", true);
     });
 
     connect(ui->rmFrame, &QToolButton::clicked, [this] {
@@ -111,7 +114,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
         viewer->setFrame(n);
 
         viewer->repaint();
-        // DoAction("Removed frame", true);
+        DoAction("Removed frame", true);
 
         ui->frameList->blockSignals(true);
         ui->frameList->setCurrentRow(n);
@@ -131,7 +134,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
         viewer->setFrame(n);
 
         viewer->repaint();
-        // DoAction("Moved frame", true);
+        DoAction("Moved frame", true);
 
         ui->frameList->setCurrentRow(n);
     };
@@ -153,7 +156,7 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
             ui->frameList->setCurrentRow(c);
             ui->frameList->blockSignals(false);
 
-            // DoAction("Copied frame", true);
+            DoAction("Copied frame", true);
         }
     });
 
@@ -344,6 +347,7 @@ bool ModelManager::event(QEvent *event)
             tabPath       = "";
             viewer->setFrame(0);
             SetupUI();
+            ClearActions();
             UpdateTitle(false);
             SetStatus("Created model ");
             return true;
@@ -356,27 +360,34 @@ bool ModelManager::event(QEvent *event)
             if (filedialog.exec() == QDialog::Accepted) {
                 LoadModel(filedialog.selectedFiles()[0],
                           filedialog.selectedNameFilter() == "RSDKv5 Model Files (*.bin)");
+                ClearActions();
                 return true;
             }
             break;
         }
 
         case RE_EVENT_SAVE:
-            if (SaveModel())
+            if (SaveModel()){
+                ClearActions();
                 return true;
+            }
             break;
 
         case RE_EVENT_SAVE_AS:
-            if (SaveModel(true))
+            if (SaveModel(true)){
+                ClearActions();
                 return true;
+            }
             break;
 
         case QEvent::Close:
             if (modified) {
                 bool cancelled = false;
                 if (MainWindow::ShowCloseWarning(this, &cancelled)) {
-                    if (SaveModel())
+                    if (SaveModel()){
+                        ClearActions();
                         return true;
+                    }
                 }
                 else if (cancelled) {
                     event->ignore();
@@ -718,6 +729,31 @@ bool ModelManager::SaveModel(bool forceSaveAs)
     }
 
     return false;
+}
+
+void ModelManager::DoAction(QString name, bool setModified)
+{
+    // Worry about this later
+    ActionState action;
+    action.name = name;
+
+    // Actions
+    for (int i = actions.count() - 1; i > actionIndex; --i) {
+        actions.removeAt(i);
+    }
+
+    actions.append(action);
+    actionIndex = actions.count() - 1;
+    UpdateTitle(setModified);
+
+    // setStatus("Did Action: " + name);
+}
+
+void ModelManager::ClearActions()
+{
+    actions.clear();
+    actionIndex = 0;
+    DoAction("Action Setup", false); // first action, cant be undone
 }
 
 #include "moc_modelmanager.cpp"

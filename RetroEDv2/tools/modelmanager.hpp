@@ -13,6 +13,14 @@ class ModelManager : public QWidget
     Q_OBJECT
 
 public:
+    class ActionState
+    {
+    public:
+        QString name = "Action";
+
+        FormatHelpers::Animation animFile;
+    };
+
     explicit ModelManager(QString filePath = "", bool usev5Format = true, QWidget *parent = nullptr);
     ~ModelManager();
 
@@ -48,6 +56,9 @@ private:
 
     void ProcessAnimation();
 
+    void DoAction(QString name = "Action", bool setModified = true);
+    void ClearActions();
+
     ushort currentFrame = -1;
     bool playingAnim    = false;
     bool animFinished   = false;
@@ -59,6 +70,9 @@ private:
     bool mouseDownL = false;
     bool mouseDownM = false;
     bool mouseDownR = false;
+
+    QList<ActionState> actions;
+    int actionIndex = 0;
 
     bool modified    = false;
     QString tabTitle = "Model Manager";
