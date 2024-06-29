@@ -29,6 +29,7 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, bool togg
     }
 
     ui->pivotToggle->setChecked(toggle);
+    pivotToggle = toggle;
     QPalette pal(bgColor);
     ui->colorButton->setPalette(pal);
 
