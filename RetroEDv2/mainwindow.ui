@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>RetroED</string>
   </property>
+  <property name="windowIcon">
+    <iconset resource="resources.qrc">
+      <normaloff>:/icons/icon.svg</normaloff>:/icons/icon.svg</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="3" column="0">
