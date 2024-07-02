@@ -88,6 +88,7 @@ public:
     GameManagerInfo gameManager[ENGINE_v1 + 1];
     BaseDataFolderInfo baseDataManager[ENGINE_v1 + 1];
     bool lightMode = false;
+    bool vSync     = true;
 
     QString filePath;
     const byte fileVer = 1;

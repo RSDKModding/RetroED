@@ -424,6 +424,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     });
     options->addAction(lightModeButton);
 
+    bool startupVSync = appConfig.vSync;
+    QAction *sceneEditorVSync = new QAction("Enable VSync", options);
+    sceneEditorVSync->setCheckable(true);
+    sceneEditorVSync->setChecked(appConfig.vSync);
+    connect(sceneEditorVSync, &QAction::triggered, [=](bool checked) {
+        appConfig.vSync = checked;
+        appConfig.write();
+        if (startupVSync != appConfig.vSync){
+            QMessageBox msgBox(
+                QMessageBox::Information, "RetroED",
+                QString("This change will take effect after restart."),
+                QMessageBox::Ok);
+            msgBox.exec();
+        }
+    });
+    options->addAction(sceneEditorVSync);
+
     ui->menubar->addMenu(options);
 
 #ifndef Q_NO_PROCESS

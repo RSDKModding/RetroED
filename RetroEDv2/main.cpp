@@ -89,7 +89,6 @@ QPalette darkPal;
 int main(int argc, char *argv[])
 {
     InitConsole();
-
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
@@ -98,22 +97,6 @@ int main(int argc, char *argv[])
     SplashScreen splash;
     splash.showMessage("Setting up display format...");
     splash.show();
-
-    QSurfaceFormat format;
-    format.setDepthBufferSize(24);
-    format.setStencilBufferSize(8);
-    format.setMajorVersion(3);
-    format.setMinorVersion(2);
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    QSurfaceFormat::setDefaultFormat(format);
-
-    QCoreApplication::processEvents();
-    splash.showMessage("Configuring style...");
-
-    qInstallMessageHandler(DebugMessageHandler);
-    RE2Style *style = new RE2Style();
-
-    QApplication::setStyle(style);
 
     QCoreApplication::processEvents();
     splash.showMessage("Setting up appConfig...");
@@ -126,6 +109,24 @@ int main(int argc, char *argv[])
         appConfig.write(appDir + "appConfig.bin");
     else
         appConfig.read(appDir + "appConfig.bin");
+
+    QSurfaceFormat format;
+    format.setDepthBufferSize(24);
+    format.setStencilBufferSize(8);
+    format.setMajorVersion(3);
+    format.setMinorVersion(2);
+    format.setSwapInterval(appConfig.vSync);
+    format.setProfile(QSurfaceFormat::CoreProfile);
+
+    QSurfaceFormat::setDefaultFormat(format);
+
+    QCoreApplication::processEvents();
+    splash.showMessage("Configuring style...");
+
+    qInstallMessageHandler(DebugMessageHandler);
+    RE2Style *style = new RE2Style();
+
+    QApplication::setStyle(style);
 
     lightPal = QApplication::palette();
 

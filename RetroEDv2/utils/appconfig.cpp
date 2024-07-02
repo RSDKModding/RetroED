@@ -25,6 +25,9 @@ void AppConfig::read(Reader &reader)
     if (!reader.isEOF()) {
         lightMode = reader.read<byte>();
     }
+    if (!reader.isEOF()) {
+        vSync = reader.read<byte>();
+    }
 }
 
 void AppConfig::write(Writer &writer)
@@ -41,6 +44,7 @@ void AppConfig::write(Writer &writer)
         baseDataManager[v].write(writer);
     };
     writer.write((byte)lightMode);
+    writer.write((byte)vSync);
 
     writer.flush();
 }
