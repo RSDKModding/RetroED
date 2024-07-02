@@ -83,7 +83,9 @@ public:
     bool disableObjects   = true;
     bool disableDrawScene = false;
 
-    double fps;
+    int updateCount = 0;
+    double sumFps = 0.0;
+    double avgFps = 0.0;
     QElapsedTimer fpsTimer;
 
     byte gameType = ENGINE_NONE;
