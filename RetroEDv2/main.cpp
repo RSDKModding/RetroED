@@ -98,7 +98,6 @@ int main(int argc, char *argv[])
     splash.showMessage("Setting up display format...");
     splash.show();
 
-    QCoreApplication::processEvents();
     splash.showMessage("Setting up appConfig...");
 
     appDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/";
@@ -127,6 +126,8 @@ int main(int argc, char *argv[])
     RE2Style *style = new RE2Style();
 
     QApplication::setStyle(style);
+
+    QCoreApplication::processEvents();
 
     lightPal = QApplication::palette();
 
