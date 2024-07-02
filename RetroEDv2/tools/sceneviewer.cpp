@@ -48,6 +48,7 @@ SceneViewer::SceneViewer(byte gameType, QWidget *parent) : QOpenGLWidget(parent)
     updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, QOverload<>::of(&SceneViewer::updateScene));
     startTimer();
+    fpsTimer.start();
 
     for (int a = 0; a < v5_SPRFILE_COUNT; ++a) {
         spriteAnimationList[a].scope = SCOPE_NONE;
@@ -182,7 +183,7 @@ void SceneViewer::startTimer()
     if (updateTimer) {
         stopTimer();
 
-        updateTimer->start(1000.0f / 60.0f);
+        updateTimer->start(0);
     }
 }
 
@@ -360,7 +361,7 @@ void SceneViewer::updateScene()
             if (engineRevision != 1)
                 status += QString(", Filter: %1").arg(sceneFilter);
         }
-        status += QString(", FPS: %1").arg(fps, 0, 'f', 1);
+        status += QString(", FPS: %1").arg(avgFps, 0, 'f', 1);
         statusLabel->setText(status);
     }
 
@@ -2213,7 +2214,6 @@ void SceneViewer::resizeGL(int w, int h)
 
 void SceneViewer::paintGL()
 {
-    fpsTimer.restart();
     glFuncs = context()->functions();
 
     int boundsL = 0;
@@ -2375,7 +2375,17 @@ void SceneViewer::paintGL()
     fbiVBO->bind();
     glFuncs->glBlendFunc(GL_ONE, GL_ZERO);
     glFuncs->glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
-    fps = 1e9 / fpsTimer.nsecsElapsed();
+
+    sumFps += fpsTimer.nsecsElapsed();
+    fpsTimer.restart();
+    ++updateCount;
+
+    // Compute avg FPS over the last second
+    if (sumFps >= 1e9) {
+        avgFps = (double)(updateCount * 1e9) / sumFps;
+        updateCount = 0;
+        sumFps = 0.0;
+    }
 }
 
 int SceneViewer::addGraphicsFile(QString sheetPath, int sheetID, byte scope)
