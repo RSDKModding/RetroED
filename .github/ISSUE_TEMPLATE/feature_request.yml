@@ -1,0 +1,42 @@
+name: Bug Report
+description: Something isn't working
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before doing a feature request, please read the following:
+        - We don't guarantee the requested feature to be added
+        - Don't expect your request to be a priority
+  - type: dropdown
+    id: editortool
+    validations:
+      required: true
+    attributes:
+      label: "Editor Tool"
+      description: For which tool(s) is this feature request?
+      multiple: false
+      options:
+        - Scene Editor
+        - Animation Editor
+        - GameConfig Editor
+        - Palette Editor
+        - RSDK Unpacker
+        - Model Manager
+        - Script Compiler
+        - GFX Manager
+        - UserDB Manager
+        - RSV Manager
+        - Other
+  - type: input
+    validations:
+      required: true
+    attributes:
+      label: Requested Feature
+      description: What new feature do you want to see on the editor?
+  - type: textarea
+    validations:
+      required: false
+    attributes:
+      label: Additional Comments
+      description: Provide any additional information if needed.
