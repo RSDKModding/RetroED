@@ -1,6 +1,6 @@
 name: Feature Request
-description: Something isn't working
-labels: [bug]
+description: Suggestions of new features for the editor
+labels: [enhancement]
 body:
   - type: markdown
     attributes:
