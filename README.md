@@ -28,8 +28,8 @@ Clone the repo, using: `git clone https://github.com/RSDKModding/RetroED`
 
 If you've already cloned the repo, run this command inside of the repository: `git submodule update --init --recursive`
 
-### Windows
-#### Pre-requisites
+## Windows
+### Pre-requisites
 - Download and install Python 3 from [here](https://www.python.org/downloads/), then reboot the computer.
 - In Command Prompt, run the command `pip install pytz`.
 - Get and run the Qt Online Installer from [here](https://www.qt.io/download-qt-installer-oss).
@@ -41,22 +41,19 @@ If you've already cloned the repo, run this command inside of the repository: `g
 - Proceed with the rest of the installation.
   - If Qt Online Installer has a very slow download speed, cancel the install and open the exe through a command line with the argument `--mirror [mirror url]`. A list of the available mirrors can be found [here](https://download.qt.io/static/mirrorlist/); copy the one closest to your location.
 - In the `RetroEDv2` project folder, run `python versiongen.py` in Command Prompt.
-
-#### Building
-- Open `RetroEDv2.pro` in Qt Creator, then in the Projects tab, make sure `Release` builds are enabled and press `Configure Project`.
-- Press the `RetroEDv2` monitor icon, then ensure the Build is set to `Release`.
-- Press the `Build Project "RetroEDv2"` button. The built executable should be located in `build/[used kit name]/release`.
+- Follow the [Qt Creator building steps](#building-using-qt-creator).
 
 ## Linux
-#### Pre-requisites
+### Pre-requisites
 - Install the following dependencies:
   - **apt (Debian/Ubuntu):** `sudo apt install build-essential python3.6 python3-pip libqt5svg5-dev qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools`
   - Your favorite package manager here, [make a pull request](https://github.com/RSDKModding/RetroED/fork)
-    - Qt Creator can also be installed by adding `qtcreator` to the command above, allowing you to use the same building process as Windows.
+    - Qt Creator can also be installed by adding `qtcreator` to the command above, allowing you to use the same building process as the other platforms.
 - Run the command `pip install pytz`.
 - In the `RetroEDv2` project folder, run the command `python3 versiongen.py`.
+- Follow the [Qt Creator building steps](#building-using-qt-creator) (or build from the command line).
 
-#### Building
+### Building from the command line
 - In the `RetroEDv2` project folder, run the following commands:
 ```
 mkdir build
@@ -67,7 +64,24 @@ make -j$(nproc)
 The -j switch is optional, but will make building faster by running it parallel on multiple cores (nproc will use all available cores).
 
 ## MacOS
-* Clone the repo and open the project in Qt creator, from there just press the "build project RetroED2" button.
+### Pre-requisites
+- Download and install Xcode from the App Store.
+- Download and install Python 3 from [here](https://www.python.org/downloads/) or from a package manager such as [Homebrew](https://brew.sh/).
+- In Terminal, run the command `python3 -m pip install pytz`.
+- Get and run the Qt Online Installer from [here](https://www.qt.io/download-qt-installer-oss).
+- When you reach the `Installation Folder` step of the installer, choose `Custom Installation`.
+- In the `Select Components` step, enable the `Archive` filter and click `Filter` to refresh the component list.
+- From here, enable of the following:
+  - `Qt` > `Qt 5.15.2` > `macOS`.
+- Proceed with the rest of the installation.
+  - If Qt Online Installer has a very slow download speed, cancel the install and open the exe through a command line with the argument `--mirror [mirror url]`. A list of the available mirrors can be found [here](https://download.qt.io/static/mirrorlist/); copy the one closest to your location.
+- In the `RetroEDv2` project folder, run `python3 versiongen.py` in the Terminal.
+- Follow the [Qt Creator building steps](#building-using-qt-creator).
+
+## Building using Qt Creator
+- Open `RetroEDv2.pro` in Qt Creator, then in the Projects tab, make sure `Release` builds are enabled and press `Configure Project`.
+- Press the `RetroEDv2` monitor icon, then ensure the Build is set to `Release`.
+- Press the `Build Project "RetroEDv2"` button. The built executable should be located in `build/[used kit name]/release`.
 
 ## Other Platforms
 The only supported platforms are the ones listed above. There are no plans to support other platforms for the time being.
