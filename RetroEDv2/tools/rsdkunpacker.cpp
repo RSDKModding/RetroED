@@ -348,13 +348,13 @@ void RSDKUnpacker::LoadPack(QString filepath, byte ver, QString fileNameList)
 
             for (RSDKv1::Datapack::FileInfo &file : datapackv1.files) {
                 FileInfo info;
-                info.filename  = file.fullFilename;
+                info.filename  = file.fullFileName;
                 info.fileSize  = file.fileSize;
                 info.fileData  = file.fileData;
                 info.encrypted = false;
                 files.append(info);
 
-                ui->fileList->addItem(file.fullFilename);
+                ui->fileList->addItem(file.fullFileName);
                 SetStatusProgress(++count / total);
             }
             break;
@@ -447,7 +447,7 @@ void RSDKUnpacker::SavePack(QString filepath, byte ver)
                 }
 
                 RSDKv3::Datapack::FileInfo info;
-                info.fileName = QFileInfo(file.filename).fileName();
+                info.fileName = file.filename;
                 info.fileSize = file.fileSize;
                 info.fileData = file.fileData;
                 info.dirID    = dirID;
@@ -479,7 +479,7 @@ void RSDKUnpacker::SavePack(QString filepath, byte ver)
                 }
 
                 RSDKv2::Datapack::FileInfo info;
-                info.fileName = QFileInfo(file.filename).fileName();
+                info.fileName = file.filename;
                 info.fileSize = file.fileSize;
                 info.fileData = file.fileData;
                 info.dirID    = dirID;
@@ -511,7 +511,7 @@ void RSDKUnpacker::SavePack(QString filepath, byte ver)
                 }
 
                 RSDKv1::Datapack::FileInfo info;
-                info.filename = QFileInfo(file.filename).fileName();
+                info.fileName = file.filename;
                 info.fileSize = file.fileSize;
                 info.fileData = file.fileData;
                 info.dirID    = dirID;
