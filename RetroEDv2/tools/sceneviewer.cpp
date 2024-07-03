@@ -1012,6 +1012,7 @@ void SceneViewer::drawScene()
     //     addStatusProgress(0.2); // finished rendering layers
 
     // ENTITIES
+    Rect<float> viewArea = Rect<float>(cameraPos.x, cameraPos.y, storedW * iZoom + cameraPos.x, storedH * iZoom + cameraPos.y);
     for (int p = 0; p < v5_DRAWGROUP_COUNT; ++p) {
         sceneInfo.currentDrawGroup   = p;
         sceneInfoV1.currentDrawGroup = p;
@@ -1052,12 +1053,16 @@ void SceneViewer::drawScene()
             if (!validDraw) {
                 entity->box = Rect<int>(-0x10, -0x10, 0x10, 0x10);
 
-                float xpos = entity->pos.x - (cameraPos.x);
-                float ypos = entity->pos.y - (cameraPos.y);
+                Vector2<float> pos = Vector2<float>(
+                    entity->pos.x,
+                    entity->pos.y);
 
-                drawSpriteFlipped(xpos - (gfxSurface[3].width >> 1), ypos - (gfxSurface[3].height >> 1),
-                                  gfxSurface[3].width, gfxSurface[3].height, 0, 0, FLIP_NONE, INK_NONE,
-                                  0xFF, 3);
+                // Make sure is within the viewable area
+                if (viewArea.contains(pos)){
+                    drawSpriteFlipped((pos.x - cameraPos.x) - (gfxSurface[3].width >> 1), (pos.y - cameraPos.y) - (gfxSurface[3].height >> 1),
+                                      gfxSurface[3].width, gfxSurface[3].height, 0, 0, FLIP_NONE, INK_NONE,
+                                      0xFF, 3);
+                }
             }
         }
     }
