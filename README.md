@@ -70,11 +70,9 @@ The -j switch is optional, but will make building faster by running it parallel 
 - In Terminal, run the command `python3 -m pip install pytz`.
 - Get and run the Qt Online Installer from [here](https://www.qt.io/download-qt-installer-oss).
 - When you reach the `Installation Folder` step of the installer, choose `Custom Installation`.
-- In the `Select Components` step, enable the `Archive` filter and click `Filter` to refresh the component list.
-- From here, enable of the following:
-  - `Qt` > `Qt 5.15.2` > `macOS`.
+- In the `Select Components` step, enable the `Archive` filter and click `Filter` to refresh the component list, then enable the component `Qt` > `Qt 5.15.2` > `macOS`.
 - Proceed with the rest of the installation.
-  - If Qt Online Installer has a very slow download speed, cancel the install and open the exe through a command line with the argument `--mirror [mirror url]`. A list of the available mirrors can be found [here](https://download.qt.io/static/mirrorlist/); copy the one closest to your location.
+  - If Qt Online Installer has a very slow download speed, cancel the install and open the installer through a command line with the argument `--mirror [mirror url]`. A list of the available mirrors can be found [here](https://download.qt.io/static/mirrorlist/); copy the one closest to your location.
 - In the `RetroEDv2` project folder, run `python3 versiongen.py` in the Terminal.
 - Follow the [Qt Creator building steps](#building-using-qt-creator).
 
