@@ -1511,9 +1511,18 @@ void SceneViewer::unloadScene()
     disableObjects = true;
 
     tiles.clear();
-    delete colTexStore;
-    delete colTex[0];
-    delete colTex[1];
+    if (colTexStore) {
+        delete colTexStore;
+        colTexStore = nullptr;
+    }
+    if (colTex[0]) {
+        delete colTex[0];
+        colTex[0] = nullptr;
+    }
+    if (colTex[1]) {
+        delete colTex[1];
+        colTex[1] = nullptr;
+    }
 
     for (int o = 0; o < v5_SURFACE_MAX; ++o) {
         if (gfxSurface[o].scope == SCOPE_STAGE) {
