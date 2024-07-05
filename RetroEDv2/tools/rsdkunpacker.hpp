@@ -18,6 +18,7 @@ public:
 private:
     void LoadPack(QString filepath, byte ver, QString fileList = "");
     void SavePack(QString filepath, byte ver);
+    void CreateList(QList<QFileInfo> &list, QString absPath, float progressTotal);
 
     Ui::RSDKUnpacker *ui;
 

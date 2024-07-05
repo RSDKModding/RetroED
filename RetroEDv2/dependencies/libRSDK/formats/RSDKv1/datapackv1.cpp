@@ -19,7 +19,7 @@ void RSDKv1::Datapack::read(Reader &reader)
         if ((d + 1) < directories.count()) {
             while (reader.tell() - headerSize < directories[d + 1].startOffset && !reader.isEOF()) {
                 FileInfo f     = FileInfo(reader);
-                f.fullFilename = directories[d].directory + f.filename;
+                f.fullFileName = directories[d].directory + f.fileName;
                 f.dirID        = d;
                 files.append(f);
             }
@@ -27,7 +27,7 @@ void RSDKv1::Datapack::read(Reader &reader)
         else {
             while (!reader.isEOF()) {
                 FileInfo f     = FileInfo(reader);
-                f.fullFilename = directories[d].directory + f.filename;
+                f.fullFileName = directories[d].directory + f.fileName;
                 f.dirID        = d;
                 files.append(f);
             }
@@ -44,18 +44,11 @@ void RSDKv1::Datapack::write(Writer &writer)
     writer.write(dirHeaderSize);
     writer.write((byte)directories.count());
 
-    // TODO: sort dirs by name
-    // std::sort(directories.begin(), directories.end(), [](const DirInfo &a, const DirInfo &b) ->
-    // bool { return a.directory < b.directory; });
-
     for (int i = 0; i < directories.count(); ++i) {
         directories[i].write(writer);
     }
 
     dirHeaderSize = (int)writer.tell();
-    // std::sort(files.begin(), files.end(), [](const FileInfo &a, const FileInfo &b) -> bool {
-    //    return a.dirID < b.dirID && a.filename < b.filename;
-    //});
 
     int dir                      = 0;
     directories[dir].startOffset = 0;
@@ -91,16 +84,16 @@ void RSDKv1::Datapack::write(Writer &writer)
 
 void RSDKv1::Datapack::FileInfo::read(Reader &reader)
 {
-    filename = reader.readString();
+    fileName = reader.readString();
     fileSize = reader.read<uint>();
     fileData = reader.readByteArray(fileSize);
 }
 
 void RSDKv1::Datapack::FileInfo::write(Writer &writer)
 {
-    filename = filename.replace('\\', '/');
+    fileName = fileName.replace('\\', '/');
 
-    writer.write(filename);
+    writer.write(fileName);
     writer.write((uint)fileSize);
     writer.write(fileData);
 }

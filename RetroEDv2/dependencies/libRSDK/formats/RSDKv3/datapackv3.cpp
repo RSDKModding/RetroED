@@ -78,18 +78,11 @@ void RSDKv3::Datapack::write(Writer &writer)
     writer.write(dirHeaderSize);
     writer.write((ushort)directories.count());
 
-    // TODO: sort dirs by name
-    // std::sort(directories.begin(), directories.end(), [](const DirInfo &a, const DirInfo &b) ->
-    // bool { return a.directory < b.directory; });
-
     for (int i = 0; i < directories.count(); ++i) {
         directories[i].write(writer);
     }
 
     dirHeaderSize = (int)writer.tell();
-    // std::sort(files.begin(), files.end(), [](const FileInfo &a, const FileInfo &b) -> bool {
-    //    return a.dirID < b.dirID && a.filename < b.filename;
-    //});
 
     int dir                      = 0;
     directories[dir].startOffset = 0;

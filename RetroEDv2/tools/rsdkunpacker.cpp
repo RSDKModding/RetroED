@@ -82,71 +82,59 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
         filedialog.setFileMode(QFileDialog::Directory);
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
-            SetStatus("Creating Datapack...", true);
-            QString dir  = filedialog.selectedFiles()[0] + "/";
-            QDir dirInfo = QDir(dir);
-            dirInfo.cdUp();
-            QString absDir = dirInfo.path() + "/";
-
             files.clear();
             ui->fileList->blockSignals(true);
             ui->fileList->clear();
 
-            // Search [Folder]/
+            SetStatus("Loading Data Folder...", true);
+            QString dir  = filedialog.selectedFiles()[0] + "/";
+            float total = 0;
             QDirIterator itData(dir, QStringList() << "*", QDir::Files, QDirIterator::Subdirectories);
-            while (itData.hasNext()) {
-                QString file = itData.next();
-                FileInfo info;
-                info.encrypted = false;
-                info.fileSize  = QFileInfo(file).size();
-
-                info.filename = file;
-                info.filename.replace(absDir, "");
-                Reader reader(file);
-                info.fileData = reader.readByteArray(reader.filesize);
-                reader.close();
-                files.append(info);
-                ui->fileList->addItem(info.filename);
+            while (itData.hasNext()){
+                total++;
+                itData.next();
             }
 
-            // Search [FolderAbsDir]/ByteCode/
-            QDirIterator itBC(absDir + "ByteCode/", QStringList() << "*", QDir::Files,
-                              QDirIterator::Subdirectories);
-            while (itBC.hasNext()) {
-                QString file = itBC.next();
-                FileInfo info;
-                info.encrypted = false;
-                info.fileSize  = QFileInfo(file).size();
+            QDir dirInfo = QDir(dir);
+            QList<QFileInfo> dataDirList = dirInfo.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::DirsFirst);
+            dirInfo.cdUp();
+            QString absDir = dirInfo.path() + "/";
+            CreateList(dataDirList, absDir, total);
+            total = 0;
 
-                info.filename = file;
-                info.filename.replace(absDir, "");
-                Reader reader(file);
-                info.fileData = reader.readByteArray(reader.filesize);
-                reader.close();
-                files.append(info);
-                ui->fileList->addItem(info.filename);
+            QDirIterator itBC(absDir + "ByteCode/", QStringList() << "*", QDir::Files, QDirIterator::Subdirectories);
+
+            while (itBC.hasNext()){
+                total++;
+                itBC.next();
+            }
+            if (total) {
+                SetStatus("External ByteCode folder found, loading...", true);
+
+                QDir byteCodedirInfo = QDir(absDir + "ByteCode/");
+                QList<QFileInfo> byteCodeDirList = byteCodedirInfo.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::DirsFirst);
+                CreateList(byteCodeDirList, absDir, total);
+                total = 0;
             }
 
-            // Search [FolderAbsDir]/Scripts/
-            QDirIterator itScr(absDir + "Scripts/", QStringList() << "*", QDir::Files,
-                               QDirIterator::Subdirectories);
-            while (itScr.hasNext()) {
-                QString file = itScr.next();
-                FileInfo info;
-                info.encrypted = false;
-                info.fileSize  = QFileInfo(file).size();
-
-                info.filename = file;
-                info.filename.replace(absDir, "");
-                Reader reader(file);
-                info.fileData = reader.readByteArray(reader.filesize);
-                reader.close();
-                files.append(info);
-                ui->fileList->addItem(info.filename);
+            QDirIterator itScr(absDir + "Scripts/", QStringList() << "*", QDir::Files, QDirIterator::Subdirectories);
+            while (itBC.hasNext()){
+                total++;
+                itBC.next();
             }
+
+            if (total) {
+                SetStatus("External Scripts folder found, loading...", true);
+                QDir scrdirInfo = QDir(absDir + "Scripts/");
+                QList<QFileInfo> scrDirList = scrdirInfo.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::DirsFirst);
+                CreateList(scrDirList, absDir, total);
+            }
+
             ui->fileList->blockSignals(false);
+            SetStatus("Loaded Data Folder");
         }
     });
+
     connect(ui->buildDatapack, &QPushButton::clicked, [this] {
         QList<QString> types = {
             "RSDKv5 Datapacks (*.rsdk)", "RSDKv4 Datapacks (*.rsdk)", "RSDKv3 Datapacks (*.rsdk)",
@@ -236,6 +224,29 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
 }
 
 RSDKUnpacker::~RSDKUnpacker() { delete ui; }
+
+void RSDKUnpacker::CreateList(QList<QFileInfo> &list, QString absPath, float progressTotal){
+    for (int i = 0; i < list.size(); i++){
+        if (list[i].isFile()){
+            FileInfo info;
+            info.encrypted = false;
+            info.fileSize = list[i].size();
+            info.filename = list[i].filePath();
+            info.filename.replace(absPath, "");
+            Reader reader(list[i].filePath());
+            info.fileData = reader.readByteArray((reader.filesize));
+            reader.close();
+            files.append(info);
+            ui->fileList->addItem(info.filename);
+            SetStatusProgress(ui->fileList->count() / progressTotal);
+        }
+        else{
+            QDir subdirPath = QDir(list[i].filePath());
+            QList<QFileInfo> subdirList = subdirPath.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::DirsFirst);
+            CreateList(subdirList, absPath, progressTotal);
+        }
+    }
+}
 
 void RSDKUnpacker::LoadPack(QString filepath, byte ver, QString fileNameList)
 {
@@ -348,13 +359,13 @@ void RSDKUnpacker::LoadPack(QString filepath, byte ver, QString fileNameList)
 
             for (RSDKv1::Datapack::FileInfo &file : datapackv1.files) {
                 FileInfo info;
-                info.filename  = file.fullFilename;
+                info.filename  = file.fullFileName;
                 info.fileSize  = file.fileSize;
                 info.fileData  = file.fileData;
                 info.encrypted = false;
                 files.append(info);
 
-                ui->fileList->addItem(file.fullFilename);
+                ui->fileList->addItem(file.fullFileName);
                 SetStatusProgress(++count / total);
             }
             break;
@@ -393,8 +404,6 @@ void RSDKUnpacker::SavePack(QString filepath, byte ver)
 
     QList<FileInfo> files = this->files;
     QList<QString> dirs;
-    std::sort(files.begin(), files.end(),
-              [](const FileInfo &a, const FileInfo &b) -> bool { return a.filename < b.filename; });
 
     switch (ver) {
         case ENGINE_v5: // RSDKv5
@@ -511,7 +520,7 @@ void RSDKUnpacker::SavePack(QString filepath, byte ver)
                 }
 
                 RSDKv1::Datapack::FileInfo info;
-                info.filename = QFileInfo(file.filename).fileName();
+                info.fileName = QFileInfo(file.filename).fileName();
                 info.fileSize = file.fileSize;
                 info.fileData = file.fileData;
                 info.dirID    = dirID;

@@ -28,8 +28,8 @@ public:
         void read(Reader &reader);
         void write(Writer &writer);
 
-        QString filename     = "File.ext";
-        QString fullFilename = "Folder/File.ext";
+        QString fileName     = "File.ext";
+        QString fullFileName = "Folder/File.ext";
         uint fileSize        = 0;
         ushort dirID         = 0;
         QByteArray fileData;
