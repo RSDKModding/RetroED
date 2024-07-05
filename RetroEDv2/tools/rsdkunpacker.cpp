@@ -82,68 +82,23 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
         filedialog.setFileMode(QFileDialog::Directory);
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
-            SetStatus("Creating Datapack...", true);
-            QString dir  = filedialog.selectedFiles()[0] + "/";
-            QDir dirInfo = QDir(dir);
-            dirInfo.cdUp();
-            QString absDir = dirInfo.path() + "/";
-
+            SetStatus("Loading Data Folder...", true);
             files.clear();
             ui->fileList->blockSignals(true);
             ui->fileList->clear();
 
-            // Search [Folder]/
-            QDirIterator itData(dir, QStringList() << "*", QDir::Files, QDirIterator::Subdirectories);
-            while (itData.hasNext()) {
-                QString file = itData.next();
-                FileInfo info;
-                info.encrypted = false;
-                info.fileSize  = QFileInfo(file).size();
-
-                info.filename = file;
-                info.filename.replace(absDir, "");
-                Reader reader(file);
-                info.fileData = reader.readByteArray(reader.filesize);
-                reader.close();
-                files.append(info);
-                ui->fileList->addItem(info.filename);
-            }
-
-            // Search [FolderAbsDir]/ByteCode/
-            QDirIterator itBC(absDir + "ByteCode/", QStringList() << "*", QDir::Files,
-                              QDirIterator::Subdirectories);
-            while (itBC.hasNext()) {
-                QString file = itBC.next();
-                FileInfo info;
-                info.encrypted = false;
-                info.fileSize  = QFileInfo(file).size();
-
-                info.filename = file;
-                info.filename.replace(absDir, "");
-                Reader reader(file);
-                info.fileData = reader.readByteArray(reader.filesize);
-                reader.close();
-                files.append(info);
-                ui->fileList->addItem(info.filename);
-            }
-
-            // Search [FolderAbsDir]/Scripts/
-            QDirIterator itScr(absDir + "Scripts/", QStringList() << "*", QDir::Files,
-                               QDirIterator::Subdirectories);
-            while (itScr.hasNext()) {
-                QString file = itScr.next();
-                FileInfo info;
-                info.encrypted = false;
-                info.fileSize  = QFileInfo(file).size();
-
-                info.filename = file;
-                info.filename.replace(absDir, "");
-                Reader reader(file);
-                info.fileData = reader.readByteArray(reader.filesize);
-                reader.close();
-                files.append(info);
-                ui->fileList->addItem(info.filename);
-            }
+            QString dir  = filedialog.selectedFiles()[0] + "/";
+            QDir dirInfo = QDir(dir);
+            QList<QFileInfo> dataDirList = dirInfo.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::DirsFirst);
+            dirInfo.cdUp();
+            QString absDir = dirInfo.path() + "/";
+            CreateList(dataDirList, absDir);
+            QDir byteCodedirInfo = QDir(absDir + "ByteCode/");
+            QList<QFileInfo> byteCodeDirList = byteCodedirInfo.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::DirsFirst);
+            CreateList(byteCodeDirList, absDir);
+            QDir scriptdirInfo = QDir(absDir + "Scripts/");
+            QList<QFileInfo> scriptDirList = scriptdirInfo.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::DirsFirst);
+            CreateList(scriptDirList, absDir);
             ui->fileList->blockSignals(false);
         }
     });
@@ -236,6 +191,28 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
 }
 
 RSDKUnpacker::~RSDKUnpacker() { delete ui; }
+
+void RSDKUnpacker::CreateList(QList<QFileInfo> &list, QString absPath){
+    for (int i = 0; i < list.size(); i++){
+        if (list[i].isFile()){
+            FileInfo info;
+            info.encrypted = false;
+            info.fileSize = list[i].size();
+            info.filename = list[i].filePath();
+            info.filename.replace(absPath, "");
+            Reader reader(list[i].filePath());
+            info.fileData = reader.readByteArray((reader.filesize));
+            reader.close();
+            files.append(info);
+            ui->fileList->addItem(info.filename);
+        }
+        else{
+            QDir subdirPath = QDir(list[i].filePath());
+            QList<QFileInfo> subdirList = subdirPath.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::DirsFirst);
+            CreateList(subdirList, absPath);
+        }
+    }
+}
 
 void RSDKUnpacker::LoadPack(QString filepath, byte ver, QString fileNameList)
 {
@@ -393,8 +370,6 @@ void RSDKUnpacker::SavePack(QString filepath, byte ver)
 
     QList<FileInfo> files = this->files;
     QList<QString> dirs;
-    std::sort(files.begin(), files.end(),
-              [](const FileInfo &a, const FileInfo &b) -> bool { return a.filename < b.filename; });
 
     switch (ver) {
         case ENGINE_v5: // RSDKv5
@@ -447,7 +422,7 @@ void RSDKUnpacker::SavePack(QString filepath, byte ver)
                 }
 
                 RSDKv3::Datapack::FileInfo info;
-                info.fileName = file.filename;
+                info.fileName = QFileInfo(file.filename).fileName();
                 info.fileSize = file.fileSize;
                 info.fileData = file.fileData;
                 info.dirID    = dirID;
@@ -479,7 +454,7 @@ void RSDKUnpacker::SavePack(QString filepath, byte ver)
                 }
 
                 RSDKv2::Datapack::FileInfo info;
-                info.fileName = file.filename;
+                info.fileName = QFileInfo(file.filename).fileName();
                 info.fileSize = file.fileSize;
                 info.fileData = file.fileData;
                 info.dirID    = dirID;
@@ -511,7 +486,7 @@ void RSDKUnpacker::SavePack(QString filepath, byte ver)
                 }
 
                 RSDKv1::Datapack::FileInfo info;
-                info.fileName = file.filename;
+                info.fileName = QFileInfo(file.filename).fileName();
                 info.fileSize = file.fileSize;
                 info.fileData = file.fileData;
                 info.dirID    = dirID;
