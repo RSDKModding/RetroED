@@ -82,26 +82,59 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
         filedialog.setFileMode(QFileDialog::Directory);
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
-            SetStatus("Loading Data Folder...", true);
             files.clear();
             ui->fileList->blockSignals(true);
             ui->fileList->clear();
 
+            SetStatus("Loading Data Folder...", true);
             QString dir  = filedialog.selectedFiles()[0] + "/";
+            float total = 0;
+            QDirIterator itData(dir, QStringList() << "*", QDir::Files, QDirIterator::Subdirectories);
+            while (itData.hasNext()){
+                total++;
+                itData.next();
+            }
+
             QDir dirInfo = QDir(dir);
             QList<QFileInfo> dataDirList = dirInfo.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::DirsFirst);
             dirInfo.cdUp();
             QString absDir = dirInfo.path() + "/";
-            CreateList(dataDirList, absDir);
-            QDir byteCodedirInfo = QDir(absDir + "ByteCode/");
-            QList<QFileInfo> byteCodeDirList = byteCodedirInfo.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::DirsFirst);
-            CreateList(byteCodeDirList, absDir);
-            QDir scriptdirInfo = QDir(absDir + "Scripts/");
-            QList<QFileInfo> scriptDirList = scriptdirInfo.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::DirsFirst);
-            CreateList(scriptDirList, absDir);
+            CreateList(dataDirList, absDir, total);
+            total = 0;
+
+            QDirIterator itBC(absDir + "ByteCode/", QStringList() << "*", QDir::Files, QDirIterator::Subdirectories);
+
+            while (itBC.hasNext()){
+                total++;
+                itBC.next();
+            }
+            if (total) {
+                SetStatus("External ByteCode folder found, loading...", true);
+
+                QDir byteCodedirInfo = QDir(absDir + "ByteCode/");
+                QList<QFileInfo> byteCodeDirList = byteCodedirInfo.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::DirsFirst);
+                CreateList(byteCodeDirList, absDir, total);
+                total = 0;
+            }
+
+            QDirIterator itScr(absDir + "Scripts/", QStringList() << "*", QDir::Files, QDirIterator::Subdirectories);
+            while (itBC.hasNext()){
+                total++;
+                itBC.next();
+            }
+
+            if (total) {
+                SetStatus("External Scripts folder found, loading...", true);
+                QDir scrdirInfo = QDir(absDir + "Scripts/");
+                QList<QFileInfo> scrDirList = scrdirInfo.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::DirsFirst);
+                CreateList(scrDirList, absDir, total);
+            }
+
             ui->fileList->blockSignals(false);
+            SetStatus("Loaded Data Folder");
         }
     });
+
     connect(ui->buildDatapack, &QPushButton::clicked, [this] {
         QList<QString> types = {
             "RSDKv5 Datapacks (*.rsdk)", "RSDKv4 Datapacks (*.rsdk)", "RSDKv3 Datapacks (*.rsdk)",
@@ -192,7 +225,7 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
 
 RSDKUnpacker::~RSDKUnpacker() { delete ui; }
 
-void RSDKUnpacker::CreateList(QList<QFileInfo> &list, QString absPath){
+void RSDKUnpacker::CreateList(QList<QFileInfo> &list, QString absPath, float progressTotal){
     for (int i = 0; i < list.size(); i++){
         if (list[i].isFile()){
             FileInfo info;
@@ -205,11 +238,12 @@ void RSDKUnpacker::CreateList(QList<QFileInfo> &list, QString absPath){
             reader.close();
             files.append(info);
             ui->fileList->addItem(info.filename);
+            SetStatusProgress(ui->fileList->count() / progressTotal);
         }
         else{
             QDir subdirPath = QDir(list[i].filePath());
             QList<QFileInfo> subdirList = subdirPath.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::DirsFirst);
-            CreateList(subdirList, absPath);
+            CreateList(subdirList, absPath, progressTotal);
         }
     }
 }
