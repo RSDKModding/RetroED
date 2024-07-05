@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     else {
         if (appConfig.windowPos != QPoint(0,0))
             move(appConfig.windowPos);
+        resize(appConfig.windowSize);
     }
 
     statusLabel    = ui->status;
@@ -528,8 +529,8 @@ bool MainWindow::event(QEvent *event)
         }
         appConfig.windowPos   = pos();
         appConfig.windowState = isMaximized();
+        appConfig.windowSize  = size();
         appConfig.write();
-
     }
 
     return QWidget::event(event);

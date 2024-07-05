@@ -90,6 +90,7 @@ public:
     bool lightMode    = false;
     bool vSync        = true;
     QPoint windowPos  = {0, 0};
+    QSize windowSize  = {800, 482};
     bool windowState  = false;
 
     QString filePath;

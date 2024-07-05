@@ -30,6 +30,8 @@ void AppConfig::read(Reader &reader)
         windowPos   = reader.read<QPoint>();
     if (!reader.isEOF())
         windowState = reader.read<byte>();
+    if (!reader.isEOF())
+        windowSize  = reader.read<QSize>();
 }
 
 void AppConfig::write(Writer &writer)
@@ -49,6 +51,7 @@ void AppConfig::write(Writer &writer)
     writer.write((byte)vSync);
     writer.write(windowPos);
     writer.write((byte)windowState);
+    writer.write((QSize)windowSize);
 
     writer.flush();
 }
