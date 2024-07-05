@@ -22,12 +22,14 @@ void AppConfig::read(Reader &reader)
         };
     }
 
-    if (!reader.isEOF()) {
-        lightMode = reader.read<byte>();
-    }
-    if (!reader.isEOF()) {
-        vSync = reader.read<byte>();
-    }
+    if (!reader.isEOF())
+        lightMode   = reader.read<byte>();
+    if (!reader.isEOF())
+        vSync       = reader.read<byte>();
+    if (!reader.isEOF())
+        windowPos   = reader.read<QPoint>();
+    if (!reader.isEOF())
+        windowState = reader.read<byte>();
 }
 
 void AppConfig::write(Writer &writer)
@@ -45,6 +47,8 @@ void AppConfig::write(Writer &writer)
     };
     writer.write((byte)lightMode);
     writer.write((byte)vSync);
+    writer.write(windowPos);
+    writer.write((byte)windowState);
 
     writer.flush();
 }

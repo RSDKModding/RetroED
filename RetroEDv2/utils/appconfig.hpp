@@ -87,8 +87,10 @@ public:
     QList<RecentFileInfo> recentFiles;
     GameManagerInfo gameManager[ENGINE_v1 + 1];
     BaseDataFolderInfo baseDataManager[ENGINE_v1 + 1];
-    bool lightMode = false;
-    bool vSync     = true;
+    bool lightMode    = false;
+    bool vSync        = true;
+    QPoint windowPos  = {0, 0};
+    bool windowState  = false;
 
     QString filePath;
     const byte fileVer = 1;

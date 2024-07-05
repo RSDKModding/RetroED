@@ -35,6 +35,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
     ui->setupUi(this);
 
+    if (appConfig.windowState)
+        showMaximized();
+    else {
+        if (appConfig.windowPos != QPoint(0,0))
+            move(appConfig.windowPos);
+    }
+
     statusLabel    = ui->status;
     statusProgress = ui->statusProgress;
     toolTabs       = ui->toolTabs;
@@ -519,6 +526,10 @@ bool MainWindow::event(QEvent *event)
                 return true;
             }
         }
+        appConfig.windowPos   = pos();
+        appConfig.windowState = isMaximized();
+        appConfig.write();
+
     }
 
     return QWidget::event(event);
