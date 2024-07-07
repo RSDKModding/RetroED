@@ -562,12 +562,12 @@ void FunctionTable::DrawRect(int x, int y, int width, int height, uint color, in
 void FunctionTable::DrawSprite(Animator *animator, Vector2<int> *position, bool32 screenRelative)
 {
     if (animator && animator->framePtrs && v5Editor) {
-        if ((uint)animator->frameID >= (uint)animator->frameCount)
-            return;
+
 
         SceneInfo &sceneInfo = v5Editor->viewer->sceneInfo;
 
         SpriteFrame *frame = &animator->framePtrs[animator->frameID];
+
         Vector2<float> pos;
         if (!position) {
             switch (v5Editor->viewer->engineRevision) {
@@ -604,6 +604,29 @@ void FunctionTable::DrawSprite(Animator *animator, Vector2<int> *position, bool3
             pos.y -= v5Editor->viewer->cameraPos.y;
         }
 
+        if ((uint)animator->frameID >= (uint)animator->frameCount){
+            // Check if the frameID leads to another frame on the anim list (Hi Sandopolis)
+            for (int i = 0; i < v5_SPRFILE_COUNT; ++i) {
+                SpriteAnimation *list = &v5Editor->viewer->spriteAnimationList[i];
+                if (list->scope == SCOPE_STAGE && list->animCount){
+                    for (int a = 0; a < list->animCount; ++a) {
+                        for (int f = 0; f < list->animations[a].frameCount; ++f) {
+                            if (&list->frames[f] == &animator->framePtrs[animator->frameID]){
+                                goto FOUND_FRAME;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Fallback, draw a blank obj
+            v5Editor->viewer->drawSpriteFlipped(pos.x - (v5Editor->viewer->gfxSurface[3].width >> 1), pos.y - (v5Editor->viewer->gfxSurface[3].height >> 1),
+                              v5Editor->viewer->gfxSurface[3].width, v5Editor->viewer->gfxSurface[3].height, 0, 0, FLIP_NONE, INK_NONE,
+                              0xFF, 3);
+            return;
+        }
+
+FOUND_FRAME:
         int rotation  = 0;
         int drawFX    = 0;
         int direction = FLIP_NONE;
