@@ -1012,7 +1012,8 @@ void SceneViewer::drawScene()
     //     addStatusProgress(0.2); // finished rendering layers
 
     // ENTITIES
-    Rect<float> viewArea = Rect<float>(cameraPos.x, cameraPos.y, storedW * iZoom + cameraPos.x, storedH * iZoom + cameraPos.y);
+    Rect<float> viewArea = Rect<float>(cameraPos.x - 32, cameraPos.y - 32,
+                                       storedW * invZoom() + cameraPos.x + 32, storedH * invZoom() + cameraPos.y + 32);
     for (int p = 0; p < v5_DRAWGROUP_COUNT; ++p) {
         sceneInfo.currentDrawGroup   = p;
         sceneInfoV1.currentDrawGroup = p;
@@ -1058,7 +1059,7 @@ void SceneViewer::drawScene()
                     entity->pos.y);
 
                 // Make sure is within the viewable area
-                if (viewArea.contains(pos)){
+                if (pos.x >= viewArea.x && pos.y >= viewArea.y && pos.x < viewArea.w && pos.y < viewArea.h){
                     drawSpriteFlipped((pos.x - cameraPos.x) - (gfxSurface[3].width >> 1), (pos.y - cameraPos.y) - (gfxSurface[3].height >> 1),
                                       gfxSurface[3].width, gfxSurface[3].height, 0, 0, FLIP_NONE, INK_NONE,
                                       0xFF, 3);
@@ -1265,14 +1266,20 @@ void SceneViewer::drawScene()
 
         validDraw = false;
 
-        if (selectedObject != 0) {
             if (gameType == ENGINE_v5)
                 emit callGameEventv5(objects[selectedObject].name, EVENT_DRAW, NULL);
             else
                 emit callGameEvent(EVENT_DRAW, -1);
-        }
 
         if (!validDraw) {
+            SceneEntity *entity;
+            if (gameType == ENGINE_v5)
+                entity = &v5Editor->createTempEntity;
+            else
+                entity = &scnEditor->createTempEntity;
+            activeDrawEntity    = entity;
+            entity->box = Rect<int>(-0x10, -0x10, 0x10, 0x10);
+
             // Draw Selected Object Preview
             float xpos = ex;
             float ypos = ey;
@@ -2510,11 +2517,7 @@ void SceneViewer::drawSpriteFlipped(float XPos, float YPos, float width, float h
     float boxRight  = startX + startW;
     float boxBottom = startY + startH;
 
-    // Bug Details:
-    // Using the entity tool in object placement mode for an obj that has no gamelink/script loaded, while having an entity selected
-    // will make use of said entity coords as a pivot for the drawRect.
-    // forcing the code below to skip default sprites "fixes" it but the issue may be somewhere else
-    if (!sceneInfo.debugMode && sheetID != 3) {
+    if (!sceneInfo.debugMode) {
         if (boxLeft < entX + activeDrawEntity->box.x) {
             activeDrawEntity->box.x = boxLeft - entX;
         }
@@ -2685,8 +2688,7 @@ void SceneViewer::drawSpriteRotozoom(float XPos, float YPos, float pivotX, float
             bottom = posY[i];
     }
 
-    // Unlikely for the bug detailed on drawFlipped to happen from here too but just to be sure
-    if (!sceneInfo.debugMode && sheetID != 3) {
+    if (!sceneInfo.debugMode) {
         if (left < entX + activeDrawEntity->box.x) {
             activeDrawEntity->box.x = left - entX;
         }
@@ -2885,6 +2887,7 @@ void SceneViewer::addRenderState(int blendMode, ushort vertCount, ushort indexCo
             return;
         }
     }
+
     if (vertCount + renderCount >= vertexListLimit || renderStateCount >= renderStatesLimit) {
         renderRenderStates(); // you should render NOW!
         // Move new state to the start

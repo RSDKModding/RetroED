@@ -664,7 +664,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         createTempEntity.pos.x  = 0;
         createTempEntity.pos.y  = 0;
         createTempEntity.slotID = 0xFFFF;
-        createTempEntity.box    = Rect<int>(0, 0, 0, 0);
+        createTempEntity.box    = Rect<int>(-0x10, -0x10, 0x10, 0x10);
 
         viewer->activeDrawEntity = &createTempEntity;
         CallGameEvent(viewer->objects[viewer->selectedObject].name, SceneViewer::EVENT_CREATE,
@@ -4715,6 +4715,7 @@ bool SceneEditorv5::CallGameEvent(QString objName, byte eventID, SceneEntity *en
             if (!entity)
                 return called;
 
+
             switch (viewer->engineRevision) {
                 case 1: {
                     GameEntityv1 *entityPtr =
@@ -4861,7 +4862,7 @@ bool SceneEditorv5::CallGameEvent(QString objName, byte eventID, SceneEntity *en
                 createTempEntity.pos.x  = ex + viewer->cameraPos.x;
                 createTempEntity.pos.y  = ey + viewer->cameraPos.y;
                 createTempEntity.slotID = 0xFFFF;
-                createTempEntity.box    = Rect<int>(0, 0, 0, 0);
+                createTempEntity.box    = Rect<int>(-0x10, -0x10, 0x10, 0x10);
 
                 viewer->activeDrawEntity = &createTempEntity;
 

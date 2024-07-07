@@ -4449,7 +4449,7 @@ bool SceneEditor::CallGameEvent(byte eventID, int id)
                             createTempEntity.pos.x          = (ex + viewer->cameraPos.x) * 65536.0f;
                             createTempEntity.pos.y          = (ey + viewer->cameraPos.y) * 65536.0f;
                             createTempEntity.slotID         = 0xFFFF;
-                            createTempEntity.box            = Rect<int>(0, 0, 0, 0);
+                            createTempEntity.box            = Rect<int>(-0x10, -0x10, 0x10, 0x10);
                             createTempEntity.gameEntitySlot = id;
                             entity = viewer->activeDrawEntity = &createTempEntity;
                         }
@@ -4545,7 +4545,7 @@ bool SceneEditor::CallGameEvent(byte eventID, int id)
                             createTempEntity.pos.x          = (ex + viewer->cameraPos.x) * 65536.0f;
                             createTempEntity.pos.y          = (ey + viewer->cameraPos.y) * 65536.0f;
                             createTempEntity.slotID         = 0xFFFF;
-                            createTempEntity.box            = Rect<int>(0, 0, 0, 0);
+                            createTempEntity.box            = Rect<int>(-0x10, -0x10, 0x10, 0x10);
                             createTempEntity.gameEntitySlot = id;
                             entity = viewer->activeDrawEntity = &createTempEntity;
                         }
