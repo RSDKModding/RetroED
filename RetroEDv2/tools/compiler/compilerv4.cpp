@@ -3937,11 +3937,9 @@ void Compilerv4::ParseScriptFile(QString scriptName, int scriptID, bool inEditor
                             if (FindStringToken(scriptText, gamePlatform, 1) == -1
                                 && FindStringToken(scriptText, gameRenderType, 1) == -1
                                 && FindStringToken(scriptText, gameHapticSetting, 1) == -1
-                                && FindStringToken(scriptText, releaseType, 1)
-                                       == -1 // general flag for standalone/origins content switching
-                                && FindStringToken(scriptText, "USE_DECOMP", 1)
-                                       == -1 // general flag for decomp-only stuff
-                            ) {
+                                && FindStringToken(scriptText, releaseType, 1) == -1) { // general flag for standalone/origins content switching
+
+                                // if NONE of these checks succeeded, then we skip everything until "end platform"
                                 bool skip = true;
                                 for (int i = 0; i < v4CustomFlag.count(); i++) {
                                     if (FindStringToken(scriptText, v4CustomFlag[i].toStdString().c_str(), 1) != -1){
