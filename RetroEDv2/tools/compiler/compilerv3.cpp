@@ -1670,7 +1670,7 @@ void Compilerv3::ParseScriptFile(QString scriptName, int scriptID, bool inEditor
                             if (FindStringToken(scriptText, gamePlatform, 1) == -1
                                 && FindStringToken(scriptText, gameRenderType, 1) == -1
                                 && FindStringToken(scriptText, gameHapticSetting, 1) == -1
-                                && FindStringToken(scriptText, releaseType, 1) == -1 ) { // general flag for standalone/origins content switching
+                                && FindStringToken(scriptText, releaseType, 1) == -1) { // general flag for standalone/origins content switching
 
                                 // if NONE of these checks succeeded, then we skip everything until "end platform"
                                 bool skip = true;
