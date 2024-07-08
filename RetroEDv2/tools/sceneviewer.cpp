@@ -804,18 +804,6 @@ void SceneViewer::drawScene()
                 }
             }
 
-/*
- *Output test
-            if (showCLayers[0]) {
-                QFileDialog filedialog(this, tr("Save collision image"), "",
-                                       tr("Image(*.png)"));
-                filedialog.setAcceptMode(QFileDialog::AcceptSave);
-                if (filedialog.exec() == QDialog::Accepted) {
-                    QImageWriter writer(filedialog.selectedFiles()[0],"PNG");
-                    writer.write(*colTex);
-                }
-            }
-*/
             // PARALLAX
             if (l == selectedLayer && l >= 0) {
                 if (layers[l].type == SceneHelpers::TileLayer::LAYER_HSCROLL
@@ -1521,14 +1509,6 @@ void SceneViewer::unloadScene()
     if (colTexStore) {
         delete colTexStore;
         colTexStore = nullptr;
-    }
-    if (colTex[0]) {
-        delete colTex[0];
-        colTex[0] = nullptr;
-    }
-    if (colTex[1]) {
-        delete colTex[1];
-        colTex[1] = nullptr;
     }
 
     for (int o = 0; o < v5_SURFACE_MAX; ++o) {

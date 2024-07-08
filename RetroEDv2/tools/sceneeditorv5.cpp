@@ -3052,13 +3052,6 @@ void SceneEditorv5::CreateNewScene(QString scnPath, bool prePlus, bool loadGC, Q
 
     viewer->refreshResize();
 
-    for (int c = 0; c < 2; c++){
-        viewer->colTex[c] = new QImage(viewer->sceneBoundsR * viewer->tileSize,
-                                    viewer->sceneBoundsB * viewer->tileSize, QImage::Format_RGB888);
-        viewer->colTex[c]->setColorTable(
-            { qRgb(0, 0, 0), qRgb(255, 255, 0), qRgb(255, 0, 0), qRgb(255, 255, 255) });
-    }
-
     ui->horizontalScrollBar->setMaximum(viewer->storedW);
     ui->verticalScrollBar->setMaximum(viewer->storedH);
     ui->horizontalScrollBar->setPageStep(0x10);
@@ -3353,14 +3346,6 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
     }
 
     viewer->refreshResize();
-
-    for (int c = 0; c < 2; c++){
-        viewer->colTex[c] = new QImage(viewer->sceneBoundsR * viewer->tileSize,
-                                    viewer->sceneBoundsB * viewer->tileSize, QImage::Format_RGB888);
-        viewer->colTex[c]->setColorTable(
-            { qRgb(0, 0, 0), qRgb(255, 255, 0), qRgb(255, 0, 0), qRgb(255, 255, 255) });
-    }
-
 
     ui->horizontalScrollBar->setMaximum((viewer->sceneBoundsR * viewer->tileSize) - viewer->storedW);
     ui->verticalScrollBar->setMaximum((viewer->sceneBoundsB * viewer->tileSize) - viewer->storedH);

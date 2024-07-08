@@ -2553,12 +2553,6 @@ void SceneEditor::CreateNewScene(QString scnPath, byte scnVer, bool loadGC, QStr
 
     CreateEntityList();
 
-    for (int c = 0; c < 2; c++){
-        viewer->colTex[c] = new QImage(0, 0, QImage::Format_RGB888);
-        viewer->colTex[c]->setColorTable(
-            { qRgb(0, 0, 0), qRgb(255, 255, 0), qRgb(255, 0, 0), qRgb(255, 255, 255) });
-    }
-
     ui->horizontalScrollBar->setMaximum(viewer->storedW);
     ui->verticalScrollBar->setMaximum(viewer->storedH);
     ui->horizontalScrollBar->setPageStep(0x80);
@@ -2981,13 +2975,6 @@ void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
     ui->objectList->blockSignals(false);
 
     CreateEntityList();
-
-    for (int c = 0; c < 2; c++){
-        viewer->colTex[c] = new QImage(scene.width * viewer->tileSize,
-                                    scene.height * viewer->tileSize, QImage::Format_RGB888);
-        viewer->colTex[c]->setColorTable(
-            { qRgb(0, 0, 0), qRgb(255, 255, 0), qRgb(255, 0, 0), qRgb(255, 255, 255) });
-    }
 
     ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR - viewer->storedW);
     ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB - viewer->storedH);

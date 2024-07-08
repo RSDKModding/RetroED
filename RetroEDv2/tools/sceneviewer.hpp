@@ -221,9 +221,7 @@ public:
     int storedW, storedH;
     int sceneBoundsL, sceneBoundsT, sceneBoundsR, sceneBoundsB;
 
-    QImage *colTex[2]   = {nullptr, nullptr};
     QImage *colTexStore = nullptr;
-    QPainter colPaint;
 
     static const int vertexListLimit = 0x8000;
 
