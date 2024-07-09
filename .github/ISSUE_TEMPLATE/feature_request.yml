@@ -1,20 +1,25 @@
 name: Feature Request
-description: Suggestions of new features for the editor
+description: New feature suggestion for the editor
 labels: [enhancement]
 body:
-  - type: markdown
+  - id: validation
+    type: checkboxes
     attributes:
-      value: |
-        Before doing a feature request, please read the following:
-        - We don't guarantee the requested feature to be added
-        - Don't expect your request to be a priority
-  - type: dropdown
-    id: editortool
+      label: Before opening this issue, I ensure that...
+      options:
+      - label: I have checked **both open and closed** issues and confirmed this feature has not already been requested.
+        required: true
+      - label: I acknowledge the addition of this feature is neither guaranteed nor a priority.
+        required: true
+      - label: This request is not related to any unofficial forks of the editor, and any requests related to those should be kept in the appropriate repository.
+        required: true
+  - id: editortool
+    type: dropdown
     validations:
       required: true
     attributes:
       label: "Editor Tool"
-      description: For which tool(s) is this feature request?
+      description: For which tool is this feature request for?
       multiple: false
       options:
         - Scene Editor
@@ -28,13 +33,15 @@ body:
         - UserDB Manager
         - RSV Manager
         - Other
-  - type: input
+  - id: feature
+    type: textarea
     validations:
       required: true
     attributes:
       label: Requested Feature
       description: What new feature do you want to see on the editor?
-  - type: textarea
+  - id: comments
+    type: textarea
     validations:
       required: false
     attributes:
