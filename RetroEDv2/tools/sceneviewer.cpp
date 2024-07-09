@@ -1053,6 +1053,11 @@ void SceneViewer::drawScene()
                                       0xFF, 3);
                 }
             }
+            if (fileRender){
+                // render on smaller batches when exporting the image
+                if (renderStateCount > 0xFF || renderCount >= vertexListLimit - 8)
+                    renderRenderStates();
+            }
         }
     }
 
@@ -2868,7 +2873,7 @@ void SceneViewer::addRenderState(int blendMode, ushort vertCount, ushort indexCo
         }
     }
 
-    if (vertCount + renderCount >= vertexListLimit || renderStateCount >= renderStatesLimit) {
+    if (vertCount + renderCount >= vertexListLimit || renderStateCount >= renderStatesLimit - 1) {
         renderRenderStates(); // you should render NOW!
         // Move new state to the start
         memcpy(&renderStates[0], &newState, sizeof(RenderState));
