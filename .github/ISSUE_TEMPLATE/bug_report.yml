@@ -2,20 +2,26 @@ name: Bug Report
 description: Something isn't working
 labels: [bug]
 body:
-  - type: markdown
+  - id: validation
+    type: checkboxes
     attributes:
-      value: |
-        Before opening an issue, please read the following:
-        - Check **both open and closed** issues to see if your bug has already been reported. Duplicates will be closed.
-        - If the bug stems from either v3/v4 Scripts or Sonic Mania's Decompilation, report it in the corresponding repository.
-        - Do not report bugs for unofficial branches of the editor.
-  - type: dropdown
-    id: editortool
+      label: Before opening this issue, I ensure that...
+      options:
+      - label: I have checked **both open and closed** issues and confirmed this bug has not already been reported.
+        required: true
+      - label: I am not asking for tech support (e.g. error when starting program or trying to build).
+        required: true
+      - label: I am not reporting an issue with assets/scripts/logic of a specific game/mod; this bug is directly related to the editor itself.
+        required: true
+      - label: This bug is not related to any unofficial forks of the editor, and any issues with those should be kept in the appropriate repository.
+        required: true
+  - id: editortool
+    type: dropdown
     validations:
       required: true
     attributes:
       label: "Editor Tool"
-      description: Which tool(s) does the issue occur with?
+      description: Which tool does the issue occur with?
       multiple: false
       options:
         - Scene Editor
@@ -29,8 +35,8 @@ body:
         - UserDB Manager
         - RSV Manager
         - Other
-  - type: dropdown
-    id: rsdkversion
+  - id: rsdkversion
+    type: dropdown
     validations:
       required: true
     attributes:
@@ -38,25 +44,28 @@ body:
       description: Which RSDK version(s) does this issue occur with?
       multiple: true
       options:
-        - v5
-        - v4
-        - v3
-        - v2
         - v1
+        - v2
+        - v3
+        - v4
+        - v5
         - Not applicable
-  - type: input
+  - id: expected-behavior
+    type: input
     validations:
       required: true
     attributes:
       label: Expected Behavior
       description: What behavior is supposed to occur?
-  - type: input
+  - id: actual-behavior
+    type: input
     validations:
       required: true
     attributes:
       label: Actual Behavior
       description: What actually happens?
-  - type: textarea
+  - id: repro-steps
+    type: textarea
     validations:
       required: true
     attributes:
@@ -66,25 +75,29 @@ body:
         1. Do this
         2. Do that
         3. This happens
-  - type: textarea
+  - id: screenshots
+    type: textarea
     validations:
       required: false
     attributes:
       label: Screenshots
       description: Provide screenshots if applicable.
-  - type: input
+  - id: other-editor
+    type: textarea
     validations:
       required: false
     attributes:
       label: Was another editor used on the file(s)?
       description: If so, specify which editor and, if possible, the version of it.
-  - type: input
+  - id: platform
+    type: input
     validations:
       required: true
     attributes:
       label: Platform
       description: The platform/OS you're running the editor on.
-  - type: textarea
+  - id: comments
+    type: textarea
     validations:
       required: false
     attributes:
