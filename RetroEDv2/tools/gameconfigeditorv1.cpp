@@ -389,17 +389,20 @@ bool GameConfigEditorv1::event(QEvent *event)
                                        tr("RSDKv1 Character List files (Characters*.mdf)"));
                 filedialog.setAcceptMode(QFileDialog::AcceptSave);
                 if (filedialog.exec() == QDialog::Accepted) {
+                    QString filepath = filedialog.selectedFiles()[0];
+                    if (!CheckOverwrite(filepath, ".mdf", this))
+                        return false;
 
                     SetStatus("Saving game configuration...", true);
 
-                    tabPath = filedialog.selectedFiles()[0];
+                    tabPath = filepath;
                     appConfig.addRecentFile(ENGINE_v1, TOOL_GAMECONFIGEDITOR,
-                                            filedialog.selectedFiles()[0], QList<QString>{ /**/ });
-                    Writer writer(filedialog.selectedFiles()[0]);
+                                            filepath, QList<QString>{ /**/ });
+                    Writer writer(filepath);
                     characters.write(writer);
                     AddStatusProgress(.2);
 
-                    QString baseDir = filedialog.selectedFiles()[0];
+                    QString baseDir = filepath;
                     baseDir         = baseDir.replace(QFileInfo(baseDir).fileName(), "");
                     for (int l = 0; l < 4; ++l) {
                         stageList[l].write(baseDir + "/" + listFileNames[l]);
@@ -436,18 +439,22 @@ bool GameConfigEditorv1::event(QEvent *event)
             if (filedialog.exec() == QDialog::Accepted) {
                 int filter = types.indexOf(filedialog.selectedNameFilter());
 
+                QString filepath = filedialog.selectedFiles()[0];
+                if (!CheckOverwrite(filepath, ".mdf", this))
+                    return false;
+
                 switch (filter) {
                     case 0: {
                         SetStatus("Saving game configuration...", true);
 
-                        tabPath = filedialog.selectedFiles()[0];
+                        tabPath = filepath;
                         appConfig.addRecentFile(ENGINE_v1, TOOL_GAMECONFIGEDITOR,
-                                                filedialog.selectedFiles()[0], QList<QString>{ /**/ });
+                                                filepath, QList<QString>{ /**/ });
 
-                        characters.write(filedialog.selectedFiles()[0]);
+                        characters.write(filepath);
                         AddStatusProgress(.2);
 
-                        QString baseDir = filedialog.selectedFiles()[0];
+                        QString baseDir = filepath;
                         baseDir         = baseDir.replace(QFileInfo(baseDir).fileName(), "");
                         for (int l = 0; l < 4; ++l) {
                             stageList[l].write(baseDir + "/" + listFileNames[l]);
@@ -476,13 +483,16 @@ bool GameConfigEditorv1::event(QEvent *event)
                                                tr("RSDKv1 Character List files (Characters*.mdf)"));
                         filedialog.setAcceptMode(QFileDialog::AcceptSave);
                         if (filedialog.exec() == QDialog::Accepted) {
+                            QString filepath = filedialog.selectedFiles()[0];
+                            if (!CheckOverwrite(filepath, ".mdf", this))
+                                return false;
                             // TODO: you don't save properly here dumbfuck
                             SetStatus("Saving game configuration...");
 
                             appConfig.addRecentFile(ENGINE_v1, TOOL_GAMECONFIGEDITOR,
-                                                    filedialog.selectedFiles()[0],
+                                                    filepath,
                                                     QList<QString>{ /**/ });
-                            Writer writer(filedialog.selectedFiles()[0]);
+                            Writer writer(filepath);
                             characters.write(writer);
                             ClearActions();
                         }

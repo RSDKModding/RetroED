@@ -46,17 +46,26 @@ GFXTool::GFXTool(QWidget *parent) : QDialog(parent), ui(new Ui::GFXTool)
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
             int filter = imgTypes.indexOf(filedialog.selectedNameFilter());
+            QString filepath = filedialog.selectedFiles()[0];
+            QString extension;
+            switch (filter){
+                case 0: extension = ".gif"; break;
+                case 1: extension = ".bmp"; break;
+                case 2: extension = ".png"; break;
+            }
+            if (!CheckOverwrite(filepath, extension, this))
+                return;
 
             RSDKv1::GFX gfx;
             gfx.read(gfxPath, type == 1);
             if (filter == 0) {
                 QGifImage gif;
                 gif.addFrame(QImage(gfx.exportImage()));
-                gif.save(filedialog.selectedFiles()[0]);
+                gif.save(filepath);
             }
             else {
                 QImage img = gfx.exportImage();
-                img.save(filedialog.selectedFiles()[0]);
+                img.save(filepath);
             }
         }
     });
@@ -86,6 +95,10 @@ GFXTool::GFXTool(QWidget *parent) : QDialog(parent), ui(new Ui::GFXTool)
             tr(QString("%1;;%2").arg(gfxTypes[0]).arg(gfxTypes[1]).toStdString().c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
+            QString filepath = filedialog.selectedFiles()[0];
+            if (!CheckOverwrite(filepath, ".gfx", this))
+                return;
+
             int filter = gfxTypes.indexOf(filedialog.selectedNameFilter());
 
             RSDKv1::GFX gfx;
@@ -96,7 +109,7 @@ GFXTool::GFXTool(QWidget *parent) : QDialog(parent), ui(new Ui::GFXTool)
             else {
                 gfx.importImage(QImage(imgPath));
             }
-            gfx.write(filedialog.selectedFiles()[0], filter == 1);
+            gfx.write(filepath, filter == 1);
         }
     });
 }

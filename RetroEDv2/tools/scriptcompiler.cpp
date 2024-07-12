@@ -117,6 +117,9 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
             QString bcPath = filedialog.selectedFiles()[0];
+            if (!CheckOverwrite(bcPath, ".rsf", this))
+                return false;
+
             ui->trBytecodePath->setText(bcPath);
 
             updateButtons();

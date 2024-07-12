@@ -68,9 +68,11 @@ void PaletteEditor::InitEditor()
                                    tr("Adobe Color Table Palettes (*.act)"));
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
-                QString fileName = filedialog.selectedFiles()[0];
+                QString filepath = filedialog.selectedFiles()[0];
+                if (!CheckOverwrite(filepath, ".act", this))
+                    return false;
 
-                Writer writer(fileName);
+                Writer writer(filepath);
                 for (auto &c : palette) c.write(writer);
                 writer.flush();
             }
@@ -627,7 +629,18 @@ bool PaletteEditor::event(QEvent *event)
                                    tr(typesList[palType].toStdString().c_str()));
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
+                int type         = typesList.indexOf(filedialog.selectedNameFilter());
                 QString filepath = filedialog.selectedFiles()[0];
+                QString extension;
+                switch (type){
+                    default: extension = ".bin"; break;
+                    case 0: extension  = ".act"; break;
+                    case 8: extension  = ".zcf"; break;
+                }
+
+                if (!CheckOverwrite(filepath, extension, this))
+                    return false;
+
                 SavePalette(filepath);
                 tabPath = filepath;
 
@@ -662,8 +675,18 @@ bool PaletteEditor::event(QEvent *event)
                                tr(typesList[palType].toStdString().c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
+            int type         = typesList.indexOf(filedialog.selectedNameFilter());
 
             QString filepath = filedialog.selectedFiles()[0];
+            QString extension;
+            switch (type){
+                default: extension = ".bin"; break;
+                case 0: extension  = ".act"; break;
+                case 8: extension  = ".zcf"; break;
+            }
+
+            if (!CheckOverwrite(filepath, extension, this))
+                return false;
             SavePalette(filepath);
             tabPath = filepath;
 
@@ -693,7 +716,19 @@ bool PaletteEditor::event(QEvent *event)
                                                tr(typesList[palType].toStdString().c_str()));
                         filedialog.setAcceptMode(QFileDialog::AcceptSave);
                         if (filedialog.exec() == QDialog::Accepted) {
+                            int type         = typesList.indexOf(filedialog.selectedNameFilter());
+
                             QString filepath = filedialog.selectedFiles()[0];
+                            QString extension;
+                            switch (type){
+                            default: extension = ".bin"; break;
+                            case 0: extension  = ".act"; break;
+                            case 8: extension  = ".zcf"; break;
+                            }
+
+                            if (!CheckOverwrite(filepath, extension, this))
+                                return false;
+
                             SavePalette(filepath);
 
                             ClearActions();

@@ -977,7 +977,13 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                                tr("RSDK Scroll Files (*.bin)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
-            Writer writer(filedialog.selectedFiles()[0]);
+            QString filepath = filedialog.selectedFiles()[0];
+
+            if (!CheckOverwrite(filepath, ".bin", this))
+                return;
+
+            Writer writer(filepath);
+
             SceneHelpers::TileLayer &layer = viewer->layers[ui->layerList->currentRow()];
 
             writer.write<ushort>(layer.scrollInfos.count());
@@ -1307,10 +1313,14 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             QFileDialog filedialog(this, tr("Save Stamps"), "", tr("RSDKv5 Stamps (*.bin)"));
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
-                SetStatus("Saving stamps...");
-                QString path = filedialog.selectedFiles()[0];
+                QString filepath = filedialog.selectedFiles()[0];
 
-                viewer->stamps.write(path);
+                if (!CheckOverwrite(filepath, ".bin", this))
+                    return;
+
+                SetStatus("Saving stamps...");
+
+                viewer->stamps.write(filepath);
                 SetStatus("Saved stamps to " + QFile(viewer->stamps.filePath).fileName());
             }
         }
@@ -1507,8 +1517,11 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         QFileDialog filedialog(this, tr("Save Image"), "", tr("PNG Files (*.png)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
+            QString filename = filedialog.selectedFiles()[0];
+            if (!CheckOverwrite(filename, ".png", this))
+                return;
             SetStatus("Rendering image...", true);
-            viewer->queueRender(filedialog.selectedFiles()[0]);
+            viewer->queueRender(filename);
         }
     });
 
@@ -1516,7 +1529,10 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         QFileDialog filedialog(this, tr("Save File"), "", tr("XML Files (*.xml)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
-            Writer writer(filedialog.selectedFiles()[0]);
+            QString filepath = filedialog.selectedFiles()[0];
+            if (!CheckOverwrite(filepath, ".xml", this))
+                return;
+            Writer writer(filepath);
 
             writer.writeLine("<?xml version=\"1.0\"?>");
             writer.writeLine("");
@@ -1693,6 +1709,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             writer.writeLine("</scene>");
 
             writer.flush();
+            SetStatus("Exported Scene as XML to " + filepath);
         }
     });
 
@@ -1831,9 +1848,11 @@ bool SceneEditorv5::event(QEvent *event)
                 QFileDialog filedialog(this, tr("Save Scene"), "", tr("RSDKv5 Scenes (Scene*.bin)"));
                 filedialog.setAcceptMode(QFileDialog::AcceptSave);
                 if (filedialog.exec() == QDialog::Accepted) {
-                    QString path = filedialog.selectedFiles()[0];
+                    QString filepath = filedialog.selectedFiles()[0];
+                    if (!CheckOverwrite(filepath, ".bin", this))
+                        return false;
 
-                    SaveScene(path);
+                    SaveScene(filepath);
                     return true;
                 }
             }
@@ -1843,9 +1862,11 @@ bool SceneEditorv5::event(QEvent *event)
             QFileDialog filedialog(this, tr("Save Scene"), "", tr("RSDKv5 Scenes (Scene*.bin)"));
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
-                QString path = filedialog.selectedFiles()[0];
+                QString filepath = filedialog.selectedFiles()[0];
+                if (!CheckOverwrite(filepath, ".bin", this))
+                    return false;
 
-                SaveScene(path);
+                SaveScene(filepath);
                 return true;
             }
             break;
@@ -1890,9 +1911,11 @@ bool SceneEditorv5::event(QEvent *event)
                             tr(QString("%1;;%2;;%3;;%4").arg(types[0]).toStdString().c_str()));
                         filedialog.setAcceptMode(QFileDialog::AcceptSave);
                         if (filedialog.exec() == QDialog::Accepted) {
-                            QString path = filedialog.selectedFiles()[0];
+                            QString filepath = filedialog.selectedFiles()[0];
+                            if (!CheckOverwrite(filepath, ".bin", this))
+                                return false;
 
-                            SaveScene(path);
+                            SaveScene(filepath);
                             return true;
                         }
                     }

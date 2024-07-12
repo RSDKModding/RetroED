@@ -235,7 +235,10 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
             QString selFile = filedialog.selectedFiles()[0];
+            if (!CheckOverwrite(selFile, ".ply", this))
+                return;
             viewer->model.writeAsPLY(selFile);
+            SetStatus("Exported Model Frames.");
         }
     });
 
@@ -245,6 +248,8 @@ ModelManager::ModelManager(QString filePath, bool usev5Format, QWidget *parent)
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
             QString selFile = filedialog.selectedFiles()[0];
+            if (!CheckOverwrite(selFile, ".ply", this))
+                return;
             viewer->model.writeAsPLY(selFile, -1);
         }
     });*/
@@ -674,7 +679,10 @@ bool ModelManager::SaveModel(bool forceSaveAs)
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
             bool usev5Format = filedialog.selectedNameFilter() == "RSDKv5 Model Files (*.bin)";
+
             QString filepath = filedialog.selectedFiles()[0];
+            if (!CheckOverwrite(filepath, ".bin", this))
+                return false;
 
             if (usev5Format) {
                 SetStatus("Saving model...", true);

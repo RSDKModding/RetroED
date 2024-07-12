@@ -153,8 +153,23 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
                                       .c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
+            int type         = types.indexOf(filedialog.selectedNameFilter());
+            QString filepath = filedialog.selectedFiles()[0];
+            QString extension;
+            switch (type){
+                case 0:
+                case 1:
+                case 2: extension = ".bin"; break;
+                case 3:
+                case 4: extension  = ".act"; break;
+                case 5: extension  = ".zcf"; break;
+            }
+
+            if (!CheckOverwrite(filepath, extension, this))
+                return false;
+
             SetStatus("Saving Datapack...");
-            SavePack(filedialog.selectedFiles()[0], types.indexOf(filedialog.selectedNameFilter()));
+            SavePack(filepath, types.indexOf(filedialog.selectedNameFilter()));
 
             SetStatus("Datapack Saved Successfully!");
         }

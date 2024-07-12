@@ -112,3 +112,4 @@ void PrintLog(QString msg);
 void SetStatus(QString status, bool useStatus = false);
 void AddStatusProgress(float percent);
 void SetStatusProgress(float percent);
+bool CheckOverwrite(QString &filename, QString format, QWidget *parent);

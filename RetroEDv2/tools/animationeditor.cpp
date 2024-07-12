@@ -1048,6 +1048,9 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         QString filename = filedialog.selectedFiles()[0];
 
+        if (!CheckOverwrite(filename, ".json", this))
+            return;
+
         // export json
         QJsonObject aniFileObj;
 
@@ -1340,6 +1343,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         QString filename       = filedialog.selectedFiles()[0];
 
         if (selectedFilter == "JSON Files (*.json)") {
+            if (!CheckOverwrite(filename, ".json", this))
+                return;
             // export json
             QJsonObject aniFileObj;
 
@@ -1415,6 +1420,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             writer.flush();
         }
         else {
+            if (!CheckOverwrite(filename, ".txt", this))
+                return;
             Writer writer(filename);
 
             writer.writeLine(QString("// Animation: %1").arg(animFile.animations[currentAnim].name));
@@ -1626,6 +1633,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         QString filename       = filedialog.selectedFiles()[0];
 
         if (selectedFilter == "JSON Files (*.json)") {
+            if (!CheckOverwrite(filename, ".json", this))
+                return;
             // export json
             QJsonObject aniFileObj;
 
@@ -1688,6 +1697,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             writer.flush();
         }
         else {
+            if (!CheckOverwrite(filename, ".txt", this))
+                return;
             Writer writer(filename);
 
             writer.writeLine(QString("// Animation: %1").arg(animFile.animations[currentAnim].name));
@@ -2875,9 +2886,6 @@ bool AnimationEditor::event(QEvent *event)
 
                 filedialog.setAcceptMode(QFileDialog::AcceptSave);
                 if (filedialog.exec() == QDialog::Accepted) {
-                    SetStatus("Saving animation...");
-
-                    QString filepath = filedialog.selectedFiles()[0];
                     int type         = typesList.indexOf(filedialog.selectedNameFilter());
                     switch (type) {
                         default:
@@ -2887,7 +2895,12 @@ bool AnimationEditor::event(QEvent *event)
                         case 3: aniType = ENGINE_v2; break;
                         case 4: aniType = ENGINE_v1; break;
                     }
+                    QString filepath = filedialog.selectedFiles()[0];
 
+                    if (!CheckOverwrite(filepath, type == ENGINE_v5 ? ".bin" : ".ani", this))
+                        return false;
+
+                    SetStatus("Saving animation...");
                     RotateHitboxes();
                     animFile.write(aniType, filepath);
                     tabPath = filepath;
@@ -2929,9 +2942,8 @@ bool AnimationEditor::event(QEvent *event)
 
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
-                SetStatus("Saving animation...");
-
                 QString filepath = filedialog.selectedFiles()[0];
+
                 int type         = typesList.indexOf(filedialog.selectedNameFilter());
                 switch (type) {
                     default:
@@ -2941,6 +2953,11 @@ bool AnimationEditor::event(QEvent *event)
                     case 3: aniType = ENGINE_v2; break;
                     case 4: aniType = ENGINE_v1; break;
                 }
+
+                if (!CheckOverwrite(filepath, type == ENGINE_v5 ? ".bin" : ".ani", this))
+                    return false;
+
+                SetStatus("Saving animation...");
 
                 RotateHitboxes();
                 animFile.write(aniType, filepath);
@@ -3056,10 +3073,12 @@ bool AnimationEditor::event(QEvent *event)
                                                tr(typesList[aniType].toStdString().c_str()));
                         filedialog.setAcceptMode(QFileDialog::AcceptSave);
                         if (filedialog.exec() == QDialog::Accepted) {
-                            SetStatus("Saving animation...");
 
                             QString filepath = filedialog.selectedFiles()[0];
+                            if (!CheckOverwrite(filepath, aniType == ENGINE_v5 ? ".bin" : ".ani", this))
+                                return false;
 
+                            SetStatus("Saving animation...");
                             RotateHitboxes();
                             animFile.write(aniType, filepath);
                             appConfig.addRecentFile(aniType, TOOL_ANIMATIONEDITOR, filepath,

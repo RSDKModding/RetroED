@@ -112,3 +112,16 @@ void SetStatusProgress(float percent)
     PrintLog(QString(" ").repeated(statusLabel->text().length()) + QString(" %1").arg((int)percent, 3)
              + "%");
 }
+
+bool CheckOverwrite(QString &filename, QString format, QWidget *parent){
+    if (!filename.endsWith(format)){
+        filename += format;
+        if (QFile::exists(filename)){
+            QApplication::beep();
+            QMessageBox::StandardButton overwrite = QMessageBox::question(parent, "Overwrite", "This file already exists, overwrite?", QMessageBox::Yes | QMessageBox::No);
+            if (overwrite == QMessageBox::No)
+                return false;
+        }
+    }
+    return true;
+}

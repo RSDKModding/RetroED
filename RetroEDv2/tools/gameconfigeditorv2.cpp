@@ -744,16 +744,20 @@ bool GameConfigEditorv2::event(QEvent *event)
                 filedialog.setAcceptMode(QFileDialog::AcceptSave);
                 if (filedialog.exec() == QDialog::Accepted) {
 
+                    QString filepath = filedialog.selectedFiles()[0];
+                    if (!CheckOverwrite(filepath, ".bin", this))
+                        return false;
+
                     SetStatus("Saving GameConfig...", true);
 
-                    tabPath = filedialog.selectedFiles()[0];
+                    tabPath = filepath;
                     appConfig.addRecentFile(ENGINE_v2, TOOL_GAMECONFIGEDITOR,
-                                            filedialog.selectedFiles()[0], QList<QString>{ /**/ });
-                    Writer writer(filedialog.selectedFiles()[0]);
+                                            filepath, QList<QString>{ /**/ });
+                    Writer writer(filepath);
                     gameConfig.write(writer);
                     ClearActions();
 
-                    SetStatus("Saved GameConfig to " + filedialog.selectedFiles()[0]);
+                    SetStatus("Saved GameConfig to " + filepath);
 
                     return true;
                 }
@@ -788,16 +792,19 @@ bool GameConfigEditorv2::event(QEvent *event)
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
                 int filter = types.indexOf(filedialog.selectedNameFilter());
+                QString filepath = filedialog.selectedFiles()[0];
+                if (!CheckOverwrite(filepath, filter == 5 ? ".xml" : ".bin", this))
+                    return false;
 
                 switch (filter) {
                     case 0: {
                         SetStatus("Saving GameConfig...", true);
 
                         appConfig.addRecentFile(ENGINE_v2, TOOL_GAMECONFIGEDITOR,
-                                                filedialog.selectedFiles()[0], QList<QString>{ /**/ });
+                                                filepath, QList<QString>{ /**/ });
 
-                        gameConfig.write(filedialog.selectedFiles()[0]);
-                        SetStatus("Saved GameConfig to " + filedialog.selectedFiles()[0]);
+                        gameConfig.write(filepath);
+                        SetStatus("Saved GameConfig to " + filepath);
                         break;
                     }
                     case 1: {
@@ -855,10 +862,10 @@ bool GameConfigEditorv2::event(QEvent *event)
                         SetStatus("Saving GameConfig...", true);
 
                         appConfig.addRecentFile(ENGINE_v3, TOOL_GAMECONFIGEDITOR,
-                                                filedialog.selectedFiles()[0], QList<QString>{ /**/ });
-                        config.write(filedialog.selectedFiles()[0]);
+                                                filepath, QList<QString>{ /**/ });
+                        config.write(filepath);
 
-                        SetStatus("Saved v3 GameConfig to " + filedialog.selectedFiles()[0]);
+                        SetStatus("Saved v3 GameConfig to " + filepath);
 
                         break;
                     }
@@ -926,9 +933,9 @@ bool GameConfigEditorv2::event(QEvent *event)
                         SetStatus("Saving GameConfig...", true);
 
                         appConfig.addRecentFile(ENGINE_v4, TOOL_GAMECONFIGEDITOR,
-                                                filedialog.selectedFiles()[0], QList<QString>{ /**/ });
-                        config.write(filedialog.selectedFiles()[0]);
-                        SetStatus("Saved v4 GameConfig to " + filedialog.selectedFiles()[0]);
+                                                filepath, QList<QString>{ /**/ });
+                        config.write(filepath);
+                        SetStatus("Saved v4 GameConfig to " + filepath);
 
                         break;
                     }
@@ -1007,13 +1014,13 @@ bool GameConfigEditorv2::event(QEvent *event)
                         config.readFilter = filter == 3;
                         SetStatus("Saving Gameconfig...", true);
                         appConfig.addRecentFile(
-                            ENGINE_v5, TOOL_GAMECONFIGEDITOR, filedialog.selectedFiles()[0],
+                            ENGINE_v5, TOOL_GAMECONFIGEDITOR, filepath,
                             QList<QString>{ "GameConfig", filter == 4 ? "rev01" : "rev02" });
-                        config.write(filedialog.selectedFiles()[0]);
+                        config.write(filepath);
                         SetStatus("Saving RSDKConfig...", true);
-                        rsdkConfig.write(filedialog.selectedFiles()[0].toLower().replace("gameconfig",
-                                                                                         "RSDKConfig"));
-                        SetStatus("Saved v5 GFC and RSDKConfig to " + filedialog.selectedFiles()[0]
+                        rsdkConfig.write(filepath.toLower().replace("gameconfig",
+                                                                    "RSDKConfig"));
+                        SetStatus("Saved v5 GFC and RSDKConfig to " + filepath
                                       + " and RSDKConfig.bin",
                                   true);
 
@@ -1021,7 +1028,7 @@ bool GameConfigEditorv2::event(QEvent *event)
                     }
                     case 5: {
                         SetStatus("Saving Game.xml...", true);
-                        Writer writer(filedialog.selectedFiles()[0]);
+                        Writer writer(filepath);
 
                         writer.writeLine("<?xml version=\"1.0\"?>");
 
@@ -1095,12 +1102,12 @@ bool GameConfigEditorv2::event(QEvent *event)
                         writer.writeLine("</game>");
 
                         writer.flush();
-                        SetStatus("Saved Game.xml to " + filedialog.selectedFiles()[0]);
+                        SetStatus("Saved Game.xml to " + filepath);
                         break;
                     }
                 }
 
-                tabPath = filedialog.selectedFiles()[0];
+                tabPath = filepath;
                 ClearActions();
                 return true;
             }
@@ -1117,16 +1124,19 @@ bool GameConfigEditorv2::event(QEvent *event)
                                                tr("RSDKv2 GameConfig files (GameConfig*.bin)"));
                         filedialog.setAcceptMode(QFileDialog::AcceptSave);
                         if (filedialog.exec() == QDialog::Accepted) {
+                            QString filepath = filedialog.selectedFiles()[0];
+                            if (!CheckOverwrite(filepath, ".bin", this))
+                                return false;
 
                             SetStatus("Saving GameConfig...", true);
 
                             appConfig.addRecentFile(ENGINE_v2, TOOL_GAMECONFIGEDITOR,
-                                                    filedialog.selectedFiles()[0],
+                                                    filepath,
                                                     QList<QString>{ /**/ });
-                            Writer writer(filedialog.selectedFiles()[0]);
+                            Writer writer(filepath);
                             gameConfig.write(writer);
                             ClearActions();
-                            SetStatus("Saved GameConfig to " + filedialog.selectedFiles()[0]);
+                            SetStatus("Saved GameConfig to " + filepath);
                         }
                     }
                     else {

@@ -562,17 +562,22 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                                tr("RSDK Scroll Files (*.xml)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
+            QString filepath = filedialog.selectedFiles()[0];
+
+            if (!CheckOverwrite(filepath, ".xml", this))
+                return;
+
             if (ui->layerList->currentRow() == 0){
                 QMessageBox::critical(this, "Parallax Export", "Parallax Export Error, Background layer not selected",QMessageBox::Ok);
                 return;
             }
-            Writer writer(filedialog.selectedFiles()[0]);
+            Writer writer(filepath);
             writer.writeLine("<?xml version=\"1.0\"?>");
             writer.writeLine("");
             WriteXMLScrollInfo(writer, ui->layerList->currentRow(), 0);
 
             writer.flush();
-            SetStatus("Exported Horizontal Parallax Info to " + filedialog.selectedFiles()[0]);
+            SetStatus("Exported Horizontal Parallax Info to " + filepath);
         }
     });
 
@@ -650,17 +655,22 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                                tr("RSDK Scroll Files (*.xml)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
+            QString filepath = filedialog.selectedFiles()[0];
+
+            if (!CheckOverwrite(filepath, ".xml", this))
+                return;
+
             if (ui->layerList->currentRow() == 0){
                 QMessageBox::critical(this, "Parallax Export", "Parallax Export Error, Background layer not selected",QMessageBox::Ok);
                 return;
             }
-            Writer writer(filedialog.selectedFiles()[0]);
+            Writer writer(filepath);
             writer.writeLine("<?xml version=\"1.0\"?>");
             writer.writeLine("");
             WriteXMLScrollInfo(writer, ui->layerList->currentRow(), 0);
 
             writer.flush();
-            SetStatus("Exported Vertical Parallax Info to " + filedialog.selectedFiles()[0]);
+            SetStatus("Exported Vertical Parallax Info to " + filepath);
         }
     });
 
@@ -1013,13 +1023,19 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         QFileDialog dlg(this, tr("Save Scene XML"), "", tr("RSDK Scene XML Files (*.xml)"));
         dlg.setAcceptMode(QFileDialog::AcceptSave);
         if (dlg.exec() == QDialog::Accepted) {
-            Writer writer(dlg.selectedFiles()[0]);
+            QString filepath = dlg.selectedFiles()[0];
+
+            if (!CheckOverwrite(filepath, ".xml", this))
+                return;
+
+            Writer writer(filepath);
 
             writer.writeLine("<?xml version=\"1.0\"?>");
             writer.writeLine("");
             WriteXMLScene(writer);
 
             writer.flush();
+            SetStatus("Exported Scene as XML to " + filepath);
         }
     });
 
@@ -1349,8 +1365,13 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         QFileDialog filedialog(this, tr("Save Image"), "", tr("PNG Files (*.png)"));
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
         if (filedialog.exec() == QDialog::Accepted) {
+            QString filepath = filedialog.selectedFiles()[0];
+
+            if (!CheckOverwrite(filepath, ".png", this))
+                return;
+
             SetStatus("Rendering image...", true);
-            viewer->queueRender(filedialog.selectedFiles()[0]);
+            viewer->queueRender(filepath);
         }
     });
 
@@ -3083,8 +3104,14 @@ bool SceneEditor::SaveScene(bool forceSaveAs)
         filedialog.setAcceptMode(QFileDialog::AcceptSave);
 
         if (filedialog.exec() == QDialog::Accepted) {
-            savePath = filedialog.selectedFiles()[0];
-            saveVer  = ENGINE_v4 + types.indexOf(filedialog.selectedNameFilter());
+            QString filepath = filedialog.selectedFiles()[0];
+            int type = types.indexOf(filedialog.selectedNameFilter());
+
+            if (!CheckOverwrite(filepath, type == 3 ? ".map" : ".bin", this))
+                return false;
+
+            savePath = filepath;
+            saveVer  = ENGINE_v4 + type;
         }
         else {
             viewer->disableDrawScene = false;
