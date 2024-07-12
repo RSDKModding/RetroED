@@ -2304,7 +2304,6 @@ void SceneViewer::paintGL()
         screens[0].position.y = cameraPos.y;
     }
     else if (fileRender == 1) {
-
         auto preCam = cameraPos;
         float pz    = zoom;
         int preW = storedW, preH = storedH;
@@ -2325,16 +2324,25 @@ void SceneViewer::paintGL()
                               metadata.backgroundColor1.blue() / 255.0f, 1.0f);
         glFuncs->glClear(GL_COLOR_BUFFER_BIT);
 
-        if (!disableObjects)
-            processObjects(true);
+        // Check if we can render the whole scene
+        // afaik this can only be invalid due to low vram on a VM
+        // poor of the guy that discovers this because of a low vram PC...
+        if (!outFB->isValid()){
+            SetStatus("Scene render failure.");
+        } else {
+            if (!disableObjects)
+                processObjects(true);
 
-        if (!disableDrawScene)
-            drawScene();
+            if (!disableDrawScene)
+                drawScene();
 
-        outFB->toImage(false)
-            .convertToFormat(QImage::Format_ARGB32)
-            .convertToFormat(QImage::Format_RGB888)
-            .save(renderFilename);
+            outFB->toImage(false)
+                .convertToFormat(QImage::Format_ARGB32)
+                .convertToFormat(QImage::Format_RGB888)
+                .save(renderFilename);
+            SetStatus("Rendered scene to image!");
+        }
+
         fileRender = 0;
         zoom       = pz;
         cameraPos  = preCam;
@@ -2356,7 +2364,6 @@ void SceneViewer::paintGL()
         outFB = oOFB;
         glFuncs->glBindTexture(GL_TEXTURE_2D, outFB->texture());
 
-        SetStatus("Rendered scene to image!");
     }
 
     matView.setToIdentity();

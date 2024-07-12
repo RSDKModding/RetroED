@@ -59,13 +59,8 @@ void SetStatus(QString status, bool useStatus)
     if (!statusLabel)
         return;
 
-    if (statusProgress && statusProgress->value() != statusProgress->maximum()) {
-        AddStatusProgress(1);
-    }
-
     PrintLog(status + (useStatus ? "   0%" : ""));
     statusLabel->setText(status);
-    // statusLabel->repaint();
 
     if (!statusProgress)
         return;
@@ -73,8 +68,8 @@ void SetStatus(QString status, bool useStatus)
     if (useStatus) {
         statusProgress->setValue(0);
         statusProgress->show();
-    }
-    // statusProgress->repaint();
+    } else
+        statusProgress->hide();
 }
 
 void AddStatusProgress(float percent)
