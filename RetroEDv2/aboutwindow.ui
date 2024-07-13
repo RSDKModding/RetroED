@@ -117,7 +117,7 @@
     </font>
    </property>
    <property name="text">
-    <string>By Rubberduckycooly &amp; st×tic</string>
+    <string>By the RE2 Team</string>
    </property>
   </widget>
   <widget class="QLabel" name="autobuildLabel">
