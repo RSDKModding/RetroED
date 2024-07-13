@@ -117,7 +117,7 @@
     </font>
    </property>
    <property name="text">
-    <string>By the RE2 Team</string>
+    <string>By the RSDKModding Team</string>
    </property>
   </widget>
   <widget class="QLabel" name="autobuildLabel">

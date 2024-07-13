@@ -233,9 +233,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 #windows
 win32 {
     RC_ICONS = icons/win.ico
-    QMAKE_TARGET_COMPANY = RE2Team
+    QMAKE_TARGET_COMPANY = RSDKModdingTeam
     QMAKE_TARGET_DESCRIPTION = RetroED
-    QMAKE_TARGET_COPYRIGHT = RE2Team
+    QMAKE_TARGET_COPYRIGHT = RSDKModdingTeam
     CONFIG(debug, debug | release){ DESTDIR = $$OUT_PWD/debug }
     else { DESTDIR = $$OUT_PWD/release }
     QMAKE_POST_LINK = windeployqt --dir $$shell_path($$DESTDIR/deploy) $$shell_path($$DESTDIR/$${TARGET}.exe)
