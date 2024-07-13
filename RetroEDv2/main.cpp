@@ -104,7 +104,11 @@ int main(int argc, char *argv[])
 
     parser.process(a);
 
-    if (parser.isSet(consoleOption)) {
+    // Force enable console if QT_DEBUG is set (debug build)
+#ifndef QT_DEBUG
+    if (parser.isSet(consoleOption))
+#endif
+    {
         InitConsole();
     }
 
