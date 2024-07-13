@@ -2,7 +2,7 @@ QT       += core gui svg xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets xml
 
-CONFIG += c++17 resources_big silent console
+CONFIG += c++17 resources_big silent
 
 DEFINES += QT_DEPRECATED_WARNINGS #\
 #           QT_DISABLE_DEPRECATED_BEFORE=0x060000
