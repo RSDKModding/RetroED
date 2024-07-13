@@ -801,8 +801,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>300</width>
-        <height>294</height>
+        <width>301</width>
+        <height>263</height>
        </rect>
       </property>
       <attribute name="label">
@@ -996,9 +996,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-198</y>
+        <y>0</y>
         <width>286</width>
-        <height>492</height>
+        <height>519</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1521,7 +1521,7 @@
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>294</height>
+        <height>277</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1641,13 +1641,13 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="HitboxPage">
+     <widget class="QWidget" name="hitboxPage">
       <property name="geometry">
        <rect>
         <x>0</x>
         <y>0</y>
         <width>300</width>
-        <height>294</height>
+        <height>277</height>
        </rect>
       </property>
       <attribute name="label">

@@ -101,6 +101,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     };
 
     auto setupHitboxTypeBox = [this] {
+        int h = ui->hitboxType->currentIndex();
         ui->hitboxType->blockSignals(true);
         ui->hitboxType->clear();
         for (int i = 0; i < animFile.hitboxTypes.count(); ++i) {
@@ -113,6 +114,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                                             .arg(animFile.hitboxes[i].hitboxes[0].right)
                                             .arg(animFile.hitboxes[i].hitboxes[0].bottom));
         }
+        ui->hitboxType->setCurrentIndex(h < animFile.hitboxTypes.count() ? h : 0);
         ui->hitboxType->blockSignals(false);
     };
 
@@ -155,14 +157,6 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             ui->hitboxT->setDisabled(invalid);
             ui->duration->setDisabled(invalid || aniType != ENGINE_v5);
             ui->id->setDisabled(invalid || aniType != ENGINE_v5);
-
-            // ui->addFrame->setDisabled(invalid);
-            ui->upFrame->setDisabled(invalid);
-            ui->downFrame->setDisabled(invalid);
-            ui->rmFrame->setDisabled(invalid);
-            ui->copyFrame->setDisabled(invalid);
-            // ui->impFrame->setDisabled(invalid);
-            ui->expFrame->setDisabled(invalid);
 
             if (!invalid) {
                 ui->properties->setItemText(
@@ -736,6 +730,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                       ROLE_PIXMAP);
         frameModel->insertRow(c, item);
         ui->frameList->setCurrentIndex(item->index());
+        ui->upFrame->setDisabled(currentAnim < 0 || !animFile.animations[currentAnim].frames.count());
+        ui->downFrame->setDisabled(currentAnim < 0 || !animFile.animations[currentAnim].frames.count());
 
         UpdateView();
         DoAction("Added frame", true);
@@ -748,6 +744,56 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             frameModel->takeRow(c);
         else
             frameModel->clear();
+
+        if (c == 0){
+            disconnect(ui->sheetID, nullptr, nullptr, nullptr);
+            disconnect(ui->boundingBoxX, nullptr, nullptr, nullptr);
+            disconnect(ui->boundingBoxY, nullptr, nullptr, nullptr);
+            disconnect(ui->boundingBoxW, nullptr, nullptr, nullptr);
+            disconnect(ui->boundingBoxH, nullptr, nullptr, nullptr);
+            disconnect(ui->selBoundBox, nullptr, nullptr, nullptr);
+            disconnect(ui->offsetX, nullptr, nullptr, nullptr);
+            disconnect(ui->offsetY, nullptr, nullptr, nullptr);
+            disconnect(ui->hitboxType, nullptr, nullptr, nullptr);
+            disconnect(ui->hitboxID, nullptr, nullptr, nullptr);
+            disconnect(ui->hitboxL, nullptr, nullptr, nullptr);
+            disconnect(ui->hitboxR, nullptr, nullptr, nullptr);
+            disconnect(ui->hitboxB, nullptr, nullptr, nullptr);
+            disconnect(ui->hitboxT, nullptr, nullptr, nullptr);
+            disconnect(ui->duration, nullptr, nullptr, nullptr);
+            disconnect(ui->id, nullptr, nullptr, nullptr);
+
+            ui->sheetID->setDisabled(true);
+            ui->boundingBoxX->setDisabled(true);
+            ui->boundingBoxY->setDisabled(true);
+            ui->boundingBoxW->setDisabled(true);
+            ui->boundingBoxH->setDisabled(true);
+            ui->selBoundBox->setDisabled(true);
+            ui->offsetX->setDisabled(true);
+            ui->offsetY->setDisabled(true);
+            ui->hitboxType->setDisabled(true);
+            ui->hitboxL->setDisabled(true);
+            ui->hitboxR->setDisabled(true);
+            ui->hitboxB->setDisabled(true);
+            ui->hitboxT->setDisabled(true);
+            ui->duration->setDisabled(true);
+            ui->id->setDisabled(true);
+
+            ui->sheetID->setCurrentIndex(-1);
+            ui->boundingBoxX->setValue(0);
+            ui->boundingBoxY->setValue(0);
+            ui->boundingBoxW->setValue(0);
+            ui->boundingBoxH->setValue(0);
+            ui->offsetX->setValue(0);
+            ui->offsetY->setValue(0);
+            ui->hitboxL->setValue(0);
+            ui->hitboxR->setValue(0);
+            ui->hitboxB->setValue(0);
+            ui->hitboxT->setValue(0);
+            ui->duration->setValue(0);
+            ui->id->setText("");
+        }
+
         // delete model->itemFromIndex(ui->frameList->currentIndex());
         animFile.animations[currentAnim].frames.removeAt(c);
         DoAction("Removed frame", true);
@@ -757,6 +803,8 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->frameList->blockSignals(false);
 
         ui->rmFrame->setDisabled(currentAnim < 0 || !animFile.animations[currentAnim].frames.count());
+        ui->upFrame->setDisabled(currentAnim < 0 || !animFile.animations[currentAnim].frames.count());
+        ui->downFrame->setDisabled(currentAnim < 0 || !animFile.animations[currentAnim].frames.count());
     });
 
     connect(ui->upFrame, &QToolButton::clicked, [this] {
@@ -1793,6 +1841,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         ui->addAnim->setDisabled((aniType == ENGINE_v1 || aniType == ENGINE_v2)
                                  || animFile.animations.count() >= 0x100);
+        ui->addFrame->setEnabled(true);
 
         UpdateView();
         DoAction("Added animation", true);
@@ -1815,6 +1864,9 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->animationList->blockSignals(true);
         ui->animationList->setCurrentRow(n);
         ui->animationList->blockSignals(false);
+
+        ui->upAnim->setDisabled(animFile.animations.count() <= 1);
+        ui->downAnim->setDisabled(animFile.animations.count() <= 1);
     });
 
     auto moveAnim = [this](char translation) {
@@ -2170,7 +2222,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
                 auto *item = new QStandardItem();
                 item->setEditable(false);
-                item->setData((frame.width == 0 || frame.height == 0)
+                item->setData(((frame.width == 0 || frame.height == 0) || !animFile.sheets.count())
                                   ? missingImg
                                   : QPixmap::fromImage(sheets[frame.sheet].copy(boundingRect)),
                               ROLE_PIXMAP);
@@ -2347,7 +2399,14 @@ void AnimationEditor::SetupUI(bool setFrame, bool setRow)
     ui->upHB->setDisabled(aniType == ENGINE_v1);
     ui->downHB->setDisabled(aniType == ENGINE_v1);
 
+    ui->addFrame->setDisabled(true);
+
     if (currentAnim < animFile.animations.count()) {
+        ui->hitboxPage->setEnabled(true);
+        ui->sheetsPage->setEnabled(true);
+        ui->animPage->setEnabled(true);
+        ui->framePage->setEnabled(true);
+
         ui->animName->blockSignals(true);
         ui->speedMult->blockSignals(true);
         ui->loopIndex->blockSignals(true);
@@ -2362,6 +2421,12 @@ void AnimationEditor::SetupUI(bool setFrame, bool setRow)
         ui->speedMult->blockSignals(false);
         ui->loopIndex->blockSignals(false);
         ui->rotationStyle->blockSignals(false);
+    } else if (!animFile.animations.count()) {
+        frameModel->clear();
+        ui->hitboxPage->setDisabled(true);
+        ui->sheetsPage->setDisabled(true);
+        ui->animPage->setDisabled(true);
+        ui->framePage->setDisabled(true);
     }
 
     // set labels
@@ -2713,6 +2778,8 @@ void AnimationEditor::LoadAnim(QString filepath, int aniType)
     currentAnim   = -1;
     currentFrame  = -1;
     currentHitbox = -1;
+
+    ui->addFrame->setEnabled(ui->sheetID->count());
 
     ui->animationList->blockSignals(true);
     ui->animationList->setCurrentRow(-1);
