@@ -8,7 +8,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2.4.0
+      uses: actions/checkout@v4
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
 
@@ -35,7 +35,7 @@ jobs:
       run: |
         move build/release/RetroED.exe build/release/deploy/RetroED.exe
     - name: Upload artifacts
-      uses: actions/upload-artifact@v2.3.1
+      uses: actions/upload-artifact@v4
       with:
-        name: retroED-win
+        name: RetroED-win
         path: build/release/deploy
