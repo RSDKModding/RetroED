@@ -88,11 +88,25 @@ QPalette darkPal;
 
 int main(int argc, char *argv[])
 {
-    InitConsole();
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
     QApplication a(argc, argv);
+
+    QCommandLineParser parser;
+    parser.setApplicationDescription(
+        "A general purpose tool suite for the Retro Engine (versions 1-5).");
+    parser.addHelpOption();
+    parser.addVersionOption();
+    QCommandLineOption consoleOption(QStringList() << "c" << "console",
+                                     "Enable console window (Windows only).");
+    parser.addOption(consoleOption);
+
+    parser.process(a);
+
+    if (parser.isSet(consoleOption)) {
+        InitConsole();
+    }
 
     SplashScreen splash;
     splash.showMessage("Setting up display format...");
