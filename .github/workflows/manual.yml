@@ -11,13 +11,14 @@ jobs:
       uses: actions/checkout@v2.4.0
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
+
     - name: Install Qt
-      uses: jurplel/install-qt-action@v2.14.0
+      uses: jurplel/install-qt-action@v4
       with:
-        setup-python: false
-    - name: Download Jom 
+        cache: true
+    - name: Download Jom
       run: |
-        Invoke-WebRequest http://qt.mirror.constant.com/official_releases/jom/jom_1_1_3.zip -OutFile "jom.zip"
+        Invoke-WebRequest http://download.qt.io/official_releases/jom/jom.zip -OutFile "jom.zip"
         mkdir build
         Expand-Archive -Path jom.zip -DestinationPath build
     - name: Run versiongen
@@ -28,32 +29,13 @@ jobs:
     - name: Build RetroED
       working-directory: build
       run: |
-        qmake ../RetroEDv2/RetroEDv2.pro -spec win32-msvc "CONFIG+=qtquickcompiler"
-        ./jom qmake_all
-        ./jom -f Makefile.release -j4
+        qmake ../RetroEDv2/RetroEDv2.pro -spec win32-msvc -config release "CONFIG+=qtquickcompiler"
+        ./jom -j4
     - name: Move Artifacts
       run: |
-        mkdir artifacts
-        mkdir artifacts/platforms/
-        mkdir artifacts/imageformats/
-
-        move build/release/RetroED.exe artifacts
-        
-        move $Env:Qt5_Dir/bin/Qt5Core.dll artifacts
-        move $Env:Qt5_Dir/bin/Qt5Widgets.dll artifacts
-        move $Env:Qt5_Dir/bin/Qt5Svg.dll artifacts
-        move $Env:Qt5_Dir/bin/Qt5Xml.dll artifacts
-        move $Env:Qt5_Dir/bin/Qt5Gui.dll artifacts
-        
-        move $Env:Qt5_Dir/plugins/platforms/qwindows.dll artifacts/platforms
-        move $Env:Qt5_Dir/plugins/platforms/qoffscreen.dll artifacts/platforms
-        move $Env:Qt5_Dir/plugins/platforms/qdirect2d.dll artifacts/platforms
-        move $Env:Qt5_Dir/plugins/platforms/qminimal.dll artifacts/platforms
-        
-        move $Env:Qt5_Dir/plugins/imageformats/qsvg.dll artifacts/imageformats
-        
+        move build/release/RetroED.exe build/release/deploy/RetroED.exe
     - name: Upload artifacts
       uses: actions/upload-artifact@v2.3.1
       with:
         name: retroED-win
-        path: artifacts
+        path: build/release/deploy
