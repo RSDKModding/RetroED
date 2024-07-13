@@ -1,5 +1,7 @@
 #pragma once
 
+#include "utils/retroedutils.hpp"
+
 class Shader
 {
 public:
@@ -29,11 +31,11 @@ public:
 
         bool success = programID->addShaderFromSourceFile(type, path.toStdString().c_str());
         if (success) {
-            qDebug() << QString("Loaded OpenGL Shader: ") + QFileInfo(path).fileName();
+            PrintLog(QString("Loaded OpenGL Shader: ") + QFileInfo(path).fileName());
         }
         else {
-            qDebug() << QString("Error Loading OpenGL Shader: ") + QFileInfo(path).fileName();
-            qDebug() << QString("OpenGL Shader Error: ") + getError();
+            PrintLog(QString("Error Loading OpenGL Shader: ") + QFileInfo(path).fileName());
+            PrintLog(QString("OpenGL Shader Error: ") + getError());
         }
         return success;
     }

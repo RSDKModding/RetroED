@@ -1,5 +1,7 @@
 #pragma once
 
+void PrintLog(QString msg);
+
 namespace Utils
 {
 

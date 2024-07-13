@@ -108,7 +108,6 @@ extern QIcon playPauseIco[2];
 extern QPalette lightPal;
 extern QPalette darkPal;
 
-void PrintLog(QString msg);
 void SetStatus(QString status, bool useStatus = false);
 void AddStatusProgress(float percent);
 void SetStatusProgress(float percent);
