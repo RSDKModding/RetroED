@@ -2307,41 +2307,51 @@ void SceneViewer::paintGL()
         auto preCam = cameraPos;
         float pz    = zoom;
         int preW = storedW, preH = storedH;
-
+        int texSize = 1024;
         QOpenGLFramebufferObject *oOFB = outFB, *oTFB = tFB, *oTFB2 = t2FB;
         outFB = nullptr;
         tFB   = nullptr;
         t2FB  = nullptr;
-        resizeGL(boundsR, boundsB);
-
-        cameraPos = { 0, 0 };
+        resizeGL(texSize, texSize);
+        cameraPos = {(float)(boundsL), (float)boundsT};
         zoom      = 1;
         matView.setToIdentity();
 
-        outFB->bind();
-        glFuncs->glClearColor(metadata.backgroundColor1.red() / 255.0f,
-                              metadata.backgroundColor1.green() / 255.0f,
-                              metadata.backgroundColor1.blue() / 255.0f, 1.0f);
-        glFuncs->glClear(GL_COLOR_BUFFER_BIT);
+        QImage *output = new QImage(boundsR + abs(boundsL), boundsB + abs(boundsT), QImage::Format_RGB888);
+        QPainter p;
+        p.begin(output);
+        for (int h = 0; h < 1 + (boundsB + abs(boundsT)) / texSize; h++){
+            for (int w = 0; w < 1 + (boundsR + abs(boundsL)) / texSize; w++){
+                glFuncs->glActiveTexture(GL_TEXTURE20 + 2);
+                delete outFB;
+                outFB = new QOpenGLFramebufferObject(texSize, texSize);
+                glFuncs->glBindTexture(GL_TEXTURE_2D, outFB->texture());
 
-        // Check if we can render the whole scene
-        // afaik this can only be invalid due to low vram on a VM
-        // poor of the guy that discovers this because of a low vram PC...
-        if (!outFB->isValid()){
-            SetStatus("Scene render failure.");
-        } else {
-            if (!disableObjects)
-                processObjects(true);
+                outFB->bind();
+                glFuncs->glClearColor(metadata.backgroundColor1.red() / 255.0f,
+                                      metadata.backgroundColor1.green() / 255.0f,
+                                      metadata.backgroundColor1.blue() / 255.0f, 1.0f);
+                glFuncs->glClear(GL_COLOR_BUFFER_BIT);
 
-            if (!disableDrawScene)
-                drawScene();
+                if (!disableObjects)
+                    processObjects(true);
 
-            outFB->toImage(false)
-                .convertToFormat(QImage::Format_ARGB32)
-                .convertToFormat(QImage::Format_RGB888)
-                .save(renderFilename);
-            SetStatus("Rendered scene to image!");
+                if (!disableDrawScene)
+                    drawScene();
+
+                p.drawImage(w * texSize, h * texSize, outFB->toImage(false)
+                                                        .convertToFormat(QImage::Format_ARGB32)
+                                                        .convertToFormat(QImage::Format_RGB888));
+                cameraPos.x += texSize;
+            }
+            cameraPos.y += texSize;
+            cameraPos.x  = boundsL;
         }
+        p.end();
+
+        SetStatus("Rendered scene to image!");
+        QImageWriter writer(renderFilename, "PNG");
+        writer.write(*output);
 
         fileRender = 0;
         zoom       = pz;

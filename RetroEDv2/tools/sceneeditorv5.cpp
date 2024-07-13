@@ -1520,7 +1520,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             QString filename = filedialog.selectedFiles()[0];
             if (!CheckOverwrite(filename, ".png", this))
                 return;
-            SetStatus("Rendering image...", true);
+            SetStatus("Rendering image...");
+            statusLabel->repaint();
             viewer->queueRender(filename);
         }
     });
