@@ -592,19 +592,21 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         else
             maxObjCount = objOffset + stageConfig.objects.count();
 
-        // load assets for new objects
-        for (int i = objOffset; i <= maxObjCount; ++i) {
-            linkGameObject(i, GetObjectInfo(viewer->objects[i].name), true, false);
-            // clean up and remove unused vars
-            for (int v = viewer->objects[i].variables.count() - 1; v >= 0; --v) {
-                // check if var no longer exists
-                if (viewer->objects[i].variables[v].offset == -1) {
-                    for (auto &entity : viewer->entities) {
-                        if (entity.type == i)
-                            entity.variables.removeAt(v);
-                    }
+        if (gameLinks.count()){
+            // load assets for new objects
+            for (int i = objOffset; i <= maxObjCount; ++i) {
+                linkGameObject(i, GetObjectInfo(viewer->objects[i].name), true, false);
+                // clean up and remove unused vars
+                for (int v = viewer->objects[i].variables.count() - 1; v >= 0; --v) {
+                    // check if var no longer exists
+                    if (viewer->objects[i].variables[v].offset == -1) {
+                        for (auto &entity : viewer->entities) {
+                            if (entity.type == i)
+                                entity.variables.removeAt(v);
+                        }
 
-                    viewer->objects[i].variables.removeAt(v);
+                        viewer->objects[i].variables.removeAt(v);
+                    }
                 }
             }
         }
