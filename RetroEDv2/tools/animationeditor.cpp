@@ -108,11 +108,15 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             if (aniType == ENGINE_v5 || aniType == ENGINE_v1)
                 ui->hitboxType->addItem(animFile.hitboxTypes[i]);
             else
-                ui->hitboxType->addItem(QString("(%1, %2, %3, %4)")
+                ui->hitboxType->addItem(QString("(%1, %2, %3, %4) | (%5, %6, %7, %8)")
                                             .arg(animFile.hitboxes[i].hitboxes[0].left)
                                             .arg(animFile.hitboxes[i].hitboxes[0].top)
                                             .arg(animFile.hitboxes[i].hitboxes[0].right)
-                                            .arg(animFile.hitboxes[i].hitboxes[0].bottom));
+                                            .arg(animFile.hitboxes[i].hitboxes[0].bottom)
+                                            .arg(animFile.hitboxes[i].hitboxes[1].left)
+                                            .arg(animFile.hitboxes[i].hitboxes[1].top)
+                                            .arg(animFile.hitboxes[i].hitboxes[1].right)
+                                            .arg(animFile.hitboxes[i].hitboxes[1].bottom));
         }
         ui->hitboxType->setCurrentIndex(h < animFile.hitboxTypes.count() ? h : 0);
         ui->hitboxType->blockSignals(false);
@@ -408,17 +412,20 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                     auto &hitbox                 = animFile.hitboxes[c];
                     hitbox.hitboxes[id + 0].left = (short)v;
 
-                    if (id == 0) {
-                        QString name = QString("(%1, %2, %3, %4)")
-                                           .arg(hitbox.hitboxes[id].left)
-                                           .arg(hitbox.hitboxes[id].top)
-                                           .arg(hitbox.hitboxes[id].right)
-                                           .arg(hitbox.hitboxes[id].bottom);
-                        ui->hitboxList->blockSignals(true);
-                        ui->hitboxList->item(c)->setText(name);
-                        ui->hitboxList->blockSignals(false);
-                        ui->hitboxType->setItemText(c, name);
-                    }
+                    QString name = QString("(%1, %2, %3, %4) | (%5, %6, %7, %8)")
+                                       .arg(hitbox.hitboxes[0].left)
+                                       .arg(hitbox.hitboxes[0].top)
+                                       .arg(hitbox.hitboxes[0].right)
+                                       .arg(hitbox.hitboxes[0].bottom)
+                                       .arg(hitbox.hitboxes[1].left)
+                                       .arg(hitbox.hitboxes[1].top)
+                                       .arg(hitbox.hitboxes[1].right)
+                                       .arg(hitbox.hitboxes[1].bottom);
+
+                    ui->hitboxList->blockSignals(true);
+                    ui->hitboxList->item(c)->setText(name);
+                    ui->hitboxList->blockSignals(false);
+                    ui->hitboxType->setItemText(c, name);
 
                     UpdateView();
                     DoAction("Changed hitbox left", true);
@@ -438,17 +445,20 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                     auto &hitbox                = animFile.hitboxes[c];
                     hitbox.hitboxes[id + 0].top = (short)v;
 
-                    if (id == 0) {
-                        QString name = QString("(%1, %2, %3, %4)")
-                                           .arg(hitbox.hitboxes[id].left)
-                                           .arg(hitbox.hitboxes[id].top)
-                                           .arg(hitbox.hitboxes[id].right)
-                                           .arg(hitbox.hitboxes[id].bottom);
-                        ui->hitboxList->blockSignals(true);
-                        ui->hitboxList->item(c)->setText(name);
-                        ui->hitboxList->blockSignals(false);
-                        ui->hitboxType->setItemText(c, name);
-                    }
+                    QString name = QString("(%1, %2, %3, %4) | (%5, %6, %7, %8)")
+                                       .arg(hitbox.hitboxes[0].left)
+                                       .arg(hitbox.hitboxes[0].top)
+                                       .arg(hitbox.hitboxes[0].right)
+                                       .arg(hitbox.hitboxes[0].bottom)
+                                       .arg(hitbox.hitboxes[1].left)
+                                       .arg(hitbox.hitboxes[1].top)
+                                       .arg(hitbox.hitboxes[1].right)
+                                       .arg(hitbox.hitboxes[1].bottom);
+
+                    ui->hitboxList->blockSignals(true);
+                    ui->hitboxList->item(c)->setText(name);
+                    ui->hitboxList->blockSignals(false);
+                    ui->hitboxType->setItemText(c, name);
 
                     UpdateView();
                     DoAction("Changed hitbox top", true);
@@ -468,17 +478,20 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                     auto &hitbox                  = animFile.hitboxes[c];
                     hitbox.hitboxes[id + 0].right = (short)v;
 
-                    if (id == 0) {
-                        QString name = QString("(%1, %2, %3, %4)")
-                                           .arg(hitbox.hitboxes[id].left)
-                                           .arg(hitbox.hitboxes[id].top)
-                                           .arg(hitbox.hitboxes[id].right)
-                                           .arg(hitbox.hitboxes[id].bottom);
-                        ui->hitboxList->blockSignals(true);
-                        ui->hitboxList->item(c)->setText(name);
-                        ui->hitboxList->blockSignals(false);
-                        ui->hitboxType->setItemText(c, name);
-                    }
+                    QString name = QString("(%1, %2, %3, %4) | (%5, %6, %7, %8)")
+                                       .arg(hitbox.hitboxes[0].left)
+                                       .arg(hitbox.hitboxes[0].top)
+                                       .arg(hitbox.hitboxes[0].right)
+                                       .arg(hitbox.hitboxes[0].bottom)
+                                       .arg(hitbox.hitboxes[1].left)
+                                       .arg(hitbox.hitboxes[1].top)
+                                       .arg(hitbox.hitboxes[1].right)
+                                       .arg(hitbox.hitboxes[1].bottom);
+
+                    ui->hitboxList->blockSignals(true);
+                    ui->hitboxList->item(c)->setText(name);
+                    ui->hitboxList->blockSignals(false);
+                    ui->hitboxType->setItemText(c, name);
 
                     UpdateView();
                     DoAction("Changed hitbox right", true);
@@ -498,17 +511,20 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                     auto &hitbox                   = animFile.hitboxes[c];
                     hitbox.hitboxes[id + 0].bottom = (short)v;
 
-                    if (id == 0) {
-                        QString name = QString("(%1, %2, %3, %4)")
-                                           .arg(hitbox.hitboxes[id].left)
-                                           .arg(hitbox.hitboxes[id].top)
-                                           .arg(hitbox.hitboxes[id].right)
-                                           .arg(hitbox.hitboxes[id].bottom);
-                        ui->hitboxList->blockSignals(true);
-                        ui->hitboxList->item(c)->setText(name);
-                        ui->hitboxList->blockSignals(false);
-                        ui->hitboxType->setItemText(c, name);
-                    }
+                    QString name = QString("(%1, %2, %3, %4) | (%5, %6, %7, %8)")
+                                       .arg(hitbox.hitboxes[0].left)
+                                       .arg(hitbox.hitboxes[0].top)
+                                       .arg(hitbox.hitboxes[0].right)
+                                       .arg(hitbox.hitboxes[0].bottom)
+                                       .arg(hitbox.hitboxes[1].left)
+                                       .arg(hitbox.hitboxes[1].top)
+                                       .arg(hitbox.hitboxes[1].right)
+                                       .arg(hitbox.hitboxes[1].bottom);
+
+                    ui->hitboxList->blockSignals(true);
+                    ui->hitboxList->item(c)->setText(name);
+                    ui->hitboxList->blockSignals(false);
+                    ui->hitboxType->setItemText(c, name);
 
                     UpdateView();
                     DoAction("Changed hitbox bottom", true);
@@ -1982,14 +1998,16 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
     connect(ui->addHB, &QToolButton::clicked, [this, setupHitboxTypeBox] {
         uint c = ui->hitboxList->currentRow() + 1;
+        int typeIndex = ui->hitboxType->currentIndex();
 
         animFile.hitboxTypes.insert(c, "Hitbox " + QString::number(c));
         FormatHelpers::Animation::Hitbox hitbox;
         animFile.hitboxes.insert(c, hitbox);
 
         QString name = animFile.hitboxTypes[c];
-        if (aniType != ENGINE_v5)
-            QString name = "(0, 0, 0, 0)";
+        if (aniType != ENGINE_v5){
+            name = "(0, 0, 0, 0) | (0, 0, 0, 0)";
+        }
 
         hitboxVisible.insert(c, false);
         auto *item = new QListWidgetItem(name);
@@ -2016,21 +2034,28 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             }
         }
 
+        setupHitboxTypeBox();
+
         ui->addHB->setDisabled(animFile.hitboxes.count() >= 8);
 
-        setupHitboxTypeBox();
-        UpdateView();
+        if (currentFrame != 0xFFFF && currentAnim != 0xFFFF){
+            for (int h = 0; h < animFile.hitboxTypes.count(); h++)
+                hitboxVisible[h] = ui->hitboxList->item(h)->checkState();
 
-        FormatHelpers::Animation::Frame &f = animFile.animations[currentAnim].frames[currentFrame];
-        ui->hitboxType->setCurrentIndex(f.collisionBox);
-        currentHitbox = f.collisionBox;
+            if (typeIndex >= c){
+                ui->hitboxType->setCurrentIndex(typeIndex - 1);
+                currentHitbox = typeIndex - 1;
+            }
+        }
+
+        UpdateView();
 
         DoAction("Added hitbox", true);
     });
 
     connect(ui->rmHB, &QToolButton::clicked, [this, setupHitboxTypeBox] {
         int c = ui->hitboxList->currentRow();
-        int n = ui->hitboxList->currentRow() == ui->hitboxList->count() - 1 ? c - 1 : c;
+        int typeIndex = ui->hitboxType->currentIndex();
 
         delete ui->hitboxList->item(c);
         animFile.hitboxes.removeAt(c);
@@ -2051,16 +2076,23 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                 }
             }
         }
+        setupHitboxTypeBox();
 
         ui->rmHB->setDisabled(animFile.hitboxTypes.count() <= 0 || animFile.hitboxes.count() <= 0);
 
-        setupHitboxTypeBox();
+        if (currentFrame != 0xFFFF && currentAnim != 0xFFFF){
+            for (int h = 0; h < animFile.hitboxTypes.count(); h++)
+                hitboxVisible[h] = ui->hitboxList->item(h)->checkState();
+
+            if (typeIndex >= c){
+                ui->hitboxType->setCurrentIndex(typeIndex - 1);
+                currentHitbox = typeIndex - 1;
+            }
+        }
+
         UpdateView();
 
         DoAction("Removed hitbox", true);
-
-        ui->hitboxList->setCurrentRow(n);
-        currentHitbox = c;
     });
 
     auto moveHB = [this, setupHitboxTypeBox](char translation) {
@@ -2092,6 +2124,10 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         }
 
         setupHitboxTypeBox();
+
+        for (int h = 0; h < animFile.hitboxTypes.count(); h++)
+            hitboxVisible[h] = ui->hitboxList->item(h)->checkState();
+
         UpdateView();
         DoAction("Moved hitbox", true);
 
@@ -2337,11 +2373,15 @@ void AnimationEditor::SetupUI(bool setFrame, bool setRow)
         QString name = hitbox;
 
         if (aniType != ENGINE_v5 && aniType != ENGINE_v1)
-            name = QString("(%1, %2, %3, %4)")
+            name = QString("(%1, %2, %3, %4) | (%5, %6, %7, %8)")
                        .arg(animFile.hitboxes[hID].hitboxes[0].left)
                        .arg(animFile.hitboxes[hID].hitboxes[0].top)
                        .arg(animFile.hitboxes[hID].hitboxes[0].right)
-                       .arg(animFile.hitboxes[hID].hitboxes[0].bottom);
+                       .arg(animFile.hitboxes[hID].hitboxes[0].bottom)
+                       .arg(animFile.hitboxes[hID].hitboxes[1].left)
+                       .arg(animFile.hitboxes[hID].hitboxes[1].top)
+                       .arg(animFile.hitboxes[hID].hitboxes[1].right)
+                       .arg(animFile.hitboxes[hID].hitboxes[1].bottom);
 
         ui->hitboxType->addItem(name);
         QListWidgetItem *item = new QListWidgetItem(name, ui->hitboxList);
@@ -2423,11 +2463,12 @@ void AnimationEditor::SetupUI(bool setFrame, bool setRow)
         ui->rotationStyle->blockSignals(false);
     } else if (!animFile.animations.count()) {
         frameModel->clear();
-        ui->hitboxPage->setDisabled(true);
-        ui->sheetsPage->setDisabled(true);
-        ui->animPage->setDisabled(true);
-        ui->framePage->setDisabled(true);
     }
+
+    ui->hitboxPage->setEnabled(animFile.animations.count());
+    ui->sheetsPage->setEnabled(animFile.animations.count());
+    ui->animPage->setEnabled(animFile.animations.count());
+    ui->framePage->setEnabled(animFile.animations.count());
 
     // set labels
     if (currentAnim < animFile.animations.count()) {
