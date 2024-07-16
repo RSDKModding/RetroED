@@ -98,6 +98,7 @@ public:
     int globalScriptCodeCount = 0;
     int globalJumpTableCount  = 0;
 
+    bool fileFound   = false;
     bool scriptError = false;
     QString errorMsg = "";
     QString errorPos = "";

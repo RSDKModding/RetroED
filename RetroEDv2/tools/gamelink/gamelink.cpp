@@ -249,18 +249,27 @@ void GameLink::LinkGameObjects(QString gameName)
 
     logicLib->setFileName(gameName);
     logicLib->load();
-    if (!logicLib->isLoaded())
+    if (!logicLib->isLoaded()){
         PrintLog("Failed to link: " + logicLib->errorString());
-
+        if (logicLib->errorString().contains("0x000000c1"))
+            error = 1;
+    }
+    // 0x000000c1 = wrong architecture
     void (*linkGameLogic)(void *) = NULL;
 
-    revision = 3;
     if (logicLib->isLoaded()) {
         linkGameLogic = (void (*)(void *))logicLib->resolve("LinkGameLogicDLL");
 
         int *RSDKRevision = (int *)logicLib->resolve("RSDKRevision");
-        if (RSDKRevision)
-            revision = *RSDKRevision;
+        if (RSDKRevision){
+            if (*RSDKRevision == -1){
+                linkGameLogic = NULL;
+                error = 2;
+                PrintLog("Failed to link: Not a valid Game library");
+            } else {
+                revision = *RSDKRevision;
+            }
+        }
     }
 
     if (linkGameLogic) {
@@ -339,11 +348,11 @@ void GameLink::LinkGameObjects(QString gameName)
         if (globalVarsInitCB)
             globalVarsInitCB(globalVariablesPtr);
 
-        printf("sucessfully linked game logic!\n");
-        printf("linked %d objects!\n", gameObjectList.count());
+        PrintLog("sucessfully linked game logic!");
+        PrintLog(QString("linked %1 objects!").arg(gameObjectList.count()));
     }
     else {
-        printf("failed to link game logic...\n");
+        PrintLog("failed to link game logic...");
     }
 
     for (int i = 0; i < gameObjectList.count(); ++i) {

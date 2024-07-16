@@ -37,7 +37,7 @@ namespace FunctionTable
 void RegisterObjectv5(GameObject **sVars, const char *name, uint entityClassSize, uint staticClassSize,
                       void (*update)(void), void (*lateUpdate)(void), void (*staticUpdate)(void),
                       void (*draw)(void), void (*create)(void *), void (*stageLoad)(void),
-                      void (*editorLoad)(void), void (*editorDraw)(void), void (*serialize)(void));
+                      void (*editorDraw)(void), void (*editorLoad)(void), void (*serialize)(void));
 void RegisterObjectv5U(GameObject **sVars, const char *name, uint entityClassSize, uint staticClassSize,
                        void (*update)(void), void (*lateUpdate)(void), void (*staticUpdate)(void),
                        void (*draw)(void), void (*create)(void *), void (*stageLoad)(void),

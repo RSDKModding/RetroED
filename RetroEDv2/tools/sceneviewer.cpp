@@ -356,10 +356,56 @@ void SceneViewer::updateScene()
                 .arg(selectedObject >= 0 && selectedObject < objects.count()
                          ? objects[selectedObject].name
                          : "[None]");
+        QString gameLinkState;
         if (gameType == ENGINE_v5){
             status += QString(", Selected Stamp: %1").arg(selectedStamp);
             if (engineRevision != 1)
                 status += QString(", Filter: %1").arg(sceneFilter);
+            if (!v5Editor->gameLinks.count()){
+#ifdef Q_OS_WIN
+                gameLinkState = "No Game.dll found";
+#elif Q_OS_MAC
+                gameLinkState = "No Game.dylib found";
+#else
+                gameLinkState = "No libGame.so found";
+#endif
+            } else {
+                if (linkError > 0){
+                    switch (linkError){
+                        case 1:
+                            gameLinkState = "Library is for the wrong architecture";
+                            break;
+                        case 2:
+                            gameLinkState = "Found library is not a valid Game Library";
+                            break;
+                        default:
+                            gameLinkState = "Found library is not a valid Game Library";
+                            break;
+                    }
+                } else {
+                    gameLinkState = "Game Link Loaded, Revision REV0" + QString::number(engineRevision);
+                }
+            }
+            status += QString(", Game Link State: %1").arg(gameLinkState);
+        } else {
+            if (linkError > -1){
+                switch (linkError){
+                    case 1:
+                        gameLinkState = "Scripts disabled due to parsing error";
+                        break;
+                    case 2:
+                        gameLinkState = "Partial Script Load";
+                        break;
+                    case 3:
+                        gameLinkState = "No Scripts found";
+                        break;
+                }
+            }
+            else {
+                gameLinkState = "Scripts Loaded";
+            }
+            if (gameType != ENGINE_v1)
+                status += QString(", Game Link State: %1").arg(gameLinkState);
         }
         status += QString(", FPS: %1").arg(avgFps, 0, 'f', 1);
         statusLabel->setText(status);
@@ -1676,7 +1722,7 @@ void SceneViewer::processObjects(bool isImage)
                 sceneInfoV1.entitySlot = 0;
                 for (int e = 0; e < entities.count(); ++e) {
                     if (entities[e].gameEntity) {
-                        AS_ENTITY(entities[e].gameEntity, GameEntityvU)->onScreen = 0;
+                        AS_ENTITY(entities[e].gameEntity, GameEntityv1)->onScreen = 0;
                     }
                 }
 
@@ -1785,7 +1831,7 @@ void SceneViewer::processObjects(bool isImage)
                 sceneInfo.entitySlot = 0;
                 for (int e = 0; e < entities.count(); ++e) {
                     if (entities[e].gameEntity) {
-                        AS_ENTITY(entities[e].gameEntity, GameEntityvU)->onScreen = 0;
+                        AS_ENTITY(entities[e].gameEntity, GameEntityv2)->onScreen = 0;
                     }
                 }
 

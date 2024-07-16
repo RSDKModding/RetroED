@@ -111,6 +111,7 @@ public:
 
     // Stuff for game link
     int engineRevision = 3;
+    int linkError      = -1;
 
     SceneInfo sceneInfo;
     EngineInfo gameInfo;

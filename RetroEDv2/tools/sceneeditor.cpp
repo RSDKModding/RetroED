@@ -2730,7 +2730,6 @@ void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
                                                     basePath + "ZoneBG.map");
         QString pathTIL = WorkingDirManager::GetPath("Stages/" + viewer->currentFolder + "/Zone.til",
                                                      basePath + "Zone.til");
-
         RSDKv1::TileConfig tileconfig;
 
         background.read(gameType, pathBG);
@@ -3461,6 +3460,9 @@ void SceneEditor::InitGameLink()
     }
 
     scriptError = false;
+    viewer->linkError = -1;
+    int unknownScriptCount = 0;
+
     switch (viewer->gameType) {
         case ENGINE_v1: break; // read the editor stuff from this somehow (idk how to parse it lol)
         case ENGINE_v2: {      // parse the RSDK sub and use that data to know what to draw
@@ -3474,6 +3476,9 @@ void SceneEditor::InitGameLink()
                                                             scriptPath);
 
                     compilerv2->ParseScriptFile(scriptPath, scrID++);
+
+                    if (!compilerv2->fileFound)
+                        unknownScriptCount++;
 
                     if (compilerv2->scriptError) {
                         PrintLog(compilerv2->errorMsg);
@@ -3489,6 +3494,7 @@ void SceneEditor::InitGameLink()
                         compilerv2->objectScriptList[scrID - 1].subRSDK.scriptCodePtr = -1;
                         compilerv2->objectScriptList[scrID - 1].subRSDK.jumpTablePtr  = -1;
                         scriptError                                                   = true;
+                        viewer->linkError = 1;
                     }
                 }
             }
@@ -3498,6 +3504,9 @@ void SceneEditor::InitGameLink()
                 scriptPath =
                     WorkingDirManager::GetPath("/Scripts/" + stageConfig.objects[i].script, scriptPath);
                 compilerv2->ParseScriptFile(scriptPath, scrID++);
+
+                if (!compilerv2->fileFound)
+                    unknownScriptCount++;
 
                 if (compilerv2->scriptError) {
                     PrintLog(compilerv2->errorMsg);
@@ -3513,7 +3522,19 @@ void SceneEditor::InitGameLink()
                     compilerv2->objectScriptList[scrID - 1].subRSDK.scriptCodePtr = -1;
                     compilerv2->objectScriptList[scrID - 1].subRSDK.jumpTablePtr  = -1;
                     scriptError                                                   = true;
+                    viewer->linkError = 1;
                 }
+            }
+            if (stageConfig.loadGlobalScripts){
+                if (unknownScriptCount != 0)
+                    viewer->linkError = 2;
+                if (unknownScriptCount == gameConfig.objects.count() + stageConfig.objects.count())
+                    viewer->linkError = 3;
+            } else {
+                if (unknownScriptCount != 0)
+                    viewer->linkError = 2;
+                if (unknownScriptCount == stageConfig.objects.count())
+                    viewer->linkError = 3;
             }
             break;
         }
@@ -3530,6 +3551,9 @@ void SceneEditor::InitGameLink()
                     scriptPath = WorkingDirManager::GetPath("/Scripts/" + gameConfig.objects[i].script,
                                                             scriptPath);
                     compilerv3->ParseScriptFile(scriptPath, scrID++);
+
+                    if (!compilerv3->fileFound)
+                        unknownScriptCount++;
 
                     if (compilerv3->scriptError) {
                         PrintLog(compilerv3->errorMsg);
@@ -3563,6 +3587,7 @@ void SceneEditor::InitGameLink()
                         compilerv3->objectScriptList[scrID - 1].subRSDKEdit.jumpTablePtr  = -1;
 
                         scriptError = true;
+                        viewer->linkError = 1;
                     }
                 }
             }
@@ -3572,6 +3597,9 @@ void SceneEditor::InitGameLink()
                 scriptPath =
                     WorkingDirManager::GetPath("/Scripts/" + stageConfig.objects[i].script, scriptPath);
                 compilerv3->ParseScriptFile(scriptPath, scrID++);
+
+                if (!compilerv3->fileFound)
+                    unknownScriptCount++;
 
                 if (compilerv3->scriptError) {
                     PrintLog(compilerv3->errorMsg);
@@ -3605,7 +3633,19 @@ void SceneEditor::InitGameLink()
                     compilerv3->objectScriptList[scrID - 1].subRSDKEdit.jumpTablePtr  = -1;
 
                     scriptError = true;
+                    viewer->linkError = 1;
                 }
+            }
+            if (stageConfig.loadGlobalScripts){
+                if (unknownScriptCount != 0)
+                    viewer->linkError = 2;
+                if (unknownScriptCount == gameConfig.objects.count() + stageConfig.objects.count())
+                    viewer->linkError = 3;
+            } else {
+                if (unknownScriptCount != 0)
+                    viewer->linkError = 2;
+                if (unknownScriptCount == stageConfig.objects.count())
+                    viewer->linkError = 3;
             }
             break;
         }
@@ -3622,6 +3662,9 @@ void SceneEditor::InitGameLink()
                     scriptPath = WorkingDirManager::GetPath("/Scripts/" + gameConfig.objects[i].script,
                                                             scriptPath);
                     compilerv4->ParseScriptFile(scriptPath, scrID++);
+
+                    if (!compilerv4->fileFound)
+                        unknownScriptCount++;
 
                     if (compilerv4->scriptError) {
                         PrintLog(compilerv4->errorMsg);
@@ -3655,6 +3698,7 @@ void SceneEditor::InitGameLink()
                         compilerv4->objectScriptList[scrID - 1].eventRSDKEdit.jumpTablePtr  = -1;
 
                         scriptError = true;
+                        viewer->linkError = 1;
                     }
                 }
             }
@@ -3664,6 +3708,9 @@ void SceneEditor::InitGameLink()
                 scriptPath =
                     WorkingDirManager::GetPath("/Scripts/" + stageConfig.objects[i].script, scriptPath);
                 compilerv4->ParseScriptFile(scriptPath, scrID++);
+
+                if (!compilerv4->fileFound)
+                    unknownScriptCount++;
 
                 if (compilerv4->scriptError) {
                     PrintLog(compilerv4->errorMsg);
@@ -3698,7 +3745,19 @@ void SceneEditor::InitGameLink()
                     compilerv4->objectScriptList[scrID - 1].eventRSDKEdit.jumpTablePtr  = -1;
 
                     scriptError = true;
+                    viewer->linkError = 1;
                 }
+            }
+            if (stageConfig.loadGlobalScripts){
+                if (unknownScriptCount != 0)
+                    viewer->linkError = 2;
+                if (unknownScriptCount == gameConfig.objects.count() + stageConfig.objects.count())
+                    viewer->linkError = 3;
+            } else {
+                if (unknownScriptCount != 0)
+                    viewer->linkError = 2;
+                if (unknownScriptCount == stageConfig.objects.count())
+                    viewer->linkError = 3;
             }
             break;
         }

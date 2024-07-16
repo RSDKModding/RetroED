@@ -1109,6 +1109,7 @@ void Compilerv2::ParseScriptFile(QString scriptName, int scriptID)
     }
 
     scriptError = false;
+    fileFound   = true;
 
     Reader reader(scriptName);
     if (reader.initialised) {
@@ -1266,6 +1267,8 @@ void Compilerv2::ParseScriptFile(QString scriptName, int scriptID)
         }
 
         reader.close();
+    } else {
+        fileFound = false;
     }
 }
 
