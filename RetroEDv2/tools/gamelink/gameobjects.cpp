@@ -7,8 +7,8 @@ void FunctionTable::RegisterObjectv5(GameObject **sVars, const char *name, uint 
                                      uint staticClassSize, void (*update)(void),
                                      void (*lateUpdate)(void), void (*staticUpdate)(void),
                                      void (*draw)(void), void (*create)(void *),
-                                     void (*stageLoad)(void), void (*editorDraw)(void),
-                                     void (*editorLoad)(void), void (*serialize)(void))
+                                     void (*stageLoad)(void), void (*editorLoad)(void),
+                                     void (*editorDraw)(void), void (*serialize)(void))
 {
     RegisterObjectv5U(sVars, name, entityClassSize, staticClassSize, update, lateUpdate, staticUpdate,
                       draw, create, stageLoad, editorLoad, editorDraw, serialize, NULL);
