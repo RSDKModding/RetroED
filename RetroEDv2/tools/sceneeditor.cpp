@@ -811,6 +811,12 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         int count = stageConfig.loadGlobalScripts ? gameConfig.objects.count() : 0;
         int oldListCount = ui->objectList->count();
+
+        QList<QString> oldScriptName;
+        oldScriptName.append("Blank Object");
+        for (int i = 0; i < stageConfig.objects.count(); i++)
+            oldScriptName.append(stageConfig.objects[i].script);
+
         switch (viewer->gameType) {
             case ENGINE_v4: {
                 StageConfigEditorv4 *edit =
@@ -856,6 +862,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         int id = count + 1;
         for (FormatHelpers::StageConfig::ObjectInfo &stageObj : stageConfig.objects) {
             int index = names.indexOf(stageObj.name);
+            if (index < 0)
+                index = oldScriptName.indexOf(stageObj.script);
 
             SceneObject objInfo;
             objInfo.name = stageObj.name;
