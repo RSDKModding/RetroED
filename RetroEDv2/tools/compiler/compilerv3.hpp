@@ -172,6 +172,7 @@ public:
     int globalJumpTableCount  = 0;
 
     bool scriptError = false;
+    bool fileFound   = false;
     QString errorMsg = "";
     QString errorPos = "";
     QString errorScr = "";

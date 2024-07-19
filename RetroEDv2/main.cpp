@@ -212,6 +212,17 @@ int main(int argc, char *argv[])
         writer.flush();
     }
 
+    // copy RSDKv5 backup var list if it doesn't exist
+    if (!QFile(homeDir + "RSDKv5VarNames.txt").exists()) {
+        Reader reader(":/resources/RSDKv5VarNames.txt");
+        QByteArray bytes = reader.readByteArray(reader.filesize);
+        reader.close();
+
+        Writer writer(homeDir + "RSDKv5VarNames.txt");
+        writer.write(bytes);
+        writer.flush();
+    }
+
     PrintLog("====================================================");
     PrintLog("New RetroED instance: " + QDateTime::currentDateTime().toString());
     PrintLog(QString("Version: ") + RE_VERSION);

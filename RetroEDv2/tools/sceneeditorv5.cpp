@@ -421,8 +421,15 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         if (useLoadEvent){
             // idk why do i need to call every object again but otherwise references to the added object are ignored
             // (Fixes LSelect visual bugs)
-            for (int i = 0; i <= objectID; ++i)
+            // There's probably a better way of doing this
+            for (int i = 0; i <= objectID; ++i){
+                for (int v = viewer->objects[i].variables.count() - 1; v >= 0; --v) {
+                    if (viewer->objects[i].variables[v].values.count()){
+                        viewer->objects[i].variables[v].values.clear();
+                    }
+                }
                 CallGameEvent(viewer->objects[i].name, SceneViewer::EVENT_LOAD, NULL);
+            }
         }
     };
 
@@ -1131,7 +1138,14 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     });
 
     connect(scnProp->editSCF, &QPushButton::clicked, [this, reSyncGameObject] {
-        StageConfigEditorv5 *edit = new StageConfigEditorv5(&stageConfig, this);
+        QList<GameObjectInfo> objList;
+        for (auto &link : gameLinks) {
+            for (int o = 0; o < link.gameObjectList.count(); ++o) {
+                objList.append(link.gameObjectList[o]);
+            }
+        }
+        viewer->stopTimer();
+        StageConfigEditorv5 *edit = new StageConfigEditorv5(&stageConfig, viewer->objects, objList, viewer->linkError == 0, this);
         edit->exec();
 
         int oldListCount = ui->objectList->count() - 1;
@@ -1148,6 +1162,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         objProp->unsetUI();
         CreateEntityList();
+        viewer->startTimer();
         DoAction("Edited StageConfig");
     });
 
@@ -1766,9 +1781,11 @@ void SceneEditorv5::updateTileSel(){
             &tile, viewer->tiles[tile & 0x3FF]);
     copiedTile = false;
 }
+
 void SceneEditorv5::updateStampName(QString name){
     ui->stampList->currentItem()->setText(name);
 }
+
 void SceneEditorv5::updateLayerName(QString name){
     ui->layerList->currentItem()->setText(name);
 }
@@ -2932,22 +2949,34 @@ void SceneEditorv5::CreateNewScene(QString scnPath, bool prePlus, bool loadGC, Q
         // Can't load objects properly on a new scene without Game.dll, so we REALLY need one bud.
         if (gameLinks.count() == 0){
             QMessageBox dllMessage(QMessageBox::Information, "RetroED",
-                                   QString("Game.dll not found, select the location of the file"),
+                                   QString("Game library not found, select the location of the file"),
                                    QMessageBox::Ok);
             dllMessage.exec();
+            QStringList extensionType = { "RSDKv5 Game Library (*Game.dll)",
+                                          "RSDKv5 Game Library (*Game.dylib)",
+                                          "RSDKv5 Game Library (*libGame.so)",
+                                        };
+#ifdef Q_OS_WIN
+            int definedOS = 0;
+#elif Q_OS_MAC
+            int definedOS = 1;
+#else
+            int definedOS = 2;
+#endif
 
-            QFileDialog gdlldialog(this, tr("Locate Game.dll Folder"), "",
-                        tr("RSDKv5 Game Library (Game*.dll)"));
-            gdlldialog.setFileMode(QFileDialog::Directory);
+            QFileDialog gdlldialog(this, tr("Locate Game library"), "",
+                        tr(extensionType.at(definedOS).toStdString().c_str()));
             gdlldialog.setAcceptMode(QFileDialog::AcceptOpen);
             if (gdlldialog.exec() == QDialog::Accepted) {
                 gameLinkPath = gdlldialog.selectedFiles()[0];
             } else{
-                SetStatus("Scene Creation Cancelled, no Game.dll found");
-                AddStatusProgress(1);
+                SetStatus("Scene Creation Cancelled, no Game library found");
                 return;
             }
-            LoadGameLinks();
+            UnloadGameLinks();
+            GameLink link;
+            gameLinks.append(link);
+            gameLinks.last().LinkGameObjects(gameLinkPath);
         }
     }
 
@@ -3467,7 +3496,52 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
 
     AddStatusProgress(1. / 6); // finish setting up UI stuff
 
-    InitGameLink();
+    if (gameLinks.count())
+        InitGameLink();
+    else {
+        switch (viewer->engineRevision) {
+            case 1: break;
+
+            case 2:
+                for (int i = 0; i < viewer->objects.count(); ++i) {
+                    if (gameConfig.readFilter)
+                        FunctionTable::SetEditableVar(VAR_UINT8, "filter", i,
+                                                      offsetof(GameEntityv2, filter));
+                }
+                break;
+
+            default:
+            case 3:
+                for (int i = 0; i < viewer->objects.count(); ++i) {
+                    if (gameConfig.readFilter)
+                        FunctionTable::SetEditableVar(VAR_UINT8, "filter", i,
+                                                      offsetof(GameEntityvU, filter));
+                }
+                break;
+        }
+
+        QString backupVars = homeDir + "RSDKv5VarNames.txt";
+        if (QFile(backupVars).exists()) {
+            for (int i = 0; i < viewer->objects.count(); ++i) {
+                for (int v = viewer->objects[i].variables.count() - 1; v > 0; --v) {
+                    QString hash = viewer->objects[i].variables[v].hash;
+                    QFile file(backupVars);
+                    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                        QTextStream txtreader(&file);
+                        while (!txtreader.atEnd()) {
+                            QString varBackup = txtreader.readLine();
+                            if (hash == Utils::getMd5HashByteArray(varBackup)){
+                                viewer->objects[i].variables[v].name = varBackup;
+                                break;
+                            }
+                        }
+                        file.close();
+                    }
+                }
+            }
+
+        }
+    }
 
     QCheckBox *filterToggles[] = { ui->filterBox1, ui->filterBox2, ui->filterBox3, ui->filterBox4,
                                    ui->filterBox5, ui->filterBox6, ui->filterBox7, ui->filterBox8 };
@@ -3968,11 +4042,15 @@ void SceneEditorv5::LoadGameLinks()
 void SceneEditorv5::InitGameLink()
 {
     viewer->gameEntityList = NULL;
-    viewer->engineRevision = 3;
+    viewer->engineRevision =  3;
+    viewer->linkError      =  -1;
 
-    if (gameLinks.count()) {
-        GameLink &link         = gameLinks.first();
+    for (GameLink &link : gameLinks){
         viewer->engineRevision = link.revision;
+        viewer->linkError  = link.error;
+        // stop at the first valid gamelink
+        if (viewer->linkError == 0)
+            break;
     }
 
     switch (viewer->engineRevision) {

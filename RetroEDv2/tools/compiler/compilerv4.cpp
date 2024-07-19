@@ -3672,6 +3672,7 @@ void Compilerv4::ParseScriptFile(QString scriptName, int scriptID, bool inEditor
     }
 
     scriptError = false;
+    fileFound   = true;
 
     Reader reader(scriptName);
     if (reader.initialised) {
@@ -4014,6 +4015,8 @@ void Compilerv4::ParseScriptFile(QString scriptName, int scriptID, bool inEditor
         }
 
         reader.close();
+    } else {
+        fileFound = false;
     }
 }
 

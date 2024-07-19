@@ -1,8 +1,8 @@
 #pragma once
 
-#include <QWidget>
-
+#include <QDialog>
 #include <RSDKv5/stageconfigv5.hpp>
+#include "sceneincludesv5.hpp"
 
 namespace Ui
 {
@@ -22,9 +22,10 @@ public:
         RSDKv5::StageConfig stageConfig;
     };
 
-    explicit StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *parent = nullptr);
+    explicit StageConfigEditorv5(RSDKv5::StageConfig *scf, QList<SceneObject> &objList, QList<GameObjectInfo> gamelinkObjs, bool linkState, QWidget *parent = nullptr);
     ~StageConfigEditorv5();
-
+    QString oldObj = "";
+    QString replaceObj = "";
     void setupUI(bool allowRowChange = true);
 
 protected:
@@ -41,6 +42,7 @@ private:
 
     QList<ActionState> actions;
     int actionIndex = 0;
+    bool linkLoaded = false;
 
     Ui::StageConfigEditorv5 *ui;
 

@@ -460,7 +460,8 @@ public:
     void LinkGameObjects(QString gameName = "Game");
     void unload();
 
-    int revision                            = 3;
+    int revision                            =  3;
+    int error                               =  0;
     byte *globalVariablesPtr                = nullptr;
     void (*globalVarsInitCB)(void *globals) = nullptr;
 

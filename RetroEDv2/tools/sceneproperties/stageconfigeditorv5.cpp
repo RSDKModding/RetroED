@@ -1,19 +1,21 @@
 #include "includes.hpp"
 #include "ui_stageconfigeditorv5.h"
 #include "stageconfigeditorv5.hpp"
+#include "objectselector.hpp"
 
 #include <RSDKv5/stageconfigv5.hpp>
 
-StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *parent)
+StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QList<SceneObject> &objList, QList<GameObjectInfo> gamelinkObjs, bool linkState, QWidget *parent)
     : QDialog(parent), ui(new Ui::StageConfigEditorv5), stageConfig(scf)
 {
     ui->setupUi(this);
 
     this->setWindowTitle("StageConfig Editor");
-
     // remove question mark from the title bar
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
+    int gcCount = objList.count() - stageConfig->objects.count();
+    linkLoaded = linkState;
     setupUI();
 
     ui->sectionList->blockSignals(true);
@@ -49,11 +51,14 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
 
         ui->objName->setDisabled(c == -1);
 
+        ui->replaceObj->setDisabled(!linkLoaded || c == -1);
+
         if (c == -1)
             return;
 
         ui->objName->blockSignals(true);
         ui->objName->setText(stageConfig->objects[c]);
+        ui->objName->setEnabled(!linkLoaded);
         ui->objName->blockSignals(false);
 
         if (ui->downObj)
@@ -62,15 +67,39 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
             ui->upObj->setDisabled(c == 0);
     });
 
-    connect(ui->addObj, &QToolButton::clicked, [this] {
+    connect(ui->addObj, &QToolButton::clicked, [this, gcCount, &objList, gamelinkObjs] {
         uint c = ui->objList->currentRow() + 1;
-        stageConfig->objects.insert(c, "New Object");
-        auto *item = new QListWidgetItem();
-        item->setText(stageConfig->objects[c]);
-        ui->objList->insertItem(c, item);
+        if (!linkLoaded){
+            stageConfig->objects.insert(c, "New Object");
+            auto *item = new QListWidgetItem();
+            item->setText(stageConfig->objects[c]);
+            ui->objList->insertItem(c, item);
 
-        item->setFlags(item->flags() | Qt::ItemIsEditable);
-        ui->objList->setCurrentItem(item);
+            item->setFlags(item->flags() | Qt::ItemIsEditable);
+            ui->objList->setCurrentItem(item);
+        } else{
+            QList<QString> nameList;
+            for (int s = 0; s < gcCount; s++){
+                nameList.append(objList[s].name);
+            }
+            for (int s = 0; s < ui->objList->count(); s++){
+                nameList.append(ui->objList->item(s)->text());
+            }
+
+            ObjectSelectorv5 *selector = new ObjectSelectorv5(nameList, gamelinkObjs);
+            if (selector->exec() == QDialog::Accepted) {
+                for (int i = selector->objAddList.count() - 1; i >= 0; --i) {
+                    if (selector->objAddList[i]) {
+                        stageConfig->objects.insert(c, gamelinkObjs[selector->objIDList[i]].name);
+
+                        auto *item = new QListWidgetItem();
+                        item->setText(stageConfig->objects[c]);
+                        ui->objList->insertItem(c, item);
+                    }
+                }
+
+            }
+        }
         DoAction("Added Object");
     });
 
@@ -102,6 +131,42 @@ StageConfigEditorv5::StageConfigEditorv5(RSDKv5::StageConfig *scf, QWidget *pare
         ui->objList->blockSignals(false);
         DoAction("Removed Object");
     });
+
+    connect(ui->replaceObj, &QToolButton::clicked, [this, gcCount, &objList, gamelinkObjs] {
+        oldObj = ui->objList->currentItem()->text();
+        QList<QString> nameList;
+        for (int s = 0; s < gcCount; s++){
+            nameList.append(objList[s].name);
+        }
+        for (int s = 0; s < ui->objList->count(); s++){
+            nameList.append(ui->objList->item(s)->text());
+        }
+
+        ObjectSelectorv5 *replacer = new ObjectSelectorv5(nameList, gamelinkObjs, true);
+        if (replacer->exec() == QDialog::Accepted) {
+            ui->objList->currentItem()->setText(replacer->replacedObj);
+            stageConfig->objects[ui->objList->currentRow()] = replacer->replacedObj;
+
+            int replacedID = 0;
+            for (int i = 0; i < objList.count(); i++){
+                if (objList[i].name == oldObj){
+                    replacedID = i;
+                    break;
+                }
+            }
+
+            for (int o = 0; o < gamelinkObjs.count(); ++o) {
+                if (gamelinkObjs[o].name == replacer->replacedObj){
+                    SceneObject obj;
+                    obj.name = replacer->replacedObj;
+                    objList[replacedID].name = replacer->replacedObj;
+                    break;
+                }
+            }
+        }
+        DoAction("Replaced Object");
+    });
+
 
     connect(ui->objList, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
         stageConfig->objects[ui->objList->row(item)] = item->text();
@@ -265,7 +330,8 @@ void StageConfigEditorv5::setupUI(bool allowRowChange)
     int id = 0;
     for (QString &obj : stageConfig->objects) {
         ui->objList->addItem(obj);
-        ui->objList->item(id)->setFlags(ui->objList->item(id)->flags() | Qt::ItemIsEditable);
+        if (!linkLoaded)
+            ui->objList->item(id)->setFlags(ui->objList->item(id)->flags() | Qt::ItemIsEditable);
         id++;
     }
 
