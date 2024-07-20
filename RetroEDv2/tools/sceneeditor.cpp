@@ -204,7 +204,14 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             args << "console=true;" << QString("stage=%1;").arg(argInitStage)
                  << QString("scene=%1;").arg(argInitScene);
             QProcess proc;
+#ifdef Q_OS_MACOS
+            // Run with "open" so that .app can work
+            proc.setProgram("open");
+            QStringList openArgs({"-a", gamePath, "--args"});
+            args = openArgs + args;
+#else
             proc.setProgram(gamePath);
+#endif
             proc.setWorkingDirectory(QFileInfo(dataPath).absolutePath());
             proc.setArguments(args);
             proc.startDetached();

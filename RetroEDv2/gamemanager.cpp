@@ -30,7 +30,7 @@ GameManager::GameManager(QWidget *parent) : QDialog(parent), ui(new Ui::GameMana
 #if defined(Q_OS_WIN)
             QFileDialog filedialog(this, tr("Open Executable"), "",
                                    "Windows Executables (*.exe);;All Files (*)");
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MACOS)
             QFileDialog filedialog(this, tr("Open Executable"), "",
                                    "Mac OS Executables (*.app);;All Files (*)");
 #else

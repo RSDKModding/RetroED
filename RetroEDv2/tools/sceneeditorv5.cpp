@@ -185,7 +185,14 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             args << "console=true;" << QString("stage=%1;").arg(argInitStage)
                  << QString("scene=%1;").arg(argInitScene) << QString("filter=%1;").arg(filterVal);
             QProcess proc;
+#ifdef Q_OS_MACOS
+            // Run with "open" so that .app can work
+            proc.setProgram("open");
+            QStringList openArgs({"-a", gamePath, "--args"});
+            args = openArgs + args;
+#else
             proc.setProgram(gamePath);
+#endif
             proc.setWorkingDirectory(QFileInfo(dataPath).absolutePath());
             proc.setArguments(args);
             proc.startDetached();
@@ -2958,7 +2965,7 @@ void SceneEditorv5::CreateNewScene(QString scnPath, bool prePlus, bool loadGC, Q
                                         };
 #ifdef Q_OS_WIN
             int definedOS = 0;
-#elif Q_OS_MAC
+#elif defined(Q_OS_MACOS)
             int definedOS = 1;
 #else
             int definedOS = 2;

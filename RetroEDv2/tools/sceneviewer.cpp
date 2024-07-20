@@ -362,9 +362,9 @@ void SceneViewer::updateScene()
             if (engineRevision != 1)
                 status += QString(", Filter: %1").arg(sceneFilter);
             if (!v5Editor->gameLinks.count()){
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
                 gameLinkState = "No Game.dll found";
-#elif Q_OS_MAC
+#elif defined(Q_OS_MACOS)
                 gameLinkState = "No Game.dylib found";
 #else
                 gameLinkState = "No libGame.so found";
