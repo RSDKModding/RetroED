@@ -154,9 +154,6 @@
      <property name="horizontalSpacing">
       <number>6</number>
      </property>
-     <item row="7" column="1" colspan="2">
-      <widget class="color_widgets::ColorLineEdit" name="htmlInput"/>
-     </item>
      <item row="0" column="2">
       <widget class="QSpinBox" name="hSpin">
        <property name="maximum">
@@ -380,6 +377,26 @@
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="color_widgets::ColorLineEdit" name="htmlInput"/>
+     </item>
+     <item row="7" column="2">
+      <widget class="QToolButton" name="colorPick">
+       <property name="toolTip">
+        <string>Color picker (Press and Hold left click)</string>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resources.qrc">
+         <normaloff>:/icons/ic_colorpick_48px.svg</normaloff>:/icons/ic_colorpick_48px.svg</iconset>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
        </property>
       </widget>
      </item>

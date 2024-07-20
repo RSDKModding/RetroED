@@ -61,5 +61,6 @@
         <file>resources/splash.svg</file>
         <file>icons/ic_stamp_selection_48px.svg</file>
         <file>resources/RSDKv5VarNames.txt</file>
+        <file>icons/ic_colorpick_48px.svg</file>
     </qresource>
 </RCC>

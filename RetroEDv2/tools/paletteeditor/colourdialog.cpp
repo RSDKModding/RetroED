@@ -30,6 +30,9 @@ RSDKColorDialog::RSDKColorDialog(PaletteColor color, QWidget *parent)
         ui->htmlInput->setModified(false);
         setColor(color);
     });
+
+    connect(ui->colorPick, &QToolButton::pressed, this, &RSDKColorDialog::pickScreenColor);
+
     setColor(m_color.toQColor());
 }
 
@@ -50,6 +53,72 @@ void RSDKColorDialog::setRGB()
     if (col.saturation() == 0)
         col = QColor::fromHsv(ui->hSlider->value(), 0, col.value());
     setColor(col);
+}
+
+bool RSDKColorDialog::mouseMoveColorEvent(QMouseEvent *e)
+{
+    setColor(grabScreenColor(e->globalPos()));
+    //PrintLog(QString("Move %1 %2").arg(e->globalPos().x()).arg(e->globalPos().y()));
+    return true;
+}
+
+bool RSDKColorDialog::mouseReleaseColorEvent(QMouseEvent *e)
+{
+    setColor(grabScreenColor(e->globalPos()));
+    ui->colorPick->setDown(false);
+
+    releaseMouse();
+    releaseKeyboard();
+    colorPickMode = false;
+    setMouseTracking(false);
+    return true;
+}
+
+bool RSDKColorDialog::keyPressColorEvent(QKeyEvent *e)
+{
+    if (e->key() == Qt::Key_Escape) {
+        setColor(PrevCol.toQColor());
+        releaseMouse();
+        releaseKeyboard();
+        colorPickMode = false;
+        setMouseTracking(false);
+        ui->colorPick->setDown(false);
+        return true;
+    }
+    return false;
+}
+
+bool RSDKColorDialog::event(QEvent *event)
+{
+    if (colorPickMode){
+        switch ((int)event->type()) {
+            default: break;
+            case QEvent::MouseMove:
+                return mouseMoveColorEvent(static_cast<QMouseEvent *>(event));
+            case QEvent::MouseButtonRelease:
+                return mouseReleaseColorEvent(static_cast<QMouseEvent *>(event));
+            case QEvent::KeyPress:
+                return keyPressColorEvent(static_cast<QKeyEvent *>(event));
+        }
+    }
+    return QWidget::event(event);
+}
+
+void RSDKColorDialog::pickScreenColor()
+{
+    PrevCol = m_color;
+
+#ifndef QT_NO_CURSOR
+    grabMouse(Qt::CrossCursor);
+#else
+    grabMouse();
+#endif
+
+    grabKeyboard();
+    setMouseTracking(true);
+    colorPickMode = true;
+    const QPoint globalPos = QCursor::pos();
+    setColor(grabScreenColor(globalPos));
 }
 
 void RSDKColorDialog::setColor(QColor col)
@@ -122,5 +191,14 @@ PaletteColor RSDKColorDialog::getColor(PaletteColor color, bool *ok, QWidget *pa
     *ok = (c.exec() == DialogCode::Accepted);
     return clr;
 }
+
+QColor RSDKColorDialog::grabScreenColor(const QPoint &p)
+{
+    const QDesktopWidget *desktop = QApplication::desktop();
+    const QPixmap pixmap = QGuiApplication::primaryScreen()->grabWindow(desktop->winId(), p.x(), p.y(), 1, 1);
+    QImage i = pixmap.toImage();
+    return QColor(i.pixel(0, 0));
+}
+
 
 #include "moc_colourdialog.cpp"
