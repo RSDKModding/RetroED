@@ -255,7 +255,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                 }
             }
             ui->duration->setValue(f.duration);
-            ui->id->setText(QChar::fromLatin1(f.id));
+            ui->id->setText(QChar(f.id));
             ui->unicodeID->setText("ID: " + QString::number(f.id));
 
             connect(ui->sheetID, QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -532,7 +532,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
             });
 
             connect(ui->id, &QLineEdit::textChanged, [&f, this](QString s) {
-                f.id = (s.length() > 0 ? s[0].toLatin1() : 0);
+                f.id = (s.length() > 0 ? s[0].unicode() : 0);
                 ui->unicodeID->setText("ID: " + QString::number(f.id));
                 DoAction("Changed frame ID", true);
             });
