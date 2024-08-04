@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1227</width>
+    <width>1348</width>
     <height>513</height>
    </rect>
   </property>
@@ -17,10 +17,10 @@
    <item row="1" column="1" rowspan="3" colspan="2">
     <widget class="QFrame" name="viewerFrame">
      <property name="frameShape">
-      <enum>QFrame::Shape::StyledPanel</enum>
+      <enum>QFrame::StyledPanel</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Shadow::Raised</enum>
+      <enum>QFrame::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout"/>
     </widget>
@@ -49,7 +49,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>209</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -59,10 +59,10 @@
        <item row="0" column="0">
         <widget class="QFrame" name="scenePropFrame">
          <property name="frameShape">
-          <enum>QFrame::Shape::StyledPanel</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Raised</enum>
+          <enum>QFrame::Raised</enum>
          </property>
          <layout class="QGridLayout" name="gridLayout_13"/>
         </widget>
@@ -75,7 +75,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>209</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -85,10 +85,10 @@
        <item row="0" column="0">
         <widget class="QFrame" name="layerPropFrame">
          <property name="frameShape">
-          <enum>QFrame::Shape::StyledPanel</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Raised</enum>
+          <enum>QFrame::Raised</enum>
          </property>
          <layout class="QGridLayout" name="gridLayout_12"/>
         </widget>
@@ -101,7 +101,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>209</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -111,10 +111,10 @@
        <item row="0" column="0">
         <widget class="QFrame" name="tilePropFrame">
          <property name="frameShape">
-          <enum>QFrame::Shape::StyledPanel</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Raised</enum>
+          <enum>QFrame::Raised</enum>
          </property>
          <layout class="QGridLayout" name="gridLayout_7"/>
         </widget>
@@ -127,7 +127,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>209</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -137,10 +137,10 @@
        <item row="0" column="0">
         <widget class="QFrame" name="stampPropFrame">
          <property name="frameShape">
-          <enum>QFrame::Shape::StyledPanel</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Raised</enum>
+          <enum>QFrame::Raised</enum>
          </property>
          <layout class="QGridLayout" name="gridLayout_19"/>
         </widget>
@@ -153,7 +153,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>209</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -163,10 +163,10 @@
        <item row="0" column="0">
         <widget class="QFrame" name="objPropFrame">
          <property name="frameShape">
-          <enum>QFrame::Shape::StyledPanel</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Raised</enum>
+          <enum>QFrame::Raised</enum>
          </property>
          <layout class="QGridLayout" name="gridLayout_11"/>
         </widget>
@@ -179,7 +179,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>209</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -189,10 +189,10 @@
        <item row="0" column="0">
         <widget class="QFrame" name="scrPropFrame">
          <property name="frameShape">
-          <enum>QFrame::Shape::StyledPanel</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Raised</enum>
+          <enum>QFrame::Raised</enum>
          </property>
          <layout class="QGridLayout" name="gridLayout_17"/>
         </widget>
@@ -204,14 +204,14 @@
    <item row="1" column="3" rowspan="3">
     <widget class="QScrollBar" name="verticalScrollBar">
      <property name="orientation">
-      <enum>Qt::Orientation::Vertical</enum>
+      <enum>Qt::Vertical</enum>
      </property>
     </widget>
    </item>
    <item row="4" column="1" colspan="2">
     <widget class="QScrollBar" name="horizontalScrollBar">
      <property name="orientation">
-      <enum>Qt::Orientation::Horizontal</enum>
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -224,10 +224,10 @@
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Shape::StyledPanel</enum>
+      <enum>QFrame::StyledPanel</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Shadow::Raised</enum>
+      <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="18">
@@ -243,14 +243,14 @@
       <item row="0" column="15">
        <spacer name="verticalSpacer4">
         <property name="orientation">
-         <enum>Qt::Orientation::Vertical</enum>
+         <enum>Qt::Vertical</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Policy::Minimum</enum>
+         <enum>QSizePolicy::Minimum</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>20</width>
+          <width>10</width>
           <height>20</height>
          </size>
         </property>
@@ -362,6 +362,12 @@
       </item>
       <item row="0" column="10">
        <widget class="QCheckBox" name="filterBox1">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="toolTip">
          <string>Toggles scene filter 1</string>
         </property>
@@ -445,14 +451,14 @@
       <item row="0" column="23">
        <spacer name="verticalSpacer8">
         <property name="orientation">
-         <enum>Qt::Orientation::Vertical</enum>
+         <enum>Qt::Vertical</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Policy::Minimum</enum>
+         <enum>QSizePolicy::Minimum</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>20</width>
+          <width>10</width>
           <height>20</height>
          </size>
         </property>
@@ -487,14 +493,14 @@
       <item row="0" column="11">
        <spacer name="verticalSpacer2">
         <property name="orientation">
-         <enum>Qt::Orientation::Vertical</enum>
+         <enum>Qt::Vertical</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Policy::Minimum</enum>
+         <enum>QSizePolicy::Minimum</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>20</width>
+          <width>10</width>
           <height>20</height>
          </size>
         </property>
@@ -503,14 +509,14 @@
       <item row="0" column="17">
        <spacer name="verticalSpacer5">
         <property name="orientation">
-         <enum>Qt::Orientation::Vertical</enum>
+         <enum>Qt::Vertical</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Policy::Minimum</enum>
+         <enum>QSizePolicy::Minimum</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>20</width>
+          <width>10</width>
           <height>20</height>
          </size>
         </property>
@@ -519,14 +525,14 @@
       <item row="0" column="8">
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Filters</string>
+         <string>Filters:</string>
         </property>
        </widget>
       </item>
       <item row="0" column="26">
        <spacer name="horizontalSpacer">
         <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
+         <enum>Qt::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -585,14 +591,14 @@
       <item row="0" column="19">
        <spacer name="verticalSpacer6">
         <property name="orientation">
-         <enum>Qt::Orientation::Vertical</enum>
+         <enum>Qt::Vertical</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Policy::Minimum</enum>
+         <enum>QSizePolicy::Minimum</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>20</width>
+          <width>10</width>
           <height>20</height>
          </size>
         </property>
@@ -681,14 +687,14 @@
       <item row="0" column="21">
        <spacer name="verticalSpacer7">
         <property name="orientation">
-         <enum>Qt::Orientation::Vertical</enum>
+         <enum>Qt::Vertical</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Policy::Minimum</enum>
+         <enum>QSizePolicy::Minimum</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>20</width>
+          <width>10</width>
           <height>20</height>
          </size>
         </property>
@@ -730,14 +736,14 @@
       <item row="0" column="13">
        <spacer name="verticalSpacer3">
         <property name="orientation">
-         <enum>Qt::Orientation::Vertical</enum>
+         <enum>Qt::Vertical</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Policy::Minimum</enum>
+         <enum>QSizePolicy::Minimum</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>20</width>
+          <width>10</width>
           <height>20</height>
          </size>
         </property>
@@ -802,10 +808,10 @@
       <item row="0" column="9">
        <spacer name="verticalSpacer1">
         <property name="orientation">
-         <enum>Qt::Orientation::Vertical</enum>
+         <enum>Qt::Vertical</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Policy::Minimum</enum>
+         <enum>QSizePolicy::Minimum</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -828,10 +834,10 @@
       <item row="0" column="7">
        <spacer name="filterSpacer">
         <property name="orientation">
-         <enum>Qt::Orientation::Vertical</enum>
+         <enum>Qt::Vertical</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Policy::Minimum</enum>
+         <enum>QSizePolicy::Minimum</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -861,7 +867,7 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>209</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -871,7 +877,7 @@
        <item row="1" column="4">
         <spacer name="horizontalSpacer_6">
          <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
+          <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -946,7 +952,7 @@
        <item row="1" column="1">
         <spacer name="horizontalSpacer_7">
          <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
+          <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -963,8 +969,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>243</width>
-        <height>193</height>
+        <width>209</width>
+        <height>209</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1037,10 +1043,10 @@
           </sizepolicy>
          </property>
          <property name="frameShape">
-          <enum>QFrame::Shape::StyledPanel</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Raised</enum>
+          <enum>QFrame::Raised</enum>
          </property>
          <layout class="QGridLayout" name="gridLayout_21"/>
         </widget>
@@ -1063,7 +1069,7 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>209</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1114,7 +1120,7 @@
        <item row="3" column="1" colspan="3">
         <spacer name="horizontalSpacer_9">
          <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
+          <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -1132,7 +1138,7 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>209</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1176,7 +1182,7 @@
        <item row="2" column="1">
         <spacer name="horizontalSpacer_3">
          <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
+          <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -1201,7 +1207,7 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>209</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1270,7 +1276,7 @@
        <item row="3" column="4">
         <spacer name="horizontalSpacer_2">
          <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
+          <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -1286,7 +1292,7 @@
        <item row="3" column="1">
         <spacer name="horizontalSpacer_8">
          <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
+          <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -1317,7 +1323,7 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>209</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1327,7 +1333,7 @@
        <item row="1" column="1">
         <spacer name="horizontalSpacer_4">
          <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
+          <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -1402,7 +1408,7 @@
        <item row="1" column="4">
         <spacer name="horizontalSpacer_5">
          <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
+          <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
