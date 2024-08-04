@@ -69,6 +69,8 @@ void RSDKv4::GameConfig::write(Writer &writer)
     filePath = writer.filePath;
 
     writer.write(gameWindowText);
+
+    gameDescriptionText.replace(QString("\n"), QString("\r"));
     writer.write(gameDescriptionText);
 
     // Master Palette

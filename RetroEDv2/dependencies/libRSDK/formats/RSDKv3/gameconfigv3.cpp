@@ -62,6 +62,8 @@ void RSDKv3::GameConfig::write(Writer &writer)
 
     writer.write(gameWindowText);
     writer.write(unknown);
+
+    gameDescriptionText.replace(QString("\n"), QString("\r"));
     writer.write(gameDescriptionText);
 
     // Objects
