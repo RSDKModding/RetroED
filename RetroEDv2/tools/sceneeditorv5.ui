@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>979</width>
+    <width>1348</width>
     <height>513</height>
    </rect>
   </property>
@@ -49,7 +49,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>244</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -75,7 +75,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>244</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -101,7 +101,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>244</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -127,7 +127,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>244</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -153,7 +153,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>244</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -179,7 +179,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>244</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -230,53 +230,33 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="1">
-       <widget class="QToolButton" name="selectTool">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
+      <item row="0" column="18">
+       <widget class="QCheckBox" name="filterBox5">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select Tool (W)&lt;br/&gt;Allows for Drag-Selection. (WIP)&lt;br/&gt;&lt;br/&gt;Controls:&lt;br/&gt;(Drag) Left Click: Selects any entity inside a box from the starter position to the cursor's position.&lt;br/&gt;(Hold on selected entity) Left Click: Moves all entities. (WIP)&lt;/p&gt;&lt;p&gt;Delete / Backspace: Deletes any entity selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Toggles scene filter 5</string>
         </property>
         <property name="text">
-         <string>S</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_highlight_alt_48px.svg</normaloff>:/icons/ic_highlight_alt_48px.svg</iconset>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
+         <string>5</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="4">
-       <widget class="QToolButton" name="eraserTool">
-        <property name="minimumSize">
+      <item row="0" column="15">
+       <spacer name="verticalSpacer4">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Minimum</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
          <size>
-          <width>24</width>
-          <height>24</height>
+          <width>10</width>
+          <height>20</height>
          </size>
         </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Eraser Tool (R)&lt;/p&gt;&lt;p&gt;Used for cleaning tiles on the layout.&lt;/p&gt;&lt;p&gt;Controls:&lt;br/&gt;Left Click: Removes tile at cursor's position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>E</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_eraser_48px.svg</normaloff>:/icons/ic_eraser_48px.svg</iconset>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
+       </spacer>
       </item>
-      <item row="0" column="22">
+      <item row="0" column="31">
        <widget class="QToolButton" name="showCollisionA">
         <property name="enabled">
          <bool>true</bool>
@@ -301,37 +281,60 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="7">
-       <widget class="QLabel" name="label">
+      <item row="0" column="6">
+       <widget class="QToolButton" name="stampCopy">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stamp Copy Tool (L)&lt;br/&gt;Stores a preset of tiles from the stage to use with the Stamp Tool&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
-         <string>Filters</string>
+         <string>S</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_stamp_selection_48px.svg</normaloff>:/icons/ic_stamp_selection_48px.svg</iconset>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="0" column="11">
+      <item row="0" column="30">
+       <widget class="QToolButton" name="useGizmos">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Show Gizmos</string>
+        </property>
+        <property name="text">
+         <string>G</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_preview_48px.svg</normaloff>:/icons/ic_preview_48px.svg</iconset>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="16">
        <widget class="QCheckBox" name="filterBox4">
         <property name="toolTip">
          <string>Toggles scene filter 4</string>
         </property>
         <property name="text">
-         <string/>
+         <string>4</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="17">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="0" column="25">
+      <item row="0" column="34">
        <widget class="QToolButton" name="showTileGrid">
         <property name="minimumSize">
          <size>
@@ -357,87 +360,19 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="19">
-       <widget class="QComboBox" name="filterSelection">
-        <item>
-         <property name="text">
-          <string>Default (All)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Mania Plus - Mania Mode</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Mania Plus - Encore Mode</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Custom</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QToolButton" name="stampTool">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
+      <item row="0" column="10">
+       <widget class="QCheckBox" name="filterBox1">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stamp Tool (K)&lt;br/&gt;Places on stage a preset of tiles&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Toggles scene filter 1</string>
         </property>
         <property name="text">
-         <string>L</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_approval_48px.svg</normaloff>:/icons/ic_approval_48px.svg</iconset>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="12">
-       <widget class="QCheckBox" name="filterBox5">
-        <property name="toolTip">
-         <string>Toggles scene filter 5</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="6">
-       <widget class="QToolButton" name="stampCopy">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stamp Copy Tool (L)&lt;br/&gt;Stores a preset of tiles from the stage to use with the Stamp Tool&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>S</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_stamp_selection_48px.svg</normaloff>:/icons/ic_stamp_selection_48px.svg</iconset>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="13">
-       <widget class="QCheckBox" name="filterBox6">
-        <property name="toolTip">
-         <string>Toggles scene filter 6</string>
-        </property>
-        <property name="text">
-         <string/>
+         <string>1</string>
         </property>
        </widget>
       </item>
@@ -464,8 +399,11 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="27">
-       <widget class="QToolButton" name="exportSceneImg">
+      <item row="0" column="32">
+       <widget class="QToolButton" name="showCollisionB">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>24</width>
@@ -473,28 +411,60 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Export Scene as Image</string>
+         <string>Show Collision Plane B</string>
         </property>
         <property name="text">
-         <string>Img</string>
+         <string>B</string>
         </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_image_48px.svg</normaloff>:/icons/ic_image_48px.svg</iconset>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="0" column="9">
-       <widget class="QCheckBox" name="filterBox2">
+      <item row="0" column="27">
+       <widget class="QLabel" name="runningFilters">
+        <property name="text">
+         <string>Running Filters:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="29">
+       <widget class="QPushButton" name="runGame">
+        <property name="text">
+         <string>Run Game</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="20">
+       <widget class="QCheckBox" name="filterBox6">
         <property name="toolTip">
-         <string>Toggles scene filter 2</string>
+         <string>Toggles scene filter 6</string>
         </property>
         <property name="text">
-         <string/>
+         <string>6</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="28">
+      <item row="0" column="23">
+       <spacer name="verticalSpacer8">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Minimum</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>10</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="37">
        <widget class="QToolButton" name="expScene">
         <property name="minimumSize">
          <size>
@@ -520,157 +490,78 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="23">
-       <widget class="QToolButton" name="showCollisionB">
-        <property name="enabled">
-         <bool>true</bool>
+      <item row="0" column="11">
+       <spacer name="verticalSpacer2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
         </property>
-        <property name="minimumSize">
+        <property name="sizeType">
+         <enum>QSizePolicy::Minimum</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
          <size>
-          <width>24</width>
-          <height>24</height>
+          <width>10</width>
+          <height>20</height>
          </size>
         </property>
-        <property name="toolTip">
-         <string>Show Collision Plane B</string>
-        </property>
-        <property name="text">
-         <string>B</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
+       </spacer>
       </item>
-      <item row="0" column="14">
-       <widget class="QCheckBox" name="filterBox7">
-        <property name="toolTip">
-         <string>Toggles scene filter 7</string>
+      <item row="0" column="17">
+       <spacer name="verticalSpacer5">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
         </property>
-        <property name="text">
-         <string/>
+        <property name="sizeType">
+         <enum>QSizePolicy::Minimum</enum>
         </property>
-       </widget>
-      </item>
-      <item row="0" column="15">
-       <widget class="QCheckBox" name="filterBox8">
-        <property name="toolTip">
-         <string>Toggles scene filter 8</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QToolButton" name="panTool">
-        <property name="minimumSize">
+        <property name="sizeHint" stdset="0">
          <size>
-          <width>24</width>
-          <height>24</height>
+          <width>10</width>
+          <height>20</height>
          </size>
         </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pan Tool (S)&lt;br/&gt;Moves the editor camera across the stage&lt;br/&gt;Left Click: Move the camera&lt;br/&gt;Middle Click: Ditto, works on all the tools&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>M</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_pan_tool_48px.svg</normaloff>:/icons/ic_pan_tool_48px.svg</iconset>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="21">
-       <widget class="QToolButton" name="useGizmos">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Show Gizmos</string>
-        </property>
-        <property name="text">
-         <string>G</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_preview_48px.svg</normaloff>:/icons/ic_preview_48px.svg</iconset>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="24">
-       <widget class="QToolButton" name="showParallax">
-        <property name="minimumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Show Parallax Lines</string>
-        </property>
-        <property name="text">
-         <string>SP</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/ic_horizontal_split_48px.svg</normaloff>:/icons/ic_horizontal_split_48px.svg</iconset>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="10">
-       <widget class="QCheckBox" name="filterBox3">
-        <property name="toolTip">
-         <string>Toggles scene filter 3</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="18">
-       <widget class="QLabel" name="runningFilters">
-        <property name="text">
-         <string>Running Filters:</string>
-        </property>
-       </widget>
+       </spacer>
       </item>
       <item row="0" column="8">
-       <widget class="QCheckBox" name="filterBox1">
-        <property name="toolTip">
-         <string>Toggles scene filter 1</string>
-        </property>
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string/>
+         <string>Filters:</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="20">
-       <widget class="QPushButton" name="runGame">
+      <item row="0" column="26">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="3">
+       <widget class="QToolButton" name="stampTool">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stamp Tool (K)&lt;br/&gt;Places on stage a preset of tiles&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
-         <string>Run Game</string>
+         <string>L</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_approval_48px.svg</normaloff>:/icons/ic_approval_48px.svg</iconset>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -697,6 +588,265 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="19">
+       <spacer name="verticalSpacer6">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Minimum</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>10</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="12">
+       <widget class="QCheckBox" name="filterBox2">
+        <property name="toolTip">
+         <string>Toggles scene filter 2</string>
+        </property>
+        <property name="text">
+         <string>2</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QToolButton" name="panTool">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pan Tool (S)&lt;br/&gt;Moves the editor camera across the stage&lt;br/&gt;Left Click: Move the camera&lt;br/&gt;Middle Click: Ditto, works on all the tools&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>M</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_pan_tool_48px.svg</normaloff>:/icons/ic_pan_tool_48px.svg</iconset>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="28">
+       <widget class="QComboBox" name="filterSelection">
+        <item>
+         <property name="text">
+          <string>Default (All)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mania Plus - Mania Mode</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mania Plus - Encore Mode</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Custom</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QToolButton" name="eraserTool">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Eraser Tool (R)&lt;/p&gt;&lt;p&gt;Used for cleaning tiles on the layout.&lt;/p&gt;&lt;p&gt;Controls:&lt;br/&gt;Left Click: Removes tile at cursor's position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>E</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_eraser_48px.svg</normaloff>:/icons/ic_eraser_48px.svg</iconset>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="21">
+       <spacer name="verticalSpacer7">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Minimum</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>10</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="1">
+       <widget class="QToolButton" name="selectTool">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select Tool (W)&lt;br/&gt;Allows for Drag-Selection. (WIP)&lt;br/&gt;&lt;br/&gt;Controls:&lt;br/&gt;(Drag) Left Click: Selects any entity inside a box from the starter position to the cursor's position.&lt;br/&gt;(Hold on selected entity) Left Click: Moves all entities. (WIP)&lt;/p&gt;&lt;p&gt;Delete / Backspace: Deletes any entity selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>S</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_highlight_alt_48px.svg</normaloff>:/icons/ic_highlight_alt_48px.svg</iconset>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="14">
+       <widget class="QCheckBox" name="filterBox3">
+        <property name="toolTip">
+         <string>Toggles scene filter 3</string>
+        </property>
+        <property name="text">
+         <string>3</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="13">
+       <spacer name="verticalSpacer3">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Minimum</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>10</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="24">
+       <widget class="QCheckBox" name="filterBox8">
+        <property name="toolTip">
+         <string>Toggles scene filter 8</string>
+        </property>
+        <property name="text">
+         <string>8</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="36">
+       <widget class="QToolButton" name="exportSceneImg">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Export Scene as Image</string>
+        </property>
+        <property name="text">
+         <string>Img</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_image_48px.svg</normaloff>:/icons/ic_image_48px.svg</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="33">
+       <widget class="QToolButton" name="showParallax">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Show Parallax Lines</string>
+        </property>
+        <property name="text">
+         <string>SP</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/ic_horizontal_split_48px.svg</normaloff>:/icons/ic_horizontal_split_48px.svg</iconset>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="9">
+       <spacer name="verticalSpacer1">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Minimum</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>10</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="22">
+       <widget class="QCheckBox" name="filterBox7">
+        <property name="toolTip">
+         <string>Toggles scene filter 7</string>
+        </property>
+        <property name="text">
+         <string>7</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="7">
+       <spacer name="filterSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Minimum</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>10</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
      </layout>
     </widget>
    </item>
@@ -717,7 +867,7 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>244</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -819,8 +969,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>200</width>
-        <height>244</height>
+        <width>209</width>
+        <height>209</height>
        </rect>
       </property>
       <attribute name="label">
@@ -919,7 +1069,7 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>244</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -988,7 +1138,7 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>244</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1057,7 +1207,7 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>244</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1173,7 +1323,7 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>244</height>
+        <height>223</height>
        </rect>
       </property>
       <attribute name="label">
