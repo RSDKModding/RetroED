@@ -85,6 +85,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     connect(ui->toolTabs, &QTabWidget::tabCloseRequested, removeTab);
 
+    connect(ui->toolTabs, &QTabWidget::tabBarClicked, [this](int i){ tabClicked = i; });
+
+    connect(this, &MainWindow::MiddleClickPressed, [this, removeTab]{
+        if (tabClicked != -1)
+            removeTab(tabClicked);
+        tabClicked = -1;
+    });
+
     auto focusChangeEvent = [this](int index) {
         for (int w = 0; w < ui->toolTabs->count(); ++w) {
             QWidget *widget = ui->toolTabs->widget(w);
@@ -531,6 +539,11 @@ bool MainWindow::event(QEvent *event)
         appConfig.windowState = isMaximized();
         appConfig.windowSize  = size();
         appConfig.write();
+    }
+
+    if (event->type() == QEvent::MouseButtonPress) {
+        if ((static_cast<QMouseEvent *>(event)->button() & Qt::MiddleButton) == Qt::MiddleButton)
+            MiddleClickPressed();
     }
 
     return QWidget::event(event);

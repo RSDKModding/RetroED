@@ -42,6 +42,7 @@ private:
     Ui::MainWindow *ui;
 
     QTabWidget *toolTabs = nullptr;
+    int tabClicked = -1;
 
     inline int GetTab(QWidget *tab)
     {
@@ -79,4 +80,7 @@ private:
         toolTabs->setCurrentIndex(toolTabs->addTab(tab, name));
         tab->UpdateTitle(false);
     }
+
+signals:
+    void MiddleClickPressed();
 };
