@@ -72,7 +72,7 @@ void SceneScrollProperties::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *in
     });
 
     connect(ui->addInst, &QToolButton::clicked, [this, info] {
-        uint c = ui->instanceList->currentRow() + 1;
+        uint c = ui->instanceList->count();
 
         SceneHelpers::TileLayer::ScrollInstance instance;
 
@@ -81,13 +81,12 @@ void SceneScrollProperties::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *in
         instance.layerID   = 0xFF;
         info->instances.insert(c, instance);
 
-        ui->instanceList->blockSignals(true);
         ui->instanceList->insertItem(c, QString("Start: %1, End: %2, Length: %3, Layer: %4")
                                             .arg(instance.startLine)
                                             .arg(instance.startLine + instance.length)
                                             .arg(instance.length)
                                             .arg(instance.layerID));
-        ui->instanceList->blockSignals(false);
+        ui->instanceList->setCurrentRow(c);
 
         // DoAction("Add Instance: " + QString::number(info->instances.count() - 1));
     });
@@ -98,10 +97,8 @@ void SceneScrollProperties::setupUI(SceneHelpers::TileLayer::ScrollIndexInfo *in
 
         info->instances.removeAt(c);
 
-        ui->instanceList->blockSignals(true);
         delete ui->instanceList->item(c);
         ui->instanceList->setCurrentRow(n);
-        ui->instanceList->blockSignals(false);
 
         // DoAction("Remove Instance: " + QString::number(c));
     });

@@ -150,7 +150,7 @@ void RSDKv5::Scene::SceneLayer::scrollInfoFromIndices()
 {
     scrollInfos.clear();
     QList<ScrollInfo> infos;
-    if (type == 0 || type == 1)
+    if (type != 2)
         infos = scrollingInfo;
     else
         return;
@@ -210,12 +210,12 @@ void RSDKv5::Scene::SceneLayer::scrollIndicesFromInfo()
     scrollingInfo.clear();
 
     // other layers dont need any scrolling
-    if (type != 0 && type != 1)
+    if (type == 2)
         return;
     if (width == 0 || height == 0)
         return; // basically invalid layers, dont write em
 
-    if (type == 0) // hScroll
+    if (type == 0 || type == 3) // hScroll | basic
         lineScroll.resize(height * 0x10);
     else // vScroll
         lineScroll.resize(width * 0x10);

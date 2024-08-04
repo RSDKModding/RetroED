@@ -108,6 +108,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     scrProp = new SceneScrollPropertiesv5(this);
     scrProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->scrPropFrame->layout()->addWidget(scrProp);
+    scrProp->setDisabled(true);
     scrProp->show();
 
     tileSel = new TileSelector(this);
@@ -230,14 +231,14 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
         bool disabled = true;
         if (c != -1)
-            disabled = viewer->layers[c].type == SceneHelpers::TileLayer::LAYER_ROTOZOOM
-                       || viewer->layers[c].type == SceneHelpers::TileLayer::LAYER_BASIC;
+            disabled = viewer->layers[c].type == SceneHelpers::TileLayer::LAYER_ROTOZOOM;
 
         CreateScrollList();
         ui->addScr->setDisabled(disabled);
         ui->rmScr->setDisabled(disabled);
         ui->impScr->setDisabled(disabled);
         ui->expScr->setDisabled(disabled);
+        ui->scrollList->setDisabled(disabled);
     });
 
     connect(ui->addLayer, &QToolButton::clicked, [this] {
@@ -342,7 +343,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         // DoAction("Remove Stamp: " + name);
     });
 
-    connect(lyrProp, &SceneLayerPropertiesv5::layerNameChanged, this, &SceneEditorv5::updateLayerName);
+    connect(lyrProp, &SceneLayerPropertiesv5::updateEditorLayer, this, &SceneEditorv5::updateLayer);
     connect(stampProp, &SceneStampPropertiesv5::stampNameChanged, this, &SceneEditorv5::updateStampName);
 
     // MAKE SURE YOU ADD YOUR OBJECT TO THE VIEWER'S LIST BEFORE CALLING THIS
@@ -921,17 +922,19 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
 
     connect(ui->scrollList, &QListWidget::currentRowChanged, [this](int c) {
         ui->rmScr->setDisabled(c == -1);
+        scrProp->setDisabled(c == -1);
 
         if (c == -1)
             return;
 
         viewer->selectedHScrollInfo = c;
-
         scrProp->setupUI(&viewer->layers[viewer->selectedLayer].scrollInfos[c]);
+
         ui->propertiesBox->setCurrentWidget(ui->scrollPropPage);
     });
 
     connect(ui->addScr, &QToolButton::clicked, [this] {
+        int c = ui->scrollList->count();
         auto &layer = viewer->layers[viewer->selectedLayer];
 
         SceneHelpers::TileLayer::ScrollIndexInfo scr;
@@ -944,6 +947,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         layer.scrollInfos.append(scr);
 
         CreateScrollList();
+
+        ui->scrollList->setCurrentRow(c);
         DoAction("Add Scroll");
     });
 
@@ -952,9 +957,8 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         int n = ui->scrollList->currentRow() == ui->scrollList->count() - 1 ? c - 1 : c;
         delete ui->scrollList->item(c);
         viewer->layers[viewer->selectedLayer].scrollInfos.removeAt(c);
-        ui->scrollList->blockSignals(true);
+
         ui->scrollList->setCurrentRow(n);
-        ui->scrollList->blockSignals(false);
         DoAction("Remove Scroll: " + QString::number(c));
     });
 
@@ -1793,8 +1797,17 @@ void SceneEditorv5::updateStampName(QString name){
     ui->stampList->currentItem()->setText(name);
 }
 
-void SceneEditorv5::updateLayerName(QString name){
+void SceneEditorv5::updateLayer(QString name){
     ui->layerList->currentItem()->setText(name);
+    bool disabled = true;
+    if (viewer->selectedLayer != -1)
+        disabled = viewer->layers[viewer->selectedLayer].type == SceneHelpers::TileLayer::LAYER_ROTOZOOM;
+
+    ui->addScr->setDisabled(disabled);
+    ui->rmScr->setDisabled(disabled);
+    ui->impScr->setDisabled(disabled);
+    ui->expScr->setDisabled(disabled);
+    ui->scrollList->setDisabled(disabled);
 }
 
 QString lastSelected = "";

@@ -169,6 +169,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     scrProp = new SceneScrollProperties(this);
     scrProp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->scrPropFrame->layout()->addWidget(scrProp);
+    scrProp->setDisabled(true);
     scrProp->show();
 
     chkProp = new ChunkSelector(this);
@@ -499,6 +500,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         ui->rmScrH->setDisabled(c == -1);
         ui->impScrH->setDisabled(c == -1);
         ui->expScrH->setDisabled(c == -1);
+        scrProp->setDisabled(c == -1);
 
         if (c == -1)
             return;
@@ -510,6 +512,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     });
 
     connect(ui->addScrH, &QToolButton::clicked, [this] {
+        int c = ui->hScrollList->count();
         SceneHelpers::TileLayer::ScrollIndexInfo scr;
         SceneHelpers::TileLayer::ScrollInstance instance;
 
@@ -520,6 +523,9 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         viewer->hScroll.append(scr);
 
         CreateScrollList();
+
+        ui->hScrollList->setCurrentRow(c);
+
         DoAction("Added HScroll");
     });
 
@@ -528,9 +534,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         int n = ui->hScrollList->currentRow() == ui->hScrollList->count() - 1 ? c - 1 : c;
         delete ui->hScrollList->item(c);
         viewer->hScroll.removeAt(c);
-        ui->hScrollList->blockSignals(true);
+
         ui->hScrollList->setCurrentRow(n);
-        ui->hScrollList->blockSignals(false);
         DoAction("Removed HScroll");
     });
 
@@ -592,6 +597,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         ui->rmScrV->setDisabled(c == -1);
         ui->impScrV->setDisabled(c == -1);
         ui->expScrV->setDisabled(c == -1);
+        scrProp->setDisabled(c == -1);
 
         if (c == -1)
             return;
@@ -603,6 +609,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     });
 
     connect(ui->addScrV, &QToolButton::clicked, [this] {
+        int c = ui->vScrollList->count();
         SceneHelpers::TileLayer::ScrollIndexInfo scr;
         SceneHelpers::TileLayer::ScrollInstance instance;
 
@@ -613,6 +620,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         viewer->vScroll.append(scr);
 
         CreateScrollList();
+        ui->vScrollList->setCurrentRow(c);
         DoAction("Added VScroll");
     });
 
@@ -621,9 +629,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         int n = ui->vScrollList->currentRow() == ui->vScrollList->count() - 1 ? c - 1 : c;
         delete ui->vScrollList->item(c);
         viewer->vScroll.removeAt(c);
-        ui->vScrollList->blockSignals(true);
         ui->vScrollList->setCurrentRow(n);
-        ui->vScrollList->blockSignals(false);
         DoAction("Removed VScroll");
     });
 

@@ -35,7 +35,7 @@ void SceneLayerPropertiesv5::setupUI(SceneViewer *viewer, byte lID)
 
     connect(ui->name, &QLineEdit::textChanged, [this, tileLayer](QString s){
         tileLayer->name = s;
-        emit layerNameChanged(s);
+        emit updateEditorLayer(s);
     });
     connect(ui->width, QOverload<int>::of(&QSpinBox::valueChanged), [tileLayer](int v) {
         if (v > tileLayer->width) {
@@ -72,8 +72,10 @@ void SceneLayerPropertiesv5::setupUI(SceneViewer *viewer, byte lID)
         tileLayer->height = (short)v;
     });
 
-    connect(ui->type, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [tileLayer](int v) { tileLayer->type = (byte)v; });
+    connect(ui->type, QOverload<int>::of(&QComboBox::currentIndexChanged), [this, tileLayer](int v) {
+        tileLayer->type = (byte)v;
+        emit updateEditorLayer(tileLayer->name);
+    });
 
     connect(ui->drawOrder, QOverload<int>::of(&QSpinBox::valueChanged),
             [tileLayer](int v) { tileLayer->drawGroup = (byte)v; });

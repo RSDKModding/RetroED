@@ -23,7 +23,7 @@ public:
     void unsetUI();
 
 signals:
-    void layerNameChanged(QString name);
+    void updateEditorLayer(QString name);
 
 private:
     Ui::SceneLayerPropertiesv5 *ui;
