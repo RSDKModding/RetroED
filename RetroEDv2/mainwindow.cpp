@@ -99,6 +99,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
             REAppEvent e = REAppEvent(RE_EVENT_TAB_LOSE_FOCUS);
             QApplication::sendEvent(widget, &e);
+            tabClicked = -1;
         }
 
         if (index != -1) {
@@ -106,6 +107,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
             REAppEvent e = REAppEvent(RE_EVENT_TAB_GAIN_FOCUS);
             QApplication::sendEvent(widget, &e);
+            tabClicked = -1;
         }
     };
     connect(ui->toolTabs, &QTabWidget::currentChanged, focusChangeEvent);
