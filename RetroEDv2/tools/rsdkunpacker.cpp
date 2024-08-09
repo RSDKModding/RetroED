@@ -159,10 +159,10 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
             switch (type){
                 case 0:
                 case 1:
-                case 2: extension = ".bin"; break;
+                case 2: extension = ".rsdk"; break;
                 case 3:
-                case 4: extension  = ".act"; break;
-                case 5: extension  = ".zcf"; break;
+                case 4: extension  = ".bin"; break;
+                case 5: extension  = ".arc"; break;
             }
 
             if (!CheckOverwrite(filepath, extension, this))
