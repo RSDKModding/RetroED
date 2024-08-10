@@ -60,7 +60,7 @@ RSVTool::RSVTool(QWidget *parent) : QDialog(parent), ui(new Ui::RSVTool)
             QString savePath = filedialog.selectedFiles()[0];
 
             if (!CheckOverwrite(savePath, ".rsv", this))
-                return false;
+                return;
 
             QList<QString> framePaths;
 

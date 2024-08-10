@@ -70,7 +70,7 @@ void PaletteEditor::InitEditor()
             if (filedialog.exec() == QDialog::Accepted) {
                 QString filepath = filedialog.selectedFiles()[0];
                 if (!CheckOverwrite(filepath, ".act", this))
-                    return false;
+                    return;
 
                 Writer writer(filepath);
                 for (auto &c : palette) c.write(writer);

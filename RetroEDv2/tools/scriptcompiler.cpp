@@ -118,7 +118,7 @@ ScriptCompiler::ScriptCompiler(QWidget *parent) : QWidget(parent), ui(new Ui::Sc
         if (filedialog.exec() == QDialog::Accepted) {
             QString bcPath = filedialog.selectedFiles()[0];
             if (!CheckOverwrite(bcPath, ".rsf", this))
-                return false;
+                return;
 
             ui->trBytecodePath->setText(bcPath);
 

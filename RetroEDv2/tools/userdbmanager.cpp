@@ -29,7 +29,7 @@ UserDBManager::UserDBManager(QWidget *parent) : QDialog(parent), ui(new Ui::User
             if (filedialogCSV.exec() == QDialog::Accepted) {
                 QString csvPath = filedialogCSV.selectedFiles()[0];
                 if (!CheckOverwrite(csvPath, ".csv", this))
-                    return false;
+                    return;
 
                 ConvertDBToCSV(dbPath, csvPath);
             }
@@ -46,7 +46,7 @@ UserDBManager::UserDBManager(QWidget *parent) : QDialog(parent), ui(new Ui::User
             if (filedialog.exec() == QDialog::Accepted) {
                 QString dbPath = filedialog.selectedFiles()[0];
                 if (!CheckOverwrite(dbPath, ".bin", this))
-                    return false;
+                    return;
 
                 ConvertCSVToDB(dbPath, csvPath);
             }

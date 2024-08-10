@@ -166,7 +166,7 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
             }
 
             if (!CheckOverwrite(filepath, extension, this))
-                return false;
+                return;
 
             SetStatus("Saving Datapack...");
             SavePack(filepath, types.indexOf(filedialog.selectedNameFilter()));
