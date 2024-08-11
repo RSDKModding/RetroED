@@ -1305,10 +1305,10 @@ void SceneViewer::drawScene()
 
         validDraw = false;
 
-            if (gameType == ENGINE_v5)
-                emit callGameEventv5(objects[selectedObject].name, EVENT_DRAW, NULL);
-            else
-                emit callGameEvent(EVENT_DRAW, -1);
+        if (gameType == ENGINE_v5)
+            emit callGameEventv5(objects[selectedObject].name, EVENT_DRAW, NULL);
+        else
+            emit callGameEvent(EVENT_DRAW, -1);
 
         if (!validDraw) {
             SceneEntity *entity;
@@ -1335,8 +1335,10 @@ void SceneViewer::drawScene()
 
         int x = camX;
         int y = camY;
-        int w = (camX + storedW) * (zoom < 1.0f ? iZoom : 1.0f);
-        int h = (camY + storedH) * (zoom < 1.0f ? iZoom : 1.0f);
+        //int w = (camX + storedW) * (zoom < 1.0f ? iZoom : 1.0f);
+        //int h = (camY + storedH) * (zoom < 1.0f ? iZoom : 1.0f);
+        int w = layers[selectedLayer].width * tileSize;
+        int h = layers[selectedLayer].height * tileSize;
         if (cameraPos.x < 0)
             x += abs(cameraPos.x);
         else
@@ -1347,26 +1349,30 @@ void SceneViewer::drawScene()
         else
             y -= ((int)camY % gridSize.y);
 
-        for (; y < h; y += gridSize.y) {
+        for (; y <= h; y += gridSize.y) {
             float dy = (y - camY);
 
             float x1 = 0;
-            float x2 = (((camX + storedW * iZoom)) - camX);
-            if (cameraPos.x < 0) {
+            float x2 = w;
+            if (cameraPos.x < 0){
                 x1 += abs(cameraPos.x);
-            }
+                x2 += abs(cameraPos.x);
+            } else
+                x2 -= abs(cameraPos.x);
 
             drawLine(x1, dy, x2, dy, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f));
         }
 
-        for (; x < w; x += gridSize.x) {
+        for (; x <= w; x += gridSize.x) {
             float dx = (x + (zoom <= 1.0f ? 1.0f : 0.0f) - camX);
 
             float y1 = 0;
-            float y2 = (((camY + storedH * iZoom)) - camY);
-            if (cameraPos.y < 0) {
+            float y2 = h;
+            if (cameraPos.y < 0){
                 y1 += abs(cameraPos.y);
-            }
+                y2 += abs(cameraPos.y);
+            } else
+                y2 -= abs(cameraPos.y);
 
             drawLine(dx, y1, dx, y2, Vector4<float>(1.0f, 1.0f, 1.0f, 1.0f));
         }
@@ -2554,7 +2560,6 @@ void SceneViewer::drawSpriteFlipped(float XPos, float YPos, float width, float h
     float startH = height;
 
     // TODO: some do clipping here
-
     if (width <= 0 || height <= 0)
         return;
 
