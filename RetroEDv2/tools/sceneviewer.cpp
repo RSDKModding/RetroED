@@ -315,8 +315,8 @@ void SceneViewer::initScene(QImage tileset)
         gfxSurface[3].transClr = QColor(0xFFFF00FF);
     }
 
-    // Default Texture
-    if (gameType == ENGINE_v1 && gfxSurface[4].scope == SCOPE_NONE) {
+    // Default Player Texture
+    if ((gameType == ENGINE_v1 || gameType == ENGINE_v2) && gfxSurface[4].scope == SCOPE_NONE) {
         gfxSurface[4].scope      = SCOPE_GLOBAL;
         gfxSurface[4].name       = ":/icons/player_v1.png";
         missingObj               = QImage(gfxSurface[4].name);
@@ -1094,11 +1094,19 @@ void SceneViewer::drawScene()
 
                 // Make sure is within the viewable area
                 if (pos.x >= viewArea.x && pos.y >= viewArea.y && pos.x < viewArea.w && pos.y < viewArea.h){
-                    drawSpriteFlipped((pos.x - cameraPos.x) - (gfxSurface[3].width >> 1), (pos.y - cameraPos.y) - (gfxSurface[3].height >> 1),
-                                      gfxSurface[3].width, gfxSurface[3].height, 0, 0, FLIP_NONE, INK_NONE,
-                                      0xFF, 3);
+                    // Draw v2 Player if found, otherwise default to the editor sprite
+                    if (entity->type == 1 && gameType == ENGINE_v2){
+                        drawSpriteFlipped((pos.x - cameraPos.x) - (gfxSurface[4].width >> 1), (pos.y - cameraPos.y) - (gfxSurface[4].height >> 1),
+                                          gfxSurface[4].width, gfxSurface[4].height, 0, 0, FLIP_NONE, INK_NONE,
+                                          0xFF, 4);
+                    } else {
+                        drawSpriteFlipped((pos.x - cameraPos.x) - (gfxSurface[3].width >> 1), (pos.y - cameraPos.y) - (gfxSurface[3].height >> 1),
+                                          gfxSurface[3].width, gfxSurface[3].height, 0, 0, FLIP_NONE, INK_NONE,
+                                          0xFF, 3);
+                    }
                 }
             }
+
             if (fileRender){
                 // render on smaller batches when exporting the image
                 if (renderStateCount > 0xFF || renderCount >= vertexListLimit - 8)
@@ -1129,9 +1137,16 @@ void SceneViewer::drawScene()
             float xpos = entity->pos.x - (cameraPos.x);
             float ypos = entity->pos.y - (cameraPos.y);
 
-            drawSpriteFlipped(xpos - (gfxSurface[3].width >> 1), ypos - (gfxSurface[3].height >> 1),
-                              gfxSurface[3].width, gfxSurface[3].height, 0, 0, FLIP_NONE, INK_NONE,
-                              0xFF, 3);
+
+            if (entity->type == 1 && gameType == ENGINE_v2){
+                drawSpriteFlipped(xpos - (gfxSurface[4].width >> 1), ypos - (gfxSurface[4].height >> 1),
+                                  gfxSurface[4].width, gfxSurface[4].height, 0, 0, FLIP_NONE, INK_NONE,
+                                  0xFF, 4);
+            } else {
+                drawSpriteFlipped(xpos - (gfxSurface[3].width >> 1), ypos - (gfxSurface[3].height >> 1),
+                                  gfxSurface[3].width, gfxSurface[3].height, 0, 0, FLIP_NONE, INK_NONE,
+                                  0xFF, 3);
+            }
         }
     }
 
@@ -1164,9 +1179,16 @@ void SceneViewer::drawScene()
                 float xpos = entity->pos.x - (cameraPos.x);
                 float ypos = entity->pos.y - (cameraPos.y);
 
-                drawSpriteFlipped(xpos - (gfxSurface[3].width >> 1), ypos - (gfxSurface[3].height >> 1),
-                                  gfxSurface[3].width, gfxSurface[3].height, 0, 0, FLIP_NONE, INK_NONE,
-                                  0xFF, 3);
+                if (entity->type == 1 && gameType == ENGINE_v2){
+                    drawSpriteFlipped(xpos - (gfxSurface[4].width >> 1), ypos - (gfxSurface[4].height >> 1),
+                                      gfxSurface[4].width, gfxSurface[4].height, 0, 0, FLIP_NONE, INK_NONE,
+                                      0xFF, 4);
+                } else {
+                    // Draw Default Sprite
+                    drawSpriteFlipped(xpos - (gfxSurface[3].width >> 1), ypos - (gfxSurface[3].height >> 1),
+                                      gfxSurface[3].width, gfxSurface[3].height, 0, 0, FLIP_NONE, INK_NONE,
+                                      0xFF, 3);
+                }
             }
         }
     }
@@ -1323,9 +1345,16 @@ void SceneViewer::drawScene()
             float xpos = ex;
             float ypos = ey;
 
-            drawSpriteFlipped(xpos - (gfxSurface[3].width >> 1), ypos - (gfxSurface[3].height >> 1),
-                              gfxSurface[3].width, gfxSurface[3].height, 0, 0, FLIP_NONE, INK_NONE,
-                              0xFF, 3);
+            // Draw v2 Player if selected
+            if (objects[selectedObject].name == "Player" && gameType == ENGINE_v2){
+                drawSpriteFlipped(xpos - (gfxSurface[4].width >> 1), ypos - (gfxSurface[4].height >> 1),
+                                  gfxSurface[4].width, gfxSurface[4].height, 0, 0, FLIP_NONE, INK_NONE,
+                                  0xFF, 4);
+            } else {
+                drawSpriteFlipped(xpos - (gfxSurface[3].width >> 1), ypos - (gfxSurface[3].height >> 1),
+                                  gfxSurface[3].width, gfxSurface[3].height, 0, 0, FLIP_NONE, INK_NONE,
+                                  0xFF, 3);
+            }
         }
     }
 
@@ -2477,7 +2506,7 @@ int SceneViewer::addGraphicsFile(QString sheetPath, int sheetID, byte scope)
             // good for them
             transClr = QColor(table[0]);
             sheet    = gif.frame(0);
-            if (gameType != ENGINE_v5 && scope == SCOPE_STAGE){
+            if (gameType != ENGINE_v5 && scope == SCOPE_STAGE && tilePalette.size() == 256){
                 // insert the stage palette
                 for(int i = 128; i < 256; ++i){
                     QRgb col = PaletteColor(tilePalette[i]).toQColor().rgb();

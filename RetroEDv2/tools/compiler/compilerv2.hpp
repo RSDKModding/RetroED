@@ -1,7 +1,7 @@
 #pragma once
 
 #define ALIAS_COUNT_v2       (0x80)
-#define COMMONALIAS_COUNT_v2 (25)
+#define COMMONALIAS_COUNT_v2 (36)
 
 #define OBJECT_COUNT_v2     (0x100)
 #define SFX_COUNT_v2        (0x100)

@@ -263,7 +263,9 @@ const FunctionInfov2 functions[] = { FunctionInfov2("End", 0),
                                      FunctionInfov2("LoadVideo", 1),
                                      FunctionInfov2("NextVideoFrame", 0),
                                      FunctionInfov2("PlayStageSfx", 2),
-                                     FunctionInfov2("StopStageSfx", 1) };
+                                     FunctionInfov2("StopStageSfx", 1),
+                                     // Editor only
+                                     FunctionInfov2("SetEditorIcon", 8), };
 
 AliasInfov2 aliasesv2[0x80] = {
     AliasInfov2("true", "1"),          AliasInfov2("false", "0"),
@@ -278,7 +280,13 @@ AliasInfov2 aliasesv2[0x80] = {
     AliasInfov2("FX_ROTATE", "1"),     AliasInfov2("FX_INK", "2"),
     AliasInfov2("FX_TINT", "3"),       AliasInfov2("FLIP_NONE", "0"),
     AliasInfov2("FLIP_X", "1"),        AliasInfov2("FLIP_Y", "2"),
-    AliasInfov2("FLIP_XY", "3"),
+    AliasInfov2("FLIP_XY", "3"),       AliasInfov2("Icon0", "0"),
+    AliasInfov2("Icon1", "1"),         AliasInfov2("Icon2", "2"),
+    AliasInfov2("Icon3", "3"),         AliasInfov2("Icon4", "4"),
+    AliasInfov2("Icon5", "5"),         AliasInfov2("Icon6", "6"),
+    AliasInfov2("Icon7", "7"),         AliasInfov2("SingleIcon", "1"),
+    AliasInfov2("RepeatH", "2"),       AliasInfov2("RepeatV", "3")
+
 };
 
 const QString scriptEvaluationTokens[] = { "=",  "+=", "-=", "++", "--", "*=", "/=", ">>=", "<<=", "&=",
@@ -536,6 +544,7 @@ enum ScrFunction {
     FUNC_NEXTVIDEOFRAME,
     FUNC_PLAYSTAGESFX,
     FUNC_STOPSTAGESFX,
+    FUNC_SETEDITORICON,
     FUNC_MAX_CNT
 };
 
@@ -1227,18 +1236,23 @@ void Compilerv2::ParseScriptFile(QString scriptName, int scriptID)
                             scriptCode[scriptCodePos++] = FUNC_END;
                             parseMode                   = PARSEMODE_SCOPELESS;
                         }
-                        ConvertIfWhileStatement(scriptText);
-                        if (ConvertSwitchStatement(scriptText)) {
-                            parseMode  = PARSEMODE_SWITCHREAD;
-                            storePos   = (int)reader.tell();
-                            switchDeep = 0;
-                        }
-                        ConvertArithmaticSyntax(scriptText);
-                        if (!ReadSwitchCase(scriptText)) {
-                            ConvertFunctionText(scriptText);
-                            if (scriptError) {
-                                errorScr  = scriptName;
-                                parseMode = PARSEMODE_ERROR;
+                        else {
+                            ConvertIfWhileStatement(scriptText);
+
+                            if (ConvertSwitchStatement(scriptText)) {
+                                parseMode  = PARSEMODE_SWITCHREAD;
+                                storePos   = (int)reader.tell();
+                                switchDeep = 0;
+                            }
+
+                            ConvertArithmaticSyntax(scriptText);
+
+                            if (!ReadSwitchCase(scriptText)) {
+                                ConvertFunctionText(scriptText);
+                                if (scriptError) {
+                                    errorScr  = scriptName;
+                                    parseMode = PARSEMODE_ERROR;
+                                }
                             }
                         }
                     }
@@ -1997,6 +2011,8 @@ void Compilerv2::ProcessScript(int scriptCodeStart, int jumpTableStart)
                     ++scriptFrameCount;
                 }
                 break;
+            case FUNC_SETDEBUGICON:
+                break;
             case FUNC_LOADPALETTE: opcodeSize = 0; break;
             case FUNC_ROTATEPALETTE: opcodeSize = 0; break;
             case FUNC_CLEARSCREEN: opcodeSize = 0; break;
@@ -2122,6 +2138,52 @@ void Compilerv2::ProcessScript(int scriptCodeStart, int jumpTableStart)
             case FUNC_PLAYSTAGESFX: opcodeSize = 0; break;
             case FUNC_STOPSTAGESFX: opcodeSize = 0; break;
             case FUNC_NOT: scriptEng.operands[0] = ~scriptEng.operands[0]; break;
+            case FUNC_SETEDITORICON:
+                opcodeSize  = 0;
+                switch (scriptEng.operands[1]){
+                    case 0:{
+                        if (scriptEng.operands[0] == entity->propertyValue)
+                            editor->DrawSpriteFlipped((entity->XPos >> 16) + scriptEng.operands[2],
+                                                      (entity->YPos >> 16) + scriptEng.operands[3],
+                                                      scriptEng.operands[4], scriptEng.operands[5],
+                                                      scriptEng.operands[6], scriptEng.operands[7], FLIP_NONE,
+                                                      INK_NONE, 0xFF, scriptInfo->spriteSheetID, false);
+                    } break;
+                    case 1:{
+                        editor->DrawSpriteFlipped((entity->XPos >> 16) + scriptEng.operands[2],
+                                                  (entity->YPos >> 16) + scriptEng.operands[3],
+                                                  scriptEng.operands[4], scriptEng.operands[5],
+                                                  scriptEng.operands[6], scriptEng.operands[7], FLIP_NONE,
+                                                  INK_NONE, 0xFF, scriptInfo->spriteSheetID, false);
+                    } break;
+                    case 2:{
+                        float xOffset = -(scriptEng.operands[4] * (entity->propertyValue / 2));
+                        if (entity->propertyValue % 2 == 1)
+                            xOffset += scriptEng.operands[2];
+                        for (int i = 0; i < entity->propertyValue; i++){
+                            editor->DrawSpriteFlipped((entity->XPos >> 16) + xOffset,
+                                                      (entity->YPos >> 16) + scriptEng.operands[3],
+                                                      scriptEng.operands[4], scriptEng.operands[5],
+                                                      scriptEng.operands[6], scriptEng.operands[7], FLIP_NONE,
+                                                      INK_NONE, 0xFF, scriptInfo->spriteSheetID, false);
+                            xOffset += scriptEng.operands[4];
+                        }
+                    } break;
+                    case 3:{
+                        float yOffset = -(scriptEng.operands[5] * (entity->propertyValue / 2));
+                        if (entity->propertyValue % 2 == 1)
+                            yOffset += scriptEng.operands[3];
+                        for (int i = 0; i < entity->propertyValue; i++){
+                            editor->DrawSpriteFlipped((entity->XPos >> 16) + scriptEng.operands[2],
+                                                      (entity->YPos >> 16) + yOffset,
+                                                      scriptEng.operands[4], scriptEng.operands[5],
+                                                      scriptEng.operands[6], scriptEng.operands[7], FLIP_NONE,
+                                                      INK_NONE, 0xFF, scriptInfo->spriteSheetID, false);
+                            yOffset += scriptEng.operands[5];
+                        }
+                    } break;
+                }
+                break;
         }
 
         // Set Values
