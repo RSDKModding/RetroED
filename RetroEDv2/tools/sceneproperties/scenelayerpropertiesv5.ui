@@ -99,6 +99,9 @@
    </item>
    <item row="2" column="1">
     <widget class="QSpinBox" name="height">
+     <property name="keyboardTracking">
+      <bool>false</bool>
+     </property>
      <property name="minimum">
       <number>0</number>
      </property>
@@ -149,6 +152,9 @@
    </item>
    <item row="1" column="1">
     <widget class="QSpinBox" name="width">
+     <property name="keyboardTracking">
+      <bool>false</bool>
+     </property>
      <property name="minimum">
       <number>0</number>
      </property>
