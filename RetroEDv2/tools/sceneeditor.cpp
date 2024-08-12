@@ -823,6 +823,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
     connect(scnProp->editSCF, &QPushButton::clicked, [this] {
 
         int count = stageConfig.loadGlobalScripts ? gameConfig.objects.count() : 0;
+        if (viewer->gameType == ENGINE_v2 && stageConfig.loadGlobalScripts)
+            count++;
         int oldListCount = ui->objectList->count();
 
         QList<QString> oldScriptName;
@@ -845,7 +847,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             }
             case ENGINE_v2: {
                 StageConfigEditorv2 *edit =
-                    new StageConfigEditorv2(&stageConfig, 2 + count, gameConfig.soundFX.count(), this);
+                    new StageConfigEditorv2(&stageConfig, 1 + count, gameConfig.soundFX.count(), this);
                 edit->exec();
                 break;
             }
@@ -1066,6 +1068,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             return;
 
         int scnGCObjCount = detailsDlg->oldObjCount->value();
+        int gcCount = viewer->gameType != ENGINE_v2 ? gameConfig.objects.count()
+                                                    : gameConfig.objects.count() + 1;
 
         QList<int> newTypes;
         QList<QString> names;
@@ -1078,19 +1082,29 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         }
 
         newTypes[0] = 0;
+        if (viewer->gameType == ENGINE_v2)
+            newTypes[1] = 1;
 
         // add stage object IDs
-        int idChange = gameConfig.objects.count() - scnGCObjCount;
+        int idChange = gcCount - scnGCObjCount;
         for (int i = scnGCObjCount + 1; i < viewer->objects.count(); ++i) {
             newTypes.append(i + idChange);
         }
 
         // remove old global objs
-        for (int i = gameConfig.objects.count(); i > 0; --i) {
+        for (int i = gcCount; i > 0; --i) {
             viewer->objects.removeAt(i);
         }
 
+
         int id = 1;
+        if (viewer->gameType == ENGINE_v2){
+            SceneObject objInfo;
+            objInfo.name = "Player";
+            viewer->objects.insert(id, objInfo);
+            id++;
+        }
+
         for (FormatHelpers::GameConfig::ObjectInfo &gameObj : gameConfig.objects) {
             int index = names.indexOf(gameObj.name);
 
@@ -1113,13 +1127,11 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         for (int o = viewer->entities.count() - 1; o >= 0; --o) {
             SceneEntity &obj = viewer->entities[o];
-            if (obj.type >= 0){
-                int newType = newTypes[obj.type];
-                if (newType >= 0)
-                    obj.type = newType;
-                else
-                    DeleteEntity(o);
-            }
+            int newType = newTypes[obj.type];
+            if (newType >= 0)
+                obj.type = newType;
+            else
+                DeleteEntity(o);
         }
 
         ui->objectList->blockSignals(true);
@@ -1145,6 +1157,9 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             count = stageConfig.loadGlobalScripts ? gameConfig.objects.count() : 0;
         else
             count = globalsRS.count();
+
+        if (viewer->gameType == ENGINE_v2 && stageConfig.loadGlobalScripts)
+            count++;
         int oldListCount = ui->objectList->count();
 
         QList<int> newTypes;
@@ -3491,6 +3506,7 @@ void SceneEditor::InitGameLink()
             compilerv2->editor = this;
 
             if (stageConfig.loadGlobalScripts) {
+                scrID++;    // Account for Player being added
                 for (int i = 0; i < gameConfig.objects.count() && !scriptError; ++i) {
                     QString scriptPath = viewer->dataPath + "/Scripts/" + gameConfig.objects[i].script;
                     scriptPath = WorkingDirManager::GetPath("/Scripts/" + gameConfig.objects[i].script,
@@ -4537,7 +4553,7 @@ bool SceneEditor::CallGameEvent(byte eventID, int id)
                 else {
                     entity = &viewer->entities[id];
 
-                    compilerv2->objectEntityList[entity->gameEntitySlot].type = entity->type - 1;
+                    compilerv2->objectEntityList[entity->gameEntitySlot].type = entity->type;
                     compilerv2->objectEntityList[entity->gameEntitySlot].propertyValue =
                         entity->propertyValue;
                     compilerv2->objectEntityList[entity->gameEntitySlot].XPos =
@@ -4548,7 +4564,7 @@ bool SceneEditor::CallGameEvent(byte eventID, int id)
                 if (id == -1)
                     return false;
 
-                auto &curObj = compilerv2->objectScriptList[entity->type - 1];
+                auto &curObj = compilerv2->objectScriptList[entity->type];
 
                 if (curObj.subRSDK.scriptCodePtr != SCRIPTDATA_COUNT_v2 - 1
                     && entity->type != 0) {
