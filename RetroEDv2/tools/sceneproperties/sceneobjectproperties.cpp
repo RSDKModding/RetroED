@@ -68,7 +68,7 @@ void SceneObjectProperties::setupUI(SceneEntity *entity, int entityID, Compilerv
         bool flag = false;
         if (entity->slotID != entity->prevSlot) {
             for (auto &entityRef : scnEditor->viewer->entities) {
-                if (entity->slotID == entityRef.slotID) {
+                if (entity->slotID == entityRef.slotID && entityRef.prevSlot != entity->prevSlot) {
                     msgBox = new QMessageBox(
                         QMessageBox::Information, "RetroED",
                         QString("An entity already exists with slotID %1.").arg(entity->slotID),
@@ -81,11 +81,11 @@ void SceneObjectProperties::setupUI(SceneEntity *entity, int entityID, Compilerv
                     break;
                 }
             }
+            byte type = *(byte *)infoGroup[0]->valuePtr;
+            emit typeChanged(entity, type);
         }
-
-        if (!flag) {
+        if (!flag)
             entity->prevSlot = entity->slotID;
-        }
     });
 
     connect(infoGroup[2], &Property::changed,

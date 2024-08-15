@@ -47,7 +47,7 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
         bool flag = false;
         if (entity->slotID != entity->prevSlot) {
             for (auto &entityRef : v5Editor->viewer->entities) {
-                if (entity->slotID == entityRef.slotID) {
+                if (entity->slotID == entityRef.slotID && entityRef.prevSlot != entity->prevSlot) {
                     msgBox = new QMessageBox(
                         QMessageBox::Information, "RetroED",
                         QString("An entity already exists with slotID %1.").arg(entity->slotID),
@@ -60,10 +60,11 @@ void SceneObjectPropertiesv5::setupUI(SceneEntity *entity)
                     break;
                 }
             }
+            byte type = *(byte *)infoGroup[0]->valuePtr;
+            emit typeChanged(entity, type);
         }
-        if (!flag) {
+        if (!flag)
             entity->prevSlot = entity->slotID;
-        }
     });
 
     QList<Property *> posGroup = { new Property("x", &entity->pos.x),

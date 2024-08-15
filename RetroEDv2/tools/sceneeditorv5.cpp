@@ -1777,6 +1777,7 @@ void SceneEditorv5::updateType(SceneEntity *entity, byte type)
         }
     }
     objProp->setupUI(&viewer->entities[c]); // maybe make it use updateUI?
+    DoAction("Object Property Updated");
 }
 
 void SceneEditorv5::updateTileSel(){

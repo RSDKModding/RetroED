@@ -1444,6 +1444,7 @@ void SceneEditor::updateType(SceneEntity *entity, byte type)
                      &compilerv2->objectEntityList[entity->gameEntitySlot],
                      &compilerv3->objectEntityList[entity->gameEntitySlot],
                      &compilerv4->objectEntityList[entity->gameEntitySlot], viewer->gameType);
+    DoAction("Object Property Updated");
 }
 
 bool SceneEditor::event(QEvent *event)
@@ -3281,7 +3282,7 @@ bool SceneEditor::SaveScene(bool forceSaveAs)
     }
     AddStatusProgress(1.f / 5); // created object list
 
-    for (auto &ent : viewer->entities) {
+    for (SceneEntity &ent : viewer->entities) {
         FormatHelpers::Scene::Object entity;
         entity.type          = ent.type;
         entity.propertyValue = ent.propertyValue;
