@@ -282,17 +282,23 @@ void FormatHelpers::Animation::write(byte ver, QString filename)
                     frame.pivotX = f.pivotX;
                     frame.pivotY = f.pivotY;
 
-                    if (f.hitboxes.count()) {
-                        frame.hitbox.left   = f.hitboxes[0].left;
-                        frame.hitbox.top    = f.hitboxes[0].top;
-                        frame.hitbox.right  = f.hitboxes[0].right;
-                        frame.hitbox.bottom = f.hitboxes[0].bottom;
-                    }
-                    else {
-                        frame.hitbox.left   = 0;
-                        frame.hitbox.top    = 0;
-                        frame.hitbox.right  = 0;
-                        frame.hitbox.bottom = 0;
+                    if (readVer == ENGINE_v4 || readVer == ENGINE_v3 || readVer == ENGINE_v2) {
+                        frame.hitbox.left   = hitboxes[f.collisionBox].hitboxes[0].left;
+                        frame.hitbox.top    = hitboxes[f.collisionBox].hitboxes[0].top;
+                        frame.hitbox.right  = hitboxes[f.collisionBox].hitboxes[0].right;
+                        frame.hitbox.bottom = hitboxes[f.collisionBox].hitboxes[0].bottom;
+                    } else {
+                        if (f.hitboxes.count()) {
+                            frame.hitbox.left   = f.hitboxes[0].left;
+                            frame.hitbox.top    = f.hitboxes[0].top;
+                            frame.hitbox.right  = f.hitboxes[0].right;
+                            frame.hitbox.bottom = f.hitboxes[0].bottom;
+                        } else {
+                            frame.hitbox.left   = 0;
+                            frame.hitbox.top    = 0;
+                            frame.hitbox.right  = 0;
+                            frame.hitbox.bottom = 0;
+                        }
                     }
 
                     animEntry.frames.append(frame);
@@ -357,6 +363,13 @@ void FormatHelpers::Animation::write(byte ver, QString filename)
                 animEntry.loopIndex     = a.loopIndex;
                 animEntry.rotationStyle = a.rotationStyle;
 
+                if ((readVer == ENGINE_v5 || readVer == ENGINE_NONE)){
+                    if (animEntry.rotationStyle == ROTATION_SNAP90 || animEntry.rotationStyle == ROTATION_SNAP180)
+                        animEntry.rotationStyle  = ROTATION_NONE;
+                    if (animEntry.rotationStyle == ROTATION_STATIC_v5)
+                        animEntry.rotationStyle  = ROTATION_STATIC;
+                }
+
                 for (auto &f : a.frames) {
                     RSDKv3::Animation::Frame frame;
                     frame.sheet        = f.sheet;
@@ -400,6 +413,13 @@ void FormatHelpers::Animation::write(byte ver, QString filename)
                 animEntry.loopIndex     = a.loopIndex;
                 animEntry.rotationStyle = a.rotationStyle;
 
+                if ((readVer == ENGINE_v5 || readVer == ENGINE_NONE)){
+                    if (animEntry.rotationStyle == ROTATION_SNAP90 || animEntry.rotationStyle == ROTATION_SNAP180)
+                        animEntry.rotationStyle  = ROTATION_NONE;
+                    if (animEntry.rotationStyle == ROTATION_STATIC_v5)
+                        animEntry.rotationStyle  = ROTATION_STATIC;
+                }
+
                 for (auto &f : a.frames) {
                     RSDKv4::Animation::Frame frame;
                     frame.sheet        = f.sheet;
@@ -442,6 +462,9 @@ void FormatHelpers::Animation::write(byte ver, QString filename)
                 animEntry.speed         = a.speed;
                 animEntry.loopIndex     = a.loopIndex;
                 animEntry.rotationStyle = a.rotationStyle;
+
+                if ((readVer == ENGINE_v4 || readVer == ENGINE_v3) && animEntry.rotationStyle == ROTATION_STATIC)
+                    animEntry.rotationStyle  = ROTATION_STATIC_v5;
 
                 for (auto &f : a.frames) {
                     RSDKv5::Animation::Frame frame;

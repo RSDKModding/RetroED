@@ -54,6 +54,16 @@ public:
         byte rotationStyle = 0;
     };
 
+    enum RotationStyle {
+        ROTATION_NONE,
+        ROTATION_FULL,
+        ROTATION_SNAP45,
+        ROTATION_SNAP90,
+        ROTATION_SNAP180,
+        ROTATION_STATIC_v5,
+        ROTATION_STATIC = 3
+    };
+
     Animation() {}
     Animation(byte ver, QString filepath) { read(ver, filepath); }
 

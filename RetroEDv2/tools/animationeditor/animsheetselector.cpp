@@ -8,8 +8,8 @@
 #include "dependencies/imageviewer/src/image-viewer.h"
 #include <QTimer>
 
-AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, bool toggle, QWidget *parent)
-    : QDialog(parent), ui(new Ui::AnimSheetSelector), sheetPath(sheetPath), sheet(sheet)
+AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, bool toggle, QColor storeColor, QWidget *parent)
+    : QDialog(parent), sheetPath(sheetPath), sheet(sheet), ui(new Ui::AnimSheetSelector)
 {
     ui->setupUi(this);
     this->setWindowTitle("Select Bounding Box");
@@ -25,11 +25,12 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, bool togg
     bgColor = QColor(0xFFFFFFFF);
     if (this->sheet->format() == QImage::Format_Indexed8) {
         // last color in the palette (should) always be bg
-        bgColor = this->sheet->colorTable().last();
+        bgColor = storeColor == QColor(0xFFFFFFFF) ? this->sheet->colorTable().last() : storeColor;
     }
 
     ui->pivotToggle->setChecked(toggle);
     pivotToggle = toggle;
+    storedColor = storeColor;
     QPalette pal(bgColor);
     ui->colorButton->setPalette(pal);
 
@@ -37,6 +38,7 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, bool togg
         RSDKColorDialog dlg(bgColor);
         if (dlg.exec() == QDialog::Accepted) {
             bgColor = dlg.color().toQColor();
+            storedColor = dlg.color().toQColor();
         }
         QPalette pal(bgColor);
         ui->colorButton->setPalette(pal);
@@ -49,10 +51,11 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, bool togg
         pivotToggle = ui->pivotToggle->isChecked();
     });
 
-    connect(viewer->pixmapItem(), &pal::PixmapItem::mouseDownR, [this, viewer](int x, int y) {
+    connect(viewer->pixmapItem(), &pal::PixmapItem::mouseDownR, [this](int x, int y) {
         bgColor = this->sheet->pixelColor(x, y);
         QPalette pal(bgColor);
         ui->colorButton->setPalette(pal);
+        storedColor = bgColor;
     });
 
     connect(viewer->pixmapItem(), &pal::PixmapItem::mouseDownL, [this, viewer](int x, int y) {
@@ -62,11 +65,11 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, bool togg
         returnRect.y = mousePos.y = y;
         returnRect.w = returnRect.h = 0;
         viewer->pixmapItem()->rect  = returnRect.toQRect();
-        PrintLog(QString("ClickPos: X: %1, Y: %2, W: %3, H: %4")
-                     .arg(returnRect.x)
-                     .arg(returnRect.y)
-                     .arg(returnRect.w)
-                     .arg(returnRect.h));
+        //PrintLog(QString("ClickPos: X: %1, Y: %2, W: %3, H: %4")
+        //             .arg(returnRect.x)
+        //             .arg(returnRect.y)
+        //             .arg(returnRect.w)
+        //             .arg(returnRect.h));
 
         viewer->pixmapItem()->update();
     });
@@ -199,11 +202,11 @@ AnimSheetSelector::AnimSheetSelector(QString sheetPath, QImage *sheet, bool togg
         mouseDownL = false;
 
         viewer->pixmapItem()->rect = returnRect.toQRect();
-        PrintLog(QString("AutoPos: X: %1, Y: %2, W: %3, H: %4")
-                     .arg(returnRect.x)
-                     .arg(returnRect.y)
-                     .arg(returnRect.w)
-                     .arg(returnRect.h));
+        //PrintLog(QString("AutoPos: X: %1, Y: %2, W: %3, H: %4")
+        //             .arg(returnRect.x)
+        //             .arg(returnRect.y)
+        //             .arg(returnRect.w)
+        //             .arg(returnRect.h));
 
         viewer->pixmapItem()->update();
     });

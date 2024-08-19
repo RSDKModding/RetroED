@@ -12,11 +12,12 @@ class AnimSheetSelector : public QDialog
     Q_OBJECT
 
 public:
-    explicit AnimSheetSelector(QString sheetPath, QImage *sheet, bool toggle = false, QWidget *parent = nullptr);
+    explicit AnimSheetSelector(QString sheetPath, QImage *sheet, bool toggle = false, QColor storeColor = QColor(0xFFFFFFFF), QWidget *parent = nullptr);
     ~AnimSheetSelector();
 
     Rect<int> returnRect = Rect<int>(-1, -1, -1, -1);
     bool pivotToggle = false;
+    QColor storedColor = QColor(0xFFFFFFFF);
 
 protected:
     void changeEvent(QEvent *e);

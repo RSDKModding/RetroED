@@ -328,26 +328,6 @@
    </item>
    <item row="5" column="0">
     <layout class="QGridLayout" name="gridLayout_3">
-     <item row="0" column="6" alignment="Qt::AlignRight">
-      <widget class="QToolButton" name="rmAnim">
-       <property name="toolTip">
-        <string>Remove Animation</string>
-       </property>
-       <property name="text">
-        <string>-</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../resources.qrc">
-         <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="2">
       <widget class="QToolButton" name="upAnim">
        <property name="toolTip">
@@ -366,26 +346,9 @@
          <height>16</height>
         </size>
        </property>
-      </widget>
-     </item>
-     <item row="0" column="0" alignment="Qt::AlignLeft">
-      <widget class="QToolButton" name="addAnim">
-       <property name="toolTip">
-        <string>Add Animation</string>
-       </property>
-       <property name="text">
-        <string>+</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../resources.qrc">
-         <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">animControls</string>
+       </attribute>
       </widget>
      </item>
      <item row="0" column="4">
@@ -399,6 +362,52 @@
        <property name="icon">
         <iconset resource="../resources.qrc">
          <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">animControls</string>
+       </attribute>
+      </widget>
+     </item>
+     <item row="0" column="6" alignment="Qt::AlignRight">
+      <widget class="QToolButton" name="rmAnim">
+       <property name="toolTip">
+        <string>Remove Animation</string>
+       </property>
+       <property name="text">
+        <string>-</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources.qrc">
+         <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">animControls</string>
+       </attribute>
+      </widget>
+     </item>
+     <item row="0" column="0" alignment="Qt::AlignLeft">
+      <widget class="QToolButton" name="addAnim">
+       <property name="toolTip">
+        <string>Add Animation</string>
+       </property>
+       <property name="text">
+        <string>+</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources.qrc">
+         <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -485,7 +494,7 @@
     </widget>
    </item>
    <item row="6" column="0" colspan="4">
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="frameViewer">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -510,7 +519,7 @@
      <layout class="QGridLayout" name="gridLayout_17">
       <item row="0" column="0">
        <layout class="QVBoxLayout" name="verticalLayout">
-        <item alignment="Qt::AlignTop">
+        <item>
          <widget class="QToolButton" name="addFrame">
           <property name="enabled">
            <bool>true</bool>
@@ -535,6 +544,19 @@
            <string>Ctrl+E</string>
           </property>
          </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
         <item>
          <widget class="QToolButton" name="upFrame">
@@ -581,6 +603,19 @@
            </size>
           </property>
          </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
         <item alignment="Qt::AlignBottom">
          <widget class="QToolButton" name="rmFrame">
@@ -705,7 +740,7 @@
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>128</height>
+          <height>144</height>
          </size>
         </property>
         <property name="maximumSize">
@@ -885,7 +920,7 @@
          <item row="7" column="0" colspan="2">
           <widget class="QLabel" name="label_17">
            <property name="text">
-            <string>Retro-Sonic Properties</string>
+            <string>v1 Properties</string>
            </property>
           </widget>
          </item>
@@ -929,7 +964,7 @@
           </widget>
          </item>
          <item row="4" column="0">
-          <widget class="QLabel" name="label_16">
+          <widget class="QLabel" name="RotStyleLabel">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -1048,14 +1083,14 @@
               <number>0</number>
              </property>
              <item row="0" column="0">
-              <widget class="QLabel" name="label_6">
+              <widget class="QLabel" name="sheetLabel">
                <property name="text">
                 <string>Sheet</string>
                </property>
               </widget>
              </item>
              <item row="5" column="0" colspan="3">
-              <widget class="QGroupBox" name="groupBox_5">
+              <widget class="QGroupBox" name="hitboxProp">
                <property name="title">
                 <string>Hitbox</string>
                </property>
@@ -1074,7 +1109,7 @@
                  </widget>
                 </item>
                 <item row="2" column="0" colspan="2">
-                 <widget class="QGroupBox" name="groupBox_6">
+                 <widget class="QGroupBox" name="HitboxDimensions">
                   <property name="title">
                    <string>Dimensions</string>
                   </property>
@@ -1225,7 +1260,7 @@
               </widget>
              </item>
              <item row="3" column="0" colspan="3">
-              <widget class="QGroupBox" name="groupBox_3">
+              <widget class="QGroupBox" name="pivotProp">
                <property name="title">
                 <string>Pivot</string>
                </property>
@@ -1298,7 +1333,7 @@
               </widget>
              </item>
              <item row="2" column="0" colspan="3">
-              <widget class="QGroupBox" name="groupBox_2">
+              <widget class="QGroupBox" name="boundProp">
                <property name="title">
                 <string>Bounding Box</string>
                </property>
@@ -1434,7 +1469,7 @@
               </widget>
              </item>
              <item row="4" column="0" colspan="3">
-              <widget class="QGroupBox" name="groupBox_4">
+              <widget class="QGroupBox" name="v5FrameProp">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
@@ -1442,7 +1477,7 @@
                 </size>
                </property>
                <property name="title">
-                <string>Frame Properties</string>
+                <string>v5 Frame Properties</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_6">
                 <item row="1" column="1">
@@ -1525,7 +1560,7 @@
        </rect>
       </property>
       <attribute name="label">
-       <string>Sheets (0 of 0, ID: 0)</string>
+       <string>Sheets</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_14">
        <item row="1" column="0" colspan="2">
@@ -1628,7 +1663,7 @@
        <item row="3" column="0" colspan="2">
         <widget class="QPushButton" name="importSheet">
          <property name="text">
-          <string>Import Source</string>
+          <string>Replace Source</string>
          </property>
         </widget>
        </item>
@@ -1651,7 +1686,7 @@
        </rect>
       </property>
       <attribute name="label">
-       <string>Hitboxes (0 of 0, ID: 0)</string>
+       <string>Hitboxes</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_11">
        <property name="leftMargin">
@@ -1712,6 +1747,9 @@
                  <height>16</height>
                 </size>
                </property>
+               <attribute name="buttonGroup">
+                <string notr="true">hitboxControls</string>
+               </attribute>
               </widget>
              </item>
              <item row="0" column="2">
@@ -1729,6 +1767,9 @@
                  <height>16</height>
                 </size>
                </property>
+               <attribute name="buttonGroup">
+                <string notr="true">hitboxControls</string>
+               </attribute>
               </widget>
              </item>
              <item row="0" column="0" alignment="Qt::AlignLeft">
@@ -1746,6 +1787,9 @@
                  <height>16</height>
                 </size>
                </property>
+               <attribute name="buttonGroup">
+                <string notr="true">hitboxControls</string>
+               </attribute>
               </widget>
              </item>
              <item row="0" column="3" alignment="Qt::AlignRight">
@@ -1763,6 +1807,9 @@
                  <height>16</height>
                 </size>
                </property>
+               <attribute name="buttonGroup">
+                <string notr="true">hitboxControls</string>
+               </attribute>
               </widget>
              </item>
             </layout>
@@ -1850,4 +1897,8 @@
   <include location="../resources.qrc"/>
  </resources>
  <connections/>
+ <buttongroups>
+  <buttongroup name="animControls"/>
+  <buttongroup name="hitboxControls"/>
+ </buttongroups>
 </ui>

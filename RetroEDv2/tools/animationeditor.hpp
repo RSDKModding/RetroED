@@ -27,6 +27,8 @@ public:
 
     bool event(QEvent *event) override;
 
+    void SetupFormatConversion(int aniVer, int prevAniVer);
+
     inline int FrameCount()
     {
         if (currentAnim < animFile.animations.count()) {
@@ -77,7 +79,7 @@ private:
 
         updateTimer->stop();
     }
-    void SetFramePreview();
+    void SetFramePreview(bool update = false);
     void SetupFrameList(QList<FormatHelpers::Animation::Frame> &frames);
 
     bool showTransparentClr = true;
@@ -94,6 +96,7 @@ private:
     bool mouseDownR = false;
 
     bool savedPivToggle = false;
+    QColor savedColor = QColor(0xFFFFFFFF);
 
     Vector2<int> offset = Vector2<int>(0, 0);
 
