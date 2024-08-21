@@ -38,7 +38,7 @@
             <string>-</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
            </property>
           </widget>
@@ -52,7 +52,7 @@
             <string>+</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources.qrc">
              <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
            </property>
           </widget>
@@ -167,6 +167,26 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="6">
+       <widget class="QPushButton" name="buildDatapack">
+        <property name="toolTip">
+         <string>Build &amp; save the loaded files as a datapack</string>
+        </property>
+        <property name="text">
+         <string>Build DataPack</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="exportDatapack">
+        <property name="toolTip">
+         <string>Export the loaded datapack to a folder</string>
+        </property>
+        <property name="text">
+         <string>Export DataPack</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="2">
        <spacer name="horizontalSpacer_3">
         <property name="orientation">
@@ -180,23 +200,20 @@
         </property>
        </spacer>
       </item>
-      <item row="0" column="1">
-       <widget class="QPushButton" name="exportDatapack">
+      <item row="0" column="5">
+       <widget class="QPushButton" name="selectDataFolder">
         <property name="toolTip">
-         <string>Export the loaded datapack to a folder</string>
+         <string>Select a data folder to load files from</string>
         </property>
         <property name="text">
-         <string>Export DataPack</string>
+         <string>Select Data Folder</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="4">
-       <widget class="QPushButton" name="buildDatapack">
-        <property name="toolTip">
-         <string>Build &amp; save the loaded files as a datapack</string>
-        </property>
+      <item row="0" column="3">
+       <widget class="QLabel" name="dataPackVer">
         <property name="text">
-         <string>Build DataPack</string>
+         <string>Loaded DataPack Version: None</string>
         </property>
        </widget>
       </item>
@@ -210,15 +227,18 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="3">
-       <widget class="QPushButton" name="selectDataFolder">
-        <property name="toolTip">
-         <string>Select a data folder to load files from</string>
+      <item row="0" column="4">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
-        <property name="text">
-         <string>Select Data Folder</string>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
         </property>
-       </widget>
+       </spacer>
       </item>
      </layout>
     </widget>
@@ -238,6 +258,8 @@
   <tabstop>filenameHash</tabstop>
   <tabstop>encrypted</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

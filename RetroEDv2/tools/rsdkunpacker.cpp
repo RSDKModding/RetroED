@@ -17,37 +17,65 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
 
     connect(ui->selectDatapack, &QPushButton::clicked, [this] {
         QList<QString> types = {
-            "RSDKv5 Datapacks (*.rsdk*)", "RSDKv4 Datapacks (*.rsdk*)",
-            "RSDKv3 Datapacks (*.rsdk*)", "RSDKv2 Datapacks (*.bin*)",
+            "RSDKv3/4/5U Datapacks (*.rsdk*)", "RSDKv2 Datapacks (*.bin*)",
             "RSDKv1 Datapacks (*.bin*)",  "RSDKv3 Arc Containers (*.arc*)",
         };
 
         QFileDialog filedialog(this, tr("Open Datapack"), "",
-                               tr(QString("%1;;%2;;%3;;%4;;%5;;%6")
+                               tr(QString("%1;;%2;;%3;;%4")
                                       .arg(types[0])
                                       .arg(types[1])
                                       .arg(types[2])
                                       .arg(types[3])
-                                      .arg(types[4])
-                                      .arg(types[5])
                                       .toStdString()
                                       .c_str()));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
             int filter = types.indexOf(filedialog.selectedNameFilter());
-
             QString fileList = "";
-            if (filter <= 1) {
-                QFileDialog listdialog(this, tr("Open File List"), homeDir, tr("File Lists (*.txt)"));
-                listdialog.setAcceptMode(QFileDialog::AcceptOpen);
 
-                if (listdialog.exec() == QDialog::Accepted)
-                    fileList = listdialog.selectedFiles()[0];
+            if (filter == 0){
+                Reader reader(filedialog.selectedFiles()[0]);
+                int RSDKsig = reader.read<int>();
+                if (RSDKsig == sig){
+                    short RSDKverSig = reader.read<short>();
+                    switch (RSDKverSig){
+                        case V5U_SIGNATURE:
+                        case V4U_SIGNATURE:
+                        case V3U_SIGNATURE:
+                        case V5_SIGNATURE:
+                            filter = ENGINE_v5;
+                            ui->dataPackVer->setText("Loaded DataPack Version: RSDKv5");
+                            break;
+                        case V4_SIGNATURE:
+                            filter = ENGINE_v4;
+                            ui->dataPackVer->setText("Loaded DataPack Version: RSDKv4");
+                            break;
+                        default:
+                            filter = ENGINE_v3;
+                            ui->dataPackVer->setText("Loaded DataPack Version: RSDKv3");
+                            break;
+                    }
+                    if (filter <= 1) {
+                        QFileDialog listdialog(this, tr(filter == 0 ? "Open v5/v5U File List" : "Open v4 File List"),
+                                            homeDir, tr(filter == 0 ? "v5/v5U File Lists (*.txt)" : "v4 File Lists (*.txt)"));
+                        listdialog.setAcceptMode(QFileDialog::AcceptOpen);
+
+                        if (listdialog.exec() == QDialog::Accepted)
+                            fileList = listdialog.selectedFiles()[0];
+                    }
+                    LoadPack(filedialog.selectedFiles()[0], filter, fileList);
+                }
+            } else {
+                if (filter + 2 != ENGINE_v1 + 1)
+                    ui->dataPackVer->setText(QString("Loaded DataPack Version: RSDKv%1").arg(filter + 2 == ENGINE_v2 ? "2" : "1"));
+                else
+                    ui->dataPackVer->setText("Loaded Arc File");
+                LoadPack(filedialog.selectedFiles()[0], filter + 2, fileList);
             }
-
-            LoadPack(filedialog.selectedFiles()[0], filter, fileList);
         }
     });
+
     connect(ui->exportDatapack, &QPushButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Open File"), "", tr("All Files (*)"));
         filedialog.setFileMode(QFileDialog::Directory);
@@ -78,6 +106,7 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
     });
 
     connect(ui->selectDataFolder, &QPushButton::clicked, [this] {
+        ui->dataPackVer->setText("Loaded DataPack Version: None");
         QFileDialog filedialog(this, tr("Open Datafolder"), "", tr("Folder"));
         filedialog.setFileMode(QFileDialog::Directory);
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
