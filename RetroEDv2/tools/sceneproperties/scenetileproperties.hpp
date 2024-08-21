@@ -65,10 +65,10 @@ public slots:
     void UpdateW();
 private:
     Ui::SceneTileProperties *ui;
-    TileCollisionWidget *edit;
+    TileCollisionWidget edit;
     QImage tileImg;
     int collisionLyr     =  0;
-    int selectedDrawTile = -1;
+    int selectedDrawTile =  0;
     byte gameType = ENGINE_v4;
 
     RSDKv5::TileConfig::CollisionMask *cmask[2] = { nullptr, nullptr };

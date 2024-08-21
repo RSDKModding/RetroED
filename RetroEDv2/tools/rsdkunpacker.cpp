@@ -106,11 +106,11 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
     });
 
     connect(ui->selectDataFolder, &QPushButton::clicked, [this] {
-        ui->dataPackVer->setText("Loaded DataPack Version: None");
         QFileDialog filedialog(this, tr("Open Datafolder"), "", tr("Folder"));
         filedialog.setFileMode(QFileDialog::Directory);
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
         if (filedialog.exec() == QDialog::Accepted) {
+            ui->dataPackVer->setText("Loaded DataPack Version: None");
             files.clear();
             ui->fileList->blockSignals(true);
             ui->fileList->clear();

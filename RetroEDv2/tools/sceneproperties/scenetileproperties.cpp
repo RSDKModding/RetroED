@@ -27,34 +27,35 @@ void SceneTileProperties::setupUI(ushort tid, QList<QImage> &tiles, SceneViewer 
 
     collisionLyr = 0;
     selectedDrawTile = 0;
-    edit = new TileCollisionWidget();
 
     gameType = engineVer;
 
     if (gameType == ENGINE_v1){
         setColMask(&viewer->tileconfigv1.collisionPaths[0][0], &viewer->tileconfigv1.collisionPaths[1][0]);
-        edit->cmaskv1 = cmaskv1[collisionLyr];
+        edit.cmaskv1 = cmaskv1[collisionLyr];
         ui->AngleFrame->setDisabled(true);
     }
     else {
         setColMask(&viewer->tileconfig.collisionPaths[0][0], &viewer->tileconfig.collisionPaths[1][0]);
-        edit->cmask   = cmask[collisionLyr];
+        edit.cmask   = cmask[collisionLyr];
         ui->RSonicFrame->setDisabled(true);
     }
-    edit->paintVer            = gameType;
-    edit->tileImg             = tileImg;
-    ui->tileFrame->layout()->addWidget(edit);
+    edit.paintVer            = gameType;
+    edit.tileImg             = tileImg;
+    ui->tileFrame->layout()->addWidget(&edit);
 
     ui->colPlaneA->setChecked(true);
 
 
     ui->tID->setText("Tile ID: " + QString::number(tid));
 
+    ui->tileList->blockSignals(true);
     ui->tileList->clear();
     for (int t = 0; t < tiles.count(); ++t) {
         auto *item = new QListWidgetItem(QString::number(t), ui->tileList);
         item->setIcon(QPixmap::fromImage(tiles[t]));
     }
+    ui->tileList->blockSignals(false);
 
     connect(ui->colPlaneA, &QRadioButton::toggled, [this] {
         collisionLyr = 0;
@@ -66,7 +67,7 @@ void SceneTileProperties::setupUI(ushort tid, QList<QImage> &tiles, SceneViewer 
         ui->colPlaneB->setChecked(false);
         if (gameType == ENGINE_v1){
             ui->colMode->setCurrentIndex(cmaskv1[collisionLyr]->collisionMode);
-            edit->cmaskv1             = cmaskv1[collisionLyr];
+            edit.cmaskv1             = cmaskv1[collisionLyr];
         } else {
             ui->maskDir->setCurrentIndex(cmask[collisionLyr]->direction);
             ui->behaviour->setValue(cmask[collisionLyr]->flags);
@@ -74,13 +75,13 @@ void SceneTileProperties::setupUI(ushort tid, QList<QImage> &tiles, SceneViewer 
             ui->roofAngle->setValue(cmask[collisionLyr]->roofAngle);
             ui->lWallAngle->setValue(cmask[collisionLyr]->lWallAngle);
             ui->rWallAngle->setValue(cmask[collisionLyr]->rWallAngle);
-            edit->cmask               = cmask[collisionLyr];
+            edit.cmask               = cmask[collisionLyr];
         }
 
         ui->AngleFrame->blockSignals(false);
 
         ui->colPlaneB->blockSignals(false);
-        edit->update();
+        edit.update();
     });
 
     connect(ui->colPlaneB, &QRadioButton::toggled, [this] {
@@ -93,7 +94,7 @@ void SceneTileProperties::setupUI(ushort tid, QList<QImage> &tiles, SceneViewer 
         ui->colPlaneA->setChecked(false);
         if (gameType == ENGINE_v1){
             ui->colMode->setCurrentIndex(cmaskv1[collisionLyr]->collisionMode);
-            edit->cmaskv1             = cmaskv1[collisionLyr];
+            edit.cmaskv1             = cmaskv1[collisionLyr];
         } else {
             ui->maskDir->setCurrentIndex(cmask[collisionLyr]->direction);
             ui->behaviour->setValue(cmask[collisionLyr]->flags);
@@ -101,16 +102,16 @@ void SceneTileProperties::setupUI(ushort tid, QList<QImage> &tiles, SceneViewer 
             ui->roofAngle->setValue(cmask[collisionLyr]->roofAngle);
             ui->lWallAngle->setValue(cmask[collisionLyr]->lWallAngle);
             ui->rWallAngle->setValue(cmask[collisionLyr]->rWallAngle);
-            edit->cmask               = cmask[collisionLyr];
+            edit.cmask               = cmask[collisionLyr];
         }
 
         ui->colPlaneA->blockSignals(false);
         ui->AngleFrame->blockSignals(false);
-        edit->update();
+        edit.update();
     });
 
     connect(ui->maskDir, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [this](int i) { cmask[collisionLyr]->direction = i != 0; edit->update();});
+            [this](int i) { cmask[collisionLyr]->direction = i != 0; edit.update();});
 
     connect(ui->behaviour, QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int v) { cmask[collisionLyr]->flags = (byte)v; });
@@ -129,9 +130,9 @@ void SceneTileProperties::setupUI(ushort tid, QList<QImage> &tiles, SceneViewer 
 
     // v1
     connect(ui->colMode, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [this](int i) { cmaskv1[collisionLyr]->collisionMode = i; edit->update();});
+            [this](int i) { cmaskv1[collisionLyr]->collisionMode = i; edit.update();});
     connect(ui->maskIndex, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [this](int i) { edit->maskIndex = i; edit->update();});
+            [this](int i) { edit.maskIndex = i; edit.update();});
 
 
     connect(ui->editChunkCol, &QPushButton::clicked, [this, viewer] {
@@ -163,16 +164,16 @@ void SceneTileProperties::setupUI(ushort tid, QList<QImage> &tiles, SceneViewer 
         ui->tID->setText("Tile ID: " + QString::number(selectedDrawTile));
         if (viewer->gameType != ENGINE_v1){
             setColMask(&viewer->tileconfig.collisionPaths[0][selectedDrawTile],&viewer->tileconfig.collisionPaths[1][selectedDrawTile]);
-            edit->cmask               = cmask[collisionLyr];
+            edit.cmask               = cmask[collisionLyr];
         } else {
             setColMask(&viewer->tileconfigv1.collisionPaths[0][selectedDrawTile],&viewer->tileconfigv1.collisionPaths[1][selectedDrawTile]);
-            edit->cmaskv1 = cmaskv1[collisionLyr];
+            edit.cmaskv1 = cmaskv1[collisionLyr];
         }
-        edit->tileImg             = tiles[selectedDrawTile];
-        edit->update();
+        edit.tileImg = tiles[selectedDrawTile];
+        edit.update();
     });
 
-    connect(edit, &TileCollisionWidget::UpdateW, [&]{
+    connect(&edit, &TileCollisionWidget::UpdateW, [&]{
         if (gameType != ENGINE_v1)
             emit updateChunkColTile(cmask[collisionLyr], selectedDrawTile, collisionLyr);
         else
