@@ -52,8 +52,7 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
                             ui->dataPackVer->setText("Loaded DataPack Version: RSDKv4");
                             break;
                         default:
-                            filter = ENGINE_v3;
-                            ui->dataPackVer->setText("Loaded DataPack Version: RSDKv3");
+                            ui->dataPackVer->setText("Loaded DataPack Version: Allan please add details.");
                             break;
                     }
                     if (filter <= 1) {
@@ -64,6 +63,10 @@ RSDKUnpacker::RSDKUnpacker(QWidget *parent) : QWidget(parent), ui(new Ui::RSDKUn
                         if (listdialog.exec() == QDialog::Accepted)
                             fileList = listdialog.selectedFiles()[0];
                     }
+                    LoadPack(filedialog.selectedFiles()[0], filter, fileList);
+                } else {
+                    filter = ENGINE_v3;
+                    ui->dataPackVer->setText("Loaded DataPack Version: RSDKv3");
                     LoadPack(filedialog.selectedFiles()[0], filter, fileList);
                 }
             } else {
