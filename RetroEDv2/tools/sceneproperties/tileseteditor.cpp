@@ -262,6 +262,7 @@ bool TilesetViewer::event(QEvent *e)
 
 void TilesetViewer::mousePressEvent(QMouseEvent *event)
 {
+    /*
     float w = this->width(), h = this->height();
     float originX = w / 2, originY = h / 2;
     originX -= offset.x;
@@ -282,7 +283,7 @@ void TilesetViewer::mousePressEvent(QMouseEvent *event)
                  .arg(originY)
                  .arg(event->pos().x())
                  .arg(event->pos().y()));
-
+    */
     if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
         mouseDownL = true;
     if ((event->button() & Qt::MiddleButton) == Qt::MiddleButton)
@@ -291,19 +292,6 @@ void TilesetViewer::mousePressEvent(QMouseEvent *event)
         mouseDownR = true;
 
     reference = event->pos();
-
-    if (mouseDownR) {
-        selection->x = chunkPosX / 16;
-        selection->y = chunkPosY / 16;
-
-        if (selection->x >= 8 || selection->x < 0)
-            selection->x = -1;
-
-        if (selection->y >= 8 || selection->y < 0)
-            selection->y = -1;
-
-        repaint();
-    }
 
     // if (mouseDownM)
     //     setCursor(Qt::ClosedHandCursor);
@@ -317,36 +305,10 @@ void TilesetViewer::mousePressEvent(QMouseEvent *event)
 
 void TilesetViewer::mouseMoveEvent(QMouseEvent *event)
 {
-    float w = this->width(), h = this->height();
-    float originX = w / 2, originY = h / 2;
-    originX -= offset.x;
-    originY -= offset.y;
-    originX -= (4 * 16);
-    originY -= (4 * 16);
-
-    float chunkPosX = event->pos().x() - originX;
-    float chunkPosY = event->pos().y() - originY;
-
-    chunkPosX *= (1.0f / zoom);
-    chunkPosY *= (1.0f / zoom);
-
     if (mouseDownM) {
         offset.x -= event->pos().x() - reference.x();
         offset.y -= event->pos().y() - reference.y();
         reference = event->pos();
-
-        repaint();
-    }
-
-    if (mouseDownR) {
-        selection->x = chunkPosX / 16;
-        selection->y = chunkPosY / 16;
-
-        if (selection->x >= 8 || selection->x < 0)
-            selection->x = -1;
-
-        if (selection->y >= 8 || selection->y < 0)
-            selection->y = -1;
 
         repaint();
     }
