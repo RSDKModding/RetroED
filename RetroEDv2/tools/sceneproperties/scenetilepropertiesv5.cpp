@@ -8,6 +8,9 @@ SceneTilePropertiesv5::SceneTilePropertiesv5(QWidget *parent)
     : QWidget(parent), ui(new Ui::SceneTilePropertiesv5)
 {
     ui->setupUi(this);
+
+    replaceTile  = ui->replaceTile;
+    ui->frame->layout()->addWidget(&edit);
 }
 
 SceneTilePropertiesv5::~SceneTilePropertiesv5() { delete ui; }
@@ -20,13 +23,14 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
 
     if (!cmA || !cmB || !tile)
         return;
+
     cmask[0] = cmA;
     cmask[1] = cmB;
     tileID = *tile & 0x3FF;
 
     curTile = tile;
-
-    collisionLyr = 0;
+    edit.cmask                 = cmask[collisionLyr];
+    edit.tileImg               = tileImg;
 
     ui->colPlaneA->setChecked(true);
 
@@ -74,8 +78,8 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
         ui->roofAngle->blockSignals(false);
         ui->lWallAngle->blockSignals(false);
         ui->rWallAngle->blockSignals(false);
-        edit->cmask               = cmask[collisionLyr];
-        edit->update();
+        edit.cmask = cmask[collisionLyr];
+        edit.update();
     });
 
     connect(ui->colPlaneB, &QRadioButton::toggled, [this] {
@@ -107,8 +111,8 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
         ui->lWallAngle->blockSignals(false);
         ui->rWallAngle->blockSignals(false);
 
-        edit->cmask               = cmask[collisionLyr];
-        edit->update();
+        edit.cmask               = cmask[collisionLyr];
+        edit.update();
     });
 
     connect(ui->flipX, &QCheckBox::toggled, [tile, this](bool c) { Utils::setBit(*tile, c, 10); updateTileFlags(c, 10); });
@@ -119,7 +123,7 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
     connect(ui->solidLRBB, &QCheckBox::toggled, [tile, this](bool c) { Utils::setBit(*tile, c, 15); updateTileFlags(c, 15); });
 
     connect(ui->maskDir, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [this](int i) { cmask[collisionLyr]->direction = i != 0; edit->update();});
+            [this](int i) { cmask[collisionLyr]->direction = i != 0; edit.update();});
 
     connect(ui->behaviour, QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int v) { cmask[collisionLyr]->flags = (byte)v; });
@@ -136,12 +140,7 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
     connect(ui->rWallAngle, QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int v) { cmask[collisionLyr]->rWallAngle = (byte)v; });
 
-    edit                        = new TileCollisionWidgetv5();
-    edit->cmask                 = cmask[collisionLyr];
-    edit->tileImg               = tileImg;
-    ui->frame->layout()->addWidget(edit);
-
-    connect(edit, &TileCollisionWidgetv5::UpdateW, this, &SceneTilePropertiesv5::UpdateW);
+    connect(&edit, &TileCollisionWidgetv5::UpdateCol, [&]{ emit updateTileColMap(cmask[collisionLyr], tileID, collisionLyr); });
 
     auto calcFloorAngle = [](RSDKv5::TileConfig::CollisionMask *mask) {
         byte angle = 0;
@@ -219,7 +218,7 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
         if (cmask[collisionLyr]->direction) { // Ceiling Tile
             cmask[collisionLyr]->lWallAngle = calcRoofAngle(cmask[collisionLyr]);
 
-            // LWall rotations
+                   // LWall rotations
             for (int c = 0; c < 16; ++c) {
                 int h                      = 0;
                 rotMask.collision[c].solid = true;
@@ -245,7 +244,7 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
         else { // Regular Tile
             cmask[collisionLyr]->lWallAngle = calcFloorAngle(cmask[collisionLyr]);
 
-            // LWall rotations
+                   // LWall rotations
             for (int c = 0; c < 16; ++c) {
                 int h                      = 0;
                 rotMask.collision[c].solid = true;
@@ -293,7 +292,7 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
         if (cmask[collisionLyr]->direction) { // Ceiling Tile
             cmask[collisionLyr]->rWallAngle = calcRoofAngle(cmask[collisionLyr]);
 
-            // RWall rotations
+                   // RWall rotations
             for (int c = 0; c < 16; ++c) {
                 int h                      = 15;
                 rotMask.collision[c].solid = true;
@@ -319,7 +318,7 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
         else { // Regular Tile
             cmask[collisionLyr]->rWallAngle = calcFloorAngle(cmask[collisionLyr]);
 
-            // RWall rotations
+                   // RWall rotations
             for (int c = 0; c < 16; ++c) {
                 int h                      = 15;
                 rotMask.collision[c].solid = true;
@@ -368,6 +367,25 @@ void SceneTilePropertiesv5::unsetUI()
 
     ui->tID->setText("Tile ID: ");
 
+    collisionLyr = 0;
+    ui->colPlaneA->setChecked(true);
+    ui->colPlaneB->setChecked(false);
+
+    ui->maskDir->setCurrentIndex(0);
+    ui->behaviour->setValue(0);
+    ui->floorAngle->setValue(0);
+    ui->roofAngle->setValue(0);
+    ui->lWallAngle->setValue(0);
+    ui->rWallAngle->setValue(0);
+
+    ui->flipX->setChecked(false);
+    ui->flipY->setChecked(false);
+    ui->solidTopA->setChecked(false);
+    ui->solidLRBA->setChecked(false);
+    ui->solidTopB->setChecked(false);
+    ui->solidLRBB->setChecked(false);
+
+
     disconnect(ui->flipX, nullptr, nullptr, nullptr);
     disconnect(ui->flipY, nullptr, nullptr, nullptr);
     disconnect(ui->solidTopA, nullptr, nullptr, nullptr);
@@ -389,31 +407,31 @@ void SceneTilePropertiesv5::unsetUI()
     disconnect(ui->calcAngleL, nullptr, nullptr, nullptr);
     disconnect(ui->calcAngleR, nullptr, nullptr, nullptr);
 
-    ui->frame->layout()->removeWidget(edit);
     cmask[0] = nullptr;
     cmask[1] = nullptr;
-}
 
-void SceneTilePropertiesv5::UpdateW(){
-    emit updateTileColMap(cmask[collisionLyr], tileID, collisionLyr);
+    edit.cmask = cmask[0];
+    edit.tileImg = QImage(0,0);
+    ui->frame->layout()->removeWidget(&edit);
 }
 
 void SceneTilePropertiesv5::updatePropFlags(bool c, byte pos){
     Utils::setBit(*curTile, c, pos);
     switch (pos){
-    case 10:
-        ui->flipX->setChecked(c); break;
-    case 11:
-        ui->flipY->setChecked(c); break;
-    case 12:
-        ui->solidTopA->setChecked(c); break;
-    case 13:
-        ui->solidLRBA->setChecked(c); break;
-    case 14:
-        ui->solidTopB->setChecked(c); break;
-    case 15:
-        ui->solidLRBB->setChecked(c); break;
+        case 10:
+            ui->flipX->setChecked(c); break;
+        case 11:
+            ui->flipY->setChecked(c); break;
+        case 12:
+            ui->solidTopA->setChecked(c); break;
+        case 13:
+            ui->solidLRBA->setChecked(c); break;
+        case 14:
+            ui->solidTopB->setChecked(c); break;
+        case 15:
+            ui->solidLRBB->setChecked(c); break;
     }
+    emit updateTileColMap(cmask[collisionLyr], tileID, collisionLyr);
 }
 
 #include "moc_scenetilepropertiesv5.cpp"
@@ -422,6 +440,9 @@ TileCollisionWidgetv5::TileCollisionWidgetv5(QWidget *parent) : QWidget(parent) 
 
 void TileCollisionWidgetv5::paintEvent(QPaintEvent *)
 {
+    if (!cmask)
+        return;
+
     QPainter p(this);
 
     QRectF rect(0, 0, (qreal)width() / 16, (qreal)height() / 16);
@@ -464,7 +485,7 @@ void TileCollisionWidgetv5::mousePressEvent(QMouseEvent *event)
     pressedL  = (event->button() & Qt::LeftButton) == Qt::LeftButton;
     pressedR  = (event->button() & Qt::RightButton) == Qt::RightButton;
 
-    if (pressedR)
+    if (pressedR && cmask)
         enabling = !cmask->collision[x].solid;
 }
 
@@ -474,7 +495,7 @@ void TileCollisionWidgetv5::mouseReleaseEvent(QMouseEvent *event)
         pressedL = !((event->button() & Qt::LeftButton) == Qt::LeftButton);
     if (pressedR)
         pressedR = !((event->button() & Qt::RightButton) == Qt::RightButton);
-    UpdateW();
+    emit UpdateCol();
 }
 
 void TileCollisionWidgetv5::mouseMoveEvent(QMouseEvent *event)
@@ -496,10 +517,10 @@ void TileCollisionWidgetv5::mouseMoveEvent(QMouseEvent *event)
 
     highlight = x % 16 + y * 16;
 
-    if (pressedR)
+    if (pressedR && cmask)
         cmask->collision[x].solid = enabling;
 
-    if (pressedL)
+    if (pressedL && cmask)
         cmask->collision[x].height = y;
 
     update();

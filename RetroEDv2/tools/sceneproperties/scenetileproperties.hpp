@@ -30,7 +30,7 @@ protected:
     void leaveEvent(QEvent *) override;
 
 signals:
-    void UpdateW();
+    void UpdateCol();
 private:
     short selection = -1;
     short highlight = -1;
@@ -56,13 +56,12 @@ public:
     void tileSelected(ushort tile);
     void unsetUI();
 
+    QPushButton *replaceTile  = nullptr;
 
 signals:
     void updateChunkColMap();
     void updateChunkColTile(RSDKv5::TileConfig::CollisionMask *cmask, ushort sel, int colLyr = 0);
     void updateChunkColTilev1(RSDKv1::TileConfig::CollisionMask *cmask, ushort sel, int colLyr = 0);
-public slots:
-    void UpdateW();
 private:
     Ui::SceneTileProperties *ui;
     TileCollisionWidget edit;

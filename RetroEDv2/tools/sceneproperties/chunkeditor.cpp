@@ -26,12 +26,14 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
     for (int c = 0; c < (gameVer == ENGINE_v1 ? 0x100 : 0x200); ++c) {
         auto *item = new QListWidgetItem(QString::number(c), ui->chunkList);
         item->setIcon(QPixmap::fromImage(chunkList[c]));
+        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     }
 
     ui->tileList->clear();
     for (int t = 0; t < tiles.count(); ++t) {
         auto *item = new QListWidgetItem(QString::number(t), ui->tileList);
         item->setIcon(QPixmap::fromImage(tiles[t]));
+        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     }
 
     chunkIDs.clear();

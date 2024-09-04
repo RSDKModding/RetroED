@@ -191,10 +191,16 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
             [this](byte eventID, int entityID) { CallGameEvent(eventID, entityID); });
 
     connect(ui->horizontalScrollBar, &QScrollBar::valueChanged,
-            [this](int v) { viewer->cameraPos.x = v; });
+            [this](int v) {
+        viewer->cameraPos.x         = v;
+        viewer->screens->position.x = v;
+    });
 
     connect(ui->verticalScrollBar, &QScrollBar::valueChanged,
-            [this](int v) { viewer->cameraPos.y = v; });
+            [this](int v) {
+        viewer->cameraPos.y         = v;
+        viewer->screens->position.y = v;
+    });
 
 #ifndef Q_NO_PROCESS
     connect(ui->runGame, &QPushButton::clicked, [this]{
@@ -790,18 +796,18 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
     connect(ui->showParallax, &QPushButton::clicked, [this] { viewer->showParallax ^= 1; });
 
-    connect(scnProp->editTIL, &QPushButton::clicked, [this] {
+    connect(scnProp->editCHK, &QPushButton::clicked, [this] {
         if (chunkEdit == nullptr) {
-            chunkEdit = new ChunkEditor(&viewer->chunkset, viewer->chunks, viewer->tiles,
+            chunkEdit = new ChunkEditor(&chunkset, viewer->chunks, viewer->tiles,
                                         viewer->gameType, this);
             chunkEdit->show();
         }
 
         connect(chunkEdit, &QDialog::finished, [this] {
-            auto chunkStore = viewer->chunkset;
+            auto chunkStore = chunkset;
             for (int c = 0; c < (viewer->gameType == ENGINE_v1 ? 0x100 : 0x200); ++c) {
                 int chunkID                = chunkEdit->chunkIDs.indexOf(c);
-                viewer->chunkset.chunks[c] = chunkStore.chunks[chunkID];
+                chunkset.chunks[c]         = chunkStore.chunks[chunkID];
             }
 
             for (int i = 0; i < viewer->layers.count(); ++i) {
@@ -813,7 +819,8 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                     }
                 }
             }
-
+            viewer->chunkset = chunkset;
+            viewer->updateChunkColMap();
             chkProp->RefreshList();
             DoAction();
             chunkEdit = nullptr;
@@ -1031,12 +1038,12 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                             viewer->chunkset.chunks[i].tiles[y][x].solidityB = viewer->chunkset.chunks[i].tiles[y][x].solidityA;
                         }
                     }
-                    AddStatusProgress(progress / 5); // finished copying tile planes
-
                 };
+                AddStatusProgress(progress / 5); // finished copying tile planes
             }
         }
         if (sel->copyTilePlanes || sel->copyChunkPlane) {
+            viewer->updateChunkColMap();
             AddStatusProgress(5 / 5); // finished copying chunks planes
             DoAction();
         }
@@ -1272,7 +1279,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         });
     });
 
-    connect(scnProp->replaceTile, &QPushButton::clicked, [this] {
+    connect(tileProp->replaceTile, &QPushButton::clicked, [this] {
         TileReplaceOptions *dlg = new TileReplaceOptions;
         if (!dlg->exec())
             return;
@@ -1392,6 +1399,28 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 }
             }
         }
+
+        viewer->gfxSurface[0].texturePtr = nullptr;
+
+        QImage tileset(0x10, 0x400 * 0x10, QImage::Format_Indexed8);
+
+        QVector<QRgb> pal;
+        for (PaletteColor &col : viewer->tilePalette) pal.append(col.toQColor().rgb());
+        tileset.setColorTable(pal);
+
+        uchar *pixels = tileset.bits();
+        for (int i = 0; i < 0x400; ++i) {
+            uchar *src = viewer->tiles[i].bits();
+            for (int y = 0; y < 16; ++y) {
+                for (int x = 0; x < 16; ++x) {
+                    *pixels++ = *src++;
+                }
+            }
+        }
+
+        viewer->gfxSurface[0].texturePtr = viewer->createTexture(tileset, QOpenGLTexture::Target2D);
+
+        tileProp->setupUI(dstTile, viewer->tiles, viewer, viewer->gameType);
         SetStatus("Finished replacing Tile Info!"); // finished updating graphics
 
         viewer->startTimer();
@@ -1455,10 +1484,10 @@ bool SceneEditor::event(QEvent *event)
 
     case RE_EVENT_NEW: {
         QList<QString> types = {
-            "RSDKv4 Scenes (Act*.bin)",
-            "RSDKv3 Scenes (Act*.bin)",
-            "RSDKv2 Scenes (Act*.bin)",
-            "RSDKv1 Scenes (Act*.map)",
+            "RSDKv4 Scenes",
+            "RSDKv3 Scenes",
+            "RSDKv2 Scenes",
+            "RSDKv1 Scenes",
         };
 
         CreateScene *cScene = new CreateScene();
@@ -1508,9 +1537,7 @@ bool SceneEditor::event(QEvent *event)
                         gcPath = gcdialog.selectedFiles()[0];
                     }
                     else {
-                        if (!QFile::exists(gameConfig.filePath))
-                            return false;
-                        gcPath = gameConfig.filePath;
+                        return false;
                     }
                 }
                 else {
@@ -1960,12 +1987,12 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 status = true;
 
                 ui->horizontalScrollBar->blockSignals(true);
-                ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR - viewer->storedW);
+                ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR - (viewer->storedW / viewer->zoom));
                 ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
                 ui->horizontalScrollBar->blockSignals(false);
 
                 ui->verticalScrollBar->blockSignals(true);
-                ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB - viewer->storedH);
+                ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB - (viewer->storedH / viewer->zoom));
                 ui->verticalScrollBar->setValue(viewer->cameraPos.y);
                 ui->verticalScrollBar->blockSignals(false);
 
@@ -2224,7 +2251,7 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                 float zoomFactor = 0;
                 if (wEvent->angleDelta().y() > 0 && viewer->zoom < 20)
                     zoomFactor = 2.0f;
-                else if (wEvent->angleDelta().y() < 0 && viewer->zoom > 1)
+                else if (wEvent->angleDelta().y() < 0 && viewer->zoom > 0.5)
                     zoomFactor = 0.5f;
 
                 if (zoomFactor != 0) {
@@ -2238,9 +2265,16 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
                     viewer->screens->position.y = viewer->cameraPos.y;
                 }
 
+                ui->horizontalScrollBar->setMinimum(viewer->sceneBoundsL);
                 ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR - (viewer->storedW / viewer->zoom));
-                ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB - (viewer->storedH / viewer->zoom));
+                ui->horizontalScrollBar->setPageStep((viewer->storedW / viewer->zoom) / 10);
+                ui->horizontalScrollBar->setSingleStep(viewer->zoom > 1 ? 1 : 1 / viewer->zoom);
                 ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
+
+                ui->verticalScrollBar->setMinimum(viewer->sceneBoundsT);
+                ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB - (viewer->storedH / viewer->zoom));
+                ui->verticalScrollBar->setPageStep((viewer->storedH / viewer->zoom) / 10);
+                ui->verticalScrollBar->setSingleStep(viewer->zoom > 1 ? 1 : 1 / viewer->zoom);
                 ui->verticalScrollBar->setValue(viewer->cameraPos.y);
                 return true;
             }
@@ -2255,16 +2289,15 @@ bool SceneEditor::eventFilter(QObject *object, QEvent *event)
             }
 
             ui->horizontalScrollBar->blockSignals(true);
-            ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR
-                                                - (viewer->storedW * viewer->invZoom()));
             ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
             ui->horizontalScrollBar->blockSignals(false);
 
             ui->verticalScrollBar->blockSignals(true);
-            ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB
-                                              - (viewer->storedH * viewer->invZoom()));
             ui->verticalScrollBar->setValue(viewer->cameraPos.y);
             ui->verticalScrollBar->blockSignals(false);
+
+            viewer->screens->position.x = viewer->cameraPos.x;
+            viewer->screens->position.y = viewer->cameraPos.y;
             break;
         }
 
@@ -2611,10 +2644,18 @@ void SceneEditor::CreateNewScene(QString scnPath, byte scnVer, bool loadGC, QStr
 
     CreateEntityList();
 
-    ui->horizontalScrollBar->setMaximum(viewer->storedW);
-    ui->verticalScrollBar->setMaximum(viewer->storedH);
-    ui->horizontalScrollBar->setPageStep(0x80);
-    ui->verticalScrollBar->setPageStep(0x80);
+    ui->horizontalScrollBar->setMinimum(viewer->sceneBoundsL);
+    ui->verticalScrollBar->setMinimum(viewer->sceneBoundsT);
+    ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR - (viewer->storedW / viewer->zoom));
+    ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB - (viewer->storedH / viewer->zoom));
+
+    ui->horizontalScrollBar->setPageStep((viewer->storedW / viewer->zoom) / 10);
+    ui->verticalScrollBar->setPageStep((viewer->storedH / viewer->zoom) / 10);
+    ui->horizontalScrollBar->setSingleStep(viewer->zoom > 1 ? 1 : 1 / viewer->zoom);
+    ui->verticalScrollBar->setSingleStep(viewer->zoom > 1 ? 1 : 1 / viewer->zoom);
+
+    ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
+    ui->verticalScrollBar->setValue(viewer->cameraPos.y);
 
     if (viewer->gameType == ENGINE_v1) {
         scnProp->musBox->clear();
@@ -2685,6 +2726,8 @@ void SceneEditor::CreateNewScene(QString scnPath, byte scnVer, bool loadGC, QStr
 
 void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
 {
+    ResetTools(0xFF);
+
     viewer->disableDrawScene = true;
     viewer->objectsLoaded = false;
 
@@ -3033,10 +3076,22 @@ void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
 
     CreateEntityList();
 
-    ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR - viewer->storedW);
-    ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB - viewer->storedH);
-    ui->horizontalScrollBar->setPageStep(0x80);
-    ui->verticalScrollBar->setPageStep(0x80);
+    ui->horizontalScrollBar->setMinimum(viewer->sceneBoundsL);
+    ui->verticalScrollBar->setMinimum(viewer->sceneBoundsT);
+    ui->horizontalScrollBar->setMaximum(scene.width * viewer->tileSize - (viewer->storedW / viewer->zoom));
+    ui->verticalScrollBar->setMaximum(scene.height * viewer->tileSize - (viewer->storedH / viewer->zoom));
+
+    ui->horizontalScrollBar->setPageStep(((scene.width * viewer->tileSize) / viewer->zoom) / 10);
+    ui->verticalScrollBar->setPageStep(((scene.height * viewer->tileSize) / viewer->zoom) / 10);
+    ui->horizontalScrollBar->setSingleStep(viewer->zoom > 1 ? 1 : 1 / viewer->zoom);
+    ui->verticalScrollBar->setSingleStep(viewer->zoom > 1 ? 1 : 1 / viewer->zoom);
+
+    ui->horizontalScrollBar->blockSignals(true);
+    ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
+    ui->horizontalScrollBar->blockSignals(false);
+    ui->verticalScrollBar->blockSignals(true);
+    ui->verticalScrollBar->setValue(viewer->cameraPos.y);
+    ui->verticalScrollBar->blockSignals(false);
 
     if (viewer->gameType == ENGINE_v1) {
         scnProp->musBox->clear();
@@ -3323,7 +3378,7 @@ bool SceneEditor::SaveScene(bool forceSaveAs)
 
         scene.write(saveVer, savePath);
         background.write(saveVer, basePath + "Backgrounds.bin");
-        viewer->chunkset.write(saveVer, basePath + "128x128Tiles.bin");
+        chunkset.write(saveVer, basePath + "128x128Tiles.bin");
         tileconfig.write(basePath + "CollisionMasks.bin");
         stageConfig.write(saveVer, basePath + "StageConfig.bin");
         tileset.write(basePath + "16x16Tiles.gif");
@@ -3348,7 +3403,7 @@ bool SceneEditor::SaveScene(bool forceSaveAs)
 
         scene.write(saveVer, savePath);
         background.write(saveVer, basePath + "ZoneBG.map");
-        viewer->chunkset.write(saveVer, basePath + "Zone.til");
+        chunkset.write(saveVer, basePath + "Zone.til");
         tileconfig.write(basePath + "Zone.tcf");
         stageConfig.write(saveVer, basePath + "Zone.zcf");
 
@@ -3982,7 +4037,7 @@ bool SceneEditor::HandleKeyPress(QKeyEvent *event)
 
     if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
         && event->key() == Qt::Key_G && viewerActive) {
-        auto *sel = new GoToPos(viewer->layers[viewer->selectedLayer].width * 128, viewer->layers[viewer->selectedLayer].height * 128, viewer->layers[viewer->selectedLayer].name, this);
+        auto *sel = new GoToPos(viewer->layers[viewer->selectedLayer].width * viewer->tileSize, viewer->layers[viewer->selectedLayer].height * viewer->tileSize, viewer->layers[viewer->selectedLayer].name, this);
         if (sel->exec() == QDialog::Accepted) {
             viewer->cameraPos.x = sel->posX - ((viewer->storedW / 2) * viewer->invZoom());
             viewer->cameraPos.y = sel->posY - ((viewer->storedH / 2) * viewer->invZoom());
@@ -5616,7 +5671,7 @@ void SceneEditor::WriteXMLChunk(Writer &writer, int chunkID, int indentPos)
     QList<QString> solidities = { "All Solid", "Solid Top", "Solid LRB", "Not Solid",
                                   "Solid Top (No Grip)" };
 
-    auto &chunk = viewer->chunkset.chunks[chunkID];
+    auto &chunk = chunkset.chunks[chunkID];
 
     writeXMLIndentation(writer, indentPos);
     writer.writeLine(QString("\t\t<chunk>"));

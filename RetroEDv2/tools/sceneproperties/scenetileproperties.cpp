@@ -12,6 +12,9 @@ SceneTileProperties::SceneTileProperties(QWidget *parent)
     : QWidget(parent), ui(new Ui::SceneTileProperties)
 {
     ui->setupUi(this);
+
+    replaceTile  = ui->replaceTile;
+    ui->tileFrame->layout()->addWidget(&edit);
 }
 
 SceneTileProperties::~SceneTileProperties() { delete ui; }
@@ -23,10 +26,9 @@ void SceneTileProperties::setupUI(ushort tid, QList<QImage> &tiles, SceneViewer 
     if (!viewer)
         return;
 
-    tileImg = tiles[0];
-
+    tileImg = tiles[tid];
+    selectedDrawTile = tid;
     collisionLyr = 0;
-    selectedDrawTile = 0;
 
     gameType = engineVer;
 
@@ -42,10 +44,8 @@ void SceneTileProperties::setupUI(ushort tid, QList<QImage> &tiles, SceneViewer 
     }
     edit.paintVer            = gameType;
     edit.tileImg             = tileImg;
-    ui->tileFrame->layout()->addWidget(&edit);
 
     ui->colPlaneA->setChecked(true);
-
 
     ui->tID->setText("Tile ID: " + QString::number(tid));
 
@@ -54,6 +54,7 @@ void SceneTileProperties::setupUI(ushort tid, QList<QImage> &tiles, SceneViewer 
     for (int t = 0; t < tiles.count(); ++t) {
         auto *item = new QListWidgetItem(QString::number(t), ui->tileList);
         item->setIcon(QPixmap::fromImage(tiles[t]));
+        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     }
     ui->tileList->blockSignals(false);
 
@@ -173,7 +174,7 @@ void SceneTileProperties::setupUI(ushort tid, QList<QImage> &tiles, SceneViewer 
         edit.update();
     });
 
-    connect(&edit, &TileCollisionWidget::UpdateW, [&]{
+    connect(&edit, &TileCollisionWidget::UpdateCol, [&]{
         if (gameType != ENGINE_v1)
             emit updateChunkColTile(cmask[collisionLyr], selectedDrawTile, collisionLyr);
         else
@@ -408,6 +409,10 @@ void SceneTileProperties::unsetUI()
 
     ui->tID->setText("Tile ID: ");
 
+    collisionLyr = 0;
+    ui->colPlaneA->setChecked(true);
+    ui->colPlaneB->setChecked(false);
+
     disconnect(ui->maskDir, nullptr, nullptr, nullptr);
     disconnect(ui->floorAngle, nullptr, nullptr, nullptr);
     disconnect(ui->roofAngle, nullptr, nullptr, nullptr);
@@ -428,13 +433,10 @@ void SceneTileProperties::unsetUI()
     cmask[1] = nullptr;
     cmaskv1[0] = nullptr;
     cmaskv1[1] = nullptr;
-}
 
-void SceneTileProperties::UpdateW(){
-    if (gameType != ENGINE_v1)
-        emit updateChunkColTile(cmask[collisionLyr], selectedDrawTile, collisionLyr);
-    else
-        emit updateChunkColTilev1(cmaskv1[collisionLyr], selectedDrawTile, collisionLyr);
+    edit.cmask = cmask[0];
+    edit.tileImg = QImage(0,0);
+    ui->tileFrame->layout()->removeWidget(&edit);
 }
 
 #include "moc_scenetileproperties.cpp"
@@ -536,7 +538,7 @@ void TileCollisionWidget::mouseReleaseEvent(QMouseEvent *event)
         pressedL = !((event->button() & Qt::LeftButton) == Qt::LeftButton);
     if (pressedR)
         pressedR = !((event->button() & Qt::RightButton) == Qt::RightButton);
-    UpdateW();
+    emit UpdateCol();
 }
 
 void TileCollisionWidget::mouseMoveEvent(QMouseEvent *event)

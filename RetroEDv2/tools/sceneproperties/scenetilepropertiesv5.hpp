@@ -26,7 +26,7 @@ protected:
     void leaveEvent(QEvent *) override;
 
 signals:
-    void UpdateW();
+    void UpdateCol();
 private:
     short selection = -1;
     short highlight = -1;
@@ -50,14 +50,14 @@ public:
     void updatePropFlags(bool c, byte pos);
     int collisionLyr = 0;
 
+    QPushButton *replaceTile  = nullptr;
+
 signals:
     void updateTileFlags(bool c, byte pos);
     void updateTileColMap(RSDKv5::TileConfig::CollisionMask *cmask, ushort sel, int colLyr = 0);
-public slots:
-    void UpdateW();
 private:
     Ui::SceneTilePropertiesv5 *ui;
-    TileCollisionWidgetv5 *edit;
+    TileCollisionWidgetv5 edit;
     QImage tileImg;
 
     RSDKv5::TileConfig::CollisionMask *cmask[2] = { nullptr, nullptr };

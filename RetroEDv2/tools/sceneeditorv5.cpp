@@ -1427,7 +1427,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         SetStatus("Game Link reloaded successfully!");
     });
 
-    connect(scnProp->replaceTile, &QPushButton::clicked, [this] {
+    connect(tileProp->replaceTile, &QPushButton::clicked, [this] {
         TileReplaceOptions *dlg = new TileReplaceOptions;
         dlg->replaceVisualPlane->setDisabled(true);
         dlg->hasVisualPlane->setDisabled(true);
@@ -1789,6 +1789,7 @@ void SceneEditorv5::updateTileSel(){
     Utils::setBit(tile, viewer->tileSolidB.x, 14);
     Utils::setBit(tile, viewer->tileSolidB.y, 15);
 
+    tileProp->setDisabled(tile == 0xFFFF);
     tileProp->setupUI(&tileconfig.collisionPaths[0][tile & 0x3FF], &tileconfig.collisionPaths[1][tile & 0x3FF],
             &tile, viewer->tiles[tile & 0x3FF]);
     copiedTile = false;
@@ -1863,10 +1864,7 @@ bool SceneEditorv5::event(QEvent *event)
                         gcPath = gcdialog.selectedFiles()[0];
                     }
                     else {
-                        if (!QFile::exists(gameConfig.filePath)) {
-                            return false;
-                        }
-                        gcPath = gameConfig.filePath;
+                        return false;
                     }
                 }
                 else {
@@ -2271,7 +2269,7 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
             if (mouseDownR) {
                 switch (viewer->curTool) {
                     case SceneViewer::TOOL_PENCIL:
-                        if (viewer->selectedLayer >= 0) {
+                        if (viewer->selectedLayer >= 0 && viewer->layers[viewer->selectedLayer].visible) {
                             Rect<float> box;
 
                             Vector2<float> pos = Vector2<float>(
@@ -2284,12 +2282,13 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                     if (box.contains(pos)) {
                                         ushort tile =
                                             viewer->layers[viewer->selectedLayer].layout[y][x];
-
                                         viewer->selectedTile = tile;
                                         copiedTile = true;
                                         ui->propertiesBox->setCurrentWidget(ui->tilePropPage);
-                                        tileProp->setupUI(&tileconfig.collisionPaths[0][tile & 0x3FF], &tileconfig.collisionPaths[1][tile & 0x3FF],
-                                                &tile, viewer->tiles[tile & 0x3FF]);
+                                        tileProp->setDisabled(tile == 0xFFFF);
+                                        if (tile != 0xFFFF)
+                                            tileProp->setupUI(&tileconfig.collisionPaths[0][tile & 0x3FF], &tileconfig.collisionPaths[1][tile & 0x3FF],
+                                                    &tile, viewer->tiles[tile & 0x3FF]);
                                         //ui->toolBox->setCurrentWidget(ui->tilesPage); // why does this lag so much wth
                                         break;
                                     }
@@ -2736,9 +2735,16 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                     viewer->screens->position.y = viewer->cameraPos.y;
                 }
 
+                ui->horizontalScrollBar->setMinimum(viewer->sceneBoundsL);
                 ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR - (viewer->storedW / viewer->zoom));
-                ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB - (viewer->storedH / viewer->zoom));
+                ui->horizontalScrollBar->setPageStep((viewer->storedW / viewer->zoom) / 10);
+                ui->horizontalScrollBar->setSingleStep(viewer->zoom > 1 ? 1 : 1 / viewer->zoom);
                 ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
+
+                ui->verticalScrollBar->setMinimum(viewer->sceneBoundsT);
+                ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB - (viewer->storedH / viewer->zoom));
+                ui->verticalScrollBar->setPageStep((viewer->storedH / viewer->zoom) / 10);
+                ui->verticalScrollBar->setSingleStep(viewer->zoom > 1 ? 1 : 1 / viewer->zoom);
                 ui->verticalScrollBar->setValue(viewer->cameraPos.y);
                 return true;
             }
@@ -2753,14 +2759,10 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
             }
 
             ui->horizontalScrollBar->blockSignals(true);
-            ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR
-                                                - (viewer->storedW * viewer->invZoom()));
             ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
             ui->horizontalScrollBar->blockSignals(false);
 
             ui->verticalScrollBar->blockSignals(true);
-            ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB
-                                              - (viewer->storedH * viewer->invZoom()));
             ui->verticalScrollBar->setValue(viewer->cameraPos.y);
             ui->verticalScrollBar->blockSignals(false);
 
@@ -3216,7 +3218,6 @@ void SceneEditorv5::CreateNewScene(QString scnPath, bool prePlus, bool loadGC, Q
     lyrProp->setupUI(viewer, 0);
     tileProp->setupUI(&tileconfig.collisionPaths[0][0], &tileconfig.collisionPaths[1][0],
                       0, viewer->tiles[0]);
-    tileProp->unsetUI();
     objProp->unsetUI();
     scrProp->unsetUI();
 
@@ -3509,9 +3510,9 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
 
     scnProp->setupUI(&scene, &stageConfig);
     lyrProp->setupUI(viewer, 0);
+    tileProp->unsetUI();
     tileProp->setupUI(&tileconfig.collisionPaths[0][0], &tileconfig.collisionPaths[1][0],
                       0, viewer->tiles[0]);
-    tileProp->unsetUI();
     objProp->unsetUI();
     scrProp->unsetUI();
 
@@ -4509,7 +4510,7 @@ bool SceneEditorv5::HandleKeyPress(QKeyEvent *event)
 
     if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
         && event->key() == Qt::Key_G && viewerActive) {
-        auto *sel = new GoToPos(viewer->layers[viewer->selectedLayer].width * 16, viewer->layers[viewer->selectedLayer].height * 16, viewer->layers[viewer->selectedLayer].name, this);
+        auto *sel = new GoToPos(viewer->layers[viewer->selectedLayer].width * viewer->tileSize, viewer->layers[viewer->selectedLayer].height * viewer->tileSize, viewer->layers[viewer->selectedLayer].name, this);
         if (sel->exec() == QDialog::Accepted) {
             viewer->cameraPos.x = sel->posX - ((viewer->storedW / 2) * viewer->invZoom());
             viewer->cameraPos.y = sel->posY - ((viewer->storedH / 2) * viewer->invZoom());

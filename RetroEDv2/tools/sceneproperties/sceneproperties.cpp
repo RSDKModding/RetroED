@@ -12,7 +12,7 @@ SceneProperties::SceneProperties(QWidget *parent) : QWidget(parent), ui(new Ui::
 
     loadGlobalCB = ui->loadGlobals;
 
-    editTIL   = ui->editChunks;
+    editCHK   = ui->editChunks;
     editSCF   = ui->editStageConfig;
     editPAL   = ui->editPalette;
     editTSet  = ui->editTSet;
@@ -30,7 +30,6 @@ SceneProperties::SceneProperties(QWidget *parent) : QWidget(parent), ui(new Ui::
     reloadLink = ui->reloadLink;
 
     replaceChunk = ui->replaceChunk;
-    replaceTile  = ui->replaceTile;
 
     bgSel = new color_widgets::ColorPreview(this);
     ui->bgClrLayout->addWidget(bgSel);

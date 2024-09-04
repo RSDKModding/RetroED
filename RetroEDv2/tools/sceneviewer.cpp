@@ -2702,39 +2702,84 @@ void SceneViewer::drawSpriteRotozoom(float XPos, float YPos, float pivotX, float
 
     float posX[4], posY[4];
 
-    if (direction == FLIP_NONE) {
-        int x    = -pivotX - 2;
-        int x2   = width - pivotX + 2;
-        int y    = -pivotY - 2;
-        int y2   = height - pivotY + 2;
-        posX[0] = xpos + ((x * cos + y * sin)) * sX;
-        posY[0] = ypos + ((y * cos - x * sin)) * sY;
+    if (gameType != ENGINE_v5){
+        if (direction == FLIP_NONE) {
+            int x    = -pivotX - 2;
+            int x2   = width - pivotX + 2;
+            int y    = -pivotY - 2;
+            int y2   = height - pivotY + 2;
+            posX[0] = xpos + ((x * cos + y * sin)) * sX;
+            posY[0] = ypos + ((y * cos - x * sin)) * sY;
 
-        posX[1] = xpos + ((x2 * cos + y * sin)) * sX;
-        posY[1] = ypos + ((y * cos - x2 * sin)) * sY;
+            posX[1] = xpos + ((x2 * cos + y * sin)) * sX;
+            posY[1] = ypos + ((y * cos - x2 * sin)) * sY;
 
-        posX[2] = xpos + ((x * cos + y2 * sin)) * sX;
-        posY[2] = ypos + ((y2 * cos - x * sin)) * sY;
+            posX[2] = xpos + ((x * cos + y2 * sin)) * sX;
+            posY[2] = ypos + ((y2 * cos - x * sin)) * sY;
 
-        posX[3] = xpos + ((x2 * cos + y2 * sin)) * sX;
-        posY[3] = ypos + ((y2 * cos - x2 * sin)) * sY;
-    }
-    else {
-        int x    = pivotX + 2;
-        int x2   = pivotX - width - 2;
-        int y    = -pivotY - 2;
-        int y2   = height - pivotY + 2;
-        posX[0] = xpos + ((x * cos + y * sin)) * sX;
-        posY[0] = ypos + ((y * cos - x * sin)) * sY;
+            posX[3] = xpos + ((x2 * cos + y2 * sin)) * sX;
+            posY[3] = ypos + ((y2 * cos - x2 * sin)) * sY;
+        }
+        else {
+            int x    = pivotX + 2;
+            int x2   = pivotX - width - 2;
+            int y    = -pivotY - 2;
+            int y2   = height - pivotY + 2;
+            posX[0] = xpos + ((x * cos + y * sin)) * sX;
+            posY[0] = ypos + ((y * cos - x * sin)) * sY;
 
-        posX[1] = xpos + ((x2 * cos + y * sin)) * sX;
-        posY[1] = ypos + ((y * cos - x2 * sin)) * sY;
+            posX[1] = xpos + ((x2 * cos + y * sin)) * sX;
+            posY[1] = ypos + ((y * cos - x2 * sin)) * sY;
 
-        posX[2] = xpos + ((x * cos + y2 * sin)) * sX;
-        posY[2] = ypos + ((y2 * cos - x * sin)) * sY;
+            posX[2] = xpos + ((x * cos + y2 * sin)) * sX;
+            posY[2] = ypos + ((y2 * cos - x * sin)) * sY;
 
-        posX[3] = xpos + ((x2 * cos + y2 * sin)) * sX;
-        posY[3] = ypos + ((y2 * cos - x2 * sin)) * sY;
+            posX[3] = xpos + ((x2 * cos + y2 * sin)) * sX;
+            posY[3] = ypos + ((y2 * cos - x2 * sin)) * sY;
+        }
+    } else {
+        if (direction == FLIP_NONE) {
+            int x   = pivotX;
+            int y   = pivotY;
+            posX[0] = xpos + ((x * cos + y * sin)) * sX;
+            posY[0] = ypos + ((y * cos - x * sin)) * sY;
+
+            x       = width + pivotX;
+            y       = pivotY;
+            posX[1] = xpos + ((x * cos + y * sin)) * sX;
+            posY[1] = ypos + ((y * cos - x * sin)) * sY;
+
+            x       = pivotX;
+            y       = height + pivotY;
+            posX[2] = xpos + ((x * cos + y * sin)) * sX;
+            posY[2] = ypos + ((y * cos - x * sin)) * sY;
+
+            x       = width + pivotX;
+            y       = height + pivotY;
+            posX[3] = xpos + ((x * cos + y * sin)) * sX;
+            posY[3] = ypos + ((y * cos - x * sin)) * sY;
+        }
+        else {
+            int x   = -pivotX;
+            int y   = pivotY;
+            posX[0] = xpos + ((x * cos + y * sin)) * sX;
+            posY[0] = ypos + ((y * cos - x * sin)) * sY;
+
+            x       = -pivotX - width;
+            y       = pivotY;
+            posX[1] = xpos + ((x * cos + y * sin)) * sX;
+            posY[1] = ypos + ((y * cos - x * sin)) * sY;
+
+            x       = -pivotX;
+            y       = height + pivotY;
+            posX[2] = xpos + ((x * cos + y * sin)) * sX;
+            posY[2] = ypos + ((y * cos - x * sin)) * sY;
+
+            x       = -pivotX - width;
+            y       = height + pivotY;
+            posX[3] = xpos + ((x * cos + y * sin)) * sX;
+            posY[3] = ypos + ((y * cos - x * sin)) * sY;
+        }
     }
     float entX = activeDrawEntity->pos.x - cameraPos.x;
     float entY = activeDrawEntity->pos.y - cameraPos.y;
@@ -2887,12 +2932,23 @@ void SceneViewer::drawBlendedFace(Vector2<int> *vertices, uint *colors, int vert
 inline void SceneViewer::addPoly(float x, float y, float u, float v, Vector4<float> color,
                                  GFXSurface *surface)
 {
+
+    if (surface) {
+        if (invZoom() > 1 && !fileRender){
+            x  = x + (int)x % 2;
+            y  = y + (int)y % 2;
+            u  = (int)((u / surface->width) * 100000);
+            u /= 100000;
+            v  = (int)((v / surface->height) * 100000);
+            v /= 100000;
+        } else {
+            u = u / surface->width;
+            v = v / surface->height;
+        }
+    }
     vertexList[renderCount].pos.setX(x);
     vertexList[renderCount].pos.setY(y);
-    if (surface) {
-        u /= surface->width;
-        v /= surface->height;
-    }
+
     vertexList[renderCount].uv.setX(u);
     vertexList[renderCount].uv.setY(v);
 

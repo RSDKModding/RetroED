@@ -22,7 +22,7 @@ public:
 
     QCheckBox *loadGlobalCB = nullptr;
 
-    QPushButton *editTIL  = nullptr;
+    QPushButton *editCHK  = nullptr;
     QPushButton *editSCF  = nullptr;
     QPushButton *editPAL  = nullptr;
     QPushButton *editTSet = nullptr;
@@ -39,7 +39,6 @@ public:
     QPushButton *reloadLink = nullptr;
 
     QPushButton *replaceChunk = nullptr;
-    QPushButton *replaceTile  = nullptr;
 
     color_widgets::ColorPreview *bgSel    = nullptr;
     color_widgets::ColorPreview *altBGSel = nullptr;

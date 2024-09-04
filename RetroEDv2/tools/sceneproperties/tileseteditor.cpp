@@ -37,6 +37,7 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, QList<PaletteColor> &pal, 
     for (int t = 0; t < tiles.count(); ++t) {
         auto *item = new QListWidgetItem(QString::number(t), ui->tileList);
         item->setIcon(QPixmap::fromImage(tiles.at(t)));
+        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     }
 
     tileIDs.clear();
