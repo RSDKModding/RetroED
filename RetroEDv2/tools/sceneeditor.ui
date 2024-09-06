@@ -31,7 +31,7 @@
         <x>0</x>
         <y>0</y>
         <width>185</width>
-        <height>202</height>
+        <height>181</height>
        </rect>
       </property>
       <attribute name="label">
@@ -49,7 +49,7 @@
         <x>0</x>
         <y>0</y>
         <width>185</width>
-        <height>202</height>
+        <height>181</height>
        </rect>
       </property>
       <attribute name="label">
@@ -63,7 +63,7 @@
         <x>0</x>
         <y>0</y>
         <width>185</width>
-        <height>202</height>
+        <height>181</height>
        </rect>
       </property>
       <attribute name="label">
@@ -132,7 +132,7 @@
         <x>0</x>
         <y>0</y>
         <width>185</width>
-        <height>202</height>
+        <height>181</height>
        </rect>
       </property>
       <attribute name="label">
@@ -242,7 +242,7 @@
         <x>0</x>
         <y>0</y>
         <width>185</width>
-        <height>202</height>
+        <height>181</height>
        </rect>
       </property>
       <attribute name="label">
@@ -345,7 +345,7 @@
         <x>0</x>
         <y>0</y>
         <width>185</width>
-        <height>202</height>
+        <height>181</height>
        </rect>
       </property>
       <attribute name="label">
@@ -468,7 +468,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>229</height>
+        <height>211</height>
        </rect>
       </property>
       <attribute name="label">
@@ -494,7 +494,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>229</height>
+        <height>211</height>
        </rect>
       </property>
       <attribute name="label">
@@ -520,7 +520,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>229</height>
+        <height>211</height>
        </rect>
       </property>
       <attribute name="label">
@@ -546,7 +546,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>229</height>
+        <height>211</height>
        </rect>
       </property>
       <attribute name="label">
@@ -572,7 +572,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>229</height>
+        <height>211</height>
        </rect>
       </property>
       <attribute name="label">
@@ -943,6 +943,9 @@
     <widget class="QLabel" name="statusLabel">
      <property name="text">
       <string/>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

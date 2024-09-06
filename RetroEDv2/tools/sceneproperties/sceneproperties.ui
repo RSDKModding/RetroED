@@ -20,8 +20,23 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
    <item row="0" column="0">
     <widget class="QScrollArea" name="scrollArea">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>0</number>
+     </property>
      <property name="widgetResizable">
       <bool>true</bool>
      </property>
@@ -29,8 +44,8 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-240</y>
-        <width>257</width>
+        <y>0</y>
+        <width>267</width>
         <height>1011</height>
        </rect>
       </property>
@@ -104,6 +119,29 @@
             </property>
             <property name="value">
              <number>128</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="11" column="0" colspan="2">
+        <widget class="QGroupBox" name="infoBox">
+         <property name="title">
+          <string>Scene Info</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QLabel" name="objCnt">
+            <property name="text">
+             <string>Object Count: 0 Objects</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="entCntTot">
+            <property name="text">
+             <string>Entity Count: 0 Entities</string>
             </property>
            </widget>
           </item>
@@ -312,29 +350,6 @@
             </property>
             <property name="maximum">
              <number>32767</number>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="11" column="0" colspan="2">
-        <widget class="QGroupBox" name="infoBox">
-         <property name="title">
-          <string>Scene Info</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <widget class="QLabel" name="objCnt">
-            <property name="text">
-             <string>Object Count: 0 Objects</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="entCntTot">
-            <property name="text">
-             <string>Entity Count: 0 Entities</string>
             </property>
            </widget>
           </item>
