@@ -2249,7 +2249,7 @@ void AnimationEditor::UpdateView()
 
     if (currentAnim < animFile.animations.count() && currentFrame < FrameCount()) {
         FormatHelpers::Animation::Frame &frame = animFile.animations[currentAnim].frames[currentFrame];
-        if (frame.width && frame.height && frame.sheet < sheets.count()) {
+        if (frame.sheet < sheets.count() && frame.width + frame.sprX <= sheets[frame.sheet].width() && frame.height + frame.sprY <= sheets[frame.sheet].height()) {
             QRect boundingRect(frame.sprX, frame.sprY, frame.width, frame.height);
 
             QImage frameImg = sheets[frame.sheet].copy(boundingRect);
@@ -2381,10 +2381,10 @@ void AnimationEditor::SetFramePreview(bool update)
     if (currentFrame < FrameCount()) {
         FormatHelpers::Animation::Frame &f = animFile.animations[currentAnim].frames[currentFrame];
         QRect boundingRect(f.sprX, f.sprY, f.width, f.height);
-
         frameModel->itemFromIndex(frameModel->index(currentFrame, 0))
-            ->setData((f.width == 0 || f.height == 0 ||
-                       f.sheet >= sheets.count()) ? missingImg : QPixmap::fromImage(sheets[f.sheet].copy(boundingRect)),
+            ->setData((f.sheet >= sheets.count() || f.width == 0 || f.height == 0
+                    || f.width + f.sprX > sheets[f.sheet].width() || f.height + f.sprY > sheets[f.sheet].height())
+                          ? missingImg : QPixmap::fromImage(sheets[f.sheet].copy(boundingRect)),
                             ROLE_PIXMAP);
     }
     if (update)
@@ -2399,7 +2399,8 @@ void AnimationEditor::SetupFrameList(QList<FormatHelpers::Animation::Frame> &fra
 
         QStandardItem *item = new QStandardItem;
         item->setEditable(false);
-        item->setData((f.width == 0 || f.height == 0 || f.sheet >= sheets.count())
+        item->setData((f.sheet >= sheets.count() || f.width == 0 || f.height == 0
+                    || f.width + f.sprX > sheets[f.sheet].width() || f.height + f.sprY > sheets[f.sheet].height())
                           ? missingImg
                           : QPixmap::fromImage(sheets[f.sheet].copy(boundingRect)),
                       ROLE_PIXMAP);

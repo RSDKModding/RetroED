@@ -1213,7 +1213,7 @@ bool GameConfigEditorv5::event(QEvent *event)
                         case 1: {
                             SetStatus("Saving GameConfig...", true);
 
-                            gameConfig.readFilter = filter == 3;
+                            gameConfig.readFilter = filter == 0;
                             appConfig.addRecentFile(
                                 ENGINE_v5, TOOL_GAMECONFIGEDITOR, filepath,
                                 QList<QString>{ "GameConfig", filter == 1 ? "rev01" : "rev02" });
