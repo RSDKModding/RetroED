@@ -74,7 +74,8 @@ void SceneObjectProperties::setupUI(SceneEntity *entity, int entityID, Compilerv
                         QString("An entity already exists with slotID %1.").arg(entity->slotID),
                         QMessageBox::NoButton, this);
                     msgBox->open();
-                    entity->slotID = entity->prevSlot;
+                    entity->slotID         = entity->prevSlot;
+                    entity->gameEntitySlot = entity->prevSlot;
                     flag           = true;
 
                     infoGroup[1]->updateValue();
@@ -82,19 +83,19 @@ void SceneObjectProperties::setupUI(SceneEntity *entity, int entityID, Compilerv
                 }
             }
             byte type = *(byte *)infoGroup[0]->valuePtr;
-            emit typeChanged(entity, type);
+            emit typeChanged(entity, type, true);
         }
         if (!flag)
             entity->prevSlot = entity->slotID;
     });
 
     connect(infoGroup[2], &Property::changed,
-            [this, infoGroup, entity, entityv2, entityv3, entityv4, ver] {
+            [this, infoGroup, entity, entityv2, entityv3, entityv4, ver, entityID] {
                 byte propVal = *(byte *)infoGroup[2]->valuePtr;
 
                 // we set propertyValue via this so the game can run logic on it
                 bool called = false;
-                callRSDKEdit(scnEditor, false, entity->slotID, -1, propVal, &called);
+                callRSDKEdit(scnEditor, false, entityID, -1, propVal, &called);
 
                 if (called) {
                     if (ver == ENGINE_v3)
@@ -117,7 +118,7 @@ void SceneObjectProperties::setupUI(SceneEntity *entity, int entityID, Compilerv
                 for (int i = startGroup; i < properties->propertySet.count(); ++i) {
                     auto &var = entity->variables[i - startGroup];
                     var.value_int32 =
-                        callRSDKEdit(scnEditor, true, entity->slotID, i - startGroup, var.value_int32);
+                        callRSDKEdit(scnEditor, true, entityID, i - startGroup, var.value_int32);
 
                     switch (ver) {
                         case ENGINE_v2: entity->propertyValue = entityv2->propertyValue; break;
@@ -247,7 +248,7 @@ void SceneObjectProperties::setupUI(SceneEntity *entity, int entityID, Compilerv
             for (int i = 3; i < properties->propertySet.count(); ++i) {
                 auto &var = entity->variables[i - 3];
                 var.value_int32 =
-                callRSDKEdit(scnEditor, true, entity->slotID, i - 3, var.value_int32);
+                callRSDKEdit(scnEditor, true, entityID, i - 3, var.value_int32);
 
                 entity->propertyValue = entityv4->propertyValue;
                 for(int v = 0; v < 0xF; v++){
@@ -288,7 +289,7 @@ void SceneObjectProperties::setupUI(SceneEntity *entity, int entityID, Compilerv
             }
         }
 
-        var.value_int32 = callRSDKEdit(scnEditor, true, entity->slotID, v, 0);
+        var.value_int32 = callRSDKEdit(scnEditor, true, entityID, v, 0);
 
         if (aliases.count()) {
             valGroup.append(new Property("enum", aliases, &var.value_int32, Property::INT_MANAGER));

@@ -23,7 +23,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="layerPage">
       <property name="geometry">
@@ -139,23 +139,24 @@
        <string>Entity List</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_4">
-       <item row="0" column="0" colspan="6">
+       <item row="1" column="0" colspan="6">
         <widget class="QListWidget" name="entityList"/>
        </item>
-       <item row="2" column="1">
-        <spacer name="horizontalSpacer_6">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+       <item row="3" column="3">
+        <widget class="QToolButton" name="downEnt">
+         <property name="toolTip">
+          <string>Moves an entity down</string>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
+         <property name="text">
+          <string>D</string>
          </property>
-        </spacer>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
+         </property>
+        </widget>
        </item>
-       <item row="2" column="0">
+       <item row="3" column="0">
         <widget class="QToolButton" name="addEnt">
          <property name="toolTip">
           <string>Adds an entity</string>
@@ -169,7 +170,54 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="5">
+       <item row="3" column="2">
+        <widget class="QToolButton" name="upEnt">
+         <property name="toolTip">
+          <string>Moves an entity up</string>
+         </property>
+         <property name="text">
+          <string>U</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="6">
+        <widget class="QLineEdit" name="entityFilter">
+         <property name="placeholderText">
+          <string>Find entities...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <spacer name="horizontalSpacer_6">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="3" column="4">
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="3" column="5">
         <widget class="QToolButton" name="rmEnt">
          <property name="enabled">
           <bool>false</bool>
@@ -186,51 +234,10 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="3">
-        <widget class="QToolButton" name="downEnt">
-         <property name="toolTip">
-          <string>Moves an entity down</string>
-         </property>
+       <item row="0" column="0" colspan="6">
+        <widget class="QLabel" name="totalEntCount">
          <property name="text">
-          <string>D</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2">
-        <widget class="QToolButton" name="upEnt">
-         <property name="toolTip">
-          <string>Moves an entity up</string>
-         </property>
-         <property name="text">
-          <string>U</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="4">
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="0" colspan="6">
-        <widget class="QLineEdit" name="entityFilter">
-         <property name="placeholderText">
-          <string>Find entities...</string>
+          <string>Total Entity Count</string>
          </property>
         </widget>
        </item>
