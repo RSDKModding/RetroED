@@ -807,7 +807,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     connect(objProp, &SceneObjectPropertiesv5::typeChanged, this, &SceneEditorv5::updateType);
 
     connect(ui->addEnt, &QToolButton::clicked, [this] {
-        uint c = viewer->entities[(viewer->entities.count() - 1)].slotID + 1;
+        uint c = viewer->entities.count() ? viewer->entities.last().slotID + 1 : 0;
         uint entType = (viewer->selectedObject > -1 ? viewer->selectedObject : 0);
 
         int xpos = viewer->cameraPos.x + ((viewer->storedW / 2) * viewer->invZoom());
@@ -2046,6 +2046,9 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                             viewer->selectSize.x = 0;
                             viewer->selectSize.y = 0;
                             viewer->selectedEntities.clear();
+                            viewer->selectedEntitiesXPos.clear();
+                            viewer->selectedEntitiesYPos.clear();
+                            viewer->selectedEntity = -1;
                         } else {
                             Rect<float> box;
                             int selectedEntity = -1;
@@ -2596,7 +2599,6 @@ bool SceneEditorv5::eventFilter(QObject *object, QEvent *event)
                                     viewer->selectedEntities.append(e);
                                     viewer->selectedEntitiesXPos.append(entity.pos.x);
                                     viewer->selectedEntitiesYPos.append(entity.pos.y);
-                                    viewer->selectedEntity = entity.slotID;
                                 }
                             }
                         } else {
@@ -2845,7 +2847,7 @@ int SceneEditorv5::AddEntity(int type, float x, float y)
         }
     }
 
-    int cnt         = viewer->entities[(viewer->entities.count() - 1)].slotID + 1;
+    int cnt         = viewer->entities.count() ? viewer->entities.last().slotID + 1 : 0;
     entity.slotID   = cnt;
     entity.prevSlot = entity.slotID;
 
@@ -2874,6 +2876,9 @@ int SceneEditorv5::AddEntity(int type, float x, float y)
 
 void SceneEditorv5::PasteEntity(SceneEntity *copy, float x, float y)
 {
+    if (!copy)
+        return;
+
     if (x == 0xFFFF)
         x = viewer->cameraPos.x;
 
@@ -2898,7 +2903,7 @@ void SceneEditorv5::PasteEntity(SceneEntity *copy, float x, float y)
         else
             entity.variables[v] = copy->variables[v];
 
-    int cnt         = viewer->entities[(viewer->entities.count() - 1)].slotID + 1;
+    int cnt         = viewer->entities.count() ? viewer->entities.last().slotID + 1 : 0;
     entity.slotID   = cnt;
     entity.prevSlot = entity.slotID;
 
@@ -2923,6 +2928,30 @@ void SceneEditorv5::PasteEntity(SceneEntity *copy, float x, float y)
 
 void SceneEditorv5::DeleteEntity(int slot, bool updateUI)
 {
+    if (clipboardType == COPY_ENTITY){
+        if (clipboardInfo == slot){
+            clipboard = nullptr;
+            clipboardType = COPY_NONE;
+            clipboardInfo = 0;
+        }
+    } else if (clipboardType == COPY_ENTITY_SELECT){
+        for (int i = clipboardIDs.count() - 1; i >= 0; i--){
+            if (clipboardIDs[i] == slot){
+                for (int i2 = clipboardIDs.count() - 1; i2 >= 0; i2--)
+                    if (viewer->entities[clipboardIDs[i2]].slotID > slot)
+                        clipboardIDs[i2]--;
+
+                clipboardIDs.removeAt(i);
+                clipboardOffset.removeAt(i);
+            }
+        }
+        if (!clipboardIDs.count()){
+            clipboard = nullptr;
+            clipboardType = COPY_NONE;
+            clipboardInfo = 0;
+        }
+    }
+
     const SceneEntity &entity = viewer->entities.takeAt(slot);
 
     if (entity.gameEntity) {
@@ -4634,6 +4663,7 @@ bool SceneEditorv5::HandleKeyPress(QKeyEvent *event)
                     objProp->unsetUI();
                     CreateEntityList();
                     viewer->selectedEntities.clear();
+                    DoAction("Deleted Entities");
                 }
 
                 if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
@@ -4742,7 +4772,7 @@ bool SceneEditorv5::HandleKeyPress(QKeyEvent *event)
                     DeleteEntity(viewer->selectedEntity);
                     viewer->selectedEntity = -1;
 
-                    DoAction();
+                    DoAction("Deleted Entity");
                 }
 
                 int move = 4;
