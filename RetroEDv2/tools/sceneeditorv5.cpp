@@ -839,6 +839,12 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             viewer->cameraPos.y = viewer->entities[n].pos.y - ((viewer->storedH / 2) * viewer->invZoom());
             objProp->setupUI(&viewer->entities[n]);
             ui->propertiesBox->setCurrentWidget(ui->objPropPage);
+
+            for (int s = n; s < viewer->selectedEntities.count(); ++s) {
+                if (viewer->selectedEntities[s] == (int)c)
+                    viewer->selectedEntities[s] = c - 1;
+                viewer->entities[s].slotID = viewer->entities[s - 1].slotID;
+            }
         }
 
         ui->horizontalScrollBar->blockSignals(true);
@@ -848,13 +854,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->verticalScrollBar->blockSignals(true);
         ui->verticalScrollBar->setValue(viewer->cameraPos.y);
         ui->verticalScrollBar->blockSignals(false);
-
-        for (int s = n; s < viewer->selectedEntities.count(); ++s) {
-            if (viewer->selectedEntities[s] == (int)c)
-                viewer->selectedEntities[s] = c - 1;
-            viewer->entities[s].slotID = viewer->entities[s - 1].slotID;
-        }
-
         ui->rmEnt->setDisabled(viewer->entities.count() <= 0);
         ui->addEnt->setDisabled(viewer->activeEntityCount() >= SCENEENTITY_COUNT_v5);
         DoAction("Remove Entity: " + QString::number(c));
