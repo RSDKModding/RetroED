@@ -10,6 +10,7 @@ SceneTilePropertiesv5::SceneTilePropertiesv5(QWidget *parent)
     ui->setupUi(this);
 
     replaceTile  = ui->replaceTile;
+    edit.tileImg = QImage(16, 16, QImage::Format_Indexed8);
     ui->frame->layout()->addWidget(&edit);
 }
 
@@ -31,6 +32,7 @@ void SceneTilePropertiesv5::setupUI(RSDKv5::TileConfig::CollisionMask *cmA,
     curTile = tile;
     edit.cmask                 = cmask[collisionLyr];
     edit.tileImg               = tileImg;
+    edit.update();
 
     ui->colPlaneA->setChecked(true);
 

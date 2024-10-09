@@ -172,7 +172,7 @@
    <item row="12" column="0" colspan="4">
     <widget class="QFrame" name="frame">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+      <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>

@@ -25,7 +25,7 @@ public:
     PropertyBrowser *properties = nullptr;
 
 signals:
-    void typeChanged(SceneEntity *entity, byte type);
+    void typeChanged(SceneEntity *entity, byte type, bool keepVals = false);
 
 private:
     Ui::SceneObjectPropertiesv5 *ui;

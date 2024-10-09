@@ -14,6 +14,7 @@ SceneTileProperties::SceneTileProperties(QWidget *parent)
     ui->setupUi(this);
 
     replaceTile  = ui->replaceTile;
+    edit.tileImg = QImage(16,16, QImage::Format_Indexed8);
     ui->tileFrame->layout()->addWidget(&edit);
 }
 
@@ -44,6 +45,7 @@ void SceneTileProperties::setupUI(ushort tid, QList<QImage> &tiles, SceneViewer 
     }
     edit.paintVer            = gameType;
     edit.tileImg             = tileImg;
+    edit.update();
 
     ui->colPlaneA->setChecked(true);
 
@@ -435,7 +437,7 @@ void SceneTileProperties::unsetUI()
     cmaskv1[1] = nullptr;
 
     edit.cmask = cmask[0];
-    edit.tileImg = QImage(0,0);
+    edit.tileImg = QImage(16,16, QImage::Format_Indexed8);
     ui->tileFrame->layout()->removeWidget(&edit);
 }
 
@@ -465,7 +467,6 @@ TileCollisionWidget::TileCollisionWidget(QWidget *parent) : QWidget(parent) { se
 void TileCollisionWidget::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-
     QRectF rect(0, 0, (qreal)width() / 16, (qreal)height() / 16);
     p.drawImage(QRect(0, 0, width(), height()), tileImg);
 

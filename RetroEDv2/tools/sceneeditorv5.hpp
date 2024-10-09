@@ -159,7 +159,7 @@ signals:
     void TitleChanged(QString title, QString tabFullPath);
 
 public slots:
-    void updateType(SceneEntity *entity, byte type);
+    void updateType(SceneEntity *entity, byte type, bool keepVals = false);
     void updateStampName(QString name);
     void updateLayer(QString name);
     void updateTileSel();
@@ -174,9 +174,13 @@ private:
         COPY_LAYER,
         COPY_TILE,
         COPY_ENTITY,
+        COPY_ENTITY_SELECT,
         COPY_SCROLLINFO,
     };
     void *clipboard    = nullptr;
+    QList<int> clipboardIDs;
+    QList<Vector2<float>> clipboardOffset;
+    Vector2<float> clipPosCenter;
     byte clipboardType = COPY_NONE;
     int clipboardInfo  = 0;
 
