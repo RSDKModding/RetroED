@@ -1662,8 +1662,10 @@ Data/Sprites/UI/PauseKO.gif
 Data/Sprites/UI/PauseLATAM.gif
 Data/Sprites/UI/PausePO.gif
 Data/Sprites/UI/PauseSC.gif
+Data/Sprites/UI/PauseSC_Help.gif
 Data/Sprites/UI/PauseSP.gif
 Data/Sprites/UI/PauseTC.gif
+Data/Sprites/UI/PauseTC_Help.gif
 Data/Sprites/UI/PauseTU.gif
 Data/Sprites/UI/Picture.bin
 Data/Sprites/UI/SaveSelect.bin
