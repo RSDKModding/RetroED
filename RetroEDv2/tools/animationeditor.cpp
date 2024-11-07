@@ -2318,6 +2318,8 @@ void AnimationEditor::ProcessAnimation()
             case ENGINE_v5:
                 animTimer += animFile.animations[currentAnim].speed;
                 duration = animFile.animations[currentAnim].frames[currentFrame].duration;
+                if (duration <= 0)
+                    break;
                 while (animTimer > duration) {
                     animTimer -= duration;
                     ++currentFrame;
@@ -2331,6 +2333,8 @@ void AnimationEditor::ProcessAnimation()
 
                     duration = animFile.animations[currentAnim].frames[currentFrame].duration;
                     changed  = true;
+                    if (duration <= 0)
+                        break;
                 }
                 break;
 
