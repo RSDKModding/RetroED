@@ -1151,6 +1151,9 @@
        <string>Object List</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="0" colspan="3">
+        <widget class="QListWidget" name="objectList"/>
+       </item>
        <item row="2" column="2">
         <widget class="QToolButton" name="rmObj">
          <property name="enabled">
@@ -1168,6 +1171,19 @@
          </property>
         </widget>
        </item>
+       <item row="2" column="1">
+        <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
        <item row="2" column="0">
         <widget class="QToolButton" name="addObj">
          <property name="toolTip">
@@ -1181,22 +1197,6 @@
            <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
          </property>
         </widget>
-       </item>
-       <item row="0" column="0" colspan="3">
-        <widget class="QListWidget" name="objectList"/>
-       </item>
-       <item row="2" column="1">
-        <spacer name="horizontalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
        <item row="1" column="0" colspan="3">
         <widget class="QLineEdit" name="objectFilter">
@@ -1220,35 +1220,7 @@
        <string>Entity List</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_4">
-       <item row="3" column="3">
-        <widget class="QToolButton" name="downEnt">
-         <property name="toolTip">
-          <string>Moves an entity down</string>
-         </property>
-         <property name="text">
-          <string>D</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2">
-        <widget class="QToolButton" name="upEnt">
-         <property name="toolTip">
-          <string>Moves an entity up</string>
-         </property>
-         <property name="text">
-          <string>U</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="5">
+       <item row="2" column="5">
         <widget class="QToolButton" name="rmEnt">
          <property name="enabled">
           <bool>false</bool>
@@ -1265,21 +1237,7 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QToolButton" name="addEnt">
-         <property name="toolTip">
-          <string>Adds an entity</string>
-         </property>
-         <property name="text">
-          <string>+</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="4">
+       <item row="2" column="4">
         <spacer name="horizontalSpacer_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -1293,9 +1251,43 @@
         </spacer>
        </item>
        <item row="1" column="0" colspan="6">
+        <widget class="QLineEdit" name="entityFilter">
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="inputMask">
+          <string/>
+         </property>
+         <property name="placeholderText">
+          <string>Find entities...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="6">
         <widget class="QListWidget" name="entityList"/>
        </item>
-       <item row="3" column="1">
+       <item row="2" column="2">
+        <widget class="QToolButton" name="upEnt">
+         <property name="toolTip">
+          <string>Moves an entity up</string>
+         </property>
+         <property name="text">
+          <string>U</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="6">
+        <widget class="QPushButton" name="alignEnt">
+         <property name="text">
+          <string>Re-Align Entity Slots</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
         <spacer name="horizontalSpacer_8">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -1308,16 +1300,31 @@
          </property>
         </spacer>
        </item>
-       <item row="2" column="0" colspan="6">
-        <widget class="QLineEdit" name="entityFilter">
+       <item row="2" column="3">
+        <widget class="QToolButton" name="downEnt">
          <property name="toolTip">
-          <string/>
+          <string>Moves an entity down</string>
          </property>
-         <property name="inputMask">
-          <string/>
+         <property name="text">
+          <string>D</string>
          </property>
-         <property name="placeholderText">
-          <string>Find entities...</string>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QToolButton" name="addEnt">
+         <property name="toolTip">
+          <string>Adds an entity</string>
+         </property>
+         <property name="text">
+          <string>+</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
          </property>
         </widget>
        </item>

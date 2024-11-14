@@ -152,6 +152,7 @@ ChunkReplaceOptions::ChunkReplaceOptions(byte gameVer, FormatHelpers::Chunks *ch
                 ui->srcChunkList->item(replacedChunk + i)->setIcon(QPixmap::fromImage(chunks->chunks[replacedChunk + i].getImage((tileList))));
                 ui->dstChunkList->item(replacedChunk + i)->setIcon(QPixmap::fromImage(chunks->chunks[replacedChunk + i].getImage((tileList))));
             }
+            modified = true;
         } else {
             // PrintLog(QString("Single replace mode"));
 
