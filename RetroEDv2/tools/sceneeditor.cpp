@@ -1276,6 +1276,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
 
         connect(chunkRpl, &QDialog::finished, [this] {
             if (chunkRpl->modified){
+                chunkset = viewer->chunkset;
                 chkProp->RefreshList();
                 DoAction();
             }
