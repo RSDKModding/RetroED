@@ -68,6 +68,7 @@ SOURCES += \
     tools/sceneproperties/objectselector.cpp \
     tools/sceneproperties/scenelayerproperties.cpp \
     tools/sceneproperties/scenelayerpropertiesv5.cpp \
+    tools/sceneproperties/scenelayershift.cpp \
     tools/sceneproperties/sceneobjectproperties.cpp \
     tools/sceneproperties/sceneobjectpropertiesv5.cpp \
     tools/sceneproperties/sceneproperties.cpp \
@@ -141,6 +142,7 @@ HEADERS += \
     tools/sceneproperties/sceneincludesv5.hpp \
     tools/sceneproperties/scenelayerproperties.hpp \
     tools/sceneproperties/scenelayerpropertiesv5.hpp \
+    tools/sceneproperties/scenelayershift.hpp \
     tools/sceneproperties/sceneobjectproperties.hpp \
     tools/sceneproperties/sceneobjectpropertiesv5.hpp \
     tools/sceneproperties/sceneproperties.hpp \
@@ -202,6 +204,7 @@ FORMS += \
     tools/sceneproperties/objectselector.ui \
     tools/sceneproperties/scenelayerproperties.ui \
     tools/sceneproperties/scenelayerpropertiesv5.ui \
+    tools/sceneproperties/scenelayershift.ui \
     tools/sceneproperties/sceneobjectproperties.ui \
     tools/sceneproperties/sceneobjectpropertiesv5.ui \
     tools/sceneproperties/sceneproperties.ui \
