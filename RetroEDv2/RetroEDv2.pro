@@ -239,9 +239,18 @@ win32 {
     QMAKE_TARGET_COMPANY = RSDKModdingTeam
     QMAKE_TARGET_DESCRIPTION = RetroED
     QMAKE_TARGET_COPYRIGHT = RSDKModdingTeam
-    CONFIG(debug, debug | release){ DESTDIR = $$OUT_PWD/debug }
-    else { DESTDIR = $$OUT_PWD/release }
-    QMAKE_POST_LINK = windeployqt --dir $$shell_path($$DESTDIR/deploy) $$shell_path($$DESTDIR/$${TARGET}.exe)
+    CONFIG(debug, debug | release){ DESTDIR = $$OUT_PWD/debug/RetroED }
+    else {
+        DESTDIR = $$OUT_PWD/release/RetroED
+        !static {
+            contains(ENV, GITHUB_ACTION) { QMAKE_POST_LINK = windeployqt $$shell_path($$DESTDIR/$${TARGET}.exe) }
+            else {
+                #bruh
+                win32-msvc { QMAKE_POST_LINK = $$(QTDIR)/bin/windeployqt.exe $$shell_path($$DESTDIR/$${TARGET}.exe) }
+                else { QMAKE_POST_LINK = windeployqt $$shell_path($$DESTDIR/$${TARGET}.exe) }
+            }
+        }
+    }
 }
 
 #mac
