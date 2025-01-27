@@ -243,11 +243,11 @@ win32 {
     else {
         DESTDIR = $$OUT_PWD/release/RetroED
         !static {
-            contains(ENV, GITHUB_ACTION) { QMAKE_POST_LINK = windeployqt $$shell_path($$DESTDIR/$${TARGET}.exe) }
+            contains(ENV, GITHUB_ACTION) { QMAKE_POST_LINK = windeployqt \"$$shell_path($$DESTDIR/$${TARGET}.exe)\" }
             else {
                 #bruh
-                win32-msvc { QMAKE_POST_LINK = $$(QTDIR)/bin/windeployqt.exe $$shell_path($$DESTDIR/$${TARGET}.exe) }
-                else { QMAKE_POST_LINK = windeployqt $$shell_path($$DESTDIR/$${TARGET}.exe) }
+                win32-msvc { QMAKE_POST_LINK = $$(QTDIR)/bin/windeployqt.exe \"$$shell_path($$DESTDIR/$${TARGET}.exe)\" }
+                else { QMAKE_POST_LINK = windeployqt \"$$shell_path($$DESTDIR/$${TARGET}.exe)\" }
             }
         }
     }
