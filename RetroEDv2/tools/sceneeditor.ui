@@ -23,7 +23,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="layerPage">
       <property name="geometry">
@@ -40,6 +40,13 @@
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="0">
         <widget class="QListWidget" name="layerList"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="shiftLayer">
+         <property name="text">
+          <string>Shift Tile Layer Position</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

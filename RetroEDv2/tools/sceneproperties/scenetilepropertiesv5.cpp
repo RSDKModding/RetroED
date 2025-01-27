@@ -370,23 +370,6 @@ void SceneTilePropertiesv5::unsetUI()
     ui->tID->setText("Tile ID: ");
 
     collisionLyr = 0;
-    ui->colPlaneA->setChecked(true);
-    ui->colPlaneB->setChecked(false);
-
-    ui->maskDir->setCurrentIndex(0);
-    ui->behaviour->setValue(0);
-    ui->floorAngle->setValue(0);
-    ui->roofAngle->setValue(0);
-    ui->lWallAngle->setValue(0);
-    ui->rWallAngle->setValue(0);
-
-    ui->flipX->setChecked(false);
-    ui->flipY->setChecked(false);
-    ui->solidTopA->setChecked(false);
-    ui->solidLRBA->setChecked(false);
-    ui->solidTopB->setChecked(false);
-    ui->solidLRBB->setChecked(false);
-
 
     disconnect(ui->flipX, nullptr, nullptr, nullptr);
     disconnect(ui->flipY, nullptr, nullptr, nullptr);
@@ -408,6 +391,23 @@ void SceneTilePropertiesv5::unsetUI()
     disconnect(ui->calcAngleC, nullptr, nullptr, nullptr);
     disconnect(ui->calcAngleL, nullptr, nullptr, nullptr);
     disconnect(ui->calcAngleR, nullptr, nullptr, nullptr);
+
+    ui->colPlaneA->setChecked(true);
+    ui->colPlaneB->setChecked(false);
+
+    ui->maskDir->setCurrentIndex(0);
+    ui->behaviour->setValue(0);
+    ui->floorAngle->setValue(0);
+    ui->roofAngle->setValue(0);
+    ui->lWallAngle->setValue(0);
+    ui->rWallAngle->setValue(0);
+
+    ui->flipX->setChecked(false);
+    ui->flipY->setChecked(false);
+    ui->solidTopA->setChecked(false);
+    ui->solidLRBA->setChecked(false);
+    ui->solidTopB->setChecked(false);
+    ui->solidLRBB->setChecked(false);
 
     cmask[0] = nullptr;
     cmask[1] = nullptr;

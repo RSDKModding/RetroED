@@ -27,6 +27,7 @@
 #include "sceneproperties/gotopos.hpp"
 #include "sceneproperties/createscene.hpp"
 #include "sceneproperties/syncgcdetails.hpp"
+#include "sceneproperties/scenelayershift.hpp"
 
 #include <RSDKv1/gfxv1.hpp>
 #include <RSDKv1/tileconfigv1.hpp>
@@ -249,6 +250,76 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         int c = ui->layerList->row(item);
         if ((uint)c < (uint)9)
             viewer->layers[c].visible = item->checkState() == Qt::Checked;
+    });
+
+    connect(ui->shiftLayer, &QToolButton::clicked, [this] {
+        uint c = ui->layerList->currentRow();
+
+        if (c >= 0){
+            auto *pop = new SceneLayerShift(viewer->layers[c], viewer->tileSize);
+            if (pop->exec() == QDialog::Accepted) {
+                int shiftX = pop->shiftX;
+                int shiftY = pop->shiftY;
+                if (pop->shiftEnt){
+                    for (int i = 0; i < viewer->entities.count(); i++){
+                        viewer->entities[i].pos.x += shiftX * viewer->tileSize;
+                        viewer->entities[i].pos.y += shiftY * viewer->tileSize;
+                    }
+                }
+                if (shiftX >= 0){
+                    for (int h = 0; h < viewer->layers[c].height; ++h) {
+                        for (int w = 0; w < shiftX; ++w){
+                            viewer->layers[c].layout[h].insert(0, 0xFFFF);
+                            if (pop->keepDimensions)
+                                viewer->layers[c].layout[h].removeAt(viewer->layers[c].width - 1);
+                        }
+                    }
+                    if (!pop->keepDimensions)
+                        viewer->layers[c].width += shiftX;
+                } else{
+                    shiftX = abs(shiftX);
+                    for (int h = 0; h < viewer->layers[c].height; ++h) {
+                        for (int w = 0; w < shiftX; ++w){
+                            viewer->layers[c].layout[h].removeFirst();
+                            if (pop->keepDimensions)
+                                viewer->layers[c].layout[h].append(0xFFFF);
+                        }
+                    }
+                    if (!pop->keepDimensions)
+                        viewer->layers[c].width -= shiftX;
+                }
+
+                if (shiftY >= 0){
+                    for (int h = viewer->layers[c].height; h < viewer->layers[c].height + shiftY; ++h) {
+                        viewer->layers[c].layout.insert(0, QList<ushort>());
+                        for (int w = 0; w < viewer->layers[c].width; ++w){
+                            viewer->layers[c].layout[0].insert(0, 0xFFFF);
+                        }
+                        if (pop->keepDimensions)
+                            viewer->layers[c].layout[h].removeAt(viewer->layers[c].height - 1);
+                    }
+                    if (!pop->keepDimensions)
+                        viewer->layers[c].height += shiftY;
+                } else{
+                    shiftY = abs(shiftY);
+                    for (int h = viewer->layers[c].height; h < viewer->layers[c].height + shiftY; h++) {
+                        if (pop->keepDimensions){
+                            viewer->layers[c].layout.append(QList<ushort>());
+                            for (int w = 0; w < viewer->layers[c].width; ++w){
+                                viewer->layers[c].layout[viewer->layers[c].layout.count() - 1].append(0xFFFF);
+                            }
+                        }
+                        viewer->layers[c].layout.removeAt(0);
+                    }
+                    if (!pop->keepDimensions)
+                        viewer->layers[c].height -= shiftY;
+                }
+                viewer->selectedLayer = c;
+                lyrProp->setupUI(viewer, viewer->selectedLayer);
+
+                ui->propertiesBox->setCurrentWidget(ui->layerPropPage);
+            }
+        }
     });
 
     connect(tileProp, &SceneTileProperties::updateChunkColMap, viewer, &SceneViewer::updateChunkColMap);
