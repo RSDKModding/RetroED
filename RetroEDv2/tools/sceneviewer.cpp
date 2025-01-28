@@ -342,14 +342,24 @@ void SceneViewer::updateScene()
 
         QString status =
             QString("Zoom: %1%, Mouse Position: (%2, %3), %4 Position: (%5, %6), Selected %4: "
-                    "%7, Selected Layer: %8 (%9), Selected Object: %10")
+                            "%7")
                 .arg(zoom * 100)
                 .arg(mx)
                 .arg(my)
                 .arg(gameType == ENGINE_v5 ? "Tile" : "Chunk")
                 .arg((int)mx / tileSize)
                 .arg((int)my / tileSize)
-                .arg(gameType == ENGINE_v5 ? selectedTile : selectedChunk)
+                .arg(gameType == ENGINE_v5 ? (selectedTile == 0xFFFF ? -1 : (short)selectedTile & 0x3FF) : selectedChunk);
+            if (gameType == ENGINE_v5 && selectedTile != 0xFFFF)
+                status += QString(", Tile Flags: %1 | %2 | %3 | %4 | %5 | %6")
+                    .arg(Utils::getBit(selectedTile, 10) ? "FX" : "--")
+                    .arg(Utils::getBit(selectedTile, 11) ? "FY" : "--")
+                    .arg(Utils::getBit(selectedTile, 12) ? "AT" : "--")
+                    .arg(Utils::getBit(selectedTile, 13) ? "BT" : "--")
+                    .arg(Utils::getBit(selectedTile, 14) ? "AS" : "--")
+                    .arg(Utils::getBit(selectedTile, 15) ? "BS" : "--");
+
+            status += QString(", Selected Layer: %8 (%9), Selected Object: %10")
                 .arg(selectedLayer)
                 .arg(selectedLayer >= 0 && selectedLayer < layers.count() ? layers[selectedLayer].name
                                                                           : "[None]")
@@ -358,7 +368,7 @@ void SceneViewer::updateScene()
                          : "[None]");
         QString gameLinkState;
         if (gameType == ENGINE_v5){
-            status += QString(", Selected Stamp: %1").arg(selectedStamp);
+            status += QString(", Selected Stamp: %1").arg((short)selectedStamp);
             if (engineRevision != 1)
                 status += QString(", Filter: %1").arg(sceneFilter);
             if (!v5Editor->gameLinks.count()){

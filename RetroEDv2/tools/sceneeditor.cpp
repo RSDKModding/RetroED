@@ -318,6 +318,14 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
                 lyrProp->setupUI(viewer, viewer->selectedLayer);
 
                 ui->propertiesBox->setCurrentWidget(ui->layerPropPage);
+                ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR - (viewer->storedW / viewer->zoom));
+                ui->horizontalScrollBar->setPageStep((viewer->storedW / viewer->zoom) / 10);
+                ui->horizontalScrollBar->setSingleStep(viewer->zoom > 1 ? 1 : 1 / viewer->zoom);
+                ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB - (viewer->storedH / viewer->zoom));
+                ui->verticalScrollBar->setPageStep((viewer->storedH / viewer->zoom) / 10);
+                ui->verticalScrollBar->setSingleStep(viewer->zoom > 1 ? 1 : 1 / viewer->zoom);
+
+                DoAction(QString("Layer Shifted"));
             }
         }
     });
