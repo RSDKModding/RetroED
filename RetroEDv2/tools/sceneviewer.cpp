@@ -355,8 +355,8 @@ void SceneViewer::updateScene()
                     .arg(Utils::getBit(selectedTile, 10) ? "FX" : "--")
                     .arg(Utils::getBit(selectedTile, 11) ? "FY" : "--")
                     .arg(Utils::getBit(selectedTile, 12) ? "AT" : "--")
-                    .arg(Utils::getBit(selectedTile, 13) ? "BT" : "--")
-                    .arg(Utils::getBit(selectedTile, 14) ? "AS" : "--")
+                    .arg(Utils::getBit(selectedTile, 13) ? "AS" : "--")
+                    .arg(Utils::getBit(selectedTile, 14) ? "BT" : "--")
                     .arg(Utils::getBit(selectedTile, 15) ? "BS" : "--");
 
             status += QString(", Selected Layer: %8 (%9), Selected Object: %10")
