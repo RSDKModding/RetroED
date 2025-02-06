@@ -1,6 +1,9 @@
 name: Build RetroED
 
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   win-build:
