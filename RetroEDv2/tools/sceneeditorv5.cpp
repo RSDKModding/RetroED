@@ -3004,6 +3004,9 @@ void SceneEditorv5::PasteEntity(SceneEntity *copy, float x, float y)
 
     ui->entityList->addItem(QString::number(entity.slotID) + ": " + name);
 
+    objProp->setupUI(&viewer->entities[viewer->selectedEntity]);
+    ui->propertiesBox->setCurrentWidget(ui->objPropPage);
+
 }
 
 void SceneEditorv5::DeleteEntity(int slot, bool updateUI)
