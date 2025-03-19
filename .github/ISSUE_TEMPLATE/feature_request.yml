@@ -1,6 +1,6 @@
 name: Feature Request
 description: New feature suggestion for the editor
-labels: [enhancement]
+type: Feature
 body:
   - id: validation
     type: checkboxes

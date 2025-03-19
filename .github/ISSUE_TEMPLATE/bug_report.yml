@@ -1,6 +1,6 @@
 name: Bug Report
 description: Something isn't working
-labels: [bug]
+type: Bug
 body:
   - id: validation
     type: checkboxes
