@@ -50,7 +50,7 @@ void RSDKv1::GFX::read(Reader &reader, bool dcGFX)
 
     // This should only happen on DC Stages, as apparently it doesn't fill the unused data (and the editor doesn't like that :)))
     for(int i = pixels.count(); i < 16 * 16384; i++)
-        pixels.append((byte)0x00);
+        pixels.append((char)0x00);
 }
 
 void rle_writev1(Writer writer, int pixel, int count, bool dcGFX)
