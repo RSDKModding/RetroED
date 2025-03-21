@@ -39,13 +39,13 @@ public:
     };
 
     TileConfig() {}
-    TileConfig(QString filename) { read(filename); }
+    TileConfig(QString filename, bool isDCVer) { read(filename, isDCVer); }
     TileConfig(Reader &reader) { read(reader); }
 
-    inline void read(QString filename)
+    inline void read(QString filename, bool isDCVer)
     {
         Reader reader(filename);
-        read(reader);
+        read(reader, isDCVer);
     }
     inline void read(Reader &reader, bool dcVer = false)
     {
@@ -70,14 +70,14 @@ public:
         }
     }
 
-    inline void write(QString filename)
+    inline void write(QString filename, bool isDCVer = false)
     {
         if (filename == "")
             filename = filePath;
         if (filename == "")
             return;
         Writer writer(filename);
-        write(writer);
+        write(writer, isDCVer);
     }
     inline void write(Writer &writer, bool dcVer = false)
     {

@@ -91,6 +91,7 @@ public:
     bool altDownL   = false;
     bool shiftDownL = false;
 
+    bool useDCFormat  = false;
     bool viewerActive = false; // prevents shortcut windows from opening twice when sceneViewer is active
 
     Vector2<float> selectionOffset = Vector2<float>(0.0f, 0.0f);
@@ -165,7 +166,7 @@ public:
 
 signals:
     void TitleChanged(QString title, QString tabFullPath);
-
+    void calcAngles(RSDKv5::TileConfig::CollisionMask *outputAngles, RSDKv1::TileConfig::CollisionMask *inputMask);
 public slots:
     void updateType(SceneEntity *entity, byte type, bool keepVals = false);
 protected:

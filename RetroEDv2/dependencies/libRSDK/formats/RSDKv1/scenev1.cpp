@@ -60,8 +60,9 @@ void RSDKv1::Scene::write(Writer &writer)
     }
     writer.flush();
 
+    bool useDCFormat = writer.filePath.contains("DATA/LEVELS");
     QString itmpath = QFileInfo(writer.filePath).absolutePath() + "/"
-                      + QFileInfo(writer.filePath).baseName() + ".itm";
+                      + QFileInfo(writer.filePath).baseName() + (useDCFormat ? ".ITM" : ".itm");
     Writer ITMwriter(itmpath);
     // Write zone name
     ITMwriter.write(title);

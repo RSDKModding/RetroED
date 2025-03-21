@@ -1348,42 +1348,30 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     });
 
     connect(scnProp->editPAL, &QPushButton::clicked, [this] {
-        RSDKv5::Palette *configPal = nullptr;
-        RSDKv5::Palette *editPal   = nullptr;
+        RSDKv5::Palette *editPal       = nullptr;
+        RSDKv5::StageConfig *configPal = &stageConfig;
 
-        PaletteEditor *edit = new PaletteEditor(stageConfig.filePath, PALTYPE_STAGECONFIGv5, true);        edit->palette.clear();
-        for (int b = 0; b < 8; ++b){
-            configPal = &stageConfig.palettes[b];
-            for (int r = 0; r < 16; ++r){
-                edit->stageConfigv5.palettes[b].activeRows[r] = configPal->activeRows[r];
-                for (int c = 0; c < 16; ++c){
-                    edit->palette.append(QColor(configPal->colors[r][c]));
-                    edit->stageConfigv5.palettes[b].colors[r][c] = QColor(configPal->colors[r][c]);
-                }
-            }
-        }
+        PaletteEditor *edit = new PaletteEditor(configPal);
         edit->setWindowTitle("Edit StageConfig Palette");
         edit->exec();
 
         for(int b = 0; b < 8; ++b){
             editPal = &edit->stageConfigv5.palettes[b];
-            configPal = &stageConfig.palettes[b];
-
             for (int r = 0; r < 16; ++r) {
-                configPal->activeRows[r] = editPal->activeRows[r];
+                configPal->palettes[b].activeRows[r] = editPal->activeRows[r];
                 if (editPal->activeRows[r]) {
                     for (int c = 0; c < 16; ++c) {
                         if (b == edit->bankID)
-                            configPal->colors[r][c] =
+                            configPal->palettes[b].colors[r][c] =
                                 QColor(edit->palette[(r << 4) + c].r, edit->palette[(r << 4) + c].g,
                                         edit->palette[(r << 4) + c].b);
                         else
-                            configPal->colors[r][c] = editPal->colors[r][c];
+                            configPal->palettes[b].colors[r][c] = editPal->colors[r][c];
                     }
                 }
                 else {
                     for (int c = 0; c < 16; ++c) {
-                        configPal->colors[r][c] = QColor(0xFF, 0x00, 0xFF);
+                        configPal->palettes[b].colors[r][c] = QColor(0xFF, 0x00, 0xFF);
                     };
                 }
             }
@@ -4190,6 +4178,8 @@ void SceneEditorv5::LoadGameLinks()
 {
     UnloadGameLinks();
 
+    if (gameLinkPath.isEmpty())
+        return;
     QDirIterator it(gameLinkPath, QStringList() << "*", QDir::Files,
                     QDirIterator::NoIteratorFlags);
     while (it.hasNext()) {
@@ -4854,6 +4844,7 @@ bool SceneEditorv5::HandleKeyPress(QKeyEvent *event)
                 if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace) {
                     DeleteEntity(viewer->selectedEntity);
                     viewer->selectedEntity = -1;
+                    objProp->unsetUI();
 
                     DoAction("Deleted Entity");
                 }

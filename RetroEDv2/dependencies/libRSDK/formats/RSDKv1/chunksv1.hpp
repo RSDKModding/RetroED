@@ -111,7 +111,7 @@ public:
         filePath = writer.filePath;
 
         for (int c = 0; c < 0x100; ++c) chunkList[c].write(writer);
-
+        writer.write((byte)0x00);
         writer.flush();
     }
 

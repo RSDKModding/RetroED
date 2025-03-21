@@ -403,6 +403,140 @@ void SceneTileProperties::setupUI(ushort tid, QList<QImage> &tiles, SceneViewer 
 }
 void SceneTileProperties::checkChunk(bool valid){ ui->editChunkCol->setDisabled(!valid); }
 
+void SceneTileProperties::calcv1Angles(RSDKv5::TileConfig::CollisionMask *outputMask, RSDKv1::TileConfig::CollisionMask *inputMask)
+{
+
+    auto calcFloorAngle = [](RSDKv1::TileConfig::CollisionMask *mask) {
+        byte angle = 0;
+        Vector2<float> start(-1, -1), end(-1, -1);
+
+        for (int x = 0; x < 16; ++x) {
+            if (mask->collision[0][x].solid) {
+                if (start.x == -1) {
+                    start.x = x;
+                    start.y = mask->collision[0][x].height;
+                }
+
+                end.x = x;
+                end.y = mask->collision[0][x].height;
+            }
+        }
+
+        float angleF = atan2((float)(end.y - start.y), (end.x - start.x));
+        angle        = (int)(angleF * 40.764331) & 0xFC;
+
+        return angle;
+    };
+
+    auto calcRoofAngle = [](RSDKv1::TileConfig::CollisionMask *mask) {
+        byte angle = 0;
+        Vector2<float> start(-1, -1), end(-1, -1);
+
+        for (int x = 0; x < 16; ++x) {
+            if (mask->collision[0][x].solid) {
+                if (start.x == -1) {
+                    start.x = x;
+                    start.y = mask->collision[0][x].height;
+                }
+
+                end.x = x;
+                end.y = mask->collision[0][x].height;
+            }
+        }
+
+        float angleF = atan2((float)(start.y - end.y), (start.x - end.x));
+        angle        = (int)(angleF * 40.764331) & 0xFC;
+
+        return angle;
+    };
+
+    auto calclWallAngle = [calcFloorAngle, outputMask](RSDKv1::TileConfig::CollisionMask *mask) {
+        RSDKv1::TileConfig::CollisionMask rotMask = *mask;
+        outputMask->lWallAngle = calcFloorAngle(mask);
+
+            // LWall rotations
+        for (int c = 0; c < 16; ++c) {
+            int h                      = 0;
+            rotMask.collision[0][c].solid = true;
+            while (true) {
+                if (h == 16) {
+                    rotMask.collision[0][c].solid = false;
+                    break;
+                }
+
+                byte m = outputMask->collision[h].height;
+                if (outputMask->collision[h].solid && c >= m) {
+                    rotMask.collision[0][c].height = h;
+                    break;
+                }
+                else {
+                    ++h;
+                    if (h <= -1)
+                        break;
+                }
+            }
+        }
+
+        int startX = -1, endX = -1;
+        for (int x = 0; x < 16; ++x) {
+            if (rotMask.collision[0][x].solid) {
+                if (startX == -1)
+                    startX = rotMask.collision[0][x].height;
+
+                endX = rotMask.collision[0][x].height;
+            }
+        }
+
+        if (startX == endX)
+            outputMask->lWallAngle = 0xC0;
+    };
+
+    auto calcrWallAngle = [calcFloorAngle, outputMask](RSDKv1::TileConfig::CollisionMask *mask) {
+        RSDKv1::TileConfig::CollisionMask rotMask = *mask;
+        outputMask->rWallAngle = calcFloorAngle(mask);
+
+        for (int c = 0; c < 16; ++c) {
+            int h                      = 15;
+            rotMask.collision[0][c].solid = true;
+            while (true) {
+                if (h == -1) {
+                    rotMask.collision[0][c].solid = false;
+                    break;
+                }
+
+                byte m = outputMask->collision[h].height;
+                if (outputMask->collision[h].solid && c >= m) {
+                    rotMask.collision[0][c].height = h;
+                    break;
+                }
+                else {
+                    --h;
+                    if (h >= 16)
+                        break;
+                }
+            }
+        }
+
+        int startX = -1, endX = -1;
+        for (int x = 0; x < 16; ++x) {
+            if (rotMask.collision[0][x].solid) {
+                if (startX == -1)
+                    startX = rotMask.collision[0][x].height;
+
+                endX = rotMask.collision[0][x].height;
+            }
+        }
+
+        if (startX == endX)
+            outputMask->rWallAngle = 0x40;
+    };
+
+    outputMask->floorAngle = calcFloorAngle(inputMask);
+    calclWallAngle(inputMask);
+    outputMask->roofAngle = calcRoofAngle(inputMask);
+    calcrWallAngle(inputMask);
+}
+
 void SceneTileProperties::unsetUI()
 {
 

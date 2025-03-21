@@ -53,6 +53,7 @@ public:
     void setColMask(RSDKv5::TileConfig::CollisionMask *cmA, RSDKv5::TileConfig::CollisionMask *cmB);
     void setColMask(RSDKv1::TileConfig::CollisionMask *cmA, RSDKv1::TileConfig::CollisionMask *cmB);
     void checkChunk(bool valid = false);
+    void calcv1Angles(RSDKv5::TileConfig::CollisionMask *outputMask, RSDKv1::TileConfig::CollisionMask *inputMask);
     void tileSelected(ushort tile);
     void unsetUI();
 

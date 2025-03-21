@@ -228,6 +228,8 @@ void FormatHelpers::Background::write(byte ver, QString filename)
             }
 
             for (Layer &lyr : layers) {
+                if (lyr.width == 0 && lyr.height == 0)
+                    continue;
                 RSDKv1::Background::Layer layer;
                 layer.width         = lyr.width;
                 layer.height        = lyr.height;
@@ -546,8 +548,13 @@ void FormatHelpers::Background::scrollIndicesFromInfo()
             if (!layer || layer->width == 0 || layer->height == 0 || layer->type != 1)
                 continue;
 
-            for (int i = instance.startLine; i < instance.startLine + instance.length; ++i)
+            for (int i = instance.startLine; i < instance.startLine + instance.length; ++i){
+                if (i >= layer->height * 0x80){
+                    instance.length = layer->height * 0x80 - instance.startLine;
+                    break;
+                }
                 layer->lineScroll[i] = (byte)scrID;
+            }
         }
 
         hScroll.append(scroll);
@@ -570,8 +577,13 @@ void FormatHelpers::Background::scrollIndicesFromInfo()
             if (!layer || layer->width == 0 || layer->height == 0 || layer->type != 2)
                 continue;
 
-            for (int i = instance.startLine; i < instance.startLine + instance.length; ++i)
+            for (int i = instance.startLine; i < instance.startLine + instance.length; ++i){
+                if (i >= layer->width * 0x80){
+                    instance.length = layer->width * 0x80 - instance.startLine;
+                    break;
+                }
                 layer->lineScroll[i] = (byte)scrID;
+            }
         }
 
         vScroll.append(scroll);

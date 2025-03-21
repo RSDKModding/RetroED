@@ -153,7 +153,7 @@ StageConfigEditorv1::StageConfigEditorv1(FormatHelpers::StageConfig *scf, QWidge
         ui->objName->blockSignals(false);
 
         ui->objScript->blockSignals(true);
-        ui->objScript->setText(stageConfig->objects[ui->objList->currentRow()].script);
+        ui->objScript->setText(stageConfig->objects[ui->objList->row(item)].script);
         ui->objScript->blockSignals(false);
         DoAction("Changed Object Script");
     });

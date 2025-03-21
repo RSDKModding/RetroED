@@ -7,7 +7,7 @@ class GFX
 {
 public:
     GFX() {}
-    GFX(QString filename) { read(filename); }
+    GFX(QString filename, bool dcGFX) { read(filename, dcGFX); }
     GFX(Reader &reader) { read(reader); }
 
     inline void read(QString filename, bool dcGFX = false)

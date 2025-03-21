@@ -20,6 +20,26 @@ PaletteEditor::PaletteEditor(QString path, byte type, bool external, QWidget *pa
     }
 }
 
+PaletteEditor::PaletteEditor(Palette *stagePal, QWidget *parent)
+    : QDialog(parent), widget(new PaletteWidget(this)), ui(new Ui::PaletteEditor)
+{
+    ui->setupUi(this);
+
+    externalWindow = true;
+    InitEditor();
+    LoadScnEditorPal(stagePal);
+}
+
+PaletteEditor::PaletteEditor(RSDKv5::StageConfig *stagePal, QWidget *parent)
+    : QDialog(parent), widget(new PaletteWidget(this)), ui(new Ui::PaletteEditor)
+{
+    ui->setupUi(this);
+
+    externalWindow = true;
+    InitEditor();
+    Loadv5ScnEditorPal(stagePal);
+}
+
 PaletteEditor::~PaletteEditor() {}
 
 void PaletteEditor::InitEditor()
@@ -181,6 +201,52 @@ void PaletteEditor::LoadPalette(QString path, byte type)
             break;
         }
     }
+
+    ClearActions();
+}
+
+
+void PaletteEditor::LoadScnEditorPal(Palette *stagePal)
+{
+    QToolButton *bankSwitches[] = { ui->bank1, ui->bank2, ui->bank3, ui->bank4,
+                                    ui->bank5, ui->bank6, ui->bank7, ui->bank8 };
+    for (int b = 0; b < 8; ++b) {
+        bankSwitches[b]->setDown(false);
+        bankSwitches[b]->setDisabled(true);
+    }
+
+    ui->palRows->setDisabled(true);
+    bankID  = 0;
+    palType = PALTYPE_STAGECONFIGv4;
+    palette.clear();
+    for (auto &c : stagePal->colors) {
+        palette.append(PaletteColor(c.r, c.g, c.b));
+    }
+    ui->palRows->setValue(palette.count() / 16);
+
+    ClearActions();
+}
+
+void PaletteEditor::Loadv5ScnEditorPal(RSDKv5::StageConfig *stagePal)
+{
+    QToolButton *bankSwitches[] = { ui->bank1, ui->bank2, ui->bank3, ui->bank4,
+                                    ui->bank5, ui->bank6, ui->bank7, ui->bank8 };
+    for (int b = 0; b < 8; ++b) {
+        bankSwitches[b]->setDown(false);
+        bankSwitches[b]->setDisabled(true);
+    }
+
+    ui->palRows->setDisabled(true);
+    palType = PALTYPE_STAGECONFIGv5;
+    bankID  = 0;
+    palette.clear();
+    stageConfigv5 = *stagePal;
+    configPalv5 = &stageConfigv5.palettes[bankID];
+
+    SwitchBank(0);
+    bankSwitches[0]->setDown(true);
+    for (int b = 0; b < 8; ++b) bankSwitches[b]->setDisabled(false);
+    ui->palRows->setValue(16);
 
     ClearActions();
 }

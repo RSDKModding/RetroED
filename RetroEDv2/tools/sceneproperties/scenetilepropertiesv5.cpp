@@ -413,7 +413,7 @@ void SceneTilePropertiesv5::unsetUI()
     cmask[1] = nullptr;
 
     edit.cmask = cmask[0];
-    edit.tileImg = QImage(0,0);
+    edit.tileImg = QImage(16,16, QImage::Format_Indexed8);
     ui->frame->layout()->removeWidget(&edit);
 }
 

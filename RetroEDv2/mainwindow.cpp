@@ -231,6 +231,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                                     SceneEditor *tool = new SceneEditor();
                                     tool->installEventFilter(this);
                                     AddTab(tool, "Scene Editor");
+                                    if (r.path.contains("DATA/LEVELS"))
+                                        tool->useDCFormat = true;
                                     tool->LoadScene(r.path, r.extra[0], r.gameVer);
                                 }
                                 else

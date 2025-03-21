@@ -9,10 +9,10 @@ void RSDKv1::GFX::read(Reader &reader, bool dcGFX)
     if (dcGFX)
         reader.read<byte>();
 
-    width = (ushort)(reader.read<byte>() << 8);
-    width |= reader.read<byte>();
+    width   = (ushort)(reader.read<byte>() << 8);
+    width  |= reader.read<byte>();
 
-    height = (ushort)(reader.read<byte>() << 8);
+    height  = (ushort)(reader.read<byte>() << 8);
     height |= reader.read<byte>();
 
     // Read & Process palette
@@ -43,7 +43,14 @@ void RSDKv1::GFX::read(Reader &reader, bool dcGFX)
         }
         else
             pixels.append(buf[0]);
+
+        if (reader.isEOF())
+            break;
     }
+
+    // This should only happen on DC Stages, as apparently it doesn't fill the unused data (and the editor doesn't like that :)))
+    for(int i = pixels.count(); i < 16 * 16384; i++)
+        pixels.append((byte)0x00);
 }
 
 void rle_writev1(Writer writer, int pixel, int count, bool dcGFX)
@@ -75,7 +82,7 @@ void RSDKv1::GFX::write(Writer &writer, bool dcGFX)
     filePath = writer.filePath;
 
     if (dcGFX)
-        writer.write((byte)0);
+        writer.write((byte)0x00);
 
     // Output width and height
     writer.write((byte)(width >> 8));
@@ -106,7 +113,7 @@ void RSDKv1::GFX::write(Writer &writer, bool dcGFX)
 
     // End of GFX file
     writer.write((byte)0xFF);
-    writer.write((byte)0xFF);
+    writer.write(dcGFX ? (byte)0x00 : (byte)0xFF);
 
     writer.flush();
 }
@@ -178,7 +185,6 @@ QImage RSDKv1::GFX::exportImage()
         colors.append(qRgb(c.r, c.g, c.b));
     }
     img.setColorTable(colors);
-
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             byte index = (byte)pixels[(y * width) + x];

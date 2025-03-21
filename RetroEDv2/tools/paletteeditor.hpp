@@ -76,6 +76,8 @@ public:
     };
 
     explicit PaletteEditor(QString path = "", byte type = 0xFF, bool external = false, QWidget *parent = nullptr);
+    explicit PaletteEditor(Palette *stagePal, QWidget *parent = nullptr);
+    explicit PaletteEditor(RSDKv5::StageConfig *stagePal, QWidget *parent = nullptr);
     ~PaletteEditor();
 
     void SavePalette(QString filepath);
@@ -120,6 +122,8 @@ private:
     void ReinitEditor();
 
     void LoadPalette(QString path, byte type);
+    void LoadScnEditorPal(Palette *stagePal);
+    void Loadv5ScnEditorPal(RSDKv5::StageConfig *stagePal);
     void ImportPalette(QString path, byte type);
     void SwitchBank(int id);
     void UpdatePaletteRows(int rows);
