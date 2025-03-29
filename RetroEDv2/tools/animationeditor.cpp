@@ -521,7 +521,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->speedMult->setDisabled(c == -1);
         ui->playerID->setDisabled(c == -1 || (aniType != ENGINE_v1 && aniType != ENGINE_NONE));
 
-        ui->copyAnim->setDisabled((aniType == ENGINE_v1 || aniType == ENGINE_v2) || c == -1);
+        ui->copyAnim->setDisabled(c == -1);
 
         ui->impAnim->setDisabled(c == -1);
         ui->expAnim->setDisabled(c == -1);
@@ -1624,7 +1624,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         ui->upAnim->setDisabled((aniType == ENGINE_v1 || aniType == ENGINE_v2)   || n == -1);
         ui->downAnim->setDisabled((aniType == ENGINE_v1 || aniType == ENGINE_v2) || n == -1);
-        ui->copyAnim->setDisabled((aniType == ENGINE_v1 || aniType == ENGINE_v2) || n == -1);
+        ui->copyAnim->setDisabled(n == -1);
 
         ui->rmAnim->setDisabled(((aniType == ENGINE_v1 && c < 35)
                               || (aniType == ENGINE_v2 && c < 52))
@@ -1966,7 +1966,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     });
 
     connect(ui->copyAnim, &QToolButton::clicked, [this] {
-        int c = ui->animationList->currentRow() + 1;
+        int c = (aniType == ENGINE_v1 || aniType == ENGINE_v2) ? ui->animationList->count() : ui->animationList->currentRow() + 1;
         if (currentAnim < animFile.animations.count()) {
             ui->animationList->blockSignals(true);
 
