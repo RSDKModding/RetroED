@@ -18,6 +18,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
+        version: '5.15.2'
         cache: true
     - name: Download Jom
       run: |
