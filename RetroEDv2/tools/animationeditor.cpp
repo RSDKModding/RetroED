@@ -2515,6 +2515,10 @@ void AnimationEditor::LoadAnim(QString filepath, int aniType)
     else
         currentSubHitbox = 0;
 
+    if (aniType != ENGINE_v5)
+        for (auto &anim : animFile.animations)
+            anim.name.truncate(0x10 - 1);
+
     currentAnim   = -1;
     currentFrame  = -1;
     currentHitbox = -1;
