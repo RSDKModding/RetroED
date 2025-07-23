@@ -17,6 +17,9 @@ public:
     explicit TileCollisionWidgetv5(QWidget *parent = nullptr);
     RSDKv5::TileConfig::CollisionMask *cmask = nullptr;
     QImage tileImg;
+    Vector2<int> DrawPoint1 = (-1, -1);
+    Vector2<int> DrawPoint2 = (-1, -1);
+    bool mAngleMode = false;
 
 protected:
     void paintEvent(QPaintEvent *) override;

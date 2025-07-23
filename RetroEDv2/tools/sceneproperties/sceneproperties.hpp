@@ -27,7 +27,6 @@ public:
     QPushButton *editPAL  = nullptr;
     QPushButton *editTSet = nullptr;
     QPushButton *copyPlane = nullptr;
-
     QLabel *objCnt    = nullptr;
     QLabel *entCntTot = nullptr;
 
@@ -42,6 +41,9 @@ public:
 
     color_widgets::ColorPreview *bgSel    = nullptr;
     color_widgets::ColorPreview *altBGSel = nullptr;
+
+    QGroupBox *v1PropertiesBox = nullptr;
+    QWidget *layers            = nullptr;
 
 private:
     Ui::SceneProperties *ui;

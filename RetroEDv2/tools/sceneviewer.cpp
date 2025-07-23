@@ -1068,30 +1068,32 @@ void SceneViewer::drawScene()
 
             validDraw = false;
 
-            if (!objects[entity->type].visible)
-                continue;
+            if (entity->type < objects.count()){
+                if (!objects[entity->type].visible)
+                    continue;
 
-            int filter = 0xFF;
-            for (int v = 0; v < objects[entity->type].variables.count(); ++v) {
-                if (objects[entity->type].variables[v].name == "filter") {
-                    if (v < entity->variables.count())
-                        filter = entity->variables[v].value_uint8;
-                    break;
+                int filter = 0xFF;
+                for (int v = 0; v < objects[entity->type].variables.count(); ++v) {
+                    if (objects[entity->type].variables[v].name == "filter") {
+                        if (v < entity->variables.count())
+                            filter = entity->variables[v].value_uint8;
+                        break;
+                    }
                 }
-            }
 
-            if (!(filter & sceneFilter) && filter)
-                continue;
+                if (!(filter & sceneFilter) && filter)
+                    continue;
 
-            if (drawLayers[p].entries[o] == selectedEntity
-                || selectedEntities.indexOf(drawLayers[p].entries[o]) >= 0)
-                continue;
+                if (drawLayers[p].entries[o] == selectedEntity
+                    || selectedEntities.indexOf(drawLayers[p].entries[o]) >= 0)
+                    continue;
 
-            if (entity->type != 0) {
-                if (gameType == ENGINE_v5)
-                    emit callGameEventv5(objects[entity->type].name, EVENT_DRAW, entity);
-                else
-                    emit callGameEvent(EVENT_DRAW, drawLayers[p].entries[o]);
+                if (entity->type != 0) {
+                    if (gameType == ENGINE_v5)
+                        emit callGameEventv5(objects[entity->type].name, EVENT_DRAW, entity);
+                    else
+                        emit callGameEvent(EVENT_DRAW, drawLayers[p].entries[o]);
+                }
             }
 
             // Draw Default Object Sprite if invalid

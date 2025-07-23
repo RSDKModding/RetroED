@@ -54,6 +54,9 @@ public:
     explicit ChunkColEdit(QWidget *parent = nullptr);
     RSDKv5::TileConfig::CollisionMask *cmask = nullptr;
     QImage tileImg;
+    bool mAngleMode = false;
+    Vector2<int> DrawPoint1 = (-1, -1);
+    Vector2<int> DrawPoint2 = (-1, -1);
 
 protected:
     void paintEvent(QPaintEvent *) override;

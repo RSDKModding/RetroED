@@ -31,7 +31,7 @@ void SceneObjectProperties::setupUI(SceneEntity *entity, int entityID, Compilerv
 {
     unsetUI();
 
-    SceneObject &object = scnEditor->viewer->objects[entity->type];
+    SceneObject &object = entity->type < scnEditor->viewer->objects.count() ? scnEditor->viewer->objects[entity->type] : scnEditor->viewer->objects[0];
 
     QList<PropertyValue> objNames;
     for (int o = 0; o < scnEditor->viewer->objects.count(); ++o) {

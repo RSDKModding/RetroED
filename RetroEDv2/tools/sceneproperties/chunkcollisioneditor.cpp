@@ -26,6 +26,13 @@ ChunkCollisionEditor::ChunkCollisionEditor(FormatHelpers::Chunks *chk, ushort cu
         }
     }
 
+    ui->angMaskDir->setCurrentIndex(chunkColMask[collisionLyr][selectedDrawTile]->direction);
+    ui->angFlag->setValue(chunkColMask[collisionLyr][selectedDrawTile]->flags);
+    ui->angFloor->setValue(chunkColMask[collisionLyr][selectedDrawTile]->floorAngle);
+    ui->angRoof->setValue(chunkColMask[collisionLyr][selectedDrawTile]->roofAngle);
+    ui->angLWall->setValue(chunkColMask[collisionLyr][selectedDrawTile]->lWallAngle);
+    ui->angRWall->setValue(chunkColMask[collisionLyr][selectedDrawTile]->rWallAngle);
+
     ui->textTileID->setText("Tile ID: " + QString::number(storedTileList[selectedDrawTile]));
     ui->textChunkID->setText("Chunk ID: " + QString::number(curChunk));
 
@@ -49,7 +56,7 @@ ChunkCollisionEditor::ChunkCollisionEditor(FormatHelpers::Chunks *chk, ushort cu
     ui->tileCol->layout()->addWidget(colEdit);
 
     connect(ui->planeA, &QRadioButton::toggled, [this] {
-        collisionLyr     = 0;
+        collisionLyr = 0;
 
         ui->planeB->blockSignals(true);
         ui->angMaskDir->blockSignals(true);
@@ -77,7 +84,9 @@ ChunkCollisionEditor::ChunkCollisionEditor(FormatHelpers::Chunks *chk, ushort cu
 
         ui->planeB->blockSignals(false);
 
-        colEdit->cmask                = chunkColMask[collisionLyr][selectedDrawTile];
+        colEdit->cmask        = chunkColMask[collisionLyr][selectedDrawTile];
+        colEdit->DrawPoint1.x = -1, colEdit->DrawPoint2.x = -1;
+        colEdit->DrawPoint1.y = -1, colEdit->DrawPoint2.y = -1;
         collisionViewer->collisionLyr = 0;
 
         colEdit->update();
@@ -85,7 +94,7 @@ ChunkCollisionEditor::ChunkCollisionEditor(FormatHelpers::Chunks *chk, ushort cu
     });
 
     connect(ui->planeB, &QRadioButton::toggled, [this] {
-        collisionLyr     = 1;
+        collisionLyr = 1;
 
         ui->planeA->blockSignals(true);
         ui->angMaskDir->blockSignals(true);
@@ -113,8 +122,11 @@ ChunkCollisionEditor::ChunkCollisionEditor(FormatHelpers::Chunks *chk, ushort cu
 
         ui->planeA->blockSignals(false);
 
-        colEdit->cmask                = chunkColMask[collisionLyr][selectedDrawTile];
+        colEdit->cmask        = chunkColMask[collisionLyr][selectedDrawTile];
+        colEdit->DrawPoint1.x = -1, colEdit->DrawPoint2.x = -1;
+        colEdit->DrawPoint1.y = -1, colEdit->DrawPoint2.y = -1;
         collisionViewer->collisionLyr = 1;
+
         colEdit->update();
         collisionViewer->update();
     });
@@ -141,81 +153,99 @@ ChunkCollisionEditor::ChunkCollisionEditor(FormatHelpers::Chunks *chk, ushort cu
     connect(ui->angRWall, QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int v) { chunkColMask[collisionLyr][selectedDrawTile]->rWallAngle = (byte)v; });
 
-    auto calcFloorAngle = [](RSDKv5::TileConfig::CollisionMask *mask) {
+    connect(ui->angleCheck, &QCheckBox::toggled, [this](bool c){
+        colEdit->mAngleMode = c;
+        if (colEdit->mAngleMode)
+            ui->helpLabel->setText(QString("Left Click and Drag: Set angle points"));
+        else
+            ui->helpLabel->setText(QString("Left Click: Set height | Right Click: Set solidity"));
+    });
+
+    auto getColAngle = [this](RSDKv5::TileConfig::CollisionMask *mask, bool isRoof) {
         byte angle = 0;
         Vector2<float> start(-1, -1), end(-1, -1);
-
-        if (!mask->direction) // Ceiling Tile
+        if (isRoof ? mask->direction : !mask->direction) // Ceiling Tile
         {
-            for (int x = 0; x < 16; ++x) {
-                if (mask->collision[x].solid) {
-                    if (start.x == -1) {
-                        start.x = x;
-                        start.y = mask->collision[x].height;
+            if (!colEdit->mAngleMode || colEdit->DrawPoint1.x == -1 || colEdit->DrawPoint1.y == -1
+                || colEdit->DrawPoint2.x == -1 || colEdit->DrawPoint2.y == -1) {
+                int step = 0;
+                int curStepH = 0;
+                for (int x = 0; x < 16; ++x) {
+                    if (mask->collision[x].solid) {
+                        if (start.x == -1 && mask->collision[x + 1].height != (isRoof ? 15 : 0)) {
+                            start.x = x;
+                            start.y = mask->collision[x].height;
+                        }
+
+                        if (mask->collision[x - 1].height != (isRoof ? 15 : 0)){
+                            end.x = x;
+                            end.y = mask->collision[x].height;
+                        }
+                        if (curStepH == mask->collision[x].height)
+                            step++;
+                        else if (mask->collision[x].height != (isRoof ? 15 : 0)){
+                            step = 0;
+                            curStepH = mask->collision[x].height;
+                        }
                     }
-
-                    end.x = x;
-                    end.y = mask->collision[x].height;
                 }
-            }
+                if (isRoof ? (end.y < start.y) : (start.y < end.y)) {
+                    if (start.y == 0 || start.y == 15) {
+                        start.x = start.x - step;
+                        if (start.x < 0)
+                            start.x = 0;
+                        start.y = mask->collision[(int)start.x].height;
+                    }
+                } else {
+                    if (end.y == 0 || end.y == 15) {
+                        end.x = end.x + step;
+                        if (end.x > 15)
+                            end.x = 15;
+                        end.y = mask->collision[(int)end.x].height;
+                    }
+                }
+                colEdit->DrawPoint1.x = start.x; colEdit->DrawPoint2.x = end.x;
+                colEdit->DrawPoint1.y = start.y; colEdit->DrawPoint2.y = end.y;
+            } else {
+                if (colEdit->DrawPoint1.x > colEdit->DrawPoint2.x) {
+                    qSwap(colEdit->DrawPoint1.x, colEdit->DrawPoint2.x);
+                    qSwap(colEdit->DrawPoint1.y, colEdit->DrawPoint2.y);
+                }
 
-            float angleF = atan2((float)(end.y - start.y), (end.x - start.x));
-            angle        = (int)(angleF * 40.764331) & 0xFC;
-        }
-        else {
-            angle = 0x00;
-        }
+                start.x = colEdit->DrawPoint1.x, end.x = colEdit->DrawPoint2.x;
+                start.y = colEdit->DrawPoint1.y, end.y = colEdit->DrawPoint2.y;
+            }
+            if (isRoof){
+                qSwap(start.x, end.x);
+                qSwap(start.y, end.y);
+            }
+            float angleF = atan2((end.y - start.y), (end.x - start.x));
+            angle = (byte)(angleF * (256 / (2 * RSDK_PI))) & 0xFE;
+        } else
+            angle = isRoof ? 0x80 : 0x00;
 
         return angle;
     };
 
-    auto calcRoofAngle = [](RSDKv5::TileConfig::CollisionMask *mask) {
-        byte angle = 0;
-        Vector2<float> start(-1, -1), end(-1, -1);
-
-        if (mask->direction) // Ceiling Tile
-        {
-            for (int x = 0; x < 16; ++x) {
-                if (mask->collision[x].solid) {
-                    if (start.x == -1) {
-                        start.x = x;
-                        start.y = mask->collision[x].height;
-                    }
-
-                    end.x = x;
-                    end.y = mask->collision[x].height;
-                }
-            }
-
-            float angleF = atan2((float)(start.y - end.y), (start.x - end.x));
-            angle        = (int)(angleF * 40.764331) & 0xFC;
-        }
-        else {
-            angle = 0x80;
-        }
-
-        return angle;
-    };
-
-    connect(ui->calcFloor, &QPushButton::clicked, [this, calcFloorAngle] {
-        chunkColMask[collisionLyr][selectedDrawTile]->floorAngle = calcFloorAngle(chunkColMask[collisionLyr][selectedDrawTile]);
+    connect(ui->calcFloor, &QPushButton::clicked, [this, getColAngle] {
+        chunkColMask[collisionLyr][selectedDrawTile]->floorAngle = getColAngle(chunkColMask[collisionLyr][selectedDrawTile], false);
         ui->angFloor->blockSignals(true);
         ui->angFloor->setValue(chunkColMask[collisionLyr][selectedDrawTile]->floorAngle);
         ui->angFloor->blockSignals(false);
     });
 
-    connect(ui->calcRoof, &QPushButton::clicked, [this, calcRoofAngle] {
-        chunkColMask[collisionLyr][selectedDrawTile]->roofAngle = calcRoofAngle(chunkColMask[collisionLyr][selectedDrawTile]);
+    connect(ui->calcRoof, &QPushButton::clicked, [this, getColAngle] {
+        chunkColMask[collisionLyr][selectedDrawTile]->roofAngle = getColAngle(chunkColMask[collisionLyr][selectedDrawTile], true);
         ui->angRoof->blockSignals(true);
         ui->angRoof->setValue(chunkColMask[collisionLyr][selectedDrawTile]->roofAngle);
         ui->angRoof->blockSignals(false);
     });
 
-    connect(ui->calcLWall, &QPushButton::clicked, [this, calcFloorAngle, calcRoofAngle] {
+    connect(ui->calcLWall, &QPushButton::clicked, [this, getColAngle] {
         RSDKv5::TileConfig::CollisionMask rotMask = *chunkColMask[collisionLyr][selectedDrawTile];
 
         if (chunkColMask[collisionLyr][selectedDrawTile]->direction) { // Ceiling Tile
-            chunkColMask[collisionLyr][selectedDrawTile]->lWallAngle = calcRoofAngle(chunkColMask[collisionLyr][selectedDrawTile]);
+            chunkColMask[collisionLyr][selectedDrawTile]->lWallAngle = getColAngle(chunkColMask[collisionLyr][selectedDrawTile], true);
 
             // LWall rotations
             for (int c = 0; c < 16; ++c) {
@@ -241,7 +271,7 @@ ChunkCollisionEditor::ChunkCollisionEditor(FormatHelpers::Chunks *chk, ushort cu
             }
         }
         else { // Regular Tile
-            chunkColMask[collisionLyr][selectedDrawTile]->lWallAngle = calcFloorAngle(chunkColMask[collisionLyr][selectedDrawTile]);
+            chunkColMask[collisionLyr][selectedDrawTile]->lWallAngle = getColAngle(chunkColMask[collisionLyr][selectedDrawTile], false);
 
             // LWall rotations
             for (int c = 0; c < 16; ++c) {
@@ -285,11 +315,11 @@ ChunkCollisionEditor::ChunkCollisionEditor(FormatHelpers::Chunks *chk, ushort cu
         ui->angLWall->blockSignals(false);
     });
 
-    connect(ui->calcRWall, &QPushButton::clicked, [this, calcFloorAngle, calcRoofAngle] {
+    connect(ui->calcRWall, &QPushButton::clicked, [this, getColAngle] {
         RSDKv5::TileConfig::CollisionMask rotMask = *chunkColMask[collisionLyr][selectedDrawTile];
 
         if (chunkColMask[collisionLyr][selectedDrawTile]->direction) { // Ceiling Tile
-            chunkColMask[collisionLyr][selectedDrawTile]->rWallAngle = calcRoofAngle(chunkColMask[collisionLyr][selectedDrawTile]);
+            chunkColMask[collisionLyr][selectedDrawTile]->rWallAngle = getColAngle(chunkColMask[collisionLyr][selectedDrawTile], true);
 
             // RWall rotations
             for (int c = 0; c < 16; ++c) {
@@ -315,7 +345,7 @@ ChunkCollisionEditor::ChunkCollisionEditor(FormatHelpers::Chunks *chk, ushort cu
             }
         }
         else { // Regular Tile
-            chunkColMask[collisionLyr][selectedDrawTile]->rWallAngle = calcFloorAngle(chunkColMask[collisionLyr][selectedDrawTile]);
+            chunkColMask[collisionLyr][selectedDrawTile]->rWallAngle = getColAngle(chunkColMask[collisionLyr][selectedDrawTile], false);
 
             // RWall rotations
             for (int c = 0; c < 16; ++c) {
@@ -376,6 +406,8 @@ void ChunkCollisionEditor::changeSelTile(int c)
 
     colEdit->cmask   = chunkColMask[collisionLyr][selectedDrawTile];
     colEdit->tileImg = imageTileList[selectedDrawTile];
+    colEdit->DrawPoint1.x = -1, colEdit->DrawPoint2.x = -1;
+    colEdit->DrawPoint1.y = -1, colEdit->DrawPoint2.y = -1;
     colEdit->update();
     chunkViewer->update();
 
@@ -450,14 +482,15 @@ void ChunkColEdit::paintEvent(QPaintEvent *)
     QRectF rect(0, 0, (qreal)width() / 16, (qreal)height() / 16);
     p.drawImage(QRect(0, 0, width(), height()), tileImg);
 
+    QPen pen(qApp->palette().base(), 2);
+    p.setPen(pen);
+    p.setOpacity(0.5);
+
     if (!cmask->direction) {
         for (byte y = 0; y < 16; ++y) {
             for (byte x = 0; x < 16; ++x) {
                 if (cmask->collision[x].height <= y) {
-                    QPen pen(qApp->palette().base(), 2);
-                    p.setPen(pen);
                     p.setBrush(QColor(0x00FF00));
-                    p.setOpacity(0.5);
 
                     if (!cmask->collision[x].solid)
                         p.setBrush(p.brush().color().darker(255));
@@ -485,6 +518,18 @@ void ChunkColEdit::paintEvent(QPaintEvent *)
             }
         }
     }
+
+    p.setPen(QPen(Qt::red, 2));
+    p.setOpacity(1);
+    p.setBrush(Qt::NoBrush);
+    if (DrawPoint1.x != -1 && DrawPoint1.y != -1)
+        p.drawRect(rect.translated(DrawPoint1.x * (qreal)width() / 16, DrawPoint1.y * (qreal)height() / 16));
+    if (DrawPoint2.x != -1 && DrawPoint2.y != -1)
+        p.drawRect(rect.translated(DrawPoint2.x * (qreal)width() / 16, DrawPoint2.y * (qreal)height() / 16));
+    if (DrawPoint1.x != -1 && DrawPoint1.y != -1 && DrawPoint2.x != -1 && DrawPoint2.y != -1)
+        p.drawLine(DrawPoint1.x * (qreal)width() / 16 + 8, DrawPoint1.y * (qreal)height() / 16 + 8,
+                   DrawPoint2.x * (qreal)width() / 16 + 8, DrawPoint2.y * (qreal)height() / 16 + 8);
+    update();
 }
 
 void ChunkColEdit::leaveEvent(QEvent *)
@@ -496,8 +541,15 @@ void ChunkColEdit::leaveEvent(QEvent *)
 void ChunkColEdit::mousePressEvent(QMouseEvent *event)
 {
     short x = floor((float)(event->x() / ((qreal)width() / 16)));
+    short y = floor((float)(event->y() / ((qreal)height() / 16)));
     if (x > 15)
         x = 15;
+
+    if (y > 15)
+        y = 15;
+
+    if (y < 0)
+        y = 0;
 
     if (x < 0)
         x = 0;
@@ -506,6 +558,10 @@ void ChunkColEdit::mousePressEvent(QMouseEvent *event)
     pressedL  = (event->button() & Qt::LeftButton) == Qt::LeftButton;
     pressedR  = (event->button() & Qt::RightButton) == Qt::RightButton;
 
+    if (pressedL && mAngleMode){
+        DrawPoint1.x = x;
+        DrawPoint1.y = y;
+    }
     if (pressedR)
         enabling = !cmask->collision[x].solid;
 }
@@ -538,11 +594,18 @@ void ChunkColEdit::mouseMoveEvent(QMouseEvent *event)
 
     highlight = x % 16 + y * 16;
 
-    if (pressedR)
-        cmask->collision[x].solid = enabling;
+    if (!mAngleMode) {
+        if (pressedR)
+            cmask->collision[x].solid = enabling;
 
-    if (pressedL)
-        cmask->collision[x].height = y;
+        if (pressedL)
+            cmask->collision[x].height = y;
+    } else {
+        if (pressedL){
+            DrawPoint2.x = x;
+            DrawPoint2.y = y;
+        }
+    }
 
     update();
 }

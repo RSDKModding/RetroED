@@ -28,7 +28,6 @@ SceneProperties::SceneProperties(QWidget *parent) : QWidget(parent), ui(new Ui::
     syncGC     = ui->syncGC;
     syncSC     = ui->syncSC;
     reloadLink = ui->reloadLink;
-
     replaceChunk = ui->replaceChunk;
 
     bgSel = new color_widgets::ColorPreview(this);
@@ -36,6 +35,9 @@ SceneProperties::SceneProperties(QWidget *parent) : QWidget(parent), ui(new Ui::
 
     altBGSel = new color_widgets::ColorPreview(this);
     ui->altBGClrLayout->addWidget(altBGSel);
+
+    v1PropertiesBox = ui->v1PropertiesBox;
+    layers = ui->layers;
 
     sceneEditor = (void *)parent;
 }

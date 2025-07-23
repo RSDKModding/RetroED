@@ -19,8 +19,11 @@ public:
     RSDKv5::TileConfig::CollisionMask *cmask = nullptr;
     RSDKv1::TileConfig::CollisionMask *cmaskv1 = nullptr;
     QImage tileImg;
-    byte paintVer = 0;
-    byte maskIndex = 0;
+    Vector2<int> DrawPoint1 = (-1, -1);
+    Vector2<int> DrawPoint2 = (-1, -1);
+    byte paintVer   = 0;
+    byte maskIndex  = 0;
+    bool mAngleMode = false;
 
 protected:
     void paintEvent(QPaintEvent *) override;

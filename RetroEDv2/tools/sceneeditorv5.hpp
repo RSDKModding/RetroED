@@ -258,7 +258,6 @@ public:
     TileSelector(QWidget *parent = nullptr);
 
     void RefreshList();
-
 private:
     TileLabel *tiles[0x400];
 

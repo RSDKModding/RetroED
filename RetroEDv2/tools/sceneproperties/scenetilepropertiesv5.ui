@@ -2,12 +2,15 @@
 <ui version="4.0">
  <class>SceneTilePropertiesv5</class>
  <widget class="QWidget" name="SceneTilePropertiesv5">
+  <property name="enabled">
+   <bool>false</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>356</width>
-    <height>620</height>
+    <height>656</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,8 +23,8 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="3" column="2" colspan="2">
-    <widget class="QCheckBox" name="solidLRBB">
+   <item row="1" column="0" colspan="2">
+    <widget class="QCheckBox" name="flipX">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -29,41 +32,22 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Solid B (All but top)</string>
+      <string>Flip X</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
-    <widget class="QSpinBox" name="lWallAngle">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+   <item row="14" column="3">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The collision mask's angle while on CMODE_LWALL&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
      </property>
-     <property name="maximum">
-      <number>255</number>
-     </property>
-     <property name="displayIntegerBase">
-      <number>16</number>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="2" colspan="2">
-    <widget class="QCheckBox" name="solidLRBA">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Solid A (All but top)</string>
-     </property>
-    </widget>
+    </spacer>
    </item>
    <item row="6" column="2">
     <widget class="QRadioButton" name="colPlaneB">
@@ -78,8 +62,15 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QCheckBox" name="solidTopA">
+   <item row="5" column="0" colspan="2">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>Tile Collision Plane</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2" colspan="2">
+    <widget class="QCheckBox" name="solidLRBB">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -87,26 +78,21 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Solid A (Top)</string>
+      <string>Solid B (All but top)</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="3">
-    <widget class="QSpinBox" name="roofAngle">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+   <item row="8" column="2">
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>RWall</string>
      </property>
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The collision mask's angle while on CMODE_ROOF&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="maximum">
-      <number>255</number>
-     </property>
-     <property name="displayIntegerBase">
-      <number>16</number>
+    </widget>
+   </item>
+   <item row="7" column="2">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Roof</string>
      </property>
     </widget>
    </item>
@@ -129,30 +115,55 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0" colspan="2">
-    <widget class="QLabel" name="label_9">
+   <item row="9" column="2">
+    <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Tile Collision Plane</string>
+      <string>Mask Dir</string>
      </property>
     </widget>
    </item>
-   <item row="13" column="3">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
+   <item row="2" column="0" colspan="2">
+    <widget class="QCheckBox" name="solidTopA">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-     <property name="sizeHint" stdset="0">
+     <property name="text">
+      <string>Solid A (Top)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
       <size>
-       <width>20</width>
-       <height>20</height>
+       <width>0</width>
+       <height>0</height>
       </size>
      </property>
-    </spacer>
-   </item>
-   <item row="8" column="2">
-    <widget class="QLabel" name="label_8">
      <property name="text">
-      <string>RWall</string>
+      <string>LWall</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0" colspan="2">
+    <widget class="QLabel" name="label_7">
+     <property name="minimumSize">
+      <size>
+       <width>100</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Calculate Angles:</string>
      </property>
     </widget>
    </item>
@@ -169,7 +180,53 @@
      </property>
     </widget>
    </item>
-   <item row="12" column="0" colspan="4">
+   <item row="15" column="0" colspan="4">
+    <widget class="QPushButton" name="replaceTile">
+     <property name="text">
+      <string>Replace Tile</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="2">
+    <widget class="QPushButton" name="calcAngleC">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Roof</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <widget class="QPushButton" name="calcAngleF">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Floor</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2" colspan="2">
+    <widget class="QCheckBox" name="solidLRBA">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Solid A (All but top)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="0" colspan="4">
     <widget class="QFrame" name="frame">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
@@ -211,6 +268,32 @@
      </layout>
     </widget>
    </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QCheckBox" name="solidTopB">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Solid B (Top)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="4">
+    <widget class="Line" name="line">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
    <item row="6" column="0" colspan="2">
     <widget class="QRadioButton" name="colPlaneA">
      <property name="sizePolicy">
@@ -224,28 +307,8 @@
      </property>
     </widget>
    </item>
-   <item row="10" column="0" colspan="2">
-    <widget class="QLabel" name="label_7">
-     <property name="minimumSize">
-      <size>
-       <width>100</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>Calculate Angles:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="tID">
-     <property name="text">
-      <string>Tile:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QCheckBox" name="flipX">
+   <item row="1" column="2">
+    <widget class="QCheckBox" name="flipY">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -253,45 +316,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Flip X</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="label_6">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>LWall</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="0">
-    <widget class="QLabel" name="label">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>Flags</string>
+      <string>Flip Y</string>
      </property>
     </widget>
    </item>
@@ -311,65 +336,6 @@
      </property>
      <property name="displayIntegerBase">
       <number>16</number>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QCheckBox" name="solidTopB">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Solid B (Top)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="QCheckBox" name="flipY">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Flip Y</string>
-     </property>
-    </widget>
-   </item>
-   <item row="11" column="0">
-    <widget class="QPushButton" name="calcAngleF">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Floor</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="2">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Mask Dir</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="4">
-    <widget class="Line" name="line">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -393,36 +359,41 @@
      </item>
     </widget>
    </item>
-   <item row="11" column="2">
-    <widget class="QPushButton" name="calcAngleC">
+   <item row="8" column="1">
+    <widget class="QSpinBox" name="lWallAngle">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="text">
-      <string>Roof</string>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The collision mask's angle while on CMODE_LWALL&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+     <property name="displayIntegerBase">
+      <number>16</number>
      </property>
     </widget>
    </item>
-   <item row="11" column="3">
-    <widget class="QPushButton" name="calcAngleR">
+   <item row="9" column="0">
+    <widget class="QLabel" name="label">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="text">
-      <string>Rwall</string>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
      </property>
-    </widget>
-   </item>
-   <item row="7" column="2">
-    <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>Roof</string>
+      <string>Flags</string>
      </property>
     </widget>
    </item>
@@ -461,10 +432,56 @@
      </property>
     </widget>
    </item>
-   <item row="14" column="0" colspan="4">
-    <widget class="QPushButton" name="replaceTile">
+   <item row="0" column="0">
+    <widget class="QLabel" name="tID">
      <property name="text">
-      <string>Replace Tile</string>
+      <string>Tile:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="3">
+    <widget class="QPushButton" name="calcAngleR">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Rwall</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="3">
+    <widget class="QSpinBox" name="roofAngle">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The collision mask's angle while on CMODE_ROOF&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+     <property name="displayIntegerBase">
+      <number>16</number>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0" colspan="4">
+    <widget class="QLabel" name="helpLabel">
+     <property name="text">
+      <string>Left Click: Set Height | Right Click: Set Solidity</string>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="0" colspan="3">
+    <widget class="QCheckBox" name="angleCheck">
+     <property name="text">
+      <string>Manual Angle Point Mode</string>
      </property>
     </widget>
    </item>

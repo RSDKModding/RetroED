@@ -2735,6 +2735,8 @@ void SceneEditor::CreateNewScene(QString scnPath, byte scnVer, bool loadGC, QStr
 
     AddStatusProgress(1. / 7); // finish building tiles & chunks
 
+    tileProp->setEnabled(true);
+
     ui->layerList->blockSignals(true);
     ui->layerList->clear();
     QListWidgetItem *itemFG = new QListWidgetItem("Foreground", ui->layerList);
@@ -3183,6 +3185,8 @@ void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
 
     AddStatusProgress(1. / 7); // finish building tiles & chunks
 
+    tileProp->setEnabled(true);
+
     ui->layerList->blockSignals(true);
     ui->layerList->clear();
     QListWidgetItem *itemFG = new QListWidgetItem("Foreground", ui->layerList);
@@ -3242,7 +3246,6 @@ void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
 
     scnProp->bgSel->setColor(viewer->metadata.backgroundColor1);
     scnProp->altBGSel->setColor(viewer->metadata.backgroundColor2);
-
     if (chkProp) {
         ui->chunksPage->layout()->removeWidget(chkProp);
         delete chkProp;
@@ -3284,6 +3287,9 @@ void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
 
     ui->addEnt->setDisabled(viewer->entities.count() >= FormatHelpers::Scene::entityLimit);
 
+    scnProp->v1PropertiesBox->setVisible(viewer->gameType == ENGINE_v1);
+    scnProp->layers->setHidden(viewer->gameType == ENGINE_v1);
+    scnProp->syncGC->setHidden(viewer->gameType == ENGINE_v1);
     tabTitle = Utils::getFilenameAndFolder(scnPath);
     tabPath  = scnPath;
 
@@ -4389,12 +4395,14 @@ void SceneEditor::InitGameLink()
     viewer->activeVarObj = -1;
 
     for (int e = 0; e < viewer->entities.count(); ++e) {
-        viewer->entities[e].variables.clear();
-        for (int v = 0; v < viewer->objects[viewer->entities[e].type].variables.count(); ++v) {
-            RSDKv5::Scene::VariableValue val;
-            val.type        = VAR_UINT8;
-            val.value_uint8 = 0;
-            viewer->entities[e].variables.append(val);
+        if (viewer->entities[e].type < viewer->objects.count()){
+            viewer->entities[e].variables.clear();
+            for (int v = 0; v < viewer->objects[viewer->entities[e].type].variables.count(); ++v) {
+                RSDKv5::Scene::VariableValue val;
+                val.type        = VAR_UINT8;
+                val.value_uint8 = 0;
+                viewer->entities[e].variables.append(val);
+            }
         }
     }
 

@@ -1890,6 +1890,7 @@ void SceneEditorv5::updateTileSel(){
     Utils::setBit(tile, viewer->tileSolidB.x, 14);
     Utils::setBit(tile, viewer->tileSolidB.y, 15);
 
+    ui->propertiesBox->setCurrentWidget(ui->tilePropPage);
     tileProp->setDisabled(tile == 0xFFFF);
     tileProp->setupUI(&tileconfig.collisionPaths[0][tile & 0x3FF], &tileconfig.collisionPaths[1][tile & 0x3FF],
             &tile, viewer->tiles[tile & 0x3FF]);
@@ -3648,7 +3649,7 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
 
     AddStatusProgress(1. / 6); // finish setting up UI stuff
 
-    if (gameLinks.count())
+    if (gameLinks.count() && !viewer->linkError)
         InitGameLink();
     else {
         switch (viewer->engineRevision) {
@@ -3691,7 +3692,6 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
                     }
                 }
             }
-
         }
     }
 
