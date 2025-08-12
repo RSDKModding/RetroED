@@ -109,6 +109,10 @@ enum ModFunctionTableIDs {
     ModTable_CopyCollisionMask,
     ModTable_GetCollisionInfo,
 
+    // Mod API REV03
+
+    ModTable_HookPublicFunction,
+
     ModTable_Count,
 };
 
@@ -224,6 +228,10 @@ void InitModFunctionTable()
     ADD_MOD_FUNCTION(ModTable_FindRWallPosition, BlankFunction);
     ADD_MOD_FUNCTION(ModTable_CopyCollisionMask, BlankFunction);
     ADD_MOD_FUNCTION(ModTable_GetCollisionInfo, BlankFunction);
+
+    // MOD API REV03
+
+    ADD_MOD_FUNCTION(ModTable_HookPublicFunction, BlankFunction);
 }
 
 } // namespace FunctionTable
