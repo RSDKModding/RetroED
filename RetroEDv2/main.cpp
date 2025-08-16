@@ -88,6 +88,11 @@ QPalette darkPal;
 
 int main(int argc, char *argv[])
 {
+    // Force to use X11 because Wayland is broke in QT 5x
+    #ifdef Q_OS_LINUX
+        qputenv("QT_QPA_PLATFORM", "xcb");
+    #endif
+
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
