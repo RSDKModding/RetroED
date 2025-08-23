@@ -4616,6 +4616,34 @@ bool SceneEditor::HandleKeyPress(QKeyEvent *event)
         }
     }
 
+    if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
+        && (event->key() == Qt::Key_Plus || event->key() == Qt::Key_Minus || event->key() == Qt::Key_Underscore) && viewerActive) {
+
+        Vector2<float> worldCenterPos = Vector2<float>(viewer->cameraPos.x + ((viewer->storedW / 2) * viewer->invZoom()), viewer->cameraPos.y + ((viewer->storedH / 2) * viewer->invZoom()));
+        if (event->key() == Qt::Key_Plus && viewer->zoom < 20)
+            viewer->zoom *= 2.0f;
+        else if ((event->key() == Qt::Key_Minus || event->key() == Qt::Key_Underscore) && viewer->zoom > 0.5)
+            viewer->zoom *= 0.5f;
+        viewer->cameraPos = worldCenterPos - Vector2<float>(viewer->storedW / 2, viewer->storedH / 2) * viewer->invZoom();
+        // Truncate
+        viewer->cameraPos = Vector2<float>((int)viewer->cameraPos.x, (int)viewer->cameraPos.y);
+
+        viewer->screens->position.x = viewer->cameraPos.x;
+        viewer->screens->position.y = viewer->cameraPos.y;
+
+        ui->horizontalScrollBar->setMinimum(viewer->sceneBoundsL);
+        ui->horizontalScrollBar->setMaximum(viewer->sceneBoundsR - (viewer->storedW / viewer->zoom));
+        ui->horizontalScrollBar->setPageStep((viewer->storedW / viewer->zoom) / 10);
+        ui->horizontalScrollBar->setSingleStep(viewer->zoom > 1 ? 1 : 1 / viewer->zoom);
+        ui->horizontalScrollBar->setValue(viewer->cameraPos.x);
+
+        ui->verticalScrollBar->setMinimum(viewer->sceneBoundsT);
+        ui->verticalScrollBar->setMaximum(viewer->sceneBoundsB - (viewer->storedH / viewer->zoom));
+        ui->verticalScrollBar->setPageStep((viewer->storedH / viewer->zoom) / 10);
+        ui->verticalScrollBar->setSingleStep(viewer->zoom > 1 ? 1 : 1 / viewer->zoom);
+        ui->verticalScrollBar->setValue(viewer->cameraPos.y);
+    }
+
     byte prevTool = viewer->curTool;
     byte tool     = viewer->curTool;
     if (!ctrlDownL && !altDownL && !shiftDownL){
@@ -5715,7 +5743,7 @@ void SceneEditor::DoAction(QString name, bool setModified)
     // Layer Editing
     action.tilePos       = viewer->tilePos;
     action.tileFlip      = viewer->tileFlip;
-    action.selectedChunk  = viewer->selectedChunk;
+    action.selectedChunk = viewer->selectedChunk;
     action.selectedLayer = viewer->selectedLayer;
 
     // Collision
