@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>resources/RSDKv5FileList.txt</file>
-        <file>resources/RSDKv4FileList.txt</file>
+        <file>resources/RSDKFileList.txt</file>
         <file>icons/missing.png</file>
         <file>icons/missing2.png</file>
         <file>icons/icon.svg</file>
@@ -52,7 +51,6 @@
         <file>icons/ic_view_in_ar_48px.svg</file>
         <file>icons/ic_mode_edit_48px.svg</file>
         <file>icons/ic_eraser_48px.svg</file>
-        <file>resources/RSDKv5UFileList.txt</file>
         <file>icons/ic_import_48px.svg</file>
         <file>icons/ic_export_48px.svg</file>
         <file>icons/ic_arrow_left_48px.svg</file>

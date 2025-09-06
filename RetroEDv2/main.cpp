@@ -184,35 +184,13 @@ int main(int argc, char *argv[])
 
     splash.showMessage("Setting up file lists...");
 
-    // copy RSDKv4 file list if it doesn't exist
-    if (!QFile(homeDir + "RSDKv4FileList.txt").exists()) {
-        Reader reader(":/resources/RSDKv4FileList.txt");
+    // copy RSDK file list if it doesn't exist
+    if (!QFile(homeDir + "RSDKFileList.txt").exists()) {
+        Reader reader(":/resources/RSDKFileList.txt");
         QByteArray bytes = reader.readByteArray(reader.filesize);
         reader.close();
 
-        Writer writer(homeDir + "RSDKv4FileList.txt");
-        writer.write(bytes);
-        writer.flush();
-    }
-
-    // copy RSDKv5 file list if it doesn't exist
-    if (!QFile(homeDir + "RSDKv5FileList.txt").exists()) {
-        Reader reader(":/resources/RSDKv5FileList.txt");
-        QByteArray bytes = reader.readByteArray(reader.filesize);
-        reader.close();
-
-        Writer writer(homeDir + "RSDKv5FileList.txt");
-        writer.write(bytes);
-        writer.flush();
-    }
-
-    // copy RSDKv5U file list if it doesn't exist
-    if (!QFile(homeDir + "RSDKv5UFileList.txt").exists()) {
-        Reader reader(":/resources/RSDKv5UFileList.txt");
-        QByteArray bytes = reader.readByteArray(reader.filesize);
-        reader.close();
-
-        Writer writer(homeDir + "RSDKv5UFileList.txt");
+        Writer writer(homeDir + "RSDKFileList.txt");
         writer.write(bytes);
         writer.flush();
     }
