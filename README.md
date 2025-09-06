@@ -66,15 +66,16 @@ The -j switch is optional, but will make building faster by running it parallel 
 ## MacOS
 ### Pre-requisites
 - Download and install Xcode from the App Store.
-- Download and install Python 3 from [here](https://www.python.org/downloads/) or from a package manager such as [Homebrew](https://brew.sh/).
+- Download and install Python 3 from [here](https://www.python.org/downloads/) or from a package manager such as [Homebrew](https://brew.sh/) or [MacPorts](https://www.macports.org).
 - In Terminal, run the command `python3 -m pip install pytz`.
 - Get and run the Qt Online Installer from [here](https://www.qt.io/download-qt-installer-oss).
 - When you reach the `Installation Folder` step of the installer, choose `Custom Installation`.
 - In the `Select Components` step, enable the `Archive` filter and click `Filter` to refresh the component list, then enable the component `Qt` > `Qt 5.15.2` > `macOS`.
 - Proceed with the rest of the installation.
   - If Qt Online Installer has a very slow download speed, cancel the install and open the installer through a command line with the argument `--mirror [mirror url]`. A list of the available mirrors can be found [here](https://download.qt.io/static/mirrorlist/); copy the one closest to your location.
+- Alternatively, you may install Qt5 using Homebrew (`brew install qt@5`) or MacPorts (`sudo port install qt5`).
 - In the `RetroEDv2` project folder, run `python3 versiongen.py` in the Terminal.
-- Follow the [Qt Creator building steps](#building-using-qt-creator).
+- Follow the [Qt Creator building steps](#building-using-qt-creator) or build from the [command line](#building-from-the-command-line).
 
 ## Building using Qt Creator
 - Open `RetroEDv2.pro` in Qt Creator, then in the Projects tab, make sure `Release` builds are enabled and press `Configure Project`.
