@@ -28,8 +28,9 @@ Clone the repo, using: `git clone https://github.com/RSDKModding/RetroED`
 
 If you've already cloned the repo, run this command inside of the repository: `git submodule update --init --recursive`
 
-## Windows
-### Pre-requisites
+## Pre-requisites
+
+### Windows
 - Download and install Python 3 from [here](https://www.python.org/downloads/), then reboot the computer.
 - In Command Prompt, run the command `pip install pytz`.
 - Get and run the Qt Online Installer from [here](https://www.qt.io/download-qt-installer-oss).
@@ -43,29 +44,17 @@ If you've already cloned the repo, run this command inside of the repository: `g
 - In the `RetroEDv2` project folder, run `python versiongen.py` in Command Prompt.
 - Follow the [Qt Creator building steps](#building-using-qt-creator).
 
-## Linux
-### Pre-requisites
+### Linux
 - Install the following dependencies:
   - **apt (Debian/Ubuntu):** `sudo apt install build-essential python3.6 python3-pip libqt5svg5-dev qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools`
   - Your favorite package manager here, [make a pull request](https://github.com/RSDKModding/RetroED/fork)
-    - Qt Creator can also be installed by adding `qtcreator` to the command above, allowing you to use the same building process as the other platforms.
+    - Qt Creator can also be installed by adding `qtcreator` to the command above, if you'd like to build using that instead of the command line.
 - Run the command `pip install pytz`.
 - In the `RetroEDv2` project folder, run the command `python3 versiongen.py`.
-- Follow the [Qt Creator building steps](#building-using-qt-creator) (or build from the command line).
+- Follow the [command line building steps](#building-from-the-command-line), or the [Qt Creator building steps](#building-using-qt-creator) if you chose to install it.
 
-### Building from the command line
-- In the `RetroEDv2` project folder, run the following commands:
-```
-mkdir build
-qmake -o build RetroEDv2.pro
-cd build
-make -j$(nproc)
-```
-The -j switch is optional, but will make building faster by running it parallel on multiple cores (nproc will use all available cores).
-
-## MacOS
-### Pre-requisites
-- Download and install Xcode from the App Store.
+### macOS
+- Download and install [Xcode](https://apps.apple.com/us/app/xcode/id497799835) from the App Store.
 - Download and install Python 3 from [here](https://www.python.org/downloads/) or from a package manager such as [Homebrew](https://brew.sh/) or [MacPorts](https://www.macports.org).
 - In Terminal, run the command `python3 -m pip install pytz`.
 - Get and run the Qt Online Installer from [here](https://www.qt.io/download-qt-installer-oss).
@@ -73,21 +62,38 @@ The -j switch is optional, but will make building faster by running it parallel 
 - In the `Select Components` step, enable the `Archive` filter and click `Filter` to refresh the component list, then enable the component `Qt` > `Qt 5.15.2` > `macOS`.
 - Proceed with the rest of the installation.
   - If Qt Online Installer has a very slow download speed, cancel the install and open the installer through a command line with the argument `--mirror [mirror url]`. A list of the available mirrors can be found [here](https://download.qt.io/static/mirrorlist/); copy the one closest to your location.
-- Alternatively, you may install Qt5 using Homebrew (`brew install qt@5`) or MacPorts (`sudo port install qt5`).
+  - Alternatively, you may install Qt5 using Homebrew (`brew install qt@5`) or MacPorts (`sudo port install qt5`).
 - In the `RetroEDv2` project folder, run `python3 versiongen.py` in the Terminal.
-- Follow the [Qt Creator building steps](#building-using-qt-creator) or build from the [command line](#building-from-the-command-line).
+- Follow the [Qt Creator building steps](#building-using-qt-creator), or the [command line building steps](#building-from-the-command-line) if you chose to install Qt5 through a package manager.
 
-## Building using Qt Creator
+## Building
+
+### Building using Qt Creator
 - Open `RetroEDv2.pro` in Qt Creator, then in the Projects tab, make sure `Release` builds are enabled and press `Configure Project`.
 - Press the `RetroEDv2` monitor icon, then ensure the Build is set to `Release`.
 - Press the `Build Project "RetroEDv2"` button. The built executable should be located in `build/[used kit name]/release`.
+
+### Building from the command line
+In the `RetroEDv2` project folder, run the following commands:
+```
+mkdir build
+qmake -o build RetroEDv2.pro
+cd build
+make -j$(nproc)
+```
+
+The -j switch is optional, but will make building faster by running it parallel on multiple cores (nproc will use all available cores).
 
 ## Other Platforms
 The only supported platforms are the ones listed above. There are no plans to support other platforms for the time being.
 
 # FAQ
+
 ### Q: I found a bug!
-A: Submit an issue in the issues tab and it will get followed up on as soon as we get the chance to. Please provide as much information as possible when submitting bugs! We also accept PRs for bug fixes & revisions where applicable!
+A: Submit a bug report in the Issues tab and it will get followed up on as soon as we get the chance to. Please provide as much information as possible when submitting bugs! We also accept PRs for bug fixes & revisions where applicable!
+
+### Q: I have a feature request!
+A: Submit a feature request in the Issues tab and we'll decide whether to add it! Please understand that even if we do choose to implement your feature, it most likely won't be a priority and it might take a while before we get around to doing so. We also accept PRs for implementing features where applicable!
 
 # Contact:
 Join the [Retro Engine Modding Discord Server](https://dc.railgun.works/retroengine) for any questions you may have about the editor or how to use it.
