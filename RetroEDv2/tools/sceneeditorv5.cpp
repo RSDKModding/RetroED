@@ -4189,6 +4189,13 @@ void SceneEditorv5::LoadGameLinks()
             GameLink link;
             gameLinks.append(link);
             gameLinks.last().LinkGameObjects(filePath);
+
+            // remove this the day someone adds support for multiple game links
+            if (!gameLinks.last().error){
+                viewer->engineRevision = gameLinks.last().revision;
+                viewer->linkError      = gameLinks.last().error;
+                break;
+            }
         }
     }
 }
@@ -4196,16 +4203,6 @@ void SceneEditorv5::LoadGameLinks()
 void SceneEditorv5::InitGameLink()
 {
     viewer->gameEntityList = NULL;
-    viewer->engineRevision =  3;
-    viewer->linkError      =  -1;
-
-    for (GameLink &link : gameLinks){
-        viewer->engineRevision = link.revision;
-        viewer->linkError  = link.error;
-        // stop at the first valid gamelink
-        if (viewer->linkError == 0)
-            break;
-    }
 
     switch (viewer->engineRevision) {
         case 1: viewer->gameEntityList = viewer->gameEntityListv1; break;
