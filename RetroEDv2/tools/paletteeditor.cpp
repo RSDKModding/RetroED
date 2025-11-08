@@ -6,6 +6,8 @@
 #include "paletteeditor/colourdialog.hpp"
 #include "paletteeditor/paletteimport.hpp"
 
+#include "qgifimage.h"
+
 PaletteEditor::PaletteEditor(QString path, byte type, bool external, QWidget *parent)
     : QDialog(parent), widget(new PaletteWidget(this)), ui(new Ui::PaletteEditor)
 {
@@ -49,6 +51,7 @@ void PaletteEditor::InitEditor()
 
     if (firstInit) {
         QStringList types        = { "Adobe Color Table Palettes (*.act)",
+                              "Image Files (*.gif *.png *.bmp)",
                               "rev02 (plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
                               "rev01 (pre-plus) RSDKv5 GameConfig Palettes (*GameConfig*.bin)",
                               "RSDKv5 StageConfig Palettes (*StageConfig*.bin)",
@@ -66,7 +69,8 @@ void PaletteEditor::InitEditor()
             "RSDKv4 StageConfig Palettes (*StageConfig*.bin)",
             "RSDKv3 StageConfig Palettes (*StageConfig*.bin)",
             "RSDKv2 StageConfig Palettes (*StageConfig*.bin)",
-            "RSDKv1 StageConfig Palettes (*Zone*.zcf)"
+            "RSDKv1 StageConfig Palettes (*Zone*.zcf)",
+            "Image Files (*.gif *.png *.bmp)"
         };
 
         connect(ui->importPal, &QPushButton::clicked, [=] {
@@ -259,7 +263,7 @@ void PaletteEditor::ImportPalette(QString path, byte type)
             QList<PaletteColor> pal;
             Reader reader(path);
             pal.clear();
-            while (!reader.isEOF()) {
+            while (!reader.isEOF() && pal.count() < 256) {
                 PaletteColor clr;
                 clr.read(reader);
                 pal.append(clr);
@@ -274,6 +278,36 @@ void PaletteEditor::ImportPalette(QString path, byte type)
             break;
         }
 
+        case PALTYPE_IMAGE: { // .gif, .png, .bmp
+            QImage img;
+            if (path.endsWith(".gif"))
+            {
+                QGifImage gif(path);
+                img = gif.frame(0);
+            }
+            else
+                img.load(path);
+
+            if (img.format() != QImage::Format_Indexed8)
+            {
+                QMessageBox::critical(this, "Palette Import Error", "No palette found in image!\nPalettes can only be imported from indexed images.");
+                return;
+            }
+
+            QList<PaletteColor> pal;
+            pal.clear();
+            for (auto& c : img.colorTable())
+                pal.append(PaletteColor(c));
+
+            importFile = new PaletteImport(pal, palette, false);
+            if (importFile->exec() != QDialog::Accepted) {
+                palette = backup;
+            } else {
+                DoAction("Imported Palette", !externalWindow);
+            };
+            importFile = nullptr;
+            break;
+        }
         case PALTYPE_GAMECONFIGv5:
         case PALTYPE_GAMECONFIGv5_rev01:
         case PALTYPE_STAGECONFIGv5: {
@@ -325,22 +359,38 @@ void PaletteEditor::ImportPalette(QString path, byte type)
         case PALTYPE_STAGECONFIGv2:
         case PALTYPE_STAGECONFIGv1: {
             Palette *configPal = nullptr;
-            switch (palType) {
-                case PALTYPE_GAMECONFIGv4:
-                    configPal    = &gameConfigv4.palette;
+            RSDKv4::GameConfig importGCv4;
+            RSDKv4::StageConfig importSCv4;
+            RSDKv3::StageConfig importSCv3;
+            RSDKv2::StageConfig importSCv2;
+            RSDKv1::StageConfig importSCv1;
+
+            switch (type) {
+                case PALTYPE_GAMECONFIGv4: {
+                    importGCv4 = RSDKv4::GameConfig(path);
+                    configPal    = &importGCv4.palette;
                     break;
-                case PALTYPE_STAGECONFIGv4:
-                    configPal     = &stageConfigv4.palette;
+                }
+                case PALTYPE_STAGECONFIGv4: {
+                    importSCv4 = RSDKv4::StageConfig(path);
+                    configPal     = &importSCv4.palette;
                     break;
-                case PALTYPE_STAGECONFIGv3:
-                    configPal     = &stageConfigv3.palette;
+                }
+                case PALTYPE_STAGECONFIGv3: {
+                    importSCv3 = RSDKv3::StageConfig(path);
+                    configPal     = &importSCv3.palette;
                     break;
-                case PALTYPE_STAGECONFIGv2:
-                    configPal     = &stageConfigv2.palette;
+                }
+                case PALTYPE_STAGECONFIGv2: {
+                    importSCv2 = RSDKv2::StageConfig(path);
+                    configPal     = &importSCv2.palette;
                     break;
-                case PALTYPE_STAGECONFIGv1:
-                    configPal     = &stageConfigv1.palette;
+                }
+                case PALTYPE_STAGECONFIGv1: {
+                    importSCv1 = RSDKv1::StageConfig(path);
+                    configPal     = &importSCv1.palette;
                     break;
+                }
             }
 
             QList<PaletteColor> pal;
