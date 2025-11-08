@@ -89,16 +89,36 @@ void PaletteEditor::InitEditor()
 
         connect(ui->exportPal, &QPushButton::clicked, [=] {
             QFileDialog filedialog(this, tr("Export Palette"), "",
-                                   tr("Adobe Color Table Palettes (*.act)"));
+                                   tr("Adobe Color Table Palettes (*.act);;Replace GIF Palette (*.gif)"));
             filedialog.setAcceptMode(QFileDialog::AcceptSave);
             if (filedialog.exec() == QDialog::Accepted) {
                 QString filepath = filedialog.selectedFiles()[0];
-                if (!CheckOverwrite(filepath, ".act", this))
-                    return;
 
-                Writer writer(filepath);
-                for (auto &c : palette) c.write(writer);
-                writer.flush();
+                if (filepath.endsWith(".gif"))
+                {
+                    if (!QFile::exists(filepath))
+                    {
+                        QMessageBox::critical(this, "Palette Export Error", "File not found!\nPlease select the existing GIF sheet you wish to save the palette to.");
+                        return;
+                    }
+
+                    FormatHelpers::Gif gif;
+                    gif.read(filepath);
+
+                    for (int i = 0; i < palette.count() && i < 256; i++)
+                        gif.palette[i] = palette[i].toQColor().rgb();
+
+                    gif.write(filepath);
+                }
+                else
+                {
+                    if (!CheckOverwrite(filepath, ".act", this))
+                        return;
+
+                    Writer writer(filepath);
+                    for (auto &c : palette) c.write(writer);
+                    writer.flush();
+                }
             }
         });
 
@@ -145,7 +165,6 @@ void PaletteEditor::LoadPalette(QString path, byte type)
             palette = pal;
             ui->palRows->setDisabled(false);
             ui->palRows->setValue(pal.count() / 16);
-            ui->exportPal->setDisabled(true);
             break;
         }
 
