@@ -629,7 +629,10 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
                     });
 
             connect(ui->speedMult, QOverload<int>::of(&QSpinBox::valueChanged), [this, c](int v) {
-                animFile.animations[c].speed = (byte)v;
+                if (aniType == ENGINE_v5)
+                    animFile.animations[c].speed = (short)v;
+                else
+                    animFile.animations[c].speed = (byte)v;
                 DoAction("Changed speed", true);
             });
 
