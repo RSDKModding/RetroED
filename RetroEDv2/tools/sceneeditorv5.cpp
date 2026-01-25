@@ -3158,10 +3158,17 @@ void SceneEditorv5::CreateNewScene(QString scnPath, bool prePlus, bool loadGC, Q
         WorkingDirManager::GetPath("Stages/" + viewer->currentFolder + "/" + viewer->metadata.stampName,
                                    basePath + viewer->metadata.stampName);
 
-    if (QFile::exists(pathSTP))
+    if (QFile::exists(pathSTP)) {
         viewer->stamps.read(pathSTP);
-    else
+        ui->stampList->blockSignals(true);
+        ui->stampList->clear();
+        for (auto &stamp : viewer->stamps.stampList) ui->stampList->addItem(stamp.name);
+        ui->stampList->blockSignals(false);
+        ui->stampList->setCurrentRow(-1);
+    }
+    else {
         viewer->stamps = RSDKv5::Stamps();
+    }
 
     if (QFile::exists(pathTCF))
         tileconfig.read(pathTCF);
@@ -3492,10 +3499,18 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
     QString pathSTP = WorkingDirManager::GetPath("Stages/" + viewer->currentFolder + "/" + viewer->metadata.stampName,
                                                  basePath + viewer->metadata.stampName);
 
-    if (QFile::exists(pathSTP))
+    if (QFile::exists(pathSTP)) {
         viewer->stamps.read(pathSTP);
-    else
+		ui->stampList->blockSignals(true);
+		ui->stampList->clear();
+		for (auto &stamp : viewer->stamps.stampList) ui->stampList->addItem(stamp.name);
+		ui->stampList->blockSignals(false);
+		ui->stampList->setCurrentRow(-1);
+    }
+    else {
         viewer->stamps = RSDKv5::Stamps();
+    }
+
 
     AddStatusProgress(1. / 6); // finish scene loading
 

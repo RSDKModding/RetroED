@@ -4683,8 +4683,12 @@ void SceneEditor::PasteEntity(SceneEntity *copy, float x, float y)
         entity.variables.append(val);
     }
 
-    if (viewer->gameType == ENGINE_v4)
-        for (int v = 0; v < 0xF; ++v){entity.sceneVariables[v].value = copy->sceneVariables[v].value;}
+    if (viewer->gameType == ENGINE_v4) {
+        for (int v = 0; v < 0xF; ++v){
+            entity.sceneVariables[v].active = copy->sceneVariables[v].active;
+            entity.sceneVariables[v].value = copy->sceneVariables[v].value;
+        }
+    }
 
     viewer->entities.append(entity);
     compilerv2->objectEntityList[entity.gameEntitySlot].type          = copy->type;
