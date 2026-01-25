@@ -913,6 +913,7 @@ SceneEditor::SceneEditor(QWidget *parent) : QWidget(parent), ui(new Ui::SceneEdi
         for (int c = 0; c < (viewer->gameType == ENGINE_v1 ? 0x100 : 0x200); ++c) {
             int chunkID                = chunkEdit->chunkIDs.indexOf(c);
             chunkset.chunks[c]         = chunkStore.chunks[chunkID];
+            viewer->chunks[c]          = viewer->chunks[c].convertToFormat(QImage::Format_Indexed8, pal);
         }
 
         for (int i = 0; i < viewer->layers.count(); ++i) {

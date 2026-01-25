@@ -1108,6 +1108,7 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
 
     connect(viewer, &TilesetViewer::setColor, [=] (int c){
         palWidget->selection = c;
+        palWidget->update();
     });
 
     connect(palWidget, &TilePalette::setColor, [=] (int c){
@@ -1226,7 +1227,10 @@ void TilesetViewer::mousePressEvent(QMouseEvent *event)
 
             if (mouseDownR && inGrid) {
                 int tilePxX = gridPos.x % 16, tilePxY = gridPos.y % 16;
-                index = viewerTiles.indexOf(selection.y * rowSize + selection.x);
+                int pos = selection.y * rowSize + selection.x;
+                if (pos >= viewerTiles.count() || tilePxX < 0 || tilePxY < 0)
+                    break;
+                index = viewerTiles[pos];
                 if (index == -1) break;
                 QImage *tileImg = tiles.at(index);
                 selColor = tileImg->pixelIndex(tilePxX, tilePxY);
@@ -1241,7 +1245,7 @@ void TilesetViewer::mousePressEvent(QMouseEvent *event)
                     if (mouseDownR && inGrid) {
                         int tilePxX = gridPos.x % 16;
                         int pos = selection.y * rowSize + selection.x;
-                        if (pos >= viewerTiles.count())
+                        if (pos >= viewerTiles.count() || tilePxX < 0)
                             break;
                         index = viewerTiles[pos];
                         if (index == -1)
@@ -1317,7 +1321,7 @@ void TilesetViewer::mouseMoveEvent(QMouseEvent *event)
         repaint();
     }
 
-    int TilePxX, TilePxY;
+    int tilePxX, tilePxY;
 
     selection.x = gridPos.x / 16; selection.y = gridPos.y / 16;
 
@@ -1337,8 +1341,8 @@ void TilesetViewer::mouseMoveEvent(QMouseEvent *event)
             selection.y = -1;
     }
 
-    TilePxX = gridPos.x % 16;
-    TilePxY = gridPos.y % 16;
+    tilePxX = gridPos.x % 16;
+    tilePxY = gridPos.y % 16;
     inGrid = (selection.x != -1 && selection.y != -1);
     short index = -1;
 
@@ -1356,7 +1360,7 @@ void TilesetViewer::mouseMoveEvent(QMouseEvent *event)
                     break;
                 index = viewerTiles[pos];
 
-                if (index == -1)
+                if (index == -1 || tilePxX < 0 || tilePxY < 0)
                     break;
 
                 QImage *tileImg = tiles.at(index);
@@ -1364,16 +1368,16 @@ void TilesetViewer::mouseMoveEvent(QMouseEvent *event)
                 if (mouseDownL){
                     switch (drawTool){
                         case DRAW_PENCIL:{
-                            tileImg->setPixel(TilePxX, TilePxY, selColor);
+                            tileImg->setPixel(tilePxX, tilePxY, selColor);
                             break;
                         }
                         case DRAW_ERASER:{
-                            tileImg->setPixel(TilePxX, TilePxY, 0);
+                            tileImg->setPixel(tilePxX, tilePxY, 0);
                             break;
                         }
                     }
                 } else if (mouseDownR)
-                    emit setColor(tileImg->pixelIndex(TilePxX, TilePxY));
+                    emit setColor(tileImg->pixelIndex(tilePxX, tilePxY));
             }
             break;
         }
@@ -1396,9 +1400,9 @@ void TilesetViewer::mouseMoveEvent(QMouseEvent *event)
 
                 if (colTool == COL_SOLIDITY){
                     if (mouseDownL) {
-                        tileConfig->collisionPaths[colLyr][index].collision[TilePxX].height = TilePxY;
+                        tileConfig->collisionPaths[colLyr][index].collision[tilePxX].height = tilePxY;
                     } else if (mouseDownR){
-                        tileConfig->collisionPaths[colLyr][index].collision[TilePxX].solid = solidityCheck;
+                        tileConfig->collisionPaths[colLyr][index].collision[tilePxX].solid = solidityCheck;
                     }
                 }
             }
