@@ -1374,6 +1374,12 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
 
                 selectedDrawTile = tile->listWidget()->row(tile);
             }
+
+            for(int y = 0; y < 8; ++y) {
+                for(int x = 0; x < 8; ++x){
+                    viewer->viewerTiles.append(chunks->chunks[selectedChunk].tiles[y][x].tileIndex);
+                }
+            }
         } else {
             switch (viewer->tileDrawMode) {
                 case FORMAT_CHUNK:{
@@ -1796,11 +1802,11 @@ bool ChunkViewer::event(QEvent *e)
 
 void ChunkViewer::mousePressEvent(QMouseEvent *event)
 {
+/*
     float w = this->width(), h = this->height();
     float originX = w / 2, originY = h / 2;
     originX -= offset.x;
     originY -= offset.y;
-
     PrintLog(QString("pos(%1, %2), origin(%3, %4), mousePos(%5, %6)")
                  .arg(gridPos.x)
                  .arg(gridPos.y)
@@ -1808,7 +1814,7 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
                  .arg(originY)
                  .arg(event->pos().x())
                  .arg(event->pos().y()));
-
+*/
     if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
         mouseDownL = true;
     if ((event->button() & Qt::MiddleButton) == Qt::MiddleButton)
@@ -1827,7 +1833,7 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
             if (mouseDownR)
                 emit tileChanged();
             if (mouseDownL || mouseDownR)
-                    highlightTile = *selection;
+                highlightTile = *selection;
             break;
         }
 
@@ -2320,25 +2326,24 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
                             auto mask = tileConfig->collisionPaths[colLyr][t];
                             for (int y = 0; y < 16; ++y) {
                                 for (int x = 0; x < 16; ++x) {
-                                    QColor colColor = 0xFFFFFF00;
+                                    QRgb colColor = 0xFFFFFF00;
                                     if (!mask.collision[x].solid)
-                                        colColor = colColor.darker(255);
-                                    if ((mask.direction ? mask.collision[x].height >= y : mask.collision[x].height <= y) && mask.collision[x].solid)
-                                        tileImg.setPixel(x, y, colColor.rgb());
+                                        colColor = QColor(tileImg.pixel(x,y)).darker(255).rgba();
+                                    if ((mask.direction ? mask.collision[x].height >= y : mask.collision[x].height <= y))
+                                        tileImg.setPixel(x, y, colColor);
                                 }
                             }
                         } else{
                             auto mask = tileConfigv1->collisionPaths[colLyr][t];
                             for (int y = 0; y < 16; ++y) {
                                 for (int x = 0; x < 16; ++x) {
-                                    QColor colColor = 0xFFFFFF00;
+                                    QRgb colColor = 0xFFFFFF00;
                                     if (!mask.collision[colIndex][x].solid)
-                                        colColor = colColor.darker(255);
-                                    if (mask.collision[colIndex][x].height <= y && mask.collision[colIndex][x].solid)
-                                        tileImg.setPixel(x, y, colColor.rgb());
+                                        colColor = QColor(tileImg.pixel(x,y)).darker(255).rgba();
+                                    if (mask.collision[colIndex][x].height <= y)
+                                        tileImg.setPixel(x, y, colColor);
                                 }
                             }
-
                         }
                         QPointF coords = QPointF(originX + ((index % rowSize) * (0x10 * scale)), originY + (index / rowSize) * (0x10 * scale));
                         p.drawImage(coords, tileImg.scaled((0x10 * scale),(0x10 * scale)));
@@ -2363,7 +2368,7 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
     if (viewerTiles.count()){
         int gridSize = tileDrawMode == FORMAT_TILES ? rowSize : 8;
         p.setPen(QPen(Qt::white, 0.5f));
-        p.setOpacity(0.5);
+        p.setOpacity(1);
         for (int y = 0; y <= viewerTiles.count() / gridSize; ++y){
             if (y == viewerTiles.count() / gridSize){
                 if (viewerTiles.count() < gridSize)
