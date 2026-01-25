@@ -377,13 +377,6 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QPushButton" name="editStageConfig">
-            <property name="text">
-             <string>Edit Stage Configuration</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QPushButton" name="editTSet">
             <property name="text">
              <string>Edit Tileset</string>
@@ -393,7 +386,14 @@
           <item>
            <widget class="QPushButton" name="editPalette">
             <property name="text">
-             <string>Edit Palette</string>
+             <string>Edit Stage Palette Banks</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="editStageConfig">
+            <property name="text">
+             <string>Edit Stage Configuration</string>
             </property>
            </widget>
           </item>
@@ -441,8 +441,6 @@
   <tabstop>loadStamps</tabstop>
   <tabstop>saveStamps</tabstop>
   <tabstop>editStageConfig</tabstop>
-  <tabstop>editTSet</tabstop>
-  <tabstop>editPalette</tabstop>
   <tabstop>syncSC</tabstop>
   <tabstop>syncGC</tabstop>
   <tabstop>reloadLink</tabstop>

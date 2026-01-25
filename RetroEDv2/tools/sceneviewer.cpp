@@ -225,7 +225,7 @@ void SceneViewer::initScene(QImage tileset)
     // Get Tiles (for tile list, tileset editing and collision viewer)
     tiles.clear();
     colTexStore = new QImage(0x80, 0x400 * 0x10, QImage::Format_Indexed8);
-    colTexStore->setColorTable({ 0xFFFF00FF, 0xFFFFFF00, 0xFFFF0000, 0xFFFFFFFF, 0xFF808000});
+    colTexStore->setColorTable({ 0xFFFF00FF, 0xFFE0E000, 0xFFE00000, 0xFFE0E0E0, 0xFF707000});
     colTexStore->fill(0);
     for (int i = 0; i < 0x400; ++i) {
         int tx         = ((i % (tileset.width() / 0x10)) * 0x10);
@@ -1422,30 +1422,31 @@ void SceneViewer::drawScene()
     // Selected Stamp Box
     if (selectedStamp >= 0 && selectedStamp < stamps.stampList.count()) {
         RSDKv5::Stamps::StampEntry &stamp = stamps.stampList[selectedStamp];
+        /*
+            //float left   = stamp.pos.x;
+            //float top    = stamp.pos.y;
+            //float right  = stamp.pos.x + stamp.size.x;
+            //float bottom = stamp.pos.y + stamp.size.y;
 
-        float left   = stamp.pos.x;
-        float top    = stamp.pos.y;
-        float right  = stamp.pos.x + stamp.size.x;
-        float bottom = stamp.pos.y + stamp.size.y;
-
-        float w = fabsf((right - left) * 16), h = fabsf((bottom - top) * 16);
+            float w = fabsf((right - left) * 16), h = fabsf((bottom - top) * 16);
 
 
-        Vector4<float> c = {1.0f, 1.0f, 0.0f, 1.0f};
+            Vector4<float> c = {1.0f, 1.0f, 0.0f, 1.0f};
 
-        int lyrWidth = layers[selectedLayer].width;
-        int lyrHeight = layers[selectedLayer].height;
-        if (left < 0 || left > lyrWidth || right < 0 || right > lyrWidth ||
-            top < 0 || top > lyrHeight || bottom < 0 || bottom > lyrHeight)
-            c = {1.0f, 0.0f, 0.0f, 1.0f};
+            int lyrWidth = layers[selectedLayer].width;
+            int lyrHeight = layers[selectedLayer].height;
+            if (left < 0 || left > lyrWidth || right < 0 || right > lyrWidth ||
+                top < 0 || top > lyrHeight || bottom < 0 || bottom > lyrHeight)
+                c = {1.0f, 0.0f, 0.0f, 1.0f};
 
-        left *= 16; top *= 16; right *= 16; bottom *= 16;
+            left *= 16; top *= 16; right *= 16; bottom *= 16;
 
-        left -= cameraPos.x;
-        top -= cameraPos.y;
+            left -= cameraPos.x;
+            top -= cameraPos.y;
 
-        drawRect(left, top, w, h, c, false, 0x40, INK_ALPHA);
-        drawRect(left, top, w, h, c, true);
+            drawRect(left, top, w, h, c, false, 0x40, INK_ALPHA);
+            drawRect(left, top, w, h, c, true);
+        */
     }
 
     // STAMP PREVIEW
@@ -1473,8 +1474,8 @@ void SceneViewer::drawScene()
         auto stamp = stamps.stampList[selectedStamp];
 
         // Invalid draw position prevention
-        if (0 > stamp.pos.x || stamp.pos.x + stamp.size.x > layers[selectedLayer].width ||
-            0 > stamp.pos.y || stamp.pos.y + stamp.size.y > layers[selectedLayer].height){
+        if (xpos / 16 || xpos / 16 + stamp.size.x > layers[selectedLayer].width ||
+            ypos / 16 || ypos / 16 + stamp.size.y > layers[selectedLayer].height){
 
             drawRect(xpos, ypos, stamp.size.x * tileSize, stamp.size.y * tileSize, Vector4<float>(1.0f, 0.0f, 0.0f, 1.0f),
                      true, 0x40, INK_ALPHA);
@@ -1483,8 +1484,8 @@ void SceneViewer::drawScene()
             int count = 0;
             for(int y = 0; y < stamp.size.y; y++){
                 for(int x = 0; x < stamp.size.x; x++){
-                    int tileXPos = stamp.pos.x + x;
-                    int tileYPos = stamp.pos.y + y;
+                    int tileXPos = xpos / 16 + x;
+                    int tileYPos = ypos / 16 + y;
                     ushort tile = layers[selectedLayer].layout[tileYPos][tileXPos];
                     if (tile != 0xFFFF) {
                         ++count;

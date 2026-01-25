@@ -38,6 +38,7 @@ public:
     QPushButton *reloadLink = nullptr;
 
     QPushButton *replaceChunk = nullptr;
+    QPushButton *stageImport  = nullptr;
 
     color_widgets::ColorPreview *bgSel    = nullptr;
     color_widgets::ColorPreview *altBGSel = nullptr;

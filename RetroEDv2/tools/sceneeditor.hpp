@@ -18,6 +18,7 @@ class ChunkReplaceOptions;
 class ChunkSelector;
 class TilesetEditor;
 class ScenePreviewPalette;
+class StageImport;
 
 #include <RSDKv4/tileconfigv4.hpp>
 
@@ -224,7 +225,8 @@ private:
     Ui::SceneEditor *ui;
 
     ChunkEditor *chunkEdit = nullptr;
-    ChunkReplaceOptions *chunkRpl = nullptr;
+    //ChunkReplaceOptions *chunkRpl = nullptr;
+    StageImport *stgImp = nullptr;
     QList<ActionState> actions;
     int actionIndex = 0;
 

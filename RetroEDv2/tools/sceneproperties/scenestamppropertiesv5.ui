@@ -14,80 +14,11 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>Stamp Properties:</string>
-     </property>
-    </widget>
-   </item>
    <item row="4" column="0" colspan="2">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Stamp Source Position</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_17">
-        <property name="text">
-         <string>x:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_18">
-        <property name="text">
-         <string>y:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QDoubleSpinBox" name="stampX">
-        <property name="decimals">
-         <number>0</number>
-        </property>
-        <property name="maximum">
-         <double>32767.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>1.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QDoubleSpinBox" name="stampY">
-        <property name="decimals">
-         <number>0</number>
-        </property>
-        <property name="minimum">
-         <double>0.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>32767.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>1.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="6" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="5" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox_2">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="title">
       <string>Stamp Size</string>
      </property>
@@ -108,6 +39,9 @@
       </item>
       <item row="0" column="1">
        <widget class="QDoubleSpinBox" name="stampSizeX">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="decimals">
          <number>0</number>
         </property>
@@ -135,6 +69,13 @@
      </layout>
     </widget>
    </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Stamp Properties:</string>
+     </property>
+    </widget>
+   </item>
    <item row="3" column="1">
     <widget class="QLineEdit" name="stampName">
      <property name="maxLength">
@@ -156,6 +97,19 @@
      </property>
     </widget>
    </item>
+   <item row="5" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
    <item row="1" column="0" colspan="2">
     <widget class="Line" name="line">
      <property name="orientation">
@@ -167,8 +121,6 @@
  </widget>
  <tabstops>
   <tabstop>stampName</tabstop>
-  <tabstop>stampX</tabstop>
-  <tabstop>stampY</tabstop>
   <tabstop>stampSizeX</tabstop>
   <tabstop>stampSizeY</tabstop>
  </tabstops>

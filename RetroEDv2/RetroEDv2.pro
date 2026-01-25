@@ -60,11 +60,12 @@ SOURCES += \
     tools/sceneproperties/chunkcollisioneditor.cpp \
     tools/sceneproperties/chunkcollisioneditorv1.cpp \
     tools/sceneproperties/chunkeditor.cpp \
-    tools/sceneproperties/chunkreplaceoptions.cpp \
     tools/sceneproperties/confirmgamelink.cpp \
     tools/sceneproperties/copyplane.cpp \
     tools/sceneproperties/createscene.cpp \
+    tools/sceneproperties/gfxreplacetool.cpp \
     tools/sceneproperties/gotopos.cpp \
+    tools/sceneproperties/importgfxtool.cpp \
     tools/sceneproperties/objectselector.cpp \
     tools/sceneproperties/scenelayerproperties.cpp \
     tools/sceneproperties/scenelayerpropertiesv5.cpp \
@@ -133,11 +134,12 @@ HEADERS += \
     tools/sceneproperties/chunkcollisioneditor.hpp \
     tools/sceneproperties/chunkcollisioneditorv1.hpp \
     tools/sceneproperties/chunkeditor.hpp \
-    tools/sceneproperties/chunkreplaceoptions.hpp \
     tools/sceneproperties/confirmgamelink.hpp \
     tools/sceneproperties/copyplane.hpp \
     tools/sceneproperties/createscene.hpp \
+    tools/sceneproperties/gfxreplacetool.hpp \
     tools/sceneproperties/gotopos.hpp \
+    tools/sceneproperties/importgfxtool.hpp \
     tools/sceneproperties/objectselector.hpp \
     tools/sceneproperties/sceneincludesv5.hpp \
     tools/sceneproperties/scenelayerproperties.hpp \
@@ -196,11 +198,12 @@ FORMS += \
     tools/sceneproperties/chunkcollisioneditor.ui \
     tools/sceneproperties/chunkcollisioneditorv1.ui \
     tools/sceneproperties/chunkeditor.ui \
-    tools/sceneproperties/chunkreplaceoptions.ui \
     tools/sceneproperties/confirmgamelink.ui \
     tools/sceneproperties/copyplane.ui \
     tools/sceneproperties/createscene.ui \
+    tools/sceneproperties/gfxreplacetool.ui \
     tools/sceneproperties/gotopos.ui \
+    tools/sceneproperties/importgfxtool.ui \
     tools/sceneproperties/objectselector.ui \
     tools/sceneproperties/scenelayerproperties.ui \
     tools/sceneproperties/scenelayerpropertiesv5.ui \

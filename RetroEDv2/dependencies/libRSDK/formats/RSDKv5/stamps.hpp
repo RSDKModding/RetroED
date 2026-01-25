@@ -13,8 +13,8 @@ public:
         StampEntry(Reader &reader) { read(reader); }
 
         QString name        = "Stamp";
-        Vector2<float> pos  = Vector2<float>(0, 0);
-        Vector2<float> size = Vector2<float>(0, 0);
+        Vector2<int> size   = Vector2<int>(0, 0);
+        QList<ushort> tiles;
 
         void read(Reader &reader);
         void write(Writer &writer);

@@ -395,24 +395,6 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->propertiesBox->setCurrentWidget(ui->stampPropPage);
     });
 
-    connect(ui->addStp, &QToolButton::clicked, [this] {
-        uint c = ui->stampList->currentRow() + 1;
-        RSDKv5::Stamps::StampEntry stamp;
-        stamp.name = "New Stamp";
-        viewer->stamps.stampList.insert(c, stamp);
-
-        ui->stampList->blockSignals(true);
-
-        auto *item = new QListWidgetItem();
-        item->setText("New Stamp");
-        ui->stampList->addItem(item);
-        item->setFlags(item->flags());
-
-        ui->stampList->blockSignals(false);
-        ui->stampList->setCurrentItem(item);
-        // DoAction("Add Stamp: " + stamp.name);
-    });
-
     connect(ui->rmStp, &QToolButton::clicked, [this] {
         int c        = ui->stampList->currentRow();
         int n        = ui->stampList->currentRow() == ui->objectList->count() - 1 ? c : c - 1;
@@ -1289,7 +1271,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
     });
 
     connect(scnProp->editTSet, &QPushButton::clicked, [this] {
-        TilesetEditor *edit = new TilesetEditor(viewer->tiles, viewer->tilePalette);
+        TilesetEditor *edit = new TilesetEditor(viewer->tiles, viewer->tileconfig, viewer->tilePalette, viewer->stamps.stampList);
         edit->setWindowTitle("Edit Tileset");
         edit->exec();
 
@@ -1304,7 +1286,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         QVector<QRgb> pal;
         for (PaletteColor &col : viewer->tilePalette) pal.append(col.toQColor().rgb());
         tileset.setColorTable(pal);
-        AddStatusProgress(1. / 4); // finished setup
+        AddStatusProgress(1. / 6); // finished setup
 
         uchar *pixels = tileset.bits();
         for (int i = 0; i < 0x400; ++i) {
@@ -1315,7 +1297,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 }
             }
         }
-        AddStatusProgress(1. / 4); // finished copying tiles
+        AddStatusProgress(1. / 6); // finished copying tiles
 
         viewer->gfxSurface[0].texturePtr = viewer->createTexture(tileset, QOpenGLTexture::Target2D);
 
@@ -1329,7 +1311,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                 }
             }
         }
-        AddStatusProgress(1. / 4); // finished updating layout
+        AddStatusProgress(1. / 6); // finished updating layout
 
         RSDKv5::TileConfig configStore = tileconfig;
         for (int i = 0; i < 0x400; ++i) {
@@ -1337,6 +1319,16 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
             tileconfig.collisionPaths[0][id] = configStore.collisionPaths[0][i];
             tileconfig.collisionPaths[1][id] = configStore.collisionPaths[1][i];
         }
+
+        AddStatusProgress(1. / 6); // finished updating collision
+
+        ui->stampList->blockSignals(true);
+        ui->stampList->clear();
+        for (auto &stamp : viewer->stamps.stampList) ui->stampList->addItem(stamp.name);
+        ui->stampList->blockSignals(false);
+        ui->stampList->setCurrentRow(-1);
+
+        AddStatusProgress(1. / 6); // finished updating stamp list
 
         tileSel->RefreshList();
 
@@ -4437,18 +4429,16 @@ void SceneEditorv5::SetStamp(float x, float y)
     auto stamp = viewer->stamps.stampList[viewer->selectedStamp];
 
     // Invalid stamp position prevention
-    if (0 > stamp.pos.x || stamp.pos.x + stamp.size.x > viewer->layers[viewer->selectedLayer].width ||
-        0 > stamp.pos.y || stamp.pos.y + stamp.size.y > viewer->layers[viewer->selectedLayer].height){
+    if (0 > xpos || xpos + stamp.size.x > viewer->layers[viewer->selectedLayer].width ||
+        0 > ypos || ypos + stamp.size.y > viewer->layers[viewer->selectedLayer].height){
         SetStatus("Invalid stamp position in current layer");
         return;
     }
 
+    int t = 0;
     for(int y = 0; y < stamp.size.y; y++){
         for(int x = 0; x < stamp.size.x; x++){
-            int tileXPos = stamp.pos.x + x;
-            int tileYPos = stamp.pos.y + y;
-
-            ushort tile = viewer->layers[viewer->selectedLayer].layout[tileYPos][tileXPos];
+            ushort tile = stamp.tiles[t++];
 
             if (tile != 0xFFFF) {
                 if (ypos + y >= 0 && ypos + y < viewer->layers[viewer->selectedLayer].height) {
@@ -4492,20 +4482,27 @@ void SceneEditorv5::AddStamp(float x, float y)
 
     RSDKv5::Stamps::StampEntry stamp;
     stamp.name = "New Stamp";
+    Vector2<int> pos(0,0);
     if (w > 0) {
-        stamp.pos.x = xpos;
+        pos.x = xpos;
         stamp.size.x = w;
     } else {
-        stamp.pos.x = xpos + w;
+        pos.x = xpos + w;
         stamp.size.x = -w;
     }
 
     if (h > 0) {
-        stamp.pos.y = ypos;
+        pos.y = ypos;
         stamp.size.y = h;
     } else {
-        stamp.pos.y = ypos + h;
+        pos.y = ypos + h;
         stamp.size.y = -h;
+    }
+
+    for (int y = 0; y < stamp.size.y; y++){
+        for (int x = 0; x < stamp.size.x; x++){
+            stamp.tiles.append(viewer->layers[viewer->selectedLayer].layout[y + pos.y][x + pos.x]);
+        }
     }
     uint c = ui->stampList->count();
     viewer->stamps.stampList.insert(c, stamp);

@@ -6,7 +6,7 @@
 RSDKColorDialog::RSDKColorDialog(PaletteColor color, QWidget *parent)
     : QDialog(parent), ui(new Ui::RSDKColorDialog), m_color(color)
 {
-    setWindowFlags(this->windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setWindowFlags(this->windowFlags() & ~Qt::WindowContextHelpButtonHint & ~Qt::WindowStaysOnTopHint);
     ui->setupUi(this);
     setFixedSize(550, 300);
     ui->oldPreview->setColor(m_color.toQColor());

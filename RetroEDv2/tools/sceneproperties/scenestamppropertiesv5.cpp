@@ -25,8 +25,6 @@ void SceneStampPropertiesv5::setupUI(RSDKv5::Stamps *stamps, int id)
 
     ui->stampName->setText(stamps->stampList[id].name);
 
-    ui->stampX->setValue(stamps->stampList[id].pos.x);
-    ui->stampY->setValue(stamps->stampList[id].pos.y);
     ui->stampSizeX->setValue(stamps->stampList[id].size.x);
     ui->stampSizeY->setValue(stamps->stampList[id].size.y);
 
@@ -34,12 +32,6 @@ void SceneStampPropertiesv5::setupUI(RSDKv5::Stamps *stamps, int id)
 
     connect(ui->stampName, &QLineEdit::textChanged,
             [stamps, id, this](QString s) { stamps->stampList[id].name = s; emit stampNameChanged(s);});
-
-    connect(ui->stampX, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            [stamps, id](double v) { stamps->stampList[id].pos.x = v; });
-
-    connect(ui->stampY, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            [stamps, id](double v) { stamps->stampList[id].pos.y = v; });
 
     connect(ui->stampSizeX, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             [stamps, id](double v) { stamps->stampList[id].size.x = v; });
@@ -56,8 +48,6 @@ void SceneStampPropertiesv5::unsetUI()
     ui->stampID->setText("Stamp ID: ");
 
     disconnect(ui->stampName, nullptr, nullptr, nullptr);
-    disconnect(ui->stampX, nullptr, nullptr, nullptr);
-    disconnect(ui->stampY, nullptr, nullptr, nullptr);
     disconnect(ui->stampSizeX, nullptr, nullptr, nullptr);
     disconnect(ui->stampSizeY, nullptr, nullptr, nullptr);
 

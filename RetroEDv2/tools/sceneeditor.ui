@@ -14,448 +14,38 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
-    <widget class="QToolBox" name="toolBox">
-     <property name="maximumSize">
-      <size>
-       <width>185</width>
-       <height>16777215</height>
-      </size>
+   <item row="1" column="1">
+    <widget class="QFrame" name="viewerFrame">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-     <property name="currentIndex">
-      <number>0</number>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
      </property>
-     <widget class="QWidget" name="layerPage">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>185</width>
-        <height>181</height>
-       </rect>
-      </property>
-      <attribute name="label">
-       <string>Tile Layers</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0">
-        <widget class="QListWidget" name="layerList"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QPushButton" name="shiftLayer">
-         <property name="text">
-          <string>Shift Tile Layer Position</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="chunksPage">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>185</width>
-        <height>181</height>
-       </rect>
-      </property>
-      <attribute name="label">
-       <string>Chunk List</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_14"/>
-     </widget>
-     <widget class="QWidget" name="objectPage">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>185</width>
-        <height>181</height>
-       </rect>
-      </property>
-      <attribute name="label">
-       <string>Object List</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_6">
-       <item row="2" column="1">
-        <spacer name="horizontalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="0" colspan="3">
-        <widget class="QListWidget" name="objectList"/>
-       </item>
-       <item row="2" column="2">
-        <widget class="QToolButton" name="rmObj">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>Removes an object type</string>
-         </property>
-         <property name="text">
-          <string>-</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QToolButton" name="addObj">
-         <property name="toolTip">
-          <string>Adds an object type</string>
-         </property>
-         <property name="text">
-          <string>+</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" colspan="3">
-        <widget class="QLineEdit" name="objectFilter">
-         <property name="placeholderText">
-          <string>Find objects...</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="entityPage">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>185</width>
-        <height>181</height>
-       </rect>
-      </property>
-      <attribute name="label">
-       <string>Entity List</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_4">
-       <item row="1" column="0" colspan="6">
-        <widget class="QListWidget" name="entityList"/>
-       </item>
-       <item row="3" column="3">
-        <widget class="QToolButton" name="downEnt">
-         <property name="toolTip">
-          <string>Moves an entity down</string>
-         </property>
-         <property name="text">
-          <string>D</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QToolButton" name="addEnt">
-         <property name="toolTip">
-          <string>Adds an entity</string>
-         </property>
-         <property name="text">
-          <string>+</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2">
-        <widget class="QToolButton" name="upEnt">
-         <property name="toolTip">
-          <string>Moves an entity up</string>
-         </property>
-         <property name="text">
-          <string>U</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0" colspan="6">
-        <widget class="QLineEdit" name="entityFilter">
-         <property name="placeholderText">
-          <string>Find entities...</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <spacer name="horizontalSpacer_6">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="3" column="4">
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="3" column="5">
-        <widget class="QToolButton" name="rmEnt">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>Removes an entity</string>
-         </property>
-         <property name="text">
-          <string>-</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0" colspan="6">
-        <widget class="QLabel" name="totalEntCount">
-         <property name="text">
-          <string>Total Entity Count</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="hScrollPage">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>185</width>
-        <height>181</height>
-       </rect>
-      </property>
-      <attribute name="label">
-       <string>Horizontal Parallax</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_15">
-       <item row="0" column="0" colspan="6">
-        <widget class="QListWidget" name="hScrollList"/>
-       </item>
-       <item row="1" column="5">
-        <widget class="QToolButton" name="rmScrH">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>Removes a horizontal parallax entry</string>
-         </property>
-         <property name="text">
-          <string>-</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QToolButton" name="impScrH">
-         <property name="toolTip">
-          <string>Imports horizontal parallax entries</string>
-         </property>
-         <property name="text">
-          <string>I</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_import_48px.svg</normaloff>:/icons/ic_import_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QToolButton" name="addScrH">
-         <property name="toolTip">
-          <string>Adds a horizontal parallax entry</string>
-         </property>
-         <property name="text">
-          <string>+</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3">
-        <widget class="QToolButton" name="expScrH">
-         <property name="toolTip">
-          <string>Exports horizontal parallax entries</string>
-         </property>
-         <property name="text">
-          <string>E</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <spacer name="horizontalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="4">
-        <spacer name="horizontalSpacer_5">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="vScrollPage">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>185</width>
-        <height>181</height>
-       </rect>
-      </property>
-      <attribute name="label">
-       <string>Vertical Parallax</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_18">
-       <item row="0" column="0" colspan="6">
-        <widget class="QListWidget" name="vScrollList"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QToolButton" name="addScrV">
-         <property name="toolTip">
-          <string>Adds a vertical parallax entry</string>
-         </property>
-         <property name="text">
-          <string>+</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <spacer name="horizontalSpacer_7">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>17</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="2">
-        <widget class="QToolButton" name="impScrV">
-         <property name="toolTip">
-          <string>Imports vertical parallax entries</string>
-         </property>
-         <property name="text">
-          <string>I</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_import_48px.svg</normaloff>:/icons/ic_import_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3">
-        <widget class="QToolButton" name="expScrV">
-         <property name="toolTip">
-          <string>Exports vertical parallax entries</string>
-         </property>
-         <property name="text">
-          <string>E</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="4">
-        <spacer name="horizontalSpacer_8">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>18</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="5">
-        <widget class="QToolButton" name="rmScrV">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>Removes a parallax entry</string>
-         </property>
-         <property name="text">
-          <string>-</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout"/>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QScrollBar" name="horizontalScrollBar">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="4">
+    <widget class="QLabel" name="statusLabel">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item row="1" column="2">
@@ -482,7 +72,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>211</height>
+        <height>241</height>
        </rect>
       </property>
       <attribute name="label">
@@ -508,7 +98,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>211</height>
+        <height>241</height>
        </rect>
       </property>
       <attribute name="label">
@@ -528,39 +118,13 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tilePropPage">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>310</width>
-        <height>211</height>
-       </rect>
-      </property>
-      <attribute name="label">
-       <string>Tile Properties</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_5">
-       <item row="0" column="0">
-        <widget class="QFrame" name="tilePropFrame">
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_7"/>
-        </widget>
-       </item>
-      </layout>
-     </widget>
      <widget class="QWidget" name="objPropPage">
       <property name="geometry">
        <rect>
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>211</height>
+        <height>241</height>
        </rect>
       </property>
       <attribute name="label">
@@ -586,7 +150,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>211</height>
+        <height>241</height>
        </rect>
       </property>
       <attribute name="label">
@@ -606,13 +170,6 @@
        </item>
       </layout>
      </widget>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QScrollBar" name="horizontalScrollBar">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
     </widget>
    </item>
    <item row="0" column="0" colspan="4">
@@ -936,31 +493,455 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QFrame" name="viewerFrame">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+   <item row="1" column="0">
+    <widget class="QToolBox" name="toolBox">
+     <property name="maximumSize">
+      <size>
+       <width>185</width>
+       <height>16777215</height>
+      </size>
      </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout"/>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="4">
-    <widget class="QLabel" name="statusLabel">
-     <property name="text">
-      <string/>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
+     <widget class="QWidget" name="layerPage">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>185</width>
+        <height>181</height>
+       </rect>
+      </property>
+      <attribute name="label">
+       <string>Tile Layers</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <widget class="QListWidget" name="layerList"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="shiftLayer">
+         <property name="text">
+          <string>Shift Tile Layer Position</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="chunksPage">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>185</width>
+        <height>181</height>
+       </rect>
+      </property>
+      <attribute name="label">
+       <string>Chunk List</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_14"/>
+     </widget>
+     <widget class="QWidget" name="objectPage">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>185</width>
+        <height>181</height>
+       </rect>
+      </property>
+      <attribute name="label">
+       <string>Object List</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="2" column="1">
+        <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="0" colspan="3">
+        <widget class="QListWidget" name="objectList"/>
+       </item>
+       <item row="2" column="2">
+        <widget class="QToolButton" name="rmObj">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>Removes an object type</string>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QToolButton" name="addObj">
+         <property name="toolTip">
+          <string>Adds an object type</string>
+         </property>
+         <property name="text">
+          <string>+</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="3">
+        <widget class="QLineEdit" name="objectFilter">
+         <property name="placeholderText">
+          <string>Find objects...</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="entityPage">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>171</width>
+        <height>199</height>
+       </rect>
+      </property>
+      <attribute name="label">
+       <string>Entity List</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="4" column="2">
+        <widget class="QToolButton" name="upEnt">
+         <property name="toolTip">
+          <string>Moves an entity up</string>
+         </property>
+         <property name="text">
+          <string>U</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_arrow_upward_48px.svg</normaloff>:/icons/ic_arrow_upward_48px.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="5">
+        <widget class="QToolButton" name="rmEnt">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>Removes an entity</string>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <spacer name="horizontalSpacer_6">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0" colspan="6">
+        <widget class="QListWidget" name="entityList"/>
+       </item>
+       <item row="0" column="0" colspan="6">
+        <widget class="QLabel" name="totalEntCount">
+         <property name="text">
+          <string>Total Entity Count</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QToolButton" name="addEnt">
+         <property name="toolTip">
+          <string>Adds an entity</string>
+         </property>
+         <property name="text">
+          <string>+</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="6">
+        <widget class="QLineEdit" name="entityFilter">
+         <property name="placeholderText">
+          <string>Find entities...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="3">
+        <widget class="QToolButton" name="downEnt">
+         <property name="toolTip">
+          <string>Moves an entity down</string>
+         </property>
+         <property name="text">
+          <string>D</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_arrow_downward_48px.svg</normaloff>:/icons/ic_arrow_downward_48px.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="4">
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="5" column="0" colspan="6">
+        <widget class="QPushButton" name="alignEnt">
+         <property name="text">
+          <string>Re-Align Entity Slots</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="hScrollPage">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>185</width>
+        <height>181</height>
+       </rect>
+      </property>
+      <attribute name="label">
+       <string>Horizontal Parallax</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_15">
+       <item row="0" column="0" colspan="6">
+        <widget class="QListWidget" name="hScrollList"/>
+       </item>
+       <item row="1" column="5">
+        <widget class="QToolButton" name="rmScrH">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>Removes a horizontal parallax entry</string>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QToolButton" name="impScrH">
+         <property name="toolTip">
+          <string>Imports horizontal parallax entries</string>
+         </property>
+         <property name="text">
+          <string>I</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_import_48px.svg</normaloff>:/icons/ic_import_48px.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QToolButton" name="addScrH">
+         <property name="toolTip">
+          <string>Adds a horizontal parallax entry</string>
+         </property>
+         <property name="text">
+          <string>+</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QToolButton" name="expScrH">
+         <property name="toolTip">
+          <string>Exports horizontal parallax entries</string>
+         </property>
+         <property name="text">
+          <string>E</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <spacer name="horizontalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="4">
+        <spacer name="horizontalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="vScrollPage">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>185</width>
+        <height>181</height>
+       </rect>
+      </property>
+      <attribute name="label">
+       <string>Vertical Parallax</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_18">
+       <item row="0" column="0" colspan="6">
+        <widget class="QListWidget" name="vScrollList"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QToolButton" name="addScrV">
+         <property name="toolTip">
+          <string>Adds a vertical parallax entry</string>
+         </property>
+         <property name="text">
+          <string>+</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_add_circle_48px.svg</normaloff>:/icons/ic_add_circle_48px.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <spacer name="horizontalSpacer_7">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>17</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="2">
+        <widget class="QToolButton" name="impScrV">
+         <property name="toolTip">
+          <string>Imports vertical parallax entries</string>
+         </property>
+         <property name="text">
+          <string>I</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_import_48px.svg</normaloff>:/icons/ic_import_48px.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QToolButton" name="expScrV">
+         <property name="toolTip">
+          <string>Exports vertical parallax entries</string>
+         </property>
+         <property name="text">
+          <string>E</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <spacer name="horizontalSpacer_8">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>18</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="5">
+        <widget class="QToolButton" name="rmScrV">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>Removes a parallax entry</string>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>

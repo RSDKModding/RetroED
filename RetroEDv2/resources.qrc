@@ -60,5 +60,11 @@
         <file>icons/ic_stamp_selection_48px.svg</file>
         <file>resources/RSDKv5VarNames.txt</file>
         <file>icons/ic_colorpick_48px.svg</file>
+        <file>icons/ic_circle_tool_48px.svg</file>
+        <file>icons/ic_line_tool_48px.svg</file>
+        <file>icons/ic_collision_tool_48px.svg</file>
+        <file>icons/ic_angle_tool_48px.svg</file>
+        <file>icons/ic_square_tool_48px.svg</file>
+        <file>icons/ic_replace_48px.svg</file>
     </qresource>
 </RCC>

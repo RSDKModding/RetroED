@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>196</width>
-    <height>96</height>
+    <height>133</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -25,48 +25,75 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QCheckBox" name="copyTileCol">
-   <property name="geometry">
-    <rect>
-     <x>9</x>
-     <y>9</y>
-     <width>110</width>
-     <height>19</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Copy Tile Collision</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="copyChunkPlane">
-   <property name="geometry">
-    <rect>
-     <x>9</x>
-     <y>34</y>
-     <width>136</width>
-     <height>19</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Copy Chunks Tile Plane</string>
-   </property>
-  </widget>
-  <widget class="QDialogButtonBox" name="confirmButton">
-   <property name="geometry">
-    <rect>
-     <x>9</x>
-     <y>59</y>
-     <width>166</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-  </widget>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0">
+    <spacer name="horizontalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="4" column="2">
+    <widget class="QDialogButtonBox" name="confirmButton">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="3">
+    <widget class="QCheckBox" name="copyChunkPlane">
+     <property name="text">
+      <string>Copy Chunks Tile Solidity</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="0" colspan="3">
+    <widget class="QCheckBox" name="copyTileCol">
+     <property name="text">
+      <string>Copy Tile Collision</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" colspan="2">
+    <widget class="QCheckBox" name="allChkCheck">
+     <property name="text">
+      <string>Apply to all Chunks</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="2">
+    <widget class="QCheckBox" name="allTileCheck">
+     <property name="text">
+      <string>Apply to all Tiles</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections>

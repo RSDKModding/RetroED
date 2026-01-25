@@ -17,6 +17,8 @@ public:
     void setupUI();
     bool copyChunkPlane = false;
     bool copyTilePlanes = false;
+    bool applyAllTiles  = false;
+    bool applyAllChks   = false;
 
 private:
     Ui::CopyPlane *ui;
