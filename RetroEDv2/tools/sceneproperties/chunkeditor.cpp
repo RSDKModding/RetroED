@@ -376,7 +376,9 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         ui->tileList->blockSignals(true);
         int c = ui->tileList->currentRow();
         auto item = ui->tileList->item(c);
-        ui->tileInfoTable->clear();
+        ui->tileInfoTable->blockSignals(true);
+        ui->tileInfoTable->setRowCount(0);
+        ui->tileInfoTable->blockSignals(false);
         if (viewer->tileDrawMode == FORMAT_TILES) {
             bool isSelected = ui->tileList->selectedItems().indexOf(item) != -1;
             item->setSelected(isSelected);
@@ -2310,7 +2312,7 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
                 case FORMAT_TILES:{
                     for (int index = 0; index < viewerTiles.count(); index++){
                         int t = viewerTiles[index];
-                        QImage tileImg = tiles[index]->copy().convertToFormat(QImage::Format_RGB888);;
+                        QImage tileImg = tiles[t]->copy().convertToFormat(QImage::Format_RGB888);;
                         p.setOpacity(0.25);
                         if (selection->y != -1 && selection->x != -1 && selection->y * rowSize + selection->x == index)
                             p.setOpacity(1.0);
