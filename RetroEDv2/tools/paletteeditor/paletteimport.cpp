@@ -188,10 +188,10 @@ void ViewerWidget::paintEvent(QPaintEvent *)
     if (!palette)
         return;
 
-    for (byte y = 0; y < palette->count() / 0x10; ++y) {
+    for (byte y = 0; y < palSize / 0x10; ++y) {
         for (byte x = 0; x < 0x10; ++x) {
             ++index;
-            if (index >= palette->count())
+            if (index >= palSize)
                 return;
 
             clr = palette->at(index);
@@ -203,7 +203,7 @@ void ViewerWidget::paintEvent(QPaintEvent *)
     if (col == -1 || row == -1)
         return;
     short storeIndex = 0;
-    for (byte y = col; y < palette->count() / 0x10; ++y) {
+    for (byte y = col; y < palSize / 0x10; ++y) {
         byte x = y == col ? row : 0;
         for (; x < 0x10; ++x) {
             if (storeIndex >= importPalette.count())
