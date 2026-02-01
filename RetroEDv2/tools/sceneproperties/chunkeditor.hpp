@@ -53,6 +53,7 @@ public:
     QColor color = 0xFF00FF;
     QList<PaletteColor*> palette;
     short selection = -1;
+    bool v1Format = false;
 
 signals:
     void setColor(int slot);
@@ -186,7 +187,7 @@ private:
     QList<QImage> &chunkImgList;
     RSDKv5::TileConfig &tileConfig;
     RSDKv1::TileConfig &tileConfigv1;
-    QList<PaletteColor *> stagePal;
+    QList<PaletteColor> &stagePal;
     ChunkPalette *palWidget   = nullptr;
     PaletteImport *importFile = nullptr;
 

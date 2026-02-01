@@ -17,7 +17,7 @@ enum PaletteFormatTypes { PALTYPE_ACT, PALTYPE_IMAGE};
 
 ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, QList<QImage> &tiles, QList<PaletteColor> &stgPal,
                          byte gameVer, RSDKv5::TileConfig &tConf, RSDKv1::TileConfig &tConfv1, QWidget *parent)
-    : QDialog(parent), ui(new Ui::ChunkEditor), chunks(chk), tileList(tiles), chunkImgList(chunkList), tileConfig(tConf), tileConfigv1(tConfv1)
+    : QDialog(parent), ui(new Ui::ChunkEditor), chunks(chk), tileList(tiles), chunkImgList(chunkList), tileConfig(tConf), tileConfigv1(tConfv1), stagePal(stgPal)
 {
     setWindowFlag(Qt::WindowStaysOnTopHint);
 
@@ -31,19 +31,19 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
     if (!chk)
         return;
 
-    stagePal.clear();
-    for (int c = gameVer == ENGINE_v1 ? 0 : 128; c < stgPal.count(); c++){
-        stagePal.append(&stgPal[c]);
-    }
-
     palWidget = new ChunkPalette;
+
+    if (gameVer == ENGINE_v1) palWidget->v1Format = true;
+
     for (auto &c : stagePal)
-        palWidget->palette.append(c);
+        palWidget->palette.append(&c);
+
     palWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     palWidget->setMaximumWidth(16 * 16 + 64);
     palWidget->setMaximumHeight(16 * 8 + 96);
     palWidget->setMinimumWidth(16 * 16 + 64);
     palWidget->setMinimumHeight(16 * 8 + 96);
+
     ui->paletteLayout->addWidget(palWidget, 1);
 
     ui->pencilTool->setDown(true);
@@ -297,7 +297,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
                     importFile = new PaletteImport(pal, newPal, false);
                     if (importFile->exec() == QDialog::Accepted) {
                         for (int p = 128; p < 256; p++){
-                            stagePal[p] = &newPal[p];
+                            stagePal[p] = newPal[p];
                         }
                     };
                     importFile = nullptr;
@@ -328,7 +328,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
                     importFile = new PaletteImport(pal, newPal, false);
                     if (importFile->exec() == QDialog::Accepted) {
                         for (int p = 128; p < 256; p++){
-                            stagePal[p] = &newPal[p];
+                            stagePal[p] = newPal[p];
                         }
                     };
                     break;
@@ -356,7 +356,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
                 gif.read(filepath);
 
                 for (int i = 0; i < stagePal.count() && i < 256; i++)
-                    gif.palette[i] = stagePal[i]->toQColor().rgb();
+                    gif.palette[i] = stagePal[i].toQColor().rgb();
 
                 gif.write(filepath);
             }
@@ -366,7 +366,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
                     return;
 
                 Writer writer(filepath);
-                for (auto &c : stagePal) c->write(writer);
+                for (auto &c : stagePal) c.write(writer);
                 writer.flush();
             }
         }
@@ -376,7 +376,9 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         ui->tileList->blockSignals(true);
         int c = ui->tileList->currentRow();
         auto item = ui->tileList->item(c);
-        ui->tileInfoTable->clear();
+        ui->tileInfoTable->blockSignals(true);
+        ui->tileInfoTable->setRowCount(0);
+        ui->tileInfoTable->blockSignals(false);
         if (viewer->tileDrawMode == FORMAT_TILES) {
             bool isSelected = ui->tileList->selectedItems().indexOf(item) != -1;
             item->setSelected(isSelected);
@@ -474,15 +476,11 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
 
     connect(viewer, &ChunkViewer::setColor, [=] (int c){
         palWidget->selection = c;
-        if (gameVer != ENGINE_v1)
-            palWidget->selection -= 128;
         palWidget->update();
     });
 
     connect(palWidget, &ChunkPalette::setColor, [=] (int c){
         viewer->selColor = c;
-        if (gameVer != ENGINE_v1)
-            viewer->selColor += 128;
     });
 
     connect(palWidget, &ChunkPalette::colorChange, [this, &stgPal, gameVer, &chunkList] (PaletteColor clr){
@@ -544,12 +542,12 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
                                 int xpos = x;
                                 int ypos = y;
                                 if (flip.y)
-                                    ypos = 0x0F - y;
+                                    ypos = 0xF - y;
                                 if (flip.x)
-                                    xpos = 0x0F - x;
+                                    xpos = 0xF - x;
 
-                                img->setPixelColor((w * 0x10) + x, (h * 0x10) + y,
-                                                  viewer->tiles[chk.tiles[h][w].tileIndex]->pixelColor(xpos, ypos).rgb());
+                                QRgb clr = viewer->tiles[chk.tiles[h][w].tileIndex]->pixelColor(xpos, ypos).rgb();
+                                img->setPixelColor((w * 0x10) + x, (h * 0x10) + y, clr);
                             }
                         }
                     }
@@ -1372,6 +1370,12 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
 
                 selectedDrawTile = tile->listWidget()->row(tile);
             }
+
+            for(int y = 0; y < 8; ++y) {
+                for(int x = 0; x < 8; ++x){
+                    viewer->viewerTiles.append(chunks->chunks[selectedChunk].tiles[y][x].tileIndex);
+                }
+            }
         } else {
             switch (viewer->tileDrawMode) {
                 case FORMAT_CHUNK:{
@@ -1495,14 +1499,17 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
                 } else {
                     for (int i = 128; i < 256; ++i){
                         newPalette[i] = qRgb(chunkImp->curPalette.at(i - 128).r, chunkImp->curPalette.at(i - 128).g, chunkImp->curPalette.at(i - 128).b);
+                        PrintLog(QString("%1").arg(newPalette[i],0,16));
                     }
                 }
-                for (int c = 0; c < stagePal.count(); c++){
-                    QRgb clr = newPalette[gameVer == ENGINE_v1 ? c : c + 128];
-                    stagePal[c]->r = (clr >> 16) & 0xFF;
-                    stagePal[c]->g = (clr >> 8) & 0xFF;
-                    stagePal[c]->b = clr & 0xFF;
+                for (int c = (gameVer == ENGINE_v1 ? 0 : 128); c < stagePal.count(); c++){
+                    QRgb clr = newPalette[c];
+                    stagePal[c].r = (clr >> 16) & 0xFF;
+                    stagePal[c].g = (clr >> 8) & 0xFF;
+                    stagePal[c].b = clr & 0xFF;
+                    palWidget->palette[c] = &stagePal[c];
                 }
+
                 import = import.convertToFormat(QImage::Format_Indexed8, newPalette);
 
                 FormatHelpers::Chunks::Chunk formatChk;
@@ -1596,6 +1603,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
                 ui->usedTiles->setText(QString("Used Tiles: %1/1024").arg(count));
             }
         }
+        palWidget->repaint();
     });
 
     connect(ui->exportChunk, &QPushButton::clicked, [this] {
@@ -1660,11 +1668,12 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
                         newPalette[i] = qRgb(tileImp->curPalette.at(i - 128).r, tileImp->curPalette.at(i - 128).g, tileImp->curPalette.at(i - 128).b);
                     }
                 }
-                for (int c = 0; c < stagePal.count(); c++){
-                    QRgb clr = newPalette[gameVer == ENGINE_v1 ? c : c + 128];
-                    stagePal[c]->r = (clr >> 16) & 0xFF;
-                    stagePal[c]->g = (clr >> 8) & 0xFF;
-                    stagePal[c]->b = clr & 0xFF;
+                for (int c = (gameVer == ENGINE_v1 ? 0 : 128); c < stagePal.count(); c++){
+                    QRgb clr = newPalette[c];
+                    stagePal[c].r = (clr >> 16) & 0xFF;
+                    stagePal[c].g = (clr >> 8) & 0xFF;
+                    stagePal[c].b = clr & 0xFF;
+                    palWidget->palette[c] = &stagePal[c];
                 }
 
                 for (int t = 0; t < 0x400; t++){
@@ -1691,6 +1700,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
                 }
             }
         }
+        palWidget->repaint();
     });
 
     connect(ui->exportTiles, &QPushButton::clicked, [=] {
@@ -1794,11 +1804,11 @@ bool ChunkViewer::event(QEvent *e)
 
 void ChunkViewer::mousePressEvent(QMouseEvent *event)
 {
+/*
     float w = this->width(), h = this->height();
     float originX = w / 2, originY = h / 2;
     originX -= offset.x;
     originY -= offset.y;
-
     PrintLog(QString("pos(%1, %2), origin(%3, %4), mousePos(%5, %6)")
                  .arg(gridPos.x)
                  .arg(gridPos.y)
@@ -1806,7 +1816,7 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
                  .arg(originY)
                  .arg(event->pos().x())
                  .arg(event->pos().y()));
-
+*/
     if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
         mouseDownL = true;
     if ((event->button() & Qt::MiddleButton) == Qt::MiddleButton)
@@ -1825,7 +1835,7 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
             if (mouseDownR)
                 emit tileChanged();
             if (mouseDownL || mouseDownR)
-                    highlightTile = *selection;
+                highlightTile = *selection;
             break;
         }
 
@@ -1835,10 +1845,17 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
 
             if (mouseDownR && inGrid) {
                 int tilePxX = gridPos.x % 16, tilePxY = gridPos.y % 16;
+                if (tilePxX < 0 || tilePxY < 0)
+                    break;
+
                 if (tileDrawMode == FORMAT_CHUNK)
                     index = chunks->chunks[*cSel].tiles[selection->y][selection->x].tileIndex;
-                else
-                    index = viewerTiles.indexOf(selection->y * rowSize + selection->x);
+                else{
+                    int pos = selection->y * rowSize + selection->x;
+                    if (pos >= viewerTiles.count())
+                        break;
+                    index = viewerTiles[pos];
+                }
                 if (index == -1) break;
                 QImage *tileImg = tiles.at(index);
                 selColor = tileImg->pixelIndex(tilePxX, tilePxY);
@@ -1946,7 +1963,7 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
         repaint();
     }
 
-    int TilePxX, TilePxY;
+    int tilePxX, tilePxY;
 
     selection->x = gridPos.x / 16; selection->y = gridPos.y / 16;
 
@@ -1958,8 +1975,8 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
                                                                           && selection->x >= viewerTiles.count() % rowSize))
         selection->y = -1;
 
-    TilePxX = gridPos.x % 16;
-    TilePxY = gridPos.y % 16;
+    tilePxX = gridPos.x % 16;
+    tilePxY = gridPos.y % 16;
     inGrid = (selection->x != -1 && selection->y != -1);
     short index = -1;
 
@@ -1990,9 +2007,9 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
                         bool fy = keepProps ? ((tile.direction & 2) == 2) : false;
 
                         if (fx)
-                            TilePxX = 15 - TilePxX;
+                            tilePxX = 15 - tilePxX;
                         if (fy)
-                            TilePxY = 15 - TilePxY;
+                            tilePxY = 15 - tilePxY;
                         break;
                     }
                     case FORMAT_TILES:{
@@ -2004,7 +2021,7 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
                     }
                 }
 
-                if (index == -1)
+                if (index == -1 || tilePxX < 0 || tilePxY < 0)
                     break;
 
                 QImage *tileImg = tiles.at(index);
@@ -2012,16 +2029,16 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
                 if (mouseDownL){
                     switch (drawTool){
                         case DRAW_PENCIL:{
-                            tileImg->setPixel(TilePxX, TilePxY, selColor);
+                            tileImg->setPixel(tilePxX, tilePxY, selColor);
                             break;
                         }
                         case DRAW_ERASER:{
-                            tileImg->setPixel(TilePxX, TilePxY, 0);
+                            tileImg->setPixel(tilePxX, tilePxY, 0);
                             break;
                         }
                     }
                 } else if (mouseDownR)
-                    emit setColor(tileImg->pixelIndex(TilePxX, TilePxY));
+                    emit setColor(tileImg->pixelIndex(tilePxX, tilePxY));
             }
             break;
         }
@@ -2042,8 +2059,8 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
                         bool fx = keepProps ? ((tile.direction & 1) == 1) : false;
                         bool fy = keepProps ? ((tile.direction & 2) == 2) : false;
 
-                        if (fx) TilePxX = 15 - TilePxX;
-                        if (fy) TilePxY = 15 - TilePxY;
+                        if (fx) tilePxX = 15 - tilePxX;
+                        if (fy) tilePxY = 15 - tilePxY;
                         break;
                     }
                     case FORMAT_TILES:{
@@ -2060,14 +2077,14 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
                 if (colTool == COL_SOLIDITY && (!ignoreFirstTile || (ignoreFirstTile && index))){
                     if (mouseDownL) {
                             if (tileConfig != nullptr)
-                                tileConfig->collisionPaths[colLyr][index].collision[TilePxX].height = TilePxY;
+                                tileConfig->collisionPaths[colLyr][index].collision[tilePxX].height = tilePxY;
                             else
-                                tileConfigv1->collisionPaths[colLyr][index].collision[colIndex][TilePxX].height = TilePxY;
+                                tileConfigv1->collisionPaths[colLyr][index].collision[colIndex][tilePxX].height = tilePxY;
                     } else if (mouseDownR){
                         if (tileConfig != nullptr)
-                            tileConfig->collisionPaths[colLyr][index].collision[TilePxX].solid = solidityCheck;
+                            tileConfig->collisionPaths[colLyr][index].collision[tilePxX].solid = solidityCheck;
                         else
-                            tileConfigv1->collisionPaths[colLyr][index].collision[colIndex][TilePxX].solid = solidityCheck;
+                            tileConfigv1->collisionPaths[colLyr][index].collision[colIndex][tilePxX].solid = solidityCheck;
                     }
                 }
             }
@@ -2132,6 +2149,7 @@ void ChunkViewer::mouseReleaseEvent(QMouseEvent *event)
                         }
                     }
                 }
+                emit updateLists();
                 repaint();
             } else {
                 if (colTool == COL_ANGLES){
@@ -2148,7 +2166,6 @@ void ChunkViewer::mouseReleaseEvent(QMouseEvent *event)
                 }
             }
         }
-        emit updateLists();
     }
 
     if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
@@ -2310,7 +2327,7 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
                 case FORMAT_TILES:{
                     for (int index = 0; index < viewerTiles.count(); index++){
                         int t = viewerTiles[index];
-                        QImage tileImg = tiles[index]->copy().convertToFormat(QImage::Format_RGB888);;
+                        QImage tileImg = tiles[t]->copy().convertToFormat(QImage::Format_RGB888);;
                         p.setOpacity(0.25);
                         if (selection->y != -1 && selection->x != -1 && selection->y * rowSize + selection->x == index)
                             p.setOpacity(1.0);
@@ -2318,25 +2335,24 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
                             auto mask = tileConfig->collisionPaths[colLyr][t];
                             for (int y = 0; y < 16; ++y) {
                                 for (int x = 0; x < 16; ++x) {
-                                    QColor colColor = 0xFFFFFF00;
+                                    QRgb colColor = 0xFFFFFF00;
                                     if (!mask.collision[x].solid)
-                                        colColor = colColor.darker(255);
-                                    if ((mask.direction ? mask.collision[x].height >= y : mask.collision[x].height <= y) && mask.collision[x].solid)
-                                        tileImg.setPixel(x, y, colColor.rgb());
+                                        colColor = QColor(tileImg.pixel(x,y)).darker(255).rgba();
+                                    if ((mask.direction ? mask.collision[x].height >= y : mask.collision[x].height <= y))
+                                        tileImg.setPixel(x, y, colColor);
                                 }
                             }
                         } else{
                             auto mask = tileConfigv1->collisionPaths[colLyr][t];
                             for (int y = 0; y < 16; ++y) {
                                 for (int x = 0; x < 16; ++x) {
-                                    QColor colColor = 0xFFFFFF00;
+                                    QRgb colColor = 0xFFFFFF00;
                                     if (!mask.collision[colIndex][x].solid)
-                                        colColor = colColor.darker(255);
-                                    if (mask.collision[colIndex][x].height <= y && mask.collision[colIndex][x].solid)
-                                        tileImg.setPixel(x, y, colColor.rgb());
+                                        colColor = QColor(tileImg.pixel(x,y)).darker(255).rgba();
+                                    if (mask.collision[colIndex][x].height <= y)
+                                        tileImg.setPixel(x, y, colColor);
                                 }
                             }
-
                         }
                         QPointF coords = QPointF(originX + ((index % rowSize) * (0x10 * scale)), originY + (index / rowSize) * (0x10 * scale));
                         p.drawImage(coords, tileImg.scaled((0x10 * scale),(0x10 * scale)));
@@ -2361,7 +2377,7 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
     if (viewerTiles.count()){
         int gridSize = tileDrawMode == FORMAT_TILES ? rowSize : 8;
         p.setPen(QPen(Qt::white, 0.5f));
-        p.setOpacity(0.5);
+        p.setOpacity(1);
         for (int y = 0; y <= viewerTiles.count() / gridSize; ++y){
             if (y == viewerTiles.count() / gridSize){
                 if (viewerTiles.count() < gridSize)
@@ -2475,7 +2491,7 @@ void ChunkPalette::mouseMoveEvent(QMouseEvent *event)
     if (y > 15)
         y = 15;
 
-    highlight = x % 16 + y * 16;
+    highlight = x % 16 + y * 16 + (v1Format ? 0 : 128);
 
     update();
 }
@@ -2485,12 +2501,12 @@ void ChunkPalette::paintEvent(QPaintEvent *)
     QPainter p(this);
 
     QRectF rect(1, 2, (qreal)width() / 16 - 1, (qreal)height() / 16 - 1);
-    short index = -1;
+    short index = v1Format ? -1 : 127;
     if (palette.count() == 0)
         return;
 
     QPen swatchPen(qApp->palette().base(), 2);
-    for (byte y = 0; y < palette.count() / 0x10; ++y) {
+    for (byte y = v1Format ? 0 : 8 ; y < palette.count() / 0x10; ++y) {
         for (byte x = 0; x < 0x10; ++x) {
             ++index;
             if (index >= palette.count())
@@ -2499,20 +2515,20 @@ void ChunkPalette::paintEvent(QPaintEvent *)
             p.setPen(swatchPen);
             p.setBrush(clr->toQColor());
 
-            QRectF swatchRect = rect.translated(x * ((qreal)width()) / 16 - 1, y * ((qreal)height()) / 16 - 1);
+            QRectF swatchRect = rect.translated(x * ((qreal)width()) / 16 - 1, (v1Format ? y : y - 8) * ((qreal)height()) / 16 - 1);
 
             p.drawRect(swatchRect);
         }
     }
 
     QPen pen(appConfig.lightMode ? darkPal.base() : lightPal.base(), 1);
-    index = -1;
-    for (byte y = 0; y < palette.count() / 0x10; ++y) {
+    index = v1Format ? -1 : 127;
+    for (byte y = v1Format ? 0 : 8; y < palette.count() / 0x10; ++y) {
         for (byte x = 0; x < 0x10; ++x) {
             ++index;
             if (index >= palette.count())
                 return;
-            QRectF swatchRect = rect.translated(x * ((qreal)width()) / 16 - 1, y * ((qreal)height()) / 16 - 1);
+            QRectF swatchRect = rect.translated(x * ((qreal)width()) / 16 - 1, (v1Format ? y : y - 8) * ((qreal)height()) / 16 - 1);
             p.setOpacity(1.0);
 
             if (highlight == index) {
