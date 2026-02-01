@@ -2622,6 +2622,8 @@ void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
     viewer->stopTimer();
     viewer->unloadScene();
 
+    clipboardIDs.clear();
+
     if (gcfPath != gameConfig.filePath) {
         if (QFileInfo(gcfPath).suffix().toLower().contains("xml"))
             ParseGameXML(gcfPath);
@@ -4569,6 +4571,7 @@ bool SceneEditor::HandleKeyPress(QKeyEvent *event)
 
                 if ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier
                     && event->key() == Qt::Key_C) {
+                    clipboardIDs.clear();
                     clipboard     = &viewer->entities[viewer->selectedEntity];
                     clipboardType = COPY_ENTITY;
                     clipboardInfo = viewer->selectedEntity;
