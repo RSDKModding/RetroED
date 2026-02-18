@@ -312,7 +312,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="chunkTab">
       <attribute name="title">
@@ -1031,7 +1031,7 @@
        <item row="0" column="12">
         <widget class="QToolButton" name="importPal">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="minimumSize">
           <size>

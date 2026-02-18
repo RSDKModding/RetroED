@@ -543,7 +543,7 @@ Color</string>
        <item row="0" column="6">
         <widget class="QToolButton" name="importPal">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="text">
           <string>Import Palette</string>

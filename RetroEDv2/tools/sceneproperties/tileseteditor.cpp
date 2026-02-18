@@ -130,7 +130,7 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
             for (int t = 0; t < 0x400; t++){
                 tileListCopy.append(tileList[t].convertToFormat(QImage::Format_RGB888));
             }
-            ImportGFXTool *tileImp = new ImportGFXTool(ENGINE_v5, importTiles, tileListCopy, pal, importPal);
+            ImportGFXTool *tileImp = new ImportGFXTool(ENGINE_v5, importTiles, tileListCopy, palette, importPal);
             if (tileImp->exec() == QDialog::Accepted){
                 QVector<QRgb> newPalette = tileList[0].colorTable();
                 for (int i = 128; i < 256; ++i){
@@ -170,6 +170,7 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
         if (filedialog.exec() == QDialog::Accepted) {
             QString fileName = filedialog.selectedFiles()[0];
             QList<PaletteColor> newPal;
+            QVector<QRgb> tilePal = tileList[0].colorTable();
             for (int c = 128; c < palette.count(); c++){
                 newPal.append(PaletteColor(palette[c]));
             }
@@ -185,8 +186,13 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
                     }
                     importFile = new PaletteImport(pal, newPal, false);
                     if (importFile->exec() == QDialog::Accepted) {
-                        for (int p = 128; p < 256; p++){
-                            palette[p] = newPal[p];
+                        for (int i = 128; i < 256; ++i) {
+                            tilePal[i] = newPal[i - 128].toQColor().rgb();
+                            QRgb clr = tilePal[i];
+                            palette[i].r = (clr >> 16) & 0xFF;
+                            palette[i].g = (clr >> 8) & 0xFF;
+                            palette[i].b =  clr & 0xFF;
+                            palWidget->palette[i] = &palette[i];
                         }
                     };
                     importFile = nullptr;
@@ -216,13 +222,25 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
 
                     importFile = new PaletteImport(pal, newPal, false);
                     if (importFile->exec() == QDialog::Accepted) {
-                        for (int p = 128; p < 256; p++){
-                            palette[p] = newPal[p];
+                        for (int i = 128; i < 256; ++i) {
+                            tilePal[i] = newPal[i - 128].toQColor().rgb();
+                            QRgb clr = tilePal[i];
+                            palette[i].r = (clr >> 16) & 0xFF;
+                            palette[i].g = (clr >> 8) & 0xFF;
+                            palette[i].b =  clr & 0xFF;
+                            palWidget->palette[i] = &palette[i];
                         }
                     };
                     break;
                 }
             }
+
+            for (int t = 0; t < 0x400; t++){
+                tiles[t].setColorTable(tilePal);
+                viewer->tiles[t] = &tiles[t];
+                ui->tileList->item(t)->setIcon(QPixmap::fromImage(tiles[t]));
+            }
+            palWidget->repaint();
         }
     });
 

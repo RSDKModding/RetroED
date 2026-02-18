@@ -281,8 +281,9 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         if (filedialog.exec() == QDialog::Accepted) {
             QString fileName = filedialog.selectedFiles()[0];
             QList<PaletteColor> newPal;
-            for (int c = gameVer == ENGINE_v1 ? 0 : 128; c < stgPal.count(); c++){
-                newPal.append(PaletteColor(stgPal[c]));
+            QVector<QRgb> tilePal = tileList[0].colorTable();
+            for (int c = gameVer == ENGINE_v1 ? 0 : 128; c < stagePal.count(); c++){
+                newPal.append(PaletteColor(stagePal[c]));
             }
             switch (types.indexOf(filedialog.selectedNameFilter())) {
                 case PALTYPE_ACT: { //.act
@@ -296,8 +297,22 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
                     }
                     importFile = new PaletteImport(pal, newPal, false);
                     if (importFile->exec() == QDialog::Accepted) {
-                        for (int p = 128; p < 256; p++){
-                            stagePal[p] = newPal[p];
+                        if (gameVer == ENGINE_v1) {
+                            for (int i = 0; i < 128; ++i) {
+                                tilePal[i] = newPal[i].toQColor().rgb();
+                            }
+                        } else {
+                            for (int i = 128; i < 256; ++i) {
+                                tilePal[i] = newPal[i - 128].toQColor().rgb();
+                            }
+
+                        }
+                        for (int p = (gameVer == ENGINE_v1 ? 0 : 128); p < stagePal.count(); p++){
+                            QRgb clr = tilePal[p];
+                            stagePal[p].r = (clr >> 16) & 0xFF;
+                            stagePal[p].g = (clr >> 8) & 0xFF;
+                            stagePal[p].b =  clr & 0xFF;
+                            palWidget->palette[p] = &stagePal[p];
                         }
                     };
                     importFile = nullptr;
@@ -327,13 +342,40 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
 
                     importFile = new PaletteImport(pal, newPal, false);
                     if (importFile->exec() == QDialog::Accepted) {
-                        for (int p = 128; p < 256; p++){
-                            stagePal[p] = newPal[p];
+                        if (gameVer == ENGINE_v1) {
+                            for (int i = 0; i < 128; ++i) {
+                                tilePal[i] = newPal[i].toQColor().rgb();
+                            }
+                        } else {
+                            for (int i = 128; i < 256; ++i) {
+                                tilePal[i] = newPal[i - 128].toQColor().rgb();
+                            }
+                        }
+
+                        for (int p = (gameVer == ENGINE_v1 ? 0 : 128); p < stagePal.count(); p++){
+                            QRgb clr = tilePal[p];
+                            stagePal[p].r = (clr >> 16) & 0xFF;
+                            stagePal[p].g = (clr >> 8) & 0xFF;
+                            stagePal[p].b =  clr & 0xFF;
+                            palWidget->palette[p] = &stagePal[p];
                         }
                     };
                     break;
                 }
             }
+
+            for (int t = 0; t < 0x400; t++){
+                tileList[t].setColorTable(tilePal);
+                viewer->tiles[t] = &tileList[t];
+                ui->tileList->item(t)->setIcon(QPixmap::fromImage(tileList[t]));
+            }
+
+            for (int c = 0; c < (gameVer == ENGINE_v1 ? 0x100 : 0x200); c++){
+                chunkImgList[c] = chunks->chunks[c].getImage(tileList);
+                ui->chunkList->item(c)->setIcon(QPixmap::fromImage(chunkImgList[c]));
+            }
+
+            palWidget->repaint();
         }
     });
 
@@ -427,16 +469,16 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
     };
 
     QPixmap clrIcon(44,44);
-    clrIcon.fill(stgPal[0].toQColor());
+    clrIcon.fill(stagePal[0].toQColor());
     ui->bgClrBtn->setIcon(clrIcon);
 
-    connect(ui->bgClrBtn, &QToolButton::clicked, [=, &stgPal, &chunkList] {
+    connect(ui->bgClrBtn, &QToolButton::clicked, [=, &chunkList] {
         RSDKColorDialog *dlg = new RSDKColorDialog((PaletteColor)tileList[0].color(0), this);
         dlg->show();
         if (dlg->exec() == QDialog::Accepted) {
-            stgPal[0].r = dlg->color().r;
-            stgPal[0].g = dlg->color().g;
-            stgPal[0].b = dlg->color().b;
+            stagePal[0].r = dlg->color().r;
+            stagePal[0].g = dlg->color().g;
+            stagePal[0].b = dlg->color().b;
             for (int t = 0; t < tileList.count(); ++t) {
                 tileList[t].setColor(0, qRgb(dlg->color().r, dlg->color().g, dlg->color().b));
                 viewer->tiles[t]->setColor(0, qRgb(dlg->color().r, dlg->color().g, dlg->color().b));
@@ -463,7 +505,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
             ui->chunkList->update();
 
             if (gameVer == ENGINE_v1){
-                palWidget->palette[0] = &stgPal[0];
+                palWidget->palette[0] = &stagePal[0];
             }
             QPixmap clrIcon(44,44);
             clrIcon.fill(tileList[0].color(0));
@@ -1478,7 +1520,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
             }
             import = import.convertToFormat(QImage::Format_RGB888);
             QImage chunk(128, 128, QImage::Format_Indexed8);
-            chunk.fill(qRgb(stgPal[0].r, stgPal[0].g, stgPal[0].b));
+            chunk.fill(qRgb(stagePal[0].r, stagePal[0].g, stagePal[0].b));
             QList<QImage> importChunks;
             FormatHelpers::Chunks chkImport;
             for (int w = 0; w < import.width() / 128; w++) {
@@ -1489,7 +1531,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
                         importChunks.append(chunk);
                 }
             }
-            ImportGFXTool *chunkImp = new ImportGFXTool(gameVer, importChunks, chunkImgList, stgPal, importPal);
+            ImportGFXTool *chunkImp = new ImportGFXTool(gameVer, importChunks, chunkImgList, stagePal, importPal);
             if (chunkImp->exec() == QDialog::Accepted){
                 QVector<QRgb> newPalette = tileList[0].colorTable();
                 if (gameVer == ENGINE_v1){
@@ -1499,7 +1541,6 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
                 } else {
                     for (int i = 128; i < 256; ++i){
                         newPalette[i] = qRgb(chunkImp->curPalette.at(i - 128).r, chunkImp->curPalette.at(i - 128).g, chunkImp->curPalette.at(i - 128).b);
-                        PrintLog(QString("%1").arg(newPalette[i],0,16));
                     }
                 }
                 for (int c = (gameVer == ENGINE_v1 ? 0 : 128); c < stagePal.count(); c++){
@@ -1641,7 +1682,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
             }
             import = import.convertToFormat(QImage::Format_RGB888);
             QImage tile(16, 16, QImage::Format_Indexed8);
-            tile.fill(qRgb(stgPal[0].r, stgPal[0].g, stgPal[0].b));
+            tile.fill(qRgb(stagePal[0].r, stagePal[0].g, stagePal[0].b));
             QList<QImage> importTiles;
             for (int w = 0; w < import.width() / 16; w++) {
                 for (int h = 0; h < import.height() / 16; h++) {
@@ -1656,7 +1697,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
             for (int t = 0; t < 0x400; t++){
                 tileListCopy.append(tileList[t].convertToFormat(QImage::Format_RGB888));
             }
-            ImportGFXTool *tileImp = new ImportGFXTool(gameVer, importTiles, tileListCopy, stgPal, importPal);
+            ImportGFXTool *tileImp = new ImportGFXTool(gameVer, importTiles, tileListCopy, stagePal, importPal);
             if (tileImp->exec() == QDialog::Accepted){
                 QVector<QRgb> newPalette = tileList[0].colorTable();
                 if (gameVer == ENGINE_v1){
