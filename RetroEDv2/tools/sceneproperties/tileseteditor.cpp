@@ -14,8 +14,8 @@ enum colTools { COL_SOLIDITY, COL_ANGLES };
 enum stampTools { STAMP_DRAW, STAMP_CLEAR };
 enum PaletteFormatTypes { PALTYPE_ACT, PALTYPE_IMAGE };
 
-TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf, QList<PaletteColor> &pal, QList<RSDKv5::Stamps::StampEntry> &stampList, QWidget *parent)
-    : QDialog(parent), ui(new Ui::TilesetEditor), tileConfig(tConf), tiles(tileList), palette(pal), stamps(stampList)
+TilesetEditor::TilesetEditor(QList<QImage> &tiles, RSDKv5::TileConfig &tConf, QList<PaletteColor> &pal, QList<RSDKv5::Stamps::StampEntry> &stampList, QWidget *parent)
+    : QDialog(parent), ui(new Ui::TilesetEditor), tileConfig(tConf), tileList(tiles), stagePal(pal), stamps(stampList)
 {
     setWindowFlag(Qt::WindowStaysOnTopHint);
 
@@ -38,12 +38,12 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
     ui->colTool->blockSignals(false);
     ui->drawTool->blockSignals(false);
 
-    for (int i = 0; i < palette.count(); ++i) clrTable.append(qRgb(pal[i].r, pal[i].g, pal[i].b));
+    for (int i = 0; i < stagePal.count(); ++i) clrTable.append(qRgb(pal[i].r, pal[i].g, pal[i].b));
 
 
     palWidget = new TilePalette;
-    for (int c = 0; c < palette.count(); c++)
-        palWidget->palette.append(&palette[c]);
+    for (int c = 0; c < stagePal.count(); c++)
+        palWidget->palette.append(&stagePal[c]);
     palWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     palWidget->setMaximumWidth(16 * 16 + 64);
     palWidget->setMaximumHeight(16 * 8 + 96);
@@ -95,6 +95,23 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
         }
     };
 
+    connect(ui->generateCol, &QPushButton::clicked, [=]{
+        for (auto t : viewer->viewerTiles){
+            auto tile  = &tileList[t];
+            RSDKv5::TileConfig::CollisionMask &mask = tileConfig.collisionPaths[viewer->colLyr][t];
+            generateCol(mask, *tile);
+        }
+        viewer->repaint();
+    });
+
+    connect(ui->copyPlaneCol, &QPushButton::clicked, [=]{
+        for (int i = 0; i < viewer->viewerTiles.count(); i++){
+            int t = viewer->viewerTiles[i];
+            tileConfig.collisionPaths[1][t] = tileConfig.collisionPaths[0][t];
+        }
+        viewer->repaint();
+    });
+
     connect(ui->importTile, &QPushButton::pressed, [=]{
         QFileDialog filedialog(this, tr("Import Image"), "", tr("GIF Images (*.gif)"));
         filedialog.setAcceptMode(QFileDialog::AcceptOpen);
@@ -115,7 +132,7 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
             }
             import = import.convertToFormat(QImage::Format_RGB888);
             QImage tile(16, 16, QImage::Format_Indexed8);
-            tile.fill(palette[0].toQColor().rgb());
+            tile.fill(stagePal[0].toQColor().rgb());
             QList<QImage> importTiles;
             for (int w = 0; w < import.width() / 16; w++) {
                 for (int h = 0; h < import.height() / 16; h++) {
@@ -130,28 +147,28 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
             for (int t = 0; t < 0x400; t++){
                 tileListCopy.append(tileList[t].convertToFormat(QImage::Format_RGB888));
             }
-            ImportGFXTool *tileImp = new ImportGFXTool(ENGINE_v5, importTiles, tileListCopy, palette, importPal);
+            ImportGFXTool *tileImp = new ImportGFXTool(ENGINE_v5, importTiles, tileListCopy, stagePal, importPal);
             if (tileImp->exec() == QDialog::Accepted){
                 QVector<QRgb> newPalette = tileList[0].colorTable();
                 for (int i = 128; i < 256; ++i){
                     newPalette[i] = qRgb(tileImp->curPalette.at(i - 128).r, tileImp->curPalette.at(i - 128).g, tileImp->curPalette.at(i - 128).b);
                 }
-                for (int c = 128; c < palette.count(); c++){
+                for (int c = 128; c < stagePal.count(); c++){
                     QRgb clr = newPalette[c];
-                    palette[c].r = (clr >> 16) & 0xFF;
-                    palette[c].g = (clr >> 8) & 0xFF;
-                    palette[c].b =  clr & 0xFF;
-                    palWidget->palette[c] = &palette[c];
+                    stagePal[c].r = (clr >> 16) & 0xFF;
+                    stagePal[c].g = (clr >> 8) & 0xFF;
+                    stagePal[c].b =  clr & 0xFF;
+                    palWidget->palette[c] = &stagePal[c];
                 }
 
                 for (int t = 0; t < 0x400; t++){
-                    tiles[t] = tileListCopy[t].convertToFormat(QImage::Format_Indexed8, newPalette);
-                    viewer->tiles[t] = &tiles[t];
-                    ui->tileList->item(t)->setIcon(QPixmap::fromImage(tiles[t]));
+                    tileList[t] = tileListCopy[t].convertToFormat(QImage::Format_Indexed8, newPalette);
+                    viewer->tiles[t] = &tileList[t];
+                    ui->tileList->item(t)->setIcon(QPixmap::fromImage(tileList[t]));
                 }
                 if (tileImp->generateCol){
                     for (auto t : tileImp->rplChkIDs){
-                        auto tile  = &tiles[t];
+                        auto tile  = &tileList[t];
                         generateCol(tileConfig.collisionPaths[0][t], *tile);
                         generateCol(tileConfig.collisionPaths[1][t], *tile);
                     }
@@ -171,8 +188,8 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
             QString fileName = filedialog.selectedFiles()[0];
             QList<PaletteColor> newPal;
             QVector<QRgb> tilePal = tileList[0].colorTable();
-            for (int c = 128; c < palette.count(); c++){
-                newPal.append(PaletteColor(palette[c]));
+            for (int c = 128; c < stagePal.count(); c++){
+                newPal.append(PaletteColor(stagePal[c]));
             }
             switch (types.indexOf(filedialog.selectedNameFilter())) {
                 case PALTYPE_ACT: { //.act
@@ -189,10 +206,10 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
                         for (int i = 128; i < 256; ++i) {
                             tilePal[i] = newPal[i - 128].toQColor().rgb();
                             QRgb clr = tilePal[i];
-                            palette[i].r = (clr >> 16) & 0xFF;
-                            palette[i].g = (clr >> 8) & 0xFF;
-                            palette[i].b =  clr & 0xFF;
-                            palWidget->palette[i] = &palette[i];
+                            stagePal[i].r = (clr >> 16) & 0xFF;
+                            stagePal[i].g = (clr >> 8) & 0xFF;
+                            stagePal[i].b =  clr & 0xFF;
+                            palWidget->palette[i] = &stagePal[i];
                         }
                     };
                     importFile = nullptr;
@@ -225,10 +242,10 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
                         for (int i = 128; i < 256; ++i) {
                             tilePal[i] = newPal[i - 128].toQColor().rgb();
                             QRgb clr = tilePal[i];
-                            palette[i].r = (clr >> 16) & 0xFF;
-                            palette[i].g = (clr >> 8) & 0xFF;
-                            palette[i].b =  clr & 0xFF;
-                            palWidget->palette[i] = &palette[i];
+                            stagePal[i].r = (clr >> 16) & 0xFF;
+                            stagePal[i].g = (clr >> 8) & 0xFF;
+                            stagePal[i].b =  clr & 0xFF;
+                            palWidget->palette[i] = &stagePal[i];
                         }
                     };
                     break;
@@ -236,9 +253,9 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
             }
 
             for (int t = 0; t < 0x400; t++){
-                tiles[t].setColorTable(tilePal);
-                viewer->tiles[t] = &tiles[t];
-                ui->tileList->item(t)->setIcon(QPixmap::fromImage(tiles[t]));
+                tileList[t].setColorTable(tilePal);
+                viewer->tiles[t] = &tileList[t];
+                ui->tileList->item(t)->setIcon(QPixmap::fromImage(tileList[t]));
             }
             palWidget->repaint();
         }
@@ -262,8 +279,8 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
                 FormatHelpers::Gif gif;
                 gif.read(filepath);
 
-                for (int i = 0; i < palette.count() && i < 256; i++)
-                    gif.palette[i] = palette[i].toQColor().rgb();
+                for (int i = 0; i < stagePal.count() && i < 256; i++)
+                    gif.palette[i] = stagePal[i].toQColor().rgb();
 
                 gif.write(filepath);
             }
@@ -273,24 +290,24 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
                     return;
 
                 Writer writer(filepath);
-                for (auto &c : palette) c.write(writer);
+                for (auto &c : stagePal) c.write(writer);
                 writer.flush();
             }
         }
     });
 
     // Add any filler tiles
-    for (int t = tiles.count(); t < 0x400; ++t) {
+    for (int t = tileList.count(); t < 0x400; ++t) {
         QImage tile = QImage(16, 16, QImage::Format_Indexed8);
         tile.setColorTable(clrTable);
-        tiles.append(tile);
+        tileList.append(tile);
     }
 
     // Remove Excess tiles
-    for (int t = tiles.count(); t > 0x400; --t) tiles.removeAt(t);
+    for (int t = tileList.count(); t > 0x400; --t) tileList.removeAt(t);
 
     viewer = new TilesetViewer(&selectedTile, &selectedStamp);
-    for (auto &t : tiles){
+    for (auto &t : tileList){
         viewer->tiles.append(&t);
         //usedTiles.append(false);
     }
@@ -298,15 +315,15 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
     ui->viewerFrame->layout()->addWidget(viewer);
 
     ui->tileList->clear();
-    for (int t = 0; t < tiles.count(); ++t) {
+    for (int t = 0; t < tileList.count(); ++t) {
         auto *item = new QListWidgetItem(QString::number(t), ui->tileList);
-        item->setIcon(QPixmap::fromImage(tiles.at(t)));
+        item->setIcon(QPixmap::fromImage(tileList.at(t)));
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     }
 
     tileIDs.clear();
     changedTiles.clear();
-    for (int t = 0; t < tiles.count(); ++t) {
+    for (int t = 0; t < tileList.count(); ++t) {
         tileIDs.append(t);
         changedTiles.append(false);
     }
@@ -559,7 +576,9 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
         auto item = ui->tileList->item(c);
         bool isSelected = ui->tileList->selectedItems().indexOf(item) != -1;
         item->setSelected(isSelected);
-        ui->tileInfoTable->clear();
+        ui->tileInfoTable->blockSignals(true);
+        ui->tileInfoTable->setRowCount(0);
+        ui->tileInfoTable->blockSignals(false);
         if (viewer->editMode != EDITOR_STAMP){
             viewer->viewerTiles.clear();
             for (auto tile : ui->tileList->selectedItems())
@@ -572,13 +591,13 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
     auto moveChunk = [this](char translation) {
         uint c = ui->tileList->currentRow();
         uint n = ui->tileList->currentRow() + translation;
-        if (n >= (uint)tiles.count())
+        if (n >= (uint)tileList.count())
             return;
 
         auto *item = ui->tileList->takeItem(c);
         changedTiles.move(c, n);
         tileIDs.move(c, n);
-        tiles.move(c, n);
+        tileList.move(c, n);
         ui->tileList->insertItem(n, item);
 
         // DoAction("Moved tile", true);
@@ -590,19 +609,15 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
 
     connect(ui->downTile, &QToolButton::clicked, [moveChunk] { moveChunk(1); });
 
-    // connect(ui->editPal, &QPushButton::clicked, [this, &tileList] {
-    //
-    // });
-
     connect(ui->exportTile, &QPushButton::clicked, [this] {
         QFileDialog filedialog(this, tr("Select folder to place images"), "", "");
         filedialog.setFileMode(QFileDialog::Directory);
         if (filedialog.exec() == QDialog::Accepted) {
             QString path = filedialog.selectedFiles()[0];
             SetStatus("Exporting tiles as images...");
-            for (int t = 0; t < tiles.count(); ++t) {
-                tiles.at(t).save(QString(path + "/Tile %1.png").arg(t));
-                SetStatusProgress(t / (float)tiles.count());
+            for (int t = 0; t < tileList.count(); ++t) {
+                tileList.at(t).save(QString(path + "/Tile %1.png").arg(t));
+                SetStatusProgress(t / (float)tileList.count());
             }
             SetStatus(QString("Exported tiles to %1/").arg(path));
         }
@@ -774,19 +789,19 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
     ui->bgClrBtn->setIcon(clrIcon);
 
     connect(ui->bgClrBtn, &QToolButton::clicked, [=] {
-        RSDKColorDialog *dlg = new RSDKColorDialog((PaletteColor)tiles[0].color(0), this);
+        RSDKColorDialog *dlg = new RSDKColorDialog((PaletteColor)tileList[0].color(0), this);
         dlg->show();
         if (dlg->exec() == QDialog::Accepted) {
-            palette[0] = dlg->color();
-            for (int t = 0; t < tiles.count(); ++t) {
-                tiles[t].setColor(0, qRgb(dlg->color().r, dlg->color().g, dlg->color().b));
+            stagePal[0] = dlg->color();
+            for (int t = 0; t < tileList.count(); ++t) {
+                tileList[t].setColor(0, qRgb(dlg->color().r, dlg->color().g, dlg->color().b));
                 viewer->tiles[t]->setColor(0, qRgb(dlg->color().r, dlg->color().g, dlg->color().b));
-                ui->tileList->item(t)->setIcon(QPixmap::fromImage(tiles[t]));
+                ui->tileList->item(t)->setIcon(QPixmap::fromImage(tileList[t]));
             }
             ui->tileList->update();
 
             QPixmap clrIcon(44,44);
-            clrIcon.fill(tiles[0].color(0));
+            clrIcon.fill(tileList[0].color(0));
 
             ui->bgClrBtn->setIcon(clrIcon);
             viewer->update();
@@ -795,13 +810,13 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
     });
 
     connect(ui->replaceTiles, &QToolButton::clicked, [=]{
-        GFXReplaceTool *tileRpl = new GFXReplaceTool(0x400, tiles);
+        GFXReplaceTool *tileRpl = new GFXReplaceTool(0x400, tileList);
         if (tileRpl->exec() == QDialog::Accepted){
             QMapIterator<int,int> c(tileRpl->srcToRplIDs);
             while (c.hasNext()){
                 c.next();
                 ui->tileList->item(c.key())->setIcon(QPixmap::fromImage(tileList[c.value()]));
-                viewer->tiles[c.key()] = &tiles[c.value()];
+                viewer->tiles[c.key()] = &tileList[c.value()];
                 tileConfig.collisionPaths[0][c.key()] = tileConfig.collisionPaths[0][c.value()];
                 tileConfig.collisionPaths[1][c.key()] = tileConfig.collisionPaths[1][c.value()];
             }
@@ -991,7 +1006,7 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
             if (ui->rWallCheck->isChecked()){
                 tileConfig.collisionPaths[colPlane][index].rWallAngle = ((byte)(angleR * (256 / (2 * RSDK_PI))) & 0xFE);
 
-                       // RWall rotations
+                // RWall rotations
                 for (int c = 0; c < 16; ++c) {
                     int h                       = 15;
                     maskCopy.collision[c].solid = true;
@@ -1114,6 +1129,7 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
         ui->colPlaneB->blockSignals(false);
         viewer->colLyr = 0;
         emit viewer->updateAngles(viewer->angleTiles);
+        viewer->repaint();
     });
 
     connect(ui->colPlaneB, &QRadioButton::clicked, [=]{
@@ -1122,6 +1138,7 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
         ui->colPlaneA->blockSignals(false);
         viewer->colLyr = 1;
         emit viewer->updateAngles(viewer->angleTiles);
+        viewer->repaint();
     });
 
     connect(viewer, &TilesetViewer::setColor, [=] (int c){
@@ -1134,11 +1151,11 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
     });
 
     connect(palWidget, &TilePalette::colorChange, [=] (PaletteColor clr){
-        palette[viewer->selColor].r = clr.r;
-        palette[viewer->selColor].g = clr.g;
-        palette[viewer->selColor].b = clr.b;
+        stagePal[viewer->selColor].r = clr.r;
+        stagePal[viewer->selColor].g = clr.g;
+        stagePal[viewer->selColor].b = clr.b;
         for (int t = 0; t < tileList.count(); ++t) {
-            tiles[t].setColor(viewer->selColor, qRgb(clr.r, clr.g, clr.b));
+            tileList[t].setColor(viewer->selColor, qRgb(clr.r, clr.g, clr.b));
             viewer->tiles[t]->setColor(viewer->selColor, qRgb(clr.r, clr.g, clr.b));
             ui->tileList->item(t)->setIcon(QPixmap::fromImage(tileList[t]));
         }
@@ -1149,6 +1166,14 @@ TilesetEditor::TilesetEditor(QList<QImage> &tileList, RSDKv5::TileConfig &tConf,
     for (QWidget *w : findChildren<QWidget *>()) {
         w->installEventFilter(this);
     }
+
+    connect(viewer, &TilesetViewer::updateLists, [=] {
+        for (auto i : viewer->viewerTiles){
+            ui->tileList->item(i)->setIcon(QPixmap::fromImage(*viewer->tiles[i]));
+            ui->tileList->update();
+        }
+    });
+
 }
 
 TilesetEditor::~TilesetEditor() { delete ui; }
@@ -1446,7 +1471,7 @@ void TilesetViewer::mouseMoveEvent(QMouseEvent *event)
 
 void TilesetViewer::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (mouseDownL || mouseDownR){
+    if (mouseDownL){
         if (editMode == EDITOR_TILE && drawTool != DRAW_PENCIL && drawTool != DRAW_ERASER){
 
             rect.setWidth(gridPos.x);
@@ -1475,6 +1500,7 @@ void TilesetViewer::mouseReleaseEvent(QMouseEvent *event)
                     }
                 }
             }
+            emit updateLists();
             repaint();
         } else {
             if (colTool == COL_ANGLES){
@@ -1490,7 +1516,6 @@ void TilesetViewer::mouseReleaseEvent(QMouseEvent *event)
                 usingAngleLine = true;
             }
         }
-        emit updateLists();
     }
 
     if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
@@ -1665,8 +1690,8 @@ void TilesetEditor::keyPressEvent(QKeyEvent *event)
         if (copiedTile < 0 || selectedTile < 0)
             return;
 
-        uchar *pixels = tiles[selectedTile].bits();
-        uchar *src    = tiles[copiedTile].bits();
+        uchar *pixels = tileList[selectedTile].bits();
+        uchar *src    = tileList[copiedTile].bits();
         for (int y = 0; y < 16; ++y) {
             for (int x = 0; x < 16; ++x) {
                 *pixels++ = *src++;
@@ -1676,7 +1701,7 @@ void TilesetEditor::keyPressEvent(QKeyEvent *event)
         viewer->repaint();
 
         changedTiles[selectedTile] = true;
-        ui->tileList->item(selectedTile)->setIcon(QPixmap::fromImage(tiles.at(selectedTile)));
+        ui->tileList->item(selectedTile)->setIcon(QPixmap::fromImage(tileList.at(selectedTile)));
     }
 }
 

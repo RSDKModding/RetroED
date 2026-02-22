@@ -1428,8 +1428,17 @@ bool SceneEditor::event(QEvent *event)
         case RE_EVENT_UNDO: UndoAction(); return true;
         case RE_EVENT_REDO: RedoAction(); return true;
 
-        case RE_EVENT_TAB_GAIN_FOCUS: viewer->startTimer(); break;
-        case RE_EVENT_TAB_LOSE_FOCUS: viewer->stopTimer(); break;
+    case RE_EVENT_TAB_GAIN_FOCUS: {
+            if (!appConfig.baseDataManager[viewer->gameType].dataPath.isEmpty())
+                WorkingDirManager::workingDir = appConfig.baseDataManager[viewer->gameType].dataPath + "/";
+            viewer->startTimer();
+            break;
+        }
+    case RE_EVENT_TAB_LOSE_FOCUS: {
+            WorkingDirManager::workingDir = "";
+            viewer->stopTimer();
+            break;
+        }
 
         case QEvent::Close:
             if (modified) {

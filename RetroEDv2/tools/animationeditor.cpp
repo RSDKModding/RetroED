@@ -2872,6 +2872,16 @@ bool AnimationEditor::event(QEvent *event)
 
         case RE_EVENT_REDO: RedoAction(); return true;
 
+        case RE_EVENT_TAB_GAIN_FOCUS: {
+            if (!appConfig.baseDataManager[aniType].dataPath.isEmpty())
+                WorkingDirManager::workingDir = appConfig.baseDataManager[aniType].dataPath + "/";
+            break;
+        }
+        case RE_EVENT_TAB_LOSE_FOCUS: {
+            WorkingDirManager::workingDir = "";
+            break;
+        }
+
         case QEvent::MouseButtonPress: {
             QMouseEvent *mEvent = static_cast<QMouseEvent *>(event);
             reference           = mEvent->pos();

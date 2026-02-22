@@ -40,7 +40,7 @@
         <x>0</x>
         <y>0</y>
         <width>267</width>
-        <height>1085</height>
+        <height>1055</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
@@ -418,13 +418,6 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QPushButton" name="replaceTile">
-            <property name="text">
-             <string>Replace Tile</string>
-            </property>
-           </widget>
-          </item>
          </layout>
         </widget>
        </item>
@@ -444,7 +437,6 @@
   <tabstop>syncSC</tabstop>
   <tabstop>syncGC</tabstop>
   <tabstop>reloadLink</tabstop>
-  <tabstop>replaceTile</tabstop>
   <tabstop>gridX</tabstop>
   <tabstop>gridY</tabstop>
   <tabstop>unknown1</tabstop>

@@ -33,8 +33,6 @@ ScenePropertiesv5::ScenePropertiesv5(QWidget *parent) : QWidget(parent), ui(new 
     syncSC     = ui->syncSC;
     reloadLink = ui->reloadLink;
 
-    replaceTile = ui->replaceTile;
-
     bgSel = new color_widgets::ColorPreview(this);
     ui->bgClrLayout->addWidget(bgSel);
 

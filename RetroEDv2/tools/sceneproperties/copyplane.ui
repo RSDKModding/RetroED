@@ -81,6 +81,9 @@
    </item>
    <item row="3" column="1" colspan="2">
     <widget class="QCheckBox" name="allChkCheck">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>Apply to all Chunks</string>
      </property>
@@ -88,6 +91,9 @@
    </item>
    <item row="1" column="1" colspan="2">
     <widget class="QCheckBox" name="allTileCheck">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>Apply to all Tiles</string>
      </property>

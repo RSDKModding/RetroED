@@ -133,8 +133,8 @@ protected:
 private:
     Ui::TilesetEditor *ui;
     RSDKv5::TileConfig &tileConfig;
-    QList<QImage> &tiles;
-    QList<PaletteColor> &palette;
+    QList<QImage> &tileList;
+    QList<PaletteColor> &stagePal;
     QList<RSDKv5::Stamps::StampEntry> &stamps;
     TilePalette *palWidget = nullptr;
     PaletteImport *importFile = nullptr;
@@ -146,7 +146,7 @@ private:
         int distance = 0x7FFFFFFF;
 
         QRgb px = img.pixel(x, y);
-        for (int c = 0; c < palette.count(); ++c) {
+        for (int c = 0; c < stagePal.count(); ++c) {
             if (abs((int)(px - clrTable[c])) < distance) {
                 distance = abs((int)(px - clrTable[c]));
                 index    = c;

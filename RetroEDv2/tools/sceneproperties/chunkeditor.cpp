@@ -253,7 +253,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
             }
 
             if (sel->copyChunkPlane){
-                if (sel->applyAllTiles){
+                if (sel->applyAllChks){
                     for (int i = 0; i < 0x200; ++i) {
                         for(int y = 0; y < 8; ++y){
                             for(int x = 0; x < 8; ++x){
@@ -269,6 +269,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
                     }
                 }
             }
+            viewer->repaint();
         }
     });
 
@@ -646,9 +647,6 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
             flags->setFlags(flags->flags() | Qt::ItemIsEditable);
             ui->tileInfoTable->setItem(i, 5, flags);
 
-            //QTableWidgetItem *direction = new QTableWidgetItem(tile.direction ? "Down" : "Up");
-            //direction->setFlags(flags->flags() | Qt::ItemIsEditable);
-            //ui->tileInfoTable->setItem(i, 5, direction);
             QComboBox *direction = new QComboBox();
             direction->addItem("Up");
             direction->addItem("Down");
@@ -1312,6 +1310,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         ui->colPlaneB->blockSignals(false);
         viewer->colLyr = 0;
         emit viewer->updateAngles(viewer->angleTiles);
+        viewer->repaint();
     });
     connect(ui->colPlaneB, &QRadioButton::clicked, [=]{
         ui->colPlaneA->blockSignals(true);
@@ -1319,6 +1318,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         ui->colPlaneA->blockSignals(false);
         viewer->colLyr = 1;
         emit viewer->updateAngles(viewer->angleTiles);
+        viewer->repaint();
     });
 
     auto generateCol = [=](RSDKv5::TileConfig::CollisionMask &mask, QImage tile) {
@@ -1385,7 +1385,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
     };
 
     connect(ui->generateCol, &QPushButton::clicked, [=]{
-        for (int t = 0; t < viewer->viewerTiles.count(); t++){
+        for (auto t : viewer->viewerTiles){
             auto tile  = &tileList[t];
             if (gameVer == ENGINE_v1) {
                 RSDKv1::TileConfig::CollisionMask &mask = tileConfigv1.collisionPaths[viewer->colLyr][t];
@@ -2138,73 +2138,71 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
 
 void ChunkViewer::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (editMode != EDITOR_CHUNK && (mouseDownL || mouseDownR)){
-        if (mouseDownL){
-            if (editMode == EDITOR_TILE && drawTool != DRAW_PENCIL && drawTool != DRAW_ERASER){
+    if (editMode != EDITOR_CHUNK && mouseDownL){
+        if (editMode == EDITOR_TILE && drawTool != DRAW_PENCIL && drawTool != DRAW_ERASER){
 
-                rect.setWidth(gridPos.x);
-                rect.setHeight(gridPos.y);
+            rect.setWidth(gridPos.x);
+            rect.setHeight(gridPos.y);
 
-                QImage shape(16 * rowSize * scale, 16 * rowSize * scale, QImage::Format_ARGB32);
-                shape.fill(Qt::transparent);
-                QPainter p(&shape);
-                p.setPen(QPen(QColor(tiles.at(0)->color(selColor)),1));
-                p.setBrush(QColor(tiles.at(0)->color(selColor)));
-                switch (drawTool) {
-                    case DRAW_RECT: p.drawRect(rect.x(), rect.y(), (rect.width() - rect.x()), (rect.height() - rect.y())); break;
-                    case DRAW_CIRCLE: p.drawEllipse(rect.x(), rect.y(), (rect.width() - rect.x()), (rect.height() - rect.y())); break;
-                    case DRAW_LINE: p.drawLine(rect.x(), rect.y(), rect.width(), rect.height()); break;
-                }
+            QImage shape(16 * rowSize * scale, 16 * rowSize * scale, QImage::Format_ARGB32);
+            shape.fill(Qt::transparent);
+            QPainter p(&shape);
+            p.setPen(QPen(QColor(tiles.at(0)->color(selColor)),1));
+            p.setBrush(QColor(tiles.at(0)->color(selColor)));
+            switch (drawTool) {
+                case DRAW_RECT: p.drawRect(rect.x(), rect.y(), (rect.width() - rect.x()), (rect.height() - rect.y())); break;
+                case DRAW_CIRCLE: p.drawEllipse(rect.x(), rect.y(), (rect.width() - rect.x()), (rect.height() - rect.y())); break;
+                case DRAW_LINE: p.drawLine(rect.x(), rect.y(), rect.width(), rect.height()); break;
+            }
 
-                if (tileDrawMode == FORMAT_CHUNK){
-                    for (int x = 0; x < 8; ++x){
-                        for (int y = 0; y < 8; ++y){
-                            auto &tile = chunks->chunks[*cSel].tiles[y][x];
-                            bool fx = keepProps ? ((tile.direction & 1) == 1) : false;
-                            bool fy = keepProps ? ((tile.direction & 2) == 2) : false;
-                            QImage *tileImg = tiles.at(tile.tileIndex);
-                            QImage area  = shape.copy(x * 16, y * 16, 16, 16);
-                            if (!ignoreFirstTile || (ignoreFirstTile && tile.tileIndex)){
-                                for (int ty = 0; ty < 16; ++ty){
-                                    for (int tx = 0; tx < 16; ++tx){
-                                        if (area.pixelColor(tx, ty) == tileImg->color(selColor))
-                                            tileImg->setPixel(fx ? 15 - tx : tx, fy ? 15 - ty : ty, selColor);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else{
-                    for (int i = 0; i < viewerTiles.count(); ++i){
-                        int x = i % rowSize, y = i / rowSize;
-                        QImage *tile = tiles.at(viewerTiles[i]);
+            if (tileDrawMode == FORMAT_CHUNK){
+                for (int x = 0; x < 8; ++x){
+                    for (int y = 0; y < 8; ++y){
+                        auto &tile = chunks->chunks[*cSel].tiles[y][x];
+                        bool fx = keepProps ? ((tile.direction & 1) == 1) : false;
+                        bool fy = keepProps ? ((tile.direction & 2) == 2) : false;
+                        QImage *tileImg = tiles.at(tile.tileIndex);
                         QImage area  = shape.copy(x * 16, y * 16, 16, 16);
-                        if (!ignoreFirstTile || (ignoreFirstTile && viewerTiles[i] != 0)){
+                        if (!ignoreFirstTile || (ignoreFirstTile && tile.tileIndex)){
                             for (int ty = 0; ty < 16; ++ty){
                                 for (int tx = 0; tx < 16; ++tx){
-                                    if (area.pixelColor(tx, ty) == tile->color(selColor)){
-                                        tile->setPixel(tx, ty, selColor);
-                                    }
+                                    if (area.pixelColor(tx, ty) == tileImg->color(selColor))
+                                        tileImg->setPixel(fx ? 15 - tx : tx, fy ? 15 - ty : ty, selColor);
                                 }
                             }
                         }
                     }
                 }
-                emit updateLists();
-                repaint();
-            } else {
-                if (colTool == COL_ANGLES){
-                    DrawPoint2.x = gridPos.x;
-                    DrawPoint2.y = gridPos.y;
-                    if (DrawPoint1.x < 0) DrawPoint1.x = 0;
-                    if (DrawPoint1.y < 0) DrawPoint1.y = 0;
-
-                    if (DrawPoint1.x > DrawPoint2.x){
-                        qSwap(DrawPoint1.x, DrawPoint2.x);
-                        qSwap(DrawPoint1.y, DrawPoint2.y);
+            } else{
+                for (int i = 0; i < viewerTiles.count(); ++i){
+                    int x = i % rowSize, y = i / rowSize;
+                    QImage *tile = tiles.at(viewerTiles[i]);
+                    QImage area  = shape.copy(x * 16, y * 16, 16, 16);
+                    if (!ignoreFirstTile || (ignoreFirstTile && viewerTiles[i] != 0)){
+                        for (int ty = 0; ty < 16; ++ty){
+                            for (int tx = 0; tx < 16; ++tx){
+                                if (area.pixelColor(tx, ty) == tile->color(selColor)){
+                                    tile->setPixel(tx, ty, selColor);
+                                }
+                            }
+                        }
                     }
-                    usingAngleLine = true;
                 }
+            }
+            emit updateLists();
+            repaint();
+        } else {
+            if (colTool == COL_ANGLES){
+                DrawPoint2.x = gridPos.x;
+                DrawPoint2.y = gridPos.y;
+                if (DrawPoint1.x < 0) DrawPoint1.x = 0;
+                if (DrawPoint1.y < 0) DrawPoint1.y = 0;
+
+                if (DrawPoint1.x > DrawPoint2.x){
+                    qSwap(DrawPoint1.x, DrawPoint2.x);
+                    qSwap(DrawPoint1.y, DrawPoint2.y);
+                }
+                usingAngleLine = true;
             }
         }
     }

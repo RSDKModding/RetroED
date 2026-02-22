@@ -2010,12 +2010,16 @@ bool SceneEditorv5::event(QEvent *event)
         // TODO: find the actual reason the editor refuses to update w/
         // the proper texture without resize or hiding when changing to certain tools
         case RE_EVENT_TAB_GAIN_FOCUS:
+            if (!appConfig.baseDataManager[ENGINE_v5].dataPath.isEmpty())
+                WorkingDirManager::workingDir = appConfig.baseDataManager[ENGINE_v5].dataPath + "/";
+
             LoadGameLinks();
             InitGameLink();
             viewer->startTimer();
             viewer->show(); //hack
             break;
         case RE_EVENT_TAB_LOSE_FOCUS:
+            WorkingDirManager::workingDir = "";
             viewer->stopTimer();
             UnloadGameLinks();
             viewer->hide(); //hack
