@@ -1419,36 +1419,6 @@ void SceneViewer::drawScene()
         }
     }
 
-    // Selected Stamp Box
-    if (selectedStamp >= 0 && selectedStamp < stamps.stampList.count()) {
-        RSDKv5::Stamps::StampEntry &stamp = stamps.stampList[selectedStamp];
-        /*
-            //float left   = stamp.pos.x;
-            //float top    = stamp.pos.y;
-            //float right  = stamp.pos.x + stamp.size.x;
-            //float bottom = stamp.pos.y + stamp.size.y;
-
-            float w = fabsf((right - left) * 16), h = fabsf((bottom - top) * 16);
-
-
-            Vector4<float> c = {1.0f, 1.0f, 0.0f, 1.0f};
-
-            int lyrWidth = layers[selectedLayer].width;
-            int lyrHeight = layers[selectedLayer].height;
-            if (left < 0 || left > lyrWidth || right < 0 || right > lyrWidth ||
-                top < 0 || top > lyrHeight || bottom < 0 || bottom > lyrHeight)
-                c = {1.0f, 0.0f, 0.0f, 1.0f};
-
-            left *= 16; top *= 16; right *= 16; bottom *= 16;
-
-            left -= cameraPos.x;
-            top -= cameraPos.y;
-
-            drawRect(left, top, w, h, c, false, 0x40, INK_ALPHA);
-            drawRect(left, top, w, h, c, true);
-        */
-    }
-
     // STAMP PREVIEW
     if ((selectedStamp != 0xFFFF) && (selectedLayer >= 0 && layers[selectedLayer].visible) && curTool == TOOL_STAMP) {
         float tx = tilePos.x;
@@ -1465,33 +1435,31 @@ void SceneViewer::drawScene()
         ty -= fmodf(ty2, tileSize);
 
         // Draw Selected Tile Preview
-        float xpos = tx + cameraPos.x;
-        float ypos = ty + cameraPos.y;
+        float xpos = tx;
+        float ypos = ty;
 
-        xpos -= cameraPos.x;
-        ypos -= cameraPos.y;
-
+        float mousePosX = (mousePos.x * invZoom()) + cameraPos.x;
+        float mousePosY = (mousePos.y * invZoom()) + cameraPos.y;
         auto stamp = stamps.stampList[selectedStamp];
 
         // Invalid draw position prevention
-        if (xpos / 16 || xpos / 16 + stamp.size.x > layers[selectedLayer].width ||
-            ypos / 16 || ypos / 16 + stamp.size.y > layers[selectedLayer].height){
+        if ((0 > mousePosX) || (int)(mousePosX / 16) + stamp.size.x > layers[selectedLayer].width ||
+            (0 > mousePosY) || (int)(mousePosY / 16) + stamp.size.y > layers[selectedLayer].height){
 
             drawRect(xpos, ypos, stamp.size.x * tileSize, stamp.size.y * tileSize, Vector4<float>(1.0f, 0.0f, 0.0f, 1.0f),
                      true, 0x40, INK_ALPHA);
         }
         else {
             int count = 0;
+            int t = 0;
             for(int y = 0; y < stamp.size.y; y++){
                 for(int x = 0; x < stamp.size.x; x++){
-                    int tileXPos = xpos / 16 + x;
-                    int tileYPos = ypos / 16 + y;
-                    ushort tile = layers[selectedLayer].layout[tileYPos][tileXPos];
+                    ushort tile = stamp.tiles[t++];
                     if (tile != 0xFFFF) {
                         ++count;
 
-                        float tileX                       = xpos + (x * tileSize);
-                        float tileY                       = ypos + (y * tileSize);
+                        float tileX = xpos + (x * tileSize);
+                        float tileY = ypos + (y * tileSize);
 
                         int flipX = Utils::getBit(tile, 10);
                         int flipY = Utils::getBit(tile, 11);
