@@ -78,9 +78,9 @@ class ChunkViewer : public QLabel
 {
     Q_OBJECT
 public:
-    ChunkViewer(int *cSel, Vector2<int> *sel, FormatHelpers::Chunks *chk,
+    ChunkViewer(int *cSel, FormatHelpers::Chunks *chk,
                 QWidget *parent = nullptr)
-        : QLabel(parent), cSel(cSel), selection(sel), chunks(chk)
+        : QLabel(parent), cSel(cSel), chunks(chk)
     {
     }
     Vector2<int> offset = Vector2<int>(0, 0);
@@ -115,7 +115,7 @@ public:
 signals:
     void tileDrawn(int tileX, int tileY);
     void tileCopy(int tileX, int tileY);
-    void tileChanged();
+    void tileChanged(int tileX, int tileY);
     void updateLists();
     void updateAngles(QSet<int> tile);
     void updateColTilev1(int tile);
@@ -129,8 +129,9 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
-    int *cSel               = nullptr;
-    Vector2<int> *selection = nullptr;
+    Vector2<int> selection = Vector2<int>(-1, -1);
+
+    int *cSel          = nullptr;
     bool solidityCheck = false;
 
     float zoom = 0.5f;

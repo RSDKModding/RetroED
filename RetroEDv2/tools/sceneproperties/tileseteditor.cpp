@@ -1228,30 +1228,18 @@ void TilesetViewer::mouseDoubleClickEvent(QMouseEvent *event){
         mouseDownR = true;
 
     if (mouseDownR && editMode == EDITOR_STAMP){
-        int tilePos = selection.y * stampGrid.x + selection.x;
-        if (tilePos > 0){
-            emit tileChanged(viewerTiles[tilePos]);
-            highlightTile = selection;
+        if (inGrid){
+            int tilePos = selection.y * stampGrid.x + selection.x;
+            if (tilePos > -1){
+                emit tileChanged(viewerTiles[tilePos]);
+                highlightTile = selection;
+            }
         }
     }
 }
 
 void TilesetViewer::mousePressEvent(QMouseEvent *event)
 {
-/*
-    float w = this->width(), h = this->height();
-    float originX = w / 2, originY = h / 2;
-    originX -= offset.x;
-    originY -= offset.y;
-
-    PrintLog(QString("pos(%1, %2), origin(%3, %4), mousePos(%5, %6)")
-                 .arg(gridPos.x)
-                 .arg(gridPos.y)
-                 .arg(originX)
-                 .arg(originY)
-                 .arg(event->pos().x())
-                 .arg(event->pos().y()));
-*/
     if ((event->button() & Qt::LeftButton) == Qt::LeftButton)
         mouseDownL = true;
     if ((event->button() & Qt::MiddleButton) == Qt::MiddleButton)
@@ -1327,15 +1315,17 @@ void TilesetViewer::mousePressEvent(QMouseEvent *event)
             break;
         }
         case EDITOR_STAMP: {
-            int tilePos = selection.y * stampGrid.x + selection.x;
-            if (tilePos > 0){
-                if (mouseDownL){
-                    emit tileDrawn(tilePos);
+            if (inGrid){
+                int tilePos = selection.y * stampGrid.x + selection.x;
+                if (tilePos > -1){
+                    if (mouseDownL){
+                        emit tileDrawn(tilePos);
+                    }
+                    if (mouseDownR)
+                        emit tileInfo(viewerTiles[tilePos]);
+                    if (mouseDownL || mouseDownR)
+                        highlightTile = selection;
                 }
-                if (mouseDownR)
-                    emit tileInfo(viewerTiles[tilePos]);
-                if (mouseDownL || mouseDownR)
-                    highlightTile = selection;
             }
             break;
         }
@@ -1372,7 +1362,7 @@ void TilesetViewer::mouseMoveEvent(QMouseEvent *event)
         if (selection.x >= stampGrid.x || selection.x < 0)
             selection.x = -1;
 
-        if (selection.y > stampGrid.y || selection.y < 0)
+        if (selection.y >= stampGrid.y || selection.y < 0)
             selection.y = -1;
     } else{
         if (selection.x >= rowSize || selection.x < 0 || (selection.y >= viewerTiles.count() / rowSize
@@ -1453,15 +1443,17 @@ void TilesetViewer::mouseMoveEvent(QMouseEvent *event)
 
         }
         case EDITOR_STAMP: {
-            int tilePos = selection.y * stampGrid.x + selection.x;
-            if (tilePos > 0){
-                if (mouseDownL){
-                    emit tileDrawn(tilePos);
+            if (inGrid){
+                int tilePos = selection.y * stampGrid.x + selection.x;
+                if (tilePos > -1){
+                    if (mouseDownL){
+                        emit tileDrawn(tilePos);
+                    }
+                    if (mouseDownR)
+                        emit tileInfo(viewerTiles[tilePos]);
+                    if (mouseDownL || mouseDownR)
+                        highlightTile = selection;
                 }
-                if (mouseDownR)
-                    emit tileInfo(viewerTiles[tilePos]);
-                if (mouseDownL || mouseDownR)
-                    highlightTile = selection;
             }
             break;
         }

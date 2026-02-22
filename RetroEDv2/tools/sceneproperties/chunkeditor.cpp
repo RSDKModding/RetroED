@@ -49,7 +49,7 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
     ui->pencilTool->setDown(true);
     ui->colTool->setDown(true);
 
-    viewer = new ChunkViewer(&selectedChunk, &selectedTile, chunks);
+    viewer = new ChunkViewer(&selectedChunk, chunks);
     viewer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     for (auto &t : tiles){
         viewer->tiles.append(&t);
@@ -1178,8 +1178,8 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         viewer->repaint();
     });
 
-    connect(viewer, &ChunkViewer::tileChanged, [=] {
-        if (selectedChunk < 0 || selectedTile.x == -1 || selectedTile.y == -1)
+    connect(viewer, &ChunkViewer::tileChanged, [=](int tileX, int tileY) {
+        if (selectedChunk < 0 || tileX == -1 || tileY == -1)
             return;
 
         ui->flipX->blockSignals(true);
@@ -1188,6 +1188,8 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         ui->tileIndex->blockSignals(true);
         ui->solidityA->blockSignals(true);
         ui->solidityB->blockSignals(true);
+
+        selectedTile = Vector2<int>(tileX, tileY);
 
         auto tile = chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x];
         ui->flipX->setChecked(Utils::getBit(tile.direction, 0));
@@ -1282,7 +1284,6 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
     connect(ui->solidityA, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int v) {
         if (selectedChunk < 0 || selectedTile.x == -1 || selectedTile.y == -1)
             return;
-
         chunks->chunks[selectedChunk].tiles[selectedTile.y][selectedTile.x].solidityA = (byte)v;
         viewer->repaint();
     });
@@ -1872,11 +1873,11 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
     switch (editMode){
         case EDITOR_CHUNK:{
             if (mouseDownL)
-                emit tileDrawn(selection->x, selection->y);
+                emit tileDrawn(selection.x, selection.y);
             if (mouseDownR)
-                emit tileChanged();
+                emit tileChanged(selection.x, selection.y);
             if (mouseDownL || mouseDownR)
-                highlightTile = *selection;
+                highlightTile = selection;
             break;
         }
 
@@ -1890,9 +1891,9 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
                     break;
 
                 if (tileDrawMode == FORMAT_CHUNK)
-                    index = chunks->chunks[*cSel].tiles[selection->y][selection->x].tileIndex;
+                    index = chunks->chunks[*cSel].tiles[selection.y][selection.x].tileIndex;
                 else{
-                    int pos = selection->y * rowSize + selection->x;
+                    int pos = selection.y * rowSize + selection.x;
                     if (pos >= viewerTiles.count())
                         break;
                     index = viewerTiles[pos];
@@ -1911,12 +1912,12 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
                     if (mouseDownR && inGrid) {
                         int tilePxX = gridPos.x % 16;
                         if (tileDrawMode == FORMAT_CHUNK){
-                            auto &tile = chunks->chunks[*cSel].tiles[selection->y][selection->x];
+                            auto &tile = chunks->chunks[*cSel].tiles[selection.y][selection.x];
                             index = tile.tileIndex;
                             if ((tile.direction & 1) == 1 && keepProps)
                                 tilePxX = 15 - tilePxX;
                         } else {
-                            int pos = selection->y * rowSize + selection->x;
+                            int pos = selection.y * rowSize + selection.x;
                             if (pos >= viewerTiles.count())
                                 break;
                             index = viewerTiles[pos];
@@ -1941,9 +1942,9 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
 
                         if (mouseDownR && inGrid){
                             if (tileDrawMode == FORMAT_CHUNK)
-                                index = chunks->chunks[*cSel].tiles[selection->y][selection->x].tileIndex;
+                                index = chunks->chunks[*cSel].tiles[selection.y][selection.x].tileIndex;
                             else{
-                                int pos = selection->y * rowSize + selection->x;
+                                int pos = selection.y * rowSize + selection.x;
                                 if (pos >= viewerTiles.count())
                                     break;
                                 index = viewerTiles[pos];
@@ -1962,9 +1963,9 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
                     } else {
                         if ((mouseDownR || mouseDownL) && inGrid){
                             if (tileDrawMode == FORMAT_CHUNK)
-                                index = chunks->chunks[*cSel].tiles[selection->y][selection->x].tileIndex;
+                                index = chunks->chunks[*cSel].tiles[selection.y][selection.x].tileIndex;
                             else{
-                                int pos = selection->y * rowSize + selection->x;
+                                int pos = selection.y * rowSize + selection.x;
                                 if (pos >= viewerTiles.count())
                                     break;
                                 index = viewerTiles[pos];
@@ -2006,30 +2007,30 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
 
     int tilePxX, tilePxY;
 
-    selection->x = gridPos.x / 16; selection->y = gridPos.y / 16;
+    selection.x = gridPos.x / 16; selection.y = gridPos.y / 16;
 
-    if (selection->x >= rowSize || selection->x < 0 || (selection->y >= viewerTiles.count() / rowSize
-                                                     && selection->x >= viewerTiles.count() % rowSize))
-        selection->x = -1;
+    if (selection.x >= rowSize || selection.x < 0 || (selection.y >= viewerTiles.count() / rowSize
+                                                     && selection.x >= viewerTiles.count() % rowSize))
+        selection.x = -1;
 
-    if (selection->y > viewerTiles.count() / rowSize || selection->y < 0 || (selection->y >= viewerTiles.count() / rowSize
-                                                                          && selection->x >= viewerTiles.count() % rowSize))
-        selection->y = -1;
+    if (selection.y > viewerTiles.count() / rowSize || selection.y < 0 || (selection.y >= viewerTiles.count() / rowSize
+                                                                          && selection.x >= viewerTiles.count() % rowSize))
+        selection.y = -1;
 
     tilePxX = gridPos.x % 16;
     tilePxY = gridPos.y % 16;
-    inGrid = (selection->x != -1 && selection->y != -1);
+    inGrid = (selection.x != -1 && selection.y != -1);
     short index = -1;
 
     switch (editMode){
         case EDITOR_CHUNK:{
             if (mouseDownR)
-                emit tileChanged();
+                emit tileChanged(selection.x, selection.y);
 
             if (mouseDownL)
-                emit tileDrawn(selection->x, selection->y);
+                emit tileDrawn(selection.x, selection.y);
             if (mouseDownL || mouseDownR)
-                highlightTile = *selection;
+                highlightTile = selection;
             break;
         }
         case EDITOR_TILE: {
@@ -2042,7 +2043,7 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
             if (inGrid){
                 switch (tileDrawMode){
                     case FORMAT_CHUNK: {
-                        auto &tile = chunks->chunks[*cSel].tiles[selection->y][selection->x];
+                        auto &tile = chunks->chunks[*cSel].tiles[selection.y][selection.x];
                         index = tile.tileIndex;
                         bool fx = keepProps ? ((tile.direction & 1) == 1) : false;
                         bool fy = keepProps ? ((tile.direction & 2) == 2) : false;
@@ -2054,7 +2055,7 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
                         break;
                     }
                     case FORMAT_TILES:{
-                        int pos = selection->y * rowSize + selection->x;
+                        int pos = selection.y * rowSize + selection.x;
                         if (pos >= viewerTiles.count())
                             break;
                         index = viewerTiles[pos];
@@ -2068,6 +2069,8 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
                 QImage *tileImg = tiles.at(index);
 
                 if (mouseDownL){
+                    if (index == 0 && ignoreFirstTile)
+                        break;
                     switch (drawTool){
                         case DRAW_PENCIL:{
                             tileImg->setPixel(tilePxX, tilePxY, selColor);
@@ -2095,7 +2098,7 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
             if (inGrid){
                 switch (tileDrawMode){
                     case FORMAT_CHUNK: {
-                        auto &tile = chunks->chunks[*cSel].tiles[selection->y][selection->x];
+                        auto &tile = chunks->chunks[*cSel].tiles[selection.y][selection.x];
                         index = tile.tileIndex;
                         bool fx = keepProps ? ((tile.direction & 1) == 1) : false;
                         bool fy = keepProps ? ((tile.direction & 2) == 2) : false;
@@ -2105,7 +2108,7 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
                         break;
                     }
                     case FORMAT_TILES:{
-                        int pos = selection->y * rowSize + selection->x;
+                        int pos = selection.y * rowSize + selection.x;
                         if (pos >= viewerTiles.count())
                             break;
                         index = viewerTiles[pos];
@@ -2224,6 +2227,7 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
     float originX = w / 2, originY = h / 2;
     originX -= offset.x;
     originY -= offset.y;
+
     originX *= (1.0f / zoom);
     originY *= (1.0f / zoom);
     originX -= (16 * 16);
@@ -2257,7 +2261,7 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
                         for (int x = 0; x < 8; ++x) {
                             auto &tile = chunks->chunks[*cSel].tiles[y][x];
                             p.setOpacity(0.25);
-                            if (selection->y != -1 && selection->x != -1 && chunks->chunks[*cSel].tiles[selection->y][selection->x].tileIndex == tile.tileIndex)
+                            if (gridPos.y / 16 > -1 && gridPos.x / 16 > -1 && chunks->chunks[*cSel].tiles[selection.y][selection.x].tileIndex == tile.tileIndex)
                                 p.setOpacity(1.0);
 
                             bool fx = keepProps ? (tile.direction & 1) == 1 : false;
@@ -2272,7 +2276,7 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
                     for (int index = 0; index < viewerTiles.count(); index++){
                         int t = viewerTiles[index];
                         p.setOpacity(0.25);
-                        if (selection->y != -1 && selection->x != -1 && selection->y * rowSize + selection->x == index)
+                        if (selection.y != -1 && selection.x != -1 && selection.y * rowSize + selection.x == index)
                             p.setOpacity(1.0);
                         QPointF coords = QPointF(originX + ((index % rowSize) * (0x10 * scale)), originY + (index / rowSize) * (0x10 * scale));
                         p.drawImage(coords, tiles.at(t)->scaled((0x10 * scale),(0x10 * scale)));
@@ -2313,7 +2317,7 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
                             auto &tile = chunks->chunks[*cSel].tiles[y][x];
 
                             p.setOpacity(0.25);
-                            if (selection->y != -1 && selection->x != -1 && chunks->chunks[*cSel].tiles[selection->y][selection->x].tileIndex == tile.tileIndex)
+                            if (selection.y != -1 && selection.x != -1 && chunks->chunks[*cSel].tiles[selection.y][selection.x].tileIndex == tile.tileIndex)
                                 p.setOpacity(1.0);
 
                             QImage tileImg = tiles[tile.tileIndex]->copy().convertToFormat(QImage::Format_RGB888);
@@ -2368,7 +2372,7 @@ void ChunkViewer::paintEvent(QPaintEvent *event)
                         int t = viewerTiles[index];
                         QImage tileImg = tiles[t]->copy().convertToFormat(QImage::Format_RGB888);;
                         p.setOpacity(0.25);
-                        if (selection->y != -1 && selection->x != -1 && selection->y * rowSize + selection->x == index)
+                        if (selection.y != -1 && selection.x != -1 && selection.y * rowSize + selection.x == index)
                             p.setOpacity(1.0);
                         if (tileConfig != nullptr){
                             auto mask = tileConfig->collisionPaths[colLyr][t];
