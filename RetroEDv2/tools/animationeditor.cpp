@@ -2873,7 +2873,7 @@ bool AnimationEditor::event(QEvent *event)
         case RE_EVENT_REDO: RedoAction(); return true;
 
         case RE_EVENT_TAB_GAIN_FOCUS: {
-            if (!appConfig.baseDataManager[aniType].dataPath.isEmpty())
+            if (aniType != ENGINE_NONE && !appConfig.baseDataManager[aniType].dataPath.isEmpty())
                 WorkingDirManager::workingDir = appConfig.baseDataManager[aniType].dataPath + "/";
             break;
         }
