@@ -612,6 +612,8 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
         ui->tileInfoTable->blockSignals(true);
         ui->tileInfoTable->setRowCount(0);
         ui->tileInfoTable->setUpdatesEnabled(false);
+        QFont font;
+        font.setCapitalization(QFont::AllUppercase);
         int i = 0;
         for (auto t : tileIndexes){
             ui->tileInfoTable->insertRow(ui->tileInfoTable->rowCount());
@@ -623,35 +625,51 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
             index->setFlags(Qt::ItemIsSelectable);
             ui->tileInfoTable->setItem(i, 0, index);
 
-            QTableWidgetItem *floor = new QTableWidgetItem(QString::number(tile.floorAngle));
-            floor->setData(Qt::DisplayRole, QString::number(tile.floorAngle, 16));
-            floor->setFlags(floor->flags() | Qt::ItemIsEditable);
-            ui->tileInfoTable->setItem(i, 1, floor);
+            QSpinBox *floor = new QSpinBox();
+            floor->setMaximum(255);
+            floor->setDisplayIntegerBase(16);
+            floor->setValue(tile.floorAngle);
+            floor->setFont(font);
 
-            QTableWidgetItem *lWall = new QTableWidgetItem(QString::number(tile.lWallAngle));
-            lWall->setData(Qt::DisplayRole, QString::number(tile.lWallAngle, 16));
-            lWall->setFlags(lWall->flags() | Qt::ItemIsEditable);
-            ui->tileInfoTable->setItem(i, 2, lWall);
+            QSpinBox *lWall = new QSpinBox();
+            lWall->setMaximum(255);
+            lWall->setDisplayIntegerBase(16);
+            lWall->setValue(tile.lWallAngle);
+            lWall->setFont(font);
 
-            QTableWidgetItem *roof = new QTableWidgetItem(QString::number(tile.roofAngle));
-            roof->setData(Qt::DisplayRole, QString::number(tile.roofAngle, 16));
-            roof->setFlags(roof->flags() | Qt::ItemIsEditable);
-            ui->tileInfoTable->setItem(i, 3, roof);
+            QSpinBox *roof = new QSpinBox();
+            roof->setMaximum(255);
+            roof->setDisplayIntegerBase(16);
+            roof->setValue(tile.roofAngle);
+            roof->setFont(font);
 
-            QTableWidgetItem *rWall = new QTableWidgetItem(QString::number(tile.rWallAngle));
-            rWall->setData(Qt::DisplayRole, QString::number(tile.rWallAngle, 16));
-            rWall->setFlags(rWall->flags() | Qt::ItemIsEditable);
-            ui->tileInfoTable->setItem(i, 4, rWall);
-
-            QTableWidgetItem *flags = new QTableWidgetItem(QString::number(tile.flags));
-            flags->setFlags(flags->flags() | Qt::ItemIsEditable);
-            ui->tileInfoTable->setItem(i, 5, flags);
+            QSpinBox *rWall = new QSpinBox();
+            rWall->setMaximum(255);
+            rWall->setDisplayIntegerBase(16);
+            rWall->setValue(tile.rWallAngle);
+            rWall->setFont(font);
+            QSpinBox *flags = new QSpinBox();
+            flags->setMaximum(255);
+            flags->setValue(tile.flags);
+            flags->setButtonSymbols(QAbstractSpinBox::NoButtons);
 
             QComboBox *direction = new QComboBox();
             direction->addItem("Up");
             direction->addItem("Down");
             direction->setCurrentIndex(tile.direction);
+
+            connect(floor, QOverload<int>::of(&QSpinBox::valueChanged), [=]{ emit ui->tileInfoTable->cellChanged(i, 1); });
+            connect(lWall, QOverload<int>::of(&QSpinBox::valueChanged), [=]{ emit ui->tileInfoTable->cellChanged(i, 2); });
+            connect(roof, QOverload<int>::of(&QSpinBox::valueChanged), [=]{ emit ui->tileInfoTable->cellChanged(i, 3); });
+            connect(rWall, QOverload<int>::of(&QSpinBox::valueChanged), [=]{ emit ui->tileInfoTable->cellChanged(i, 4); });
+            connect(flags, QOverload<int>::of(&QSpinBox::valueChanged), [=]{ emit ui->tileInfoTable->cellChanged(i, 5); });
             connect(direction, QOverload<int>::of(&QComboBox::currentIndexChanged), [=]{ emit ui->tileInfoTable->cellChanged(i, 6); });
+
+            ui->tileInfoTable->setCellWidget(i, 1, floor);
+            ui->tileInfoTable->setCellWidget(i, 2, lWall);
+            ui->tileInfoTable->setCellWidget(i, 3, roof);
+            ui->tileInfoTable->setCellWidget(i, 4, rWall);
+            ui->tileInfoTable->setCellWidget(i, 5, flags);
             ui->tileInfoTable->setCellWidget(i, 6, direction);
             i++;
         }
@@ -753,24 +771,19 @@ ChunkEditor::ChunkEditor(FormatHelpers::Chunks *chk, QList<QImage> &chunkList, Q
     connect(ui->tileInfoTable, &QTableWidget::cellChanged, [=](int r, int c){
         int index = ui->tileInfoTable->item(r, 0)->text().toInt();
         byte colPlane = ui->colPlaneA->isChecked() ? 0 : 1;
-
+        auto *mask = &tileConfig.collisionPaths[colPlane][index];
         if (c != 6){
-            int value = ui->tileInfoTable->item(r,c)->text().toInt();
-            if (value > 0xFF)
-                value = 0xFF;
-            if (value < 0x00)
-                value = 0x00;
-            ui->tileInfoTable->item(r, c)->setText(QString::number(value, 16));
+            QSpinBox* spinBox = (QSpinBox*)ui->tileInfoTable->cellWidget(r, c);
             switch (c){
-                case 1: tileConfig.collisionPaths[colPlane][index].floorAngle = value; break;
-                case 2: tileConfig.collisionPaths[colPlane][index].lWallAngle = value; break;
-                case 3: tileConfig.collisionPaths[colPlane][index].roofAngle = value; break;
-                case 4: tileConfig.collisionPaths[colPlane][index].rWallAngle = value; break;
-                case 5: tileConfig.collisionPaths[colPlane][index].flags = value; break;
+                case 1: mask->floorAngle = spinBox->value(); break;
+                case 2: mask->lWallAngle = spinBox->value(); break;
+                case 3: mask->roofAngle = spinBox->value(); break;
+                case 4: mask->rWallAngle = spinBox->value(); break;
+                case 5: mask->flags = spinBox->value(); break;
             }
         } else {
             QComboBox* comboBox = (QComboBox*)ui->tileInfoTable->cellWidget(r, 6);
-            tileConfig.collisionPaths[colPlane][index].direction = comboBox->currentIndex();
+            mask->direction = comboBox->currentIndex();
         }
 
     });

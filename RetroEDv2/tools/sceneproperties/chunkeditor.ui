@@ -294,6 +294,72 @@
      </item>
     </layout>
    </item>
+   <item row="1" column="2">
+    <widget class="QListWidget" name="tileList">
+     <property name="minimumSize">
+      <size>
+       <width>188</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>188</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::CurrentChanged|QAbstractItemView::SelectedClicked</set>
+     </property>
+     <property name="defaultDropAction">
+      <enum>Qt::IgnoreAction</enum>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectItems</enum>
+     </property>
+     <property name="spacing">
+      <number>4</number>
+     </property>
+     <property name="gridSize">
+      <size>
+       <width>28</width>
+       <height>32</height>
+      </size>
+     </property>
+     <property name="viewMode">
+      <enum>QListView::IconMode</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="3">
+    <widget class="QLabel" name="modeControls">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Viewer Controls: Left Click - Draw Tile based on 'TileList Tile Properties', Right Click - Select Tile</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLabel" name="usedTiles">
+     <property name="maximumSize">
+      <size>
+       <width>128</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Tiles Used:</string>
+     </property>
+    </widget>
+   </item>
    <item row="3" column="0" colspan="3">
     <widget class="QTabWidget" name="toolTab">
      <property name="enabled">
@@ -312,7 +378,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="chunkTab">
       <attribute name="title">
@@ -773,6 +839,9 @@
          </property>
          <property name="maximum">
           <number>1023</number>
+         </property>
+         <property name="stepType">
+          <enum>QAbstractSpinBox::DefaultStepType</enum>
          </property>
         </widget>
        </item>
@@ -1263,33 +1332,104 @@ Color</string>
        <string>Collision Editor</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="2" column="2">
-        <widget class="QRadioButton" name="colPlaneB">
+       <item row="0" column="5">
+        <widget class="QToolButton" name="colTool">
          <property name="minimumSize">
           <size>
-           <width>30</width>
+           <width>22</width>
            <height>22</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>32</width>
-           <height>16777215</height>
+           <width>22</width>
+           <height>22</height>
           </size>
          </property>
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display Collision from Plane B.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Collision Tool&lt;/p&gt;&lt;p&gt;Viewer Controls:&lt;/p&gt;&lt;p&gt;Left Click - Set Collision Height of the current Tile at mouse position.&lt;/p&gt;&lt;p&gt;Right Click - Set Collision Solidity of the current Tile at mouse position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
-          <string>B</string>
+          <string>...</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources.qrc">
+           <normaloff>:/icons/ic_collision_tool_48px.svg</normaloff>:/icons/ic_collision_tool_48px.svg</iconset>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QSpinBox" name="rowSizeCol">
-         <property name="enabled">
-          <bool>false</bool>
+       <item row="0" column="15" rowspan="4">
+        <widget class="Line" name="line_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
+        </widget>
+       </item>
+       <item row="1" column="16">
+        <widget class="QCheckBox" name="floorCheck">
+         <property name="text">
+          <string>Floor</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="12">
+        <widget class="QLabel" name="selectedTilesLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>110</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>110</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Angle List</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="ColTileSrc">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>67</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>67</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Tile Source</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="tileColSrc">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -1298,35 +1438,158 @@ Color</string>
          </property>
          <property name="minimumSize">
           <size>
+           <width>114</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>114</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tile Source&lt;/p&gt;&lt;p&gt;Determines if the viewer will display Tiles coming from the Chunk List or the Tile List.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>Selected Chunk</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Selected Tiles</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="2" column="16">
+        <widget class="QCheckBox" name="roofCheck">
+         <property name="text">
+          <string>Roof</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="17">
+        <widget class="QCheckBox" name="lWallCheck">
+         <property name="text">
+          <string>LWall</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="9">
+        <widget class="QPushButton" name="copyPlaneCol">
+         <property name="maximumSize">
+          <size>
+           <width>190</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Copy Plane A Collision to Plane B</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="16" colspan="2">
+        <widget class="QPushButton" name="calcAngle">
+         <property name="minimumSize">
+          <size>
            <width>0</width>
            <height>22</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>40</width>
+           <width>16777215</width>
            <height>22</height>
           </size>
          </property>
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Row Size&lt;/p&gt;&lt;p&gt;Determines how many Tiles will be displayed per row when Tile Source is set to &amp;quot;Selected Tiles&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Calculate Angles&lt;br/&gt;Calculates the angle of every side selected.&lt;/p&gt;&lt;p&gt;If there are angle points present, the calculation will be made on every tile reached by the angle line, otherwise it will attempt to determine the angle of every tile found in the list based on it's collision values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>64</number>
-         </property>
-         <property name="value">
-          <number>8</number>
+         <property name="text">
+          <string>Calculate</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="6" rowspan="3" colspan="3">
+       <item row="2" column="1" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QRadioButton" name="colPlaneA">
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>32</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display Collision from Plane A.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>A</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="colPlaneB">
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>32</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display Collision from Plane B.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>B</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="16" colspan="2">
+        <widget class="QLabel" name="calcAngleLabel">
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Calculate Angle:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="12" rowspan="3" colspan="3">
         <widget class="QTableWidget" name="tileInfoTable">
          <property name="minimumSize">
           <size>
-           <width>270</width>
+           <width>320</width>
            <height>0</height>
           </size>
          </property>
@@ -1349,10 +1612,10 @@ Color</string>
           <bool>true</bool>
          </attribute>
          <attribute name="horizontalHeaderMinimumSectionSize">
-          <number>32</number>
+          <number>40</number>
          </attribute>
          <attribute name="horizontalHeaderDefaultSectionSize">
-          <number>33</number>
+          <number>40</number>
          </attribute>
          <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
           <bool>false</bool>
@@ -1406,7 +1669,92 @@ Color</string>
          </column>
         </widget>
        </item>
-       <item row="0" column="4">
+       <item row="2" column="17">
+        <widget class="QCheckBox" name="rWallCheck">
+         <property name="text">
+          <string>RWall</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="rowLabel_2">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>67</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>67</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Row Size</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="rowSizeCol">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>40</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Row Size&lt;/p&gt;&lt;p&gt;Determines how many Tiles will be displayed per row when Tile Source is set to &amp;quot;Selected Tiles&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>64</number>
+         </property>
+         <property name="value">
+          <number>8</number>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="colPlaneLabel">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>67</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Col Plane</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="7">
         <widget class="QToolButton" name="angleTool">
          <property name="minimumSize">
           <size>
@@ -1438,228 +1786,7 @@ Color</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
-        <widget class="QRadioButton" name="colPlaneA">
-         <property name="minimumSize">
-          <size>
-           <width>30</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>32</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display Collision from Plane A.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>A</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0" colspan="3">
-        <widget class="QPushButton" name="copyPlaneCol">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>Copy Plane A Collision to Plane B</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="10" colspan="2">
-        <widget class="QPushButton" name="calcAngle">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Calculate Angles&lt;br/&gt;Calculates the angle of every side selected.&lt;/p&gt;&lt;p&gt;If there are angle points present, the calculation will be made on every tile reached by the angle line, otherwise it will attempt to determine the angle of every tile found in the list based on it's collision values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>Calculate</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <widget class="QToolButton" name="colTool">
-         <property name="minimumSize">
-          <size>
-           <width>22</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>22</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Collision Tool&lt;/p&gt;&lt;p&gt;Viewer Controls:&lt;/p&gt;&lt;p&gt;Left Click - Set Collision Height of the current Tile at mouse position.&lt;/p&gt;&lt;p&gt;Right Click - Set Collision Solidity of the current Tile at mouse position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>...</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources.qrc">
-           <normaloff>:/icons/ic_collision_tool_48px.svg</normaloff>:/icons/ic_collision_tool_48px.svg</iconset>
-         </property>
-         <property name="checkable">
-          <bool>false</bool>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="11">
-        <widget class="QCheckBox" name="rWallCheck">
-         <property name="text">
-          <string>RWall</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="3" colspan="3">
-        <widget class="QPushButton" name="generateCol">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>320</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate Tile Collision&lt;/p&gt;&lt;p&gt;Sets the Collision and Solidity of all Tiles in the viewer, based on it's graphic data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>Generate Tile Collision</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1" colspan="2">
-        <widget class="QComboBox" name="tileColSrc">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>114</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>114</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tile Source&lt;/p&gt;&lt;p&gt;Determines if the viewer will display Tiles coming from the Chunk List or the Tile List.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="currentIndex">
-          <number>0</number>
-         </property>
-         <property name="frame">
-          <bool>true</bool>
-         </property>
-         <item>
-          <property name="text">
-           <string>Selected Chunk</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Selected Tiles</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="1" column="3" colspan="3">
-        <widget class="QCheckBox" name="keepMirrorCol">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>128</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display Tile Mirroring&lt;/p&gt;&lt;p&gt;Determines if the viewer should show Tiles with it's Chunk properties.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="text">
-          <string>Display Tile Mirroring</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="3" colspan="3">
-        <widget class="QCheckBox" name="ignoreTileCol">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>120</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ignore Tile 0&lt;/p&gt;&lt;p&gt;When checked, any attempt of drawing or changing collision to the first Tile in the Tile List will be ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>Ignore Tile 0</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="5">
+       <item row="0" column="8">
         <widget class="QPushButton" name="clearPoints">
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Clear Points&lt;br/&gt;Clears Angle points of the &amp;quot;Angle&amp;quot; tool.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1669,206 +1796,99 @@ Color</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="colPlaneLabel">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>22</height>
-          </size>
+       <item row="1" column="5" rowspan="3" colspan="7">
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <property name="spacing">
+          <number>5</number>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>78</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Col Plane</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="9" rowspan="4">
-        <widget class="Line" name="line_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="ColTileSrc">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>67</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>67</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Tile Source</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="10">
-        <widget class="QCheckBox" name="roofCheck">
-         <property name="text">
-          <string>Roof</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="rowLabel_2">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>67</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>67</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Row Size</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="11">
-        <widget class="QCheckBox" name="lWallCheck">
-         <property name="text">
-          <string>LWall</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="10">
-        <widget class="QCheckBox" name="floorCheck">
-         <property name="text">
-          <string>Floor</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="10" colspan="2">
-        <widget class="QLabel" name="calcAngleLabel">
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Calculate Angle:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="6">
-        <widget class="QLabel" name="selectedTilesLabel">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>110</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>110</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Angle List</string>
-         </property>
-        </widget>
+         <item>
+          <widget class="QCheckBox" name="keepMirrorCol">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>128</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display Tile Mirroring&lt;/p&gt;&lt;p&gt;Determines if the viewer should show Tiles with it's Chunk properties.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+           <property name="text">
+            <string>Display Tile Mirroring</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="ignoreTileCol">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>120</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ignore Tile 0&lt;/p&gt;&lt;p&gt;When checked, any attempt of drawing or changing collision to the first Tile in the Tile List will be ignored.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>Ignore Tile 0</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="generateCol">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>320</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate Tile Collision&lt;/p&gt;&lt;p&gt;Sets the Collision and Solidity of all Tiles in the viewer, based on it's graphic data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>Generate Tile Collision</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
-    </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="QListWidget" name="tileList">
-     <property name="minimumSize">
-      <size>
-       <width>188</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>188</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="editTriggers">
-      <set>QAbstractItemView::CurrentChanged|QAbstractItemView::SelectedClicked</set>
-     </property>
-     <property name="defaultDropAction">
-      <enum>Qt::IgnoreAction</enum>
-     </property>
-     <property name="selectionMode">
-      <enum>QAbstractItemView::ExtendedSelection</enum>
-     </property>
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectItems</enum>
-     </property>
-     <property name="spacing">
-      <number>4</number>
-     </property>
-     <property name="gridSize">
-      <size>
-       <width>28</width>
-       <height>32</height>
-      </size>
-     </property>
-     <property name="viewMode">
-      <enum>QListView::IconMode</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="3">
-    <widget class="QLabel" name="modeControls">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Viewer Controls: Left Click - Draw Tile based on 'TileList Tile Properties', Right Click - Select Tile</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QLabel" name="usedTiles">
-     <property name="maximumSize">
-      <size>
-       <width>128</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>Tiles Used:</string>
-     </property>
     </widget>
    </item>
   </layout>

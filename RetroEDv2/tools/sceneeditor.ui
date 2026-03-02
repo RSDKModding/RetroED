@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>SceneEditor</class>
  <widget class="QWidget" name="SceneEditor">
+  <property name="enabled">
+   <bool>false</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -351,7 +354,7 @@
       <item row="0" column="8">
        <widget class="QToolButton" name="showCollisionA">
         <property name="enabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="minimumSize">
          <size>
@@ -376,7 +379,7 @@
       <item row="0" column="9">
        <widget class="QToolButton" name="showCollisionB">
         <property name="enabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="minimumSize">
          <size>

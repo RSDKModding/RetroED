@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>SceneEditorv5</class>
  <widget class="QWidget" name="SceneEditorv5">
+  <property name="enabled">
+   <bool>false</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -47,7 +50,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="scenePropPage">
       <property name="geometry">
@@ -506,7 +509,7 @@
       <item row="0" column="33">
        <widget class="QToolButton" name="showCollisionB">
         <property name="enabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="minimumSize">
          <size>
@@ -612,7 +615,7 @@
       <item row="0" column="32">
        <widget class="QToolButton" name="showCollisionA">
         <property name="enabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="minimumSize">
          <size>
@@ -865,7 +868,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="layerPage">
       <property name="geometry">
@@ -1092,7 +1095,7 @@
        <item row="0" column="0" colspan="5">
         <widget class="QListWidget" name="stampList">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
        </item>

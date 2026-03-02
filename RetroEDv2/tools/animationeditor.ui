@@ -836,8 +836,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>301</width>
-        <height>263</height>
+        <width>300</width>
+        <height>277</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1031,7 +1031,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>-242</y>
         <width>286</width>
         <height>519</height>
        </rect>

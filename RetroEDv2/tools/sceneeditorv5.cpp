@@ -1881,6 +1881,7 @@ void SceneEditorv5::updateTileSel(){
     Utils::setBit(tile, viewer->tileSolidA.y, 13);
     Utils::setBit(tile, viewer->tileSolidB.x, 14);
     Utils::setBit(tile, viewer->tileSolidB.y, 15);
+    viewer->selectedTile = tile;
 
     ui->propertiesBox->setCurrentWidget(ui->tilePropPage);
     tileProp->setDisabled(tile == 0xFFFF);
@@ -3084,6 +3085,8 @@ void SceneEditorv5::CreateNewScene(QString scnPath, bool prePlus, bool loadGC, Q
     dataPath = dir.path();
     viewer->dataPath = dataPath;
 
+    this->setEnabled(true);
+
     // load the base data folder for game launch / game.dll failsafe
     if (!appConfig.baseDataManager[ENGINE_v5].dataPath.isEmpty())
         WorkingDirManager::workingDir = appConfig.baseDataManager[ENGINE_v5].dataPath + "/";
@@ -3333,7 +3336,8 @@ void SceneEditorv5::CreateNewScene(QString scnPath, bool prePlus, bool loadGC, Q
     ui->layerList->setCurrentRow(0);
     viewer->selectedLayer = 0;
 
-    ui->toolBox->setCurrentIndex(0);
+    for (int i = ui->toolBox->count() - 1; i >= 0; i--)
+        ui->toolBox->setCurrentWidget(ui->toolBox->widget(i));
     ui->propertiesBox->setCurrentIndex(0);
 
     ui->showCollisionA->blockSignals(true);
@@ -3407,6 +3411,8 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
     }
 
     viewer->dataPath = dataPath;
+
+    this->setEnabled(true);
 
     gameLinkPath = dataPath + "/../";
 
@@ -3633,10 +3639,12 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
     ui->tileListFrame->layout()->addWidget(tileSel);
     tileSel->show();
 
+
     ui->layerList->setCurrentRow(0);
     viewer->selectedLayer = 0;
 
-    ui->toolBox->setCurrentIndex(0);
+    for (int i = ui->toolBox->count() - 1; i >= 0; i--)
+        ui->toolBox->setCurrentWidget(ui->toolBox->widget(i));
     ui->propertiesBox->setCurrentIndex(0);
 
     ui->showCollisionA->blockSignals(true);
@@ -4399,14 +4407,6 @@ void SceneEditorv5::SetTile(float x, float y)
     ypos /= 0x10;
 
     ushort tile = viewer->selectedTile;
-    if (!copiedTile) {  // only use this if the tile is not copied from the stage
-        Utils::setBit(tile, viewer->tileFlip.x, 10);
-        Utils::setBit(tile, viewer->tileFlip.y, 11);
-        Utils::setBit(tile, viewer->tileSolidA.x, 12);
-        Utils::setBit(tile, viewer->tileSolidA.y, 13);
-        Utils::setBit(tile, viewer->tileSolidB.x, 14);
-        Utils::setBit(tile, viewer->tileSolidB.y, 15);
-    }
 
     if (viewer->selectedTile == 0xFFFF)
         tile = 0xFFFF;

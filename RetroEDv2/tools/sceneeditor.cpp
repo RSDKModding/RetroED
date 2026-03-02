@@ -2209,6 +2209,7 @@ void SceneEditor::CreateNewScene(QString scnPath, byte scnVer, bool loadGC, QStr
     QDir dir(dataPath);
     dir.cdUp();
     viewer->dataPath = dir.path();
+    this->setEnabled(true);
 
     // load the base data folder for game launch / game.dll failsafe
     if (!appConfig.baseDataManager[scnVer].dataPath.isEmpty())
@@ -2583,7 +2584,8 @@ void SceneEditor::CreateNewScene(QString scnPath, byte scnVer, bool loadGC, QStr
     ui->layerList->setCurrentRow(0);
     viewer->selectedLayer = 0;
 
-    ui->toolBox->setCurrentIndex(0);
+    for (int i = ui->toolBox->count() - 1; i >= 0; i--)
+        ui->toolBox->setCurrentWidget(ui->toolBox->widget(i));
     ui->propertiesBox->setCurrentIndex(0);
 
     ui->showCollisionA->blockSignals(true);
@@ -2644,7 +2646,7 @@ void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
     QDir dir(dataPath);
     dir.cdUp();
     viewer->dataPath = dir.path();
-
+    this->setEnabled(true);
     AddStatusProgress(1. / 7); // finish initial setup
 
     // loading
@@ -3037,7 +3039,8 @@ void SceneEditor::LoadScene(QString scnPath, QString gcfPath, byte gameType)
     ui->layerList->setCurrentRow(0);
     viewer->selectedLayer = 0;
 
-    ui->toolBox->setCurrentIndex(0);
+    for (int i = ui->toolBox->count() - 1; i >= 0; i--)
+        ui->toolBox->setCurrentWidget(ui->toolBox->widget(i));
     ui->propertiesBox->setCurrentIndex(0);
 
     ui->showCollisionA->blockSignals(true);
