@@ -4280,6 +4280,11 @@ void SceneEditor::ResetTools(byte tool)
     objProp->unsetUI();
     viewer->isSelecting = false;
 
+    viewer->selectedEntities.clear();
+    viewer->selectedEntitiesXPos.clear();
+    viewer->selectedEntitiesYPos.clear();
+    viewer->selectedEntity = -1;
+
     ui->entityList->blockSignals(true);
     ui->entityList->setCurrentRow(viewer->selectedEntity);
     ui->entityList->blockSignals(false);
