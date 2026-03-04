@@ -300,6 +300,9 @@
          <iconset resource="../resources.qrc">
           <normaloff>:/icons/ic_image_48px.svg</normaloff>:/icons/ic_image_48px.svg</iconset>
         </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="11">
@@ -353,9 +356,6 @@
       </item>
       <item row="0" column="8">
        <widget class="QToolButton" name="showCollisionA">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
         <property name="minimumSize">
          <size>
           <width>24</width>
@@ -378,9 +378,6 @@
       </item>
       <item row="0" column="9">
        <widget class="QToolButton" name="showCollisionB">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
         <property name="minimumSize">
          <size>
           <width>24</width>
@@ -441,6 +438,9 @@
         <property name="icon">
          <iconset resource="../resources.qrc">
           <normaloff>:/icons/ic_export_48px.svg</normaloff>:/icons/ic_export_48px.svg</iconset>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
