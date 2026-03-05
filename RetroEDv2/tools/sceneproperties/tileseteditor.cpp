@@ -1423,8 +1423,10 @@ void TilesetViewer::mouseMoveEvent(QMouseEvent *event)
                             break;
                         }
                     }
-                } else if (mouseDownR)
-                    emit setColor(tileImg->pixelIndex(tilePxX, tilePxY));
+                } else if (mouseDownR){
+                    selColor = tileImg->pixelIndex(tilePxX, tilePxY);
+                    emit setColor(selColor);
+                }
             }
             break;
         }

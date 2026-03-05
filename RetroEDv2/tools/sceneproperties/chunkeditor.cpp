@@ -1903,9 +1903,17 @@ void ChunkViewer::mousePressEvent(QMouseEvent *event)
                 if (tilePxX < 0 || tilePxY < 0)
                     break;
 
-                if (tileDrawMode == FORMAT_CHUNK)
-                    index = chunks->chunks[*cSel].tiles[selection.y][selection.x].tileIndex;
-                else{
+                if (tileDrawMode == FORMAT_CHUNK){
+                    auto &tile = chunks->chunks[*cSel].tiles[selection.y][selection.x];
+                    index = tile.tileIndex;
+                    bool fx = keepProps ? ((tile.direction & 1) == 1) : false;
+                    bool fy = keepProps ? ((tile.direction & 2) == 2) : false;
+
+                    if (fx)
+                        tilePxX = 15 - tilePxX;
+                    if (fy)
+                        tilePxY = 15 - tilePxY;
+                } else {
                     int pos = selection.y * rowSize + selection.x;
                     if (pos >= viewerTiles.count())
                         break;
@@ -2094,8 +2102,10 @@ void ChunkViewer::mouseMoveEvent(QMouseEvent *event)
                             break;
                         }
                     }
-                } else if (mouseDownR)
-                    emit setColor(tileImg->pixelIndex(tilePxX, tilePxY));
+                } else if (mouseDownR){
+                    selColor = tileImg->pixelIndex(tilePxX, tilePxY);
+                    emit setColor(selColor);
+                }
             }
             break;
         }
