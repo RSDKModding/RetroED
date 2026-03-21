@@ -3134,7 +3134,7 @@ bool SceneEditor::SaveScene(bool forceSaveAs)
                         viewer->disableObjects   = false;
                         return false;
                     }
-                } else if (prevSaveVer == ENGINE_v1){
+                } else{
                     QList<QString> gcTypes = {
                         "RSDKv4 GameConfig (GameConfig*.bin)",
                         "RSDKv3 GameConfig (GameConfig*.bin)",
@@ -3411,7 +3411,7 @@ bool SceneEditor::SaveScene(bool forceSaveAs)
                 }
 
             }
-            else if (prevSaveVer == ENGINE_v1) {
+            else{
                 QList<QString> gcObjNames;
                 for (FormatHelpers::GameConfig::ObjectInfo &obj : gameConfig.objects) {
                     gcObjNames.append(obj.name);
