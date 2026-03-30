@@ -614,8 +614,8 @@ Data/Music/SpringYard.ogg
 Data/Music/SpringYard_F.ogg
 Data/Music/StardustSpeedway1.ogg
 Data/Music/StardustSpeedway2.ogg
-Data/Music/StarLight.ogg
-Data/Music/StarLight_F.ogg
+Data/Music/Starlight.ogg
+Data/Music/Starlight_F.ogg
 Data/Music/Studiopolis1.ogg
 Data/Music/Studiopolis2.ogg
 Data/Music/Super.ogg
