@@ -1228,7 +1228,15 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ui->objectList->blockSignals(false);
 
         // Maybe lazy and there's an actual way of finding out the vars, buuuuuuuuuut...
+        UnloadGameLinks();
+
+        gameLinkPath = dataPath + "/../";
         LoadGameLinks();
+
+        // As a fail-safe, try loading a game.dll from the game manager path
+        gameLinkPath = WorkingDirManager::workingDir + "/../";
+        LoadGameLinks();
+
         InitGameLink();
 
         CreateEntityList();
@@ -1511,7 +1519,14 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
         ConfirmGameLink *confirmDlg = new ConfirmGameLink;
         confirmDlg->exec();
 
+        gameLinkPath = dataPath + "/../";
         LoadGameLinks();
+
+        // Load dlls to act as a fallback
+        if (!appConfig.baseDataManager[ENGINE_v5].dataPath.isEmpty()) {
+            gameLinkPath = WorkingDirManager::workingDir + "/../";
+            LoadGameLinks();
+        }
         InitGameLink();
 
         viewer->startTimer();
@@ -2014,7 +2029,13 @@ bool SceneEditorv5::event(QEvent *event)
             if (!appConfig.baseDataManager[ENGINE_v5].dataPath.isEmpty())
                 WorkingDirManager::workingDir = appConfig.baseDataManager[ENGINE_v5].dataPath + "/";
 
+            gameLinkPath = dataPath + "/../";
             LoadGameLinks();
+
+            // As a fail-safe, try loading a game.dll from the game manager path
+            gameLinkPath = WorkingDirManager::workingDir + "/../";
+            LoadGameLinks();
+
             InitGameLink();
             viewer->startTimer();
             viewer->show(); //hack
@@ -3091,13 +3112,16 @@ void SceneEditorv5::CreateNewScene(QString scnPath, bool prePlus, bool loadGC, Q
     if (!appConfig.baseDataManager[ENGINE_v5].dataPath.isEmpty())
         WorkingDirManager::workingDir = appConfig.baseDataManager[ENGINE_v5].dataPath + "/";
 
+    UnloadGameLinks();
+
     gameLinkPath = dataPath + "/../";
     LoadGameLinks();
 
+    // As a fail-safe, try loading a game.dll from the game manager path
+    gameLinkPath = WorkingDirManager::workingDir + "/../";
+    LoadGameLinks();
+
     if (gameLinks.count() == 0) {
-        // As a fail-safe, try loading a game.dll from the game manager path
-        gameLinkPath = WorkingDirManager::workingDir + "/../";
-        LoadGameLinks();
         // Can't load objects properly on a new scene without Game.dll, so we REALLY need one bud.
         if (gameLinks.count() == 0){
             QMessageBox dllMessage(QMessageBox::Information, "RetroED",
@@ -3125,7 +3149,6 @@ void SceneEditorv5::CreateNewScene(QString scnPath, bool prePlus, bool loadGC, Q
                 SetStatus("Scene Creation Cancelled, no Game library found");
                 return;
             }
-            UnloadGameLinks();
             GameLink link;
             gameLinks.append(link);
             gameLinks.last().LinkGameObjects(gameLinkPath);
@@ -3414,16 +3437,17 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
 
     this->setEnabled(true);
 
-    gameLinkPath = dataPath + "/../";
+    UnloadGameLinks();
 
-    // load the base data folder for game launch / game.dll failsafe
+    // load the base data folder for game launch
     if (!appConfig.baseDataManager[ENGINE_v5].dataPath.isEmpty())
         WorkingDirManager::workingDir = appConfig.baseDataManager[ENGINE_v5].dataPath + "/";
 
+    gameLinkPath = dataPath + "/../";
     LoadGameLinks();
 
-    // As a fail-safe, try loading a game.dll from the game manager path
-    if (gameLinks.count() == 0 && !appConfig.baseDataManager[ENGINE_v5].dataPath.isEmpty()) {
+    // Load dlls to act as a fallback
+    if (!appConfig.baseDataManager[ENGINE_v5].dataPath.isEmpty()) {
         gameLinkPath = WorkingDirManager::workingDir + "/../";
         LoadGameLinks();
     }
@@ -3668,9 +3692,11 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
 
     AddStatusProgress(1. / 6); // finish setting up UI stuff
 
-    if (gameLinks.count() && !viewer->linkError)
+    if (gameLinks.count()){
+        viewer->linkError = 0;
         InitGameLink();
-    else {
+    } else {
+        viewer->linkError = 1;
         switch (viewer->engineRevision) {
             case 1: break;
 
@@ -3691,24 +3717,25 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
                 }
                 break;
         }
+    }
 
-        QString backupVars = homeDir + "RSDKv5VarNames.txt";
-        if (QFile(backupVars).exists()) {
-            for (int i = 0; i < viewer->objects.count(); ++i) {
-                for (int v = viewer->objects[i].variables.count() - 1; v > 0; --v) {
-                    QString hash = viewer->objects[i].variables[v].hash;
-                    QFile file(backupVars);
-                    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                        QTextStream txtreader(&file);
-                        while (!txtreader.atEnd()) {
-                            QString varBackup = txtreader.readLine();
-                            if (hash == Utils::getMd5HashByteArray(varBackup)){
-                                viewer->objects[i].variables[v].name = varBackup;
-                                break;
-                            }
+    // As a last resort, try finding the variable names from the text file
+    QString backupVars = homeDir + "RSDKv5VarNames.txt";
+    if (QFile(backupVars).exists()) {
+        for (int i = 0; i < viewer->objects.count(); ++i) {
+            for (int v = viewer->objects[i].variables.count() - 1; v > 0; --v) {
+                QString hash = viewer->objects[i].variables[v].hash;
+                QFile file(backupVars);
+                if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                    QTextStream txtreader(&file);
+                    while (!txtreader.atEnd()) {
+                        QString varBackup = txtreader.readLine();
+                        if (hash == Utils::getMd5HashByteArray(varBackup)){
+                            viewer->objects[i].variables[v].name = varBackup;
+                            break;
                         }
-                        file.close();
                     }
+                    file.close();
                 }
             }
         }
@@ -4195,8 +4222,6 @@ void SceneEditorv5::UnloadGameLinks()
 
 void SceneEditorv5::LoadGameLinks()
 {
-    UnloadGameLinks();
-
     if (gameLinkPath.isEmpty())
         return;
     QDirIterator it(gameLinkPath, QStringList() << "*", QDir::Files,
@@ -4208,12 +4233,9 @@ void SceneEditorv5::LoadGameLinks()
             GameLink link;
             gameLinks.append(link);
             gameLinks.last().LinkGameObjects(filePath);
-
-            // remove this the day someone adds support for multiple game links
-            if (!gameLinks.last().error){
-                viewer->engineRevision = gameLinks.last().revision;
-                viewer->linkError      = gameLinks.last().error;
-                break;
+            if (gameLinks.last().revision == -1){
+                gameLinks.last().unload();
+                gameLinks.removeLast();
             }
         }
     }
@@ -4222,6 +4244,14 @@ void SceneEditorv5::LoadGameLinks()
 void SceneEditorv5::InitGameLink()
 {
     viewer->gameEntityList = NULL;
+
+    int revision = 0;
+    // set revision to the latest found among all loaded gamelinks
+    for (GameLink &link : gameLinks){
+        if (link.revision > revision)
+            revision = link.revision;
+    }
+    viewer->engineRevision = revision;
 
     switch (viewer->engineRevision) {
         case 1: viewer->gameEntityList = viewer->gameEntityListv1; break;
