@@ -1,6 +1,6 @@
 #version 330 core
-in vec3 in_pos;
-in vec3 in_norm;
+layout(location = 0) in vec3 in_pos;
+layout(location = 1) in vec3 in_norm;
 in vec4 in_color;
 in vec2 in_UV;
 
