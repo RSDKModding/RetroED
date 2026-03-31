@@ -93,6 +93,16 @@ int main(int argc, char *argv[])
         qputenv("QT_QPA_PLATFORM", "xcb");
     #endif
 
+    QSurfaceFormat format = QSurfaceFormat::defaultFormat();
+    format.setDepthBufferSize(24);
+    format.setStencilBufferSize(8);
+    format.setMajorVersion(3);
+    format.setMinorVersion(3);
+    format.setSwapInterval(appConfig.vSync);
+    format.setProfile(QSurfaceFormat::CoreProfile);
+
+    QSurfaceFormat::setDefaultFormat(format);
+
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
@@ -131,16 +141,6 @@ int main(int argc, char *argv[])
         appConfig.write(appDir + "appConfig.bin");
     else
         appConfig.read(appDir + "appConfig.bin");
-
-    QSurfaceFormat format;
-    format.setDepthBufferSize(24);
-    format.setStencilBufferSize(8);
-    format.setMajorVersion(3);
-    format.setMinorVersion(2);
-    format.setSwapInterval(appConfig.vSync);
-    format.setProfile(QSurfaceFormat::CoreProfile);
-
-    QSurfaceFormat::setDefaultFormat(format);
 
     QCoreApplication::processEvents();
     splash.showMessage("Configuring style...");
