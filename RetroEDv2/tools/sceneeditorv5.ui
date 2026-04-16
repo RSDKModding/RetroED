@@ -1092,7 +1092,7 @@
        <item row="0" column="0" colspan="5">
         <widget class="QListWidget" name="stampList">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
         </widget>
        </item>

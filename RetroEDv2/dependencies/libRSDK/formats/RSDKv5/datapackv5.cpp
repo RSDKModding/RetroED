@@ -70,7 +70,6 @@ void RSDKv5::Datapack::FileInfo::writeHeader(Writer &writer)
 
     writer.write(hash, 0x10);
     writer.write(fileOffset);
-    encrypted = false; // temp
     writer.write(fileSize | (encrypted ? 0x80000000 : 0));
 }
 
@@ -221,7 +220,8 @@ void RSDKv5::Datapack::write(Writer &writer, byte ver)
 
     writer.seek(0); // jump back to the start of the file
 
-    for (int h = 0; h < 6; ++h) writer.write(signature[h]);
+    for (int h = 0; h < 5; ++h) writer.write(signature[h]);
+    writer.write<byte>(version);
     writer.write((ushort)files.count());
 
     for (FileInfo &f : files) {

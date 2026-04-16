@@ -343,6 +343,7 @@ void ModelViewer::paintGL()
     }
 
     if (texFile != curTex) {
+        curTex = texFile;
         delete tex;
         QImage src(texFile);
         tex = new QOpenGLTexture(QOpenGLTexture::Target2D);

@@ -129,9 +129,6 @@ void RSDKv4::Datapack::FileInfo::writeHeader(Writer &writer)
         hash[y + 0] = md5[y + 3];
     }
 
-    // again, temp
-    encrypted = false;
-
     for (int i = 0; i < 0x10; ++i) writer.write((byte)hash[i]);
     writer.write<uint>(fileOffset);
     writer.write<uint>(fileSize | (encrypted ? 0x80000000 : 0));
