@@ -3719,23 +3719,25 @@ void SceneEditorv5::LoadScene(QString scnPath, QString gcfPath, byte sceneVer)
         }
     }
 
-    // As a last resort, try finding the variable names from the text file
-    QString backupVars = homeDir + "RSDKv5VarNames.txt";
-    if (QFile(backupVars).exists()) {
-        for (int i = 0; i < viewer->objects.count(); ++i) {
-            for (int v = viewer->objects[i].variables.count() - 1; v > 0; --v) {
-                QString hash = viewer->objects[i].variables[v].hash;
-                QFile file(backupVars);
-                if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                    QTextStream txtreader(&file);
-                    while (!txtreader.atEnd()) {
-                        QString varBackup = txtreader.readLine();
-                        if (hash == Utils::getMd5HashByteArray(varBackup)){
-                            viewer->objects[i].variables[v].name = varBackup;
-                            break;
+    if (viewer->linkError == 1) {
+        // As a last resort, try finding the variable names from the text file, but only if there was a link error.
+        QString backupVars = homeDir + "RSDKv5VarNames.txt";
+        if (QFile(backupVars).exists()) {
+            for (int i = 0; i < viewer->objects.count(); ++i) {
+                for (int v = viewer->objects[i].variables.count() - 1; v > 0; --v) {
+                    QString hash = viewer->objects[i].variables[v].hash;
+                    QFile file(backupVars);
+                    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                        QTextStream txtreader(&file);
+                        while (!txtreader.atEnd()) {
+                            QString varBackup = txtreader.readLine();
+                            if (hash == Utils::getMd5HashByteArray(varBackup)){
+                                viewer->objects[i].variables[v].name = varBackup;
+                                break;
+                            }
                         }
+                        file.close();
                     }
-                    file.close();
                 }
             }
         }
