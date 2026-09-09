@@ -653,8 +653,11 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     connect(ui->animationList, &QListWidget::currentRowChanged, animFunc);
 
     connect(ui->addFrame, &QToolButton::clicked, [this] {
-        if (FrameCount() >= 255)
+        ushort frameCountMax = (aniType == ENGINE_v5) ? 65535 : 255;
+
+        if (FrameCount() >= frameCountMax)
             return;
+
         QList<FormatHelpers::Animation::Frame> &f = animFile.animations[currentAnim].frames;
         uint c                                    = ui->frameList->currentIndex().row() + 1;
         FormatHelpers::Animation::Frame frame     = FormatHelpers::Animation::Frame();
@@ -1662,7 +1665,10 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         ui->animationList->currentRowChanged(c);
         ui->animationList->blockSignals(false);
 
-        ui->addAnim->setDisabled(animFile.animations.count() >= 0x100);
+        ushort maxList = (aniType != ENGINE_v5) ? 255 : 65535;
+
+        if (animFile.animations.count() >= maxList)
+            ui->addAnim->setDisabled(true);
 
         UpdateView();
         DoAction("Added animation", true);
@@ -1677,6 +1683,11 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         animFile.animations.removeAt(c);
         SetupUI();
+
+        uint maxList = (aniType != ENGINE_v5) ? 255 : 65535;
+        
+        if (animFile.animations.count() >= maxList)
+            ui->addAnim->setDisabled(false);
 
         UpdateView();
         DoAction("Removed animation", true);
@@ -2029,7 +2040,10 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
     connect(ui->copyAnim, &QToolButton::clicked, [this] {
         int c = (aniType == ENGINE_v1 || aniType == ENGINE_v2) ? ui->animationList->count() : ui->animationList->currentRow() + 1;
-        if (currentAnim < animFile.animations.count()) {
+
+        ushort animCountMax = (aniType == ENGINE_v5) ? 65534 : 254;
+
+        if (currentAnim < animCountMax) {
             ui->animationList->blockSignals(true);
 
             FormatHelpers::Animation::AnimationEntry anim = animFile.animations[currentAnim];
@@ -2049,9 +2063,11 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
     });
 
     connect(ui->copyFrame, &QToolButton::clicked, [this] {
-        if (FrameCount() >= 255){
+        ushort frameCountMax = (aniType == ENGINE_v5) ? 65535 : 255;
+
+        if (FrameCount() >= frameCountMax)
             return;
-        }
+
         ui->frameList->blockSignals(true);
         int c = ui->frameList->currentIndex().row() + 1;
         if (currentAnim < animFile.animations.count()) {
