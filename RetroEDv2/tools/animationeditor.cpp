@@ -1684,7 +1684,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
         animFile.animations.removeAt(c);
         SetupUI();
 
-        uint maxList = (aniType != ENGINE_v5) ? 255 : 65535;
+        ushort maxList = (aniType != ENGINE_v5) ? 255 : 65535;
         
         if (animFile.animations.count() < maxList)
             ui->addAnim->setDisabled(false);
@@ -2057,6 +2057,9 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
             currentAnim = c;
             ui->animationList->setCurrentRow(c);
+
+            if (currentAnim >= animCountMax)
+                ui->addAnim->setDisabled(true);
 
             DoAction("Copied animation", true);
         }
