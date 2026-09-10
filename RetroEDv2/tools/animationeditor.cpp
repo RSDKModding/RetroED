@@ -1686,7 +1686,7 @@ AnimationEditor::AnimationEditor(QString filepath, byte type, QWidget *parent)
 
         uint maxList = (aniType != ENGINE_v5) ? 255 : 65535;
         
-        if (animFile.animations.count() >= maxList)
+        if (animFile.animations.count() < maxList)
             ui->addAnim->setDisabled(false);
 
         UpdateView();
