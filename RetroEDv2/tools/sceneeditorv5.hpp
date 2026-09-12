@@ -160,7 +160,6 @@ signals:
 
 public slots:
     void updateType(SceneEntity *entity, byte type, bool keepVals = false);
-    void updateStampName(QString name);
     void updateLayer(QString name);
     void updateTileSel();
 

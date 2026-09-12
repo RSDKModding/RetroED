@@ -1451,18 +1451,21 @@ void SceneViewer::drawScene()
         }
         else {
             int count = 0;
-            int t = 0;
             for(int y = 0; y < stamp.size.y; y++){
                 for(int x = 0; x < stamp.size.x; x++){
-                    ushort tile = stamp.tiles[t++];
+                    int tilePosX = stampFlip.x ? stamp.size.x - x - 1: x;
+                    int tilePosY = stampFlip.y ? stamp.size.y - y - 1 : y;
+
+                    ushort tile = stamp.tiles[tilePosX + stamp.size.x * tilePosY];
                     if (tile != 0xFFFF) {
                         ++count;
 
                         float tileX = xpos + (x * tileSize);
                         float tileY = ypos + (y * tileSize);
-
                         int flipX = Utils::getBit(tile, 10);
                         int flipY = Utils::getBit(tile, 11);
+                        if (stampFlip.x) flipX = !flipX;
+                        if (stampFlip.y) flipY = !flipY;
                         byte f       = flipX | (flipY << 1);
                         ushort point = ((tile & 0x3FF) << 2) | (f << 12);
                         addPoly(tileX, tileY, tileUVArray[point], tileUVArray[point + 1], 0, gfxSurface);
@@ -1484,7 +1487,6 @@ void SceneViewer::drawScene()
                         }
                     }
                 }
-
             }
 
             PlaceArgs args;

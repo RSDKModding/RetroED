@@ -198,13 +198,6 @@
           <string>Stamps</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
-          <item row="2" column="1">
-           <widget class="QPushButton" name="saveStamps">
-            <property name="text">
-             <string>Save Stamps</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_2">
             <property name="text">
@@ -216,7 +209,7 @@
            <widget class="QPushButton" name="loadStamps">
             <property name="maximumSize">
              <size>
-              <width>16777215</width>
+              <width>75</width>
               <height>16777215</height>
              </size>
             </property>
@@ -225,7 +218,33 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0" colspan="2">
+          <item row="2" column="1">
+           <widget class="QPushButton" name="saveStamps">
+            <property name="maximumSize">
+             <size>
+              <width>75</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Save Stamps</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QPushButton" name="saveAsStamps">
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Save As</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="3">
            <widget class="QLineEdit" name="stampName"/>
           </item>
          </layout>

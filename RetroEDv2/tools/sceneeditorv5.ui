@@ -58,7 +58,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>223</height>
+        <height>253</height>
        </rect>
       </property>
       <attribute name="label">
@@ -84,7 +84,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>223</height>
+        <height>253</height>
        </rect>
       </property>
       <attribute name="label">
@@ -110,7 +110,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>223</height>
+        <height>253</height>
        </rect>
       </property>
       <attribute name="label">
@@ -130,39 +130,13 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="stampPropPage">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>310</width>
-        <height>223</height>
-       </rect>
-      </property>
-      <attribute name="label">
-       <string>Stamp Properties</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_20">
-       <item row="0" column="0">
-        <widget class="QFrame" name="stampPropFrame">
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_19"/>
-        </widget>
-       </item>
-      </layout>
-     </widget>
      <widget class="QWidget" name="objPropPage">
       <property name="geometry">
        <rect>
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>223</height>
+        <height>253</height>
        </rect>
       </property>
       <attribute name="label">
@@ -188,7 +162,7 @@
         <x>0</x>
         <y>0</y>
         <width>310</width>
-        <height>223</height>
+        <height>253</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1089,27 +1063,42 @@
        <string>Stamp List</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_18">
-       <item row="0" column="0" colspan="5">
-        <widget class="QListWidget" name="stampList">
-         <property name="enabled">
-          <bool>true</bool>
+       <item row="3" column="0" colspan="5">
+        <widget class="QLineEdit" name="stpName"/>
+       </item>
+       <item row="5" column="0">
+        <widget class="QCheckBox" name="stpFlipX">
+         <property name="text">
+          <string>Flip X</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
-        <spacer name="horizontalSpacer_9">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>112</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
+       <item row="0" column="0" colspan="5">
+        <widget class="QListWidget" name="stampList">
+        </widget>
        </item>
-       <item row="3" column="2">
+       <item row="4" column="0" colspan="3">
+        <widget class="QLabel" name="stpPlaceLine">
+         <property name="text">
+          <string>Placement Options</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="stpNameLine">
+         <property name="text">
+          <string>Name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="2">
+        <widget class="QCheckBox" name="stpFlipY">
+         <property name="text">
+          <string>Flip Y</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="4">
         <widget class="QToolButton" name="rmStp">
          <property name="enabled">
           <bool>false</bool>
@@ -1125,22 +1114,6 @@
            <normaloff>:/icons/ic_cancel_48px.svg</normaloff>:/icons/ic_cancel_48px.svg</iconset>
          </property>
         </widget>
-       </item>
-       <item row="3" column="3" colspan="2">
-        <spacer name="horizontalSpacer_10">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Minimum</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>

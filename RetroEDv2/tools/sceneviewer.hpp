@@ -173,6 +173,7 @@ public:
     Vector2<bool> tileFlip   = Vector2<bool>(false, false);
     Vector2<bool> tileSolidA = Vector2<bool>(false, false);
     Vector2<bool> tileSolidB = Vector2<bool>(false, false);
+    Vector2<bool> stampFlip  = Vector2<bool>(false, false);
     ushort selectedTile      = 0xFFFF;
     ushort selectedChunk     = 0xFFFF;
     ushort selectedStamp     = 0xFFFF;

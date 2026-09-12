@@ -24,8 +24,9 @@ public:
     QCheckBox *loadGlobalCB  = nullptr;
     QLineEdit *stampNameEdit = nullptr;
 
-    QPushButton *loadStamps = nullptr;
-    QPushButton *saveStamps = nullptr;
+    QPushButton *loadStamps   = nullptr;
+    QPushButton *saveStamps   = nullptr;
+    QPushButton *saveAsStamps = nullptr;
 
     QPushButton *editSCF  = nullptr;
     QPushButton *editPAL  = nullptr;
