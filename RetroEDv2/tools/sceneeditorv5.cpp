@@ -1570,7 +1570,7 @@ SceneEditorv5::SceneEditorv5(QWidget *parent) : QWidget(parent), ui(new Ui::Scen
                     for (int x = 0; x < layer.width; ++x) {
                         ushort tile = layer.layout[y][x];
 
-                        if ((tile & 0x3FF) == dstTile) {
+                        if ((tile & 0x3FF) == dstTile && tile != 0xFFFF) {
                             bool flipX     = replaceFlipX ? hasFlipX : Utils::getBit(tile, 10);
                             bool flipY     = replaceFlipY ? hasFlipY : Utils::getBit(tile, 11);
                             bool solidATop = replaceSolidATop ? hasSolidATop : Utils::getBit(tile, 12);
