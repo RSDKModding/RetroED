@@ -4071,37 +4071,40 @@ void SceneEditorv5::SetupObjects()
         }
     }
 
-    // obj type 0 should always be blank obj
-    if (viewer->objects[0].name != "Blank Object"){
-        bool blankFlag = false;
-        int blkObjPos = 0;
-        // check if the object exists later on the list
-        for (SceneObject &obj : viewer->objects) {
-            if (obj.name == "Blank Object") {
-                blankFlag = true;
-                break;
+    SceneObject blankObj;
+    blankObj.name = "Blank Object";
+    // How.
+    if (viewer->objects.isEmpty())
+        viewer->objects.insert(0, blankObj);
+    else {
+        // obj type 0 should always be blank obj
+        if (viewer->objects[0].name != "Blank Object"){
+            bool blankFlag = false;
+            int blkObjPos = 0;
+            // check if the object exists later on the list
+            for (SceneObject &obj : viewer->objects) {
+                if (obj.name == "Blank Object") {
+                    blankFlag = true;
+                    break;
+                }
+                blkObjPos++;
             }
-            blkObjPos++;
-        }
 
-        if (blankFlag && blkObjPos != 0){
-            // exist in the wrong position, let's deal with that
-            viewer->objects.removeAt(blkObjPos);
-            SceneObject blankObj;
-            blankObj.name = "Blank Object";
-            viewer->objects.insert(0, blankObj);
-            for (SceneEntity &ent : viewer->entities) {
-                if (ent.type == blkObjPos)
-                    ent.type = 0;
-                else if (ent.type < blkObjPos)
-                    ent.type++;
+            if (blankFlag && blkObjPos != 0){
+                // exist in the wrong position, let's deal with that
+                viewer->objects.removeAt(blkObjPos);
+                viewer->objects.insert(0, blankObj);
+                for (SceneEntity &ent : viewer->entities) {
+                    if (ent.type == blkObjPos)
+                        ent.type = 0;
+                    else if (ent.type < blkObjPos)
+                        ent.type++;
+                }
+            } else if (!blankFlag){
+                // doesn't exist at all, add it
+                viewer->objects.insert(0, blankObj);
+                for (SceneEntity &ent : viewer->entities) { ent.type++; }
             }
-        } else if (!blankFlag){
-            // doesn't exist at all, add it
-            SceneObject blankObj;
-            blankObj.name = "Blank Object";
-            viewer->objects.insert(0, blankObj);
-            for (SceneEntity &ent : viewer->entities) { ent.type++; }
         }
     }
 
